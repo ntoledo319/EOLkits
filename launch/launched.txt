@@ -1,6 +1,9 @@
 status: not yet submitted
 submission_url: https://github.com/ntoledo319/Rupture
-draft: launch/show-hn-draft.md
+draft: launch/show-hn-final.md
+amplification: launch/social.md
+outreach: launch/outreach.md
+reply_playbook: launch/hn-replies.md
 
 When the operator submits Show HN, append a line below in the format:
   YYYY-MM-DDTHH:MM:SSZ submitted by <user> link=<hn-url>
