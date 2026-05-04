@@ -276,12 +276,35 @@ def commit_and_push(
 # -------- Kit invocation ---------------------------------------------------- #
 
 
+def _repo_relative(path: str, workdir: str) -> str:
+    """Strip the ephemeral clone-tempdir prefix so PR bodies show repo-relative paths."""
+    try:
+        # os.path.relpath collapses the temp prefix; if `path` is already
+        # repo-relative (no leading absolute prefix), relpath is a no-op.
+        rel = os.path.relpath(path, workdir) if os.path.isabs(path) else path
+        # Defensive: if the kit emitted a path that isn't actually inside workdir,
+        # fall back to the basename so we never leak temp directories into bodies.
+        if rel.startswith(".."):
+            return os.path.basename(path)
+        return rel
+    except Exception:
+        return os.path.basename(path)
+
+
 def _kit_command(kit: str, action: str, workdir: str) -> List[str]:
+    """Return the CLI invocation for a kit's static-mode analysis or apply step.
+
+    The bot runs in a CI worker that has no access to the user's AWS account, so
+    we never call kit `scan` subcommands (those hit live AWS APIs). Instead we
+    use the static repo-scanning subcommands: `iac` for SAM/CFN/CDK/Terraform
+    template patching, and `codemod` for source rewrites. Both support a
+    `--dry-run` posture by default and an `--apply` flag for in-place edits.
+    """
     if kit == "lambda-lifeline":
-        # CLI is installed in the runner image; it understands `scan --json` and `codemod --apply`.
         if action == "scan":
-            return ["lambda-lifeline", "scan", "--path", workdir, "--json"]
-        return ["lambda-lifeline", "codemod", "--path", workdir, "--apply"]
+            # Static scan via dry-run IaC patcher; emits a hit count we can gate on.
+            return ["lambda-lifeline", "iac", "--path", workdir]
+        return ["lambda-lifeline", "iac", "--path", workdir, "--apply"]
     if kit == "al2023-gate":
         if action == "scan":
             return ["al2023-gate", "scan", "--path", workdir, "--json"]
@@ -302,6 +325,40 @@ def run_kit_analysis(kit: str, workdir: str) -> List[Dict]:
         raise RuntimeError(
             f"Kit scan failed ({kit}, exit {proc.returncode}): {proc.stderr.strip()[:500]}"
         )
+
+    # lambda-lifeline iac emits human-readable lines like:
+    #   "ℹ [SAM/CFN] template.yaml · 2 runtime ref(s): nodejs20.x, nodejs20.x"
+    # Parse those into the same {type, file, line} shape downstream code expects.
+    if kit == "lambda-lifeline":
+        findings: List[Dict] = []
+        for raw in (proc.stdout or "").splitlines():
+            line = raw.strip()
+            # Match lines describing concrete file hits.
+            if "[SAM/CFN]" in line or "[CDK]" in line or "[Terraform]" in line:
+                # Form: "ℹ [TYPE] path/to/file · N runtime ref(s): ..."
+                try:
+                    body = line.split("]", 1)[1].strip()
+                    file_part, _, _ = body.partition(" · ")
+                    findings.append({
+                        "type": "iac-runtime-ref",
+                        "file": _repo_relative(file_part.strip(), workdir),
+                        "line": "N/A",
+                    })
+                except Exception:
+                    continue
+            elif "[rewrite]" in line and "·" in line:
+                # Codemod-style hit (won't appear from iac, but covered for completeness).
+                try:
+                    parts = line.split("·")
+                    findings.append({
+                        "type": "codemod-rewrite",
+                        "file": _repo_relative(parts[0].split("[rewrite]")[1].strip(), workdir),
+                        "line": "N/A",
+                    })
+                except Exception:
+                    continue
+        return findings
+
     try:
         parsed = json.loads(proc.stdout or "[]")
     except json.JSONDecodeError:
@@ -320,6 +377,26 @@ def apply_codemods(kit: str, workdir: str, findings: List[Dict]) -> None:
         raise RuntimeError(
             f"Kit apply failed ({kit}, exit {proc.returncode}): {proc.stderr.strip()[:500]}"
         )
+
+    # For lambda-lifeline, the IaC patcher only fixes templates. Run the source
+    # codemod as a follow-up so PRs include both runtime-string updates AND
+    # Node 20→22 syntax migrations (assert→with on JSON imports, etc.) when
+    # both apply. Source codemod failure is non-fatal — IaC alone is enough
+    # to ship a meaningful PR.
+    if kit == "lambda-lifeline":
+        codemod_proc = subprocess.run(
+            ["lambda-lifeline", "codemod", "--path", workdir, "--apply"],
+            capture_output=True, text=True, timeout=KIT_SCAN_TIMEOUT_SECS,
+        )
+        # Only raise if codemod actually crashed; "no hits" returns 0 and is fine.
+        if codemod_proc.returncode != 0 and "No codemod hits" not in (codemod_proc.stdout or ""):
+            # Soft warning into stderr; main IaC patch already applied.
+            import sys as _sys
+            print(
+                f"[rupture-runner] codemod follow-up exited {codemod_proc.returncode}; "
+                f"continuing with IaC-only diff. stderr={codemod_proc.stderr[:300]}",
+                file=_sys.stderr,
+            )
 
 
 # -------- PR body & API ----------------------------------------------------- #
