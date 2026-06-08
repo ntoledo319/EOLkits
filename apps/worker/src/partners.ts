@@ -2,7 +2,7 @@
  * White-label partner endpoints.
  *
  * Partners run audits under their own brand. Stripe Connect (Express
- * accounts) handles the rev split (70% partner / 30% Rupture). Logo
+ * accounts) handles the rev split (70% partner / 30% EOLkits). Logo
  * attribution is gated by DNS TXT verification of the partner's domain
  * to prevent impersonation.
  */
@@ -83,8 +83,8 @@ export async function partnerSignup(
     onboarding_url: onboardingUrl,
     verification_record: {
       type: 'TXT',
-      host: '_rupture.' + domain,
-      value: `rupture-verification=${slug}`,
+      host: '_eolkits.' + domain,
+      value: `eolkits-verification=${slug}`,
     },
   });
 }
@@ -104,14 +104,14 @@ export async function partnerVerifyDomain(
   if (!record) return jsonResponse({ error: 'partner not found' }, 404);
 
   // Best-effort DNS-over-HTTPS lookup via Cloudflare 1.1.1.1.
-  const dohUrl = `https://cloudflare-dns.com/dns-query?name=_rupture.${record.domain}&type=TXT`;
+  const dohUrl = `https://cloudflare-dns.com/dns-query?name=_eolkits.${record.domain}&type=TXT`;
   const dnsResp = await fetch(dohUrl, {
     headers: { Accept: 'application/dns-json' },
   });
   const dnsData = (await dnsResp.json()) as {
     Answer?: Array<{ data: string }>;
   };
-  const expected = `rupture-verification=${slug}`;
+  const expected = `eolkits-verification=${slug}`;
   const found = (dnsData.Answer ?? []).some((a) => a.data.includes(expected));
 
   record.domain_verified = found;
@@ -155,8 +155,9 @@ export async function partnerAudit(
   }
 
   await env.JOBS.send({
-    type: 'audit',
+    type: 'audit_pdf',
     sku: 'audit',
+    email: buyerEmail,
     buyer_email: buyerEmail,
     upload_url: uploadUrl,
     stripe_session_id: stripeSessionId,
@@ -215,8 +216,8 @@ async function getStripeAccountLink(
     },
     body: new URLSearchParams({
       account: accountId,
-      refresh_url: 'https://ntoledo319.github.io/Rupture/partners/onboarding',
-      return_url: 'https://ntoledo319.github.io/Rupture/partners/onboarded',
+      refresh_url: 'https://ntoledo319.github.io/EOLkits/partners/onboarding',
+      return_url: 'https://ntoledo319.github.io/EOLkits/partners/onboarded',
       type: 'account_onboarding',
     }),
   });

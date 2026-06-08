@@ -552,23 +552,27 @@ pre.code-block {
 }
 pre.code-block code { font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink); }
 
-.pricing-grid-2 {
+.pricing-grid-2,
+.pricing-grid {
   display: grid;
   gap: 20px;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   margin: 16px 0;
 }
-.article .pricing-card {
+/* Applies to the home #pricing section AND in-article pricing cards. The home
+   markup uses .pricing-grid / .pricing-card, so these rules must not be scoped
+   to .article (that mismatch left the homepage cards unstyled). */
+.pricing-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 24px;
 }
-.article .pricing-card.featured { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-.article .pricing-card h3 { margin: 0 0 8px; color: var(--ink); font-size: 1.2rem; }
-.article .pricing-card .price { font-size: 2rem; font-weight: 800; margin-bottom: 12px; }
-.article .pricing-card .btn-primary,
-.article .pricing-card .btn-outline { margin: 12px 8px 0 0; }
+.pricing-card.featured { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.pricing-card h3 { margin: 0 0 8px; color: var(--ink); font-size: 1.2rem; }
+.pricing-card .price { font-size: 2rem; font-weight: 800; margin-bottom: 12px; }
+.pricing-card .btn-primary,
+.pricing-card .btn-outline { margin: 12px 8px 0 0; }
 
 .related-list { list-style: none; padding: 0; margin: 12px 0; }
 .related-list li {

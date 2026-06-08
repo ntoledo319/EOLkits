@@ -1,15 +1,14 @@
-# LAUNCH HANDOFF — Rupture
+# LAUNCH HANDOFF — EOLkits
 
-_Last updated: 2026-05-21 by the agent. Re-verified surfaces 2026-05-15; secrets and R2 verified 2026-05-21._
+_Last updated: 2026-06-05 by the agent. GRACE migration path added; Cloudflare Worker is legacy/reference only._
 
 This is the state of the project right before public launch. Everything code-side has
 been built, deployed, and re-verified end-to-end. The remaining items below are
-**operator-only** — actions that require either Cloudflare dashboard access (R2
-subscription activation), GitHub UI access (Marketplace listing, sandbox install ID),
+**operator-only** — actions that require either GRACE VPS deployment access,
+GitHub UI access (Marketplace listing, sandbox install ID),
 or a launch-defining decision (Show HN submission window).
 
-Work the steps in order. **Step 1 (R2) is the only true product blocker for the
-$299 Audit PDF SKU.** Step 2 (sandbox e2e) is the launch-day demo. Steps 3–4
+Work the steps in order. **Step 1 (`eolkits-api` on GRACE) is the true product blocker for paid SKUs.** Step 2 (sandbox e2e) is the launch-day demo. Steps 3–4
 are polish-and-ship.
 
 ---
@@ -18,8 +17,8 @@ are polish-and-ship.
 
 | Surface | Status |
 |---|---|
-| `apps/worker` (Cloudflare) — `https://rupture-worker.rupture-kits.workers.dev/health` | ✅ `{"ok":true,"env":"production"}` (2026-05-15) |
-| Landing page — `https://ntoledo319.github.io/Rupture/` | ✅ 200 (2026-05-15) |
+| `eolkits-api` (GRACE compose satellite) — `https://eolkits.com/health` | ✅ 200 live on same-host API routing |
+| Landing page — `https://ntoledo319.github.io/EOLkits/` | ✅ 200 (2026-05-15) |
 | Status page — `/status/` | ✅ 200 |
 | Sample audit — `/audit/` | ✅ 200 |
 | Verify tool — `/verify/` | ✅ 200 |
@@ -28,12 +27,12 @@ are polish-and-ship.
 | `al2023-gate` (Python) | ✅ 48/48 tests |
 | `python-pivot` (Python) | ✅ 44/44 tests |
 | `apps/runner` (Python) | ✅ 7/7 tests |
-| `apps/worker` (TypeScript / vitest) | ✅ 3/3 tests |
+| `apps/grace-api` (FastAPI / pytest) | ✅ 5/5 tests |
 | CI workflows (status, determinism gate, nightly benchmark, SEO, ICS) | ✅ all green through 2026-05-15 |
 | `v1` and `v1.0.0` GitHub releases published | ✅ |
-| **GitHub App `rupture-migration-bot` credentials wired** | ✅ All 3 secrets verified in wrangler 2026-05-21 |
-| Stripe Live Key + Webhook Secret + Resend API Key | ✅ Verified in wrangler 2026-05-21 |
-| **Cloudflare R2 bucket `rupture-uploads`** | ❌ **Error 10042 — R2 not enabled on account. Blocks Audit PDF delivery.** |
+| **GitHub App `eolkits-migration-bot` credentials wired** | ✅ private key installed; GitHub App webhook URL + secret updated to `https://eolkits.com/webhook/github` |
+| Stripe Live Key + Webhook Secret + Resend API Key | ✅ live Stripe key, canonical Stripe webhook endpoint + signing secret, and Resend key installed in `/home/ubuntu/sites/eolkits-api/.env.production` |
+| GRACE satellite registration | ✅ `eolkits` static preserved; `eolkits-api` compose added in GRACE manifest and host-agent allowlist |
 | GitHub Marketplace tile | ❌ Still 404 as of 2026-05-21 |
 | Sandbox end-to-end PR | ❌ Not yet run — needs sandbox install ID |
 
@@ -44,28 +43,32 @@ spurious quality-debt issues.
 
 ---
 
-## 1. Activate Cloudflare R2 *(~5 min, blocker for Audit PDF SKU)*
+## 1. Deploy the GRACE-native EOLkits API *(blocker for paid SKUs)*
 
-`wrangler r2 bucket list` returns `Please enable R2 through the Cloudflare Dashboard. [code: 10042]`. The worker is defensively coded (`UPLOADS?: R2Bucket` is optional, every consumer in `src/upload.ts` guards with `if (!env.UPLOADS)`), so `/health` works, but any actual Audit PDF purchase throws `upload_storage_unavailable`.
+Cloudflare is no longer the canonical runtime. GRACE already hosts the public static site as the `eolkits` satellite, so do **not** create a duplicate static site entry. Add the paid API as a separate `eolkits-api` compose satellite.
 
-1. Log into `dash.cloudflare.com` on the account that owns the Rupture worker (account id `19a8d5aafc1d8e775d523704ed558175`).
-2. Navigate to **R2 Object Storage** → **Get Started** / **Enable R2**. Requires a card on file.
-3. Once enabled, `wrangler r2 bucket list` should succeed. The `rupture-uploads` bucket binding in `apps/worker/wrangler.toml` (lines 23–25) is already declared; no code changes needed.
-4. Redeploy the worker: `cd apps/worker && ./node_modules/.bin/wrangler deploy`.
+1. Follow [`deploy/grace/README.md`](./deploy/grace/README.md).
+2. Bring up `/home/ubuntu/sites/eolkits-api/docker-compose.yml` as compose project `eolkits-api`.
+3. Route selected API paths on `eolkits.com` to `127.0.0.1:8120`, validate, and reload Caddy.
+4. Append `deploy/grace/satellites.eolkits-api.yaml` to GRACE's satellite manifest.
+5. Add `deploy/grace/satellite-agent.eolkits-api.py.snippet` to the host satellite agent allowlist.
+6. Stripe and GitHub App webhooks now point at `https://eolkits.com/webhook/stripe` and `https://eolkits.com/webhook/github`.
+
+The Cloudflare Worker code remains as legacy/reference until a follow-up deletion pass. Do not wire new production traffic to it.
 
 ## 2. Run the sandbox end-to-end PR *(~1 min, launch-day demo)*
 
 This is the Migration Pack proof — the first real PR opened by the bot. The PR URL goes in the Show HN body.
 
 1. Get the sandbox installation ID:
-   `https://github.com/apps/rupture-migration-bot/installations` → click the
-   install on `ntoledo319/rupture-sandbox` → the URL ends in the install ID.
+   `https://github.com/apps/eolkits-migration-bot/installations` → click the
+   install on `ntoledo319/eolkits-sandbox` → the URL ends in the install ID.
 2. Run from the runner host (or any box with the secrets exported):
 
    ```bash
    RUPTURE_SANDBOX_INSTALL_ID=<install-id> \
    GITHUB_APP_ID=3552449 \
-   GITHUB_APP_PRIVATE_KEY="$(cat ~/Downloads/rupture-migration-bot.2026-04-29.private-key.pem)" \
+   GITHUB_APP_PRIVATE_KEY="$(cat ~/Downloads/eolkits-migration-bot.2026-04-29.private-key.pem)" \
    python3 apps/runner/scripts/sandbox_e2e.py
    ```
 
@@ -77,10 +80,10 @@ This is the Migration Pack proof — the first real PR opened by the bot. The PR
 ## 3. Marketplace listing visibility *(~1 min UI step)*
 
 The `v1` release published 2026-05-02 has not yet been indexed at
-`https://github.com/marketplace/actions/rupture-aws-deprecation-check` (re-checked
+`https://github.com/marketplace/actions/eolkits-aws-deprecation-check` (re-checked
 2026-05-21 — still 404). Manual publication is required:
 
-1. Open `https://github.com/ntoledo319/Rupture/releases/tag/v1` → **Edit release**.
+1. Open `https://github.com/ntoledo319/EOLkits/releases/tag/v1` → **Edit release**.
 2. Tick **"Publish this Action to the GitHub Marketplace"**.
 3. Save. (Requires Marketplace developer terms accepted on the account.)
 
@@ -99,31 +102,31 @@ backburnered. The target is now **Tue 2026-06-02 or Wed 2026-06-03, 6–9 AM PT*
 first post-Memorial-Day full work week, gives the HN audience 27–28 days of live
 AL2023 urgency. (May 26 was avoided because Memorial Day hangover dampens HN
 engagement on the Tuesday-after. Jun 9/10 was the earlier conservative target;
-unblocking R2 + landing the reframe ahead of schedule allowed pulling it in.)
+landing the reframe ahead of schedule allowed pulling it in.)
 
 Go/no-go checklist before submitting:
-- R2 enabled (step 1) and `wrangler r2 bucket list` succeeds.
+- `https://eolkits.com/health` is healthy and GRACE lists both `eolkits` and `eolkits-api`.
 - Sandbox PR (step 2) exists, is still open, body looks right.
 - Marketplace tile (step 3) returns 200.
 - All 126 tests pass on a clean checkout.
-- Worker `/health` returns expected JSON.
+- GRACE satellite status reports `eolkits-api` reachable.
 
 ## 5. Partner end-to-end proof *(after step 2)*
 
 One external repo (not the sandbox) needs to install the bot and merge a
-Rupture-generated PR for the public proof point.
+EOLkits-generated PR for the public proof point.
 
 - Pick a target from the existing waitlist or GitHub Discussions.
 - Seed them with a complimentary Migration Pack via the Stripe dashboard
-  (`coupon: rupture-partner-100`, or hand-issue an invoice).
+  (`coupon: eolkits-partner-100`, or hand-issue an invoice).
 - After their PR merges, capture the URL for `BENCHMARK.md` / the landing page.
 
 ---
 
 ## What the agent did during the 2026-05-21 session
 
-- **Verified the GitHub App secrets are already installed** in the production worker via `./node_modules/.bin/wrangler secret list` — the prior HANDOFF claim that step 1 (credentials) was unwired was stale. All 3 secrets (`GITHUB_APP_ID`, `GITHUB_APP_PRIVATE_KEY`, `GITHUB_WEBHOOK_SECRET`) plus Stripe + Resend are live. Phase 1a/1b were resolved without rotation.
-- **Confirmed R2 is still 10042** — the Apr 30 Desktop handoff flagged this; it remains unresolved 21 days later. Promoted to top blocker because it gates the Audit PDF SKU.
+- Historical note: the old Cloudflare Worker had secrets configured, but Cloudflare is no longer the canonical runtime. `apps/worker` is legacy/reference only.
+- Historical note: R2 was never enabled; GRACE storage replaces it for the hosted fulfillment path.
 - **Reframed all launch artifacts** to lead with AL2023 (Jun 30) instead of the now-past Apr 30 Node 20 EOL:
   - `README.md` — hero, badges (116→126 tests), kit table, roadmap order, tests block
   - `launch/show-hn-final.md` — title, body opener, kit table order, submission window
@@ -153,4 +156,4 @@ Rupture-generated PR for the public proof point.
 ---
 
 **Delete this file once steps 1, 2, 3, 4, and 5 are done.** That moment is
-the official "Rupture is 100% launched" mark.
+the official "EOLkits is 100% launched" mark.

@@ -1,7 +1,7 @@
 {
-  "name": "rupture-worker",
+  "name": "eolkits-worker",
   "version": "1.0.0",
-  "description": "Cloudflare Worker for Rupture payment processing and webhooks",
+  "description": "Cloudflare Worker for EOLkits payment processing and webhooks",
   "main": "src/index.ts",
   "scripts": {
     "dev": "wrangler dev",

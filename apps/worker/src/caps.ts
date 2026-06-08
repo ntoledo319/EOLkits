@@ -1,5 +1,5 @@
 /**
- * Daily cost caps tracking for Rupture
+ * Daily cost caps tracking for EOLkits
  * Prevents exceeding free-tier limits
  */
 

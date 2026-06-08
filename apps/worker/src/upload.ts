@@ -13,6 +13,10 @@ export async function uploadHandler(request: Request, env: Env, path: string): P
   if (path === '/upload/presign' && request.method === 'POST') {
     return generatePresignedUrl(request, env);
   }
+
+  if (path.startsWith('/upload/report/') && request.method === 'GET') {
+    return serveAuditReport(env, path);
+  }
   
   if (path.startsWith('/upload/') && (request.method === 'GET' || request.method === 'PUT')) {
     return serveUploadedFile(request, env, path);
@@ -134,6 +138,29 @@ async function serveUploadedFile(request: Request, env: Env, path: string): Prom
   }
   
   return new Response('Method not allowed', { status: 405 });
+}
+
+async function serveAuditReport(env: Env, path: string): Promise<Response> {
+  if (!env.UPLOADS) {
+    return jsonResponse({ error: 'upload_storage_unavailable' }, 503);
+  }
+
+  const sha = path.replace('/upload/report/', '');
+  if (!/^[a-f0-9]{64}$/.test(sha)) {
+    return jsonResponse({ error: 'invalid_report_hash' }, 400);
+  }
+
+  const object = await env.UPLOADS.get(`reports/${sha}.pdf`);
+  if (!object) {
+    return new Response('Report not found', { status: 404 });
+  }
+
+  return new Response(object.body, {
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="eolkits-audit-${sha.slice(0, 8)}.pdf"`,
+    },
+  });
 }
 
 export async function storeFiles(env: Env, files: File[]): Promise<string> {

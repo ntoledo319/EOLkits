@@ -1,6 +1,6 @@
 /**
- * One-shot backfill: add metadata[project]=rupture to every existing Stripe
- * object owned by Rupture (Products, Prices, Payment Links). Reads IDs from
+ * One-shot backfill: add metadata[project]=eolkits to every existing Stripe
+ * object owned by EOLkits (Products, Prices, Payment Links). Reads IDs from
  * pricing.yml so it stays in sync with what's actually deployed.
  *
  * Idempotent: setting the same metadata twice is a no-op.
@@ -38,7 +38,7 @@ interface Sku {
 }
 
 async function tagObject(kind: 'products' | 'prices' | 'payment_links', id: string): Promise<void> {
-  const body = new URLSearchParams({ 'metadata[project]': 'rupture' });
+  const body = new URLSearchParams({ 'metadata[project]': 'eolkits' });
   const r = await fetch(`${STRIPE}/${kind}/${id}`, {
     method: 'POST',
     headers: {

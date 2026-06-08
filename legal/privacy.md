@@ -1,10 +1,10 @@
-# Privacy Policy — Rupture
+# Privacy Policy — EOLkits
 
 **Last updated:** April 29, 2026
 
 ## 1. Introduction
 
-This Privacy Policy explains how Rupture ("we", "us", "our") collects, uses, and protects your information when you use our services.
+This Privacy Policy explains how EOLkits ("we", "us", "our") collects, uses, and protects your information when you use our services.
 
 ## 2. Information We Collect
 
@@ -36,7 +36,7 @@ This Privacy Policy explains how Rupture ("we", "us", "our") collects, uses, and
 ## 4. Data Storage and Retention
 
 ### 4.1 Uploaded Files (Audit Analysis)
-- Stored in Cloudflare R2 (encrypted at rest)
+- Stored on the GRACE-managed EOLkits API volume (encrypted at rest by the host)
 - **Retention:** 30 days maximum
 - **Auto-deletion:** Files deleted after report delivery + 30 days
 - **Access:** Only accessible via unique, unguessable URL
@@ -56,7 +56,7 @@ We do **not** sell your data. We share data only with:
 | Recipient | Purpose | Data Shared |
 |-----------|---------|-------------|
 | Stripe | Payment processing | Payment intent, email |
-| Cloudflare | Infrastructure | Uploaded files (encrypted) |
+| GRACE-hosted EOLkits API | Infrastructure | Uploaded files and generated reports |
 | GitHub | PR creation | Repository access (your permission) |
 | Resend | Email delivery | Email address, message content |
 
@@ -78,7 +78,7 @@ Under GDPR and similar regulations, you have the right to:
 - **Objection:** Object to certain processing
 
 To exercise these rights:
-- GitHub Discussions: https://github.com/ntoledo319/Rupture/discussions
+- GitHub Discussions: https://github.com/ntoledo319/EOLkits/discussions
 - Include "Privacy Request" in subject
 
 ## 8. Security Measures
@@ -92,8 +92,7 @@ To exercise these rights:
 ## 9. International Transfers
 
 Data may be processed in:
-- United States (Cloudflare, Stripe, GitHub, Resend)
-- European Union (optional, via Cloudflare EU regions)
+- United States (hosting provider, Stripe, GitHub, Resend)
 
 All providers offer adequate protection under GDPR adequacy decisions or Standard Contractual Clauses.
 
@@ -110,7 +109,7 @@ We will notify users of significant changes via:
 ## 12. Contact Information
 
 For privacy questions or requests:
-- GitHub Discussions: https://github.com/ntoledo319/Rupture/discussions
+- GitHub Discussions: https://github.com/ntoledo319/EOLkits/discussions
 - Privacy-specific: Open a discussion with "[Privacy]" prefix
 
 ## 13. Data Protection Officer
@@ -120,4 +119,4 @@ To be formalized upon business entity registration.
 
 ---
 
-*This Privacy Policy is adapted from the Mozilla Privacy Policy template and customized for Rupture's specific data practices.*
+*This Privacy Policy is adapted from the Mozilla Privacy Policy template and customized for EOLkits's specific data practices.*

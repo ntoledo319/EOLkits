@@ -56,8 +56,8 @@ npx lambda-lifeline iac --path . --target nodejs22.x --dry-run
 Then run the deploy as a canary behind a CloudWatch alarm instead of flipping
 all traffic at once.
 
-Disclosure: I maintain Rupture, an MIT-licensed set of AWS deprecation CLIs.
-The relevant kit is `lambda-lifeline`: https://github.com/ntoledo319/Rupture/tree/main/kits/lambda-lifeline
+Disclosure: I maintain EOLkits, an MIT-licensed set of AWS deprecation CLIs.
+The relevant kit is `lambda-lifeline`: https://github.com/ntoledo319/EOLkits/tree/main/kits/lambda-lifeline
 
 ## Reply Template: Amazon Linux 2
 
@@ -77,8 +77,8 @@ python -m al2023_gate runbook --target eks
 For ASGs, create a new launch template version and roll one instance class at a
 time. For EKS, prefer a parallel node group and drain gradually.
 
-Disclosure: I maintain Rupture, an MIT-licensed set of AWS deprecation CLIs.
-The relevant kit is `al2023-gate`: https://github.com/ntoledo319/Rupture/tree/main/kits/al2023-gate
+Disclosure: I maintain EOLkits, an MIT-licensed set of AWS deprecation CLIs.
+The relevant kit is `al2023-gate`: https://github.com/ntoledo319/EOLkits/tree/main/kits/al2023-gate
 
 ## Reply Template: Lambda Python
 
@@ -98,17 +98,17 @@ python -m python_pivot iac --path . --target python3.12 --dry-run
 Do not deploy until the requirements audit is clean or every native dependency
 has a known cp312-compatible build.
 
-Disclosure: I maintain Rupture, an MIT-licensed set of AWS deprecation CLIs.
-The relevant kit is `python-pivot`: https://github.com/ntoledo319/Rupture/tree/main/kits/python-pivot
+Disclosure: I maintain EOLkits, an MIT-licensed set of AWS deprecation CLIs.
+The relevant kit is `python-pivot`: https://github.com/ntoledo319/EOLkits/tree/main/kits/python-pivot
 
 ## Short GitHub Issue Reply
 
-This looks like the same migration class Rupture targets. The key is to separate
+This looks like the same migration class EOLkits targets. The key is to separate
 inventory, codemod, IaC patching, canary, and rollback so the runtime upgrade is
 not one unreviewable change.
 
-Disclosure: I maintain Rupture. The CLIs are MIT licensed:
-https://github.com/ntoledo319/Rupture
+Disclosure: I maintain EOLkits. The CLIs are MIT licensed:
+https://github.com/ntoledo319/EOLkits
 
 ## Guardrails
 

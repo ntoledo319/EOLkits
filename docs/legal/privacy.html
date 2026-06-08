@@ -1,123 +1,112 @@
-# Privacy Policy — Rupture
-
-**Last updated:** April 29, 2026
-
-## 1. Introduction
-
-This Privacy Policy explains how Rupture ("we", "us", "our") collects, uses, and protects your information when you use our services.
-
-## 2. Information We Collect
-
-### 2.1 Automatically Collected
-- **Usage data:** Page views, feature usage, error logs
-- **Technical data:** IP address, browser type, operating system
-- **Purchase data:** Stripe checkout session metadata (no full card details)
-
-### 2.2 Provided by You
-- **Account information:** Email address (for purchase receipts)
-- **Repository information:** When using Migration Pack (repo names, PR metadata)
-- **Audit uploads:** Files uploaded for analysis (stored temporarily, see Section 4)
-
-### 2.3 From Third Parties
-- **Stripe:** Payment confirmation, customer ID
-- **GitHub:** Repository metadata (with your permission via GitHub App)
-- **Resend:** Email delivery status
-
-## 3. How We Use Information
-
-| Purpose | Data Used | Legal Basis |
-|---------|-----------|-------------|
-| Provide Services | Purchase data, uploads | Contract fulfillment |
-| Process Payments | Stripe data | Contract fulfillment |
-| Deliver Reports | Email address | Contract fulfillment |
-| Improve Services | Usage data, error logs | Legitimate interest |
-| Legal Compliance | All data | Legal obligation |
-
-## 4. Data Storage and Retention
-
-### 4.1 Uploaded Files (Audit Analysis)
-- Stored in Cloudflare R2 (encrypted at rest)
-- **Retention:** 30 days maximum
-- **Auto-deletion:** Files deleted after report delivery + 30 days
-- **Access:** Only accessible via unique, unguessable URL
-
-### 4.2 Purchase Records
-- Retained for 7 years (tax/accounting requirements)
-- Stored in Stripe (PCI-compliant)
-
-### 4.3 Repository Metadata
-- Stored only while GitHub App is installed
-- Deleted upon uninstall
-
-## 5. Data Sharing
-
-We do **not** sell your data. We share data only with:
-
-| Recipient | Purpose | Data Shared |
-|-----------|---------|-------------|
-| Stripe | Payment processing | Payment intent, email |
-| Cloudflare | Infrastructure | Uploaded files (encrypted) |
-| GitHub | PR creation | Repository access (your permission) |
-| Resend | Email delivery | Email address, message content |
-
-All recipients are GDPR-compliant and under data processing agreements where required.
-
-## 6. Cookies and Tracking
-
-- **Essential cookies:** Required for site functionality
-- **Analytics:** Minimal, privacy-preserving analytics (no third-party trackers)
-- **No advertising cookies**
-
-## 7. Your Rights
-
-Under GDPR and similar regulations, you have the right to:
-- **Access:** Request a copy of your data
-- **Correction:** Update inaccurate information
-- **Deletion:** Request data deletion (subject to legal retention)
-- **Portability:** Receive data in machine-readable format
-- **Objection:** Object to certain processing
-
-To exercise these rights:
-- GitHub Discussions: https://github.com/ntoledo319/Rupture/discussions
-- Include "Privacy Request" in subject
-
-## 8. Security Measures
-
-- All data encrypted in transit (TLS 1.3)
-- Uploaded files encrypted at rest (AES-256)
-- Stripe handles all payment data (PCI DSS Level 1)
-- Regular security audits via automated CI
-- No plaintext credential storage
-
-## 9. International Transfers
-
-Data may be processed in:
-- United States (Cloudflare, Stripe, GitHub, Resend)
-- European Union (optional, via Cloudflare EU regions)
-
-All providers offer adequate protection under GDPR adequacy decisions or Standard Contractual Clauses.
-
-## 10. Children's Privacy
-
-Our services are not intended for users under 16. We do not knowingly collect data from children.
-
-## 11. Changes to This Policy
-
-We will notify users of significant changes via:
-- GitHub repository notice
-- Email to registered users
-
-## 12. Contact Information
-
-For privacy questions or requests:
-- GitHub Discussions: https://github.com/ntoledo319/Rupture/discussions
-- Privacy-specific: Open a discussion with "[Privacy]" prefix
-
-## 13. Data Protection Officer
-
-Currently: The project operator (contact via GitHub Discussions)
-To be formalized upon business entity registration.
-
----
-
-*This Privacy Policy is adapted from the Mozilla Privacy Policy template and customized for Rupture's specific data practices.*
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Privacy Policy — EOLkits</title>
+<meta name="description" content="Last updated: April 29, 2026">
+<link rel="canonical" href="https://eolkits.com/legal/privacy.html">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="container article">
+<h1>Privacy Policy — EOLkits</h1>
+<p><strong>Last updated:</strong> April 29, 2026</p>
+<h2>1. Introduction</h2>
+<p>This Privacy Policy explains how EOLkits (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) collects, uses, and protects your information when you use our services.</p>
+<h2>2. Information We Collect</h2>
+<h3>2.1 Automatically Collected</h3>
+<ul>
+<li><strong>Usage data:</strong> Page views, feature usage, error logs</li>
+<li><strong>Technical data:</strong> IP address, browser type, operating system</li>
+<li><strong>Purchase data:</strong> Stripe checkout session metadata (no full card details)</li>
+</ul>
+<h3>2.2 Provided by You</h3>
+<ul>
+<li><strong>Account information:</strong> Email address (for purchase receipts)</li>
+<li><strong>Repository information:</strong> When using Migration Pack (repo names, PR metadata)</li>
+<li><strong>Audit uploads:</strong> Files uploaded for analysis (stored temporarily, see Section 4)</li>
+</ul>
+<h3>2.3 From Third Parties</h3>
+<ul>
+<li><strong>Stripe:</strong> Payment confirmation, customer ID</li>
+<li><strong>GitHub:</strong> Repository metadata (with your permission via GitHub App)</li>
+<li><strong>Resend:</strong> Email delivery status</li>
+</ul>
+<h2>3. How We Use Information</h2>
+<p>| Purpose | Data Used | Legal Basis | |---------|-----------|-------------| | Provide Services | Purchase data, uploads | Contract fulfillment | | Process Payments | Stripe data | Contract fulfillment | | Deliver Reports | Email address | Contract fulfillment | | Improve Services | Usage data, error logs | Legitimate interest | | Legal Compliance | All data | Legal obligation |</p>
+<h2>4. Data Storage and Retention</h2>
+<h3>4.1 Uploaded Files (Audit Analysis)</h3>
+<ul>
+<li>Stored on the GRACE-managed EOLkits API volume (encrypted at rest by the host)</li>
+<li><strong>Retention:</strong> 30 days maximum</li>
+<li><strong>Auto-deletion:</strong> Files deleted after report delivery + 30 days</li>
+<li><strong>Access:</strong> Only accessible via unique, unguessable URL</li>
+</ul>
+<h3>4.2 Purchase Records</h3>
+<ul>
+<li>Retained for 7 years (tax/accounting requirements)</li>
+<li>Stored in Stripe (PCI-compliant)</li>
+</ul>
+<h3>4.3 Repository Metadata</h3>
+<ul>
+<li>Stored only while GitHub App is installed</li>
+<li>Deleted upon uninstall</li>
+</ul>
+<h2>5. Data Sharing</h2>
+<p>We do <strong>not</strong> sell your data. We share data only with:</p>
+<p>| Recipient | Purpose | Data Shared | |-----------|---------|-------------| | Stripe | Payment processing | Payment intent, email | | GRACE-hosted EOLkits API | Infrastructure | Uploaded files and generated reports | | GitHub | PR creation | Repository access (your permission) | | Resend | Email delivery | Email address, message content |</p>
+<p>All recipients are GDPR-compliant and under data processing agreements where required.</p>
+<h2>6. Cookies and Tracking</h2>
+<ul>
+<li><strong>Essential cookies:</strong> Required for site functionality</li>
+<li><strong>Analytics:</strong> Minimal, privacy-preserving analytics (no third-party trackers)</li>
+<li><strong>No advertising cookies</strong></li>
+</ul>
+<h2>7. Your Rights</h2>
+<p>Under GDPR and similar regulations, you have the right to:</p>
+<ul>
+<li><strong>Access:</strong> Request a copy of your data</li>
+<li><strong>Correction:</strong> Update inaccurate information</li>
+<li><strong>Deletion:</strong> Request data deletion (subject to legal retention)</li>
+<li><strong>Portability:</strong> Receive data in machine-readable format</li>
+<li><strong>Objection:</strong> Object to certain processing</li>
+</ul>
+<p>To exercise these rights:</p>
+<ul>
+<li>GitHub Discussions: https://github.com/ntoledo319/EOLkits/discussions</li>
+<li>Include &quot;Privacy Request&quot; in subject</li>
+</ul>
+<h2>8. Security Measures</h2>
+<ul>
+<li>All data encrypted in transit (TLS 1.3)</li>
+<li>Uploaded files encrypted at rest (AES-256)</li>
+<li>Stripe handles all payment data (PCI DSS Level 1)</li>
+<li>Regular security audits via automated CI</li>
+<li>No plaintext credential storage</li>
+</ul>
+<h2>9. International Transfers</h2>
+<p>Data may be processed in:</p>
+<ul>
+<li>United States (hosting provider, Stripe, GitHub, Resend)</li>
+</ul>
+<p>All providers offer adequate protection under GDPR adequacy decisions or Standard Contractual Clauses.</p>
+<h2>10. Children&#x27;s Privacy</h2>
+<p>Our services are not intended for users under 16. We do not knowingly collect data from children.</p>
+<h2>11. Changes to This Policy</h2>
+<p>We will notify users of significant changes via:</p>
+<ul>
+<li>GitHub repository notice</li>
+<li>Email to registered users</li>
+</ul>
+<h2>12. Contact Information</h2>
+<p>For privacy questions or requests:</p>
+<ul>
+<li>GitHub Discussions: https://github.com/ntoledo319/EOLkits/discussions</li>
+<li>Privacy-specific: Open a discussion with &quot;[Privacy]&quot; prefix</li>
+</ul>
+<h2>13. Data Protection Officer</h2>
+<p>Currently: The project operator (contact via GitHub Discussions) To be formalized upon business entity registration.</p>
+<p>---</p>
+<p>*This Privacy Policy is adapted from the Mozilla Privacy Policy template and customized for EOLkits&#x27;s specific data practices.*</p>
+</body>
+</html>

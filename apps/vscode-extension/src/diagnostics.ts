@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 
-export class RuptureDiagnostics {
+export class EOLkitsDiagnostics {
     private diagnosticCollection: vscode.DiagnosticCollection;
     private allFindings: Map<string, Finding[]> = new Map();
 
     constructor() {
-        this.diagnosticCollection = vscode.languages.createDiagnosticCollection('rupture');
+        this.diagnosticCollection = vscode.languages.createDiagnosticCollection('eolkits');
     }
 
     setFindings(uri: vscode.Uri, findings: Finding[]): void {
@@ -23,7 +23,7 @@ export class RuptureDiagnostics {
                 this.severityToDiagnostic(f.severity)
             );
             diagnostic.code = f.code;
-            diagnostic.source = 'Rupture';
+            diagnostic.source = 'EOLkits';
 
             return diagnostic;
         });

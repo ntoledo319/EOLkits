@@ -101,6 +101,26 @@ jobs:
           cd apps/runner
           pytest -v
 
+  test-grace-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        # Minimal runtime deps only — weasyprint (a runner dep) needs system
+        # libraries and is imported lazily, so the API test suite doesn't need it.
+        run: pip install fastapi python-multipart requests jinja2 'PyJWT[crypto]' PyYAML httpx pytest
+
+      - name: Run GRACE API tests
+        run: |
+          cd apps/grace-api
+          pytest -v
+
   test-web:
     runs-on: ubuntu-latest
     steps:
@@ -123,6 +143,46 @@ jobs:
           test -f docs/audit/index.html
           test -f docs/pack/index.html
           test -f docs/license/index.html
+
+      - name: Gate — no unrendered template placeholders in commerce pages
+        run: |
+          if grep -REn '\{API_URL\}|\{\{|\}\}' docs/audit/index.html docs/pack/index.html docs/license/index.html docs/partners/index.html; then
+            echo "::error::Unrendered placeholder found in generated commerce pages"; exit 1
+          fi
+
+      - name: Gate — no stale URLs in generated docs
+        run: |
+          if grep -REn 'ntoledo319\.github\.io|eolkits-worker|/Rupture/' docs/; then
+            echo "::error::Stale URL found in generated docs"; exit 1
+          fi
+
+      - name: Gate — sitemap is all eolkits.com
+        run: |
+          if grep -En 'https?://' docs/sitemap.xml | grep -v 'eolkits\.com'; then
+            echo "::error::Non-eolkits.com URL in sitemap"; exit 1
+          fi
+
+      - name: Gate — double-build determinism (only timestamps differ)
+        run: |
+          rm -rf /tmp/build1 /tmp/build2
+          python apps/web/build.py && cp -r docs /tmp/build1
+          python apps/web/build.py && cp -r docs /tmp/build2
+          # Normalize all timestamp-bearing values to a fixed token, then the
+          # two builds must be byte-identical. Portable across diff variants.
+          norm() {
+            find "$1" -type f -print0 | sort -z | while IFS= read -r -d '' f; do
+              sed -E \
+                -e 's/[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+(Z|\+00:00)/TS/g' \
+                -e 's/[0-9]{8}T[0-9]{6}Z/TS/g' \
+                "$f"
+            done
+          }
+          if ! diff <(norm /tmp/build1) <(norm /tmp/build2) >/dev/null; then
+            echo "::error::Non-deterministic build output (beyond timestamps)"
+            diff <(norm /tmp/build1) <(norm /tmp/build2) | head -40
+            exit 1
+          fi
+          echo "deterministic"
 
   lint:
     runs-on: ubuntu-latest

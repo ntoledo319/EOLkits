@@ -166,7 +166,7 @@ npm test
 | 30-day update guarantee (free Node 22 → 24 kit) | | | ✓ |
 | 48-hour priority response SLA | | | ✓ |
 
-**Bundle all 3 Rupture Kits** (lambda-lifeline + al2023-gate + python-pivot) for **$999 / $1,999 / $4,997** → [rupture-kits.vercel.app](https://rupture-kits.vercel.app)
+**Bundle all 3 EOLkits Kits** (lambda-lifeline + al2023-gate + python-pivot) for **$999 / $1,999 / $4,997** → [eolkits-kits.vercel.app](https://eolkits-kits.vercel.app)
 
 ---
 
@@ -177,7 +177,7 @@ npm test
 - [ ] Node 22 → 24 migration pack (April 30, 2027 deadline)
 - [ ] Ruby 3.2 → 3.4 kit (Aug 31, 2026 deadline)
 
-Sign up for notifications at [rupture-kits.vercel.app](https://rupture-kits.vercel.app).
+Sign up for notifications at [eolkits-kits.vercel.app](https://eolkits-kits.vercel.app).
 
 ---
 
@@ -199,5 +199,5 @@ MIT. Use it commercially, fork it, rewrite it. If it saves your weekend, conside
 ## Support
 
 - GitHub Issues: bug reports, feature requests
-- Email: support@rupture-kits.dev (paid tier gets 48h SLA)
+- Email: support@eolkits-kits.dev (paid tier gets 48h SLA)
 - Discord: invite link included in paid tier receipts

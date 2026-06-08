@@ -54,5 +54,7 @@ COPY apps/runner/migration_pr.py /app/
 # Make sure scripts are in PATH
 ENV PATH=/root/.local/bin:$PATH
 ENV PYTHONUNBUFFERED=1
+ENV RUNNER_HTTP=1
+EXPOSE 8080
 
 ENTRYPOINT ["python", "/app/main.py"]

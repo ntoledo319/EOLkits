@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { RuptureDiagnostics } from './diagnostics';
+import { EOLkitsDiagnostics } from './diagnostics';
 
-export class RuptureScanner {
-    constructor(private diagnostics: RuptureDiagnostics) {}
+export class EOLkitsScanner {
+    constructor(private diagnostics: EOLkitsDiagnostics) {}
 
     async scanDocument(document: vscode.TextDocument): Promise<void> {
         const text = document.getText();

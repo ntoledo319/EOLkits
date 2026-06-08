@@ -1,81 +1,114 @@
 #!/usr/bin/env python3
 """
-Rupture Runner - Job dispatcher for the containerized job processor.
+EOLkits Runner - Job dispatcher for the containerized job processor.
 Reads job descriptors from stdin and executes the appropriate action.
 """
 
 import sys
 import json
+import os
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+
+def run_job(job: dict) -> dict:
+    """Dispatch one job descriptor and return a JSON-serializable result."""
+    job_type = job.get("type")
+    if job_type == "audit_pdf":
+        return handle_audit_pdf(job)
+    if job_type == "migration_pr":
+        return handle_migration_pr(job)
+    if job_type == "license_key":
+        return handle_license_key(job)
+    if job_type == "drift_watch_setup":
+        return handle_drift_watch_setup(job)
+    if job_type == "email":
+        return handle_email(job)
+    raise ValueError(f"Unknown job type: {job_type}")
 
 
 def main():
     """Main entry point - reads job from stdin."""
-    # Read job descriptor from stdin
     job = json.load(sys.stdin)
-
-    job_type = job.get("type")
-
     try:
-        if job_type == "audit_pdf":
-            result = handle_audit_pdf(job)
-        elif job_type == "migration_pr":
-            result = handle_migration_pr(job)
-        elif job_type == "license_key":
-            result = handle_license_key(job)
-        elif job_type == "drift_watch_setup":
-            result = handle_drift_watch_setup(job)
-        elif job_type == "email":
-            result = handle_email(job)
-        else:
-            raise ValueError(f"Unknown job type: {job_type}")
-
-        # Output result as JSON
-        print(
-            json.dumps(
-                {
-                    "success": True,
-                    "result": result,
-                }
-            )
-        )
+        result = run_job(job)
+        print(json.dumps({"success": True, "result": result}))
         sys.exit(0)
-
     except Exception as e:
-        # Output error as JSON
         print(
             json.dumps(
-                {
-                    "success": False,
-                    "error": str(e),
-                    "error_type": type(e).__name__,
-                }
+                {"success": False, "error": str(e), "error_type": type(e).__name__}
             )
         )
         sys.exit(1)
 
 
+class RunnerHandler(BaseHTTPRequestHandler):
+    """Small HTTP wrapper for deployed container job runners."""
+
+    def do_GET(self):
+        if self.path == "/health":
+            self._write_json(200, {"ok": True})
+            return
+        self._write_json(404, {"error": "not_found"})
+
+    def do_POST(self):
+        if self.path not in ("/", "/job"):
+            self._write_json(404, {"error": "not_found"})
+            return
+
+        token = os.environ.get("RUNNER_TOKEN")
+        if token and self.headers.get("Authorization") != f"Bearer {token}":
+            self._write_json(401, {"error": "unauthorized"})
+            return
+
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+            job = json.loads(self.rfile.read(length) or b"{}")
+            result = run_job(job)
+            self._write_json(200, {"success": True, "result": result})
+        except Exception as e:
+            self._write_json(
+                500,
+                {"success": False, "error": str(e), "error_type": type(e).__name__},
+            )
+
+    def log_message(self, format, *args):
+        print(f"runner: {format % args}", file=sys.stderr)
+
+    def _write_json(self, status: int, payload: dict):
+        data = json.dumps(payload).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+
+def serve():
+    port = int(os.environ.get("PORT", "8080"))
+    server = ThreadingHTTPServer(("0.0.0.0", port), RunnerHandler)
+    print(f"EOLkits runner listening on :{port}", flush=True)
+    server.serve_forever()
+
+
 def handle_audit_pdf(job: dict) -> dict:
     """Generate an audit PDF report."""
-    from audit_pdf import generate_audit_pdf
+    from audit_pdf import generate_audit_package
 
-    upload_url = job.get("upload_url")
+    upload_url = job.get("upload_url") or job.get("uploadUrl")
+    upload_path = job.get("upload_path")
     email = job.get("email")
     deadline = job.get("deadline")
 
-    # Download uploaded files
-    # Run kit analysis
-    # Generate PDF with WeasyPrint
-    # Upload to R2
-    # Queue email job
-
-    pdf_path = generate_audit_pdf(
+    package = generate_audit_package(
         upload_url=upload_url,
+        upload_path=upload_path,
         email=email,
         deadline=deadline,
     )
 
     return {
-        "pdf_path": pdf_path,
+        **package,
         "email": email,
     }
 
@@ -86,7 +119,7 @@ def handle_migration_pr(job: dict) -> dict:
 
     repo = job.get("repo")
     email = job.get("email")
-    installation_id = job.get("installationId")
+    installation_id = job.get("installationId") or job.get("installation_id")
 
     # Use GitHub App token to:
     # 1. Clone the repo
@@ -127,7 +160,7 @@ def handle_license_key(job: dict) -> dict:
 def handle_drift_watch_setup(job: dict) -> dict:
     """Set up drift monitoring for a repository."""
     repo = job.get("repo")
-    iam_role = job.get("iam_role")
+    iam_role = job.get("iam_role") or job.get("iamRole")
     email = job.get("email")
 
     # Validate IAM role
@@ -160,4 +193,7 @@ def handle_email(job: dict) -> dict:
 
 
 if __name__ == "__main__":
-    main()
+    if os.environ.get("RUNNER_HTTP") == "1":
+        serve()
+    else:
+        main()

@@ -2,12 +2,12 @@
 
 **Last updated:** April 29, 2026
 
-This Data Processing Agreement ("DPA") forms part of the Terms of Service between Rupture ("Processor") and the user ("Controller") for services involving personal data processing.
+This Data Processing Agreement ("DPA") forms part of the Terms of Service between EOLkits ("Processor") and the user ("Controller") for services involving personal data processing.
 
 ## 1. Definitions
 
 - **"Controller"** means you, the user/organization using our services
-- **"Processor"** means Rupture, processing data on your behalf
+- **"Processor"** means EOLkits, processing data on your behalf
 - **"Personal Data"** means any information relating to an identified or identifiable natural person
 - **"Processing"** means any operation performed on Personal Data
 - **"GDPR"** means EU General Data Protection Regulation 2016/679
@@ -63,7 +63,6 @@ Current subprocessors:
 | Subprocessor | Service | Location |
 |-------------|---------|----------|
 | Stripe, Inc. | Payment processing | USA |
-| Cloudflare, Inc. | Infrastructure | USA/EU |
 | GitHub, Inc. | Code repository services | USA |
 | Resend, Inc. | Email delivery | USA |
 
@@ -129,7 +128,7 @@ This DPA is governed by the law specified in the main Terms of Service.
 ## 10. Contact
 
 For DPA-related inquiries:
-- GitHub Discussions: https://github.com/ntoledo319/Rupture/discussions
+- GitHub Discussions: https://github.com/ntoledo319/EOLkits/discussions
 - Include "DPA" in the discussion title
 
 ---

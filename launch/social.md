@@ -15,7 +15,7 @@ Post these the same morning the Show HN goes up. Thread the X post; LinkedIn sta
 ### Post 1
 
 ```
-Rupture is live.
+EOLkits is live.
 
 CLIs for the AWS deprecation deadlines that break prod:
 
@@ -25,7 +25,7 @@ CLIs for the AWS deprecation deadlines that break prod:
 
 MIT. Deterministic. Mutation-tested at 80%+.
 
-github.com/ntoledo319/Rupture
+github.com/ntoledo319/EOLkits
 ```
 
 ### Post 2 (reply to Post 1)
@@ -51,9 +51,9 @@ If you've ever done one of these migrations and the kit missed something on your
 ## LinkedIn — single post
 
 ```
-After 14 months of building, Rupture is live.
+After 14 months of building, EOLkits is live.
 
-Rupture is three open-source CLIs that automate AWS runtime migrations off the deprecation deadlines breaking production this year:
+EOLkits is three open-source CLIs that automate AWS runtime migrations off the deprecation deadlines breaking production this year:
 
 – al2023-gate — Amazon Linux 2 → AL2023 (Jun 30, 2026 — live deadline)
 – python-pivot — Lambda Python 3.9 / 3.10 / 3.11 → 3.12 (rolling EOL waves)
@@ -65,7 +65,7 @@ The pieces I cared about most: deterministic builds, hash-anchored audit PDFs, m
 
 MIT licensed. Solo built. Repo open.
 
-github.com/ntoledo319/Rupture
+github.com/ntoledo319/EOLkits
 ```
 
 ---

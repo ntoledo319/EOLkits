@@ -37,7 +37,7 @@ export async function sendEmail(env: Env, job: EmailJob): Promise<SendResult> {
     return { ok: false, error: 'no_provider', retryable: true };
   }
 
-  const from = job.from || 'Rupture <noreply@ntoledo319.github.io>';
+  const from = job.from || 'EOLkits <noreply@ntoledo319.github.io>';
   const body = JSON.stringify({
     from,
     to: [job.to],
@@ -154,7 +154,7 @@ export function renderAuditDeliveryEmail(opts: {
 }): string {
   return `<!doctype html>
 <html><body style="font-family:system-ui,-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:24px;line-height:1.6">
-<h2 style="margin:0 0 12px">Your Rupture Audit is ready</h2>
+<h2 style="margin:0 0 12px">Your EOLkits Audit is ready</h2>
 <p>The audit you requested has been generated and signed.</p>
 <p><a href="${opts.pdfUrl}" style="display:inline-block;background:#2563eb;color:#fff;padding:10px 18px;border-radius:6px;text-decoration:none">Download PDF</a></p>
 <h3 style="margin-top:24px;font-size:14px;color:#374151">Verification</h3>
@@ -163,7 +163,7 @@ export function renderAuditDeliveryEmail(opts: {
 <li>Rule pack version: <code>${opts.rulePackVersion}</code></li>
 <li>Verify authenticity: <a href="${opts.verifyUrl}">${opts.verifyUrl}</a></li>
 </ul>
-<p style="font-size:12px;color:#6b7280;margin-top:32px">This is a transactional message. You are receiving it because you purchased an Audit PDF on Rupture.</p>
+<p style="font-size:12px;color:#6b7280;margin-top:32px">This is a transactional message. You are receiving it because you purchased an Audit PDF on EOLkits.</p>
 </body></html>`;
 }
 

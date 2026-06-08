@@ -1,4 +1,4 @@
-# Phase 1 — Rupture Scan Findings
+# Phase 1 — EOLkits Scan Findings
 
 **Scan date:** 2026-04-28
 **Deadline window:** 2026-05-05 → 2026-07-27 (adjusted to include phased deprecations with hard blocks in window)
@@ -71,4 +71,4 @@
 2. **Candidate B — Amazon Linux 2 → AL2023 Migration Kit** (urgency 8/10, bigger TAM, higher build cost)
 3. **Candidate C — Lambda Python 3.10 → 3.12 Migration Kit** (urgency 6/10, reserve for V2)
 
-## Recommendation: Ship Kit A. Reserve Kit B and Kit C as the product roadmap (the "Rupture Kits" brand has legs — every runtime EOL is a paid kit).
+## Recommendation: Ship Kit A. Reserve Kit B and Kit C as the product roadmap (the "EOLkits Kits" brand has legs — every runtime EOL is a paid kit).

@@ -12,6 +12,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: ics
+  cancel-in-progress: false
+
 jobs:
   generate-ics:
     runs-on: ubuntu-latest
@@ -39,12 +43,12 @@ jobs:
           
           # Create calendar
           cal = Calendar()
-          cal.add('prodid', '-//Rupture//AWS Deprecations//EN')
+          cal.add('prodid', '-//EOLkits//AWS Deprecations//EN')
           cal.add('version', '2.0')
           cal.add('calscale', 'GREGORIAN')
           cal.add('method', 'PUBLISH')
           cal.add('x-wr-calname', 'AWS Deprecations')
-          cal.add('x-wr-caldesc', 'AWS platform deprecation deadlines tracked by Rupture')
+          cal.add('x-wr-caldesc', 'AWS platform deprecation deadlines tracked by EOLkits')
           
           # Add events
           for dep in data.get('deprecations', []):
@@ -56,7 +60,7 @@ jobs:
               event.add('dtstamp', datetime.now(UTC))
               event.add('created', datetime.now(UTC))
               event.add('uid', f"{dep['name'].lower().replace(' ', '-')}@rupture")
-              event.add('url', dep.get('url', 'https://ntoledo319.github.io/Rupture'))
+              event.add('url', dep.get('url', 'https://eolkits.com'))
               
               # Add alert 30 days before
               alarm = Alarm()

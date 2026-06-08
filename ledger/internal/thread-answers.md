@@ -59,7 +59,7 @@ a CloudWatch alarm as the rollback trigger. Rough shape:
 Check alarm, bump weight, repeat. On alarm trip, revert the alias.
 
 I maintain an open-source CLI that automates this end-to-end if it helps: 
-https://github.com/ntoledo319/Rupture/tree/main/kits/lambda-lifeline 
+https://github.com/ntoledo319/EOLkits/tree/main/kits/lambda-lifeline 
 (MIT, handles scan + codemod + IaC patch + canary deploy + rollback, 24 tests).
 ```
 
@@ -96,7 +96,7 @@ Practical migration order for an ASG:
 I maintain an OSS kit that generates the Packer template, remaps your package list 
 (yum → dnf, ~50 curated entries), diffs cloud-init scripts, patches Ansible playbooks, 
 and emits per-resource runbooks (ASG / EKS / ECS / Beanstalk): 
-https://github.com/ntoledo319/Rupture/tree/main/kits/al2023-gate
+https://github.com/ntoledo319/EOLkits/tree/main/kits/al2023-gate
 ```
 
 ---
@@ -143,7 +143,7 @@ CloudWatch alarm as rollback trigger.
 
 Open-source kit that automates all of the above (scan + codemod + wheel audit + IaC patch + 
 canary deploy + rollback, 44 tests): 
-https://github.com/ntoledo319/Rupture/tree/main/kits/python-pivot
+https://github.com/ntoledo319/EOLkits/tree/main/kits/python-pivot
 ```
 
 ---

@@ -2,7 +2,7 @@
 """
 Sandbox end-to-end smoke for the migration runner.
 
-Runs the full migration_pr flow against ntoledo319/rupture-sandbox using the
+Runs the full migration_pr flow against ntoledo319/eolkits-sandbox using the
 GitHub App credentials in the environment. Exits non-zero on any error.
 
 Usage:
@@ -25,7 +25,7 @@ from migration_pr import create_migration_pr  # noqa: E402
 
 
 def main() -> int:
-    repo = os.environ.get("RUPTURE_SANDBOX_REPO", "ntoledo319/rupture-sandbox")
+    repo = os.environ.get("RUPTURE_SANDBOX_REPO", "ntoledo319/eolkits-sandbox")
     email = os.environ.get("RUPTURE_SANDBOX_EMAIL", "sandbox@ntoledo319.dev")
     install_id = os.environ.get("RUPTURE_SANDBOX_INSTALL_ID")
 

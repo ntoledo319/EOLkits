@@ -1,14 +1,14 @@
-# Rupture — Migration Kits for AWS Platform Deprecations
+# EOLkits — Migration Kits for AWS Platform Deprecations
 
 > CLIs for the AWS deprecation deadlines that break production. Next up: **Amazon Linux 2 (Jun 30, 2026)**. Also: **Lambda Python 3.9/3.10/3.11** waves, and post-deadline cleanup for **Lambda Node.js 20**.
 
-[![landing](https://img.shields.io/badge/landing-live-brightgreen)](https://ntoledo319.github.io/Rupture)
+[![landing](https://img.shields.io/badge/landing-live-brightgreen)](https://ntoledo319.github.io/EOLkits)
 [![tests](https://img.shields.io/badge/tests-126%20passing-brightgreen)](#tests)
 [![license](https://img.shields.io/badge/license-MIT%20(open%20core)-blue)](#license)
 
 AWS is killing runtimes on a hard schedule. When a deadline passes, deploys fail, functions get frozen, AMIs stop receiving patches. Most shops find out in production.
 
-**Rupture ships one CLI per deadline.** Each kit scans your accounts, rewrites the broken code, patches the IaC, generates a safe canary plan, and produces a rollback script. All kits work offline via fixtures so you can evaluate before you run them against AWS.
+**EOLkits ships one CLI per deadline.** Each kit scans your accounts, rewrites the broken code, patches the IaC, generates a safe canary plan, and produces a rollback script. All kits work offline via fixtures so you can evaluate before you run them against AWS.
 
 ---
 
@@ -40,8 +40,8 @@ Each kit is standalone. `al2023-gate` and `python-pivot` are Python CLIs; `lambd
 For the live deadline (AL2 → AL2023, Jun 30):
 
 ```bash
-git clone https://github.com/ntoledo319/Rupture.git
-cd Rupture/kits/al2023-gate   # or kits/python-pivot
+git clone https://github.com/ntoledo319/EOLkits.git
+cd EOLkits/kits/al2023-gate   # or kits/python-pivot
 pip install -e .
 al2023-gate --help
 ```
@@ -49,7 +49,7 @@ al2023-gate --help
 For Node 20 cleanup (before the Sep 30 Phase 3 cliff):
 
 ```bash
-cd Rupture/kits/lambda-lifeline
+cd EOLkits/kits/lambda-lifeline
 npm install
 npm link
 lambda-lifeline --help
@@ -59,12 +59,24 @@ The Python kits require Python 3.10+. Live mode uses `boto3`; fixture mode requi
 
 ---
 
+## Hosted fulfillment on GRACE
+
+The hosted EOLkits site now targets the GRACE deployment shape:
+
+- `eolkits.com` is the existing static GRACE satellite.
+- selected API paths on `eolkits.com` are reverse-proxied to the paid fulfillment API satellite.
+- Uploads, report PDFs, idempotency, verification records, and jobs use the GRACE VPS filesystem + local SQLite state instead of Cloudflare KV/R2/Queues.
+
+See [`deploy/grace/README.md`](./deploy/grace/README.md) for the exact no-duplicate wiring. Keep the existing `eolkits` static satellite; add only `eolkits-api` for paid API/webhook fulfillment.
+
+---
+
 ## GitHub Action
 
 Run the free PR check from GitHub Actions:
 
 ```yaml
-- uses: ntoledo319/Rupture@v1
+- uses: ntoledo319/EOLkits@v1
   with:
     kit: auto
     path: .
@@ -108,7 +120,7 @@ Same shape for `python-pivot` and `lambda-lifeline` — see each kit's README fo
 | **Org License** | $14,999 / yr | Live rule-pack feed, private rule extensions, unlimited runs, one-year validity | License key emailed |
 | **Drift Watch** | $19 / mo | Weekly re-scan of a read-only IAM role; delta PDF on change; auto-PR on new deprecation | Cron-driven |
 
-**[→ Pricing page](https://ntoledo319.github.io/Rupture#pricing)**
+**[→ Pricing page](https://ntoledo319.github.io/EOLkits#pricing)**
 
 ---
 
@@ -116,7 +128,7 @@ Same shape for `python-pivot` and `lambda-lifeline` — see each kit's README fo
 
 AWS publishes deprecation notices on a blog. Your deploys will fail on a Tuesday. The fix is usually not one-line — it's native wheels that don't exist for the new runtime, OpenSSL 3 hashes your code depended on, an IMDSv1 call that's now blocked, an `iptables` rule that no longer works on nftables.
 
-Rupture automates AWS migrations off deprecated runtimes — deterministically, safely, and before the deadline. It's opinionated, well-tested (126 tests across kits + apps), and safe — everything is dry-run by default, everything has a rollback path.
+EOLkits automates AWS migrations off deprecated runtimes — deterministically, safely, and before the deadline. It's opinionated, well-tested (126 tests across kits + apps), and safe — everything is dry-run by default, everything has a rollback path.
 
 ---
 
@@ -167,7 +179,7 @@ Open-core: the CLI code in this repo is MIT-licensed. The paid tiers include has
 
 ## Links
 
-- 🌐 [Landing page](https://ntoledo319.github.io/Rupture)
+- 🌐 [Landing page](https://ntoledo319.github.io/EOLkits)
 - 🚀 [Show HN post](./launch/show-hn-final.md)
 - 📝 [Blog post: Migrating Lambda Node.js 20 → 22](./launch/blog-post.md)
 - 💬 [Direct support reply templates](./launch/thread-answers.md)
@@ -175,4 +187,4 @@ Open-core: the CLI code in this repo is MIT-licensed. The paid tiers include has
 
 ---
 
-*Rupture migrates AWS workloads off deprecated runtimes — automatically, deterministically, and before the deadline.*
+*EOLkits migrates AWS workloads off deprecated runtimes — automatically, deterministically, and before the deadline.*

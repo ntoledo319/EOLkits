@@ -1,14 +1,14 @@
 {
-  "name": "Rupture Migration Bot",
-  "url": "https://ntoledo319.github.io/Rupture",
+  "name": "EOLkits Migration Bot",
+  "url": "https://ntoledo319.github.io/EOLkits",
   "hook_attributes": {
-    "url": "https://rupture-worker.rupture-kits.workers.dev/webhook/github"
+    "url": "https://eolkits.com/webhook/github"
   },
-  "redirect_url": "https://ntoledo319.github.io/Rupture/pack/installed",
+  "redirect_url": "https://ntoledo319.github.io/EOLkits/pack/installed",
   "callback_urls": [
-    "https://ntoledo319.github.io/Rupture/pack/callback"
+    "https://ntoledo319.github.io/EOLkits/pack/callback"
   ],
-  "setup_url": "https://ntoledo319.github.io/Rupture/pack/setup",
+  "setup_url": "https://ntoledo319.github.io/EOLkits/pack/setup",
   "setup_on_install": true,
   "public": true,
   "default_permissions": {

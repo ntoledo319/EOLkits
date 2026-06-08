@@ -1,0 +1,4 @@
+@eolkitsApi path /health /api/* /upload/* /webhook/* /pack/install /pack/setup /support/* /partners/signup /partners/verify/* /partners/*/audit
+handle @eolkitsApi {
+    reverse_proxy 127.0.0.1:8120
+}

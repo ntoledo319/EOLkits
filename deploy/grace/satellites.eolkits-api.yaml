@@ -1,0 +1,18 @@
+# Append this entry to grace-backend/config/satellites.yaml.
+# Keep the existing `eolkits` static satellite unchanged; this is the paid API.
+  - id: eolkits-api
+    name: EOLkits API
+    kind: compose
+    role: Paid EOLkits fulfillment API: Stripe/GitHub webhooks, uploads, reports, Migration Pack jobs
+    domains:
+      - eolkits.com
+    health_url: https://eolkits.com/health
+    compose_project: eolkits-api
+    compose_dir: /home/ubuntu/sites/eolkits-api
+    services:
+      - eolkits-api
+    repo: Rupture
+    github: ntoledo319/EOLkits
+    control_actions:
+      - restart
+      - redeploy

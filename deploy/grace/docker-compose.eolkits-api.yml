@@ -1,0 +1,27 @@
+services:
+  eolkits-api:
+    build:
+      context: /home/ubuntu/sites/eolkits-api
+      dockerfile: apps/grace-api/Dockerfile
+    container_name: eolkits-api
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      ENVIRONMENT: production
+      PUBLIC_SITE_URL: https://eolkits.com
+      PUBLIC_API_URL: https://eolkits.com
+      EOLKITS_DATA_DIR: /data/eolkits
+      EOLKITS_INLINE_RUNNER: "1"
+    ports:
+      - "127.0.0.1:${EOLKITS_API_PORT:-8120}:8080"
+    volumes:
+      - eolkits_api_data:/data/eolkits
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  eolkits_api_data:

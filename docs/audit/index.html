@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Audit PDF — Rupture</title>
+<title>Audit PDF — EOLkits</title>
 <style>
 body{font-family:system-ui,-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:2rem;line-height:1.6}
 .brand{color:#2563eb;font-weight:600}
@@ -20,7 +20,7 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 </style>
 </head>
 <body>
-<a href="/Rupture/" class="brand">← Rupture</a>
+<a href="/" class="brand">← EOLkits</a>
 <h1>Audit PDF</h1>
 <p>Upload your IaC files, get a hash-anchored deterministic report scoring every finding by severity × blast-radius.</p>
 
@@ -54,16 +54,74 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
   <li>Verify authenticity at <code>/verify/&lt;sha&gt;</code></li>
 </ol>
 
-<form action="https://rupture-worker.rupture-kits.workers.dev/api/audit/checkout" method="POST">
+<form id="auditForm">
   <h3>Start Audit</h3>
-  <p><input type="email" name="email" placeholder="your@email.com" required style="padding:0.5rem;width:300px"></p>
-  <p><input type="file" name="files" multiple accept=".yaml,.yml,.json,.tf,.js,.ts,.py"></p>
-  <button type="submit">Proceed to Checkout</button>
+  <p><input type="email" id="auditEmail" name="email" placeholder="your@email.com" required style="padding:0.5rem;width:300px"></p>
+  <p><input type="date" id="auditDeadline" name="deadline" style="padding:0.5rem;width:300px" aria-label="Deadline date"></p>
+  <p><input type="file" id="auditFile" name="file" required accept=".yaml,.yml,.json,.tf,.tfvars,.js,.ts,.py,.txt"></p>
+  <button id="auditSubmit" type="submit">Upload and Proceed to Checkout</button>
+  <p id="auditStatus" style="color:#6b7280;font-size:.875rem"></p>
 </form>
+
+<script>
+const auditForm = document.getElementById('auditForm');
+const auditStatus = document.getElementById('auditStatus');
+const auditSubmit = document.getElementById('auditSubmit');
+auditForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const file = document.getElementById('auditFile').files[0];
+  const email = document.getElementById('auditEmail').value;
+  const deadline = document.getElementById('auditDeadline').value;
+  if (!file || !email) return;
+
+  auditSubmit.disabled = true;
+  auditStatus.textContent = 'Requesting upload URL...';
+
+  try {
+    const presign = await fetch('https://eolkits.com/upload/presign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filename: file.name,
+        contentType: file.type || 'application/octet-stream',
+        size: file.size
+      })
+    });
+    const presignData = await presign.json();
+    if (!presign.ok) throw new Error(presignData.error || 'Upload storage is unavailable');
+
+    auditStatus.textContent = 'Uploading audit input...';
+    const upload = await fetch(presignData.uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type || 'application/octet-stream' },
+      body: file
+    });
+    if (!upload.ok) throw new Error('Upload failed');
+
+    auditStatus.textContent = 'Opening secure checkout...';
+    const checkoutBody = new URLSearchParams({
+      email,
+      upload_url: presignData.uploadUrl
+    });
+    if (deadline) checkoutBody.set('deadline', deadline);
+    const checkout = await fetch('https://eolkits.com/api/audit/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: checkoutBody
+    });
+    const checkoutData = await checkout.json();
+    if (!checkout.ok || !checkoutData.url) throw new Error(checkoutData.error || 'Checkout failed');
+    window.location.href = checkoutData.url;
+  } catch (error) {
+    auditSubmit.disabled = false;
+    auditStatus.textContent = error instanceof Error ? error.message : 'Audit checkout failed';
+  }
+});
+</script>
 
 <footer>
   <p>Delivery within 5 minutes. Reports include SHA-256 hash of inputs for verification.</p>
-  <p><a href="/Rupture/legal/terms">Terms</a> · <a href="/Rupture/legal/privacy">Privacy</a></p>
+  <p><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></p>
 </footer>
 </body>
 </html>

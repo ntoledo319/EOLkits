@@ -1,5 +1,5 @@
 /**
- * Token bucket rate limiting for Rupture Worker
+ * Token bucket rate limiting for EOLkits Worker
  * Tracks per-IP and per-email limits in Cloudflare KV
  */
 

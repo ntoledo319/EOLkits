@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Rupture rule-pack publisher.
+EOLkits rule-pack publisher.
 
 Signs every YAML pack in rules/public/ with Sigstore (keyless OIDC),
 writes a manifest with valid_after timestamps so the free CLI sees the
@@ -82,7 +82,7 @@ def build_feed() -> dict:
     public_valid_after = now + timedelta(days=PUBLIC_DELAY_DAYS)
 
     manifest = {
-        "schema": "rupture.feed.v1",
+        "schema": "eolkits.feed.v1",
         "generated_at": now.isoformat(),
         "public_valid_after": public_valid_after.isoformat(),
         "public_delay_days": PUBLIC_DELAY_DAYS,

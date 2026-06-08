@@ -44,6 +44,9 @@ mutation_report.txt
 # Claude scheduled-task lock (local, host-specific)
 .claude/
 
+# Toledo tooling metadata (host-specific local path; not part of the project)
+.toledo.yaml
+
 # Type-check & lint caches
 .mypy_cache/
 .ruff_cache/

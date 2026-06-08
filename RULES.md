@@ -1,4 +1,4 @@
-# Rupture — Public Rule Sources
+# EOLkits — Public Rule Sources
 
 > Every rule shipped in `rules/public/` is grounded in a publicly-published source. This file is the index of those sources. If a rule cannot cite a public source, it does not ship.
 

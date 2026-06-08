@@ -1,9 +1,9 @@
 {
-  "name": "rupture-vscode",
-  "displayName": "Rupture - AWS Deprecation Scanner",
+  "name": "eolkits-vscode",
+  "displayName": "EOLkits - AWS Deprecation Scanner",
   "description": "Real-time AWS deprecation detection in VS Code",
   "version": "1.0.0",
-  "publisher": "rupture",
+  "publisher": "eolkits",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -30,49 +30,49 @@
   "contributes": {
     "commands": [
       {
-        "command": "rupture.scanWorkspace",
-        "title": "Rupture: Scan Workspace for Deprecations",
+        "command": "eolkits.scanWorkspace",
+        "title": "EOLkits: Scan Workspace for Deprecations",
         "icon": "$(search)"
       },
       {
-        "command": "rupture.showReport",
-        "title": "Rupture: Show Deprecation Report",
+        "command": "eolkits.showReport",
+        "title": "EOLkits: Show Deprecation Report",
         "icon": "$(output)"
       },
       {
-        "command": "rupture.getAudit",
-        "title": "Rupture: Get Full Audit Report",
+        "command": "eolkits.getAudit",
+        "title": "EOLkits: Get Full Audit Report",
         "icon": "$(link-external)"
       }
     ],
     "menus": {
       "explorer/context": [
         {
-          "command": "rupture.scanWorkspace",
+          "command": "eolkits.scanWorkspace",
           "group": "2_workspace@5",
           "when": "explorerResourceIsFolder"
         }
       ]
     },
     "configuration": {
-      "title": "Rupture",
+      "title": "EOLkits",
       "properties": {
-        "rupture.enabledKits": {
+        "eolkits.enabledKits": {
           "type": "array",
           "default": ["lambda-lifeline", "al2023-gate", "python-pivot"],
-          "description": "Which Rupture kits to enable",
+          "description": "Which EOLkits kits to enable",
           "items": {
             "type": "string",
             "enum": ["lambda-lifeline", "al2023-gate", "python-pivot"]
           }
         },
-        "rupture.severityThreshold": {
+        "eolkits.severityThreshold": {
           "type": "string",
           "default": "medium",
           "description": "Minimum severity to report",
           "enum": ["low", "medium", "high", "critical"]
         },
-        "rupture.autoScan": {
+        "eolkits.autoScan": {
           "type": "boolean",
           "default": true,
           "description": "Automatically scan on file save"
@@ -82,9 +82,9 @@
     "views": {
       "explorer": [
         {
-          "id": "rupture.deprecations",
+          "id": "eolkits.deprecations",
           "name": "AWS Deprecations",
-          "when": "rupture.hasDeprecations"
+          "when": "eolkits.hasDeprecations"
         }
       ]
     }
@@ -109,7 +109,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ntoledo319/Rupture.git",
+    "url": "https://github.com/ntoledo319/EOLkits.git",
     "directory": "apps/vscode-extension"
   },
   "license": "MIT"

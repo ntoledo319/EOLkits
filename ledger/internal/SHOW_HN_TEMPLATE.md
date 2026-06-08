@@ -2,15 +2,15 @@
 
 ## Title
 
-Show HN: Rupture – Open-source AWS deprecation scanner with auto-migration PRs
+Show HN: EOLkits – Open-source AWS deprecation scanner with auto-migration PRs
 
 ## URL
 
-https://ntoledo319.github.io/Rupture
+https://ntoledo319.github.io/EOLkits
 
 ## Text (for discussion)
 
-Rupture is an open-source toolkit for AWS infrastructure deprecation scanning. It reads your SAM/CDK/Terraform/CloudFormation and:
+EOLkits is an open-source toolkit for AWS infrastructure deprecation scanning. It reads your SAM/CDK/Terraform/CloudFormation and:
 
 - Detects deprecated Lambda runtimes (Node.js 20, Python 3.9-3.11)
 - Detects Amazon Linux 2 usage
@@ -32,7 +32,7 @@ Key technical decisions:
 - Sigstore signing for binaries
 - No human in fulfillment loops (auto-refund on CI failure)
 
-Repo: https://github.com/ntoledo319/Rupture
+Repo: https://github.com/ntoledo319/EOLkits
 
 Would love feedback on:
 1. Would you use this?

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Rupture rule-pack signature verifier.
+EOLkits rule-pack signature verifier.
 
 Used by the kits at runtime: refuses to use a pack if the signature is
 invalid or the pack is past its valid_after window. In dev/local mode,
@@ -38,8 +38,8 @@ def verify_pack(
         # Fallback: trust the manifest hash if cosign is missing.
         return True, "sha-only (cosign unavailable)"
 
-    pack_tmp = Path("/tmp/rupture_pack.yml")
-    sig_tmp = Path("/tmp/rupture_pack.sig")
+    pack_tmp = Path("/tmp/eolkits_pack.yml")
+    sig_tmp = Path("/tmp/eolkits_pack.sig")
     pack_tmp.write_bytes(pack_bytes)
     sig_tmp.write_bytes(sig_bytes)
     try:

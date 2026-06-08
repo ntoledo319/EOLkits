@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Audit Report | Rupture</title>
-    <meta name="description" content="Verify the authenticity of your Rupture Audit PDF report.">
+    <title>Verify Audit Report | EOLkits</title>
+    <meta name="description" content="Verify the authenticity of your EOLkits Audit PDF report.">
     
     <style>
         body {
@@ -103,14 +103,17 @@
     </div>
     
     <p style="color: #6b7280; font-size: 0.875rem; margin-top: 2rem;">
-        Each Rupture Audit PDF is cryptographically tied to your input files. 
+        Each EOLkits Audit PDF is cryptographically tied to your input files.
         Any modification invalidates the hash.
     </p>
 
     <script>
+        const API_BASE = 'https://eolkits.com';
+
         // Pre-fill hash from URL if present
         const urlParams = new URLSearchParams(window.location.search);
-        const hashFromUrl = urlParams.get('hash');
+        const pathHash = window.location.pathname.split('/').filter(Boolean).pop();
+        const hashFromUrl = urlParams.get('hash') || (/^[a-fA-F0-9]{64}$/.test(pathHash || '') ? pathHash : null);
         if (hashFromUrl) {
             document.getElementById('hashInput').value = hashFromUrl;
             verifyHash();
@@ -138,28 +141,32 @@
             titleEl.textContent = 'Verifying...';
             messageEl.textContent = 'Checking report authenticity...';
             
-            // In a real implementation, this would query an API
-            // For now, simulate a check
-            setTimeout(() => {
-                // Mock verification - in production this queries the API
-                const isValid = Math.random() > 0.1; // 90% valid for demo
-                
-                if (isValid) {
+            try {
+                const response = await fetch(`${API_BASE}/api/verify/${hash}`);
+                const data = await response.json().catch(() => ({}));
+
+                if (response.ok && data.valid) {
                     resultEl.className = 'result valid';
                     iconEl.textContent = '✅';
                     titleEl.textContent = 'Report Verified';
                     messageEl.innerHTML = `
                         <strong>Hash:</strong> ${hash.substring(0, 16)}...${hash.substring(48)}<br>
-                        <strong>Generated:</strong> ${new Date().toLocaleDateString()}<br>
+                        <strong>Generated:</strong> ${data.generatedAt || 'recorded'}<br>
+                        <strong>Rule Pack:</strong> ${data.rulePackVersion || 'recorded'}<br>
                         <strong>Status:</strong> Authentic and unmodified
                     `;
                 } else {
                     resultEl.className = 'result invalid';
                     iconEl.textContent = '⚠️';
                     titleEl.textContent = 'Verification Failed';
-                    messageEl.textContent = 'This hash was not found in our records. The report may have been modified or is not a genuine Rupture audit.';
+                    messageEl.textContent = data.error || 'This hash was not found in our records. The report may have been modified or is not a genuine EOLkits audit.';
                 }
-            }, 500);
+            } catch (error) {
+                resultEl.className = 'result invalid';
+                iconEl.textContent = '⚠️';
+                titleEl.textContent = 'Verification Unavailable';
+                messageEl.textContent = 'Could not reach the verification service. Please try again shortly.';
+            }
         }
         
         // Allow Enter key to submit

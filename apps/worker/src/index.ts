@@ -1,5 +1,5 @@
 /**
- * Rupture Cloudflare Worker
+ * EOLkits Cloudflare Worker
  * Main router for all API endpoints and webhooks
  */
 
@@ -14,7 +14,7 @@ import { checkCaps } from './caps';
 import { partnersRouter } from './partners';
 import { errorMessage } from './http';
 import { generateLicenseKey } from './license';
-import { sendEmailWithRetry } from './email';
+import { renderAuditDeliveryEmail, sendEmailWithRetry } from './email';
 
 export interface Env {
   IDEMPOTENCY: KVNamespace;
@@ -31,6 +31,8 @@ export interface Env {
   GITHUB_APP_PRIVATE_KEY: string;
   GITHUB_WEBHOOK_SECRET?: string;
   ENVIRONMENT: string;
+  RUNNER_URL?: string;
+  RUNNER_TOKEN?: string;
 }
 
 const CORS_HEADERS = {
@@ -248,14 +250,14 @@ async function processJob(job: any, env: Env): Promise<void> {
       break;
     case 'license_key': {
       const key = await generateLicenseKey(
-        job.company || 'Rupture customer',
+        job.company || 'EOLkits customer',
         job.email,
         env
       );
       await sendEmailWithRetry(env, {
         to: job.email,
-        subject: 'Your Rupture org license key',
-        html: `<p>Your Rupture license key:</p><p><code>${key}</code></p>`,
+        subject: 'Your EOLkits org license key',
+        html: `<p>Your EOLkits license key:</p><p><code>${key}</code></p>`,
         scope: 'license_key',
       });
       break;
@@ -264,13 +266,21 @@ async function processJob(job: any, env: Env): Promise<void> {
       await storeOperationalJob(env, job, 'license_inquiry_received');
       break;
     case 'audit_pdf':
-      await storeOperationalJob(env, job, 'requires_audit_runner');
+      if (await dispatchToRunner(env, job)) {
+        break;
+      } else {
+        await storeOperationalJob(env, job, 'requires_audit_runner');
+      }
       break;
     case 'migration_pr':
-      await storeOperationalJob(env, job, 'requires_migration_runner');
+      if (!(await dispatchToRunner(env, job))) {
+        await storeOperationalJob(env, job, 'requires_migration_runner');
+      }
       break;
     case 'drift_watch_setup':
-      await storeOperationalJob(env, job, 'requires_drift_watch_runner');
+      if (!(await dispatchToRunner(env, job))) {
+        await storeOperationalJob(env, job, 'requires_drift_watch_runner');
+      }
       break;
     case 'initial_scan':
       await storeOperationalJob(env, job, 'initial_scan_queued');
@@ -286,6 +296,89 @@ async function processJob(job: any, env: Env): Promise<void> {
     default:
       throw new Error(`Unknown job type: ${job.type}`);
   }
+}
+
+async function dispatchToRunner(env: Env, job: Record<string, unknown>): Promise<boolean> {
+  if (!env.RUNNER_URL) return false;
+
+  const response = await fetch(env.RUNNER_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(env.RUNNER_TOKEN ? { Authorization: `Bearer ${env.RUNNER_TOKEN}` } : {}),
+    },
+    body: JSON.stringify(job),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Runner dispatch failed (${response.status}): ${await response.text()}`);
+  }
+
+  const data = (await response.json().catch(() => ({}))) as {
+    success?: boolean;
+    result?: Record<string, unknown>;
+  };
+  if (data.success === false) {
+    throw new Error(`Runner job failed: ${JSON.stringify(data)}`);
+  }
+
+  if (job.type === 'audit_pdf' && data.result) {
+    await fulfillAuditPdf(env, data.result);
+  }
+
+  return true;
+}
+
+async function fulfillAuditPdf(env: Env, result: Record<string, unknown>): Promise<void> {
+  const email = stringValue(result.email);
+  const pdfBase64 = stringValue(result.pdf_base64);
+  const inputHash = stringValue(result.input_hash);
+  const generatedAt = stringValue(result.generated_at);
+  const rulePackVersion = stringValue(result.rule_pack_version);
+  if (!email || !pdfBase64 || !inputHash || !generatedAt || !rulePackVersion) {
+    throw new Error('Runner audit result missing delivery fields');
+  }
+
+  const pdfUrl = await storeAuditPdf(env, inputHash, pdfBase64);
+  const verifyUrl = `https://ntoledo319.github.io/EOLkits/verify/?hash=${encodeURIComponent(inputHash)}`;
+  await env.IDEMPOTENCY.put(
+    `verify:${inputHash}`,
+    JSON.stringify({ generatedAt, rulePackVersion }),
+    { expirationTtl: 86400 * 30 }
+  );
+
+  await sendEmailWithRetry(env, {
+    to: email,
+    subject: 'Your EOLkits Audit is ready',
+    html: renderAuditDeliveryEmail({
+      buyerEmail: email,
+      pdfUrl,
+      verifyUrl,
+      rulePackVersion,
+      inputSha: inputHash,
+    }),
+    attachments: env.UPLOADS
+      ? undefined
+      : [{ filename: `eolkits-audit-${inputHash.slice(0, 8)}.pdf`, content: pdfBase64 }],
+    scope: 'audit_pdf',
+  });
+}
+
+async function storeAuditPdf(env: Env, inputHash: string, pdfBase64: string): Promise<string> {
+  if (!env.UPLOADS) {
+    return 'attached-to-email';
+  }
+
+  const bytes = Uint8Array.from(atob(pdfBase64), (char) => char.charCodeAt(0));
+  const key = `reports/${inputHash}.pdf`;
+  await env.UPLOADS.put(key, bytes, {
+    httpMetadata: { contentType: 'application/pdf' },
+  });
+  return `https://eolkits-worker.eolkits-kits.workers.dev/upload/report/${inputHash}`;
+}
+
+function stringValue(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() ? value : undefined;
 }
 
 async function storeOperationalJob(

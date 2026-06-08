@@ -16,7 +16,7 @@ Each kit provides: scan, codemod/remap, audit, iac, deploy, rollback.
 Offline fixture mode + live boto3 mode. Dry-run default. Strict exit codes for CI.
 
 ### Landing page
-- `rupture/landing/index.html` + `style.css` — dark-mode, professional, embedded animated SVG demo
+- `eolkits/landing/index.html` + `style.css` — dark-mode, professional, embedded animated SVG demo
 - Deployed: https://sites.super.myninja.ai/a51b9893-5170-4e08-87ed-c7db56f6885b/35eb5c15/index.html
 - Also prepared `docs/` folder for GitHub Pages (served from repo)
 
@@ -32,7 +32,7 @@ Offline fixture mode + live boto3 mode. Dry-run default. Strict exit codes for C
 - `launch/thread-answers.md` — SO/GitHub/re:Post answer templates + search queries
 
 ### GitHub monorepo
-- Repo: https://github.com/ntoledo319/Rupture
+- Repo: https://github.com/ntoledo319/EOLkits
 - Layout: `/kits/{kit}/`, `/docs/` (GitHub Pages), `/launch/`, `/ledger/`
 - Umbrella README with SEO-optimized pitch + pricing
 

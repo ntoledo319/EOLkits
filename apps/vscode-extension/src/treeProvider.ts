@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 
-export class RuptureTreeProvider implements vscode.TreeDataProvider<RuptureTreeItem> {
-    private _onDidChangeTreeData: vscode.EventEmitter<RuptureTreeItem | undefined | null | void> = new vscode.EventEmitter<RuptureTreeItem | undefined | null | void>();
-    readonly onDidChangeTreeData: vscode.Event<RuptureTreeItem | undefined | null | void> = this._onDidChangeTreeData.event;
+export class EOLkitsTreeProvider implements vscode.TreeDataProvider<EOLkitsTreeItem> {
+    private _onDidChangeTreeData: vscode.EventEmitter<EOLkitsTreeItem | undefined | null | void> = new vscode.EventEmitter<EOLkitsTreeItem | undefined | null | void>();
+    readonly onDidChangeTreeData: vscode.Event<EOLkitsTreeItem | undefined | null | void> = this._onDidChangeTreeData.event;
 
     private findings: Finding[] = [];
 
@@ -15,20 +15,20 @@ export class RuptureTreeProvider implements vscode.TreeDataProvider<RuptureTreeI
         this.refresh();
     }
 
-    getTreeItem(element: RuptureTreeItem): vscode.TreeItem {
+    getTreeItem(element: EOLkitsTreeItem): vscode.TreeItem {
         return element;
     }
 
-    getChildren(element?: RuptureTreeItem): Thenable<RuptureTreeItem[]> {
+    getChildren(element?: EOLkitsTreeItem): Thenable<EOLkitsTreeItem[]> {
         if (!element) {
             // Root level - group by severity
             const severities = ['critical', 'high', 'medium', 'low'];
-            const items: RuptureTreeItem[] = [];
+            const items: EOLkitsTreeItem[] = [];
 
             for (const severity of severities) {
                 const count = this.findings.filter(f => f.severity === severity).length;
                 if (count > 0) {
-                    items.push(new RuptureTreeItem(
+                    items.push(new EOLkitsTreeItem(
                         `${severity.toUpperCase()} (${count})`,
                         severity,
                         vscode.TreeItemCollapsibleState.Collapsed,
@@ -39,7 +39,7 @@ export class RuptureTreeProvider implements vscode.TreeDataProvider<RuptureTreeI
             }
 
             if (items.length === 0) {
-                items.push(new RuptureTreeItem(
+                items.push(new EOLkitsTreeItem(
                     'No deprecations found',
                     'info',
                     vscode.TreeItemCollapsibleState.None
@@ -52,7 +52,7 @@ export class RuptureTreeProvider implements vscode.TreeDataProvider<RuptureTreeI
             const severity = element.severity;
             const items = this.findings
                 .filter(f => f.severity === severity)
-                .map(f => new RuptureTreeItem(
+                .map(f => new EOLkitsTreeItem(
                     f.message,
                     'finding',
                     vscode.TreeItemCollapsibleState.None,
@@ -72,7 +72,7 @@ export class RuptureTreeProvider implements vscode.TreeDataProvider<RuptureTreeI
     }
 }
 
-class RuptureTreeItem extends vscode.TreeItem {
+class EOLkitsTreeItem extends vscode.TreeItem {
     constructor(
         public readonly label: string,
         public readonly type: string,

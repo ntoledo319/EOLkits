@@ -1,90 +1,80 @@
-# Security Policy — Rupture
-
-## Supported Versions
-
-| Version | Supported |
-|---------|-----------|
-| Latest release | ✅ Yes |
-| All previous | ❌ No (upgrade to latest) |
-
-## Reporting Security Vulnerabilities
-
-**Please do not file public issues for security vulnerabilities.**
-
-Instead:
-1. Open a private vulnerability report on GitHub:
-   - Go to https://github.com/ntoledo319/Rupture/security/advisories
-   - Click "Report a vulnerability"
-2. Or contact via GitHub Discussions with "[SECURITY]" prefix
-
-**Expected response time:** 48 hours
-
-## Security Measures
-
-### Code
-- All code MIT licensed and open for audit
-- 116 passing tests across all kits
-- Deterministic builds (byte-identical output)
-- Reproducible releases with SBOMs
-- Sigstore-signed binaries
-
-### Infrastructure
-- Cloudflare Workers (edge-deployed, DDoS protected)
-- Stripe for payments (PCI DSS Level 1)
-- All data encrypted in transit (TLS 1.3) and at rest (AES-256)
-- Uploaded files auto-deleted after 30 days
-- No plaintext credential storage
-
-### GitHub App
-- Minimum required permissions only
-- No access to private code without explicit install
-- `.no-rupture` opt-out file supported
-- Abuse endpoint for immediate blocking
-
-## Bug Bounty
-
-**Status:** Active (in-system credits only, no cash pre-revenue)
-
-| Severity | Reward |
-|----------|--------|
-| Critical (RCE, data breach) | $1,499 Audit credit |
-| High (Auth bypass, SSRF) | $599 Audit credit |
-| Medium (XSS, info disclosure) | $299 Audit credit |
-| Low (Best practice) | GitHub mention |
-
-**Scope:**
-- https://ntoledo319.github.io/Rupture/*
-- Cloudflare Worker endpoints
-- GitHub App webhooks
-- Open-source CLI tools
-
-**Out of scope:**
-- Third-party services (Stripe, GitHub, Cloudflare)
-- Social engineering
-- DOS/availability issues
-- Physical security
-
-## Safe Harbor
-
-We support safe harbor for security researchers:
-- No legal action for good-faith research
-- No DMCA actions for bypassing copy protection (there is none)
-- Please avoid: data destruction, privacy violations, DOS
-
-## Security Checklist for Users
-
-- [ ] Verify CLI signatures before use (`cosign verify`)
-- [ ] Review generated PRs before merging
-- [ ] Use least-privilege IAM roles for scanning
-- [ ] Enable 2FA on your GitHub account
-- [ ] Review the `.no-rupture` file option for opt-out
-
-## Incident History
-
-| Date | Incident | Status |
-|------|----------|--------|
-| None yet | - | - |
-
----
-
-*This security policy follows coordinated disclosure principles.*
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Security Policy — EOLkits</title>
+<meta name="description" content="| Version | Supported | |---------|-----------| | Latest release | ✅ Yes | | All previous | ❌ No (upgrade to latest) |">
+<link rel="canonical" href="https://eolkits.com/legal/SECURITY.html">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="container article">
+<h1>Security Policy — EOLkits</h1>
+<h2>Supported Versions</h2>
+<p>| Version | Supported | |---------|-----------| | Latest release | ✅ Yes | | All previous | ❌ No (upgrade to latest) |</p>
+<h2>Reporting Security Vulnerabilities</h2>
+<p><strong>Please do not file public issues for security vulnerabilities.</strong></p>
+<p>Instead: 1. Open a private vulnerability report on GitHub: - Go to https://github.com/ntoledo319/EOLkits/security/advisories - Click &quot;Report a vulnerability&quot; 2. Or contact via GitHub Discussions with &quot;[SECURITY]&quot; prefix</p>
+<p><strong>Expected response time:</strong> 48 hours</p>
+<h2>Security Measures</h2>
+<h3>Code</h3>
+<ul>
+<li>All code MIT licensed and open for audit</li>
+<li>116 passing tests across all kits</li>
+<li>Deterministic builds (byte-identical output)</li>
+<li>Reproducible releases with SBOMs</li>
+<li>Sigstore-signed binaries</li>
+</ul>
+<h3>Infrastructure</h3>
+<ul>
+<li>GRACE-managed VPS deployment with host Caddy, Docker, and satellite monitoring</li>
+<li>Stripe for payments (PCI DSS Level 1)</li>
+<li>All data encrypted in transit (TLS 1.3) and at rest (AES-256)</li>
+<li>Uploaded files auto-deleted after 30 days</li>
+<li>No plaintext credential storage</li>
+</ul>
+<h3>GitHub App</h3>
+<ul>
+<li>Minimum required permissions only</li>
+<li>No access to private code without explicit install</li>
+<li>`.no-eolkits` opt-out file supported</li>
+<li>Abuse endpoint for immediate blocking</li>
+</ul>
+<h2>Bug Bounty</h2>
+<p><strong>Status:</strong> Active (in-system credits only, no cash pre-revenue)</p>
+<p>| Severity | Reward | |----------|--------| | Critical (RCE, data breach) | $1,499 Audit credit | | High (Auth bypass, SSRF) | $599 Audit credit | | Medium (XSS, info disclosure) | $299 Audit credit | | Low (Best practice) | GitHub mention |</p>
+<p><strong>Scope:</strong></p>
+<ul>
+<li>https://eolkits.com/*</li>
+<li>https://eolkits.com/health and EOLkits API paths on the same host</li>
+<li>GitHub App webhooks</li>
+<li>Open-source CLI tools</li>
+</ul>
+<p><strong>Out of scope:</strong></p>
+<ul>
+<li>Third-party services (Stripe, GitHub, hosting providers)</li>
+<li>Social engineering</li>
+<li>DOS/availability issues</li>
+<li>Physical security</li>
+</ul>
+<h2>Safe Harbor</h2>
+<p>We support safe harbor for security researchers:</p>
+<ul>
+<li>No legal action for good-faith research</li>
+<li>No DMCA actions for bypassing copy protection (there is none)</li>
+<li>Please avoid: data destruction, privacy violations, DOS</li>
+</ul>
+<h2>Security Checklist for Users</h2>
+<ul>
+<li>[ ] Verify CLI signatures before use (`cosign verify`)</li>
+<li>[ ] Review generated PRs before merging</li>
+<li>[ ] Use least-privilege IAM roles for scanning</li>
+<li>[ ] Enable 2FA on your GitHub account</li>
+<li>[ ] Review the `.no-eolkits` file option for opt-out</li>
+</ul>
+<h2>Incident History</h2>
+<p>| Date | Incident | Status | |------|----------|--------| | None yet | - | - |</p>
+<p>---</p>
+<p>*This security policy follows coordinated disclosure principles.*</p>
+</body>
+</html>

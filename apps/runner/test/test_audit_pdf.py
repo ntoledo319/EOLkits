@@ -36,3 +36,31 @@ def test_runner_module_imports():
         if "weasyprint" in str(e).lower():
             pytest.skip("WeasyPrint not installed in this matrix")
         raise
+
+
+def test_runner_http_auth_rejects_bad_token(monkeypatch):
+    import importlib.util
+    import os
+    from io import BytesIO
+
+    here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    target = os.path.join(here, "main.py")
+    spec = importlib.util.spec_from_file_location("runner_main", target)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)  # type: ignore[union-attr]
+
+    writes = []
+    handler = object.__new__(mod.RunnerHandler)
+    handler.path = "/job"
+    handler.headers = {"Authorization": "Bearer wrong", "Content-Length": "2"}
+    handler.rfile = BytesIO(b"{}")
+    monkeypatch.setenv("RUNNER_TOKEN", "expected")
+    monkeypatch.setattr(handler, "send_response", lambda status: writes.append(("status", status)))
+    monkeypatch.setattr(handler, "send_header", lambda key, value: None)
+    monkeypatch.setattr(handler, "end_headers", lambda: None)
+    handler.wfile = type("Writer", (), {"write": lambda _self, data: writes.append(("body", data))})()
+
+    handler.do_POST()
+
+    assert ("status", 401) in writes
+    assert b"unauthorized" in dict(writes)["body"]

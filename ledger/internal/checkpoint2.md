@@ -5,7 +5,7 @@
 
 ## Deliverables
 
-### Kits (all in `ntoledo319/Rupture/kits/`)
+### Kits (all in `ntoledo319/EOLkits/kits/`)
 
 | Kit | Deadline | Language | Commands | Tests | Status |
 |---|---|---|---|---|---|
@@ -16,7 +16,7 @@
 **Total: 116 tests, 0 failures. All three kits work 100% offline in fixture mode.**
 
 ### GitHub
-- Repo: https://github.com/ntoledo319/Rupture
+- Repo: https://github.com/ntoledo319/EOLkits
 - Branch: main
 - Latest commits: 2 (lambda-lifeline, then al2023-gate + python-pivot + umbrella README)
 - Monorepo layout: `/kits/{lambda-lifeline,al2023-gate,python-pivot}/`
@@ -58,7 +58,7 @@ The Enterprise bundle is the highest-leverage path. Landing page de-emphasizes t
 - Reddit post in r/aws (will draft for approval)
 - Twitter thread (will draft for approval)
 - Which Stripe price IDs to wire to the checkout buttons
-- Domain name (suggested: rupture-kits.com, rupturekits.com, or stay on 013eq.app.super.myninja.ai for launch)
+- Domain name (suggested: eolkits-kits.com, eolkitskits.com, or stay on 013eq.app.super.myninja.ai for launch)
 - Whether to deploy landing page now via `deploy` tool or keep serving locally
 
 ## Ready for Checkpoint 2 sign-off

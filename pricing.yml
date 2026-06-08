@@ -69,13 +69,13 @@ caps:
   resend_emails_per_month: 3000
   resend_emails_per_day: 100
 urls:
-  landing: https://ntoledo319.github.io/Rupture
-  audit: https://ntoledo319.github.io/Rupture/audit
-  pack: https://ntoledo319.github.io/Rupture/pack
-  license: https://ntoledo319.github.io/Rupture/license
-  status: https://ntoledo319.github.io/Rupture/status
-  github_repo: https://github.com/ntoledo319/Rupture
-  discussions: https://github.com/ntoledo319/Rupture/discussions
+  landing: https://eolkits.com
+  audit: https://eolkits.com/audit
+  pack: https://eolkits.com/pack
+  license: https://eolkits.com/license
+  status: https://eolkits.com/status
+  github_repo: https://github.com/ntoledo319/EOLkits
+  discussions: https://github.com/ntoledo319/EOLkits/discussions
 stripe:
   test_mode: false
   account_id: null

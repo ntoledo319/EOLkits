@@ -1,5 +1,5 @@
 /**
- * GitHub App integration for Rupture
+ * GitHub App integration for EOLkits
  * - Webhook handling
  * - PR creation
  * - Installation management
@@ -116,9 +116,9 @@ async function handleCheckRun(payload: any, env: Env): Promise<void> {
   
   if (!pr) return;
   
-  // Check if PR is from Rupture
+  // Check if PR is from EOLkits
   const branchName = pr.head?.ref || '';
-  if (!branchName.startsWith('rupture/migrate-')) return;
+  if (!branchName.startsWith('eolkits/migrate-')) return;
   
   const conclusion = checkRun.conclusion;
   const repo = payload.repository?.full_name;
@@ -152,23 +152,23 @@ async function handleCheckRun(payload: any, env: Env): Promise<void> {
 }
 
 async function handlePush(payload: any, env: Env): Promise<void> {
-  // Check for .no-rupture file
+  // Check for .no-eolkits file
   const commits = payload.commits || [];
   const repo = payload.repository?.full_name;
   
   for (const commit of commits) {
-    if (commit.added?.includes('.no-rupture') || commit.modified?.includes('.no-rupture')) {
+    if (commit.added?.includes('.no-eolkits') || commit.modified?.includes('.no-eolkits')) {
       // Opt-out file exists, block future PRs
       await env.IDEMPOTENCY.put(
-        `no-rupture:${repo}`,
+        `no-eolkits:${repo}`,
         '1',
         { expirationTtl: 86400 * 365 } // 1 year
       );
     }
     
-    if (commit.removed?.includes('.no-rupture')) {
+    if (commit.removed?.includes('.no-eolkits')) {
       // Opt-out removed, allow PRs again
-      await env.IDEMPOTENCY.delete(`no-rupture:${repo}`);
+      await env.IDEMPOTENCY.delete(`no-eolkits:${repo}`);
     }
   }
 }
@@ -176,12 +176,12 @@ async function handlePush(payload: any, env: Env): Promise<void> {
 async function generateInstallUrl(env: Env): Promise<Response> {
   // Generate GitHub App manifest URL
   const manifest = {
-    name: 'Rupture Migration Bot',
-    url: 'https://ntoledo319.github.io/Rupture',
-    callback_urls: ['https://ntoledo319.github.io/Rupture/pack/callback'],
-    setup_url: 'https://ntoledo319.github.io/Rupture/pack/setup',
-    webhook_url: 'https://rupture-worker.rupture-kits.workers.dev/webhook/github',
-    redirect_url: 'https://ntoledo319.github.io/Rupture/pack/installed',
+    name: 'EOLkits Migration Bot',
+    url: 'https://ntoledo319.github.io/EOLkits',
+    callback_urls: ['https://ntoledo319.github.io/EOLkits/pack/callback'],
+    setup_url: 'https://ntoledo319.github.io/EOLkits/pack/setup',
+    webhook_url: 'https://eolkits-worker.eolkits-kits.workers.dev/webhook/github',
+    redirect_url: 'https://ntoledo319.github.io/EOLkits/pack/installed',
     setup_on_install: true,
     default_permissions: {
       contents: 'write',

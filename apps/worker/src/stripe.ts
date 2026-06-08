@@ -1,5 +1,5 @@
 /**
- * Stripe integration for Rupture
+ * Stripe integration for EOLkits
  * - Checkout sessions
  * - Webhook handling with idempotency
  * - Refund processing
@@ -113,7 +113,7 @@ async function handleCheckoutCompleted(session: any, env: Env): Promise<void> {
         type: 'audit_pdf',
         sessionId: session.id,
         email,
-        uploadUrl: metadata.upload_url,
+        upload_url: metadata.upload_url,
         deadline: metadata.deadline,
       });
       break;
@@ -143,7 +143,7 @@ async function handleCheckoutCompleted(session: any, env: Env): Promise<void> {
         sessionId: session.id,
         email,
         repo: metadata.repo,
-        iamRole: metadata.iam_role,
+        iam_role: metadata.iam_role,
       });
       break;
   }
@@ -190,19 +190,19 @@ async function createAuditCheckout(request: Request, env: Env): Promise<Response
     const session = await stripeRequest(env, '/v1/checkout/sessions', {
       'payment_method_types[0]': 'card',
       'line_items[0][price_data][currency]': 'usd',
-      'line_items[0][price_data][product_data][name]': 'Rupture Audit PDF',
+      'line_items[0][price_data][product_data][name]': 'EOLkits Audit PDF',
       'line_items[0][price_data][unit_amount]': String(price * 100),
       'line_items[0][quantity]': '1',
       'mode': 'payment',
-      'success_url': 'https://ntoledo319.github.io/Rupture/verify?session_id={CHECKOUT_SESSION_ID}',
-      'cancel_url': 'https://ntoledo319.github.io/Rupture/audit',
+      'success_url': 'https://ntoledo319.github.io/EOLkits/verify?session_id={CHECKOUT_SESSION_ID}',
+      'cancel_url': 'https://ntoledo319.github.io/EOLkits/audit',
       'customer_email': email,
-      'metadata[project]': 'rupture',
+      'metadata[project]': 'eolkits',
       'metadata[sku]': 'audit',
       'metadata[email]': email,
       'metadata[upload_url]': uploadUrl || '',
       'metadata[deadline]': deadline || '',
-      'payment_intent_data[metadata][project]': 'rupture',
+      'payment_intent_data[metadata][project]': 'eolkits',
       'payment_intent_data[metadata][sku]': 'audit',
     });
 
@@ -242,19 +242,19 @@ async function createPackCheckout(request: Request, env: Env): Promise<Response>
     const session = await stripeRequest(env, '/v1/checkout/sessions', {
       'payment_method_types[0]': 'card',
       'line_items[0][price_data][currency]': 'usd',
-      'line_items[0][price_data][product_data][name]': 'Rupture Migration Pack',
+      'line_items[0][price_data][product_data][name]': 'EOLkits Migration Pack',
       'line_items[0][price_data][unit_amount]': '149900',
       'line_items[0][quantity]': '1',
       'mode': 'payment',
-      'success_url': 'https://ntoledo319.github.io/Rupture/status?session_id={CHECKOUT_SESSION_ID}',
-      'cancel_url': 'https://ntoledo319.github.io/Rupture/pack',
+      'success_url': 'https://ntoledo319.github.io/EOLkits/status?session_id={CHECKOUT_SESSION_ID}',
+      'cancel_url': 'https://ntoledo319.github.io/EOLkits/pack',
       'customer_email': email,
-      'metadata[project]': 'rupture',
+      'metadata[project]': 'eolkits',
       'metadata[sku]': 'migration_pack',
       'metadata[email]': email,
       'metadata[repo]': repo,
       'metadata[installation_id]': installationId || '',
-      'payment_intent_data[metadata][project]': 'rupture',
+      'payment_intent_data[metadata][project]': 'eolkits',
       'payment_intent_data[metadata][sku]': 'migration_pack',
     });
 
@@ -354,9 +354,9 @@ export async function autoRefund(chargeId: string, reason: string, env: Env): Pr
     await stripeRequest(env, '/v1/refunds', {
       charge: chargeId,
       reason: 'requested_by_customer',
-      'metadata[project]': 'rupture',
+      'metadata[project]': 'eolkits',
       'metadata[reason]': reason,
-      'metadata[managed_by]': 'rupture-auto-refund',
+      'metadata[managed_by]': 'eolkits-auto-refund',
     });
     console.log(`Refund successful for ${chargeId}`);
   } catch (error) {

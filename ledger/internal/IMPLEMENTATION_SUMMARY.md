@@ -1,6 +1,6 @@
-# Rupture Project - Implementation Summary
+# EOLkits Project - Implementation Summary
 
-This document summarizes the comprehensive implementation of the Rupture autonomous business runbook.
+This document summarizes the comprehensive implementation of the EOLkits autonomous business runbook.
 
 ## Completed Infrastructure
 
@@ -72,7 +72,7 @@ This document summarizes the comprehensive implementation of the Rupture autonom
 ## Architecture Overview
 
 ```
-Rupture/
+EOLkits/
 ├── apps/
 │   ├── worker/          # Cloudflare Worker (TypeScript)
 │   ├── runner/          # Containerized job processor (Python)
@@ -135,6 +135,6 @@ The following tasks require external dependencies or manual actions:
 
 - ✅ All platform ToS checked (GitHub, Stripe, Cloudflare)
 - ✅ Legal documents based on open templates
-- ✅ .no-rupture opt-out mechanism implemented
+- ✅ .no-eolkits opt-out mechanism implemented
 - ✅ Data Processing Agreement included
 - ✅ Security policy with disclosure guidelines

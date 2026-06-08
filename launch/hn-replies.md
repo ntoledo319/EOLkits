@@ -14,7 +14,7 @@ Pre-written answers to the questions HN will absolutely ask. Lead with the answe
 ## "Why not Renovate / Dependabot?"
 
 ```
-Renovate updates package.json versions. The runtime upgrade also lives in IaC (SAM Runtime: nodejs20.x, CDK lambda.Runtime.NODEJS_20_X, Terraform runtime = "nodejs20.x") and in source code (the import-assertion → import-attribute syntax change is a hard parse error in Node 22, not a dep bump). Rupture is the part that handles those — the codemod plus the IaC patch plus the deploy/rollback. It's complementary to Renovate, not a replacement.
+Renovate updates package.json versions. The runtime upgrade also lives in IaC (SAM Runtime: nodejs20.x, CDK lambda.Runtime.NODEJS_20_X, Terraform runtime = "nodejs20.x") and in source code (the import-assertion → import-attribute syntax change is a hard parse error in Node 22, not a dep bump). EOLkits is the part that handles those — the codemod plus the IaC patch plus the deploy/rollback. It's complementary to Renovate, not a replacement.
 ```
 
 ## "AWS already emails you about this. Why a tool?"
@@ -38,7 +38,7 @@ The CLIs are MIT and complete. You can run scan / codemod / iac / deploy / rollb
 ## "Mutation testing at 80% — what tool?"
 
 ```
-mutmut for the Python kits, Stryker for lambda-lifeline. The runs are in CI, gated, and the score thresholds are checked on every PR. The current weekly mutation run is signed off the main branch. Result: https://github.com/ntoledo319/Rupture/actions/workflows/mutation.yml
+mutmut for the Python kits, Stryker for lambda-lifeline. The runs are in CI, gated, and the score thresholds are checked on every PR. The current weekly mutation run is signed off the main branch. Result: https://github.com/ntoledo319/EOLkits/actions/workflows/mutation.yml
 ```
 
 ## "What's the codemod tech?"
@@ -88,7 +88,7 @@ The two-file diff is the entire output: template.yaml runtime bumped (twice), pr
 ## "Is the audit PDF actually verifiable or is the SHA-256 a vibe?"
 
 ```
-Verifiable. Every PDF embeds the SHA-256 of the input artifact, the rule-pack version SHA, the kit version, and a verification URL hosted at ntoledo319.github.io/Rupture/audit/verify. You paste the embedded hash into the verify page; it returns either a match (bytes-identical) or a mismatch with the diff. If the page is down, the same check is reproducible offline with shasum -a 256 against the inputs the PDF documents.
+Verifiable. Every PDF embeds the SHA-256 of the input artifact, the rule-pack version SHA, the kit version, and a verification URL hosted at ntoledo319.github.io/EOLkits/audit/verify. You paste the embedded hash into the verify page; it returns either a match (bytes-identical) or a mismatch with the diff. If the page is down, the same check is reproducible offline with shasum -a 256 against the inputs the PDF documents.
 ```
 
 ## "Why post this now and not before April 30?"

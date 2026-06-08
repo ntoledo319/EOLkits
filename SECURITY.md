@@ -1,4 +1,4 @@
-# Security Policy — Rupture
+# Security Policy — EOLkits
 
 ## Supported Versions
 
@@ -13,7 +13,7 @@
 
 Instead:
 1. Open a private vulnerability report on GitHub:
-   - Go to https://github.com/ntoledo319/Rupture/security/advisories
+   - Go to https://github.com/ntoledo319/EOLkits/security/advisories
    - Click "Report a vulnerability"
 2. Or contact via GitHub Discussions with "[SECURITY]" prefix
 
@@ -29,7 +29,7 @@ Instead:
 - Sigstore-signed binaries
 
 ### Infrastructure
-- Cloudflare Workers (edge-deployed, DDoS protected)
+- GRACE-managed VPS deployment with host Caddy, Docker, and satellite monitoring
 - Stripe for payments (PCI DSS Level 1)
 - All data encrypted in transit (TLS 1.3) and at rest (AES-256)
 - Uploaded files auto-deleted after 30 days
@@ -38,7 +38,7 @@ Instead:
 ### GitHub App
 - Minimum required permissions only
 - No access to private code without explicit install
-- `.no-rupture` opt-out file supported
+- `.no-eolkits` opt-out file supported
 - Abuse endpoint for immediate blocking
 
 ## Bug Bounty
@@ -53,13 +53,13 @@ Instead:
 | Low (Best practice) | GitHub mention |
 
 **Scope:**
-- https://ntoledo319.github.io/Rupture/*
-- Cloudflare Worker endpoints
+- https://eolkits.com/*
+- https://eolkits.com/health and EOLkits API paths on the same host
 - GitHub App webhooks
 - Open-source CLI tools
 
 **Out of scope:**
-- Third-party services (Stripe, GitHub, Cloudflare)
+- Third-party services (Stripe, GitHub, hosting providers)
 - Social engineering
 - DOS/availability issues
 - Physical security
@@ -77,7 +77,7 @@ We support safe harbor for security researchers:
 - [ ] Review generated PRs before merging
 - [ ] Use least-privilege IAM roles for scanning
 - [ ] Enable 2FA on your GitHub account
-- [ ] Review the `.no-rupture` file option for opt-out
+- [ ] Review the `.no-eolkits` file option for opt-out
 
 ## Incident History
 

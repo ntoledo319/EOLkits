@@ -8,6 +8,11 @@ on:
 permissions:
   contents: write
 
+# A queued nightly run must not overwrite a freshly deployed build.
+concurrency:
+  group: seo-pages
+  cancel-in-progress: false
+
 jobs:
   regen:
     runs-on: ubuntu-latest
@@ -23,9 +28,15 @@ jobs:
         run: |
           git config user.name "rupture-bot"
           git config user.email "rupture-bot@users.noreply.github.com"
-          git add docs/migrate docs/vs docs/sitemap.xml docs/deprecations.ics docs/llms.txt docs/robots.txt
+          # Commit the FULL generated set. The previous subset omitted
+          # index/audit/pack/license/partners/legal, so regressions to those
+          # pages would silently never be committed. Exclude the externally
+          # generated status file so we don't fight status-synth.
+          git add docs/
+          git reset -q -- docs/status/data.json 2>/dev/null || true
           if ! git diff --cached --quiet; then
             git commit -m "chore(seo): nightly regeneration"
+            git pull --rebase origin main
             git push
           else
             echo "no SEO changes"

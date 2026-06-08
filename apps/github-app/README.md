@@ -1,10 +1,10 @@
-# Rupture Migration Bot — GitHub App
+# EOLkits Migration Bot — GitHub App
 
-The Rupture Migration Bot opens migration PRs on repositories that have **explicitly installed it**. Installation is consent. The bot will never open PRs on a repository that has not installed it.
+The EOLkits Migration Bot opens migration PRs on repositories that have **explicitly installed it**. Installation is consent. The bot will never open PRs on a repository that has not installed it.
 
 ## Install
 
-Visit https://github.com/apps/rupture-migration-bot and click **Install**. Choose the repositories you want to migrate; defaults to "select repositories" (not all).
+Visit https://github.com/apps/eolkits-migration-bot and click **Install**. Choose the repositories you want to migrate; defaults to "select repositories" (not all).
 
 ## What the bot does
 
@@ -26,7 +26,7 @@ On install, the bot scans the selected repositories for affected runtimes (Lambd
 
 ## Opt-out for installed repos
 
-Drop a file named `.no-rupture` (any contents) at the root of any repo. The bot honors it within 60 seconds.
+Drop a file named `.no-eolkits` (any contents) at the root of any repo. The bot honors it within 60 seconds.
 
 ## Abuse reporting
 
@@ -38,15 +38,17 @@ The minimum required to open a PR. See `permissions.md` for the precise list.
 
 ## Operator setup (one-time)
 
-After registering the GitHub App from `manifest.json` (the worker's `/pack/install` endpoint generates the manifest URL), wire its credentials into the worker and runner:
+After registering the GitHub App from `manifest.json` (the GRACE API `/pack/install` endpoint generates the manifest URL), wire its credentials into the GRACE-managed `eolkits-api` service:
 
 ```bash
-cd apps/worker
-./scripts/setup_github_app.sh \
-  --app-id 123456 \
-  --private-key-pem ~/Downloads/rupture-bot.private-key.pem \
-  --webhook-secret "$(openssl rand -hex 32)"
+cd /home/ubuntu/sites/eolkits-api
+sudo tee -a .env.production >/dev/null <<'EOF'
+GITHUB_APP_ID=123456
+GITHUB_APP_PRIVATE_KEY=<pem contents with newlines escaped or mounted securely>
+GITHUB_WEBHOOK_SECRET=<openssl rand -hex 32>
+EOF
+sudo docker compose -p eolkits-api --env-file .env.production up -d --build
 ```
 
-The script pushes `GITHUB_APP_ID`, `GITHUB_APP_PRIVATE_KEY`, and `GITHUB_WEBHOOK_SECRET` into the Cloudflare worker via `wrangler secret put`. The same `APP_ID` and private-key contents must also be available to the runner container that processes `migration_pr` jobs (export them as environment variables on the host or set them as Render/Fly secrets).
+The GitHub App webhook should point to `https://eolkits.com/webhook/github`. Do not point new production traffic at the legacy Cloudflare Worker.
 

@@ -69,8 +69,8 @@ async function findOrCreateProduct(
   return stripeReq<{ id: string }>('/products', {
     name,
     description: description ?? '',
-    'metadata[project]': 'rupture',
-    'metadata[managed_by]': 'rupture-setup',
+    'metadata[project]': 'eolkits',
+    'metadata[managed_by]': 'eolkits-setup',
   });
 }
 
@@ -90,8 +90,8 @@ async function findOrCreatePrice(
     product: productId,
     unit_amount: String(Math.round(amountUsd * 100)),
     currency: 'usd',
-    'metadata[project]': 'rupture',
-    'metadata[managed_by]': 'rupture-setup',
+    'metadata[project]': 'eolkits',
+    'metadata[managed_by]': 'eolkits-setup',
   };
   if (interval) body['recurring[interval]'] = interval;
   if (lookupKey) body.lookup_key = lookupKey;
@@ -103,8 +103,8 @@ async function createPaymentLink(priceId: string): Promise<{ url: string }> {
     'line_items[0][price]': priceId,
     'line_items[0][quantity]': '1',
     'payment_method_types[0]': 'card',
-    'metadata[project]': 'rupture',
-    'metadata[managed_by]': 'rupture-setup',
+    'metadata[project]': 'eolkits',
+    'metadata[managed_by]': 'eolkits-setup',
   });
   return r;
 }
@@ -118,7 +118,7 @@ async function provisionSku(key: string, sku: Sku): Promise<Sku> {
 
   if (sku.tiers && sku.tiers.length) {
     for (const tier of sku.tiers) {
-      const lookup = `rupture_${key}_${tier.name}`;
+      const lookup = `eolkits_${key}_${tier.name}`;
       const price = await findOrCreatePrice(
         product.id,
         tier.price_usd,
@@ -131,7 +131,7 @@ async function provisionSku(key: string, sku: Sku): Promise<Sku> {
       console.log(`  tier ${tier.name}: ${price.id}`);
     }
   } else if (sku.price_usd != null) {
-    const lookup = `rupture_${key}`;
+    const lookup = `eolkits_${key}`;
     const price = await findOrCreatePrice(
       product.id,
       sku.price_usd,

@@ -99,24 +99,24 @@ function toPrometheusMetrics(status: {
   const lines = [];
   
   // Overall health
-  lines.push('# HELP rupture_overall_health Overall health status (1 = healthy, 0 = degraded)');
-  lines.push('# TYPE rupture_overall_health gauge');
-  lines.push(`rupture_overall_health ${status.overall === 'healthy' ? 1 : 0}`);
+  lines.push('# HELP eolkits_overall_health Overall health status (1 = healthy, 0 = degraded)');
+  lines.push('# TYPE eolkits_overall_health gauge');
+  lines.push(`eolkits_overall_health ${status.overall === 'healthy' ? 1 : 0}`);
   
   // Component health
   for (const [component, data] of Object.entries(status.components)) {
     if (isComponentHealth(data)) {
-      lines.push(`# HELP rupture_${component}_health ${component} health`);
-      lines.push(`# TYPE rupture_${component}_health gauge`);
-      lines.push(`rupture_${component}_health ${data.ok ? 1 : 0}`);
+      lines.push(`# HELP eolkits_${component}_health ${component} health`);
+      lines.push(`# TYPE eolkits_${component}_health gauge`);
+      lines.push(`eolkits_${component}_health ${data.ok ? 1 : 0}`);
     }
   }
   
   // Cap usage
   for (const [cap, data] of Object.entries(status.components.caps)) {
-    lines.push(`# HELP rupture_cap_usage_${cap} ${cap} usage percentage`);
-    lines.push(`# TYPE rupture_cap_usage_${cap} gauge`);
-    lines.push(`rupture_cap_usage_${cap} ${data.percentage}`);
+    lines.push(`# HELP eolkits_cap_usage_${cap} ${cap} usage percentage`);
+    lines.push(`# TYPE eolkits_cap_usage_${cap} gauge`);
+    lines.push(`eolkits_cap_usage_${cap} ${data.percentage}`);
   }
   
   return lines.join('\n');

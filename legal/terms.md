@@ -1,14 +1,14 @@
-# Terms of Service — Rupture
+# Terms of Service — EOLkits
 
 **Last updated:** April 29, 2026
 
 ## 1. Acceptance of Terms
 
-By accessing or using Rupture's services (the "Services"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the Services.
+By accessing or using EOLkits's services (the "Services"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the Services.
 
 ## 2. Description of Services
 
-Rupture provides automated migration tools for AWS platform deprecations, including:
+EOLkits provides automated migration tools for AWS platform deprecations, including:
 - Open-source CLI tools (MIT licensed)
 - Hash-anchored audit reports (paid)
 - Automated pull request generation (paid)
@@ -59,7 +59,7 @@ The CLI tools are released under the MIT License and are available on GitHub. Yo
 
 ## 7. Limitations and Disclaimers
 
-THE SERVICES ARE PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. Rupture is not liable for:
+THE SERVICES ARE PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. EOLkits is not liable for:
 - AWS service changes or deprecation schedule changes
 - Migration failures in your specific environment
 - Data loss or service interruptions
@@ -85,7 +85,7 @@ You may uninstall at any time via GitHub settings.
 ## 10. Abuse and Opt-Out
 
 Repository owners may:
-- Add `.no-rupture` file to repo root to block auto-PRs
+- Add `.no-eolkits` file to repo root to block auto-PRs
 - Report abuse via `/abuse` endpoint
 - Requests are processed within 60 seconds
 
@@ -96,7 +96,7 @@ We may update these Terms from time to time. Continued use after changes constit
 ## 12. Contact
 
 For questions about these Terms:
-- GitHub Discussions: https://github.com/ntoledo319/Rupture/discussions
+- GitHub Discussions: https://github.com/ntoledo319/EOLkits/discussions
 - Legal inquiries: See GitHub profile for contact
 
 ## 13. Governing Law
@@ -105,4 +105,4 @@ These Terms shall be governed by the laws of the jurisdiction where the operator
 
 ---
 
-*By using Rupture, you acknowledge that you have read, understood, and agree to these Terms of Service.*
+*By using EOLkits, you acknowledge that you have read, understood, and agree to these Terms of Service.*

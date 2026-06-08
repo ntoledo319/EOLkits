@@ -8,6 +8,11 @@ on:
 permissions:
   contents: write
 
+# Never let two synthetic-check runs race to commit/push the status file.
+concurrency:
+  group: status-synth
+  cancel-in-progress: false
+
 jobs:
   synth:
     runs-on: ubuntu-latest
@@ -17,8 +22,8 @@ jobs:
         id: probe
         run: |
           set +e
-          PAGES_URL="${{ vars.PAGES_URL || 'https://ntoledo319.github.io/Rupture' }}"
-          WORKER_URL="${{ vars.WORKER_URL || 'https://rupture-worker.rupture-kits.workers.dev' }}"
+          PAGES_URL="${{ vars.PAGES_URL || 'https://eolkits.com' }}"
+          WORKER_URL="${{ vars.WORKER_URL || 'https://eolkits.com' }}"
           NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           status() { curl -s -o /dev/null -w '%{http_code}' --max-time 8 "$1"; }
           PAGES_CODE=$(status "$PAGES_URL/status/")
@@ -40,7 +45,7 @@ jobs:
             "checks": {
               "stripe": {"ok": $(component_ok '.components.stripe.ok == true'), "last_checked": "$NOW"},
               "worker": {"ok": $(component_ok '.overall == "healthy"'), "code": $WORKER_CODE, "last_checked": "$NOW"},
-              "runner": {"ok": $(component_ok '.components.queue.ok == true'), "last_checked": "$NOW"},
+              "runner": {"ok": $(component_ok '.components.runner.ok == true'), "last_checked": "$NOW"},
               "email": {"ok": $(component_ok '.components.email.ok == true'), "last_checked": "$NOW"},
               "github": {"ok": $(component_ok '.components.github.ok == true'), "last_checked": "$NOW"},
               "pages": {"ok": $(ok $PAGES_CODE), "code": $PAGES_CODE, "last_checked": "$NOW"},

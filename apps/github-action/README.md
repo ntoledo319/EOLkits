@@ -1,11 +1,11 @@
-# `rupture/check` — GitHub Action
+# `eolkits/check` — GitHub Action
 
 Free GitHub Action that scans your IaC and source for AWS runtime deprecation issues, annotates the PR, and links to the paid Audit PDF for the deeper report.
 
 ## Usage
 
 ```yaml
-- uses: ntoledo319/Rupture@v1
+- uses: ntoledo319/EOLkits@v1
   with:
     kit: auto          # or: all | lambda-lifeline | al2023-gate | python-pivot
     path: .
@@ -27,7 +27,7 @@ See `action.yml`. All optional with sensible defaults.
 
 ## What it does NOT do
 
-- It does not modify your code. Use the paid **Migration Pack** (`https://ntoledo319.github.io/Rupture/pack/`) for that.
+- It does not modify your code. Use the paid **Migration Pack** (`https://ntoledo319.github.io/EOLkits/pack/`) for that.
 - It does not send any data outside the runner. Install traffic is limited to GitHub Actions setup actions plus local package installs from the checked-out action source.
 
 ## Pricing

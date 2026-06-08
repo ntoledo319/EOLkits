@@ -2,14 +2,14 @@
 Migration PR creation — opens real PRs on user repositories.
 
 Authenticates as a GitHub App installation, clones the target repo, runs the
-appropriate Rupture kit (lambda-lifeline / al2023-gate / python-pivot), commits
+appropriate EOLkits kit (lambda-lifeline / al2023-gate / python-pivot), commits
 the codemod output to a new branch, and opens a PR with refund-guarantee body.
 
 Required environment:
   GITHUB_APP_ID            - numeric App ID
   GITHUB_APP_PRIVATE_KEY   - PEM contents (PKCS#1 or PKCS#8)
-  RUPTURE_GIT_USER_EMAIL   - optional, default rupture-bot@users.noreply.github.com
-  RUPTURE_GIT_USER_NAME    - optional, default "rupture-bot"
+  RUPTURE_GIT_USER_EMAIL   - optional, default eolkits-bot@users.noreply.github.com
+  RUPTURE_GIT_USER_NAME    - optional, default "eolkits-bot"
 """
 
 from __future__ import annotations
@@ -17,11 +17,11 @@ from __future__ import annotations
 import base64
 import json
 import os
-import shutil
 import subprocess
 import tempfile
 import time
-from typing import Dict, List, Optional
+from contextlib import contextmanager
+from typing import Dict, Iterator, List, Optional
 
 import requests
 
@@ -32,8 +32,8 @@ except ImportError:  # pragma: no cover - jwt is added in requirements.txt
 
 
 GITHUB_API = "https://api.github.com"
-DEFAULT_GIT_USER_EMAIL = "rupture-bot@users.noreply.github.com"
-DEFAULT_GIT_USER_NAME = "rupture-bot"
+DEFAULT_GIT_USER_EMAIL = "eolkits-bot@users.noreply.github.com"
+DEFAULT_GIT_USER_NAME = "eolkits-bot"
 KIT_SCAN_TIMEOUT_SECS = 600
 
 
@@ -48,8 +48,8 @@ def create_migration_pr(
 
     token = mint_installation_token(str(installation_id))
 
-    if check_no_rupture(repo, token):
-        raise ValueError(f"Repository {repo} has opted out via .no-rupture file")
+    if check_no_eolkits(repo, token):
+        raise ValueError(f"Repository {repo} has opted out via .no-eolkits file")
 
     default_branch = get_default_branch(repo, token)
     kit = detect_kit_for_repo(repo, token)
@@ -62,7 +62,7 @@ def create_migration_pr(
             raise ValueError("No applicable deprecations found in repository")
 
         short_hash = os.urandom(4).hex()
-        branch_name = f"rupture/migrate-{kit}-{short_hash}"
+        branch_name = f"eolkits/migrate-{kit}-{short_hash}"
 
         create_branch(workdir, branch_name)
         apply_codemods(kit, workdir, findings)
@@ -70,7 +70,7 @@ def create_migration_pr(
         if not has_changes(workdir):
             raise ValueError("Kit ran but produced no diff; nothing to commit")
 
-        pr_title = f"[Rupture] Migrate {kit.replace('-', ' ')} deprecated patterns"
+        pr_title = f"[EOLkits] Migrate {kit.replace('-', ' ')} deprecated patterns"
         pr_body = generate_pr_body(kit, findings, email)
 
         configure_git_identity(workdir)
@@ -143,7 +143,7 @@ def _gh_headers(token: str) -> Dict[str, str]:
         "Authorization": f"token {token}",
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
-        "User-Agent": "rupture-runner",
+        "User-Agent": "eolkits-runner",
     }
 
 
@@ -158,10 +158,10 @@ def get_default_branch(repo: str, token: str) -> str:
     return resp.json().get("default_branch", "main")
 
 
-def check_no_rupture(repo: str, token: str) -> bool:
-    """Look for a `.no-rupture` opt-out file at the repo root."""
+def check_no_eolkits(repo: str, token: str) -> bool:
+    """Look for a `.no-eolkits` opt-out file at the repo root."""
     resp = requests.get(
-        f"{GITHUB_API}/repos/{repo}/contents/.no-rupture",
+        f"{GITHUB_API}/repos/{repo}/contents/.no-eolkits",
         headers=_gh_headers(token),
         timeout=15,
     )
@@ -213,64 +213,99 @@ def detect_kit_for_repo(repo: str, token: str) -> str:
 # -------- Git operations ---------------------------------------------------- #
 
 
+@contextmanager
+def _git_token_env(token: str) -> Iterator[Dict[str, str]]:
+    """Yield an environment that authenticates git over HTTPS without ever
+    placing the installation token in a URL/argv (which leaks into process
+    listings, reflogs, and error output). The token is delivered out-of-band via
+    a temporary GIT_ASKPASS helper that reads it from the environment."""
+    fd, script_path = tempfile.mkstemp(prefix="eolkits-askpass-", suffix=".sh")
+    try:
+        with os.fdopen(fd, "w") as fh:
+            fh.write('#!/bin/sh\nprintf "%s" "$EOLKITS_GIT_TOKEN"\n')
+        os.chmod(script_path, 0o700)
+        env = dict(os.environ)
+        env["GIT_ASKPASS"] = script_path
+        env["EOLKITS_GIT_TOKEN"] = token
+        env["GIT_TERMINAL_PROMPT"] = "0"
+        yield env
+    finally:
+        try:
+            os.unlink(script_path)
+        except OSError:
+            pass
+
+
+def _redact(text: str, token: str) -> str:
+    if not text:
+        return text or ""
+    return text.replace(token, "***") if token else text
+
+
+def _run_git(
+    args: List[str],
+    *,
+    cwd: Optional[str] = None,
+    env: Optional[Dict[str, str]] = None,
+    token: str = "",
+) -> subprocess.CompletedProcess:
+    proc = subprocess.run(["git", *args], cwd=cwd, env=env, capture_output=True, text=True)
+    if proc.returncode != 0:
+        # Never surface the token in stored/forwarded error strings.
+        raise RuntimeError(
+            f"git {args[0]} failed (exit {proc.returncode}): "
+            f"{_redact((proc.stderr or '').strip()[:500], token)}"
+        )
+    return proc
+
+
 def configure_git_identity(workdir: str) -> None:
     email = os.environ.get("RUPTURE_GIT_USER_EMAIL", DEFAULT_GIT_USER_EMAIL)
     name = os.environ.get("RUPTURE_GIT_USER_NAME", DEFAULT_GIT_USER_NAME)
-    subprocess.run(
-        ["git", "config", "user.email", email], cwd=workdir, check=True
-    )
-    subprocess.run(
-        ["git", "config", "user.name", name], cwd=workdir, check=True
-    )
+    _run_git(["config", "user.email", email], cwd=workdir)
+    _run_git(["config", "user.name", name], cwd=workdir)
 
 
 def clone_repo(repo: str, token: str, workdir: str, branch: str) -> None:
-    """Clone using HTTPS with the installation token as the password."""
-    url = f"https://x-access-token:{token}@github.com/{repo}.git"
-    subprocess.run(
-        ["git", "clone", "--depth", "1", "--branch", branch, url, workdir],
-        check=True,
-        capture_output=True,
-    )
+    """Clone over HTTPS using GIT_ASKPASS for the token (never in the URL)."""
+    url = f"https://x-access-token@github.com/{repo}.git"
+    with _git_token_env(token) as env:
+        _run_git(
+            ["clone", "--depth", "1", "--branch", branch, url, workdir],
+            env=env,
+            token=token,
+        )
 
 
 def has_changes(workdir: str) -> bool:
-    out = subprocess.run(
-        ["git", "status", "--porcelain"], cwd=workdir, capture_output=True, text=True, check=True
-    )
+    out = _run_git(["status", "--porcelain"], cwd=workdir)
     return bool(out.stdout.strip())
 
 
 def create_branch(workdir: str, branch_name: str) -> None:
-    subprocess.run(
-        ["git", "checkout", "-b", branch_name],
-        cwd=workdir,
-        check=True,
-        capture_output=True,
-    )
+    _run_git(["checkout", "-b", branch_name], cwd=workdir)
 
 
 def commit_and_push(
     workdir: str, branch_name: str, kit: str, repo: str, token: str
 ) -> None:
-    subprocess.run(["git", "add", "-A"], cwd=workdir, check=True)
-    subprocess.run(
+    _run_git(["add", "-A"], cwd=workdir)
+    _run_git(
         [
-            "git",
             "commit",
             "-m",
-            f"[rupture] apply {kit} migration\n\nGenerated by rupture-bot. See PR body for details.",
+            f"[eolkits] apply {kit} migration\n\nGenerated by eolkits-bot. See PR body for details.",
         ],
         cwd=workdir,
-        check=True,
     )
-    push_url = f"https://x-access-token:{token}@github.com/{repo}.git"
-    subprocess.run(
-        ["git", "push", push_url, f"HEAD:refs/heads/{branch_name}"],
-        cwd=workdir,
-        check=True,
-        capture_output=True,
-    )
+    push_url = f"https://x-access-token@github.com/{repo}.git"
+    with _git_token_env(token) as env:
+        _run_git(
+            ["push", push_url, f"HEAD:refs/heads/{branch_name}"],
+            cwd=workdir,
+            env=env,
+            token=token,
+        )
 
 
 # -------- Kit invocation ---------------------------------------------------- #
@@ -294,25 +329,30 @@ def _repo_relative(path: str, workdir: str) -> str:
 def _kit_command(kit: str, action: str, workdir: str) -> List[str]:
     """Return the CLI invocation for a kit's static-mode analysis or apply step.
 
-    The bot runs in a CI worker that has no access to the user's AWS account, so
-    we never call kit `scan` subcommands (those hit live AWS APIs). Instead we
-    use the static repo-scanning subcommands: `iac` for SAM/CFN/CDK/Terraform
-    template patching, and `codemod` for source rewrites. Both support a
-    `--dry-run` posture by default and an `--apply` flag for in-place edits.
+    The bot runs in a CI worker with NO access to the user's AWS account, so we
+    never call the kits' live `scan` subcommands. We use only static,
+    repo-file subcommands, and the invocations below match each kit's real CLI:
+
+      * lambda-lifeline (Node): `iac --path <dir> [--apply]`, `codemod --path <dir> [--apply]`
+      * python-pivot   (Py):   `iac <path> [--apply]`, `codemod <path> [--apply]`  (positional path)
+      * al2023-gate    (Py):   `ansible <path> [--apply]`  (positional path; patches playbooks)
+
+    The previously shipped al2023-gate `patch`/`--path`/`--json` and
+    python-pivot `scan --path --json` forms do not exist in those CLIs and would
+    crash every sandbox PR; these are the corrected contracts.
     """
+    apply = action == "apply"
     if kit == "lambda-lifeline":
-        if action == "scan":
-            # Static scan via dry-run IaC patcher; emits a hit count we can gate on.
-            return ["lambda-lifeline", "iac", "--path", workdir]
-        return ["lambda-lifeline", "iac", "--path", workdir, "--apply"]
+        cmd = ["lambda-lifeline", "iac", "--path", workdir]
+        return cmd + (["--apply"] if apply else [])
     if kit == "al2023-gate":
-        if action == "scan":
-            return ["al2023-gate", "scan", "--path", workdir, "--json"]
-        return ["al2023-gate", "patch", "--path", workdir, "--apply"]
+        # `ansible` takes a positional path and patches yum->dnf / py2->py3 etc.
+        cmd = ["al2023-gate", "ansible", workdir]
+        return cmd + (["--apply"] if apply else [])
     if kit == "python-pivot":
-        if action == "scan":
-            return ["python-pivot", "scan", "--path", workdir, "--json"]
-        return ["python-pivot", "codemod", "--path", workdir, "--apply"]
+        # `iac` takes a positional path and patches SAM/CDK/Terraform/Serverless.
+        cmd = ["python-pivot", "iac", workdir]
+        return cmd + (["--apply"] if apply else [])
     raise ValueError(f"Unknown kit: {kit}")
 
 
@@ -359,13 +399,31 @@ def run_kit_analysis(kit: str, workdir: str) -> List[Dict]:
                     continue
         return findings
 
+    # python-pivot `iac` and al2023-gate `ansible` print human-readable dry-run
+    # output rather than JSON. Parse it tolerantly: keep lines that reference a
+    # concrete file/change; if the command produced change output at all, ensure
+    # at least one finding so the flow proceeds (the post-apply has_changes guard
+    # still prevents empty PRs).
     try:
         parsed = json.loads(proc.stdout or "[]")
+        if isinstance(parsed, dict):
+            return parsed.get("findings", [])
+        if isinstance(parsed, list):
+            return parsed
     except json.JSONDecodeError:
-        return []
-    if isinstance(parsed, dict):
-        return parsed.get("findings", [])
-    return parsed if isinstance(parsed, list) else []
+        pass
+
+    change_markers = ("rewrite", "patch", "runtime", "→", "->", "would", "dnf", "python3")
+    findings: List[Dict] = []
+    for raw in (proc.stdout or "").splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        if any(marker in line.lower() for marker in change_markers) or "/" in line:
+            findings.append({"type": f"{kit}-finding", "file": _repo_relative(line[:120], workdir), "line": "N/A"})
+    if not findings and proc.returncode == 0 and (proc.stdout or "").strip():
+        findings.append({"type": f"{kit}-finding", "file": "(repository)", "line": "N/A"})
+    return findings
 
 
 def apply_codemods(kit: str, workdir: str, findings: List[Dict]) -> None:
@@ -378,22 +436,26 @@ def apply_codemods(kit: str, workdir: str, findings: List[Dict]) -> None:
             f"Kit apply failed ({kit}, exit {proc.returncode}): {proc.stderr.strip()[:500]}"
         )
 
-    # For lambda-lifeline, the IaC patcher only fixes templates. Run the source
-    # codemod as a follow-up so PRs include both runtime-string updates AND
-    # Node 20→22 syntax migrations (assert→with on JSON imports, etc.) when
-    # both apply. Source codemod failure is non-fatal — IaC alone is enough
-    # to ship a meaningful PR.
-    if kit == "lambda-lifeline":
+    # The IaC patcher only fixes templates. Run the source codemod as a
+    # follow-up so PRs include both runtime-string updates AND source migrations
+    # when both apply. Source codemod failure is non-fatal — the IaC patch alone
+    # is enough to ship a meaningful PR. Each kit's codemod has a distinct arg
+    # shape (lambda-lifeline uses `--path`; python-pivot a positional path).
+    codemod_followups = {
+        "lambda-lifeline": ["lambda-lifeline", "codemod", "--path", workdir, "--apply"],
+        "python-pivot": ["python-pivot", "codemod", workdir, "--apply"],
+    }
+    followup = codemod_followups.get(kit)
+    if followup:
         codemod_proc = subprocess.run(
-            ["lambda-lifeline", "codemod", "--path", workdir, "--apply"],
+            followup,
             capture_output=True, text=True, timeout=KIT_SCAN_TIMEOUT_SECS,
         )
-        # Only raise if codemod actually crashed; "no hits" returns 0 and is fine.
+        # Only warn if codemod actually crashed; "no hits" returns 0 and is fine.
         if codemod_proc.returncode != 0 and "No codemod hits" not in (codemod_proc.stdout or ""):
-            # Soft warning into stderr; main IaC patch already applied.
             import sys as _sys
             print(
-                f"[rupture-runner] codemod follow-up exited {codemod_proc.returncode}; "
+                f"[eolkits-runner] codemod follow-up exited {codemod_proc.returncode}; "
                 f"continuing with IaC-only diff. stderr={codemod_proc.stderr[:300]}",
                 file=_sys.stderr,
             )
@@ -403,9 +465,9 @@ def apply_codemods(kit: str, workdir: str, findings: List[Dict]) -> None:
 
 
 def generate_pr_body(kit: str, findings: List[Dict], email: str) -> str:
-    body = f"""## Rupture Automated Migration
+    body = f"""## EOLkits Automated Migration
 
-This PR was generated by [Rupture](https://ntoledo319.github.io/Rupture) to migrate deprecated AWS runtime patterns.
+This PR was generated by [EOLkits](https://eolkits.com) to migrate deprecated AWS runtime patterns.
 
 ### Kit Used
 **{kit}** — Automated codemods and IaC patches
@@ -441,7 +503,7 @@ To override this (e.g., if failure is unrelated), add the `override:ci-failure` 
 
 ---
 *This PR was generated for {email}*
-*Report issues: https://github.com/ntoledo319/Rupture/issues*
+*Report issues: https://github.com/ntoledo319/EOLkits/issues*
 """
     return body
 
@@ -472,7 +534,7 @@ def add_refund_label(repo: str, pr_number: int, token: str) -> None:
         requests.post(
             f"{GITHUB_API}/repos/{repo}/issues/{pr_number}/labels",
             headers=_gh_headers(token),
-            json={"labels": ["rupture", "migration"]},
+            json={"labels": ["eolkits", "migration"]},
             timeout=15,
         )
     except Exception:

@@ -14,13 +14,13 @@ This is the version to paste at submission time. Replaces the earlier draft.
 ## Title
 
 ```
-Show HN: Rupture – CLIs for AWS runtime deprecations (Amazon Linux 2 EOL Jun 30)
+Show HN: EOLkits – CLIs for AWS runtime deprecations (Amazon Linux 2 EOL Jun 30)
 ```
 
 ## Submission URL
 
 ```
-https://github.com/ntoledo319/Rupture
+https://github.com/ntoledo319/EOLkits
 ```
 
 ## Body
@@ -28,7 +28,7 @@ https://github.com/ntoledo319/Rupture
 ```
 Amazon Linux 2 hits end-of-life on Jun 30, 2026. After that, no patches, no new AMIs, anything still pinned to AL2 in a launch template or EKS node group is on borrowed time. Lambda Python 3.9/3.10/3.11 are in their own EOL waves; Node.js 20 already hit Phase 1 EOL on Apr 30 (Phase 3, the update-blocking cliff, is Sep 30). When the cliffs land you can't update functions on those runtimes anymore — the only path is a full re-deploy on a new runtime, or your code is frozen.
 
-I built Rupture: one CLI per deadline.
+I built EOLkits: one CLI per deadline.
 
   al2023-gate       Amazon Linux 2 → AL2023   (Jun 30, 2026)
   python-pivot      Lambda Python 3.9-3.11 → 3.12
@@ -48,11 +48,11 @@ The free GitHub Action runs the dry-run pass on PRs and comments findings. Paid 
 
 Why I built this: every six months AWS sends the same "your runtime is deprecated" email, and there's no integrated tool for any of it. CloudQuery gives you inventory. Migration Hub is for lift-and-shift. aws-samples gives you snippets. Nothing did scan + codemod + IaC patch + canary + rollback for one specific deprecation, end to end. So I scoped each kit tight: one runtime, one deadline, one job.
 
-Repo:           https://github.com/ntoledo319/Rupture
-Action:         ntoledo319/Rupture@v1
-Benchmark:      https://ntoledo319.github.io/Rupture/status/
-Sample PDF:     https://ntoledo319.github.io/Rupture/audit/
-Calendar (.ics): https://ntoledo319.github.io/Rupture/deprecations.ics
+Repo:           https://github.com/ntoledo319/EOLkits
+Action:         ntoledo319/EOLkits@v1
+Benchmark:      https://ntoledo319.github.io/EOLkits/status/
+Sample PDF:     https://ntoledo319.github.io/EOLkits/audit/
+Calendar (.ics): https://ntoledo319.github.io/EOLkits/deprecations.ics
 
 Open to feedback on any of it — codemod rules especially. If you've already done one of these migrations and the kit missed something, tell me. That's the most useful thing anyone can do for me right now.
 ```

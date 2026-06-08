@@ -1,4 +1,4 @@
-# Rupture GitHub App — Permissions
+# EOLkits GitHub App — Permissions
 
 Minimum scopes required, justified.
 
