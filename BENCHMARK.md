@@ -1,6 +1,6 @@
-# EOLkits Public Benchmark
+# Rupture Public Benchmark
 
-Last updated: 2026-06-08T03:20:17.204986+00:00
+Last updated: 2026-06-09T03:17:27.309061+00:00
 
 ## Results Summary
 
