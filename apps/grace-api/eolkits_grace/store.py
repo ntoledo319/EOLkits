@@ -83,8 +83,6 @@ class Store:
                     last_error TEXT
                 );
                 CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status, created_at);
-                CREATE UNIQUE INDEX IF NOT EXISTS idx_jobs_dedupe ON jobs(dedupe_key)
-                    WHERE dedupe_key IS NOT NULL;
 
                 -- Durable record of every Stripe event we accept, so re-delivery
                 -- of the same event is idempotent even across restarts.
@@ -143,7 +141,13 @@ class Store:
                 CREATE INDEX IF NOT EXISTS idx_events_name ON events(name);
                 """
             )
+            # Add columns to pre-existing `jobs` tables BEFORE creating any index
+            # that references them (an old prod DB has jobs without dedupe_key).
             self._migrate_jobs_columns(conn)
+            conn.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS idx_jobs_dedupe ON jobs(dedupe_key) "
+                "WHERE dedupe_key IS NOT NULL"
+            )
 
     def _migrate_jobs_columns(self, conn: sqlite3.Connection) -> None:
         # Older databases created before durability work may miss columns.

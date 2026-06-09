@@ -265,6 +265,31 @@ def test_audit_checkout_propagates_attribution_metadata(tmp_path, monkeypatch):
     assert "utm_source=migrate" in url and "kit=lambda-lifeline" in url
 
 
+def test_store_migrates_legacy_jobs_table(tmp_path):
+    """A pre-existing DB with the old `jobs` schema (no dedupe_key) must migrate
+    cleanly — regression for the production redeploy that crash-looped on
+    `no such column: dedupe_key`."""
+    import sqlite3
+    from eolkits_grace.store import Store
+
+    db = tmp_path / "state.sqlite3"
+    legacy = sqlite3.connect(db)
+    legacy.executescript(
+        """
+        CREATE TABLE jobs(id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT NOT NULL,
+            payload TEXT NOT NULL, status TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL, updated_at TEXT NOT NULL, last_error TEXT);
+        CREATE TABLE kv(key TEXT PRIMARY KEY, value TEXT, expires_at TEXT);
+        """
+    )
+    legacy.commit()
+    legacy.close()
+
+    store = Store(db)  # must not raise
+    jid = store.enqueue("audit_pdf", {"x": 1}, dedupe_key="k1")
+    assert store.enqueue("audit_pdf", {"x": 1}, dedupe_key="k1") == jid  # dedupe works
+
+
 def test_surge_tier_matches_pricing(tmp_path, monkeypatch):
     mod, _ = _load_app(tmp_path, monkeypatch)
     from eolkits_grace import pricing
