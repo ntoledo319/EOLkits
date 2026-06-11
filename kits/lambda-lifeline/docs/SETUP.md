@@ -8,8 +8,8 @@ This walks you from zero to first deployed Node 22 function. It assumes you have
 ## Step 1 · Install (2 min)
 
 ```bash
-git clone https://github.com/ntoledo319/lambda-lifeline.git
-cd lambda-lifeline
+git clone https://github.com/ntoledo319/EOLkits.git
+cd EOLkits/kits/lambda-lifeline
 npm install           # installs @aws-sdk/client-lambda and @aws-sdk/client-sts
 npm test              # verify kit is green (24 tests, ~1 sec)
 ```

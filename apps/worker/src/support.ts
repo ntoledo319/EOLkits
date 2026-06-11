@@ -15,7 +15,7 @@ You only answer questions about:
 - Audit reports and findings
 
 You must cite documentation URLs in your answers. Valid doc patterns:
-- https://ntoledo319.github.io/EOLkits/docs/...
+- https://eolkits.com/docs/...
 - https://github.com/ntoledo319/EOLkits/blob/main/...
 
 If a question is outside your scope, politely decline and link to GitHub Discussions.
@@ -32,7 +32,7 @@ Q: Will codemods break my code?
 A: No. All codemods are dry-run by default. Use \`--apply\` after reviewing changes. Each kit has 100+ tests. Docs: https://github.com/ntoledo319/EOLkits#tests
 
 Q: What is the refund policy?
-A: Migration Pack purchases auto-refund if CI fails within 7 days. Audit PDFs are non-refundable but include verification. Terms: https://ntoledo319.github.io/EOLkits/legal/terms
+A: Migration Pack purchases auto-refund if CI fails within 7 days. Audit PDFs are non-refundable but include verification. Terms: https://eolkits.com/legal/terms
 
 Q: How do I opt out of auto-PRs?
 A: Add a \`.no-eolkits\` file to your repository root. The bot will skip that repo.
@@ -42,8 +42,8 @@ A: Yes. The CLI is MIT licensed. Paid tiers add automation and reports.
 `;
 
 const CANNED_RESPONSES: Record<string, string> = {
-  pricing: 'See https://ntoledo319.github.io/EOLkits#pricing for current pricing. CLI is free (MIT). Paid tiers: Audit PDF ($299+), Migration Pack ($1,499), Org License ($14,999/yr), Drift Watch ($19/mo).',
-  refund: 'Migration Pack: auto-refund if CI fails within 7 days. Audit PDF: includes verification URL, non-refundable. See Terms: https://ntoledo319.github.io/EOLkits/legal/terms',
+  pricing: 'See https://eolkits.com#pricing for current pricing. CLI is free (MIT). Paid tiers: Audit PDF ($299+), Migration Pack ($1,499), Org License ($14,999/yr), Drift Watch ($19/mo).',
+  refund: 'Migration Pack: auto-refund if CI fails within 7 days. Audit PDF: includes verification URL, non-refundable. See Terms: https://eolkits.com/legal/terms',
   install: 'Install any kit: `git clone https://github.com/ntoledo319/EOLkits.git && cd kits/lambda-lifeline && pip install -e .`',
   license: 'CLI is MIT licensed. You can fork, modify, and use commercially. Paid tiers grant access to automation features, not code.',
   support: 'Free: GitHub Discussions at https://github.com/ntoledo319/EOLkits/discussions. Paid tiers include automated support bot (this is it!).',
@@ -88,7 +88,7 @@ export async function supportHandler(request: Request, env: Env): Promise<Respon
   if (aiUsage.neurons >= 10000) {
     // AI quota exhausted, use canned fallback
     return new Response(JSON.stringify({
-      answer: 'See documentation at https://ntoledo319.github.io/EOLkits or ask on GitHub Discussions: https://github.com/ntoledo319/EOLkits/discussions',
+      answer: 'See documentation at https://eolkits.com or ask on GitHub Discussions: https://github.com/ntoledo319/EOLkits/discussions',
       source: 'canned_fallback',
       reason: 'AI quota exceeded',
     }), {
@@ -103,7 +103,7 @@ export async function supportHandler(request: Request, env: Env): Promise<Respon
     // Validate answer has doc citations
     if (!answer.includes('https://')) {
       return new Response(JSON.stringify({
-        answer: 'See documentation at https://ntoledo319.github.io/EOLkits for more information.',
+        answer: 'See documentation at https://eolkits.com for more information.',
         source: 'canned_fallback',
         reason: 'AI response lacked citations',
       }), {
@@ -129,7 +129,7 @@ export async function supportHandler(request: Request, env: Env): Promise<Respon
     console.error('AI query failed:', error);
     
     return new Response(JSON.stringify({
-      answer: 'See documentation at https://ntoledo319.github.io/EOLkits or ask on GitHub Discussions.',
+      answer: 'See documentation at https://eolkits.com or ask on GitHub Discussions.',
       source: 'error_fallback',
     }), {
       headers: { 'Content-Type': 'application/json' },
@@ -150,7 +150,7 @@ async function queryAI(question: string, env: Env): Promise<string> {
     temperature: 0.3,
   });
   
-  return response.response || 'See documentation at https://ntoledo319.github.io/EOLkits';
+  return response.response || 'See documentation at https://eolkits.com';
 }
 
 function getSecondsUntilMidnightUTC(): number {

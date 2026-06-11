@@ -1,4 +1,4 @@
-# Rupture Runner Dependencies
+# EOLkits Runner Dependencies
 # These are installed in the container for processing jobs
 
 # Core dependencies

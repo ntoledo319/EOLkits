@@ -177,11 +177,11 @@ async function generateInstallUrl(env: Env): Promise<Response> {
   // Generate GitHub App manifest URL
   const manifest = {
     name: 'EOLkits Migration Bot',
-    url: 'https://ntoledo319.github.io/EOLkits',
-    callback_urls: ['https://ntoledo319.github.io/EOLkits/pack/callback'],
-    setup_url: 'https://ntoledo319.github.io/EOLkits/pack/setup',
+    url: 'https://eolkits.com',
+    callback_urls: ['https://eolkits.com/pack/callback'],
+    setup_url: 'https://eolkits.com/pack/setup',
     webhook_url: 'https://eolkits-worker.eolkits-kits.workers.dev/webhook/github',
-    redirect_url: 'https://ntoledo319.github.io/EOLkits/pack/installed',
+    redirect_url: 'https://eolkits.com/pack/installed',
     setup_on_install: true,
     default_permissions: {
       contents: 'write',

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Runs Rupture's path-safe checks from the checked-out action directory.
+# Runs EOLkits' path-safe checks from the checked-out action directory.
 
 set -uo pipefail
 
@@ -13,7 +13,7 @@ if [[ -d "$ACTION_DIR/kits" ]]; then
 elif [[ -d "$ACTION_DIR/../../kits" ]]; then
   RUPTURE_ROOT="$(cd "$ACTION_DIR/../.." && pwd)"
 else
-  echo "::error::Could not locate Rupture kits from action path: $ACTION_DIR"
+  echo "::error::Could not locate EOLkits kits from action path: $ACTION_DIR"
   exit 1
 fi
 
@@ -59,10 +59,10 @@ run_check() {
 }
 
 install_kits() {
-  echo "::group::Install Rupture kits"
+  echo "::group::Install EOLkits kits"
   python -m pip install --quiet --disable-pip-version-check --no-warn-script-location \
     "$RUPTURE_ROOT/kits/al2023-gate" "$RUPTURE_ROOT/kits/python-pivot" || {
-    echo "::error::Failed to install Python Rupture kits."
+    echo "::error::Failed to install Python EOLkits kits."
     exit 1
   }
   if [[ -f "$RUPTURE_ROOT/kits/lambda-lifeline/package-lock.json" ]]; then
@@ -221,7 +221,7 @@ fi
 } >> "${GITHUB_OUTPUT:-/dev/null}"
 
 if [[ "$SHOULD_FAIL" = true ]]; then
-  echo "::warning::Rupture found deprecation risks at or above the configured threshold."
+  echo "::warning::EOLkits found deprecation risks at or above the configured threshold."
 else
-  echo "Rupture check completed without failing the configured threshold."
+  echo "EOLkits check completed without failing the configured threshold."
 fi

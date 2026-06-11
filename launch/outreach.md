@@ -22,7 +22,7 @@ Subject: Amazon Linux 2 EOL Jun 30 — auto-migration PR for [repo]
 
 Solo dev behind EOLkits here. Running the open scanner against public repos and saw [repo] still pins Amazon Linux 2 in [specific file, e.g. "the EKS node group in eks/cluster.tf" or "the Packer template at packer/api.json"]. Jun 30 is EOL — after that, no patches, no new AMIs, anything depending on AL2 in CI starts breaking when the base images go.
 
-I built a kit that scans the repo, runs the package-name remap (yum→dnf, deprecated packages, replacements), patches the IaC (Terraform / CloudFormation / Packer / Ansible / cloud-init), and opens a PR with a tested rollback path. MIT, mutation-tested at 80%+, deterministic builds.
+I built a kit that scans the repo, runs the package-name remap (yum→dnf, deprecated packages, replacements), patches the IaC (Terraform / CloudFormation / Packer / Ansible / cloud-init), and opens a PR with a tested rollback path. MIT, property- and mutation-tested, with deterministic, CI-gated builds.
 
 If you want it run against [repo]: install at github.com/apps/eolkits-migration-bot. One PR per repo per week, max. Free tier never charges. Drop a `.no-eolkits` file at the repo root and the bot stops touching it within 60 seconds.
 

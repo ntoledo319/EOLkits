@@ -340,7 +340,7 @@ async function fulfillAuditPdf(env: Env, result: Record<string, unknown>): Promi
   }
 
   const pdfUrl = await storeAuditPdf(env, inputHash, pdfBase64);
-  const verifyUrl = `https://ntoledo319.github.io/EOLkits/verify/?hash=${encodeURIComponent(inputHash)}`;
+  const verifyUrl = `https://eolkits.com/verify/?hash=${encodeURIComponent(inputHash)}`;
   await env.IDEMPOTENCY.put(
     `verify:${inputHash}`,
     JSON.stringify({ generatedAt, rulePackVersion }),

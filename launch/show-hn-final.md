@@ -20,7 +20,7 @@ Show HN: EOLkits – CLIs for AWS runtime deprecations (Amazon Linux 2 EOL Jun 3
 ## Submission URL
 
 ```
-https://github.com/ntoledo319/Rupture
+https://github.com/ntoledo319/EOLkits
 ```
 
 ## Body
@@ -40,7 +40,7 @@ The pieces I cared about getting right:
 
 - Deterministic output. CI runs each kit twice on the same inputs and fails on any diff.
 - Hash-anchored audit PDFs. Every report embeds SHA-256 of inputs and the rule-pack version, with a public verify URL.
-- Property + mutation tested codemods. Mutation testing runs in CI and the score is published in every run summary.
+- Property-tested codemods, plus weekly mutation testing (mutmut) on the Python kits as a quality signal — score surfaced in the run summary, 70% target.
 - Sigstore-signed releases with CycloneDX SBOMs.
 - Public nightly benchmark across a curated corpus of real public IaC repos — so you can see what the kits actually catch on real code, not synthetic fixtures.
 
@@ -48,9 +48,9 @@ The free GitHub Action runs the dry-run pass on PRs and comments findings. Paid 
 
 Why I built this: every six months AWS sends the same "your runtime is deprecated" email, and there's no integrated tool for any of it. CloudQuery gives you inventory. Migration Hub is for lift-and-shift. aws-samples gives you snippets. Nothing did scan + codemod + IaC patch + canary + rollback for one specific deprecation, end to end. So I scoped each kit tight: one runtime, one deadline, one job.
 
-Repo:           https://github.com/ntoledo319/Rupture
-Action:         ntoledo319/Rupture@v1
-Benchmark:      https://github.com/ntoledo319/Rupture/blob/main/BENCHMARK.md
+Repo:           https://github.com/ntoledo319/EOLkits
+Action:         ntoledo319/EOLkits@v1
+Benchmark:      https://github.com/ntoledo319/EOLkits/blob/main/BENCHMARK.md
 Sample PDF:     https://eolkits.com/audit/
 Calendar (.ics): https://eolkits.com/deprecations.ics
 

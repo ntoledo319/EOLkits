@@ -165,7 +165,7 @@ jobs:
         with:
           files: dist/*
           body: |
-            ## Rupture Release ${{ github.ref_name }}
+            ## EOLkits Release ${{ github.ref_name }}
 
             ### Artifacts
             - Python wheels and source distributions for `al2023-gate` and `python-pivot`

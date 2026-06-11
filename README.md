@@ -6,6 +6,8 @@
 [![tests](https://img.shields.io/badge/tests-149%20passing-brightgreen)](#tests)
 [![license](https://img.shields.io/badge/license-MIT%20(open%20core)-blue)](#license)
 
+> **Amazon Linux 2 reaches end-of-life in 19 days (Jun 30, 2026).** The `al2023-gate` CLI below is free and MIT-licensed — clone it, scan your accounts, and run the migration yourself. If you'd rather have it done for you, the team offers a paid audit that scores every finding and hands back a roll-forward plan: [eolkits.com/audit](https://eolkits.com/audit).
+
 AWS is killing runtimes on a hard schedule. When a deadline passes, deploys fail, functions get frozen, AMIs stop receiving patches. Most shops find out in production.
 
 **EOLkits ships one CLI per deadline.** Each kit scans your accounts, rewrites the broken code, patches the IaC, generates a safe canary plan, and produces a rollback script. All kits work offline via fixtures so you can evaluate before you run them against AWS.

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// lambda-lifeline CLI — https://github.com/ntoledo319/lambda-lifeline
-// Rupture Kits · MIT · safe for production use (all mutations gated behind --apply)
+// lambda-lifeline CLI — https://github.com/ntoledo319/EOLkits
+// EOLkits · MIT · safe for production use (all mutations gated behind --apply)
 
 import { scanCommand } from '../src/scan/index.mjs';
 import { codemodCommand } from '../src/codemod/index.mjs';
@@ -14,7 +14,7 @@ const BANNER = `
  ╔══════════════════════════════════════════════════════════════╗
  ║  lambda-lifeline · AWS Lambda Node.js 20 EOL Migration Kit   ║
  ║  Deadlines: Apr 30, 2026 (patches) · Sep 30, 2026 (updates)  ║
- ║  https://github.com/ntoledo319/lambda-lifeline · MIT         ║
+ ║  https://github.com/ntoledo319/EOLkits · MIT                 ║
  ╚══════════════════════════════════════════════════════════════╝
 `;
 
@@ -74,7 +74,7 @@ EXAMPLES
   lambda-lifeline deploy --function my-fn --apply \\
       --alarm arn:aws:cloudwatch:us-east-1:123:alarm:fn-errors
 
-DOCS · https://github.com/ntoledo319/lambda-lifeline#readme
+DOCS · https://github.com/ntoledo319/EOLkits#readme
 `;
 
 const args = process.argv.slice(2);

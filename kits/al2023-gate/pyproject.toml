@@ -9,7 +9,7 @@ description = "Amazon Linux 2 → AL2023 migration kit. Scan AMIs, remap package
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
-authors = [{ name = "Rupture Kits" }]
+authors = [{ name = "EOLkits" }]
 keywords = ["aws", "amazon-linux", "al2", "al2023", "migration", "eol", "packer", "ansible", "ec2", "eks"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -30,8 +30,8 @@ dev = ["pytest>=7.0", "pytest-cov>=4.1.0"]
 al2023-gate = "al2023_gate.cli:main"
 
 [project.urls]
-Homepage = "https://rupture-kits.vercel.app"
-Repository = "https://github.com/ntoledo319/Rupture"
+Homepage = "https://eolkits.com"
+Repository = "https://github.com/ntoledo319/EOLkits"
 
 [tool.setuptools.packages.find]
 where = ["src"]

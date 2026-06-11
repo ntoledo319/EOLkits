@@ -23,7 +23,7 @@ CLIs for the AWS deprecation deadlines that break prod:
 – python-pivot (Lambda Python 3.9-3.11 → 3.12)
 – lambda-lifeline (nodejs20.x → 22 — Phase 1 passed Apr 30; cliff Sep 30)
 
-MIT. Deterministic. Mutation-tested at 80%+.
+MIT. Deterministic, CI-gated builds. Property- and mutation-tested.
 
 github.com/ntoledo319/Rupture
 ```
@@ -61,7 +61,7 @@ EOLkits is three open-source CLIs that automate AWS runtime migrations off the d
 
 Each kit scans your account, runs codemods (dry-run by default), patches IaC across SAM / CDK / Terraform / Serverless / Packer / Ansible, generates a staged canary deploy plan, and produces a tested rollback script. The free GitHub Action runs the dry-run pass on every PR and comments findings.
 
-The pieces I cared about most: deterministic builds, hash-anchored audit PDFs, mutation-tested codemods at 80%+, Sigstore-signed releases. If you've ever been the engineer paged at 2 a.m. because a runtime block landed mid-deploy, you'll recognize why every one of those mattered.
+The pieces I cared about most: deterministic, CI-gated builds, hash-anchored audit PDFs, property- and mutation-tested codemods, Sigstore-signed releases. If you've ever been the engineer paged at 2 a.m. because a runtime block landed mid-deploy, you'll recognize why every one of those mattered.
 
 MIT licensed. Solo built. Repo open.
 

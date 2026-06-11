@@ -53,7 +53,7 @@ function env(): Env {
     IDEMPOTENCY: kv,
     RATE_LIMITS: kv,
     DAILY_CAPS: kv,
-    AI: { run: async () => ({ response: 'https://ntoledo319.github.io/EOLkits' }) },
+    AI: { run: async () => ({ response: 'https://eolkits.com' }) },
     STRIPE_KEY: 'sk_test_dummy',
     STRIPE_WEBHOOK_SECRET: 'whsec_test',
     GITHUB_APP_ID: '123',

@@ -216,8 +216,8 @@ async function getStripeAccountLink(
     },
     body: new URLSearchParams({
       account: accountId,
-      refresh_url: 'https://ntoledo319.github.io/EOLkits/partners/onboarding',
-      return_url: 'https://ntoledo319.github.io/EOLkits/partners/onboarded',
+      refresh_url: 'https://eolkits.com/partners/onboarding',
+      return_url: 'https://eolkits.com/partners/onboarded',
       type: 'account_onboarding',
     }),
   });

@@ -35,10 +35,10 @@ Different runtimes, different breakage surfaces, different IaC patterns, differe
 The CLIs are MIT and complete. You can run scan / codemod / iac / deploy / rollback offline against fixtures or live against AWS, no payment required, no feature-gated nags. The paid tiers add things you'd otherwise build yourself: a printable hash-anchored audit PDF for the change-management folks, a fleet drift watcher, an org-license terms doc, and the migration-pack PRs against private repos with a 7-day CI-failure auto-refund. If your shop never wanted any of those, the free tier is the whole product.
 ```
 
-## "Mutation testing at 80% — what tool?"
+## "Mutation testing — what tool?"
 
 ```
-mutmut for the Python kits, Stryker for lambda-lifeline. The runs are in CI, gated, and the score thresholds are checked on every PR. The current weekly mutation run is signed off the main branch. Result: https://github.com/ntoledo319/Rupture/actions/workflows/mutation.yml
+mutmut on the Python kits (al2023-gate, python-pivot). It runs weekly in CI as a quality signal — the score shows up in the run summary against a 70% target. It's deliberately not a hard PR gate, since surviving mutants are usually a missing-test signal rather than a regression. The determinism check, by contrast, is a hard gate on every PR. Workflow: https://github.com/ntoledo319/EOLkits/actions/workflows/mutation.yml
 ```
 
 ## "What's the codemod tech?"

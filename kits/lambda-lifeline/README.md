@@ -55,8 +55,8 @@ That's this kit.
 
 ```bash
 # 1. Clone & install (zero deps for offline use; AWS SDK only for live scan/deploy)
-git clone https://github.com/ntoledo319/lambda-lifeline.git
-cd lambda-lifeline
+git clone https://github.com/ntoledo319/EOLkits.git
+cd EOLkits/kits/lambda-lifeline
 npm install   # only needed for scan (live mode), certs, deploy, rollback
 
 # 2. Inventory your fleet
@@ -166,7 +166,7 @@ npm test
 | 30-day update guarantee (free Node 22 → 24 kit) | | | ✓ |
 | 48-hour priority response SLA | | | ✓ |
 
-**Bundle all 3 EOLkits Kits** (lambda-lifeline + al2023-gate + python-pivot) for **$999 / $1,999 / $4,997** → [eolkits-kits.vercel.app](https://eolkits-kits.vercel.app)
+**Bundle all 3 EOLkits Kits** (lambda-lifeline + al2023-gate + python-pivot) for **$999 / $1,999 / $4,997** → [eolkits.com](https://eolkits.com)
 
 ---
 
@@ -177,7 +177,7 @@ npm test
 - [ ] Node 22 → 24 migration pack (April 30, 2027 deadline)
 - [ ] Ruby 3.2 → 3.4 kit (Aug 31, 2026 deadline)
 
-Sign up for notifications at [eolkits-kits.vercel.app](https://eolkits-kits.vercel.app).
+Sign up for notifications at [eolkits.com](https://eolkits.com).
 
 ---
 

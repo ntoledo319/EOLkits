@@ -115,7 +115,7 @@ jobs:
           
           # Generate markdown report
           lines = [
-              "# Rupture Public Benchmark",
+              "# EOLkits Public Benchmark",
               "",
               f"Last updated: {results['date']}",
               "",

@@ -6,7 +6,7 @@ Show HN: EOLkits – Open-source AWS deprecation scanner with auto-migration PRs
 
 ## URL
 
-https://ntoledo319.github.io/EOLkits
+https://github.com/ntoledo319/EOLkits
 
 ## Text (for discussion)
 

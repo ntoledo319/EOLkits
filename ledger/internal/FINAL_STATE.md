@@ -42,7 +42,7 @@
 ## Operator handoff — what you do next
 
 1. **Replace Stripe links.** In `landing/index.html` (and `docs/index.html` copy), replace every `href="#checkout"` with your Stripe payment link per tier.
-2. **Enable GitHub Pages.** GitHub → Settings → Pages → Source: main, Folder: /docs. In ~1 min the landing page lives at `https://ntoledo319.github.io/EOLkits/`.
+2. **Enable GitHub Pages.** GitHub → Settings → Pages → Source: main, Folder: /docs. The production landing page lives at `https://eolkits.com/`.
 3. **Post Show HN.** Use the draft in `launch/show-hn-draft.md`. Target: Tue or Wed, 6–9am PT. Submit the GitHub repo URL (not the landing page — HN prefers source). First 2 hours on /newest decide front-page fate.
 4. **Publish blog post.** Copy `launch/blog-post.md` to dev.to or medium or your own blog. Links back to the kit.
 5. **Answer threads.** Run the search queries in `launch/thread-answers.md` on SO, GitHub issues, AWS re:Post. Post templated answer + 1 kit mention. Max 3/day. No spam.

@@ -37,7 +37,7 @@ export async function sendEmail(env: Env, job: EmailJob): Promise<SendResult> {
     return { ok: false, error: 'no_provider', retryable: true };
   }
 
-  const from = job.from || 'EOLkits <noreply@ntoledo319.github.io>';
+  const from = job.from || 'EOLkits <noreply@eolkits.com>';
   const body = JSON.stringify({
     from,
     to: [job.to],

@@ -1,5 +1,5 @@
 status: not yet submitted
-submission_url: https://github.com/ntoledo319/Rupture
+submission_url: https://github.com/ntoledo319/EOLkits
 draft: launch/show-hn-final.md
 amplification: launch/social.md
 outreach: launch/outreach.md

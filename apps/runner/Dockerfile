@@ -1,4 +1,4 @@
-# Rupture Runner Container
+# EOLkits Runner Container
 # Multi-stage build for the job runner that processes audit PDFs and migration PRs
 
 FROM python:3.12-slim as builder

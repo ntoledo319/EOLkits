@@ -17,10 +17,11 @@
   ],
   "license": "MIT",
   "author": "EOLkits Kits",
-  "homepage": "https://eolkits-kits.vercel.app",
+  "homepage": "https://eolkits.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ntoledo319/lambda-lifeline"
+    "url": "https://github.com/ntoledo319/EOLkits",
+    "directory": "kits/lambda-lifeline"
   },
   "type": "module",
   "bin": {

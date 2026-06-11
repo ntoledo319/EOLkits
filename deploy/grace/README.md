@@ -27,7 +27,7 @@ On the VPS, use a separate site root:
 
 ```bash
 sudo mkdir -p /home/ubuntu/sites/eolkits-api
-sudo rsync -a --delete /path/to/Rupture/ /home/ubuntu/sites/eolkits-api/
+sudo rsync -a --delete /path/to/EOLkits/ /home/ubuntu/sites/eolkits-api/
 cd /home/ubuntu/sites/eolkits-api
 cp deploy/grace/docker-compose.eolkits-api.yml docker-compose.yml
 ```
