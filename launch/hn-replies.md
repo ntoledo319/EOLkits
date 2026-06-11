@@ -38,7 +38,7 @@ The CLIs are MIT and complete. You can run scan / codemod / iac / deploy / rollb
 ## "Mutation testing at 80% — what tool?"
 
 ```
-mutmut for the Python kits, Stryker for lambda-lifeline. The runs are in CI, gated, and the score thresholds are checked on every PR. The current weekly mutation run is signed off the main branch. Result: https://github.com/ntoledo319/EOLkits/actions/workflows/mutation.yml
+mutmut for the Python kits, Stryker for lambda-lifeline. The runs are in CI, gated, and the score thresholds are checked on every PR. The current weekly mutation run is signed off the main branch. Result: https://github.com/ntoledo319/Rupture/actions/workflows/mutation.yml
 ```
 
 ## "What's the codemod tech?"
