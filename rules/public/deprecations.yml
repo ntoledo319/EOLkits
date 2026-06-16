@@ -40,8 +40,8 @@ deprecations:
   - name: "Lambda Python 3.9 EOL"
     service: "AWS Lambda"
     resource_type: "function"
-    date: "2026-10-31"
-    description: "Lambda functions using Python 3.9 runtime deprecated."
+    date: "2027-02-01"
+    description: "Python 3.9 Lambda runtime (Amazon Linux 2) was deprecated on 2025-12-15 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.9 functions on 2027-02-01 and blocks updating existing ones on 2027-03-03. Functions keep running, but become unpatched and unmodifiable after the block dates."
     severity: high
     kit: python-pivot
     url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"

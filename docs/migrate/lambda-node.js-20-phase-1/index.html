@@ -17,13 +17,13 @@
     <meta property="og:url" content="https://eolkits.com/migrate/lambda-node.js-20-phase-1/">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="EOLkits">
-    <meta property="article:published_time" content="2026-06-09T02:10:25.563351+00:00">
-    <meta property="article:modified_time" content="2026-06-09T02:10:25.563351+00:00">
+    <meta property="article:published_time" content="2026-06-16T19:22:41.182194+00:00">
+    <meta property="article:modified_time" content="2026-06-16T19:22:41.182194+00:00">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Lambda Node.js 20 Phase 1 — Migration Guide">
-    <meta name="twitter:description" content="Deadline 2026-04-30 (-41 days). 4 breaking changes, cited from AWS docs.">
+    <meta name="twitter:description" content="Deadline 2026-04-30 (-48 days). 4 breaking changes, cited from AWS docs.">
 
     <!-- Schema.org: TechArticle (every fact cited to deprecation.url) -->
     <script type="application/ld+json">
@@ -32,8 +32,8 @@
         "@type": "TechArticle",
         "headline": "Lambda Node.js 20 Phase 1 \u2014 AWS Deprecation Migration Guide",
         "description": "Lambda functions using Node.js 20 runtime will fail to update. Phase 1: CreateFunction and UpdateFunctionConfiguration blocked.",
-        "datePublished": "2026-06-09T02:10:25.563351+00:00",
-        "dateModified": "2026-06-09T02:10:25.563351+00:00",
+        "datePublished": "2026-06-16T19:22:41.182194+00:00",
+        "dateModified": "2026-06-16T19:22:41.182194+00:00",
         "proficiencyLevel": "Expert",
         "keywords": "lambda, nodejs, runtime",
         "citation": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html",
@@ -94,6 +94,30 @@
         ]
     }
     </script>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
 </head>
 <body class="migrate-page">
 
@@ -127,7 +151,7 @@
             <h2>What is being deprecated?</h2>
             <p>Lambda functions using Node.js 20 runtime will fail to update. Phase 1: CreateFunction and UpdateFunctionConfiguration blocked.</p>
             <table class="facts">
-                <tr><th>Deadline</th><td><strong>2026-04-30</strong> (-41 days from build date 2026-06-09)</td></tr>
+                <tr><th>Deadline</th><td><strong>2026-04-30</strong> (-48 days from build date 2026-06-16)</td></tr>
                 <tr><th>Service</th><td>AWS Lambda</td></tr>
                 <tr><th>Affected resources</th><td><code>function</code></td></tr>
                 <tr><th>Severity</th><td><span class="severity-badge severity-critical">critical</span></td></tr>
@@ -201,6 +225,13 @@ lambda-lifeline apply</code></pre>
             </div>
         </section>
 
+        <section class="embed-badge">
+            <h2>Embed this deadline in your README</h2>
+            <p>Drop a deadline badge into any repo still affected. It links back to this page, so your team — and anyone reading the repo — stays aware of the 2026-04-30 cutoff.</p>
+            <p><img src="https://eolkits.com/badge/lambda-node.js-20-phase-1.svg" alt="Lambda Node.js 20 Phase 1 deadline badge"></p>
+            <pre class="code-block"><code>[![Lambda Node.js 20 Phase 1 deadline](https://eolkits.com/badge/lambda-node.js-20-phase-1.svg)](https://eolkits.com/migrate/lambda-node.js-20-phase-1/)</code></pre>
+        </section>
+
         
         <section class="related">
             <h2>Related AWS deprecations</h2>
@@ -209,7 +240,7 @@ lambda-lifeline apply</code></pre>
                 
                 <li>
                     <a href="/migrate/lambda-python-3.9-eol/">Lambda Python 3.9 EOL</a>
-                    <span class="rel-meta">— deadline <strong>2026-10-31</strong> · high · <code>python-pivot</code></span>
+                    <span class="rel-meta">— deadline <strong>2027-02-01</strong> · high · <code>python-pivot</code></span>
                 </li>
                 
                 <li>

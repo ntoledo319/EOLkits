@@ -1,5 +1,29 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Blog — EOLkits</title>
 <style>body{font-family:system-ui,sans-serif;max-width:780px;margin:0 auto;padding:2rem;line-height:1.6}.brand{color:#2563eb;font-weight:600}article{border-bottom:1px solid #e5e7eb;padding:1rem 0}time{color:#6b7280;font-size:.85rem}</style>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
 </head><body><a href="/" class="brand">← EOLkits</a><h1>Operations log</h1>
 <p>Auto-published every week from CI. <a href="/blog/feed.xml">RSS</a></p>
 <article><time>—</time><h2>Welcome</h2><p>This log is generated weekly by <code>.github/workflows/blog-loop.yml</code>. The first real entry lands after the next CI run.</p></article>

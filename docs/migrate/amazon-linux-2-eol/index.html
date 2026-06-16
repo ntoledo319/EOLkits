@@ -17,13 +17,13 @@
     <meta property="og:url" content="https://eolkits.com/migrate/amazon-linux-2-eol/">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="EOLkits">
-    <meta property="article:published_time" content="2026-06-09T02:10:25.563351+00:00">
-    <meta property="article:modified_time" content="2026-06-09T02:10:25.563351+00:00">
+    <meta property="article:published_time" content="2026-06-16T19:22:41.182194+00:00">
+    <meta property="article:modified_time" content="2026-06-16T19:22:41.182194+00:00">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Amazon Linux 2 EOL — Migration Guide">
-    <meta name="twitter:description" content="Deadline 2026-06-30 (20 days). 6 breaking changes, cited from AWS docs.">
+    <meta name="twitter:description" content="Deadline 2026-06-30 (13 days). 6 breaking changes, cited from AWS docs.">
 
     <!-- Schema.org: TechArticle (every fact cited to deprecation.url) -->
     <script type="application/ld+json">
@@ -32,8 +32,8 @@
         "@type": "TechArticle",
         "headline": "Amazon Linux 2 EOL \u2014 AWS Deprecation Migration Guide",
         "description": "Amazon Linux 2 reaches end of life. No more security patches, AMI publishing, or extras updates.",
-        "datePublished": "2026-06-09T02:10:25.563351+00:00",
-        "dateModified": "2026-06-09T02:10:25.563351+00:00",
+        "datePublished": "2026-06-16T19:22:41.182194+00:00",
+        "dateModified": "2026-06-16T19:22:41.182194+00:00",
         "proficiencyLevel": "Expert",
         "keywords": "ec2, eks, ecs, beanstalk, os, al2",
         "citation": "https://aws.amazon.com/blogs/aws/update-on-amazon-linux-2-end-of-life/",
@@ -94,6 +94,30 @@
         ]
     }
     </script>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
 </head>
 <body class="migrate-page">
 
@@ -120,14 +144,14 @@
             <h1>Amazon Linux 2 EOL</h1>
             <p class="banner-sub">EC2, EKS, ECS, Elastic Beanstalk — end-of-life deadline</p>
             <div class="countdown" data-deadline="2026-06-30">2026-06-30</div>
-            <p class="urgency">20 days until the 2026-06-30 deadline.</p>
+            <p class="urgency">13 days until the 2026-06-30 deadline.</p>
         </div>
 
         <section>
             <h2>What is being deprecated?</h2>
             <p>Amazon Linux 2 reaches end of life. No more security patches, AMI publishing, or extras updates.</p>
             <table class="facts">
-                <tr><th>Deadline</th><td><strong>2026-06-30</strong> (20 days from build date 2026-06-09)</td></tr>
+                <tr><th>Deadline</th><td><strong>2026-06-30</strong> (13 days from build date 2026-06-16)</td></tr>
                 <tr><th>Service</th><td>EC2, EKS, ECS, Elastic Beanstalk</td></tr>
                 <tr><th>Affected resources</th><td><code>ami|launch-template|container-image</code></td></tr>
                 <tr><th>Severity</th><td><span class="severity-badge severity-critical">critical</span></td></tr>
@@ -203,6 +227,13 @@ al2023-gate apply</code></pre>
                     <a href="/pack/" class="btn-outline">How it works</a>
                 </div>
             </div>
+        </section>
+
+        <section class="embed-badge">
+            <h2>Embed this deadline in your README</h2>
+            <p>Drop a deadline badge into any repo still affected. It links back to this page, so your team — and anyone reading the repo — stays aware of the 2026-06-30 cutoff.</p>
+            <p><img src="https://eolkits.com/badge/amazon-linux-2-eol.svg" alt="Amazon Linux 2 EOL deadline badge"></p>
+            <pre class="code-block"><code>[![Amazon Linux 2 EOL deadline](https://eolkits.com/badge/amazon-linux-2-eol.svg)](https://eolkits.com/migrate/amazon-linux-2-eol/)</code></pre>
         </section>
 
         

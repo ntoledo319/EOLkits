@@ -18,6 +18,30 @@ button{background:#2563eb;color:white;border:none;padding:0.75rem 1.5rem;border-
 button:hover{background:#1d4ed8}
 footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
 </style>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
 </head>
 <body>
 <a href="/" class="brand">← EOLkits</a>
@@ -67,12 +91,14 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 const API = 'https://eolkits.com';
 const qp = new URLSearchParams(location.search);
 function attribution() {
+  var ft = {};
+  try { ft = JSON.parse(localStorage.getItem('eolkits_ft') || '{}'); } catch (e) {}
   return {
-    source: qp.get('source') || 'audit_page',
-    utm_source: qp.get('utm_source') || '',
-    utm_medium: qp.get('utm_medium') || '',
-    utm_campaign: qp.get('utm_campaign') || '',
-    kit: qp.get('kit') || ''
+    source: ft.source || qp.get('source') || 'audit_page',
+    utm_source: ft.utm_source || qp.get('utm_source') || '',
+    utm_medium: ft.utm_medium || qp.get('utm_medium') || '',
+    utm_campaign: ft.utm_campaign || qp.get('utm_campaign') || '',
+    kit: ft.kit || qp.get('kit') || ''
   };
 }
 function track(eventName, extra) {

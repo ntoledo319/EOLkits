@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Error: The module was compiled against a different Node.js version using NODE_MODULE_VERSION — cause &amp; fix (Node.js 22) | EOLkits</title>
+<meta name="description" content="A precompiled native addon was built for a different Node.js ABI than the one now running. Rebuild native modules against the new Node version: `rm -rf nod">
+<link rel="canonical" href="https://eolkits.com/fix/node-module-version-mismatch/">
+<link rel="stylesheet" href="/style.css">
+<style>.fix-err{background:#0f172a;color:#e2e8f0;padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem}.fix-steps li{margin:.35rem 0}.fix-cta{display:inline-block;margin-top:1rem;padding:.7rem 1.2rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}.fix-rel{background:#fff7ed;border:1px solid #fed7aa;padding:.6rem .8rem;border-radius:8px}</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does \"Error: The module was compiled against a different Node.js version using NODE_MODULE_VERSION\" mean?", "acceptedAnswer": {"@type": "Answer", "text": "A precompiled native addon was built for a different Node.js ABI than the one now running. Native Node addons (sharp, bcrypt, better-sqlite3, canvas, \u2026) are tied to the Node major version's ABI (NODE_MODULE_VERSION). Upgrading the Lambda/container runtime to Node 22 without rebuilding or bumping these packages triggers the mismatch."}}, {"@type": "Question", "name": "How do I fix \"Error: The module was compiled against a different Node.js version using NODE_MODULE_VERSION\"?", "acceptedAnswer": {"@type": "Answer", "text": "Rebuild native modules against the new Node version: `rm -rf node_modules && npm install` (or `npm rebuild`). If the package has no Node 22 prebuild, upgrade it to a version that does (e.g. sharp >= 0.33.0, bcrypt >= 5.1.1, better-sqlite3 >= 11.0.0). For dead packages with no Node 22 build (node-sass, fibers, grpc), replace them (sass, native timers, @grpc/grpc-js). Build the deployment package on the same Node major version Lambda will run. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Fix: Error: The module was compiled against a different Node.js version using NODE_MODULE_VERSION", "step": [{"@type": "HowToStep", "position": 1, "text": "Rebuild native modules against the new Node version: `rm -rf node_modules && npm install` (or `npm rebuild`)."}, {"@type": "HowToStep", "position": 2, "text": "If the package has no Node 22 prebuild, upgrade it to a version that does (e.g. sharp >= 0.33.0, bcrypt >= 5.1.1, better-sqlite3 >= 11.0.0)."}, {"@type": "HowToStep", "position": 3, "text": "For dead packages with no Node 22 build (node-sass, fibers, grpc), replace them (sass, native timers, @grpc/grpc-js)."}, {"@type": "HowToStep", "position": 4, "text": "Build the deployment package on the same Node major version Lambda will run."}], "citation": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"}</script>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
+</head>
+<body class="container article">
+<nav class="breadcrumb"><a href="/">Home</a> / <a href="/fix/">Fixes</a> / <span>Node.js 22</span></nav>
+<p class="muted">Node.js 22</p>
+<h1>Error: The module was compiled against a different Node.js version using NODE_MODULE_VERSION</h1>
+<pre class="fix-err"><code>Error: The module was compiled against a different Node.js version using NODE_MODULE_VERSION</code></pre>
+<h2>What it means</h2>
+<p>A precompiled native addon was built for a different Node.js ABI than the one now running.</p>
+<h2>Why it happens</h2>
+<p>Native Node addons (sharp, bcrypt, better-sqlite3, canvas, …) are tied to the Node major version&#x27;s ABI (NODE_MODULE_VERSION). Upgrading the Lambda/container runtime to Node 22 without rebuilding or bumping these packages triggers the mismatch.</p>
+<h2>How to fix it</h2>
+<ol class="fix-steps"><li>Rebuild native modules against the new Node version: `rm -rf node_modules &amp;&amp; npm install` (or `npm rebuild`).</li><li>If the package has no Node 22 prebuild, upgrade it to a version that does (e.g. sharp &gt;= 0.33.0, bcrypt &gt;= 5.1.1, better-sqlite3 &gt;= 11.0.0).</li><li>For dead packages with no Node 22 build (node-sass, fibers, grpc), replace them (sass, native timers, @grpc/grpc-js).</li><li>Build the deployment package on the same Node major version Lambda will run.</li></ol>
+<p class="fix-rel">Related deadline: <a href="/migrate/lambda-node.js-20-phase-1/">Lambda Node.js 20 Phase 1</a> — <strong>2026-04-30</strong>.</p>
+<h2>Find every instance in your project</h2>
+<p>The free <a href="/scan">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>
+<p>Primary source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html</a></p>
+<p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-module-version-mismatch&deadline=2026-04-30&kit=lambda-lifeline">Get the full migration audit — $299, hash-anchored PDF &rarr;</a></p>
+</body>
+</html>

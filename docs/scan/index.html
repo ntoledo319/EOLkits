@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Free AWS Lambda Runtime &amp; Dependency EOL Scanner — EOLkits</title>
+<meta name="description" content="Drop your SAM/CDK/Terraform/Serverless, package.json or requirements.txt to instantly find deprecated AWS Lambda runtimes and the Node 22 / Python 3.12 dependency breakages that block a migration. Runs entirely in your browser — nothing is uploaded.">
+<link rel="canonical" href="https://eolkits.com/scan">
+<link rel="stylesheet" href="/style.css">
+<style>#dz{border:2px dashed #94a3b8;border-radius:10px;padding:2.5rem 1rem;text-align:center;cursor:pointer;background:#f8fafc}#dz.over{border-color:#2563eb;background:#eff6ff}.scan-tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.88rem}.scan-tbl th,.scan-tbl td{border-bottom:1px solid #eee;padding:.5rem;text-align:left;vertical-align:top}.sev-critical td:first-child{color:#b91c1c;font-weight:700}.sev-high td:first-child{color:#b45309;font-weight:700}.sev-low td:first-child{color:#2563eb}.scan-cta{display:inline-block;margin-top:1rem;padding:.75rem 1.25rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}.scan-ok{padding:1rem;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px}.scan-count{font-weight:600;margin-top:1rem}.privacy{color:#16a34a;font-weight:600}</style>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
+</head>
+<body class="container">
+<a href="/" class="brand">&larr; EOLkits</a>
+<h1>Free AWS runtime &amp; dependency EOL scanner</h1>
+<p>Drop your infrastructure and dependency files below to find deprecated AWS Lambda runtimes and the Node&nbsp;22 / Python&nbsp;3.12 dependency breakages that block a migration. <span class="privacy">Everything runs in your browser — nothing is uploaded.</span> Open your browser&rsquo;s Network tab and watch: this page makes zero requests while it scans.</p>
+<div id="dz"><strong>Drop files here</strong><br><small>or click to choose — template.yaml, serverless.yml, *.tf, CDK *.ts, package.json, requirements.txt, pyproject.toml</small><input id="fi" type="file" multiple accept=".yaml,.yml,.json,.tf,.ts,.js,.mjs,.txt,.toml" style="display:none"></div>
+<div id="results"></div>
+<h2>What it checks</h2>
+<ul><li><strong>Lambda runtimes</strong> in SAM, CloudFormation, CDK, Terraform and Serverless Framework — flagged against AWS&rsquo;s published deprecation dates.</li><li><strong>Node native dependencies</strong> (sharp, bcrypt, better-sqlite3&hellip;) that need a version bump or removal for Node&nbsp;22.</li><li><strong>Python wheels</strong> (numpy, pandas, cryptography&hellip;) that need a bump for a Python&nbsp;3.12 runtime.</li></ul>
+<p>Hit a specific error message? See <a href="/fix/">common AWS migration error fixes &rarr;</a></p>
+<p><small>This free scan covers the high-blast-radius cases. The paid audit checks every function, AMI and launch template in your account, produces a hash-anchored PDF and a roll-forward roadmap, and is priced by how close your deadline is.</small></p>
+<script>
+const DATA = {"runtimes":{"nodejs20.x":{"date":"2026-04-30","slug":"lambda-node.js-20-phase-1","severity":"critical","kit":"lambda-lifeline","historical":false},"python3.9":{"date":"2027-02-01","slug":"lambda-python-3.9-eol","severity":"high","kit":"python-pivot","historical":false},"python3.10":{"date":"2027-04-30","slug":"lambda-python-3.10-eol","severity":"medium","kit":"python-pivot","historical":false},"python3.11":{"date":"2027-10-31","slug":"lambda-python-3.11-eol","severity":"low","kit":"python-pivot","historical":false},"nodejs14.x":{"date":"2023-11-27","slug":"lambda-node.js-14","severity":"high","kit":"","historical":true},"nodejs16.x":{"date":"2024-06-12","slug":"lambda-node.js-16","severity":"high","kit":"","historical":true}},"native":{"sharp":{"min":"0.33.0","note":"libvips native binding. v0.33+ ships Node 22 prebuilds."},"bcrypt":{"min":"5.1.1","note":"Native bcrypt. Consider bcryptjs for a pure-JS drop-in."},"better-sqlite3":{"min":"11.0.0","note":"SQLite native binding."},"canvas":{"min":"2.11.2","note":"node-canvas. Needs rebuilt prebuilds for Node 22."},"node-gyp":{"min":"10.0.0","note":"Build system. Upgrade before rebuilding natives."},"node-sass":{"min":null,"note":"DEAD. Use sass (Dart Sass) instead \u2014 no native deps."},"bufferutil":{"min":"4.0.8","note":"WebSocket utility native addon."},"utf-8-validate":{"min":"6.0.4","note":"WebSocket utility native addon."},"libpq":{"min":"2.0.0","note":"PostgreSQL client. Prefer pg-native alternatives."},"grpc":{"min":null,"note":"DEAD. Migrate to @grpc/grpc-js (pure JS)."},"@grpc/grpc-js":{"min":"1.10.0","note":"Pure JS, no native; just keep up to date."},"sqlite3":{"min":"5.1.7","note":"SQLite3 bindings. Prebuilds available."},"argon2":{"min":"0.40.0","note":"argon2 bindings."},"re2":{"min":"1.21.0","note":"RE2 regex engine."},"fibers":{"min":null,"note":"DEAD since Node 16. Must remove."},"@tensorflow/tfjs-node":{"min":"4.20.0","note":"TensorFlow native."},"sodium-native":{"min":"4.3.0","note":"libsodium bindings."},"zmq":{"min":null,"note":"DEAD. Use zeromq instead."},"zeromq":{"min":"6.1.2","note":"ZeroMQ bindings."},"farmhash":{"min":"4.0.0","note":"Native hashing."},"@napi-rs/snappy":{"min":"7.2.0","note":"Snappy compression."},"heapdump":{"min":null,"note":"DEAD. Use node --heapsnapshot-signal instead."}},"wheels":{"numpy":{"min":"1.26.0","note":"1.26+ ships cp312 wheels."},"scipy":{"min":"1.11.4","note":"1.11.4+ for cp312."},"pandas":{"min":"2.1.1","note":"2.1.1+ for cp312."},"scikit-learn":{"min":"1.3.2","note":"1.3.2+ for cp312."},"matplotlib":{"min":"3.8.0","note":"3.8.0+ for cp312."},"pillow":{"min":"10.1.0","note":"10.1.0+ for cp312."},"lxml":{"min":"4.9.4","note":"4.9.4+ for cp312."},"cryptography":{"min":"41.0.5","note":"41.0.5+ for cp312 (libssl3)."},"pycryptodome":{"min":"3.19.0","note":"3.19.0+ for cp312."},"bcrypt":{"min":"4.1.1","note":"4.1.1+ for cp312."},"pyopenssl":{"min":"23.3.0","note":"23.3.0+ for cp312."},"psycopg2-binary":{"min":"2.9.9","note":"2.9.9+ for cp312."},"psycopg":{"min":"3.1.13","note":"3.1.13+ for cp312."},"mysqlclient":{"min":"2.2.0","note":"2.2.0+ for cp312."},"pymssql":{"min":"2.2.11","note":"2.2.11+ for cp312."},"pyyaml":{"min":"6.0.1","note":"6.0.1+ for cp312."},"orjson":{"min":"3.9.10","note":"3.9.10+ for cp312."},"ujson":{"min":"5.8.0","note":"5.8.0+ for cp312."},"msgpack":{"min":"1.0.7","note":"1.0.7+ for cp312."},"aiohttp":{"min":"3.9.0","note":"3.9.0+ for cp312."},"grpcio":{"min":"1.59.0","note":"1.59.0+ for cp312."},"protobuf":{"min":"4.25.0","note":"4.25.0+ for cp312."},"frozenlist":{"min":"1.4.0","note":"1.4.0+ for cp312."},"multidict":{"min":"6.0.4","note":"6.0.4+ for cp312."},"yarl":{"min":"1.9.3","note":"1.9.3+ for cp312."},"tiktoken":{"min":"0.5.2","note":"0.5.2+ for cp312."},"tokenizers":{"min":"0.15.0","note":"0.15.0+ for cp312."},"awscrt":{"min":"0.19.17","note":"0.19.17+ for cp312."},"boto3":{"min":"1.29.0","note":"1.29+ tested on cp312."},"botocore":{"min":"1.32.0","note":"1.32+ tested on cp312."},"python-snappy":{"min":null,"note":"No cp312 wheels. Switch to cramjam or plyvel."},"fastparquet":{"min":"2023.10.1","note":"2023.10.1+ for cp312."}}};
+
+const $ = (s) => document.querySelector(s);
+const RT_RE = /(?:runtime\s*[:=]\s*["']?)(nodejs\d+\.x|python\d+\.\d+|ruby\d+\.\d+|java\d+|dotnet\d+|dotnetcore\d+\.\d+|go\d+\.x|provided\.al\d+|provided)\b/gi;
+const CDK_RE = /Runtime\.(NODEJS|PYTHON|RUBY|JAVA|DOTNET|GO)_(\d+)(?:_(\d+))?(?:_X)?/gi;
+function cdkId(l, a, b) { l = l.toLowerCase(); if (l === 'nodejs') return 'nodejs' + a + '.x'; if (l === 'python') return 'python' + a + '.' + (b || '0'); if (l === 'ruby') return 'ruby' + a + '.' + (b || '0'); return l + a; }
+function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+function classify(name) {
+  const n = name.toLowerCase();
+  if (n.endsWith('package.json')) return 'pkg';
+  if (n.endsWith('requirements.txt') || /requirements.*\.txt$/.test(n)) return 'req';
+  if (n.endsWith('pyproject.toml') || n.endsWith('.toml') || n.endsWith('pipfile')) return 'pyproject';
+  return 'iac';
+}
+function vtuple(v) { return (v || '').replace(/^[^\d]*/, '').split(/[.\-+]/).map((x) => parseInt(x, 10) || 0); }
+function vlt(a, b) { const A = vtuple(a), B = vtuple(b); for (let i = 0; i < Math.max(A.length, B.length); i++) { const x = A[i] || 0, y = B[i] || 0; if (x < y) return true; if (x > y) return false; } return false; }
+function cleanV(v) { return v ? v.replace(/^[\^~>=<\s]+/, '') : null; }
+function extractMin(spec) { if (!spec) return null; for (const op of ['==', '>=']) { for (let part of spec.split(',')) { part = part.trim(); if (part.indexOf(op) === 0) return part.slice(op.length).trim(); } } return null; }
+function scanIaC(file, c) {
+  const f = new Set(), out = []; let m;
+  RT_RE.lastIndex = 0; while ((m = RT_RE.exec(c))) f.add(m[1].toLowerCase());
+  CDK_RE.lastIndex = 0; while ((m = CDK_RE.exec(c))) { const id = cdkId(m[1], m[2], m[3]); if (id) f.add(id); }
+  f.forEach((rt) => {
+    const d = DATA.runtimes[rt];
+    if (d) out.push({ kind: 'runtime', file, name: rt, severity: d.historical ? 'critical' : (d.severity || 'high'), date: d.date, kit: d.kit, historical: d.historical, note: d.historical ? 'Already past deprecation — unpatched and increasingly unblockable.' : 'Deprecated Lambda runtime; AWS blocks function create/update after this date.' });
+  });
+  return out;
+}
+function scanPkg(file, c) {
+  let pkg; try { pkg = JSON.parse(c); } catch (e) { return []; }
+  const deps = Object.assign({}, pkg.dependencies || {}, pkg.devDependencies || {}), out = [];
+  for (const name in deps) {
+    const info = DATA.native[name]; if (!info) continue;
+    const declared = cleanV(deps[name]);
+    if (info.min === null) { out.push({ kind: 'native', file, name, severity: 'critical', declared: declared || '(unpinned)', required: '(no Node 22 build — remove)', note: info.note }); continue; }
+    if (declared && !vlt(declared, info.min)) continue;
+    out.push({ kind: 'native', file, name, severity: 'high', declared: declared || '(unpinned)', required: '>= ' + info.min, note: info.note });
+  }
+  return out;
+}
+function pyFindings(pkgs, file) {
+  const out = [];
+  for (const pair of pkgs) {
+    const name = pair[0], spec = pair[1], req = DATA.wheels[name]; if (!req) continue;
+    const declared = extractMin(spec);
+    if (req.min === null) { out.push({ kind: 'wheel', file, name, severity: 'critical', declared: spec || '(unpinned)', required: '(no cp312 wheels)', note: req.note }); continue; }
+    if (declared === null) { out.push({ kind: 'wheel', file, name, severity: 'low', declared: '(unpinned)', required: '>= ' + req.min, note: 'unpinned; pin >= ' + req.min + ' for reproducibility.' }); continue; }
+    if (vlt(declared, req.min)) out.push({ kind: 'wheel', file, name, severity: 'high', declared: spec, required: '>= ' + req.min, note: req.note });
+  }
+  return out;
+}
+function parseReq(c) { const out = []; for (let raw of c.split(/\r?\n/)) { const line = raw.trim(); if (!line || line[0] === '#' || line[0] === '-') continue; const m = line.match(/^([A-Za-z0-9_.\-]+)\s*(?:\[[^\]]*\])?\s*([<>=!~].+)?/); if (!m) continue; out.push([m[1].toLowerCase(), (m[2] || '').trim() || null]); } return out; }
+function parsePyproject(c) { const out = []; const blocks = c.match(/dependencies\s*=\s*\[([\s\S]*?)\]/g) || []; for (const b of blocks) { const re = /"\s*([A-Za-z0-9_.\-]+)\s*(?:\[[^\]]*\])?\s*([<>=!~][^"]*)?\s*"/g; let m; while ((m = re.exec(b))) out.push([m[1].toLowerCase(), (m[2] || '').trim() || null]); } return out; }
+function scanFile(name, content) {
+  const k = classify(name);
+  if (k === 'pkg') return scanPkg(name, content);
+  if (k === 'req') return pyFindings(parseReq(content), name);
+  if (k === 'pyproject') return pyFindings(parsePyproject(content), name);
+  return scanIaC(name, content);
+}
+function auditLink(deadline, kit) { const p = new URLSearchParams({ source: 'scan', utm_source: 'scan', utm_medium: 'tool', utm_campaign: 'free-scan' }); if (deadline) p.set('deadline', deadline); if (kit) p.set('kit', kit); return '/audit/?' + p.toString(); }
+const SEV_RANK = { critical: 0, high: 1, low: 2 };
+function render(all) {
+  const box = $('#results');
+  if (!all.length) { box.innerHTML = '<div class="scan-ok">No deprecated runtimes or incompatible dependencies in the files you dropped. This free scan covers the high-blast-radius cases; a full audit checks every function, AMI and launch template.</div>'; return; }
+  all.sort((a, b) => (SEV_RANK[a.severity] - SEV_RANK[b.severity]));
+  let deadline = null, kit = '', today = new Date().toISOString().slice(0, 10);
+  for (const f of all) { if (f.kind === 'runtime' && f.date && f.date >= today) { if (!deadline || f.date < deadline) { deadline = f.date; kit = f.kit || kit; } } }
+  const rows = all.map((f) => {
+    const what = f.kind === 'runtime' ? ('Runtime ' + f.name) : f.name;
+    const when = f.kind === 'runtime' ? (f.historical ? ('deprecated ' + f.date) : ('blocks ' + (f.date || '?'))) : (f.declared + ' → ' + f.required);
+    return '<tr class="sev-' + f.severity + '"><td>' + f.severity.toUpperCase() + '</td><td>' + esc(what) + '</td><td>' + esc(f.file) + '</td><td>' + esc(when) + '</td><td>' + esc(f.note || '') + '</td></tr>';
+  }).join('');
+  const n = all.length;
+  box.innerHTML = '<p class="scan-count">' + n + ' finding' + (n === 1 ? '' : 's') + ' — all detected locally in your browser.</p>' +
+    '<table class="scan-tbl"><thead><tr><th>Severity</th><th>What</th><th>File</th><th>Deadline / fix</th><th>Detail</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<a class="scan-cta" href="' + auditLink(deadline, kit) + '">Get the full migration audit — every function, AMI &amp; dependency, hash-anchored PDF &rarr;</a>';
+}
+const dz = $('#dz'), fi = $('#fi'); let acc = [];
+function handle(files) { acc = []; const arr = [...files]; let pending = arr.length; if (!pending) return; arr.forEach((file) => { const r = new FileReader(); r.onload = () => { try { acc = acc.concat(scanFile(file.name, r.result)); } catch (e) {} if (--pending === 0) render(acc); }; r.onerror = () => { if (--pending === 0) render(acc); }; r.readAsText(file); }); }
+dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('over'); handle(e.dataTransfer.files); });
+dz.addEventListener('click', () => fi.click());
+fi.addEventListener('change', () => handle(fi.files));
+
+</script>
+</body>
+</html>

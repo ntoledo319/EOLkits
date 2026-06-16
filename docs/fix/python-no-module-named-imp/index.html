@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ModuleNotFoundError: No module named &#x27;imp&#x27; — cause &amp; fix (Python 3.12) | EOLkits</title>
+<meta name="description" content="The deprecated imp module was removed in Python 3.12. Replace `imp` with `importlib` — e.g. `importlib.util.find_spec`, `importlib.import_module`, `importl">
+<link rel="canonical" href="https://eolkits.com/fix/python-no-module-named-imp/">
+<link rel="stylesheet" href="/style.css">
+<style>.fix-err{background:#0f172a;color:#e2e8f0;padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem}.fix-steps li{margin:.35rem 0}.fix-cta{display:inline-block;margin-top:1rem;padding:.7rem 1.2rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}.fix-rel{background:#fff7ed;border:1px solid #fed7aa;padding:.6rem .8rem;border-radius:8px}</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does \"ModuleNotFoundError: No module named 'imp'\" mean?", "acceptedAnswer": {"@type": "Answer", "text": "The deprecated imp module was removed in Python 3.12. imp was deprecated since Python 3.4 and removed in 3.12. A dependency or your own code still imports it."}}, {"@type": "Question", "name": "How do I fix \"ModuleNotFoundError: No module named 'imp'\"?", "acceptedAnswer": {"@type": "Answer", "text": "Replace `imp` with `importlib` \u2014 e.g. `importlib.util.find_spec`, `importlib.import_module`, `importlib.machinery` instead of `imp.find_module` / `imp.load_module`. Upgrade any third-party package that still imports imp to a current release. Re-run your test suite on Python 3.12. Source: https://docs.python.org/3/whatsnew/3.12.html"}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Fix: ModuleNotFoundError: No module named 'imp'", "step": [{"@type": "HowToStep", "position": 1, "text": "Replace `imp` with `importlib` \u2014 e.g. `importlib.util.find_spec`, `importlib.import_module`, `importlib.machinery` instead of `imp.find_module` / `imp.load_module`."}, {"@type": "HowToStep", "position": 2, "text": "Upgrade any third-party package that still imports imp to a current release."}, {"@type": "HowToStep", "position": 3, "text": "Re-run your test suite on Python 3.12."}], "citation": "https://docs.python.org/3/whatsnew/3.12.html"}</script>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
+</head>
+<body class="container article">
+<nav class="breadcrumb"><a href="/">Home</a> / <a href="/fix/">Fixes</a> / <span>Python 3.12</span></nav>
+<p class="muted">Python 3.12</p>
+<h1>ModuleNotFoundError: No module named &#x27;imp&#x27;</h1>
+<pre class="fix-err"><code>ModuleNotFoundError: No module named &#x27;imp&#x27;</code></pre>
+<h2>What it means</h2>
+<p>The deprecated imp module was removed in Python 3.12.</p>
+<h2>Why it happens</h2>
+<p>imp was deprecated since Python 3.4 and removed in 3.12. A dependency or your own code still imports it.</p>
+<h2>How to fix it</h2>
+<ol class="fix-steps"><li>Replace `imp` with `importlib` — e.g. `importlib.util.find_spec`, `importlib.import_module`, `importlib.machinery` instead of `imp.find_module` / `imp.load_module`.</li><li>Upgrade any third-party package that still imports imp to a current release.</li><li>Re-run your test suite on Python 3.12.</li></ol>
+<p class="fix-rel">Related deadline: <a href="/migrate/lambda-python-3.9-eol/">Lambda Python 3.9 EOL</a> — <strong>2027-02-01</strong>.</p>
+<h2>Find every instance in your project</h2>
+<p>The free <a href="/scan">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>
+<p>Primary source: <a href="https://docs.python.org/3/whatsnew/3.12.html" target="_blank" rel="noopener nofollow">https://docs.python.org/3/whatsnew/3.12.html</a></p>
+<p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=python-no-module-named-imp&deadline=2027-02-01&kit=python-pivot">Get the full migration audit — $299, hash-anchored PDF &rarr;</a></p>
+</body>
+</html>

@@ -46,7 +46,7 @@
                 "@type": "ListItem",
                 "position": 4,
                 "url": "https://eolkits.com/migrate/lambda-python-3.9-eol/",
-                "name": "Lambda Python 3.9 EOL (deadline 2026-10-31)"
+                "name": "Lambda Python 3.9 EOL (deadline 2027-02-01)"
             },
             
             {
@@ -66,6 +66,30 @@
         ]
     }
     </script>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
 </head>
 <body class="migrate-page">
 
@@ -118,7 +142,7 @@
         <a class="deadline-row soon" href="/migrate/amazon-linux-2-eol/">
             <div class="dl-date">
                 <strong>2026-06-30</strong>
-                <span class="dl-days">20 days</span>
+                <span class="dl-days">13 days</span>
             </div>
             <div class="dl-body">
                 <div class="dl-name">Amazon Linux 2 EOL <span class="severity-badge severity-critical">critical</span></div>
@@ -129,8 +153,8 @@
         
         <a class="deadline-row ahead" href="/migrate/lambda-python-3.9-eol/">
             <div class="dl-date">
-                <strong>2026-10-31</strong>
-                <span class="dl-days">143 days</span>
+                <strong>2027-02-01</strong>
+                <span class="dl-days">229 days</span>
             </div>
             <div class="dl-body">
                 <div class="dl-name">Lambda Python 3.9 EOL <span class="severity-badge severity-high">high</span></div>
@@ -142,7 +166,7 @@
         <a class="deadline-row ahead" href="/migrate/lambda-python-3.10-eol/">
             <div class="dl-date">
                 <strong>2027-04-30</strong>
-                <span class="dl-days">324 days</span>
+                <span class="dl-days">317 days</span>
             </div>
             <div class="dl-body">
                 <div class="dl-name">Lambda Python 3.10 EOL <span class="severity-badge severity-medium">medium</span></div>
@@ -154,7 +178,7 @@
         <a class="deadline-row ahead" href="/migrate/lambda-python-3.11-eol/">
             <div class="dl-date">
                 <strong>2027-10-31</strong>
-                <span class="dl-days">508 days</span>
+                <span class="dl-days">501 days</span>
             </div>
             <div class="dl-body">
                 <div class="dl-name">Lambda Python 3.11 EOL <span class="severity-badge severity-low">low</span></div>

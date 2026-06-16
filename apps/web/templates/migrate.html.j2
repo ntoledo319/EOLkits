@@ -196,6 +196,13 @@
             </div>
         </section>
 
+        <section class="embed-badge">
+            <h2>Embed this deadline in your README</h2>
+            <p>Drop a deadline badge into any repo still affected. It links back to this page, so your team — and anyone reading the repo — stays aware of the {{ deprecation.date }} cutoff.</p>
+            <p><img src="{{ site_url }}/badge/{{ deprecation.slug }}.svg" alt="{{ deprecation.name }} deadline badge"></p>
+            <pre class="code-block"><code>[![{{ deprecation.name }} deadline]({{ site_url }}/badge/{{ deprecation.slug }}.svg)]({{ site_url }}/migrate/{{ deprecation.slug }}/)</code></pre>
+        </section>
+
         {% if related %}
         <section class="related">
             <h2>Related AWS deprecations</h2>

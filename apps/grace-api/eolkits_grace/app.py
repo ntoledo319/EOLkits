@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import json
+import os
 import secrets
 import re
 import sys
@@ -788,6 +789,36 @@ def _payment_intent_id(session: dict[str, Any]) -> str | None:
     return pi
 
 
+def _notify_marketing_sink(
+    sku: str | None, amount: Any, currency: str | None, metadata: dict[str, Any]
+) -> None:
+    """Best-effort, fire-and-forget revenue signal to the GRACE marketing sink so the
+    Growth Engine can attribute a sale to the surface that produced it (scan, fix, ...).
+    Never raises into fulfillment; the purchase is already durably recorded locally.
+    No-op unless EOLKITS_MARKETING_SINK_URL is set, e.g.
+    https://<grace-host>/api/v1/marketing/event.
+    NOTE: GRACE must allowlist site 'eolkits' in marketing.py _PUBLIC_SITES (and widen
+    the amount_cents cap for org-license sales) — see the marketing-machine runbook."""
+    url = os.environ.get("EOLKITS_MARKETING_SINK_URL")
+    if not url:
+        return
+    try:
+        slug = metadata.get("utm_source") or metadata.get("source") or metadata.get("kit") or ""
+        requests.post(
+            url,
+            json={
+                "site": "eolkits",
+                "slug": str(slug)[:120],
+                "kind": str(sku or "sale")[:40],
+                "amount_cents": int(amount or 0),
+                "currency": str(currency or "usd")[:8],
+            },
+            timeout=4,
+        )
+    except Exception:
+        pass  # attribution mirror is best-effort; the sale is already recorded locally
+
+
 def _ingest_paid_session(session_id: str, background_tasks: BackgroundTasks) -> None:
     """Retrieve the authoritative session, validate it, durably record the
     purchase, and durably queue fulfillment."""
@@ -809,6 +840,9 @@ def _ingest_paid_session(session_id: str, background_tasks: BackgroundTasks) -> 
         repo=metadata.get("repo"),
         deadline=metadata.get("deadline"),
         metadata=metadata,
+    )
+    background_tasks.add_task(
+        _notify_marketing_sink, sku, info["amount_total"], info["currency"], metadata
     )
     _queue_fulfillment(session_id, sku, info["email"], metadata, background_tasks)
 

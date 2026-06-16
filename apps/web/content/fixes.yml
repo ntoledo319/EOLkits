@@ -1,0 +1,128 @@
+# Verbatim-error /fix corpus — drives /fix/<slug> AEO pages (M2).
+#
+# Each entry is keyed on a REAL error string a developer pastes into search or an
+# LLM. Every fix is hand-verified against a primary source (cited in source_url).
+# Dates come ONLY from the AWS Lambda runtime deprecation table — secondary blogs
+# carry stale pre-delay dates and must not be used. Fabricating error strings to
+# rank would be scaled-content-abuse; these are sourced, not generated.
+#
+# Schema per entry:
+#   slug            URL slug (/fix/<slug>/)
+#   error           the verbatim error string (the <h1> + code block + search key)
+#   context         short label, e.g. "Python 3.12", "AWS Lambda", "Amazon Linux 2023", "Node.js 22"
+#   summary         one-sentence plain-English meaning
+#   cause           why it happens (the real root cause)
+#   fix_steps       ordered, correct remediation steps
+#   source_url      primary source backing the fix
+#   related_migrate slug of the /migrate/<slug> page to cross-link (optional)
+#   kit             the EOLkits kit that automates this (optional)
+
+fixes:
+  - slug: amazon-linux-extras-command-not-found
+    error: "amazon-linux-extras: command not found"
+    context: "Amazon Linux 2023"
+    summary: "The amazon-linux-extras mechanism was removed in Amazon Linux 2023; it only exists on Amazon Linux 2."
+    cause: "Amazon Linux 2023 dropped the Extras Library. Packages that used to live behind amazon-linux-extras are now either default dnf packages, version-namespaced packages (e.g. python3.11, nginx1.24), or available through SPAL (Supplementary Packages for Amazon Linux)."
+    fix_steps:
+      - "Stop calling amazon-linux-extras — it does not exist on AL2023."
+      - "Install the package directly with dnf, e.g. `sudo dnf install -y python3.11`."
+      - "For a specific minor version, use the version-namespaced package name (python3.11, nginx1.24, postgresql15, etc.)."
+      - "For packages that were EPEL-backed, enable SPAL instead of the old extras topics."
+      - "Update Dockerfiles and user-data scripts that still run `amazon-linux-extras enable ...` / `install`."
+    source_url: "https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html"
+    related_migrate: amazon-linux-2-eol
+    kit: al2023-gate
+
+  - slug: python-no-module-named-distutils
+    error: "ModuleNotFoundError: No module named 'distutils'"
+    context: "Python 3.12"
+    summary: "Python 3.12 removed the standard-library distutils module (PEP 632)."
+    cause: "distutils was deprecated in Python 3.10 and fully removed in 3.12. Code (or a dependency) still imports it. This commonly surfaces after moving a Lambda function or container to a Python 3.12 runtime."
+    fix_steps:
+      - "Interim: install setuptools, which still vendors a distutils shim — `pip install 'setuptools<81'` — and ensure it is in your deployment package."
+      - "Durable: replace `distutils` usage with `setuptools` and the `packaging` library (e.g. `packaging.version.Version` instead of `distutils.version.LooseVersion`)."
+      - "Upgrade dependencies that import distutils to versions that no longer do."
+      - "Re-test on Python 3.12 locally before redeploying."
+    source_url: "https://docs.python.org/3/whatsnew/3.12.html"
+    related_migrate: lambda-python-3.9-eol
+    kit: python-pivot
+
+  - slug: python-no-module-named-imp
+    error: "ModuleNotFoundError: No module named 'imp'"
+    context: "Python 3.12"
+    summary: "The deprecated imp module was removed in Python 3.12."
+    cause: "imp was deprecated since Python 3.4 and removed in 3.12. A dependency or your own code still imports it."
+    fix_steps:
+      - "Replace `imp` with `importlib` — e.g. `importlib.util.find_spec`, `importlib.import_module`, `importlib.machinery` instead of `imp.find_module` / `imp.load_module`."
+      - "Upgrade any third-party package that still imports imp to a current release."
+      - "Re-run your test suite on Python 3.12."
+    source_url: "https://docs.python.org/3/whatsnew/3.12.html"
+    related_migrate: lambda-python-3.9-eol
+    kit: python-pivot
+
+  - slug: collections-has-no-attribute-mapping
+    error: "AttributeError: module 'collections' has no attribute 'Mapping'"
+    context: "Python 3.10+"
+    summary: "The abstract base classes moved from collections to collections.abc; the old aliases were removed in Python 3.10."
+    cause: "collections.Mapping (and Sequence, Iterable, etc.) were deprecated aliases since Python 3.3 and removed in 3.10. Older code or a stale dependency still references collections.Mapping."
+    fix_steps:
+      - "Import from collections.abc: `from collections.abc import Mapping`."
+      - "Replace references like `collections.Mapping` with `collections.abc.Mapping`."
+      - "Upgrade dependencies that still use the old path (a common offender in older pyyaml/jsonschema pins)."
+    source_url: "https://docs.python.org/3/whatsnew/3.10.html"
+    related_migrate: lambda-python-3.9-eol
+    kit: python-pivot
+
+  - slug: lambda-python-runtime-no-longer-supported
+    error: "The runtime parameter of python3.9 is no longer supported for creating or updating AWS Lambda functions"
+    context: "AWS Lambda"
+    summary: "AWS Lambda is blocking create/update operations on a deprecated Python runtime."
+    cause: "Per the AWS Lambda runtime deprecation table, python3.9 was deprecated on 2025-12-15; AWS blocks creating new python3.9 functions on 2027-02-01 and updating existing ones on 2027-03-03 (AWS delayed these beyond the usual 30/60 days). Earlier runtimes such as python3.7 are already blocked for create. The error fires when a deploy targets a runtime past its block date."
+    fix_steps:
+      - "Change the runtime to a supported version — AWS recommends python3.12 (python3.13 is also available)."
+      - "SAM/CloudFormation: `Runtime: python3.12`. CDK: `runtime: lambda.Runtime.PYTHON_3_12`. Terraform: `runtime = \"python3.12\"`. Serverless: `runtime: python3.12`."
+      - "Re-test: Python 3.12 removed distutils and imp and moved the collections ABCs — see the related /fix pages."
+      - "Redeploy and confirm with `aws lambda get-function-configuration --function-name <name> --query Runtime`."
+    source_url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
+    related_migrate: lambda-python-3.9-eol
+    kit: python-pivot
+
+  - slug: node-module-version-mismatch
+    error: "Error: The module was compiled against a different Node.js version using NODE_MODULE_VERSION"
+    context: "Node.js 22"
+    summary: "A precompiled native addon was built for a different Node.js ABI than the one now running."
+    cause: "Native Node addons (sharp, bcrypt, better-sqlite3, canvas, …) are tied to the Node major version's ABI (NODE_MODULE_VERSION). Upgrading the Lambda/container runtime to Node 22 without rebuilding or bumping these packages triggers the mismatch."
+    fix_steps:
+      - "Rebuild native modules against the new Node version: `rm -rf node_modules && npm install` (or `npm rebuild`)."
+      - "If the package has no Node 22 prebuild, upgrade it to a version that does (e.g. sharp >= 0.33.0, bcrypt >= 5.1.1, better-sqlite3 >= 11.0.0)."
+      - "For dead packages with no Node 22 build (node-sass, fibers, grpc), replace them (sass, native timers, @grpc/grpc-js)."
+      - "Build the deployment package on the same Node major version Lambda will run."
+    source_url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
+    related_migrate: lambda-node.js-20-phase-1
+    kit: lambda-lifeline
+
+  - slug: node-sass-deprecated-unsupported
+    error: "Node Sass does not yet support your current environment"
+    context: "Node.js 22"
+    summary: "node-sass (LibSass) is deprecated and has no prebuilt binary for current Node versions."
+    cause: "node-sass wraps LibSass, which is end-of-life. It ships no Node 22 prebuild, so installs fail to find a compatible binary on new runtimes."
+    fix_steps:
+      - "Replace node-sass with Dart Sass: `npm uninstall node-sass && npm install -D sass`."
+      - "The `sass` package is pure JS (no native build) and is a near drop-in for most build pipelines."
+      - "Update any tooling config that names `node-sass` explicitly (e.g. webpack sass-loader `implementation: require('sass')`)."
+    source_url: "https://sass-lang.com/blog/libsass-is-deprecated/"
+    related_migrate: lambda-node.js-20-phase-1
+    kit: lambda-lifeline
+
+  - slug: datetime-utcnow-deprecated
+    error: "DeprecationWarning: datetime.datetime.utcnow() is deprecated"
+    context: "Python 3.12"
+    summary: "datetime.utcnow() is deprecated in Python 3.12 because it returns a naive (timezone-unaware) datetime."
+    cause: "Python 3.12 deprecated utcnow() and utcfromtimestamp() to push code toward timezone-aware datetimes. The warning becomes noise in logs and is scheduled for eventual removal."
+    fix_steps:
+      - "Replace `datetime.datetime.utcnow()` with `datetime.datetime.now(datetime.timezone.utc)`."
+      - "Replace `datetime.datetime.utcfromtimestamp(t)` with `datetime.datetime.fromtimestamp(t, datetime.timezone.utc)`."
+      - "If you need a naive value for a legacy API, call `.replace(tzinfo=None)` explicitly after constructing an aware datetime."
+    source_url: "https://docs.python.org/3/whatsnew/3.12.html"
+    related_migrate: lambda-python-3.9-eol
+    kit: python-pivot
