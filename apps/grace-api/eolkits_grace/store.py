@@ -139,6 +139,21 @@ class Store:
                 );
                 CREATE INDEX IF NOT EXISTS idx_events_ts ON events(ts);
                 CREATE INDEX IF NOT EXISTS idx_events_name ON events(name);
+
+                -- Generic inbound lead capture (studio microsites + any product).
+                -- Replaces FormSubmit; this row is the durable guarantee a lead is
+                -- never silently dropped, independent of email delivery.
+                CREATE TABLE IF NOT EXISTS leads (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ts TEXT NOT NULL,
+                    email TEXT NOT NULL,
+                    name TEXT,
+                    product TEXT,
+                    source TEXT,
+                    fields TEXT
+                );
+                CREATE INDEX IF NOT EXISTS idx_leads_ts ON leads(ts);
+                CREATE INDEX IF NOT EXISTS idx_leads_email ON leads(email);
                 """
             )
             # Add columns to pre-existing `jobs` tables BEFORE creating any index
@@ -304,6 +319,41 @@ class Store:
                 ),
             )
             return int(cur.lastrowid)
+
+    # ---- leads ------------------------------------------------------------ #
+
+    def record_lead(
+        self,
+        *,
+        email: str,
+        name: str | None = None,
+        product: str | None = None,
+        source: str | None = None,
+        fields: dict[str, Any] | None = None,
+    ) -> int:
+        """Durably record an inbound lead. The returned id confirms capture even
+        if the notification email later fails — this row is the guarantee."""
+        with self.connect() as conn:
+            cur = conn.execute(
+                "INSERT INTO leads(ts, email, name, product, source, fields) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (
+                    _now(),
+                    str(email)[:200],
+                    _trunc(name, 200),
+                    _trunc(product),
+                    _trunc(source, 200),
+                    json.dumps(fields or {})[:4000],
+                ),
+            )
+            return int(cur.lastrowid)
+
+    def recent_leads(self, limit: int = 100) -> list[dict[str, Any]]:
+        with self.connect() as conn:
+            rows = conn.execute(
+                "SELECT * FROM leads ORDER BY id DESC LIMIT ?", (limit,)
+            ).fetchall()
+        return [dict(row) for row in rows]
 
     def event_counts(self, since_days: int = 7) -> dict[str, int]:
         cutoff = (datetime.now(UTC) - timedelta(days=since_days)).isoformat()

@@ -38,10 +38,23 @@ OVERRIDE_LABEL = "override:ci-failure"
 CI_FAILURE_CONCLUSIONS = {"failure", "timed_out"}
 DRAIN_INTERVAL_SECONDS = 30
 
+# Studio microsites + eolkits that POST to /api/v1/lead — used for BOTH the CORS
+# allowlist and the 303 redirect allowlist, so the lead endpoint can honor each
+# form's `_next` without ever becoming an open redirector.
+_SITE_ORIGINS = (
+    "https://eolkits.com",
+    "https://toledotechnologies.com",
+    "https://web.toledotechnologies.com",
+    "https://sitelift.toledotechnologies.com",
+    "https://apps.toledotechnologies.com",
+    "https://mobile.toledotechnologies.com",
+    "https://ai.toledotechnologies.com",
+)
+
 app = FastAPI(title="EOLkits GRACE API", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.public_site_url, "https://eolkits.com"],
+    allow_origins=sorted({settings.public_site_url, *_SITE_ORIGINS}),
     allow_methods=["GET", "POST", "PUT", "OPTIONS"],
     allow_headers=["*"],
 )
@@ -302,6 +315,121 @@ async def record_event(request: Request) -> dict[str, Any]:
         },
     )
     return {"ok": True}
+
+
+# ---- generic lead capture (studio microsites + any product) ------------------ #
+
+# Inbound forms use heterogeneous field names; these are the priority orders for
+# the two identity columns. Everything else is preserved verbatim in `fields`.
+_EMAIL_KEYS = ("email", "Email", "e-mail", "your-email", "your_email")
+_NAME_KEYS = ("name", "Name", "full_name", "fullname", "contact", "company", "Business", "agency_name")
+
+
+def _esc(value: Any) -> str:
+    return str(value or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def _send_lead_notification(product: str, source: str, fields: dict[str, str]) -> None:
+    """Best-effort owner notification for a captured lead. Never raises. Delivery
+    goes to settings.lead_notify_to over Resend — NOT FormSubmit/mxroute — so the
+    silent-drop failure cannot recur. The lead is durably recorded regardless."""
+    recipients = [a.strip() for a in (settings.lead_notify_to or "").split(",") if a.strip()]
+    if not recipients:
+        return
+    rows = "".join(
+        f"<tr><td style='padding:4px 12px 4px 0;color:#6b7280;font-size:13px;vertical-align:top'>{_esc(k)}</td>"
+        f"<td style='padding:4px 0;font-size:13px'><strong>{_esc(v)}</strong></td></tr>"
+        for k, v in fields.items()
+    )
+    html = (
+        "<!doctype html><html><body style=\"font-family:system-ui,-apple-system,sans-serif;"
+        "max-width:600px;margin:0 auto;padding:24px;line-height:1.5\">"
+        f"<h2 style=\"margin:0 0 4px\">New lead &mdash; {_esc(product) or 'studio'}</h2>"
+        f"<p style=\"margin:0 0 16px;color:#6b7280;font-size:13px\">via {_esc(source) or 'website'}</p>"
+        f"<table style=\"border-collapse:collapse;width:100%\">{rows}</table>"
+        "<p style=\"font-size:12px;color:#9ca3af;margin-top:24px\">Captured by the GRACE lead bus "
+        "(/api/v1/lead). Reply directly to reach the prospect.</p></body></html>"
+    )
+    subject = f"New lead: {product or 'studio inquiry'}"
+    for to in recipients:
+        try:
+            send_email(settings, to=to, subject=subject, html=html)
+        except Exception:
+            pass  # durable row already written; email is a convenience alert
+
+
+def _resolve_next(next_url: str, request: Request) -> str:
+    """Return a safe absolute redirect target, or "" for none (caller sends JSON).
+
+    An absolute http(s) `_next` is honored only when its origin is allow-listed; a
+    site-relative `/path` is prefixed with the request Origin (also allow-listed).
+    This preserves each form's prior FormSubmit `_next` UX — including forms whose
+    `_next` is relative — without the endpoint becoming an open redirector."""
+    if not next_url:
+        return ""
+    if next_url.lower().startswith(("http://", "https://")):
+        m = re.match(r"^(https?://[^/]+)", next_url)
+        return next_url if (m and m.group(1) in _SITE_ORIGINS) else ""
+    if next_url.startswith("/") and not next_url.startswith("//"):
+        origin = request.headers.get("origin") or ""
+        if not origin:
+            m = re.match(r"^(https?://[^/]+)", request.headers.get("referer") or "")
+            origin = m.group(1) if m else ""
+        if origin in _SITE_ORIGINS:
+            return origin + next_url
+    return ""
+
+
+def _respond(target: str, payload: dict[str, Any]) -> Response:
+    return RedirectResponse(target, status_code=303) if target else JSONResponse(payload)
+
+
+@app.post("/api/v1/lead")
+async def capture_lead(request: Request, background_tasks: BackgroundTasks) -> Response:
+    """Generic lead capture for the studio microsites and any product.
+
+    Accepts a native HTML form POST (urlencoded/multipart) or JSON, records the
+    lead durably, fires an owner notification over the working email path, and
+    303-redirects to `_next` (preserving the prior FormSubmit UX) — or returns
+    JSON when no redirect target is given. Replaces FormSubmit, which silently
+    dropped every submission at mxroute."""
+    raw: dict[str, str] = {}
+    try:
+        form = await request.form()
+        for k, v in form.multi_items():
+            k, v = str(k), str(v)
+            raw[k] = f"{raw[k]}, {v}" if k in raw else v  # join checkbox arrays
+    except Exception:
+        raw = {}
+    if not raw:
+        try:
+            body = await request.json()
+            if isinstance(body, dict):
+                raw = {str(k): str(v) for k, v in body.items()}
+        except Exception:
+            raw = {}
+
+    target = _resolve_next(raw.get("_next") or raw.get("next") or "", request)
+    # Honeypot: bots fill the hidden _honey field. Accept silently; record nothing.
+    if raw.get("_honey") or raw.get("_gotcha"):
+        return _respond(target, {"ok": True})
+
+    fields = {k: v for k, v in raw.items() if not k.startswith("_") and str(v).strip()}
+    email = next((fields[k] for k in _EMAIL_KEYS if fields.get(k)), "")
+    name = next((fields[k] for k in _NAME_KEYS if fields.get(k)), "")
+    product = (raw.get("product") or raw.get("_subject") or "").strip()[:120]
+    source = (raw.get("source") or request.headers.get("referer") or "").strip()[:200]
+    for control in ("product", "source", "next"):
+        fields.pop(control, None)
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="A valid email is required.")
+
+    lead_id = store.record_lead(
+        email=email, name=name, product=product, source=source, fields=fields
+    )
+    store.record_event("lead", {"source": source, "sku": product, "meta": {"lead_id": lead_id}})
+    background_tasks.add_task(_send_lead_notification, product, source, fields)
+    return _respond(target, {"ok": True, "lead_id": lead_id})
 
 
 # ---- webhooks ---------------------------------------------------------------- #
