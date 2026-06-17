@@ -46,10 +46,10 @@
 <p>Native Node addons (sharp, bcrypt, better-sqlite3, canvas, …) are tied to the Node major version&#x27;s ABI (NODE_MODULE_VERSION). Upgrading the Lambda/container runtime to Node 22 without rebuilding or bumping these packages triggers the mismatch.</p>
 <h2>How to fix it</h2>
 <ol class="fix-steps"><li>Rebuild native modules against the new Node version: `rm -rf node_modules &amp;&amp; npm install` (or `npm rebuild`).</li><li>If the package has no Node 22 prebuild, upgrade it to a version that does (e.g. sharp &gt;= 0.33.0, bcrypt &gt;= 5.1.1, better-sqlite3 &gt;= 11.0.0).</li><li>For dead packages with no Node 22 build (node-sass, fibers, grpc), replace them (sass, native timers, @grpc/grpc-js).</li><li>Build the deployment package on the same Node major version Lambda will run.</li></ol>
-<p class="fix-rel">Related deadline: <a href="/migrate/lambda-node.js-20-phase-1/">Lambda Node.js 20 Phase 1</a> — <strong>2026-04-30</strong>.</p>
+<p class="fix-rel">Related deadline: <a href="/migrate/lambda-node.js-20-phase-1/">Lambda Node.js 20 Phase 1</a> — <strong>2027-02-01</strong>.</p>
 <h2>Find every instance in your project</h2>
 <p>The free <a href="/scan">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>
 <p>Primary source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html</a></p>
-<p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-module-version-mismatch&deadline=2026-04-30&kit=lambda-lifeline">Get the full migration audit — $299, hash-anchored PDF &rarr;</a></p>
+<p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-module-version-mismatch&deadline=2027-02-01&kit=lambda-lifeline">Get the full migration audit — $299, hash-anchored PDF &rarr;</a></p>
 </body>
 </html>

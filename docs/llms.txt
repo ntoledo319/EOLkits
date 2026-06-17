@@ -5,11 +5,13 @@
 ## AWS deprecation deadlines
 
 - [IMDSv1 Enforcement](https://eolkits.com/migrate/imdsv1-enforcement/): deadline 2025-12-31, severity high, service EC2. Source: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html
-- [Lambda Node.js 20 Phase 1](https://eolkits.com/migrate/lambda-node.js-20-phase-1/): deadline 2026-04-30, severity critical, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 - [Amazon Linux 2 EOL](https://eolkits.com/migrate/amazon-linux-2-eol/): deadline 2026-06-30, severity critical, service EC2, EKS, ECS, Elastic Beanstalk. Source: https://aws.amazon.com/blogs/aws/update-on-amazon-linux-2-end-of-life/
+- [Lambda Node.js 20 Phase 1](https://eolkits.com/migrate/lambda-node.js-20-phase-1/): deadline 2027-02-01, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 - [Lambda Python 3.9 EOL](https://eolkits.com/migrate/lambda-python-3.9-eol/): deadline 2027-02-01, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
-- [Lambda Python 3.10 EOL](https://eolkits.com/migrate/lambda-python-3.10-eol/): deadline 2027-04-30, severity medium, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
-- [Lambda Python 3.11 EOL](https://eolkits.com/migrate/lambda-python-3.11-eol/): deadline 2027-10-31, severity low, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+- [Lambda Python 3.10 EOL](https://eolkits.com/migrate/lambda-python-3.10-eol/): deadline 2027-02-01, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+- [Lambda Node.js 18 EOL](https://eolkits.com/migrate/lambda-node.js-18-eol/): deadline 2027-02-01, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+- [Lambda Python 3.8 EOL](https://eolkits.com/migrate/lambda-python-3.8-eol/): deadline 2027-02-01, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+- [Lambda Python 3.11 EOL](https://eolkits.com/migrate/lambda-python-3.11-eol/): deadline 2027-07-31, severity medium, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 
 ## Common migration errors (verified fixes)
 

@@ -3,27 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lambda Node.js 20 Phase 1 migration guide — deadline 2026-04-30 | EOLkits</title>
-    <meta name="description" content="Lambda Node.js 20 Phase 1 ends 2026-04-30 (deadline passed). AWS Lambda. 4 breaking changes, exact migration facts, and a free CLI (lambda-lifeline) to scan, codemod, and ship before the deadline.">
-    <meta name="keywords" content="Lambda Node.js 20 Phase 1, AWS deprecation, AWS Lambda, lambda, nodejs, runtime, migration, end of life, 2026-04-30">
+    <title>Lambda Node.js 20 Phase 1 migration guide — deadline 2027-02-01 | EOLkits</title>
+    <meta name="description" content="Lambda Node.js 20 Phase 1 ends 2027-02-01 (more than 30 days out). AWS Lambda. 4 breaking changes, exact migration facts, and a free CLI (lambda-lifeline) to scan, codemod, and ship before the deadline.">
+    <meta name="keywords" content="Lambda Node.js 20 Phase 1, AWS deprecation, AWS Lambda, lambda, nodejs, runtime, migration, end of life, 2027-02-01">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://eolkits.com/migrate/lambda-node.js-20-phase-1/">
     <link rel="stylesheet" href="/style.css">
     <link rel="alternate" type="text/calendar" title="AWS Deprecation Deadlines (EOLkits)" href="/deprecations.ics">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Lambda Node.js 20 Phase 1 — AWS deprecation migration guide (deadline 2026-04-30)">
-    <meta property="og:description" content="Lambda functions using Node.js 20 runtime will fail to update. Phase 1: CreateFunction and UpdateFunctionConfiguration blocked.">
+    <meta property="og:title" content="Lambda Node.js 20 Phase 1 — AWS deprecation migration guide (deadline 2027-02-01)">
+    <meta property="og:description" content="Node.js 20 Lambda runtime (Amazon Linux 2023) deprecated 2026-04-30. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs20.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — part of the synchronized Q1-2027 runtime-block cluster.">
     <meta property="og:url" content="https://eolkits.com/migrate/lambda-node.js-20-phase-1/">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="EOLkits">
-    <meta property="article:published_time" content="2026-06-16T19:22:41.182194+00:00">
-    <meta property="article:modified_time" content="2026-06-16T19:22:41.182194+00:00">
+    <meta property="article:published_time" content="2026-06-17T04:04:53.703692+00:00">
+    <meta property="article:modified_time" content="2026-06-17T04:04:53.703692+00:00">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Lambda Node.js 20 Phase 1 — Migration Guide">
-    <meta name="twitter:description" content="Deadline 2026-04-30 (-48 days). 4 breaking changes, cited from AWS docs.">
+    <meta name="twitter:description" content="Deadline 2027-02-01 (229 days). 4 breaking changes, cited from AWS docs.">
 
     <!-- Schema.org: TechArticle (every fact cited to deprecation.url) -->
     <script type="application/ld+json">
@@ -31,9 +31,9 @@
         "@context": "https://schema.org",
         "@type": "TechArticle",
         "headline": "Lambda Node.js 20 Phase 1 \u2014 AWS Deprecation Migration Guide",
-        "description": "Lambda functions using Node.js 20 runtime will fail to update. Phase 1: CreateFunction and UpdateFunctionConfiguration blocked.",
-        "datePublished": "2026-06-16T19:22:41.182194+00:00",
-        "dateModified": "2026-06-16T19:22:41.182194+00:00",
+        "description": "Node.js 20 Lambda runtime (Amazon Linux 2023) deprecated 2026-04-30. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs20.x functions on 2027-02-01 and updating existing ones on 2027-03-03 \u2014 part of the synchronized Q1-2027 runtime-block cluster.",
+        "datePublished": "2026-06-17T04:04:53.703692+00:00",
+        "dateModified": "2026-06-17T04:04:53.703692+00:00",
         "proficiencyLevel": "Expert",
         "keywords": "lambda, nodejs, runtime",
         "citation": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html",
@@ -74,7 +74,7 @@
             {
                 "@type": "Question",
                 "name": "When is the Lambda Node.js 20 Phase 1 deadline?",
-                "acceptedAnswer": { "@type": "Answer", "text": "The deadline is 2026-04-30. Lambda functions using Node.js 20 runtime will fail to update. Phase 1: CreateFunction and UpdateFunctionConfiguration blocked. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
+                "acceptedAnswer": { "@type": "Answer", "text": "The deadline is 2027-02-01. Node.js 20 Lambda runtime (Amazon Linux 2023) deprecated 2026-04-30. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs20.x functions on 2027-02-01 and updating existing ones on 2027-03-03 \u2014 part of the synchronized Q1-2027 runtime-block cluster. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
             },
             {
                 "@type": "Question",
@@ -139,22 +139,22 @@
     </nav>
 
     <article>
-        <div class="deadline-banner passed">
-            <span class="severity-badge severity-critical">critical</span>
+        <div class="deadline-banner ahead">
+            <span class="severity-badge severity-high">high</span>
             <h1>Lambda Node.js 20 Phase 1</h1>
             <p class="banner-sub">AWS Lambda — end-of-life deadline</p>
-            <div class="countdown" data-deadline="2026-04-30">2026-04-30</div>
-            <p class="urgency">This deadline passed on 2026-04-30. Affected resources are now in the post-deadline window — clean up before the next enforcement phase.</p>
+            <div class="countdown" data-deadline="2027-02-01">2027-02-01</div>
+            <p class="urgency">229 days until the 2027-02-01 deadline — enough runway to migrate safely.</p>
         </div>
 
         <section>
             <h2>What is being deprecated?</h2>
-            <p>Lambda functions using Node.js 20 runtime will fail to update. Phase 1: CreateFunction and UpdateFunctionConfiguration blocked.</p>
+            <p>Node.js 20 Lambda runtime (Amazon Linux 2023) deprecated 2026-04-30. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs20.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — part of the synchronized Q1-2027 runtime-block cluster.</p>
             <table class="facts">
-                <tr><th>Deadline</th><td><strong>2026-04-30</strong> (-48 days from build date 2026-06-16)</td></tr>
+                <tr><th>Deadline</th><td><strong>2027-02-01</strong> (229 days from build date 2026-06-17)</td></tr>
                 <tr><th>Service</th><td>AWS Lambda</td></tr>
                 <tr><th>Affected resources</th><td><code>function</code></td></tr>
-                <tr><th>Severity</th><td><span class="severity-badge severity-critical">critical</span></td></tr>
+                <tr><th>Severity</th><td><span class="severity-badge severity-high">high</span></td></tr>
                 <tr><th>Migration kit</th><td><code>lambda-lifeline</code> (free, MIT)</td></tr>
                 <tr><th>Primary source</th><td><a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html</a></td></tr>
             </table>
@@ -163,7 +163,7 @@
 
         <section class="breaking-changes">
             <h2>Breaking changes</h2>
-            <p>The following changes take effect at or before the 2026-04-30 deadline. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[source]</a></p>
+            <p>The following changes take effect at or before the 2027-02-01 deadline. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[source]</a></p>
             <ul>
                 
                 <li>CreateFunction and UpdateFunctionConfiguration API calls fail</li>
@@ -207,13 +207,13 @@ lambda-lifeline apply</code></pre>
         
 
         <section class="conversion">
-            <h2>Want it done for you before 2026-04-30?</h2>
+            <h2>Want it done for you before 2027-02-01?</h2>
             <div class="pricing-grid-2">
                 <div class="pricing-card">
                     <h3>Audit PDF</h3>
                     <div class="price">$299</div>
                     <p>Hash-anchored deterministic report scoring every Lambda Node.js 20 Phase 1 finding by severity × blast-radius, with a roll-forward roadmap and cost-of-not-fixing estimate. Delivered by email in 5 minutes.</p>
-                    <a href="/audit/?deadline=2026-04-30&utm_source=migrate&utm_medium=cta&utm_campaign=lambda-node.js-20-phase-1&kit=lambda-lifeline" class="btn-primary">Order Audit — $299</a>
+                    <a href="/audit/?deadline=2027-02-01&utm_source=migrate&utm_medium=cta&utm_campaign=lambda-node.js-20-phase-1&kit=lambda-lifeline" class="btn-primary">Order Audit — $299</a>
                 </div>
                 <div class="pricing-card featured">
                     <h3>Migration Pack</h3>
@@ -227,7 +227,7 @@ lambda-lifeline apply</code></pre>
 
         <section class="embed-badge">
             <h2>Embed this deadline in your README</h2>
-            <p>Drop a deadline badge into any repo still affected. It links back to this page, so your team — and anyone reading the repo — stays aware of the 2026-04-30 cutoff.</p>
+            <p>Drop a deadline badge into any repo still affected. It links back to this page, so your team — and anyone reading the repo — stays aware of the 2027-02-01 cutoff.</p>
             <p><img src="https://eolkits.com/badge/lambda-node.js-20-phase-1.svg" alt="Lambda Node.js 20 Phase 1 deadline badge"></p>
             <pre class="code-block"><code>[![Lambda Node.js 20 Phase 1 deadline](https://eolkits.com/badge/lambda-node.js-20-phase-1.svg)](https://eolkits.com/migrate/lambda-node.js-20-phase-1/)</code></pre>
         </section>
@@ -245,12 +245,17 @@ lambda-lifeline apply</code></pre>
                 
                 <li>
                     <a href="/migrate/lambda-python-3.10-eol/">Lambda Python 3.10 EOL</a>
-                    <span class="rel-meta">— deadline <strong>2027-04-30</strong> · medium · <code>python-pivot</code></span>
+                    <span class="rel-meta">— deadline <strong>2027-02-01</strong> · high · <code>python-pivot</code></span>
                 </li>
                 
                 <li>
-                    <a href="/migrate/lambda-python-3.11-eol/">Lambda Python 3.11 EOL</a>
-                    <span class="rel-meta">— deadline <strong>2027-10-31</strong> · low · <code>python-pivot</code></span>
+                    <a href="/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 EOL</a>
+                    <span class="rel-meta">— deadline <strong>2027-02-01</strong> · high · <code>lambda-lifeline</code></span>
+                </li>
+                
+                <li>
+                    <a href="/migrate/lambda-python-3.8-eol/">Lambda Python 3.8 EOL</a>
+                    <span class="rel-meta">— deadline <strong>2027-02-01</strong> · high · <code>python-pivot</code></span>
                 </li>
                 
             </ul>
@@ -262,10 +267,10 @@ lambda-lifeline apply</code></pre>
             <h2>Frequently asked questions</h2>
             <details open>
                 <summary>When is the Lambda Node.js 20 Phase 1 deadline?</summary>
-                <p>2026-04-30. Lambda functions using Node.js 20 runtime will fail to update. Phase 1: CreateFunction and UpdateFunctionConfiguration blocked. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[AWS source]</a></p>
+                <p>2027-02-01. Node.js 20 Lambda runtime (Amazon Linux 2023) deprecated 2026-04-30. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs20.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — part of the synchronized Q1-2027 runtime-block cluster. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[AWS source]</a></p>
             </details>
             <details>
-                <summary>What happens if I don't migrate by 2026-04-30?</summary>
+                <summary>What happens if I don't migrate by 2027-02-01?</summary>
                 <p>The breaking changes listed above take effect: CreateFunction and UpdateFunctionConfiguration API calls fail; aws-sdk v2 not available (use v3); OpenSSL 3 hash changes; URL vs require() for imports. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[source]</a></p>
             </details>
             <details>

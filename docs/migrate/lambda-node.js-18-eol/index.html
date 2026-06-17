@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lambda Python 3.10 EOL migration guide — deadline 2027-02-01 | EOLkits</title>
-    <meta name="description" content="Lambda Python 3.10 EOL ends 2027-02-01 (more than 30 days out). AWS Lambda. 2 breaking changes, exact migration facts, and a free CLI (python-pivot) to scan, codemod, and ship before the deadline.">
-    <meta name="keywords" content="Lambda Python 3.10 EOL, AWS deprecation, AWS Lambda, lambda, python, runtime, migration, end of life, 2027-02-01">
+    <title>Lambda Node.js 18 EOL migration guide — deadline 2027-02-01 | EOLkits</title>
+    <meta name="description" content="Lambda Node.js 18 EOL ends 2027-02-01 (more than 30 days out). AWS Lambda. 4 breaking changes, exact migration facts, and a free CLI (lambda-lifeline) to scan, codemod, and ship before the deadline.">
+    <meta name="keywords" content="Lambda Node.js 18 EOL, AWS deprecation, AWS Lambda, lambda, nodejs, runtime, migration, end of life, 2027-02-01">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://eolkits.com/migrate/lambda-python-3.10-eol/">
+    <link rel="canonical" href="https://eolkits.com/migrate/lambda-node.js-18-eol/">
     <link rel="stylesheet" href="/style.css">
     <link rel="alternate" type="text/calendar" title="AWS Deprecation Deadlines (EOLkits)" href="/deprecations.ics">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Lambda Python 3.10 EOL — AWS deprecation migration guide (deadline 2027-02-01)">
-    <meta property="og:description" content="Python 3.10 Lambda runtime deprecated 2026-10-31. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-02-01 and updating existing ones on 2027-03-03 — the same synchronized Q1-2027 block cluster as python3.8/3.9.">
-    <meta property="og:url" content="https://eolkits.com/migrate/lambda-python-3.10-eol/">
+    <meta property="og:title" content="Lambda Node.js 18 EOL — AWS deprecation migration guide (deadline 2027-02-01)">
+    <meta property="og:description" content="Node.js 18 Lambda runtime (Amazon Linux 2) deprecated 2025-09-01. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs18.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — part of the synchronized Q1-2027 runtime-block cluster. nodejs18.x is one of the most common runtimes still in production.">
+    <meta property="og:url" content="https://eolkits.com/migrate/lambda-node.js-18-eol/">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="EOLkits">
     <meta property="article:published_time" content="2026-06-17T04:04:53.703692+00:00">
@@ -22,20 +22,20 @@
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Lambda Python 3.10 EOL — Migration Guide">
-    <meta name="twitter:description" content="Deadline 2027-02-01 (229 days). 2 breaking changes, cited from AWS docs.">
+    <meta name="twitter:title" content="Lambda Node.js 18 EOL — Migration Guide">
+    <meta name="twitter:description" content="Deadline 2027-02-01 (229 days). 4 breaking changes, cited from AWS docs.">
 
     <!-- Schema.org: TechArticle (every fact cited to deprecation.url) -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "TechArticle",
-        "headline": "Lambda Python 3.10 EOL \u2014 AWS Deprecation Migration Guide",
-        "description": "Python 3.10 Lambda runtime deprecated 2026-10-31. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-02-01 and updating existing ones on 2027-03-03 \u2014 the same synchronized Q1-2027 block cluster as python3.8/3.9.",
+        "headline": "Lambda Node.js 18 EOL \u2014 AWS Deprecation Migration Guide",
+        "description": "Node.js 18 Lambda runtime (Amazon Linux 2) deprecated 2025-09-01. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs18.x functions on 2027-02-01 and updating existing ones on 2027-03-03 \u2014 part of the synchronized Q1-2027 runtime-block cluster. nodejs18.x is one of the most common runtimes still in production.",
         "datePublished": "2026-06-17T04:04:53.703692+00:00",
         "dateModified": "2026-06-17T04:04:53.703692+00:00",
         "proficiencyLevel": "Expert",
-        "keywords": "lambda, python, runtime",
+        "keywords": "lambda, nodejs, runtime",
         "citation": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html",
         "author": { "@type": "Organization", "name": "EOLkits", "url": "https://eolkits.com" },
         "publisher": {
@@ -48,7 +48,7 @@
             "name": "AWS Lambda",
             "applicationCategory": "CloudComputing"
         },
-        "mainEntityOfPage": "https://eolkits.com/migrate/lambda-python-3.10-eol/"
+        "mainEntityOfPage": "https://eolkits.com/migrate/lambda-node.js-18-eol/"
     }
     </script>
 
@@ -60,7 +60,7 @@
         "itemListElement": [
             { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://eolkits.com/" },
             { "@type": "ListItem", "position": 2, "name": "AWS deprecations", "item": "https://eolkits.com/migrate/" },
-            { "@type": "ListItem", "position": 3, "name": "Lambda Python 3.10 EOL", "item": "https://eolkits.com/migrate/lambda-python-3.10-eol/" }
+            { "@type": "ListItem", "position": 3, "name": "Lambda Node.js 18 EOL", "item": "https://eolkits.com/migrate/lambda-node.js-18-eol/" }
         ]
     }
     </script>
@@ -73,23 +73,23 @@
         "mainEntity": [
             {
                 "@type": "Question",
-                "name": "When is the Lambda Python 3.10 EOL deadline?",
-                "acceptedAnswer": { "@type": "Answer", "text": "The deadline is 2027-02-01. Python 3.10 Lambda runtime deprecated 2026-10-31. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-02-01 and updating existing ones on 2027-03-03 \u2014 the same synchronized Q1-2027 block cluster as python3.8/3.9. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
+                "name": "When is the Lambda Node.js 18 EOL deadline?",
+                "acceptedAnswer": { "@type": "Answer", "text": "The deadline is 2027-02-01. Node.js 18 Lambda runtime (Amazon Linux 2) deprecated 2025-09-01. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs18.x functions on 2027-02-01 and updating existing ones on 2027-03-03 \u2014 part of the synchronized Q1-2027 runtime-block cluster. nodejs18.x is one of the most common runtimes still in production. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
             },
             {
                 "@type": "Question",
-                "name": "What breaks when Lambda Python 3.10 EOL reaches end of life?",
-                "acceptedAnswer": { "@type": "Answer", "text": "datetime.utcnow() deprecated; Various typing changes. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
+                "name": "What breaks when Lambda Node.js 18 EOL reaches end of life?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Upgrade target is nodejs22.x; aws-sdk v2 not bundled (use @aws-sdk v3 modular clients); Native addons must be rebuilt for the Node 22 ABI; OpenSSL 3 behavior changes. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
             },
             {
                 "@type": "Question",
-                "name": "Which AWS services are affected by Lambda Python 3.10 EOL?",
+                "name": "Which AWS services are affected by Lambda Node.js 18 EOL?",
                 "acceptedAnswer": { "@type": "Answer", "text": "Affected services: AWS Lambda. Affected resource types: function. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
             },
             {
                 "@type": "Question",
-                "name": "Is there a free tool to migrate off Lambda Python 3.10 EOL?",
-                "acceptedAnswer": { "@type": "Answer", "text": "Yes. python-pivot is an MIT-licensed CLI that scans, codemods, and patches IaC for this deprecation. Paid Audit ($299) and Migration Pack ($1499) tiers add automated reports and PRs." }
+                "name": "Is there a free tool to migrate off Lambda Node.js 18 EOL?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Yes. lambda-lifeline is an MIT-licensed CLI that scans, codemods, and patches IaC for this deprecation. Paid Audit ($299) and Migration Pack ($1499) tiers add automated reports and PRs." }
             }
         ]
     }
@@ -135,13 +135,13 @@
 
 <main class="container article">
     <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a href="/">Home</a> / <a href="/migrate/">AWS deprecations</a> / <span>Lambda Python 3.10 EOL</span>
+        <a href="/">Home</a> / <a href="/migrate/">AWS deprecations</a> / <span>Lambda Node.js 18 EOL</span>
     </nav>
 
     <article>
         <div class="deadline-banner ahead">
             <span class="severity-badge severity-high">high</span>
-            <h1>Lambda Python 3.10 EOL</h1>
+            <h1>Lambda Node.js 18 EOL</h1>
             <p class="banner-sub">AWS Lambda — end-of-life deadline</p>
             <div class="countdown" data-deadline="2027-02-01">2027-02-01</div>
             <p class="urgency">229 days until the 2027-02-01 deadline — enough runway to migrate safely.</p>
@@ -149,13 +149,13 @@
 
         <section>
             <h2>What is being deprecated?</h2>
-            <p>Python 3.10 Lambda runtime deprecated 2026-10-31. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-02-01 and updating existing ones on 2027-03-03 — the same synchronized Q1-2027 block cluster as python3.8/3.9.</p>
+            <p>Node.js 18 Lambda runtime (Amazon Linux 2) deprecated 2025-09-01. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs18.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — part of the synchronized Q1-2027 runtime-block cluster. nodejs18.x is one of the most common runtimes still in production.</p>
             <table class="facts">
                 <tr><th>Deadline</th><td><strong>2027-02-01</strong> (229 days from build date 2026-06-17)</td></tr>
                 <tr><th>Service</th><td>AWS Lambda</td></tr>
                 <tr><th>Affected resources</th><td><code>function</code></td></tr>
                 <tr><th>Severity</th><td><span class="severity-badge severity-high">high</span></td></tr>
-                <tr><th>Migration kit</th><td><code>python-pivot</code> (free, MIT)</td></tr>
+                <tr><th>Migration kit</th><td><code>lambda-lifeline</code> (free, MIT)</td></tr>
                 <tr><th>Primary source</th><td><a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html</a></td></tr>
             </table>
             <p class="cite-note">Every fact on this page is taken from the cited AWS / upstream source above. EOLkits ships no claim without a primary source.</p>
@@ -166,23 +166,27 @@
             <p>The following changes take effect at or before the 2027-02-01 deadline. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[source]</a></p>
             <ul>
                 
-                <li>datetime.utcnow() deprecated</li>
+                <li>Upgrade target is nodejs22.x</li>
                 
-                <li>Various typing changes</li>
+                <li>aws-sdk v2 not bundled (use @aws-sdk v3 modular clients)</li>
+                
+                <li>Native addons must be rebuilt for the Node 22 ABI</li>
+                
+                <li>OpenSSL 3 behavior changes</li>
                 
             </ul>
         </section>
 
         
         <section>
-            <h2>Migrate with the free <code>python-pivot</code> CLI</h2>
+            <h2>Migrate with the free <code>lambda-lifeline</code> CLI</h2>
             <p>The MIT-licensed CLI runs the same five-step migration on every deprecation: scan, fix, test, deploy canary, rollback. No AWS credentials needed for the offline fixture run.</p>
             <div class="migration-steps">
                 <div class="step">
                     <h4>Scan your infrastructure</h4>
                     <p>Enumerate every resource still on the deprecated runtime.</p>
-                    <pre class="code-block"><code>pip install python-pivot
-python-pivot scan --region us-east-1</code></pre>
+                    <pre class="code-block"><code>npm install -g lambda-lifeline
+lambda-lifeline scan --region us-east-1</code></pre>
                 </div>
                 <div class="step">
                     <h4>Review findings by severity × blast radius</h4>
@@ -191,8 +195,8 @@ python-pivot scan --region us-east-1</code></pre>
                 <div class="step">
                     <h4>Apply codemods (dry-run first)</h4>
                     <p>Mechanically-safe rewrites for the breaking changes above. Everything ambiguous is flagged, not auto-changed.</p>
-                    <pre class="code-block"><code>python-pivot apply --dry-run
-python-pivot apply</code></pre>
+                    <pre class="code-block"><code>lambda-lifeline apply --dry-run
+lambda-lifeline apply</code></pre>
                 </div>
                 <div class="step">
                     <h4>Deploy with a staged canary + auto-rollback</h4>
@@ -208,14 +212,14 @@ python-pivot apply</code></pre>
                 <div class="pricing-card">
                     <h3>Audit PDF</h3>
                     <div class="price">$299</div>
-                    <p>Hash-anchored deterministic report scoring every Lambda Python 3.10 EOL finding by severity × blast-radius, with a roll-forward roadmap and cost-of-not-fixing estimate. Delivered by email in 5 minutes.</p>
-                    <a href="/audit/?deadline=2027-02-01&utm_source=migrate&utm_medium=cta&utm_campaign=lambda-python-3.10-eol&kit=python-pivot" class="btn-primary">Order Audit — $299</a>
+                    <p>Hash-anchored deterministic report scoring every Lambda Node.js 18 EOL finding by severity × blast-radius, with a roll-forward roadmap and cost-of-not-fixing estimate. Delivered by email in 5 minutes.</p>
+                    <a href="/audit/?deadline=2027-02-01&utm_source=migrate&utm_medium=cta&utm_campaign=lambda-node.js-18-eol&kit=lambda-lifeline" class="btn-primary">Order Audit — $299</a>
                 </div>
                 <div class="pricing-card featured">
                     <h3>Migration Pack</h3>
                     <div class="price">$1,499</div>
-                    <p>A real PR opened on your repo: python-pivot codemods + IaC patches + canary plan + rollback. <strong>Auto-refund if your CI fails within 7 days.</strong></p>
-                    <a href="/pack/?utm_source=migrate&utm_medium=cta&utm_campaign=lambda-python-3.10-eol&kit=python-pivot" class="btn-primary">Get Migration Pack — $1,499</a>
+                    <p>A real PR opened on your repo: lambda-lifeline codemods + IaC patches + canary plan + rollback. <strong>Auto-refund if your CI fails within 7 days.</strong></p>
+                    <a href="/pack/?utm_source=migrate&utm_medium=cta&utm_campaign=lambda-node.js-18-eol&kit=lambda-lifeline" class="btn-primary">Get Migration Pack — $1,499</a>
                     <a href="/pack/" class="btn-outline">How it works</a>
                 </div>
             </div>
@@ -224,8 +228,8 @@ python-pivot apply</code></pre>
         <section class="embed-badge">
             <h2>Embed this deadline in your README</h2>
             <p>Drop a deadline badge into any repo still affected. It links back to this page, so your team — and anyone reading the repo — stays aware of the 2027-02-01 cutoff.</p>
-            <p><img src="https://eolkits.com/badge/lambda-python-3.10-eol.svg" alt="Lambda Python 3.10 EOL deadline badge"></p>
-            <pre class="code-block"><code>[![Lambda Python 3.10 EOL deadline](https://eolkits.com/badge/lambda-python-3.10-eol.svg)](https://eolkits.com/migrate/lambda-python-3.10-eol/)</code></pre>
+            <p><img src="https://eolkits.com/badge/lambda-node.js-18-eol.svg" alt="Lambda Node.js 18 EOL deadline badge"></p>
+            <pre class="code-block"><code>[![Lambda Node.js 18 EOL deadline](https://eolkits.com/badge/lambda-node.js-18-eol.svg)](https://eolkits.com/migrate/lambda-node.js-18-eol/)</code></pre>
         </section>
 
         
@@ -245,8 +249,8 @@ python-pivot apply</code></pre>
                 </li>
                 
                 <li>
-                    <a href="/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 EOL</a>
-                    <span class="rel-meta">— deadline <strong>2027-02-01</strong> · high · <code>lambda-lifeline</code></span>
+                    <a href="/migrate/lambda-python-3.10-eol/">Lambda Python 3.10 EOL</a>
+                    <span class="rel-meta">— deadline <strong>2027-02-01</strong> · high · <code>python-pivot</code></span>
                 </li>
                 
                 <li>
@@ -262,12 +266,12 @@ python-pivot apply</code></pre>
         <section class="faq" id="faq">
             <h2>Frequently asked questions</h2>
             <details open>
-                <summary>When is the Lambda Python 3.10 EOL deadline?</summary>
-                <p>2027-02-01. Python 3.10 Lambda runtime deprecated 2026-10-31. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-02-01 and updating existing ones on 2027-03-03 — the same synchronized Q1-2027 block cluster as python3.8/3.9. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[AWS source]</a></p>
+                <summary>When is the Lambda Node.js 18 EOL deadline?</summary>
+                <p>2027-02-01. Node.js 18 Lambda runtime (Amazon Linux 2) deprecated 2025-09-01. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs18.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — part of the synchronized Q1-2027 runtime-block cluster. nodejs18.x is one of the most common runtimes still in production. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[AWS source]</a></p>
             </details>
             <details>
                 <summary>What happens if I don't migrate by 2027-02-01?</summary>
-                <p>The breaking changes listed above take effect: datetime.utcnow() deprecated; Various typing changes. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[source]</a></p>
+                <p>The breaking changes listed above take effect: Upgrade target is nodejs22.x; aws-sdk v2 not bundled (use @aws-sdk v3 modular clients); Native addons must be rebuilt for the Node 22 ABI; OpenSSL 3 behavior changes. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[source]</a></p>
             </details>
             <details>
                 <summary>Which AWS services does this affect?</summary>
@@ -276,7 +280,7 @@ python-pivot apply</code></pre>
             
             <details>
                 <summary>Is there a free way to migrate?</summary>
-                <p>Yes — the <code>python-pivot</code> CLI is MIT-licensed and free for unlimited runs. The paid Audit ($299) and Migration Pack ($1,499) tiers add a hash-anchored report and an automated PR with a CI-failure refund guarantee.</p>
+                <p>Yes — the <code>lambda-lifeline</code> CLI is MIT-licensed and free for unlimited runs. The paid Audit ($299) and Migration Pack ($1,499) tiers add a hash-anchored report and an automated PR with a CI-failure refund guarantee.</p>
             </details>
             
         </section>

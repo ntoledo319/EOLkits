@@ -90,6 +90,35 @@ def get_days_until_deadline(deadline_str):
         return 999
 
 
+def days_until_nearest_enforcement(dep, today=None):
+    """Days until the NEAREST FUTURE enforcement date for a deprecation.
+
+    Fixes the surge-collapse bug (LB-3): pricing keyed off a single 'date'
+    (block-create) dropped to the standard tier the moment it passed — even while
+    the harder block-update enforcement was still weeks ahead (the exact Feb->Mar
+    2027 demand peak where the procrastinator mass sits). We now consider every
+    enforcement date the entry carries ('date' = block-create, 'block_update_date'
+    = block-update) and return the smallest non-negative days-until, so surge
+    pricing stays live through the real peak instead of giving itself away.
+    """
+    if today is None:
+        today = datetime.now(UTC).date()
+    diffs = []
+    for key in ("date", "block_update_date"):
+        val = dep.get(key)
+        if not val:
+            continue
+        try:
+            d = datetime.strptime(val, "%Y-%m-%d").date()
+            diffs.append((d - today).days)
+        except Exception:
+            continue
+    if not diffs:
+        return 999
+    future = [x for x in diffs if x >= 0]
+    return min(future) if future else max(diffs)
+
+
 def get_surge_price(base_price, days_until):
     """Surge price for a deadline proximity, read from pricing.yml tiers so the
     DISPLAYED price always equals the price the API charges at checkout.
@@ -499,7 +528,7 @@ def _pack_checkout_link(dep):
 def compute_urgency(dep, pricing_view):
     """Deterministic urgency + surge pricing derived ONLY from the cited
     deadline date in deprecations.yml and the tiers in pricing.yml."""
-    days = get_days_until_deadline(dep["date"])
+    days = days_until_nearest_enforcement(dep)
     audit = pricing_view["audit_pdf"]
 
     if days < 0:

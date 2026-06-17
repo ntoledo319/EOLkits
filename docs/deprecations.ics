@@ -7,16 +7,16 @@ X-WR-CALNAME:AWS Deprecation Deadlines (EOLkits)
 X-WR-TIMEZONE:UTC
 BEGIN:VEVENT
 UID:lambda-node.js-20-phase-1@eolkits
-DTSTAMP:20260616T192241Z
-DTSTART;VALUE=DATE:20260430
-DTEND;VALUE=DATE:20260501
+DTSTAMP:20260617T040453Z
+DTSTART;VALUE=DATE:20270201
+DTEND;VALUE=DATE:20270202
 SUMMARY:Lambda Node.js 20 Phase 1
-DESCRIPTION:Lambda functions using Node.js 20 runtime will fail to update. Phase 1: CreateFunction and UpdateFunctionConfiguration blocked. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+DESCRIPTION:Node.js 20 Lambda runtime (Amazon Linux 2023) deprecated 2026-04-30. Per the AWS Lambda runtime deprecation table\, AWS blocks creating new nodejs20.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — part of the synchronized Q1-2027 runtime-block cluster. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 BEGIN:VEVENT
 UID:amazon-linux-2-eol@eolkits
-DTSTAMP:20260616T192241Z
+DTSTAMP:20260617T040453Z
 DTSTART;VALUE=DATE:20260630
 DTEND;VALUE=DATE:20260701
 SUMMARY:Amazon Linux 2 EOL
@@ -25,7 +25,7 @@ URL:https://aws.amazon.com/blogs/aws/update-on-amazon-linux-2-end-of-life/
 END:VEVENT
 BEGIN:VEVENT
 UID:lambda-python-3.9-eol@eolkits
-DTSTAMP:20260616T192241Z
+DTSTAMP:20260617T040453Z
 DTSTART;VALUE=DATE:20270201
 DTEND;VALUE=DATE:20270202
 SUMMARY:Lambda Python 3.9 EOL
@@ -34,25 +34,43 @@ URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 BEGIN:VEVENT
 UID:lambda-python-3.10-eol@eolkits
-DTSTAMP:20260616T192241Z
-DTSTART;VALUE=DATE:20270430
-DTEND;VALUE=DATE:20270501
+DTSTAMP:20260617T040453Z
+DTSTART;VALUE=DATE:20270201
+DTEND;VALUE=DATE:20270202
 SUMMARY:Lambda Python 3.10 EOL
-DESCRIPTION:Lambda functions using Python 3.10 runtime deprecated. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+DESCRIPTION:Python 3.10 Lambda runtime deprecated 2026-10-31. Per the AWS Lambda runtime deprecation table\, AWS blocks creating new python3.10 functions on 2027-02-01 and updating existing ones on 2027-03-03 — the same synchronized Q1-2027 block cluster as python3.8/3.9. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 BEGIN:VEVENT
 UID:lambda-python-3.11-eol@eolkits
-DTSTAMP:20260616T192241Z
-DTSTART;VALUE=DATE:20271031
-DTEND;VALUE=DATE:20271101
+DTSTAMP:20260617T040453Z
+DTSTART;VALUE=DATE:20270731
+DTEND;VALUE=DATE:20270801
 SUMMARY:Lambda Python 3.11 EOL
-DESCRIPTION:Lambda functions using Python 3.11 runtime deprecated. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+DESCRIPTION:Python 3.11 Lambda runtime deprecated 2027-06-30. Per the AWS Lambda runtime deprecation table\, AWS blocks creating new python3.11 functions on 2027-07-31 and updating existing ones on 2027-08-31. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+END:VEVENT
+BEGIN:VEVENT
+UID:lambda-node.js-18-eol@eolkits
+DTSTAMP:20260617T040453Z
+DTSTART;VALUE=DATE:20270201
+DTEND;VALUE=DATE:20270202
+SUMMARY:Lambda Node.js 18 EOL
+DESCRIPTION:Node.js 18 Lambda runtime (Amazon Linux 2) deprecated 2025-09-01. Per the AWS Lambda runtime deprecation table\, AWS blocks creating new nodejs18.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — part of the synchronized Q1-2027 runtime-block cluster. nodejs18.x is one of the most common runtimes still in production. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+END:VEVENT
+BEGIN:VEVENT
+UID:lambda-python-3.8-eol@eolkits
+DTSTAMP:20260617T040453Z
+DTSTART;VALUE=DATE:20270201
+DTEND;VALUE=DATE:20270202
+SUMMARY:Lambda Python 3.8 EOL
+DESCRIPTION:Python 3.8 Lambda runtime (Amazon Linux 2) deprecated 2024-10-14. Per the AWS Lambda runtime deprecation table\, AWS blocks creating new python3.8 functions on 2027-02-01 and updating existing ones on 2027-03-03 — the same synchronized Q1-2027 block cluster as python3.9/3.10. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 BEGIN:VEVENT
 UID:imdsv1-enforcement@eolkits
-DTSTAMP:20260616T192241Z
+DTSTAMP:20260617T040453Z
 DTSTART;VALUE=DATE:20251231
 DTEND;VALUE=DATE:20260101
 SUMMARY:IMDSv1 Enforcement

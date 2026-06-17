@@ -46,10 +46,10 @@
 <p>node-sass wraps LibSass, which is end-of-life. It ships no Node 22 prebuild, so installs fail to find a compatible binary on new runtimes.</p>
 <h2>How to fix it</h2>
 <ol class="fix-steps"><li>Replace node-sass with Dart Sass: `npm uninstall node-sass &amp;&amp; npm install -D sass`.</li><li>The `sass` package is pure JS (no native build) and is a near drop-in for most build pipelines.</li><li>Update any tooling config that names `node-sass` explicitly (e.g. webpack sass-loader `implementation: require(&#x27;sass&#x27;)`).</li></ol>
-<p class="fix-rel">Related deadline: <a href="/migrate/lambda-node.js-20-phase-1/">Lambda Node.js 20 Phase 1</a> — <strong>2026-04-30</strong>.</p>
+<p class="fix-rel">Related deadline: <a href="/migrate/lambda-node.js-20-phase-1/">Lambda Node.js 20 Phase 1</a> — <strong>2027-02-01</strong>.</p>
 <h2>Find every instance in your project</h2>
 <p>The free <a href="/scan">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>
 <p>Primary source: <a href="https://sass-lang.com/blog/libsass-is-deprecated/" target="_blank" rel="noopener nofollow">https://sass-lang.com/blog/libsass-is-deprecated/</a></p>
-<p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-sass-deprecated-unsupported&deadline=2026-04-30&kit=lambda-lifeline">Get the full migration audit — $299, hash-anchored PDF &rarr;</a></p>
+<p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-sass-deprecated-unsupported&deadline=2027-02-01&kit=lambda-lifeline">Get the full migration audit — $299, hash-anchored PDF &rarr;</a></p>
 </body>
 </html>
