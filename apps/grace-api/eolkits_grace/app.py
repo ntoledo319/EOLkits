@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import json
+import logging
 import os
 import secrets
 import re
@@ -60,6 +61,7 @@ app.add_middleware(
 )
 
 store = Store(settings.db_path)
+logger = logging.getLogger("eolkits_grace")
 _drain_task: asyncio.Task | None = None
 
 
@@ -73,6 +75,9 @@ async def startup() -> None:
     if settings.environment.strip().lower() != "test":
         global _drain_task
         _drain_task = asyncio.create_task(_drain_loop())
+        # Heal any leads captured-but-not-alerted during a prior email outage, off the
+        # event loop so a slow email provider can't delay startup.
+        asyncio.create_task(asyncio.to_thread(resend_unnotified_leads))
 
 
 @app.on_event("shutdown")
@@ -89,6 +94,9 @@ async def health() -> dict[str, Any]:
         "storage": "filesystem",
         "database": "sqlite",
         "runner": "http" if settings.runner_url else "inline" if settings.enable_inline_runner else "disabled",
+        # A non-zero value means leads were captured but the owner alert failed — a
+        # silent-drop early-warning the old FormSubmit path could never give.
+        "unnotified_leads": store.count_unnotified(),
     }
 
 
@@ -329,19 +337,13 @@ def _esc(value: Any) -> str:
     return str(value or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-def _send_lead_notification(product: str, source: str, fields: dict[str, str]) -> None:
-    """Best-effort owner notification for a captured lead. Never raises. Delivery
-    goes to settings.lead_notify_to over Resend — NOT FormSubmit/mxroute — so the
-    silent-drop failure cannot recur. The lead is durably recorded regardless."""
-    recipients = [a.strip() for a in (settings.lead_notify_to or "").split(",") if a.strip()]
-    if not recipients:
-        return
+def _lead_email_html(product: str, source: str, fields: dict[str, str]) -> str:
     rows = "".join(
         f"<tr><td style='padding:4px 12px 4px 0;color:#6b7280;font-size:13px;vertical-align:top'>{_esc(k)}</td>"
         f"<td style='padding:4px 0;font-size:13px'><strong>{_esc(v)}</strong></td></tr>"
         for k, v in fields.items()
     )
-    html = (
+    return (
         "<!doctype html><html><body style=\"font-family:system-ui,-apple-system,sans-serif;"
         "max-width:600px;margin:0 auto;padding:24px;line-height:1.5\">"
         f"<h2 style=\"margin:0 0 4px\">New lead &mdash; {_esc(product) or 'studio'}</h2>"
@@ -350,12 +352,58 @@ def _send_lead_notification(product: str, source: str, fields: dict[str, str]) -
         "<p style=\"font-size:12px;color:#9ca3af;margin-top:24px\">Captured by the GRACE lead bus "
         "(/api/v1/lead). Reply directly to reach the prospect.</p></body></html>"
     )
+
+
+def _send_lead_notification(lead_id: int, product: str, source: str, fields: dict[str, str]) -> None:
+    """Owner alert for a captured lead. The lead ROW is already durable; this only
+    flips `notified=1` after a CONFIRMED send. It retries transient failures and, if
+    every attempt fails, logs LOUDLY and leaves `notified=0` so the row surfaces in
+    the recovery queue — instead of silently dropping the way FormSubmit did one layer
+    up. `resend_unnotified_leads` then self-heals once email recovers. Never raises."""
+    recipients = [a.strip() for a in (settings.lead_notify_to or "").split(",") if a.strip()]
+    if not recipients:
+        logger.error("LEAD %s captured but LEAD_NOTIFY_TO is empty — OWNER NOT ALERTED", lead_id)
+        return
+    html = _lead_email_html(product, source, fields)
     subject = f"New lead: {product or 'studio inquiry'}"
+    sent = 0
     for to in recipients:
+        for attempt in (1, 2):
+            try:
+                send_email(settings, to=to, subject=subject, html=html)
+                sent += 1
+                break
+            except Exception as exc:  # noqa: BLE001 — alert path must never raise
+                logger.warning("LEAD %s notify to %s attempt %d failed: %s", lead_id, to, attempt, exc)
+    if sent:
         try:
-            send_email(settings, to=to, subject=subject, html=html)
+            store.mark_lead_notified(lead_id)
         except Exception:
-            pass  # durable row already written; email is a convenience alert
+            logger.exception("LEAD %s alert sent but failed to mark notified", lead_id)
+    else:
+        logger.error(
+            "LEAD %s captured but ALL notify attempts failed (recipients=%s) — durable row kept; "
+            "will retry via the re-send sweep", lead_id, recipients,
+        )
+
+
+def resend_unnotified_leads(max_batch: int = 50) -> dict[str, int]:
+    """Re-attempt owner alerts for any durably-captured lead not yet confirmed-sent.
+    Idempotent; safe to run on startup and from a daily cron. Self-heals a transient
+    email outage without ever touching the (already durable) lead rows."""
+    pending = store.unnotified_leads(limit=max_batch)
+    for row in pending:
+        try:
+            fields = json.loads(row.get("fields") or "{}")
+        except Exception:
+            fields = {}
+        _send_lead_notification(int(row["id"]), row.get("product") or "", row.get("source") or "", fields)
+    remaining = store.count_unnotified()
+    if remaining:
+        logger.error("re-send sweep: %d lead(s) STILL unnotified after retry", remaining)
+    elif pending:
+        logger.info("re-send sweep: healed %d previously-unnotified lead(s)", len(pending))
+    return {"attempted": len(pending), "still_unnotified": remaining}
 
 
 def _resolve_next(next_url: str, request: Request) -> str:
@@ -428,7 +476,7 @@ async def capture_lead(request: Request, background_tasks: BackgroundTasks) -> R
         email=email, name=name, product=product, source=source, fields=fields
     )
     store.record_event("lead", {"source": source, "sku": product, "meta": {"lead_id": lead_id}})
-    background_tasks.add_task(_send_lead_notification, product, source, fields)
+    background_tasks.add_task(_send_lead_notification, lead_id, product, source, fields)
     return _respond(target, {"ok": True, "lead_id": lead_id})
 
 

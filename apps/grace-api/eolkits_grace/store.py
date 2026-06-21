@@ -150,7 +150,8 @@ class Store:
                     name TEXT,
                     product TEXT,
                     source TEXT,
-                    fields TEXT
+                    fields TEXT,
+                    notified INTEGER NOT NULL DEFAULT 0
                 );
                 CREATE INDEX IF NOT EXISTS idx_leads_ts ON leads(ts);
                 CREATE INDEX IF NOT EXISTS idx_leads_email ON leads(email);
@@ -159,6 +160,8 @@ class Store:
             # Add columns to pre-existing `jobs` tables BEFORE creating any index
             # that references them (an old prod DB has jobs without dedupe_key).
             self._migrate_jobs_columns(conn)
+            # An old prod `leads` table (created before notify-hardening) lacks `notified`.
+            self._migrate_leads_columns(conn)
             conn.execute(
                 "CREATE UNIQUE INDEX IF NOT EXISTS idx_jobs_dedupe ON jobs(dedupe_key) "
                 "WHERE dedupe_key IS NOT NULL"
@@ -174,6 +177,16 @@ class Store:
         ):
             if column not in existing:
                 conn.execute(ddl)
+
+    def _migrate_leads_columns(self, conn: sqlite3.Connection) -> None:
+        existing = {row["name"] for row in conn.execute("PRAGMA table_info(leads)")}
+        if "notified" not in existing:
+            conn.execute("ALTER TABLE leads ADD COLUMN notified INTEGER NOT NULL DEFAULT 0")
+            # Pre-existing leads predate notify-hardening — treat them as already handled
+            # so the first-boot re-send sweep does NOT spam duplicate alerts for old rows.
+            # New inserts still start at notified=0 (the column default) and earn the flag
+            # only on a confirmed send.
+            conn.execute("UPDATE leads SET notified = 1")
 
     # ---- kv ---------------------------------------------------------------- #
 
@@ -354,6 +367,24 @@ class Store:
                 "SELECT * FROM leads ORDER BY id DESC LIMIT ?", (limit,)
             ).fetchall()
         return [dict(row) for row in rows]
+
+    def mark_lead_notified(self, lead_id: int) -> None:
+        """Flip a lead to notified=1 only after a confirmed owner alert send."""
+        with self.connect() as conn:
+            conn.execute("UPDATE leads SET notified = 1 WHERE id = ?", (int(lead_id),))
+
+    def unnotified_leads(self, limit: int = 100) -> list[dict[str, Any]]:
+        """Durably-captured leads the owner was NOT yet successfully alerted about —
+        the recovery queue for the daily re-send sweep (self-heals email outages)."""
+        with self.connect() as conn:
+            rows = conn.execute(
+                "SELECT * FROM leads WHERE notified = 0 ORDER BY id ASC LIMIT ?", (limit,)
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def count_unnotified(self) -> int:
+        with self.connect() as conn:
+            return int(conn.execute("SELECT COUNT(*) AS n FROM leads WHERE notified = 0").fetchone()["n"])
 
     def event_counts(self, since_days: int = 7) -> dict[str, int]:
         cutoff = (datetime.now(UTC) - timedelta(days=since_days)).isoformat()
