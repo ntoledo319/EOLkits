@@ -3,7 +3,7 @@
 > CLIs for the AWS deprecation deadlines that break production. Next up: **Amazon Linux 2 (Jun 30, 2026)**. Also: **Lambda Python 3.9/3.10/3.11** waves, and post-deadline cleanup for **Lambda Node.js 20**.
 
 [![landing](https://img.shields.io/badge/landing-live-brightgreen)](https://eolkits.com)
-[![tests](https://img.shields.io/badge/tests-149%20passing-brightgreen)](#tests)
+[![tests](https://img.shields.io/badge/tests-172%20passing-brightgreen)](#tests)
 [![license](https://img.shields.io/badge/license-MIT%20(open%20core)-blue)](#license)
 
 > **Amazon Linux 2 reaches end-of-life in 19 days (Jun 30, 2026).** The `al2023-gate` CLI below is free and MIT-licensed — clone it, scan your accounts, and run the migration yourself. If you'd rather have it done for you, the team offers a paid audit that scores every finding and hands back a roll-forward plan: [eolkits.com/audit](https://eolkits.com/audit).
@@ -153,7 +153,7 @@ cd apps/runner && pytest -q
 cd apps/worker && npm test
 ```
 
-149 passing across kits + apps (al2023-gate 48, python-pivot 44, lambda-lifeline 29, runner 8, worker 8, grace-api 12 — counted 2026-06-09).
+172 passing across kits + apps (al2023-gate 48, python-pivot 44, lambda-lifeline 29, runner 8, worker 8, grace-api 35 — counted 2026-06-21).
 
 ---
 
