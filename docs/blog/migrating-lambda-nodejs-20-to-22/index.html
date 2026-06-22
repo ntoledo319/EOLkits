@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Migrating AWS Lambda Node.js 20 to Node.js 22: A complete guide (Sep 30, 2026 cliff) | EOLkits</title>
+<meta name="description" content="AWS runs a 3-phase deprecation process for every Lambda runtime. Phase 1 ends security patches. Phase 2 blocks creating new functions on the deprecated run">
+<link rel="canonical" href="https://eolkits.com/blog/migrating-lambda-nodejs-20-to-22/">
+<link rel="stylesheet" href="/style.css">
+<script defer src="/track.js"></script>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
+</head>
+<body class="container article">
+<h1>Migrating AWS Lambda Node.js 20 to Node.js 22: A complete guide (Sep 30, 2026 cliff)</h1>
+<blockquote>Published 2026-04-28. Updated 2026-05-21 — Phase 1 EOL has passed; this guide is now positioned as the <strong>cleanup path before the Sep 30 Phase 3 cliff</strong> (after which AWS blocks updates to existing <code>nodejs20.x</code> functions). For teams running AWS Lambda functions on <code>nodejs20.x</code>. Source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" rel="noopener">AWS Lambda runtimes official docs</a>.</blockquote>
+<h2>TL;DR</h2>
+<ul>
+<li><strong>April 30, 2026</strong>: AWS stops security patches for <code>nodejs20.x</code> (Phase 1).</li>
+<li><strong>August 31, 2026</strong>: AWS blocks creating *new* functions on <code>nodejs20.x</code> (Phase 2).</li>
+<li><strong>September 30, 2026</strong>: AWS blocks *updating* existing functions on <code>nodejs20.x</code> (Phase 3, the hard cliff).</li>
+<li>Migrating to <code>nodejs22.x</code> is a semver-breaking change. Most code works. A specific set of patterns will break. This post documents all of them.</li>
+<li>We built an open-source CLI called <a href="https://github.com/ntoledo319/EOLkits/tree/main/kits/lambda-lifeline" rel="noopener"><code>lambda-lifeline</code></a> that automates the whole migration: scan, codemod, audit, IaC patch, canary deploy with auto-rollback.</li>
+</ul>
+<hr>
+<h2>Why this is happening</h2>
+<p>AWS runs a 3-phase deprecation process for every Lambda runtime. Phase 1 ends security patches. Phase 2 blocks creating new functions on the deprecated runtime. Phase 3 blocks *updating* existing functions. The phases are always spaced ~3-4 months apart, and once Phase 3 hits, your only option is a full deploy with a new runtime.</p>
+<p>Node.js 20 itself is officially supported by the Node.js Foundation until April 2026 (<a href="https://github.com/nodejs/release#release-schedule" rel="noopener">Node.js release schedule</a>). AWS Lambda aligns to the upstream EOL date, so April 30, 2026 is the start of the 3-phase countdown.</p>
+<p>Node.js 22 is the next LTS. Upstream maintenance continues until April 2027. That&#x27;s the target runtime.</p>
+<hr>
+<h2>The breaking changes between Node.js 20 and Node.js 22</h2>
+<p>These are the patterns that actually trip migrations. Most Node 20 code runs on Node 22 unchanged — these are the exceptions.</p>
+<h3>1. Import assertions → import attributes</h3>
+<p>Node 20 accepted the stage-3 TC39 proposal syntax:</p>
+<pre><code>// Node 20 — valid
+import config from &#x27;./config.json&#x27; assert { type: &#x27;json&#x27; };
+
+const schema = await import(&#x27;./schema.json&#x27;, { assert: { type: &#x27;json&#x27; } });</code></pre>
+<p>Node 22 implements the finalized stage-4 spec, which renamed <code>assert</code> to <code>with</code>:</p>
+<pre><code>// Node 22 — valid
+import config from &#x27;./config.json&#x27; with { type: &#x27;json&#x27; };
+
+const schema = await import(&#x27;./schema.json&#x27;, { with: { type: &#x27;json&#x27; } });</code></pre>
+<p>The old syntax is a hard parse error in Node 22. Every JSON import and every CSS/WASM import statement in your codebase needs rewriting. This is the #1 breakage pattern.</p>
+<h3>2. Native binding ABI bumps</h3>
+<p>Anything with a native <code>.node</code> binary needs a rebuild or a version bump. The packages that actually ship native bindings and historically lag:</p>
+<table><thead><tr><th>Package</th><th>Minimum Node 22-compatible version</th></tr></thead><tbody><tr><td><code>sharp</code></td><td><code>0.33.0</code></td></tr><tr><td><code>bcrypt</code></td><td><code>5.1.1</code></td></tr><tr><td><code>better-sqlite3</code></td><td><code>11.0.0</code></td></tr><tr><td><code>canvas</code></td><td><code>2.11.2</code></td></tr><tr><td><code>node-sass</code></td><td>— *(dead project, switch to <code>sass</code>)*</td></tr><tr><td><code>grpc</code></td><td>— *(dead, use <code>@grpc/grpc-js</code>)*</td></tr><tr><td><code>fibers</code></td><td>— *(dead, use native async)*</td></tr></tbody></table>
+<p>If your <code>package.json</code> pins any of these below the minimum, <code>npm install</code> on Node 22 will either fail to compile or crash at runtime.</p>
+<h3>3. CA certificate loading</h3>
+<p>Node 22 changed how custom CAs are loaded. If you set <code>NODE_EXTRA_CA_CERTS</code> on your Lambda environment, nothing changes — it still works. If you were relying on the old bundled cert store behavior without setting that env var, TLS connections to private CAs will suddenly fail. The fix is to always set <code>NODE_EXTRA_CA_CERTS=/etc/pki/ca-trust/source/anchors/your-ca.pem</code> in the function environment.</p>
+<h3>4. <code>Buffer.prototype.toString()</code> negative indices</h3>
+<p>Node 20 silently tolerated negative <code>start</code>/<code>end</code> arguments. Node 22 throws <code>RangeError</code>. If you have:</p>
+<pre><code>buf.toString(&#x27;utf8&#x27;, -10, -1);</code></pre>
+<p>That&#x27;s now a runtime error. Switch to:</p>
+<pre><code>buf.toString(&#x27;utf8&#x27;, Math.max(0, buf.length - 10), buf.length - 1);</code></pre>
+<h3>5. Streams <code>highWaterMark</code> default change</h3>
+<p>The default highWaterMark for object-mode streams dropped from 16 to 1. If you had code depending on backpressure thresholds, revisit it.</p>
+<h3>6. <code>url.parse()</code> is deprecated harder</h3>
+<p>Still works, but now emits a warning per call. If your CloudWatch logs hit warning thresholds, this is worth rewriting. Use <code>new URL(...)</code> instead.</p>
+<hr>
+<h2>The migration surface</h2>
+<p>For a typical medium-sized company, you have:</p>
+<ol>
+<li><strong>Function source code</strong> — the handlers themselves, plus any JS libraries they import</li>
+<li><strong><code>package.json</code></strong> — dependency versions, especially native bindings</li>
+<li><strong>Infrastructure as Code</strong> — SAM templates, CDK stacks, Terraform config, or Serverless Framework <code>serverless.yml</code></li>
+<li><strong>CI/CD pipelines</strong> — any <code>Runtime</code> references in GitHub Actions, CircleCI, GitLab</li>
+<li><strong>Docker base images</strong> — if you use container Lambdas, the base image tag needs updating</li>
+</ol>
+<p>Tracking all of this by hand is where migrations stall.</p>
+<hr>
+<h2>Step-by-step migration</h2>
+<h3>Step 1: Inventory</h3>
+<p>Find every Lambda function on a deprecated runtime across every region. AWS doesn&#x27;t give you this in one API call — you have to paginate through <code>ListFunctions</code> per region.</p>
+<pre><code># With lambda-lifeline
+npx lambda-lifeline scan --regions us-east-1,us-east-2,eu-west-1 --format json --out inventory.json
+
+# With plain AWS CLI
+for region in us-east-1 us-east-2 eu-west-1; do
+  aws lambda list-functions --region $region \
+    --query &quot;Functions[?contains(Runtime, &#x27;nodejs&#x27;) &amp;&amp; Runtime != &#x27;nodejs22.x&#x27;].[FunctionName,Runtime,LastModified]&quot; \
+    --output table
+done</code></pre>
+<p>You will almost certainly find functions nobody on your team remembers deploying.</p>
+<h3>Step 2: Codemod the source</h3>
+<p>For the <code>import assert</code> → <code>import with</code> change, the naive sed approach:</p>
+<pre><code>find . -name &#x27;*.js&#x27; -o -name &#x27;*.mjs&#x27; -o -name &#x27;*.ts&#x27; | \
+  xargs sed -i &#x27;s/assert { type:/with { type:/g&#x27;</code></pre>
+<p>This over-triggers on <code>assert(...)</code> function calls. Use a proper AST tool or <a href="https://github.com/ntoledo319/EOLkits/tree/main/kits/lambda-lifeline" rel="noopener"><code>lambda-lifeline codemod</code></a> which only matches the import-assertion grammar.</p>
+<pre><code>npx lambda-lifeline codemod src/ --apply</code></pre>
+<h3>Step 3: Audit <code>package.json</code> native bindings</h3>
+<p>Run through your direct and transitive dependencies and check each one&#x27;s Node 22 compatibility:</p>
+<pre><code>npx lambda-lifeline audit package.json</code></pre>
+<p>Output:</p>
+<pre><code>[high] sharp declared=^0.31.0 · needs &gt;=0.33.0
+[high] bcrypt declared=^5.0.0 · needs &gt;=5.1.1
+[critical] node-sass declared=^6.0.1 · no Node 22 support (dead project)</code></pre>
+<h3>Step 4: Patch IaC</h3>
+<p>For SAM templates:</p>
+<pre><code># Before
+Runtime: nodejs20.x
+# After
+Runtime: nodejs22.x</code></pre>
+<p>For CDK (TypeScript):</p>
+<pre><code>// Before
+runtime: lambda.Runtime.NODEJS_20_X,
+// After
+runtime: lambda.Runtime.NODEJS_22_X,</code></pre>
+<p>For Terraform:</p>
+<pre><code># Before
+runtime = &quot;nodejs20.x&quot;
+# After
+runtime = &quot;nodejs22.x&quot;</code></pre>
+<p>The <code>lambda-lifeline iac</code> command handles all four formats (SAM, CDK, Terraform, Serverless) including CloudFormation <code>Globals:</code> blocks and CDK enum references.</p>
+<pre><code>npx lambda-lifeline iac infrastructure/ --apply</code></pre>
+<h3>Step 5: Stage a canary deploy</h3>
+<p>The critical step. Do not cut over atomically. Use Lambda versions + weighted alias routing:</p>
+<ol>
+<li>Publish a new version with the Node 22 runtime</li>
+<li>Record the current stable version</li>
+<li>Route 5% of traffic to the new version for ~60s, check CloudWatch alarms</li>
+<li>Route 25%, wait, check</li>
+<li>Route 50%, wait, check</li>
+<li>Route 100%, done</li>
+</ol>
+<p>If any alarm trips at any stage, auto-rollback the alias to the stable version:</p>
+<pre><code>npx lambda-lifeline deploy \
+  --function payment-webhook \
+  --alias live \
+  --stages 5,25,50,100 \
+  --dwell 60 \
+  --alarm arn:aws:cloudwatch:us-east-1:1234:alarm:PaymentErrors \
+  --apply</code></pre>
+<p>The <code>--alarm</code> flag is required when <code>--apply</code> is set. No alarm, no deploy.</p>
+<h3>Step 6: Rollback plan</h3>
+<p>Always have a tested rollback. Manual rollback is just re-pointing the alias:</p>
+<pre><code>npx lambda-lifeline rollback --function payment-webhook --alias live --apply</code></pre>
+<p>Or with plain AWS CLI:</p>
+<pre><code>aws lambda update-alias \
+  --function-name payment-webhook \
+  --name live \
+  --function-version 47    # previous stable</code></pre>
+<hr>
+<h2>What to check after migration</h2>
+<ul>
+<li><strong>Cold-start time</strong>: Node 22 is typically 5-15% faster than Node 20 in Lambda. If yours is slower, it&#x27;s a native binding issue.</li>
+<li><strong>Memory usage</strong>: generally flat, sometimes 1-3% lower.</li>
+<li><strong>Invocation error rate</strong>: should be identical. Any spike = native binding incompat.</li>
+<li><strong>CloudWatch Logs for deprecation warnings</strong>: <code>(node:123) [DEP0XXX] DeprecationWarning: ...</code>. Clean these up before the next LTS.</li>
+</ul>
+<hr>
+<h2>Why we built <code>lambda-lifeline</code></h2>
+<p>We kept getting the same &quot;your runtime is deprecated&quot; email from AWS every 6-8 months. Each time, the migration work was unglamorous, had huge blast radius, and had no integrated tool. CloudQuery gives you inventory. AWS Migration Hub is for cross-region lift-and-shift. aws-samples gives you snippets. Nothing combined scan + codemod + IaC patch + tested deploy + rollback for a specific deprecation.</p>
+<p>So we scoped it. <code>lambda-lifeline</code> only migrates Node.js Lambda runtimes. It does nothing else. It has 24 tests covering every command, every output format, every exit-code path. It defaults to dry-run. The canary deploy refuses to run without an alarm ARN.</p>
+<p>Source: https://github.com/ntoledo319/EOLkits/tree/main/kits/lambda-lifeline</p>
+<p>It&#x27;s MIT-licensed. Fork it, use it, resell it.</p>
+<hr>
+<h2>Related guides</h2>
+<ul>
+<li><a href="https://github.com/ntoledo319/EOLkits/tree/main/kits/al2023-gate" rel="noopener">Migrating Amazon Linux 2 to AL2023</a> — deadline June 30, 2026</li>
+<li><a href="https://github.com/ntoledo319/EOLkits/tree/main/kits/python-pivot" rel="noopener">Migrating Lambda Python 3.9/3.10 to 3.12</a> — Python 3.9 already past EOL</li>
+</ul>
+<hr>
+<p>*If you work at a company that runs Lambda on Node 20 and needs help migrating, the <code>lambda-lifeline</code> kit is free. The <a href="https://sites.super.myninja.ai/a51b9893-5170-4e08-87ed-c7db56f6885b/35eb5c15/index.html" rel="noopener">Team and Enterprise tiers</a> add a printable PDF runbook, a captioned video walkthrough, expanded dependency tables, custom codemod rules for your codebase, and priority Slack support.*</p>
+<hr>
+<h2>Do it automatically</h2>
+<p>Don&#x27;t migrate by hand. The free <a href="https://eolkits.com/scan" rel="noopener">EOLkits scanner</a> finds every deprecated Lambda runtime and the dependency breaks above in your own config — in your browser, nothing uploaded. Then fix it with the MIT CLIs, or get a <a href="https://eolkits.com/audit" rel="noopener">hash-anchored audit</a> (30-day money-back) or a <a href="https://eolkits.com/pack" rel="noopener">done-for-you migration PR</a>.</p>
+</body>
+</html>

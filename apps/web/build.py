@@ -1604,12 +1604,39 @@ def build_status_data_seed():
 
 
 def build_blog_index():
-    return """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Blog — EOLkits</title>
-<style>body{font-family:system-ui,sans-serif;max-width:780px;margin:0 auto;padding:2rem;line-height:1.6}.brand{color:#2563eb;font-weight:600}article{border-bottom:1px solid #e5e7eb;padding:1rem 0}time{color:#6b7280;font-size:.85rem}</style>
-</head><body><a href="/" class="brand">← EOLkits</a><h1>Operations log</h1>
-<p>Auto-published every week from CI. <a href="/blog/feed.xml">RSS</a></p>
-<article><time>—</time><h2>Welcome</h2><p>This log is generated weekly by <code>.github/workflows/blog-loop.yml</code>. The first real entry lands after the next CI run.</p></article>
-<footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a></footer></body></html>"""
+    return """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Blog — AWS migration guides | EOLkits</title>
+<meta name="description" content="In-depth, sourced guides for migrating off deprecated AWS runtimes — Lambda Node.js, Python, and Amazon Linux 2.">
+<link rel="canonical" href="{SITE}/blog/">
+<link rel="stylesheet" href="/style.css">
+<script defer src="/track.js"></script>
+</head><body class="container article"><a href="/" class="brand">← EOLkits</a><h1>AWS migration guides</h1>
+<p>Long-form, sourced guides for getting off deprecated AWS runtimes. <a href="/blog/feed.xml">RSS</a> · <a href="/migrate/">all deadlines</a> · <a href="/fix/">error fixes</a></p>
+<article style="border-bottom:1px solid #e5e7eb;padding:1.25rem 0">
+<h2 style="margin-bottom:.25rem"><a href="/blog/migrating-lambda-nodejs-20-to-22/">Migrating AWS Lambda Node.js 20 to Node.js 22: a complete guide</a></h2>
+<p>Every breaking change between <code>nodejs20.x</code> and <code>nodejs22.x</code> — import assertions, the unbundled AWS SDK v2, native-addon ABI, OpenSSL 3 — and how to automate the migration before the Sep 30 cliff.</p>
+</article>
+<footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a></footer></body></html>""".replace("{SITE}", SITE_URL)
+
+
+def build_blog_post():
+    """Render the long-form migration guide (launch/blog-post.md) into a real /blog
+    article — written but never published (the autopsy's unpublished-content gap).
+    Appends a funnel CTA; rendered deterministically via the md_to_html mini-markdown."""
+    p = BASE_DIR.parent.parent / "launch" / "blog-post.md"
+    if not p.exists():
+        return None
+    md = p.read_text(encoding="utf-8")
+    m = re.search(r"^#\s+(.*)$", md, re.M)
+    title = (m.group(1).strip() if m else "Migrating AWS Lambda Node.js 20 to Node.js 22") + " | EOLkits"
+    md += (
+        "\n\n---\n\n## Do it automatically\n\n"
+        "Don't migrate by hand. The free [EOLkits scanner](https://eolkits.com/scan) finds every "
+        "deprecated Lambda runtime and the dependency breaks above in your own config — in your "
+        "browser, nothing uploaded. Then fix it with the MIT CLIs, or get a "
+        "[hash-anchored audit](https://eolkits.com/audit) (30-day money-back) or a "
+        "[done-for-you migration PR](https://eolkits.com/pack).\n"
+    )
+    return md_to_html(md, title, "/blog/migrating-lambda-nodejs-20-to-22/")
 
 
 def build_vs_index(competitors):
@@ -1732,6 +1759,8 @@ def md_to_html(md_text, title, canonical_path):
 
     def inline(s):
         s = _html.escape(s)
+        # inline `code` first so its contents aren't bold/link-processed
+        s = re.sub(r"`([^`]+)`", lambda m: "<code>" + m.group(1) + "</code>", s)
         s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
         s = re.sub(
             r"\[([^\]]+)\]\((https?://[^)]+)\)",
@@ -1740,7 +1769,9 @@ def md_to_html(md_text, title, canonical_path):
         )
         return s
 
-    out, para, in_list = [], [], False
+    lines = md_text.splitlines()
+    out, para = [], []
+    state = {"ul": False, "ol": False}
 
     def flush_para():
         if para:
@@ -1749,34 +1780,104 @@ def md_to_html(md_text, title, canonical_path):
                 out.append(f"<p>{inline(text)}</p>")
             para.clear()
 
-    for raw in md_text.splitlines():
-        line = raw.rstrip()
-        if not line.strip():
+    def close_lists():
+        if state["ul"]:
+            out.append("</ul>")
+            state["ul"] = False
+        if state["ol"]:
+            out.append("</ol>")
+            state["ol"] = False
+
+    def _cells(row):
+        row = row.strip()
+        if row.startswith("|"):
+            row = row[1:]
+        if row.endswith("|"):
+            row = row[:-1]
+        return [c.strip() for c in row.split("|")]
+
+    i, n = 0, len(lines)
+    while i < n:
+        s = lines[i].strip()
+        # fenced code block
+        if s.startswith("```"):
             flush_para()
-            if in_list:
-                out.append("</ul>")
-                in_list = False
+            close_lists()
+            i += 1
+            buf = []
+            while i < n and not lines[i].strip().startswith("```"):
+                buf.append(lines[i])
+                i += 1
+            i += 1  # skip closing fence
+            out.append("<pre><code>" + _html.escape("\n".join(buf)) + "</code></pre>")
             continue
-        heading = re.match(r"^(#{1,4})\s+(.*)$", line)
+        if not s:
+            flush_para()
+            close_lists()
+            i += 1
+            continue
+        if re.match(r"^(-{3,}|\*{3,})$", s):
+            flush_para()
+            close_lists()
+            out.append("<hr>")
+            i += 1
+            continue
+        heading = re.match(r"^(#{1,4})\s+(.*)$", s)
         if heading:
             flush_para()
-            if in_list:
-                out.append("</ul>")
-                in_list = False
+            close_lists()
             level = len(heading.group(1))
             out.append(f"<h{level}>{inline(heading.group(2))}</h{level}>")
+            i += 1
             continue
-        if re.match(r"^[-*]\s+", line):
+        if s.startswith(">"):
             flush_para()
-            if not in_list:
-                out.append("<ul>")
-                in_list = True
-            out.append(f"<li>{inline(re.sub(r'^[-*]\s+', '', line))}</li>")
+            close_lists()
+            buf = []
+            while i < n and lines[i].strip().startswith(">"):
+                buf.append(re.sub(r"^\s*>\s?", "", lines[i]).strip())
+                i += 1
+            out.append("<blockquote>" + inline(" ".join(buf)) + "</blockquote>")
             continue
-        para.append(line.strip())
+        # pipe table: a row with | followed by a |---|--- separator row
+        if "|" in s and i + 1 < n and "|" in lines[i + 1] and re.match(r"^[\s|:-]+$", lines[i + 1].strip()) and "-" in lines[i + 1]:
+            flush_para()
+            close_lists()
+            header = _cells(lines[i])
+            i += 2
+            thead = "".join("<th>" + inline(c) + "</th>" for c in header)
+            body = ""
+            while i < n and "|" in lines[i] and lines[i].strip():
+                body += "<tr>" + "".join("<td>" + inline(c) + "</td>" for c in _cells(lines[i])) + "</tr>"
+                i += 1
+            out.append("<table><thead><tr>" + thead + "</tr></thead><tbody>" + body + "</tbody></table>")
+            continue
+        if re.match(r"^[-*]\s+", s):
+            flush_para()
+            if state["ol"]:
+                out.append("</ol>")
+                state["ol"] = False
+            if not state["ul"]:
+                out.append("<ul>")
+                state["ul"] = True
+            out.append(f"<li>{inline(re.sub(r'^[-*]\s+', '', s))}</li>")
+            i += 1
+            continue
+        if re.match(r"^\d+\.\s+", s):
+            flush_para()
+            if state["ul"]:
+                out.append("</ul>")
+                state["ul"] = False
+            if not state["ol"]:
+                out.append("<ol>")
+                state["ol"] = True
+            out.append(f"<li>{inline(re.sub(r'^\d+\.\s+', '', s))}</li>")
+            i += 1
+            continue
+        para.append(s)
+        i += 1
     flush_para()
-    if in_list:
-        out.append("</ul>")
+    close_lists()
 
     description = ""
     for node in out:
@@ -1792,6 +1893,7 @@ def md_to_html(md_text, title, canonical_path):
         f'<meta name="description" content="{_html.escape(description)}">\n'
         f'<link rel="canonical" href="{SITE_URL}{canonical_path}">\n'
         '<link rel="stylesheet" href="/style.css">\n'
+        '<script defer src="/track.js"></script>\n'
         "</head>\n"
         '<body class="container article">\n'
         f"{body}\n"
@@ -2412,6 +2514,11 @@ def main():
     verify_page = build_verify_page()
     if verify_page:
         pages["verify/index.html"] = verify_page
+
+    # Publish the long-form migration guide (was written but never published)
+    blog_post = build_blog_post()
+    if blog_post:
+        pages["blog/migrating-lambda-nodejs-20-to-22/index.html"] = blog_post
 
     # AI-search + crawler discovery, deterministic from the cited YAML
     pricing_view = build_pricing_view(pricing)

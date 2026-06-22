@@ -1,5 +1,8 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Blog — EOLkits</title>
-<style>body{font-family:system-ui,sans-serif;max-width:780px;margin:0 auto;padding:2rem;line-height:1.6}.brand{color:#2563eb;font-weight:600}article{border-bottom:1px solid #e5e7eb;padding:1rem 0}time{color:#6b7280;font-size:.85rem}</style>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Blog — AWS migration guides | EOLkits</title>
+<meta name="description" content="In-depth, sourced guides for migrating off deprecated AWS runtimes — Lambda Node.js, Python, and Amazon Linux 2.">
+<link rel="canonical" href="https://eolkits.com/blog/">
+<link rel="stylesheet" href="/style.css">
+<script defer src="/track.js"></script>
 <script>
 (function(){
   try{
@@ -24,7 +27,10 @@
   }catch(e){}
 })();
 </script>
-</head><body><a href="/" class="brand">← EOLkits</a><h1>Operations log</h1>
-<p>Auto-published every week from CI. <a href="/blog/feed.xml">RSS</a></p>
-<article><time>—</time><h2>Welcome</h2><p>This log is generated weekly by <code>.github/workflows/blog-loop.yml</code>. The first real entry lands after the next CI run.</p></article>
+</head><body class="container article"><a href="/" class="brand">← EOLkits</a><h1>AWS migration guides</h1>
+<p>Long-form, sourced guides for getting off deprecated AWS runtimes. <a href="/blog/feed.xml">RSS</a> · <a href="/migrate/">all deadlines</a> · <a href="/fix/">error fixes</a></p>
+<article style="border-bottom:1px solid #e5e7eb;padding:1.25rem 0">
+<h2 style="margin-bottom:.25rem"><a href="/blog/migrating-lambda-nodejs-20-to-22/">Migrating AWS Lambda Node.js 20 to Node.js 22: a complete guide</a></h2>
+<p>Every breaking change between <code>nodejs20.x</code> and <code>nodejs22.x</code> — import assertions, the unbundled AWS SDK v2, native-addon ABI, OpenSSL 3 — and how to automate the migration before the Sep 30 cliff.</p>
+</article>
 <footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a></footer></body></html>
