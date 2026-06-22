@@ -126,3 +126,114 @@ fixes:
     source_url: "https://docs.python.org/3/whatsnew/3.12.html"
     related_migrate: lambda-python-3.9-eol
     kit: python-pivot
+
+  - slug: node-cannot-find-module-aws-sdk
+    error: "Error: Cannot find module 'aws-sdk'"
+    context: "AWS Lambda (Node.js 18+)"
+    summary: "AWS SDK for JavaScript v2 is no longer bundled in the Node.js 18+ Lambda runtimes; only v3 (@aws-sdk/*) is preinstalled."
+    cause: "Lambda preinstalled `aws-sdk` (v2) only on nodejs16.x and earlier. From nodejs18.x the runtime bundles AWS SDK for JavaScript v3 (the modular @aws-sdk/* clients) instead, so `require('aws-sdk')` resolves to nothing after the runtime upgrade."
+    fix_steps:
+      - "Preferred: migrate to v3 modular clients, e.g. `const { S3Client } = require('@aws-sdk/client-s3')` instead of `const AWS = require('aws-sdk')`."
+      - "v3 also changes calls: clients return promises directly (no `.promise()`), and response shapes differ."
+      - "Quick unblock: add `aws-sdk` to package.json and bundle it in the deployment package (no longer free/preinstalled, so it adds cold-start weight)."
+      - "Rebuild and redeploy the package on the target Node version."
+    source_url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-nodejs.html"
+    related_migrate: lambda-node.js-18-eol
+    kit: lambda-lifeline
+
+  - slug: lambda-nodejs-runtime-no-longer-supported
+    error: "The runtime parameter of nodejs18.x is no longer supported for creating or updating AWS Lambda functions"
+    context: "AWS Lambda"
+    summary: "AWS Lambda is blocking create/update operations on a deprecated Node.js runtime."
+    cause: "Per the AWS Lambda runtime deprecation table, nodejs18.x is deprecated; AWS first blocks creating new functions on the runtime, then blocks updating existing ones. nodejs16.x and earlier are already blocked. The error fires when a deploy targets a runtime past its block date."
+    fix_steps:
+      - "Move to a supported runtime — AWS recommends nodejs22.x."
+      - "SAM/CloudFormation: `Runtime: nodejs22.x`. CDK: `runtime: lambda.Runtime.NODEJS_22_X`. Terraform: `runtime = \"nodejs22.x\"`. Serverless: `runtime: nodejs22.x`."
+      - "Rebuild native addons for the Node 22 ABI and switch the bundled aws-sdk v2 to @aws-sdk v3 — see the related /fix pages."
+      - "Redeploy and confirm with `aws lambda get-function-configuration --function-name <name> --query Runtime`."
+    source_url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
+    related_migrate: lambda-node.js-18-eol
+    kit: lambda-lifeline
+
+  - slug: node-error-digital-envelope-routines-unsupported
+    error: "Error: error:0308010C:digital envelope routines::unsupported"
+    context: "Node.js 18+ (OpenSSL 3)"
+    summary: "Node.js 17+ ships OpenSSL 3, which rejects the legacy hashing some older build tools rely on."
+    cause: "OpenSSL 3 disables legacy algorithms (e.g. the MD4-based hashing webpack 4 uses by default). Upgrading a Lambda or container to a Node 18/20/22 runtime surfaces this during a build or in crypto calls."
+    fix_steps:
+      - "Durable fix: upgrade the offending tooling to an OpenSSL-3-safe version (e.g. webpack 5, react-scripts 5+)."
+      - "Stopgap only: set `NODE_OPTIONS=--openssl-legacy-provider` to re-enable the legacy provider — this re-enables weak crypto, so treat it as temporary."
+      - "In your own code, replace deprecated hashes (md4/md5 used for security) with sha256."
+      - "Rebuild and redeploy on the target Node version."
+    source_url: "https://nodejs.org/api/cli.html#--openssl-legacy-provider"
+    related_migrate: lambda-node.js-18-eol
+    kit: lambda-lifeline
+
+  - slug: python-no-module-named-cgi
+    error: "ModuleNotFoundError: No module named 'cgi'"
+    context: "Python 3.13"
+    summary: "The cgi and cgitb modules were removed in Python 3.13 (PEP 594, the 'dead batteries' cleanup)."
+    cause: "cgi was deprecated in 3.11 and removed in 3.13. Code or a dependency still imports it — commonly for parse_qs or multipart parsing — and breaks after moving to a python3.13 runtime."
+    fix_steps:
+      - "Replace `cgi.parse_qs` with `urllib.parse.parse_qs`."
+      - "Replace `cgi.escape` with `html.escape`."
+      - "For multipart/form-data, use a maintained parser (e.g. `multipart`, `werkzeug`, or your web framework's)."
+      - "Upgrade dependencies that still import cgi, then re-test on Python 3.13."
+    source_url: "https://docs.python.org/3/whatsnew/3.13.html"
+    related_migrate: lambda-python-3.11-eol
+    kit: python-pivot
+
+  - slug: python-asyncio-has-no-attribute-coroutine
+    error: "AttributeError: module 'asyncio' has no attribute 'coroutine'"
+    context: "Python 3.11"
+    summary: "The legacy @asyncio.coroutine decorator was removed in Python 3.11."
+    cause: "asyncio.coroutine was deprecated in 3.8 and removed in 3.11. Old async code (or a stale dependency) still uses the generator-based @asyncio.coroutine / `yield from` style."
+    fix_steps:
+      - "Rewrite generator-based coroutines as native `async def` functions and replace `yield from` with `await`."
+      - "Upgrade dependencies that still use @asyncio.coroutine to current releases."
+      - "Re-test on Python 3.11+ (the Lambda target is python3.12)."
+    source_url: "https://docs.python.org/3/whatsnew/3.11.html"
+    related_migrate: lambda-python-3.10-eol
+    kit: python-pivot
+
+  - slug: amazon-linux-2023-python2-command-not-found
+    error: "/usr/bin/env: 'python2': No such file or directory"
+    context: "Amazon Linux 2023"
+    summary: "Amazon Linux 2023 ships no Python 2 — only Python 3 is available."
+    cause: "Amazon Linux 2 shipped Python 2.7; AL2023 removed it entirely. Scripts with a `#!/usr/bin/python2` shebang, `python2` calls, or tools assuming Python 2 fail on AL2023."
+    fix_steps:
+      - "Port the script to Python 3 and use a `python3` shebang/interpreter."
+      - "Install a specific Python 3 minor version by name if needed, e.g. `sudo dnf install -y python3.11`."
+      - "Update Dockerfiles, user-data, and CI that invoke `python2` / `pip2`."
+      - "There is no supported way to install Python 2 on AL2023 — migrate the code."
+    source_url: "https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html"
+    related_migrate: amazon-linux-2-eol
+    kit: al2023-gate
+
+  - slug: amazon-linux-2023-ntpd-service-not-found
+    error: "Failed to start ntpd.service: Unit ntpd.service not found."
+    context: "Amazon Linux 2023"
+    summary: "Amazon Linux 2023 uses chrony for time sync; the ntpd service no longer exists."
+    cause: "Amazon Linux 2 used ntpd; AL2023 standardizes on chrony (chronyd). user-data or config management that enables/starts ntpd fails on AL2023."
+    fix_steps:
+      - "Use chrony instead: `sudo dnf install -y chrony && sudo systemctl enable --now chronyd`."
+      - "Migrate any custom `/etc/ntp.conf` settings to `/etc/chrony.conf`."
+      - "Update cloud-init / Ansible / Packer steps that referenced ntpd."
+      - "Verify with `chronyc sources`."
+    source_url: "https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html"
+    related_migrate: amazon-linux-2-eol
+    kit: al2023-gate
+
+  - slug: node-punycode-module-deprecated
+    error: "[DEP0040] DeprecationWarning: The `punycode` module is deprecated"
+    context: "Node.js 22"
+    summary: "The built-in punycode module is deprecated (DEP0040) and is slated for removal."
+    cause: "Node deprecated the built-in punycode module in favor of the userland package. The warning appears on Node 18+ and is loudest on Node 22, often emitted by a transitive dependency."
+    fix_steps:
+      - "In your own code, depend on the userland package: `npm install punycode` then `require('punycode/')` (note the trailing slash)."
+      - "If it comes from a dependency, upgrade it — many libraries have dropped the built-in punycode."
+      - "Find the source with `node --trace-deprecation`."
+      - "It is a warning, not a breaker — but resolve it before the module is removed in a future major."
+    source_url: "https://nodejs.org/api/punycode.html"
+    related_migrate: lambda-node.js-18-eol
+    kit: lambda-lifeline

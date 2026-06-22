@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>/usr/bin/env: &#x27;python2&#x27;: No such file or directory — cause &amp; fix (Amazon Linux 2023) | EOLkits</title>
+<meta name="description" content="Amazon Linux 2023 ships no Python 2 — only Python 3 is available. Port the script to Python 3 and use a `python3` shebang/interpreter.">
+<link rel="canonical" href="https://eolkits.com/fix/amazon-linux-2023-python2-command-not-found/">
+<link rel="stylesheet" href="/style.css">
+<meta property="og:image" content="https://eolkits.com/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://eolkits.com/og-default.png">
+<style>.fix-err{background:#0f172a;color:#e2e8f0;padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem}.fix-steps li{margin:.35rem 0}.fix-cta{display:inline-block;margin-top:1rem;padding:.7rem 1.2rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}.fix-rel{background:#fff7ed;border:1px solid #fed7aa;padding:.6rem .8rem;border-radius:8px}</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does \"/usr/bin/env: 'python2': No such file or directory\" mean?", "acceptedAnswer": {"@type": "Answer", "text": "Amazon Linux 2023 ships no Python 2 \u2014 only Python 3 is available. Amazon Linux 2 shipped Python 2.7; AL2023 removed it entirely. Scripts with a `#!/usr/bin/python2` shebang, `python2` calls, or tools assuming Python 2 fail on AL2023."}}, {"@type": "Question", "name": "How do I fix \"/usr/bin/env: 'python2': No such file or directory\"?", "acceptedAnswer": {"@type": "Answer", "text": "Port the script to Python 3 and use a `python3` shebang/interpreter. Install a specific Python 3 minor version by name if needed, e.g. `sudo dnf install -y python3.11`. Update Dockerfiles, user-data, and CI that invoke `python2` / `pip2`. There is no supported way to install Python 2 on AL2023 \u2014 migrate the code. Source: https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html"}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Fix: /usr/bin/env: 'python2': No such file or directory", "step": [{"@type": "HowToStep", "position": 1, "text": "Port the script to Python 3 and use a `python3` shebang/interpreter."}, {"@type": "HowToStep", "position": 2, "text": "Install a specific Python 3 minor version by name if needed, e.g. `sudo dnf install -y python3.11`."}, {"@type": "HowToStep", "position": 3, "text": "Update Dockerfiles, user-data, and CI that invoke `python2` / `pip2`."}, {"@type": "HowToStep", "position": 4, "text": "There is no supported way to install Python 2 on AL2023 \u2014 migrate the code."}], "citation": "https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html"}</script>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
+</head>
+<body class="container article">
+<nav class="breadcrumb"><a href="/">Home</a> / <a href="/fix/">Fixes</a> / <span>Amazon Linux 2023</span></nav>
+<p class="muted">Amazon Linux 2023</p>
+<h1>/usr/bin/env: &#x27;python2&#x27;: No such file or directory</h1>
+<pre class="fix-err"><code>/usr/bin/env: &#x27;python2&#x27;: No such file or directory</code></pre>
+<h2>What it means</h2>
+<p>Amazon Linux 2023 ships no Python 2 — only Python 3 is available.</p>
+<h2>Why it happens</h2>
+<p>Amazon Linux 2 shipped Python 2.7; AL2023 removed it entirely. Scripts with a `#!/usr/bin/python2` shebang, `python2` calls, or tools assuming Python 2 fail on AL2023.</p>
+<h2>How to fix it</h2>
+<ol class="fix-steps"><li>Port the script to Python 3 and use a `python3` shebang/interpreter.</li><li>Install a specific Python 3 minor version by name if needed, e.g. `sudo dnf install -y python3.11`.</li><li>Update Dockerfiles, user-data, and CI that invoke `python2` / `pip2`.</li><li>There is no supported way to install Python 2 on AL2023 — migrate the code.</li></ol>
+<p class="fix-rel">Related deadline: <a href="/migrate/amazon-linux-2-eol/">Amazon Linux 2 EOL</a> — <strong>2026-06-30</strong>.</p>
+<h2>Find every instance in your project</h2>
+<p>The free <a href="/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>
+<p>Primary source: <a href="https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html" target="_blank" rel="noopener nofollow">https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html</a></p>
+<p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=amazon-linux-2023-python2-command-not-found&deadline=2026-06-30&kit=al2023-gate">Get the full migration audit — $299, hash-anchored PDF &rarr;</a></p>
+</body>
+</html>

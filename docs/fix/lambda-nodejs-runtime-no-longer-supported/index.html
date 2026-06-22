@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The runtime parameter of nodejs18.x is no longer supported for creating or updating AWS Lambda functions — cause &amp; fix (AWS Lambda) | EOLkits</title>
+<meta name="description" content="AWS Lambda is blocking create/update operations on a deprecated Node.js runtime. Move to a supported runtime — AWS recommends nodejs22.x.">
+<link rel="canonical" href="https://eolkits.com/fix/lambda-nodejs-runtime-no-longer-supported/">
+<link rel="stylesheet" href="/style.css">
+<meta property="og:image" content="https://eolkits.com/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://eolkits.com/og-default.png">
+<style>.fix-err{background:#0f172a;color:#e2e8f0;padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem}.fix-steps li{margin:.35rem 0}.fix-cta{display:inline-block;margin-top:1rem;padding:.7rem 1.2rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}.fix-rel{background:#fff7ed;border:1px solid #fed7aa;padding:.6rem .8rem;border-radius:8px}</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does \"The runtime parameter of nodejs18.x is no longer supported for creating or updating AWS Lambda functions\" mean?", "acceptedAnswer": {"@type": "Answer", "text": "AWS Lambda is blocking create/update operations on a deprecated Node.js runtime. Per the AWS Lambda runtime deprecation table, nodejs18.x is deprecated; AWS first blocks creating new functions on the runtime, then blocks updating existing ones. nodejs16.x and earlier are already blocked. The error fires when a deploy targets a runtime past its block date."}}, {"@type": "Question", "name": "How do I fix \"The runtime parameter of nodejs18.x is no longer supported for creating or updating AWS Lambda functions\"?", "acceptedAnswer": {"@type": "Answer", "text": "Move to a supported runtime \u2014 AWS recommends nodejs22.x. SAM/CloudFormation: `Runtime: nodejs22.x`. CDK: `runtime: lambda.Runtime.NODEJS_22_X`. Terraform: `runtime = \"nodejs22.x\"`. Serverless: `runtime: nodejs22.x`. Rebuild native addons for the Node 22 ABI and switch the bundled aws-sdk v2 to @aws-sdk v3 \u2014 see the related /fix pages. Redeploy and confirm with `aws lambda get-function-configuration --function-name <name> --query Runtime`. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Fix: The runtime parameter of nodejs18.x is no longer supported for creating or updating AWS Lambda functions", "step": [{"@type": "HowToStep", "position": 1, "text": "Move to a supported runtime \u2014 AWS recommends nodejs22.x."}, {"@type": "HowToStep", "position": 2, "text": "SAM/CloudFormation: `Runtime: nodejs22.x`. CDK: `runtime: lambda.Runtime.NODEJS_22_X`. Terraform: `runtime = \"nodejs22.x\"`. Serverless: `runtime: nodejs22.x`."}, {"@type": "HowToStep", "position": 3, "text": "Rebuild native addons for the Node 22 ABI and switch the bundled aws-sdk v2 to @aws-sdk v3 \u2014 see the related /fix pages."}, {"@type": "HowToStep", "position": 4, "text": "Redeploy and confirm with `aws lambda get-function-configuration --function-name <name> --query Runtime`."}], "citation": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"}</script>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
+</head>
+<body class="container article">
+<nav class="breadcrumb"><a href="/">Home</a> / <a href="/fix/">Fixes</a> / <span>AWS Lambda</span></nav>
+<p class="muted">AWS Lambda</p>
+<h1>The runtime parameter of nodejs18.x is no longer supported for creating or updating AWS Lambda functions</h1>
+<pre class="fix-err"><code>The runtime parameter of nodejs18.x is no longer supported for creating or updating AWS Lambda functions</code></pre>
+<h2>What it means</h2>
+<p>AWS Lambda is blocking create/update operations on a deprecated Node.js runtime.</p>
+<h2>Why it happens</h2>
+<p>Per the AWS Lambda runtime deprecation table, nodejs18.x is deprecated; AWS first blocks creating new functions on the runtime, then blocks updating existing ones. nodejs16.x and earlier are already blocked. The error fires when a deploy targets a runtime past its block date.</p>
+<h2>How to fix it</h2>
+<ol class="fix-steps"><li>Move to a supported runtime — AWS recommends nodejs22.x.</li><li>SAM/CloudFormation: `Runtime: nodejs22.x`. CDK: `runtime: lambda.Runtime.NODEJS_22_X`. Terraform: `runtime = &quot;nodejs22.x&quot;`. Serverless: `runtime: nodejs22.x`.</li><li>Rebuild native addons for the Node 22 ABI and switch the bundled aws-sdk v2 to @aws-sdk v3 — see the related /fix pages.</li><li>Redeploy and confirm with `aws lambda get-function-configuration --function-name &lt;name&gt; --query Runtime`.</li></ol>
+<p class="fix-rel">Related deadline: <a href="/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 EOL</a> — <strong>2027-02-01</strong>.</p>
+<h2>Find every instance in your project</h2>
+<p>The free <a href="/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>
+<p>Primary source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html</a></p>
+<p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=lambda-nodejs-runtime-no-longer-supported&deadline=2027-02-01&kit=lambda-lifeline">Get the full migration audit — $299, hash-anchored PDF &rarr;</a></p>
+</body>
+</html>

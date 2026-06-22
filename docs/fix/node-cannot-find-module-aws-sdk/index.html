@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Error: Cannot find module &#x27;aws-sdk&#x27; — cause &amp; fix (AWS Lambda (Node.js 18+)) | EOLkits</title>
+<meta name="description" content="AWS SDK for JavaScript v2 is no longer bundled in the Node.js 18+ Lambda runtimes; only v3 (@aws-sdk/*) is preinstalled. Preferred: migrate to v3 modular c">
+<link rel="canonical" href="https://eolkits.com/fix/node-cannot-find-module-aws-sdk/">
+<link rel="stylesheet" href="/style.css">
+<meta property="og:image" content="https://eolkits.com/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://eolkits.com/og-default.png">
+<style>.fix-err{background:#0f172a;color:#e2e8f0;padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem}.fix-steps li{margin:.35rem 0}.fix-cta{display:inline-block;margin-top:1rem;padding:.7rem 1.2rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}.fix-rel{background:#fff7ed;border:1px solid #fed7aa;padding:.6rem .8rem;border-radius:8px}</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does \"Error: Cannot find module 'aws-sdk'\" mean?", "acceptedAnswer": {"@type": "Answer", "text": "AWS SDK for JavaScript v2 is no longer bundled in the Node.js 18+ Lambda runtimes; only v3 (@aws-sdk/*) is preinstalled. Lambda preinstalled `aws-sdk` (v2) only on nodejs16.x and earlier. From nodejs18.x the runtime bundles AWS SDK for JavaScript v3 (the modular @aws-sdk/* clients) instead, so `require('aws-sdk')` resolves to nothing after the runtime upgrade."}}, {"@type": "Question", "name": "How do I fix \"Error: Cannot find module 'aws-sdk'\"?", "acceptedAnswer": {"@type": "Answer", "text": "Preferred: migrate to v3 modular clients, e.g. `const { S3Client } = require('@aws-sdk/client-s3')` instead of `const AWS = require('aws-sdk')`. v3 also changes calls: clients return promises directly (no `.promise()`), and response shapes differ. Quick unblock: add `aws-sdk` to package.json and bundle it in the deployment package (no longer free/preinstalled, so it adds cold-start weight). Rebuild and redeploy the package on the target Node version. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-nodejs.html"}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Fix: Error: Cannot find module 'aws-sdk'", "step": [{"@type": "HowToStep", "position": 1, "text": "Preferred: migrate to v3 modular clients, e.g. `const { S3Client } = require('@aws-sdk/client-s3')` instead of `const AWS = require('aws-sdk')`."}, {"@type": "HowToStep", "position": 2, "text": "v3 also changes calls: clients return promises directly (no `.promise()`), and response shapes differ."}, {"@type": "HowToStep", "position": 3, "text": "Quick unblock: add `aws-sdk` to package.json and bundle it in the deployment package (no longer free/preinstalled, so it adds cold-start weight)."}, {"@type": "HowToStep", "position": 4, "text": "Rebuild and redeploy the package on the target Node version."}], "citation": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-nodejs.html"}</script>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
+</head>
+<body class="container article">
+<nav class="breadcrumb"><a href="/">Home</a> / <a href="/fix/">Fixes</a> / <span>AWS Lambda (Node.js 18+)</span></nav>
+<p class="muted">AWS Lambda (Node.js 18+)</p>
+<h1>Error: Cannot find module &#x27;aws-sdk&#x27;</h1>
+<pre class="fix-err"><code>Error: Cannot find module &#x27;aws-sdk&#x27;</code></pre>
+<h2>What it means</h2>
+<p>AWS SDK for JavaScript v2 is no longer bundled in the Node.js 18+ Lambda runtimes; only v3 (@aws-sdk/*) is preinstalled.</p>
+<h2>Why it happens</h2>
+<p>Lambda preinstalled `aws-sdk` (v2) only on nodejs16.x and earlier. From nodejs18.x the runtime bundles AWS SDK for JavaScript v3 (the modular @aws-sdk/* clients) instead, so `require(&#x27;aws-sdk&#x27;)` resolves to nothing after the runtime upgrade.</p>
+<h2>How to fix it</h2>
+<ol class="fix-steps"><li>Preferred: migrate to v3 modular clients, e.g. `const { S3Client } = require(&#x27;@aws-sdk/client-s3&#x27;)` instead of `const AWS = require(&#x27;aws-sdk&#x27;)`.</li><li>v3 also changes calls: clients return promises directly (no `.promise()`), and response shapes differ.</li><li>Quick unblock: add `aws-sdk` to package.json and bundle it in the deployment package (no longer free/preinstalled, so it adds cold-start weight).</li><li>Rebuild and redeploy the package on the target Node version.</li></ol>
+<p class="fix-rel">Related deadline: <a href="/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 EOL</a> — <strong>2027-02-01</strong>.</p>
+<h2>Find every instance in your project</h2>
+<p>The free <a href="/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>
+<p>Primary source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-nodejs.html" target="_blank" rel="noopener nofollow">https://docs.aws.amazon.com/lambda/latest/dg/lambda-nodejs.html</a></p>
+<p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-cannot-find-module-aws-sdk&deadline=2027-02-01&kit=lambda-lifeline">Get the full migration audit — $299, hash-anchored PDF &rarr;</a></p>
+</body>
+</html>

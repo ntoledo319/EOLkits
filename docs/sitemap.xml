@@ -57,6 +57,22 @@
     
     <url><loc>https://eolkits.com/fix/datetime-utcnow-deprecated/</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
     
+    <url><loc>https://eolkits.com/fix/node-cannot-find-module-aws-sdk/</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    
+    <url><loc>https://eolkits.com/fix/lambda-nodejs-runtime-no-longer-supported/</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    
+    <url><loc>https://eolkits.com/fix/node-error-digital-envelope-routines-unsupported/</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    
+    <url><loc>https://eolkits.com/fix/python-no-module-named-cgi/</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    
+    <url><loc>https://eolkits.com/fix/python-asyncio-has-no-attribute-coroutine/</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    
+    <url><loc>https://eolkits.com/fix/amazon-linux-2023-python2-command-not-found/</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    
+    <url><loc>https://eolkits.com/fix/amazon-linux-2023-ntpd-service-not-found/</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    
+    <url><loc>https://eolkits.com/fix/node-punycode-module-deprecated/</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    
 
     <!-- Content + system pages -->
     <url><loc>https://eolkits.com/blog/</loc><lastmod>2026-06-22</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
