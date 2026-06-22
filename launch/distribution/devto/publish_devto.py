@@ -21,6 +21,7 @@ import sys
 import json
 import glob
 import re
+import time
 import subprocess
 import pathlib
 
@@ -80,8 +81,17 @@ def main():
         if not apply:
             print(f"  DRY: would publish '{title}'  (canonical -> {article['canonical_url']})")
             continue
-        r = _curl("POST", API, {"article": article})
-        print(f"  published: {r.get('url') if isinstance(r, dict) else r}")
+        ok = None
+        for attempt in range(5):
+            r = _curl("POST", API, {"article": article})
+            if isinstance(r, dict) and r.get("url"):
+                ok = r
+                break
+            print(f"    dev.to rate-limited; waiting 35s (attempt {attempt + 1}/5)")
+            time.sleep(35)
+        print(f"  published: {ok.get('url') if ok else 'FAILED after retries'}")
+        existing.add(title)
+        time.sleep(35)  # space out the next create to stay under dev.to's limit
     if not apply:
         print("\nDry run only. Re-run with --apply once DEVTO_API_KEY is set.")
 

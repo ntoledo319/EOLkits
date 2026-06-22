@@ -32,7 +32,9 @@ All scripts are **dry-run by default** and refuse to do anything destructive/out
      auto-cross-posts forever. **This builds the backlinks/authority that move first-dollar from
      "months / maybe never" to "weeks."** Highest leverage by far.
 
-**2. (Optional) A Hashnode API token** — same idea, second backlink source. Settings → Developer.
+**2. ~~Hashnode~~ — its publishing API went PAID on 2026-05-13** (the endpoint now 301s to a
+   "graphql-api-paid-access" notice). `publish_hashnode.py` is ready if you ever turn on paid API
+   access; otherwise skip — not a free lever anymore.
 
 **3. (Optional, higher-risk) Greenlight the value-first email** — needs:
    - a **separate sending subdomain** (e.g. `mail.eolkits.com`) with its own SPF/DKIM/DMARC, **or**

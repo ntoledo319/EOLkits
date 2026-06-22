@@ -40,4 +40,15 @@ PAYLOAD=$(python3 -c "import sys,json; u=[x for x in sys.stdin.read().split() if
 curl -s -m 25 -o /dev/null -X POST "https://api.indexnow.org/indexnow" \
   -H "Content-Type: application/json; charset=utf-8" --data "$PAYLOAD" || true
 
+# Cross-publish any NEW articles to dev.to (backlinks). Key from a gitignored box
+# env file (/home/ubuntu/.eolkits-dist.env, mode 600 — never in the repo). The
+# publisher is idempotent (skips titles already on the account) and throttled, so
+# this is safe to run daily and will also retry yesterday's rate-capped article.
+if [ -f /home/ubuntu/.eolkits-dist.env ]; then
+  set -a; . /home/ubuntu/.eolkits-dist.env; set +a
+  if [ -n "${DEVTO_API_KEY:-}" ]; then
+    python3 launch/distribution/devto/publish_devto.py --apply >/tmp/eolkits-devto.log 2>&1 || true
+  fi
+fi
+
 echo "$(date -u +%FT%TZ) deployed $(echo "$URLS" | wc -l | tr -d ' ') urls @ $(git rev-parse --short HEAD)"
