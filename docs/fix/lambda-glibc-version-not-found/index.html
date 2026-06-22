@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>/lib64/libc.so.6: version `GLIBC_2.28&#x27; not found — cause &amp; fix (AWS Lambda (native dependency)) | EOLkits</title>
+<meta name="description" content="A native binary in your package needs a newer glibc than the Lambda runtime&#x27;s base OS provides. Best fix: move the function to an AL2023-based runtime (pyt">
+<link rel="canonical" href="https://eolkits.com/fix/lambda-glibc-version-not-found/">
+<link rel="stylesheet" href="/style.css">
+<script defer src="/track.js"></script>
+<meta property="og:image" content="https://eolkits.com/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://eolkits.com/og-default.png">
+<style>.fix-err{background:#0f172a;color:#e2e8f0;padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem}.fix-steps li{margin:.35rem 0}.fix-cta{display:inline-block;margin-top:1rem;padding:.7rem 1.2rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}.fix-rel{background:#fff7ed;border:1px solid #fed7aa;padding:.6rem .8rem;border-radius:8px}</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does \"/lib64/libc.so.6: version `GLIBC_2.28' not found\" mean?", "acceptedAnswer": {"@type": "Answer", "text": "A native binary in your package needs a newer glibc than the Lambda runtime's base OS provides. Native extensions (cryptography, numpy, pydantic-core, grpcio, psycopg2, plus Go/Rust binaries) link against the glibc of the machine that built them. Lambda's glibc is fixed by the runtime's base OS: Amazon Linux 2 runtimes (python3.9 and earlier, nodejs16 and earlier) ship glibc 2.26; Amazon Linux 2023 runtimes (python3.12+, nodejs18+) ship glibc 2.34. A wheel built on a newer box fails to import on an older AL2 runtime."}}, {"@type": "Question", "name": "How do I fix \"/lib64/libc.so.6: version `GLIBC_2.28' not found\"?", "acceptedAnswer": {"@type": "Answer", "text": "Best fix: move the function to an AL2023-based runtime (python3.12 / nodejs20+ / nodejs22) whose glibc 2.34 satisfies modern wheels \u2014 this also gets you off the deprecated runtime. Build the dependency for the exact target: `pip install --platform manylinux2014_x86_64 --only-binary=:all: --target ./package <pkg>` (manylinux2014 = glibc 2.17, safe on both AL2 and AL2023). Or build inside the matching base image (`public.ecr.aws/lambda/python:3.12`) so the binary links the runtime's glibc. Match the architecture too \u2014 x86_64 vs arm64/Graviton wheels are not interchangeable. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Fix: /lib64/libc.so.6: version `GLIBC_2.28' not found", "step": [{"@type": "HowToStep", "position": 1, "text": "Best fix: move the function to an AL2023-based runtime (python3.12 / nodejs20+ / nodejs22) whose glibc 2.34 satisfies modern wheels \u2014 this also gets you off the deprecated runtime."}, {"@type": "HowToStep", "position": 2, "text": "Build the dependency for the exact target: `pip install --platform manylinux2014_x86_64 --only-binary=:all: --target ./package <pkg>` (manylinux2014 = glibc 2.17, safe on both AL2 and AL2023)."}, {"@type": "HowToStep", "position": 3, "text": "Or build inside the matching base image (`public.ecr.aws/lambda/python:3.12`) so the binary links the runtime's glibc."}, {"@type": "HowToStep", "position": 4, "text": "Match the architecture too \u2014 x86_64 vs arm64/Graviton wheels are not interchangeable."}], "citation": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"}</script>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
+</head>
+<body class="container article">
+<nav class="breadcrumb"><a href="/">Home</a> / <a href="/fix/">Fixes</a> / <span>AWS Lambda (native dependency)</span></nav>
+<p class="muted">AWS Lambda (native dependency)</p>
+<h1>/lib64/libc.so.6: version `GLIBC_2.28&#x27; not found</h1>
+<pre class="fix-err"><code>/lib64/libc.so.6: version `GLIBC_2.28&#x27; not found</code></pre>
+<h2>What it means</h2>
+<p>A native binary in your package needs a newer glibc than the Lambda runtime&#x27;s base OS provides.</p>
+<h2>Why it happens</h2>
+<p>Native extensions (cryptography, numpy, pydantic-core, grpcio, psycopg2, plus Go/Rust binaries) link against the glibc of the machine that built them. Lambda&#x27;s glibc is fixed by the runtime&#x27;s base OS: Amazon Linux 2 runtimes (python3.9 and earlier, nodejs16 and earlier) ship glibc 2.26; Amazon Linux 2023 runtimes (python3.12+, nodejs18+) ship glibc 2.34. A wheel built on a newer box fails to import on an older AL2 runtime.</p>
+<h2>How to fix it</h2>
+<ol class="fix-steps"><li>Best fix: move the function to an AL2023-based runtime (python3.12 / nodejs20+ / nodejs22) whose glibc 2.34 satisfies modern wheels — this also gets you off the deprecated runtime.</li><li>Build the dependency for the exact target: `pip install --platform manylinux2014_x86_64 --only-binary=:all: --target ./package &lt;pkg&gt;` (manylinux2014 = glibc 2.17, safe on both AL2 and AL2023).</li><li>Or build inside the matching base image (`public.ecr.aws/lambda/python:3.12`) so the binary links the runtime&#x27;s glibc.</li><li>Match the architecture too — x86_64 vs arm64/Graviton wheels are not interchangeable.</li></ol>
+<p class="fix-rel">Related deadline: <a href="/migrate/lambda-python-3.9-eol/">Lambda Python 3.9 EOL</a> — <strong>2027-02-01</strong>.</p>
+<h2>Find every instance in your project</h2>
+<p>The free <a href="/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>
+<p>Primary source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html</a></p>
+<p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=lambda-glibc-version-not-found&deadline=2027-02-01&kit=python-pivot">Get the full migration audit — $299, hash-anchored PDF &rarr;</a></p>
+</body>
+</html>

@@ -293,3 +293,31 @@ fixes:
     source_url: "https://docs.python.org/3/whatsnew/3.13.html"
     related_migrate: lambda-python-3.11-eol
     kit: python-pivot
+
+  - slug: lambda-glibc-version-not-found
+    error: "/lib64/libc.so.6: version `GLIBC_2.28' not found"
+    context: "AWS Lambda (native dependency)"
+    summary: "A native binary in your package needs a newer glibc than the Lambda runtime's base OS provides."
+    cause: "Native extensions (cryptography, numpy, pydantic-core, grpcio, psycopg2, plus Go/Rust binaries) link against the glibc of the machine that built them. Lambda's glibc is fixed by the runtime's base OS: Amazon Linux 2 runtimes (python3.9 and earlier, nodejs16 and earlier) ship glibc 2.26; Amazon Linux 2023 runtimes (python3.12+, nodejs18+) ship glibc 2.34. A wheel built on a newer box fails to import on an older AL2 runtime."
+    fix_steps:
+      - "Best fix: move the function to an AL2023-based runtime (python3.12 / nodejs20+ / nodejs22) whose glibc 2.34 satisfies modern wheels — this also gets you off the deprecated runtime."
+      - "Build the dependency for the exact target: `pip install --platform manylinux2014_x86_64 --only-binary=:all: --target ./package <pkg>` (manylinux2014 = glibc 2.17, safe on both AL2 and AL2023)."
+      - "Or build inside the matching base image (`public.ecr.aws/lambda/python:3.12`) so the binary links the runtime's glibc."
+      - "Match the architecture too — x86_64 vs arm64/Graviton wheels are not interchangeable."
+    source_url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
+    related_migrate: lambda-python-3.9-eol
+    kit: python-pivot
+
+  - slug: lambda-runtime-importmoduleerror-cannot-find-module
+    error: "Runtime.ImportModuleError: Error: Cannot find module"
+    context: "AWS Lambda"
+    summary: "Lambda can't load a dependency your handler imports — most often after a runtime upgrade changed what's bundled."
+    cause: "Common right after changing the runtime: (1) on nodejs18+ the AWS SDK v2 ('aws-sdk') is no longer preinstalled — only @aws-sdk v3 is; (2) a bundler (esbuild >= 0.22) now omits node_modules from the bundle by default; (3) a Lambda layer was built on a different OS/arch than the runtime; (4) a native binary needs a different glibc. The handler then throws ImportModuleError at cold start."
+    fix_steps:
+      - "If it names `aws-sdk` on nodejs18+: migrate to @aws-sdk v3 modular clients, or bundle aws-sdk v2 explicitly (see the dedicated /fix page)."
+      - "esbuild >= 0.22: set `packages: 'bundle'` (or `--packages=bundle`) so dependencies are included again."
+      - "Build layers/packages on the runtime's base image (e.g. `public.ecr.aws/lambda/nodejs:22`) and match the architecture (x86_64 vs arm64)."
+      - "Confirm the module is where Lambda expects it (`nodejs/node_modules/...` for a layer; top level for a function package) and that the handler string matches the file path."
+    source_url: "https://repost.aws/knowledge-center/lambda-import-module-error-nodejs"
+    related_migrate: lambda-node.js-18-eol
+    kit: lambda-lifeline

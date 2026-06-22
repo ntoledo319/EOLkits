@@ -81,6 +81,10 @@
     
     <url><loc>https://eolkits.com/fix/python-no-module-named-lib2to3/</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
     
+    <url><loc>https://eolkits.com/fix/lambda-glibc-version-not-found/</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    
+    <url><loc>https://eolkits.com/fix/lambda-runtime-importmoduleerror-cannot-find-module/</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    
 
     <!-- Content + system pages -->
     <url><loc>https://eolkits.com/blog/</loc><lastmod>2026-06-22</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
