@@ -213,13 +213,14 @@ python-pivot apply</code></pre>
         <section class="conversion">
             <h2>Want it done for you before 2027-02-01?</h2>
             <div class="pricing-grid-2">
-                <div class="pricing-card">
+                <div class="pricing-card featured">
                     <h3>Audit PDF</h3>
                     <div class="price">$299</div>
-                    <p>Hash-anchored deterministic report scoring every Lambda Python 3.8 EOL finding by severity × blast-radius, with a roll-forward roadmap and cost-of-not-fixing estimate. Delivered by email in 5 minutes.</p>
+                    <p>Hash-anchored deterministic report scoring every Lambda Python 3.8 EOL finding by severity × blast-radius, with a roll-forward roadmap and cost-of-not-fixing estimate. Delivered by email in 5 minutes. <strong>30-day money-back guarantee.</strong></p>
                     <a href="/audit/?deadline=2027-02-01&utm_source=migrate&utm_medium=cta&utm_campaign=lambda-python-3.8-eol&kit=python-pivot" class="btn-primary">Order Audit — $299</a>
+                    <p class="small"><a href="/scan/">Run the free scan first</a> · <a href="/audit/sample/">see a sample →</a></p>
                 </div>
-                <div class="pricing-card featured">
+                <div class="pricing-card">
                     <h3>Migration Pack</h3>
                     <div class="price">$1,499</div>
                     <p>A real PR opened on your repo: python-pivot codemods + IaC patches + canary plan + rollback. <strong>Auto-refund if your CI fails within 7 days.</strong></p>
@@ -228,6 +229,42 @@ python-pivot apply</code></pre>
                 </div>
             </div>
         </section>
+
+        <section class="leadcap-migrate" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:1.25rem;margin:1.5rem 0">
+            <h2 style="margin-top:0">Not ready to migrate yet?</h2>
+            <p>Get a reminder before the 2027-02-01 Lambda Python 3.8 EOL deadline — plus a heads-up on the next AWS EOL that hits your stack. No spam, one email per relevant deadline.</p>
+            <form id="leadForm" autocomplete="on" style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center">
+                <input type="email" name="email" placeholder="you@company.com" required style="padding:.6rem;border:1px solid #cbd5e1;border-radius:6px;min-width:240px">
+                <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px" value="">
+                <input type="hidden" name="product" value="eolkits">
+                <input type="hidden" name="source" value="migrate-lambda-python-3.8-eol">
+                <input type="hidden" name="deadline" value="2027-02-01">
+                <input type="hidden" name="deprecation" value="Lambda Python 3.8 EOL">
+                <button type="submit" class="btn-primary">Remind me before 2027-02-01</button>
+                <span id="leadMsg" style="font-size:.9rem;color:#16a34a"></span>
+            </form>
+            <p class="muted small" style="margin:.5rem 0 0">Free. Unsubscribe anytime.</p>
+        </section>
+
+        <script>
+        (function () {
+            var lf = document.getElementById('leadForm');
+            if (!lf) return;
+            lf.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var msg = document.getElementById('leadMsg');
+                var data = {};
+                Array.prototype.forEach.call(lf.elements, function (el) { if (el.name && el.type !== 'submit') data[el.name] = el.value; });
+                if (data._honey) { if (msg) msg.textContent = 'Thanks!'; lf.reset(); return; }
+                if (msg) msg.textContent = 'Saving...';
+                fetch('/api/v1/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+                    .then(function (r) { return r.ok ? r.json().catch(function () { return {}; }) : Promise.reject(); })
+                    .then(function () { if (msg) msg.textContent = '✓ You will get a reminder.'; lf.reset(); })
+                    .catch(function () { if (msg) msg.textContent = 'Could not save — email hello@toledotechnologies.com'; });
+            });
+        })();
+        </script>
+
 
         <section class="embed-badge">
             <h2>Embed this deadline in your README</h2>
