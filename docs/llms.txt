@@ -31,6 +31,10 @@
 - [/usr/bin/env: 'python2': No such file or directory](https://eolkits.com/fix/amazon-linux-2023-python2-command-not-found/): Amazon Linux 2023 ships no Python 2 — only Python 3 is available. Source: https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html
 - [Failed to start ntpd.service: Unit ntpd.service not found.](https://eolkits.com/fix/amazon-linux-2023-ntpd-service-not-found/): Amazon Linux 2023 uses chrony for time sync; the ntpd service no longer exists. Source: https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html
 - [[DEP0040] DeprecationWarning: The `punycode` module is deprecated](https://eolkits.com/fix/node-punycode-module-deprecated/): The built-in punycode module is deprecated (DEP0040) and is slated for removal. Source: https://nodejs.org/api/punycode.html
+- [TypeError: crypto.createCipher is not a function](https://eolkits.com/fix/node-crypto-createcipher-is-not-a-function/): crypto.createCipher and crypto.createDecipher were removed in Node.js 22. Source: https://nodejs.org/api/deprecations.html
+- [ModuleNotFoundError: No module named 'telnetlib'](https://eolkits.com/fix/python-no-module-named-telnetlib/): telnetlib was removed in Python 3.13 (PEP 594, the 'dead batteries' cleanup). Source: https://docs.python.org/3/whatsnew/3.13.html
+- [ModuleNotFoundError: No module named 'crypt'](https://eolkits.com/fix/python-no-module-named-crypt/): The crypt module was removed in Python 3.13 (PEP 594). Source: https://docs.python.org/3/whatsnew/3.13.html
+- [ModuleNotFoundError: No module named 'lib2to3'](https://eolkits.com/fix/python-no-module-named-lib2to3/): lib2to3 (and the 2to3 tool) were removed in Python 3.13 (PEP 594). Source: https://docs.python.org/3/whatsnew/3.13.html
 - [Free in-browser scanner](https://eolkits.com/scan/): drop IaC / dependency files to find deprecated runtimes and incompatible dependencies locally — nothing uploaded.
 
 ## Pricing

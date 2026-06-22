@@ -8,9 +8,10 @@ deprecations:
   - name: "Lambda Node.js 20 Phase 1"
     service: "AWS Lambda"
     resource_type: "function"
-    date: "2026-04-30"
-    description: "Lambda functions using Node.js 20 runtime will fail to update. Phase 1: CreateFunction and UpdateFunctionConfiguration blocked."
-    severity: critical
+    date: "2027-02-01"
+    block_update_date: "2027-03-03"
+    description: "Node.js 20 Lambda runtime (Amazon Linux 2023) deprecated 2026-04-30. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs20.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — part of the synchronized Q1-2027 runtime-block cluster."
+    severity: high
     kit: lambda-lifeline
     url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
     tags: [lambda, nodejs, runtime]
@@ -40,8 +41,9 @@ deprecations:
   - name: "Lambda Python 3.9 EOL"
     service: "AWS Lambda"
     resource_type: "function"
-    date: "2026-10-31"
-    description: "Lambda functions using Python 3.9 runtime deprecated."
+    date: "2027-02-01"
+    block_update_date: "2027-03-03"
+    description: "Python 3.9 Lambda runtime (Amazon Linux 2) was deprecated on 2025-12-15 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.9 functions on 2027-02-01 and blocks updating existing ones on 2027-03-03. Functions keep running, but become unpatched and unmodifiable after the block dates."
     severity: high
     kit: python-pivot
     url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
@@ -55,9 +57,10 @@ deprecations:
   - name: "Lambda Python 3.10 EOL"
     service: "AWS Lambda"
     resource_type: "function"
-    date: "2027-04-30"
-    description: "Lambda functions using Python 3.10 runtime deprecated."
-    severity: medium
+    date: "2027-02-01"
+    block_update_date: "2027-03-03"
+    description: "Python 3.10 Lambda runtime deprecated 2026-10-31. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-02-01 and updating existing ones on 2027-03-03 — the same synchronized Q1-2027 block cluster as python3.8/3.9."
+    severity: high
     kit: python-pivot
     url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
     tags: [lambda, python, runtime]
@@ -68,14 +71,47 @@ deprecations:
   - name: "Lambda Python 3.11 EOL"
     service: "AWS Lambda"
     resource_type: "function"
-    date: "2027-10-31"
-    description: "Lambda functions using Python 3.11 runtime deprecated."
-    severity: low
+    date: "2027-07-31"
+    block_update_date: "2027-08-31"
+    description: "Python 3.11 Lambda runtime deprecated 2027-06-30. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.11 functions on 2027-07-31 and updating existing ones on 2027-08-31."
+    severity: medium
     kit: python-pivot
     url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
     tags: [lambda, python, runtime]
     breaking_changes:
       - "TOML parsing changes"
+
+  - name: "Lambda Node.js 18 EOL"
+    service: "AWS Lambda"
+    resource_type: "function"
+    date: "2027-02-01"
+    block_update_date: "2027-03-03"
+    description: "Node.js 18 Lambda runtime (Amazon Linux 2) deprecated 2025-09-01. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs18.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — part of the synchronized Q1-2027 runtime-block cluster. nodejs18.x is one of the most common runtimes still in production."
+    severity: high
+    kit: lambda-lifeline
+    url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
+    tags: [lambda, nodejs, runtime]
+    breaking_changes:
+      - "Upgrade target is nodejs22.x"
+      - "aws-sdk v2 not bundled (use @aws-sdk v3 modular clients)"
+      - "Native addons must be rebuilt for the Node 22 ABI"
+      - "OpenSSL 3 behavior changes"
+
+  - name: "Lambda Python 3.8 EOL"
+    service: "AWS Lambda"
+    resource_type: "function"
+    date: "2027-02-01"
+    block_update_date: "2027-03-03"
+    description: "Python 3.8 Lambda runtime (Amazon Linux 2) deprecated 2024-10-14. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.8 functions on 2027-02-01 and updating existing ones on 2027-03-03 — the same synchronized Q1-2027 block cluster as python3.9/3.10."
+    severity: high
+    kit: python-pivot
+    url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
+    tags: [lambda, python, runtime]
+    breaking_changes:
+      - "Upgrade target is python3.12 (3.13 available)"
+      - "distutils and imp removed in 3.12 (fix on upgrade)"
+      - "collections ABCs moved to collections.abc (3.10+)"
+      - "Native wheels may need version bumps for cp312"
 
   - name: "IMDSv1 Enforcement"
     service: "EC2"

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TypeError: crypto.createCipher is not a function — cause &amp; fix (Node.js 22) | EOLkits</title>
+<meta name="description" content="crypto.createCipher and crypto.createDecipher were removed in Node.js 22. Switch to `crypto.createCipheriv(algorithm, key, iv)` / `crypto.createDecipheriv(">
+<link rel="canonical" href="https://eolkits.com/fix/node-crypto-createcipher-is-not-a-function/">
+<link rel="stylesheet" href="/style.css">
+<meta property="og:image" content="https://eolkits.com/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://eolkits.com/og-default.png">
+<style>.fix-err{background:#0f172a;color:#e2e8f0;padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem}.fix-steps li{margin:.35rem 0}.fix-cta{display:inline-block;margin-top:1rem;padding:.7rem 1.2rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}.fix-rel{background:#fff7ed;border:1px solid #fed7aa;padding:.6rem .8rem;border-radius:8px}</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does \"TypeError: crypto.createCipher is not a function\" mean?", "acceptedAnswer": {"@type": "Answer", "text": "crypto.createCipher and crypto.createDecipher were removed in Node.js 22. Deprecated since Node 10 (DEP0106) for using a weak, salt-less MD5 key derivation and a static IV, createCipher/createDecipher were removed in Node.js 22. Code (or a dependency) still calls them and now throws after the runtime upgrade."}}, {"@type": "Question", "name": "How do I fix \"TypeError: crypto.createCipher is not a function\"?", "acceptedAnswer": {"@type": "Answer", "text": "Switch to `crypto.createCipheriv(algorithm, key, iv)` / `crypto.createDecipheriv(...)` with an explicit key and IV. Derive the key with `crypto.scryptSync(password, salt, keylen)` (or `crypto.pbkdf2`) and a random IV from `crypto.randomBytes(16)`; store the IV alongside the ciphertext. To read legacy data made with the old createCipher, re-implement its OpenSSL EVP_BytesToKey(MD5) derivation once, then re-encrypt under the new scheme. Upgrade any dependency that still calls createCipher to a current release. Source: https://nodejs.org/api/deprecations.html"}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Fix: TypeError: crypto.createCipher is not a function", "step": [{"@type": "HowToStep", "position": 1, "text": "Switch to `crypto.createCipheriv(algorithm, key, iv)` / `crypto.createDecipheriv(...)` with an explicit key and IV."}, {"@type": "HowToStep", "position": 2, "text": "Derive the key with `crypto.scryptSync(password, salt, keylen)` (or `crypto.pbkdf2`) and a random IV from `crypto.randomBytes(16)`; store the IV alongside the ciphertext."}, {"@type": "HowToStep", "position": 3, "text": "To read legacy data made with the old createCipher, re-implement its OpenSSL EVP_BytesToKey(MD5) derivation once, then re-encrypt under the new scheme."}, {"@type": "HowToStep", "position": 4, "text": "Upgrade any dependency that still calls createCipher to a current release."}], "citation": "https://nodejs.org/api/deprecations.html"}</script>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
+</head>
+<body class="container article">
+<nav class="breadcrumb"><a href="/">Home</a> / <a href="/fix/">Fixes</a> / <span>Node.js 22</span></nav>
+<p class="muted">Node.js 22</p>
+<h1>TypeError: crypto.createCipher is not a function</h1>
+<pre class="fix-err"><code>TypeError: crypto.createCipher is not a function</code></pre>
+<h2>What it means</h2>
+<p>crypto.createCipher and crypto.createDecipher were removed in Node.js 22.</p>
+<h2>Why it happens</h2>
+<p>Deprecated since Node 10 (DEP0106) for using a weak, salt-less MD5 key derivation and a static IV, createCipher/createDecipher were removed in Node.js 22. Code (or a dependency) still calls them and now throws after the runtime upgrade.</p>
+<h2>How to fix it</h2>
+<ol class="fix-steps"><li>Switch to `crypto.createCipheriv(algorithm, key, iv)` / `crypto.createDecipheriv(...)` with an explicit key and IV.</li><li>Derive the key with `crypto.scryptSync(password, salt, keylen)` (or `crypto.pbkdf2`) and a random IV from `crypto.randomBytes(16)`; store the IV alongside the ciphertext.</li><li>To read legacy data made with the old createCipher, re-implement its OpenSSL EVP_BytesToKey(MD5) derivation once, then re-encrypt under the new scheme.</li><li>Upgrade any dependency that still calls createCipher to a current release.</li></ol>
+<p class="fix-rel">Related deadline: <a href="/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 EOL</a> — <strong>2027-02-01</strong>.</p>
+<h2>Find every instance in your project</h2>
+<p>The free <a href="/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>
+<p>Primary source: <a href="https://nodejs.org/api/deprecations.html" target="_blank" rel="noopener nofollow">https://nodejs.org/api/deprecations.html</a></p>
+<p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-crypto-createcipher-is-not-a-function&deadline=2027-02-01&kit=lambda-lifeline">Get the full migration audit — $299, hash-anchored PDF &rarr;</a></p>
+</body>
+</html>

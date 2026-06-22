@@ -73,6 +73,14 @@
     
     <url><loc>https://eolkits.com/fix/node-punycode-module-deprecated/</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
     
+    <url><loc>https://eolkits.com/fix/node-crypto-createcipher-is-not-a-function/</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    
+    <url><loc>https://eolkits.com/fix/python-no-module-named-telnetlib/</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    
+    <url><loc>https://eolkits.com/fix/python-no-module-named-crypt/</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    
+    <url><loc>https://eolkits.com/fix/python-no-module-named-lib2to3/</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    
 
     <!-- Content + system pages -->
     <url><loc>https://eolkits.com/blog/</loc><lastmod>2026-06-22</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>

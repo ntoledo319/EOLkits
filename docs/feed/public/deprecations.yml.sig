@@ -1,5 +1,5 @@
 {
   "warning": "cosign not installed; CI generates real signatures",
-  "sha256": "bf5ede44d42bc9689f13fcacb60ce5ec92d7e6f6ba842cdade8f3e3ab4b85ca4",
-  "signed_at": "2026-06-07T03:02:16.719613+00:00"
+  "sha256": "3d5036d258d5d953ea0ad022e2ac447cb43a6115ef015112324aee23cb39c83d",
+  "signed_at": "2026-06-22T07:06:02.619713+00:00"
 }
