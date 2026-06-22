@@ -1030,6 +1030,26 @@ def build_verify_page():
         return None
 
 
+def build_track_js():
+    """First-party pageview beacon for content pages (home/scan/migrate/fix). The
+    commerce pages fire their own richer inline events; this gives the TOP of the
+    funnel visibility via POST /api/events -> /status funnel counts. No third party,
+    no cookies — a single sendBeacon on load with path + first-touch attribution."""
+    return (
+        "(function(){try{"
+        "var qp=new URLSearchParams(location.search);"
+        "var ft={};try{ft=JSON.parse(localStorage.getItem('eolkits_ft')||'{}');}catch(e){}"
+        "var p={event:'view',path:location.pathname,"
+        "source:ft.source||qp.get('source')||'organic',"
+        "utm_source:ft.utm_source||qp.get('utm_source')||'',"
+        "utm_medium:ft.utm_medium||qp.get('utm_medium')||'',"
+        "utm_campaign:ft.utm_campaign||qp.get('utm_campaign')||'',"
+        "ref:document.referrer||''};"
+        "navigator.sendBeacon('" + API_URL + "/api/events',new Blob([JSON.stringify(p)],{type:'application/json'}));"
+        "}catch(e){}})();"
+    )
+
+
 def build_index_page(pricing):
     """Build the canonical landing page from source data, not stale docs output."""
     pricing_view = build_pricing_view(pricing)
@@ -1047,6 +1067,7 @@ def build_index_page(pricing):
 <meta name="description" content="MIT-licensed CLIs and paid automation for AWS runtime and platform deprecation migrations.">
 <link rel="canonical" href="{SITE_URL}/">
 <link rel="stylesheet" href="/style.css">
+<script defer src="/track.js"></script>
 </head>
 <body>
 <header class="nav">
@@ -1833,6 +1854,7 @@ def build_scan_page(deprecations):
         '<meta name="description" content="Drop your SAM/CDK/Terraform/Serverless, package.json or requirements.txt to instantly find deprecated AWS Lambda runtimes and the Node 22 / Python 3.12 dependency breakages that block a migration. Runs entirely in your browser — nothing is uploaded.">\n'
         f'<link rel="canonical" href="{SITE_URL}/scan/">\n'
         '<link rel="stylesheet" href="/style.css">\n'
+        '<script defer src="/track.js"></script>\n'
         + _og_image_meta()
         + "<style>"
         "#dz{border:2px dashed #94a3b8;border-radius:10px;padding:2.5rem 1rem;text-align:center;cursor:pointer;background:#f8fafc}"
@@ -1968,6 +1990,7 @@ def build_error_pages(fixes, deprecations, full_pricing):
             '<meta name="description" content="' + desc + '">\n'
             '<link rel="canonical" href="' + SITE_URL + "/fix/" + slug + '/">\n'
             '<link rel="stylesheet" href="/style.css">\n'
+            '<script defer src="/track.js"></script>\n'
             + _og_image_meta()
             + "<style>.fix-err{background:#0f172a;color:#e2e8f0;padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem}"
             ".fix-steps li{margin:.35rem 0}.fix-cta{display:inline-block;margin-top:1rem;padding:.7rem 1.2rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}"
@@ -2007,7 +2030,7 @@ def build_error_pages(fixes, deprecations, full_pricing):
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
         "<title>AWS migration error fixes — Lambda, Amazon Linux, Python &amp; Node | EOLkits</title>\n"
         '<meta name="description" content="Plain-English causes and verified fixes for the exact errors you hit migrating off deprecated AWS Lambda runtimes, Amazon Linux 2, Python 3.9 and Node native dependencies.">\n'
-        '<link rel="canonical" href="' + SITE_URL + '/fix/">\n<link rel="stylesheet" href="/style.css">\n</head>\n'
+        '<link rel="canonical" href="' + SITE_URL + '/fix/">\n<link rel="stylesheet" href="/style.css">\n<script defer src="/track.js"></script>\n</head>\n'
         '<body class="container article">\n'
         '<nav class="breadcrumb"><a href="/">Home</a> / <span>Fixes</span></nav>\n'
         "<h1>AWS migration error fixes</h1>\n"
@@ -2139,6 +2162,7 @@ def main():
     # Build pages
     pages = {
         "index.html": build_index_page(pricing),
+        "track.js": build_track_js(),
         "audit/index.html": build_audit_page(pricing),
         "audit/sample/index.html": build_audit_sample_page(pricing),
         "scan/index.html": build_scan_page(deprecations),
