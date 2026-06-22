@@ -1240,7 +1240,7 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 <a href="/" class="brand">← EOLkits</a>
 <h1>Drift Watch</h1>
 <p class="price">$PRICE<span style="font-size:1rem;font-weight:normal;color:#6b7280">/month</span></p>
-<p>Weekly re-scan of a read-only IAM role. Get a delta PDF the moment a new AWS deprecation touches your stack — plus an auto-opened migration PR so the fix starts itself.</p>
+<p>Never get caught by an AWS deadline again. Weekly re-scan of a <strong>read-only</strong> IAM role — you grant read-only access, nothing more — with a delta PDF the moment a new deprecation touches your stack, plus an auto-opened migration PR so the fix starts itself.</p>
 <div class="feature"><strong>Weekly scan</strong> — cron-driven, zero effort after setup.</div>
 <div class="feature"><strong>Delta PDF on change</strong> — only when something actually shifts, so it stays signal, not noise.</div>
 <div class="feature"><strong>Auto-PR on new deprecation</strong> — the migration is opened for you, with the same CI-failure refund stance as the Migration Pack.</div>
@@ -1251,6 +1251,7 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
   <button id="driftSubmit" type="submit">Subscribe — $PRICE/mo</button>
   <p id="driftStatus" style="color:#6b7280;font-size:.875rem"></p>
 </form>
+<p style="color:#6b7280;font-size:.9rem">🔒 Secure checkout via Stripe · no contract, cancel anytime · read-only access only. Not sure yet? <a href="/scan/">Run the free scan first →</a></p>
 <script>
 const API = '{API_URL}';
 const qp = new URLSearchParams(location.search);
@@ -1315,7 +1316,8 @@ function h(html) {{ body.innerHTML = html; }}
 if (sku === 'audit') {{
   title.textContent = 'Your audit is on the way';
   h('<div class="card"><p>Payment received. Your hash-anchored audit PDF is generating now and lands in your inbox within ~5 minutes.</p><p>Verify authenticity any time at <a href="/verify/">/verify/</a>.</p></div>'
-    + '<div class="card upsell"><h3>Want it fixed, not just found?</h3><p>Upgrade to a <strong>Migration Pack</strong> within 48 hours and we credit your $299 audit toward the $1,499 — a real PR with codemods, IaC patches, canary plan, and a CI-failure refund guarantee.</p><p><a class="btn" href="/pack/?utm_source=audit_upsell&utm_medium=success&utm_campaign=audit48h">Apply my $299 credit →</a></p></div>');
+    + '<div class="card upsell"><h3>Want it fixed, not just found?</h3><p>Upgrade to a <strong>Migration Pack</strong> within 48 hours and we credit your $299 audit toward the $1,499 — a real PR with codemods, IaC patches, canary plan, and a CI-failure refund guarantee.</p><p><a class="btn" href="/pack/?utm_source=audit_upsell&utm_medium=success&utm_campaign=audit48h">Apply my $299 credit →</a></p></div>'
+    + '<div class="card"><h3>Never get surprised again</h3><p>Add <strong>Drift Watch</strong> ($19/mo) — weekly re-scan of a read-only role, a delta PDF when a new AWS deadline hits your stack, and an auto-PR. Cancel anytime.</p><p><a class="btn" href="/drift/?utm_source=audit_success&utm_medium=success&utm_campaign=drift_xsell">Add Drift Watch →</a></p></div>');
 }} else if (sku === 'pack') {{
   title.textContent = 'Migration Pack confirmed';
   h('<div class="card"><p>Payment received. We are opening your migration PR now (within ~5 minutes). Watch the repo you authorized.</p><p>If CI fails on the PR within 7 days and you have not added the <code>override:ci-failure</code> label, you are refunded automatically.</p><p>Track fulfillment on the <a href="/status/">status page</a>.</p></div>');

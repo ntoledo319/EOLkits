@@ -45,7 +45,7 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 <a href="/" class="brand">← EOLkits</a>
 <h1>Drift Watch</h1>
 <p class="price">19<span style="font-size:1rem;font-weight:normal;color:#6b7280">/month</span></p>
-<p>Weekly re-scan of a read-only IAM role. Get a delta PDF the moment a new AWS deprecation touches your stack — plus an auto-opened migration PR so the fix starts itself.</p>
+<p>Never get caught by an AWS deadline again. Weekly re-scan of a <strong>read-only</strong> IAM role — you grant read-only access, nothing more — with a delta PDF the moment a new deprecation touches your stack, plus an auto-opened migration PR so the fix starts itself.</p>
 <div class="feature"><strong>Weekly scan</strong> — cron-driven, zero effort after setup.</div>
 <div class="feature"><strong>Delta PDF on change</strong> — only when something actually shifts, so it stays signal, not noise.</div>
 <div class="feature"><strong>Auto-PR on new deprecation</strong> — the migration is opened for you, with the same CI-failure refund stance as the Migration Pack.</div>
@@ -56,6 +56,7 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
   <button id="driftSubmit" type="submit">Subscribe — 19/mo</button>
   <p id="driftStatus" style="color:#6b7280;font-size:.875rem"></p>
 </form>
+<p style="color:#6b7280;font-size:.9rem">🔒 Secure checkout via Stripe · no contract, cancel anytime · read-only access only. Not sure yet? <a href="/scan/">Run the free scan first →</a></p>
 <script>
 const API = 'https://eolkits.com';
 const qp = new URLSearchParams(location.search);
