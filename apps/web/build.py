@@ -33,6 +33,10 @@ PRICING_FILE = BASE_DIR.parent.parent / "pricing.yml"
 PROJECT_BASE_PATH = os.environ.get("EOLKITS_BASE_PATH", "")
 SITE_URL = os.environ.get("EOLKITS_SITE_URL", "https://eolkits.com")
 API_URL = os.environ.get("EOLKITS_API_URL", "https://eolkits.com")
+# IndexNow key (Bing/Yandex + AI engines that consume it — instant indexing of new
+# pages). Stable + committed so the hosted key file at /<key>.txt always matches what
+# we submit to api.indexnow.org; rotating it would break verification.
+INDEXNOW_KEY = "0c7a25ebf8815c561ded8ab9a156dfb5"
 
 
 def _interpolate_api(html):
@@ -2163,6 +2167,7 @@ def main():
     pages = {
         "index.html": build_index_page(pricing),
         "track.js": build_track_js(),
+        f"{INDEXNOW_KEY}.txt": INDEXNOW_KEY,
         "audit/index.html": build_audit_page(pricing),
         "audit/sample/index.html": build_audit_sample_page(pricing),
         "scan/index.html": build_scan_page(deprecations),
