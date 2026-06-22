@@ -321,3 +321,18 @@ fixes:
     source_url: "https://repost.aws/knowledge-center/lambda-import-module-error-nodejs"
     related_migrate: lambda-node.js-18-eol
     kit: lambda-lifeline
+
+  - slug: amazon-linux-2023-dnf-unable-to-find-a-match
+    error: "Error: Unable to find a match: <package>"
+    context: "Amazon Linux 2023"
+    summary: "A package that existed on Amazon Linux 2 isn't in the Amazon Linux 2023 repositories under that name."
+    cause: "AL2023's repositories differ from AL2's. A package may have been renamed, made version-namespaced (python3.11, nginx1.24, postgresql15), moved to SPAL (Supplementary Packages for Amazon Linux), left to EPEL, or dropped. Scripts that `dnf install <old-name>` (or `yum install`, which now routes to dnf) fail with 'Unable to find a match'."
+    fix_steps:
+      - "Find the real name: `dnf search <keyword>` and `dnf provides '*/<binary>'`."
+      - "Use the version-namespaced package where AL2023 splits versions, e.g. `dnf install -y python3.11` / `nginx1.24` / `postgresql15`."
+      - "If it lived behind amazon-linux-extras on AL2, it's now a default dnf package, version-namespaced, or in SPAL — enable SPAL instead of the old extras topic."
+      - "For EPEL-only packages, enable EPEL for AL2023; for genuinely dropped packages, vendor a binary or build from source."
+      - "Check support status/dates with the `dnf-plugin-support-info` plugin before standardizing on a package."
+    source_url: "https://docs.aws.amazon.com/linux/al2023/ug/package-management.html"
+    related_migrate: amazon-linux-2-eol
+    kit: al2023-gate

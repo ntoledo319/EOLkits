@@ -37,6 +37,7 @@
 - [ModuleNotFoundError: No module named 'lib2to3'](https://eolkits.com/fix/python-no-module-named-lib2to3/): lib2to3 (and the 2to3 tool) were removed in Python 3.13 (PEP 594). Source: https://docs.python.org/3/whatsnew/3.13.html
 - [/lib64/libc.so.6: version `GLIBC_2.28' not found](https://eolkits.com/fix/lambda-glibc-version-not-found/): A native binary in your package needs a newer glibc than the Lambda runtime's base OS provides. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 - [Runtime.ImportModuleError: Error: Cannot find module](https://eolkits.com/fix/lambda-runtime-importmoduleerror-cannot-find-module/): Lambda can't load a dependency your handler imports — most often after a runtime upgrade changed what's bundled. Source: https://repost.aws/knowledge-center/lambda-import-module-error-nodejs
+- [Error: Unable to find a match: <package>](https://eolkits.com/fix/amazon-linux-2023-dnf-unable-to-find-a-match/): A package that existed on Amazon Linux 2 isn't in the Amazon Linux 2023 repositories under that name. Source: https://docs.aws.amazon.com/linux/al2023/ug/package-management.html
 - [Free in-browser scanner](https://eolkits.com/scan/): drop IaC / dependency files to find deprecated runtimes and incompatible dependencies locally — nothing uploaded.
 
 ## Pricing
