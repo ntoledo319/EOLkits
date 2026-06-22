@@ -1168,6 +1168,66 @@ def build_al2_checklist_page(deprecations, pricing_view):
     )
 
 
+def build_al2_vs_al2023_page(deprecations, pricing_view):
+    """Head-term comparison page — Amazon Linux 2 vs Amazon Linux 2023. High-volume
+    comparison query, distinct intent from the guide/checklist. Facts from the AL2023
+    'compare with AL2' doc. Static & deterministic."""
+    import html as _h
+    ap = pricing_view.get("audit_pdf", {}) if isinstance(pricing_view, dict) else {}
+    audit_base = ap.get("base", 299) if isinstance(ap, dict) else 299
+    al2 = next((d for d in deprecations.get("deprecations", [])
+                if "amazon linux 2" in str(d.get("name", "")).lower()), {})
+    date = _h.escape(str(al2.get("date", "2026-06-30")))
+    cmp_src = "https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html"
+    rows = [
+        ("Package manager", "yum", "dnf (a <code>yum</code> symlink remains for compatibility)"),
+        ("Extras library", "amazon-linux-extras", "Removed — packages are default, version-namespaced (python3.11, nginx1.24), or in SPAL"),
+        ("Time sync", "ntpd", "chronyd"),
+        ("Firewall backend", "iptables", "nftables"),
+        ("Python", "2.7 and 3.x", "3.x only — no Python 2"),
+        ("glibc", "2.26", "2.34"),
+        ("Releases &amp; support", "Single rolling release", "Versioned releases, 5-year support, quarterly updates, deterministic upgrades"),
+        ("Security defaults", "Looser", "Hardened — SELinux on, IMDSv2-friendly, locked-down by default"),
+    ]
+    table = "".join("<tr><td><strong>" + a + "</strong></td><td>" + b + "</td><td>" + c + "</td></tr>" for a, b, c in rows)
+    faq = {
+        "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+            {"@type": "Question", "name": "What is the difference between Amazon Linux 2 and Amazon Linux 2023?",
+             "acceptedAnswer": {"@type": "Answer", "text": "AL2023 replaces yum with dnf, removes amazon-linux-extras, swaps ntpd for chronyd and iptables for nftables, drops Python 2, ships glibc 2.34, and uses versioned 5-year-supported releases with hardened defaults."}},
+            {"@type": "Question", "name": "Do I have to migrate from Amazon Linux 2 to AL2023?",
+             "acceptedAnswer": {"@type": "Answer", "text": "Yes — Amazon Linux 2 reaches end of life on " + date.replace("&amp;", "&") + ", after which there are no security patches or new AMIs. AL2023 is the supported successor."}},
+            {"@type": "Question", "name": "Is yum still available on Amazon Linux 2023?",
+             "acceptedAnswer": {"@type": "Answer", "text": "A yum command remains as a symlink to dnf for backward compatibility, but dnf is the real package manager and amazon-linux-extras is gone."}},
+        ],
+    }
+    return (
+        '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+        '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
+        "<title>Amazon Linux 2 vs Amazon Linux 2023: what changes | EOLkits</title>\n"
+        '<meta name="description" content="Amazon Linux 2 vs AL2023, side by side: dnf vs yum, amazon-linux-extras, chronyd, nftables, Python, glibc, support windows — and why AL2 (EOL ' + date + ') must move to AL2023. Free scanner to find your AL2 usage.">\n'
+        '<link rel="canonical" href="' + SITE_URL + '/amazon-linux-2-vs-amazon-linux-2023/">\n'
+        '<link rel="stylesheet" href="/style.css">\n'
+        '<script defer src="/track.js"></script>\n'
+        '<script type="application/ld+json">' + json.dumps(faq) + "</script>\n"
+        "<style>.cmp{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.92rem}"
+        ".cmp th,.cmp td{border:1px solid #e5e7eb;padding:.5rem .6rem;text-align:left;vertical-align:top}"
+        ".cmp th{background:#f3f4f6}.cta{display:inline-block;margin:1rem 0;padding:.7rem 1.2rem;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600}</style>\n"
+        "</head>\n"
+        '<body class="container article">\n'
+        '<nav class="breadcrumb"><a href="/">Home</a> / <a href="/migrate/">Deadlines</a> / <span>AL2 vs AL2023</span></nav>\n'
+        "<h1>Amazon Linux 2 vs Amazon Linux 2023</h1>\n"
+        "<p>What actually changes between Amazon Linux 2 and Amazon Linux 2023 — and why it matters now: <strong>AL2 reaches end of life " + date + "</strong> (no more patches or AMIs), so AL2023 isn't optional. Facts below are from AWS's own AL2-vs-AL2023 comparison.</p>\n"
+        '<table class="cmp"><thead><tr><th>Area</th><th>Amazon Linux 2</th><th>Amazon Linux 2023</th></tr></thead><tbody>' + table + "</tbody></table>\n"
+        '<p><a href="' + cmp_src + '" target="_blank" rel="noopener nofollow">[AWS source: comparing AL2 and AL2023]</a></p>\n'
+        '<p><a class="cta" href="/scan/">Scan your stack free — find your AL2 usage →</a></p>\n'
+        "<h2>Migrating off AL2</h2>\n"
+        '<p>The breaking changes above each have a known fix. See the step-by-step <a href="/amazon-linux-2-eol-checklist/">AL2 → AL2023 checklist</a> and the <a href="/migrate/amazon-linux-2-eol/">migration guide</a>, or get a <a href="/audit/">hash-anchored audit ($'
+        + str(audit_base)
+        + ', 30-day money-back)</a> that finds every AL2 reference and scores it.</p>\n'
+        "</body>\n</html>\n"
+    )
+
+
 def build_track_js():
     """First-party pageview beacon for content pages (home/scan/migrate/fix). The
     commerce pages fire their own richer inline events; this gives the TOP of the
@@ -2316,6 +2376,7 @@ def main():
         "vs/index.html": build_vs_index(COMPETITORS),
         "lambda-runtime-deprecation-schedule/index.html": build_lambda_schedule_page(deprecations, build_pricing_view(pricing)),
         "amazon-linux-2-eol-checklist/index.html": build_al2_checklist_page(deprecations, build_pricing_view(pricing)),
+        "amazon-linux-2-vs-amazon-linux-2023/index.html": build_al2_vs_al2023_page(deprecations, build_pricing_view(pricing)),
         "deprecations.ics": build_deprecations_ics(deprecations),
     }
     pages["widget.js"] = build_widget_js()
