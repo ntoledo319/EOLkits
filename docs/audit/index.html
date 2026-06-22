@@ -3,19 +3,38 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Audit PDF — EOLkits</title>
+<title>Audit — see what AWS breaks, then fix it | EOLkits</title>
+<meta name="description" content="A free scan shows every AWS deprecation in your stack. The $299 audit is the done-for-you fix report — severity scoring, roll-forward roadmap, every fact cited to its AWS source. 30-day money-back.">
 <style>
-body{font-family:system-ui,-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:2rem;line-height:1.6}
+body{font-family:system-ui,-apple-system,sans-serif;max-width:820px;margin:0 auto;padding:2rem;line-height:1.6;color:#111827}
 .brand{color:#2563eb;font-weight:600}
-h1{margin-top:0}
+h1{margin-top:.3rem}
+.lede{font-size:1.15rem;color:#374151}
+.cta{display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:.7rem 1.2rem;border-radius:6px;font-weight:600}
+.cta:hover{background:#1d4ed8}
+.cta.secondary{background:#fff;color:#2563eb;border:2px solid #2563eb}
+.callout{background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #2563eb;border-radius:8px;padding:1.25rem;margin:1.5rem 0}
 .pricing{border:2px solid #e5e7eb;border-radius:8px;padding:1.5rem;margin:1.5rem 0}
 .price{font-size:2rem;font-weight:700;color:#059669}
-.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1rem 0}
+.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin:1rem 0}
 .tier{border:1px solid #d1d5db;border-radius:6px;padding:1rem;text-align:center}
 .tier.urgent{border-color:#dc2626;background:#fef2f2}
 .tier.soon{border-color:#f59e0b;background:#fffbeb}
+.valuebox{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:1.25rem;margin:1.5rem 0}
+.guarantee{background:#ecfdf5;border:2px solid #059669;border-radius:8px;padding:1.5rem;margin:1.5rem 0}
+.guarantee h3{margin-top:0;color:#059669}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0}
+.cell{border:1px solid #e5e7eb;border-radius:8px;padding:1rem;font-size:.92rem}
+.cell h4{margin:.2rem 0}
+.logos{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0}
+.logos span{border:1px solid #d1d5db;border-radius:999px;padding:.3rem .8rem;font-size:.85rem;color:#374151;background:#f9fafb}
+.reassure{color:#6b7280;font-size:.9rem;margin:.5rem 0}
+.faq{margin:2rem 0}
+.faq details{border-bottom:1px solid #e5e7eb;padding:.75rem 0}
+.faq summary{font-weight:600;cursor:pointer}
 button{background:#2563eb;color:white;border:none;padding:0.75rem 1.5rem;border-radius:6px;font-size:1rem;cursor:pointer}
 button:hover{background:#1d4ed8}
+form#auditForm{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:1.5rem;margin:1rem 0}
 footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
 </style>
 <script>
@@ -45,8 +64,23 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 </head>
 <body>
 <a href="/" class="brand">← EOLkits</a>
-<h1>Audit PDF</h1>
-<p>Upload your IaC files, get a hash-anchored deterministic report scoring every finding by severity × blast-radius.</p>
+<h1>See exactly what AWS is about to break — then fix it in one report</h1>
+<p class="lede">Run the free scanner on your own files first — ~30 seconds, no signup. The <strong>$299 audit</strong> is the done-for-you fix report for everything it finds: scored, sequenced, and cited. Money back if it isn't useful.</p>
+
+<div class="callout">
+  <strong>Don't take our word for it.</strong> &nbsp;<a class="cta secondary" href="/scan/">▶ Run the free scan</a><br>
+  See every deprecation in your stack, on your own machine, <em>before</em> you pay a cent. The audit picks up where the scan ends — scoring, a roll-forward plan, and a verifiable report.
+</div>
+
+<h2>What you get</h2>
+<ul>
+  <li>Every finding scored by <strong>severity × blast-radius</strong> — what breaks first vs. what's cosmetic</li>
+  <li>A <strong>roll-forward roadmap</strong>: the exact order to migrate, with each breaking change called out</li>
+  <li>A <strong>cost-of-not-fixing</strong> estimate you can forward to your manager</li>
+  <li>Every fact <strong>cited to its AWS primary source</strong> — check our work</li>
+  <li>A <strong>hash-anchored PDF</strong>, verifiable at <code>/verify/&lt;sha&gt;</code></li>
+</ul>
+<p><a class="cta secondary" href="/audit/sample/">▶ See a real (redacted) sample report →</a></p>
 
 <div class="pricing">
   <h2>Pricing</h2>
@@ -67,16 +101,40 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
       <p>Within 7 days of deadline</p>
     </div>
   </div>
-  <p><small>All tiers include: hash-anchored PDF, verification URL, severity scoring, roll-forward roadmap, cost estimate</small></p>
+  <p class="reassure">Price rises as the deadline nears — acting sooner costs you less. No discounts; the guarantee is your protection instead.</p>
+</div>
+
+<div class="valuebox">
+  <strong>What does <em>not</em> fixing it cost?</strong> One failed production deploy, an unpatched box running past the deadline, or a frozen Lambda burns hours of engineer time and real downtime — usually far more than the audit. $299 to know precisely what's coming and how to clear it.
+</div>
+
+<div class="guarantee">
+  <h3>Your risk: zero</h3>
+  <p><strong>100% money-back, 30 days, no questions.</strong> If the report isn't useful, email us — we refund, no argument.</p>
+  <p><strong>Beat the deadline or it's free.</strong> Order inside a deadline window and if we can't hand you a clear roll-forward path before it hits, you pay nothing.</p>
+</div>
+
+<h2>Why you can trust the report (without trusting the brand)</h2>
+<div class="grid">
+  <div class="cell"><h4>Cited to source</h4>Every finding links AWS's own documentation. You verify the claim, not our reputation.</div>
+  <div class="cell"><h4>Hash-anchored</h4>Each report carries a SHA-256 of your inputs, verifiable at <code>/verify</code>. We can't quietly change it.</div>
+  <div class="cell"><h4>Deterministic &amp; open</h4>Same input → same report. The rule-pack is public — inspect exactly what we check for.</div>
+  <div class="cell"><h4>Instant &amp; automated</h4>Delivered in ~5 minutes by machine. No waiting on a person, no back-and-forth.</div>
+</div>
+
+<div class="logos">
+  <span>AWS</span><span>CloudFormation / SAM</span><span>CDK</span><span>Terraform</span><span>Serverless</span><span>Ansible</span><span>Packer</span><span>cloud-init</span><span>GitHub Actions</span>
 </div>
 
 <h2>How it works</h2>
 <ol>
-  <li>Upload your SAM/CDK/Terraform/Serverless files</li>
-  <li>We scan for deprecated runtimes and breaking changes</li>
-  <li>Receive PDF via email within 5 minutes</li>
+  <li>Upload your SAM / CDK / Terraform / Serverless / cloud-init files</li>
+  <li>We scan for deprecated runtimes and breaking changes — deterministically</li>
+  <li>Get your PDF by email in ~5 minutes — fully automated</li>
   <li>Verify authenticity at <code>/verify/&lt;sha&gt;</code></li>
 </ol>
+
+<p class="reassure">🔒 Secure checkout via Stripe · delivered in ~5 minutes · 30-day money-back guarantee</p>
 
 <form id="auditForm">
   <h3>Start Audit</h3>
@@ -170,9 +228,18 @@ auditForm.addEventListener('submit', async (event) => {
 });
 </script>
 
+<div class="faq">
+<h2>Questions</h2>
+<details><summary>Why pay when the CLI is free?</summary><p>The free CLI and scanner show you <em>what</em> breaks. The audit does the work <em>for</em> you — severity × blast-radius scoring, a roll-forward roadmap, a cost-of-not-fixing estimate, and a verifiable report you can hand to your team, in ~5 minutes.</p></details>
+<details><summary>Is my code safe?</summary><p>Your files travel over TLS and are used only to generate your report — never shared. Prefer to keep everything local? Run the free CLI offline.</p></details>
+<details><summary>How can I trust the results if I've never heard of you?</summary><p>You don't have to. Every finding cites AWS's own docs, the report is hash-anchored and deterministic, and the rule-pack is public — run the free scan and compare. And you're covered by a 30-day no-questions refund.</p></details>
+<details><summary>How fast is it?</summary><p>About 5 minutes, fully automated. No waiting on a human.</p></details>
+<details><summary>What if it's wrong, or I'm just not happy?</summary><p>Email us within 30 days for a full refund. No questions asked.</p></details>
+</div>
+
 <footer>
-  <p>Delivery within 5 minutes. Reports include SHA-256 hash of inputs for verification.</p>
-  <p><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></p>
+  <p>Delivered in ~5 minutes · every report carries a SHA-256 of your inputs for verification · 30-day money-back guarantee.</p>
+  <p><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/scan/">Free scan</a> · <a href="/audit/sample/">Sample report</a></p>
 </footer>
 </body>
 </html>

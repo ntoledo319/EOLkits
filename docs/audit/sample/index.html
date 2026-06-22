@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sample audit report — EOLkits</title>
+<meta name="description" content="A real, redacted EOLkits audit report: findings scored by severity and blast-radius, each cited to its AWS source, with a roll-forward roadmap and cost-of-not-fixing estimate.">
+<style>
+body{font-family:system-ui,-apple-system,sans-serif;max-width:820px;margin:0 auto;padding:2rem;line-height:1.6;color:#111827}
+.brand{color:#2563eb;font-weight:600}
+.banner{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:.75rem 1rem;margin:1rem 0;font-size:.9rem}
+.meta{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:1rem;margin:1rem 0;font-size:.9rem}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.92rem}
+th,td{border:1px solid #e5e7eb;padding:.5rem .6rem;text-align:left;vertical-align:top}
+th{background:#f3f4f6}
+.sev{font-weight:700;white-space:nowrap}
+.crit{color:#dc2626}
+.high{color:#ea580c}
+.med{color:#ca8a04}
+.cta{display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:.7rem 1.2rem;border-radius:6px;font-weight:600;margin:1rem 0}
+code{background:#f3f4f6;padding:.1rem .3rem;border-radius:4px}
+footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:.875rem}
+</style>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
+</head>
+<body>
+<a href="/audit/" class="brand">← Back to Audit</a>
+<div class="banner"><strong>SAMPLE — redacted.</strong> An illustrative report for a fictional account, to show exactly what you receive. Your report covers your own stack.</div>
+<h1>EOLkits audit report</h1>
+<div class="meta">
+  <div><strong>Account:</strong> acme-prod (redacted)</div>
+  <div><strong>Inputs:</strong> 3 Terraform files, 1 SAM template, 2 Dockerfiles</div>
+  <div><strong>Report SHA-256:</strong> <code>3f9a…c1e2</code> — verifiable at <code>/verify/&lt;sha&gt;</code></div>
+  <div><strong>Findings:</strong> 2 critical · 3 high · 1 medium</div>
+</div>
+
+<h2>Findings — scored by severity × blast-radius</h2>
+<table>
+<tr><th>Finding</th><th class="sev">Severity</th><th>Blast radius</th><th>Cited source</th></tr>
+<tr><td>EC2 launch template pinned to an <strong>Amazon Linux 2</strong> AMI (EOL 2026-06-30)</td><td class="sev crit">Critical</td><td>14 instances across 2 ASGs</td><td>AWS AL2 EOL notice</td></tr>
+<tr><td><code>yum</code> / <code>amazon-linux-extras</code> in user-data — removed on AL2023</td><td class="sev crit">Critical</td><td>Boot-time failure on every new instance</td><td>AL2023 release notes</td></tr>
+<tr><td>Lambda <code>python3.9</code> runtime — update blocked 2027-03-03</td><td class="sev high">High</td><td>6 functions</td><td>Lambda runtime table</td></tr>
+<tr><td><code>import distutils</code> — removed in Python 3.12</td><td class="sev high">High</td><td>2 functions</td><td>Python 3.12 what's-new</td></tr>
+<tr><td><code>iptables</code> rules in cloud-init — nftables on AL2023</td><td class="sev high">High</td><td>Network setup on 14 instances</td><td>AL2023 release notes</td></tr>
+<tr><td><code>ntpd</code> — replaced by chronyd on AL2023</td><td class="sev med">Medium</td><td>Time sync on 14 instances</td><td>AL2023 release notes</td></tr>
+</table>
+
+<h2>Roll-forward roadmap</h2>
+<ol>
+  <li><strong>Now → deadline:</strong> rebuild the base AMI on AL2023; swap <code>yum</code>→<code>dnf</code> and drop <code>amazon-linux-extras</code> in user-data.</li>
+  <li><strong>Same change:</strong> migrate <code>iptables</code>→nftables and <code>ntpd</code>→chronyd (bundle with the AMI rebuild).</li>
+  <li><strong>Next:</strong> fix the two <code>distutils</code> imports and move the 6 Lambdas to <code>python3.12</code> before the 2027 block dates.</li>
+</ol>
+
+<h2>Cost of not fixing</h2>
+<p>Leave the AL2 instances past 2026-06-30 and they stop receiving security patches while new launches fail at boot. Exposure for this account: <strong>~14 production instances unpatched</strong> plus blocked autoscaling — hours of incident time at the worst possible moment.</p>
+
+<a class="cta" href="/audit/">Get this report for your own stack — from $299 →</a>
+<p><a href="/scan/">Or run the free scan first →</a></p>
+
+<footer>
+  <p>In a real report, every finding links its AWS primary source. Reports are hash-anchored and deterministic.</p>
+  <p><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></p>
+</footer>
+</body>
+</html>

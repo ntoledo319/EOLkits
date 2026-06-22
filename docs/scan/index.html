@@ -48,6 +48,17 @@
 <ul><li><strong>Lambda runtimes</strong> in SAM, CloudFormation, CDK, Terraform and Serverless Framework — flagged against AWS&rsquo;s published deprecation dates.</li><li><strong>Node native dependencies</strong> (sharp, bcrypt, better-sqlite3&hellip;) that need a version bump or removal for Node&nbsp;22.</li><li><strong>Python wheels</strong> (numpy, pandas, cryptography&hellip;) that need a bump for a Python&nbsp;3.12 runtime.</li></ul>
 <p>Hit a specific error message? See <a href="/fix/">common AWS migration error fixes &rarr;</a></p>
 <p><small>This free scan covers the high-blast-radius cases. The paid audit checks every function, AMI and launch template in your account, produces a hash-anchored PDF and a roll-forward roadmap, and is priced by how close your deadline is.</small></p>
+<section class="leadcap" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:1.25rem;margin:2rem 0">
+<h2 style="margin-top:0">Not migrating today? Don't get caught by the next deadline.</h2>
+<p>AWS retires runtimes on a schedule. Drop your email and we'll warn you before each deadline that affects your stack &mdash; no spam, one heads-up per deadline.</p>
+<form id="leadForm" autocomplete="on" style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center">
+<input type="email" id="leadEmail" name="email" placeholder="you@company.com" required style="padding:.6rem;border:1px solid #cbd5e1;border-radius:6px;min-width:260px">
+<input type="text" name="_honey" id="leadHoney" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px" value="">
+<button type="submit" style="background:#2563eb;color:#fff;border:0;padding:.65rem 1.2rem;border-radius:6px;font-weight:600;cursor:pointer">Email me deadline alerts</button>
+<span id="leadMsg" style="font-size:.9rem;color:#16a34a"></span>
+</form>
+<p style="font-size:.8rem;color:#6b7280;margin:.5rem 0 0">Free. Unsubscribe anytime. We email you only about AWS deadlines that hit your stack.</p>
+</section>
 <script>
 const DATA = {"runtimes":{"nodejs20.x":{"date":"2027-02-01","slug":"lambda-node.js-20-phase-1","severity":"high","kit":"lambda-lifeline","historical":false},"python3.9":{"date":"2027-02-01","slug":"lambda-python-3.9-eol","severity":"high","kit":"python-pivot","historical":false},"python3.10":{"date":"2027-02-01","slug":"lambda-python-3.10-eol","severity":"high","kit":"python-pivot","historical":false},"python3.11":{"date":"2027-07-31","slug":"lambda-python-3.11-eol","severity":"medium","kit":"python-pivot","historical":false},"nodejs18.x":{"date":"2027-02-01","slug":"lambda-node.js-18-eol","severity":"high","kit":"lambda-lifeline","historical":false},"python3.8":{"date":"2027-02-01","slug":"lambda-python-3.8-eol","severity":"high","kit":"python-pivot","historical":false},"nodejs14.x":{"date":"2023-11-27","slug":"lambda-node.js-14","severity":"high","kit":"","historical":true},"nodejs16.x":{"date":"2024-06-12","slug":"lambda-node.js-16","severity":"high","kit":"","historical":true}},"native":{"sharp":{"min":"0.33.0","note":"libvips native binding. v0.33+ ships Node 22 prebuilds."},"bcrypt":{"min":"5.1.1","note":"Native bcrypt. Consider bcryptjs for a pure-JS drop-in."},"better-sqlite3":{"min":"11.0.0","note":"SQLite native binding."},"canvas":{"min":"2.11.2","note":"node-canvas. Needs rebuilt prebuilds for Node 22."},"node-gyp":{"min":"10.0.0","note":"Build system. Upgrade before rebuilding natives."},"node-sass":{"min":null,"note":"DEAD. Use sass (Dart Sass) instead \u2014 no native deps."},"bufferutil":{"min":"4.0.8","note":"WebSocket utility native addon."},"utf-8-validate":{"min":"6.0.4","note":"WebSocket utility native addon."},"libpq":{"min":"2.0.0","note":"PostgreSQL client. Prefer pg-native alternatives."},"grpc":{"min":null,"note":"DEAD. Migrate to @grpc/grpc-js (pure JS)."},"@grpc/grpc-js":{"min":"1.10.0","note":"Pure JS, no native; just keep up to date."},"sqlite3":{"min":"5.1.7","note":"SQLite3 bindings. Prebuilds available."},"argon2":{"min":"0.40.0","note":"argon2 bindings."},"re2":{"min":"1.21.0","note":"RE2 regex engine."},"fibers":{"min":null,"note":"DEAD since Node 16. Must remove."},"@tensorflow/tfjs-node":{"min":"4.20.0","note":"TensorFlow native."},"sodium-native":{"min":"4.3.0","note":"libsodium bindings."},"zmq":{"min":null,"note":"DEAD. Use zeromq instead."},"zeromq":{"min":"6.1.2","note":"ZeroMQ bindings."},"farmhash":{"min":"4.0.0","note":"Native hashing."},"@napi-rs/snappy":{"min":"7.2.0","note":"Snappy compression."},"heapdump":{"min":null,"note":"DEAD. Use node --heapsnapshot-signal instead."}},"wheels":{"numpy":{"min":"1.26.0","note":"1.26+ ships cp312 wheels."},"scipy":{"min":"1.11.4","note":"1.11.4+ for cp312."},"pandas":{"min":"2.1.1","note":"2.1.1+ for cp312."},"scikit-learn":{"min":"1.3.2","note":"1.3.2+ for cp312."},"matplotlib":{"min":"3.8.0","note":"3.8.0+ for cp312."},"pillow":{"min":"10.1.0","note":"10.1.0+ for cp312."},"lxml":{"min":"4.9.4","note":"4.9.4+ for cp312."},"cryptography":{"min":"41.0.5","note":"41.0.5+ for cp312 (libssl3)."},"pycryptodome":{"min":"3.19.0","note":"3.19.0+ for cp312."},"bcrypt":{"min":"4.1.1","note":"4.1.1+ for cp312."},"pyopenssl":{"min":"23.3.0","note":"23.3.0+ for cp312."},"psycopg2-binary":{"min":"2.9.9","note":"2.9.9+ for cp312."},"psycopg":{"min":"3.1.13","note":"3.1.13+ for cp312."},"mysqlclient":{"min":"2.2.0","note":"2.2.0+ for cp312."},"pymssql":{"min":"2.2.11","note":"2.2.11+ for cp312."},"pyyaml":{"min":"6.0.1","note":"6.0.1+ for cp312."},"orjson":{"min":"3.9.10","note":"3.9.10+ for cp312."},"ujson":{"min":"5.8.0","note":"5.8.0+ for cp312."},"msgpack":{"min":"1.0.7","note":"1.0.7+ for cp312."},"aiohttp":{"min":"3.9.0","note":"3.9.0+ for cp312."},"grpcio":{"min":"1.59.0","note":"1.59.0+ for cp312."},"protobuf":{"min":"4.25.0","note":"4.25.0+ for cp312."},"frozenlist":{"min":"1.4.0","note":"1.4.0+ for cp312."},"multidict":{"min":"6.0.4","note":"6.0.4+ for cp312."},"yarl":{"min":"1.9.3","note":"1.9.3+ for cp312."},"tiktoken":{"min":"0.5.2","note":"0.5.2+ for cp312."},"tokenizers":{"min":"0.15.0","note":"0.15.0+ for cp312."},"awscrt":{"min":"0.19.17","note":"0.19.17+ for cp312."},"boto3":{"min":"1.29.0","note":"1.29+ tested on cp312."},"botocore":{"min":"1.32.0","note":"1.32+ tested on cp312."},"python-snappy":{"min":null,"note":"No cp312 wheels. Switch to cramjam or plyvel."},"fastparquet":{"min":"2023.10.1","note":"2023.10.1+ for cp312."}}};
 
@@ -125,7 +136,7 @@ function render(all) {
   const n = all.length;
   box.innerHTML = '<p class="scan-count">' + n + ' finding' + (n === 1 ? '' : 's') + ' — all detected locally in your browser.</p>' +
     '<table class="scan-tbl"><thead><tr><th>Severity</th><th>What</th><th>File</th><th>Deadline / fix</th><th>Detail</th></tr></thead><tbody>' + rows + '</tbody></table>' +
-    '<a class="scan-cta" href="' + auditLink(deadline, kit) + '">Get the full migration audit — every function, AMI &amp; dependency, hash-anchored PDF &rarr;</a>';
+    '<a class="scan-cta" href="' + auditLink(deadline, kit) + '">Fix all of this — full audit of every function, AMI &amp; dependency, hash-anchored PDF, 30-day money-back &rarr;</a>';
 }
 const dz = $('#dz'), fi = $('#fi'); let acc = [];
 function handle(files) { acc = []; const arr = [...files]; let pending = arr.length; if (!pending) return; arr.forEach((file) => { const r = new FileReader(); r.onload = () => { try { acc = acc.concat(scanFile(file.name, r.result)); } catch (e) {} if (--pending === 0) render(acc); }; r.onerror = () => { if (--pending === 0) render(acc); }; r.readAsText(file); }); }
@@ -134,6 +145,18 @@ dz.addEventListener('dragleave', () => dz.classList.remove('over'));
 dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('over'); handle(e.dataTransfer.files); });
 dz.addEventListener('click', () => fi.click());
 fi.addEventListener('change', () => handle(fi.files));
+var lf = document.getElementById('leadForm');
+if (lf) lf.addEventListener('submit', function (e) {
+  e.preventDefault();
+  var msg = document.getElementById('leadMsg');
+  if (document.getElementById('leadHoney').value) { if (msg) msg.textContent = 'Thanks!'; lf.reset(); return; }
+  var email = document.getElementById('leadEmail').value;
+  if (msg) msg.textContent = 'Saving...';
+  fetch('/api/v1/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, product: 'eolkits', source: 'scan' }) })
+    .then(function (r) { return r.ok ? (r.json().catch(function () { return {}; })) : Promise.reject(); })
+    .then(function () { if (msg) msg.textContent = '✓ You are on the list.'; lf.reset(); })
+    .catch(function () { if (msg) msg.textContent = 'Could not save — email hello@toledotechnologies.com'; });
+});
 
 </script>
 </body>

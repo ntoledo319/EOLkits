@@ -48,13 +48,20 @@
 <main>
   <section class="hero">
     <div class="container">
-      <div class="eyebrow">AWS deadlines that break deploys</div>
-      <h1>Migration kits for AWS platform deprecations.</h1>
-      <p class="lede">EOLkits scans deprecated runtimes, patches source and IaC, generates rollout plans, and keeps every fact tied to a primary source.</p>
+      <div class="eyebrow">AWS runtime &amp; OS EOLs that break production</div>
+      <h1>Find what AWS is about to break in your stack — free.</h1>
+      <p class="lede">Run the open-source scanner on your own files and see every deprecation, scored, in ~30 seconds — no signup. Then fix it yourself with the MIT CLIs, or let us do it: a $299 audit report or a done-for-you migration PR. Every finding cited to AWS's own docs.</p>
       <div class="cta-row">
-        <a class="btn-primary" href="/migrate/">See Deadlines</a>
+        <a class="btn-primary" href="/scan/">Run the free scan</a>
         <a class="btn-secondary" href="https://github.com/ntoledo319/EOLkits">Clone the CLIs</a>
+        <a class="btn-ghost" href="/migrate/">See the deadlines</a>
       </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p class="sub">Free &amp; open-source (MIT) · every finding cited to an AWS primary source · hash-anchored, verifiable reports · 30-day money-back on paid tiers</p>
     </div>
   </section>
 
@@ -91,7 +98,7 @@
   <section class="section dark" id="pricing">
     <div class="container">
       <h2>Pricing</h2>
-      <p class="sub">The CLIs are free. Paid tiers add hosted fulfillment, reports, and automated PRs.</p>
+      <p class="sub">Try before you buy: the CLIs and the <a href="/scan/">browser scanner</a> are free — see exactly what breaks first. Paid tiers do the work for you, with a 30-day money-back guarantee.</p>
       <div class="pricing-grid">
         <article class="pricing-card">
           <h3>CLI</h3>
@@ -101,9 +108,10 @@
         </article>
         <article class="pricing-card featured">
           <h3>Audit PDF</h3>
-          <div class="price">$299</div>
-          <p>Hash-anchored report, verification URL, severity scoring, and rollout roadmap.</p>
+          <div class="price">from $299</div>
+          <p>Hash-anchored, cited report: severity × blast-radius scoring, roll-forward roadmap, cost-of-not-fixing estimate. Delivered in ~5 min. 30-day money-back.</p>
           <a class="btn-primary" href="/audit/">Order audit</a>
+          <p class="small"><a href="/audit/sample/">See a sample report →</a></p>
         </article>
         <article class="pricing-card">
           <h3>Migration Pack</h3>
@@ -117,13 +125,8 @@
           <p>Weekly re-scan of a read-only IAM role, delta PDF on change, and an auto-PR on each new deprecation.</p>
           <a class="btn-outline" href="/drift/">Start watching</a>
         </article>
-        <article class="pricing-card">
-          <h3>Org License</h3>
-          <div class="price">$14,999<span class="per">/yr</span></div>
-          <p>Live rule-pack feed, private rule extensions, and unlimited runs across your whole org.</p>
-          <a class="btn-outline" href="/license/">Get a license</a>
-        </article>
       </div>
+      <p class="sub">Running this org-wide? An annual <a href="/license/">Org License</a> ($14,999/yr) covers unlimited runs, private rule extensions, and a live rule-pack feed.</p>
     </div>
   </section>
 </main>

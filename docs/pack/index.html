@@ -8,13 +8,25 @@
 body{font-family:system-ui,-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:2rem;line-height:1.6}
 .brand{color:#2563eb;font-weight:600}
 h1{margin-top:0}
+.lede{font-size:1.15rem;color:#374151}
 .price{font-size:3rem;font-weight:700;color:#059669}
+.callout{background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #2563eb;border-radius:8px;padding:1.25rem;margin:1.5rem 0}
 .guarantee{background:#ecfdf5;border:2px solid #059669;border-radius:8px;padding:1.5rem;margin:1.5rem 0}
 .guarantee h3{margin-top:0;color:#059669}
 button{background:#2563eb;color:white;border:none;padding:0.75rem 1.5rem;border-radius:6px;font-size:1rem;cursor:pointer}
 button:hover{background:#1d4ed8}
 .steps{background:#f9fafb;border-radius:8px;padding:1.5rem;margin:1.5rem 0}
 .steps ol{margin:0;padding-left:1.5rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0}
+.cell{border:1px solid #e5e7eb;border-radius:8px;padding:1rem;font-size:.92rem}
+.cell h4{margin:.2rem 0}
+.logos{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0}
+.logos span{border:1px solid #d1d5db;border-radius:999px;padding:.3rem .8rem;font-size:.85rem;color:#374151;background:#f9fafb}
+.faq{margin:2rem 0}
+.faq details{border-bottom:1px solid #e5e7eb;padding:.75rem 0}
+.faq summary{font-weight:600;cursor:pointer}
+.reassure{color:#6b7280;font-size:.9rem;margin:.5rem 0}
+.downsell{background:#f9fafb;border:1px dashed #d1d5db;border-radius:8px;padding:1rem;margin:1.5rem 0}
 footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
 </style>
 <script>
@@ -44,13 +56,18 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 </head>
 <body>
 <a href="/" class="brand">← EOLkits</a>
-<h1>Migration Pack</h1>
+<h1>Migration Pack — we do the migration for you</h1>
 <p class="price">$1,499</p>
-<p>A real PR opened on your repository with codemods, IaC patches, canary plan, and rollback script.</p>
+<p class="lede">The audit tells you what's broken. The Pack fixes it: a real pull request on your repo with codemods, IaC patches, a canary rollout plan, and a rollback script — opened within 5 minutes.</p>
+
+<div class="callout">
+  <strong>It opens a PR — nothing merges without you.</strong> You review every line and merge only if you're happy. The bot never pushes to your default branch. And if your CI fails on the PR, you're <strong>automatically refunded</strong> — worst case costs you nothing but a code review.
+</div>
 
 <div class="guarantee">
-  <h3>Refund Guarantee</h3>
-  <p>If your CI fails on the migration PR within 7 days, you are automatically refunded. No questions, no human in the loop.</p>
+  <h3>How the auto-refund works</h3>
+  <p><strong>If your CI fails on the migration PR within 7 days, Stripe refunds you automatically</strong> — no email, no argument, no human in the loop. We only get paid when your own tests pass on our changes.</p>
+  <p class="reassure">"CI fail" = a GitHub <code>check_run</code> / <code>check_suite</code> conclusion of failure on the PR. Choosing to accept the PR anyway (the <code>override:ci-failure</code> label) waives the refund.</p>
 </div>
 
 <div class="steps">
@@ -74,6 +91,31 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
   <p><input type="text" name="repo" placeholder="owner/repo" required style="padding:0.5rem;width:300px"></p>
   <button type="submit">Purchase Migration Pack — $1,499</button>
 </form>
+<p class="reassure">🔒 Secure checkout via Stripe · PR opened in ~5 minutes · auto-refund if CI fails</p>
+
+<h2>Why pay $1,499 instead of running the free CLI?</h2>
+<div class="grid">
+  <div class="cell"><h4>Done for you</h4>You review a PR instead of writing codemods — minutes of review vs. days of migration work.</div>
+  <div class="cell"><h4>You stay in control</h4>It's a PR on a branch. Merge only if you're happy; nothing touches your default branch.</div>
+  <div class="cell"><h4>Risk reversed</h4>If your CI fails you're auto-refunded. We're paid only when your tests pass.</div>
+  <div class="cell"><h4>Cited &amp; verifiable</h4>Every change traces to an AWS source; the rule-pack is public. Check our work.</div>
+</div>
+
+<div class="logos">
+  <span>AWS</span><span>CloudFormation / SAM</span><span>CDK</span><span>Terraform</span><span>Serverless</span><span>Ansible</span><span>Packer</span><span>GitHub Actions</span>
+</div>
+
+<div class="faq">
+<h2>Questions</h2>
+<details><summary>Does the bot push to my repo?</summary><p>No. It opens a pull request on a new branch. You review and merge — or not. It never commits to your default branch.</p></details>
+<details><summary>What access does the GitHub App need?</summary><p>Contents and pull-requests on the repo you name — enough to open a PR. You can uninstall it the moment the PR lands.</p></details>
+<details><summary>What if the PR is wrong?</summary><p>Don't merge it. And if CI fails, you're auto-refunded within 7 days — you risk a code review, nothing more.</p></details>
+<details><summary>Not ready for a PR?</summary><p>Start with the free scan or the $299 audit — see exactly what's broken first, then upgrade.</p></details>
+</div>
+
+<div class="downsell">
+  Not ready to grant repo access? <a href="/scan/">Run the free scan</a> or <a href="/audit/">get the $299 audit</a> first — see the findings, then upgrade to the done-for-you Pack.
+</div>
 
 <footer>
   <p>Refund auto-fires if CI fails within 7 days. <a href="/legal/terms.html">Terms</a> apply.</p>

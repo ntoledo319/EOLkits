@@ -215,26 +215,60 @@ def build_audit_page(pricing):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Audit PDF — EOLkits</title>
+<title>Audit — see what AWS breaks, then fix it | EOLkits</title>
+<meta name="description" content="A free scan shows every AWS deprecation in your stack. The $299 audit is the done-for-you fix report — severity scoring, roll-forward roadmap, every fact cited to its AWS source. 30-day money-back.">
 <style>
-body{font-family:system-ui,-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:2rem;line-height:1.6}
+body{font-family:system-ui,-apple-system,sans-serif;max-width:820px;margin:0 auto;padding:2rem;line-height:1.6;color:#111827}
 .brand{color:#2563eb;font-weight:600}
-h1{margin-top:0}
+h1{margin-top:.3rem}
+.lede{font-size:1.15rem;color:#374151}
+.cta{display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:.7rem 1.2rem;border-radius:6px;font-weight:600}
+.cta:hover{background:#1d4ed8}
+.cta.secondary{background:#fff;color:#2563eb;border:2px solid #2563eb}
+.callout{background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #2563eb;border-radius:8px;padding:1.25rem;margin:1.5rem 0}
 .pricing{border:2px solid #e5e7eb;border-radius:8px;padding:1.5rem;margin:1.5rem 0}
 .price{font-size:2rem;font-weight:700;color:#059669}
-.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1rem 0}
+.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin:1rem 0}
 .tier{border:1px solid #d1d5db;border-radius:6px;padding:1rem;text-align:center}
 .tier.urgent{border-color:#dc2626;background:#fef2f2}
 .tier.soon{border-color:#f59e0b;background:#fffbeb}
+.valuebox{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:1.25rem;margin:1.5rem 0}
+.guarantee{background:#ecfdf5;border:2px solid #059669;border-radius:8px;padding:1.5rem;margin:1.5rem 0}
+.guarantee h3{margin-top:0;color:#059669}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0}
+.cell{border:1px solid #e5e7eb;border-radius:8px;padding:1rem;font-size:.92rem}
+.cell h4{margin:.2rem 0}
+.logos{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0}
+.logos span{border:1px solid #d1d5db;border-radius:999px;padding:.3rem .8rem;font-size:.85rem;color:#374151;background:#f9fafb}
+.reassure{color:#6b7280;font-size:.9rem;margin:.5rem 0}
+.faq{margin:2rem 0}
+.faq details{border-bottom:1px solid #e5e7eb;padding:.75rem 0}
+.faq summary{font-weight:600;cursor:pointer}
 button{background:#2563eb;color:white;border:none;padding:0.75rem 1.5rem;border-radius:6px;font-size:1rem;cursor:pointer}
 button:hover{background:#1d4ed8}
+form#auditForm{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:1.5rem;margin:1rem 0}
 footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
 </style>
 </head>
 <body>
 <a href="/" class="brand">← EOLkits</a>
-<h1>Audit PDF</h1>
-<p>Upload your IaC files, get a hash-anchored deterministic report scoring every finding by severity × blast-radius.</p>
+<h1>See exactly what AWS is about to break — then fix it in one report</h1>
+<p class="lede">Run the free scanner on your own files first — ~30 seconds, no signup. The <strong>$299 audit</strong> is the done-for-you fix report for everything it finds: scored, sequenced, and cited. Money back if it isn't useful.</p>
+
+<div class="callout">
+  <strong>Don't take our word for it.</strong> &nbsp;<a class="cta secondary" href="/scan/">▶ Run the free scan</a><br>
+  See every deprecation in your stack, on your own machine, <em>before</em> you pay a cent. The audit picks up where the scan ends — scoring, a roll-forward plan, and a verifiable report.
+</div>
+
+<h2>What you get</h2>
+<ul>
+  <li>Every finding scored by <strong>severity × blast-radius</strong> — what breaks first vs. what's cosmetic</li>
+  <li>A <strong>roll-forward roadmap</strong>: the exact order to migrate, with each breaking change called out</li>
+  <li>A <strong>cost-of-not-fixing</strong> estimate you can forward to your manager</li>
+  <li>Every fact <strong>cited to its AWS primary source</strong> — check our work</li>
+  <li>A <strong>hash-anchored PDF</strong>, verifiable at <code>/verify/&lt;sha&gt;</code></li>
+</ul>
+<p><a class="cta secondary" href="/audit/sample/">▶ See a real (redacted) sample report →</a></p>
 
 <div class="pricing">
   <h2>Pricing</h2>
@@ -255,16 +289,40 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
       <p>Within 7 days of deadline</p>
     </div>
   </div>
-  <p><small>All tiers include: hash-anchored PDF, verification URL, severity scoring, roll-forward roadmap, cost estimate</small></p>
+  <p class="reassure">Price rises as the deadline nears — acting sooner costs you less. No discounts; the guarantee is your protection instead.</p>
+</div>
+
+<div class="valuebox">
+  <strong>What does <em>not</em> fixing it cost?</strong> One failed production deploy, an unpatched box running past the deadline, or a frozen Lambda burns hours of engineer time and real downtime — usually far more than the audit. $299 to know precisely what's coming and how to clear it.
+</div>
+
+<div class="guarantee">
+  <h3>Your risk: zero</h3>
+  <p><strong>100% money-back, 30 days, no questions.</strong> If the report isn't useful, email us — we refund, no argument.</p>
+  <p><strong>Beat the deadline or it's free.</strong> Order inside a deadline window and if we can't hand you a clear roll-forward path before it hits, you pay nothing.</p>
+</div>
+
+<h2>Why you can trust the report (without trusting the brand)</h2>
+<div class="grid">
+  <div class="cell"><h4>Cited to source</h4>Every finding links AWS's own documentation. You verify the claim, not our reputation.</div>
+  <div class="cell"><h4>Hash-anchored</h4>Each report carries a SHA-256 of your inputs, verifiable at <code>/verify</code>. We can't quietly change it.</div>
+  <div class="cell"><h4>Deterministic &amp; open</h4>Same input → same report. The rule-pack is public — inspect exactly what we check for.</div>
+  <div class="cell"><h4>Instant &amp; automated</h4>Delivered in ~5 minutes by machine. No waiting on a person, no back-and-forth.</div>
+</div>
+
+<div class="logos">
+  <span>AWS</span><span>CloudFormation / SAM</span><span>CDK</span><span>Terraform</span><span>Serverless</span><span>Ansible</span><span>Packer</span><span>cloud-init</span><span>GitHub Actions</span>
 </div>
 
 <h2>How it works</h2>
 <ol>
-  <li>Upload your SAM/CDK/Terraform/Serverless files</li>
-  <li>We scan for deprecated runtimes and breaking changes</li>
-  <li>Receive PDF via email within 5 minutes</li>
+  <li>Upload your SAM / CDK / Terraform / Serverless / cloud-init files</li>
+  <li>We scan for deprecated runtimes and breaking changes — deterministically</li>
+  <li>Get your PDF by email in ~5 minutes — fully automated</li>
   <li>Verify authenticity at <code>/verify/&lt;sha&gt;</code></li>
 </ol>
+
+<p class="reassure">🔒 Secure checkout via Stripe · delivered in ~5 minutes · 30-day money-back guarantee</p>
 
 <form id="auditForm">
   <h3>Start Audit</h3>
@@ -358,13 +416,94 @@ auditForm.addEventListener('submit', async (event) => {{
 }});
 </script>
 
+<div class="faq">
+<h2>Questions</h2>
+<details><summary>Why pay when the CLI is free?</summary><p>The free CLI and scanner show you <em>what</em> breaks. The audit does the work <em>for</em> you — severity × blast-radius scoring, a roll-forward roadmap, a cost-of-not-fixing estimate, and a verifiable report you can hand to your team, in ~5 minutes.</p></details>
+<details><summary>Is my code safe?</summary><p>Your files travel over TLS and are used only to generate your report — never shared. Prefer to keep everything local? Run the free CLI offline.</p></details>
+<details><summary>How can I trust the results if I've never heard of you?</summary><p>You don't have to. Every finding cites AWS's own docs, the report is hash-anchored and deterministic, and the rule-pack is public — run the free scan and compare. And you're covered by a 30-day no-questions refund.</p></details>
+<details><summary>How fast is it?</summary><p>About 5 minutes, fully automated. No waiting on a human.</p></details>
+<details><summary>What if it's wrong, or I'm just not happy?</summary><p>Email us within 30 days for a full refund. No questions asked.</p></details>
+</div>
+
 <footer>
-  <p>Delivery within 5 minutes. Reports include SHA-256 hash of inputs for verification.</p>
-  <p><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></p>
+  <p>Delivered in ~5 minutes · every report carries a SHA-256 of your inputs for verification · 30-day money-back guarantee.</p>
+  <p><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/scan/">Free scan</a> · <a href="/audit/sample/">Sample report</a></p>
 </footer>
 </body>
 </html>"""
     return _interpolate_api(html)
+
+
+def build_audit_sample_page(pricing):
+    """A redacted, illustrative sample of the Audit report rendered as HTML — the
+    'see exactly what you get' proof artifact. Static and deterministic; not passed
+    through _interpolate_api (no API origin needed)."""
+    html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sample audit report — EOLkits</title>
+<meta name="description" content="A real, redacted EOLkits audit report: findings scored by severity and blast-radius, each cited to its AWS source, with a roll-forward roadmap and cost-of-not-fixing estimate.">
+<style>
+body{font-family:system-ui,-apple-system,sans-serif;max-width:820px;margin:0 auto;padding:2rem;line-height:1.6;color:#111827}
+.brand{color:#2563eb;font-weight:600}
+.banner{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:.75rem 1rem;margin:1rem 0;font-size:.9rem}
+.meta{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:1rem;margin:1rem 0;font-size:.9rem}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.92rem}
+th,td{border:1px solid #e5e7eb;padding:.5rem .6rem;text-align:left;vertical-align:top}
+th{background:#f3f4f6}
+.sev{font-weight:700;white-space:nowrap}
+.crit{color:#dc2626}
+.high{color:#ea580c}
+.med{color:#ca8a04}
+.cta{display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:.7rem 1.2rem;border-radius:6px;font-weight:600;margin:1rem 0}
+code{background:#f3f4f6;padding:.1rem .3rem;border-radius:4px}
+footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:.875rem}
+</style>
+</head>
+<body>
+<a href="/audit/" class="brand">← Back to Audit</a>
+<div class="banner"><strong>SAMPLE — redacted.</strong> An illustrative report for a fictional account, to show exactly what you receive. Your report covers your own stack.</div>
+<h1>EOLkits audit report</h1>
+<div class="meta">
+  <div><strong>Account:</strong> acme-prod (redacted)</div>
+  <div><strong>Inputs:</strong> 3 Terraform files, 1 SAM template, 2 Dockerfiles</div>
+  <div><strong>Report SHA-256:</strong> <code>3f9a…c1e2</code> — verifiable at <code>/verify/&lt;sha&gt;</code></div>
+  <div><strong>Findings:</strong> 2 critical · 3 high · 1 medium</div>
+</div>
+
+<h2>Findings — scored by severity × blast-radius</h2>
+<table>
+<tr><th>Finding</th><th class="sev">Severity</th><th>Blast radius</th><th>Cited source</th></tr>
+<tr><td>EC2 launch template pinned to an <strong>Amazon Linux 2</strong> AMI (EOL 2026-06-30)</td><td class="sev crit">Critical</td><td>14 instances across 2 ASGs</td><td>AWS AL2 EOL notice</td></tr>
+<tr><td><code>yum</code> / <code>amazon-linux-extras</code> in user-data — removed on AL2023</td><td class="sev crit">Critical</td><td>Boot-time failure on every new instance</td><td>AL2023 release notes</td></tr>
+<tr><td>Lambda <code>python3.9</code> runtime — update blocked 2027-03-03</td><td class="sev high">High</td><td>6 functions</td><td>Lambda runtime table</td></tr>
+<tr><td><code>import distutils</code> — removed in Python 3.12</td><td class="sev high">High</td><td>2 functions</td><td>Python 3.12 what's-new</td></tr>
+<tr><td><code>iptables</code> rules in cloud-init — nftables on AL2023</td><td class="sev high">High</td><td>Network setup on 14 instances</td><td>AL2023 release notes</td></tr>
+<tr><td><code>ntpd</code> — replaced by chronyd on AL2023</td><td class="sev med">Medium</td><td>Time sync on 14 instances</td><td>AL2023 release notes</td></tr>
+</table>
+
+<h2>Roll-forward roadmap</h2>
+<ol>
+  <li><strong>Now → deadline:</strong> rebuild the base AMI on AL2023; swap <code>yum</code>→<code>dnf</code> and drop <code>amazon-linux-extras</code> in user-data.</li>
+  <li><strong>Same change:</strong> migrate <code>iptables</code>→nftables and <code>ntpd</code>→chronyd (bundle with the AMI rebuild).</li>
+  <li><strong>Next:</strong> fix the two <code>distutils</code> imports and move the 6 Lambdas to <code>python3.12</code> before the 2027 block dates.</li>
+</ol>
+
+<h2>Cost of not fixing</h2>
+<p>Leave the AL2 instances past 2026-06-30 and they stop receiving security patches while new launches fail at boot. Exposure for this account: <strong>~14 production instances unpatched</strong> plus blocked autoscaling — hours of incident time at the worst possible moment.</p>
+
+<a class="cta" href="/audit/">Get this report for your own stack — from $299 →</a>
+<p><a href="/scan/">Or run the free scan first →</a></p>
+
+<footer>
+  <p>In a real report, every finding links its AWS primary source. Reports are hash-anchored and deterministic.</p>
+  <p><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></p>
+</footer>
+</body>
+</html>"""
+    return html
 
 
 def build_pack_page(pricing):
@@ -379,25 +518,42 @@ def build_pack_page(pricing):
 body{font-family:system-ui,-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:2rem;line-height:1.6}
 .brand{color:#2563eb;font-weight:600}
 h1{margin-top:0}
+.lede{font-size:1.15rem;color:#374151}
 .price{font-size:3rem;font-weight:700;color:#059669}
+.callout{background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #2563eb;border-radius:8px;padding:1.25rem;margin:1.5rem 0}
 .guarantee{background:#ecfdf5;border:2px solid #059669;border-radius:8px;padding:1.5rem;margin:1.5rem 0}
 .guarantee h3{margin-top:0;color:#059669}
 button{background:#2563eb;color:white;border:none;padding:0.75rem 1.5rem;border-radius:6px;font-size:1rem;cursor:pointer}
 button:hover{background:#1d4ed8}
 .steps{background:#f9fafb;border-radius:8px;padding:1.5rem;margin:1.5rem 0}
 .steps ol{margin:0;padding-left:1.5rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0}
+.cell{border:1px solid #e5e7eb;border-radius:8px;padding:1rem;font-size:.92rem}
+.cell h4{margin:.2rem 0}
+.logos{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0}
+.logos span{border:1px solid #d1d5db;border-radius:999px;padding:.3rem .8rem;font-size:.85rem;color:#374151;background:#f9fafb}
+.faq{margin:2rem 0}
+.faq details{border-bottom:1px solid #e5e7eb;padding:.75rem 0}
+.faq summary{font-weight:600;cursor:pointer}
+.reassure{color:#6b7280;font-size:.9rem;margin:.5rem 0}
+.downsell{background:#f9fafb;border:1px dashed #d1d5db;border-radius:8px;padding:1rem;margin:1.5rem 0}
 footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
 </style>
 </head>
 <body>
 <a href="/" class="brand">← EOLkits</a>
-<h1>Migration Pack</h1>
+<h1>Migration Pack — we do the migration for you</h1>
 <p class="price">$1,499</p>
-<p>A real PR opened on your repository with codemods, IaC patches, canary plan, and rollback script.</p>
+<p class="lede">The audit tells you what's broken. The Pack fixes it: a real pull request on your repo with codemods, IaC patches, a canary rollout plan, and a rollback script — opened within 5 minutes.</p>
+
+<div class="callout">
+  <strong>It opens a PR — nothing merges without you.</strong> You review every line and merge only if you're happy. The bot never pushes to your default branch. And if your CI fails on the PR, you're <strong>automatically refunded</strong> — worst case costs you nothing but a code review.
+</div>
 
 <div class="guarantee">
-  <h3>Refund Guarantee</h3>
-  <p>If your CI fails on the migration PR within 7 days, you are automatically refunded. No questions, no human in the loop.</p>
+  <h3>How the auto-refund works</h3>
+  <p><strong>If your CI fails on the migration PR within 7 days, Stripe refunds you automatically</strong> — no email, no argument, no human in the loop. We only get paid when your own tests pass on our changes.</p>
+  <p class="reassure">"CI fail" = a GitHub <code>check_run</code> / <code>check_suite</code> conclusion of failure on the PR. Choosing to accept the PR anyway (the <code>override:ci-failure</code> label) waives the refund.</p>
 </div>
 
 <div class="steps">
@@ -421,6 +577,31 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
   <p><input type="text" name="repo" placeholder="owner/repo" required style="padding:0.5rem;width:300px"></p>
   <button type="submit">Purchase Migration Pack — $1,499</button>
 </form>
+<p class="reassure">🔒 Secure checkout via Stripe · PR opened in ~5 minutes · auto-refund if CI fails</p>
+
+<h2>Why pay $1,499 instead of running the free CLI?</h2>
+<div class="grid">
+  <div class="cell"><h4>Done for you</h4>You review a PR instead of writing codemods — minutes of review vs. days of migration work.</div>
+  <div class="cell"><h4>You stay in control</h4>It's a PR on a branch. Merge only if you're happy; nothing touches your default branch.</div>
+  <div class="cell"><h4>Risk reversed</h4>If your CI fails you're auto-refunded. We're paid only when your tests pass.</div>
+  <div class="cell"><h4>Cited &amp; verifiable</h4>Every change traces to an AWS source; the rule-pack is public. Check our work.</div>
+</div>
+
+<div class="logos">
+  <span>AWS</span><span>CloudFormation / SAM</span><span>CDK</span><span>Terraform</span><span>Serverless</span><span>Ansible</span><span>Packer</span><span>GitHub Actions</span>
+</div>
+
+<div class="faq">
+<h2>Questions</h2>
+<details><summary>Does the bot push to my repo?</summary><p>No. It opens a pull request on a new branch. You review and merge — or not. It never commits to your default branch.</p></details>
+<details><summary>What access does the GitHub App need?</summary><p>Contents and pull-requests on the repo you name — enough to open a PR. You can uninstall it the moment the PR lands.</p></details>
+<details><summary>What if the PR is wrong?</summary><p>Don't merge it. And if CI fails, you're auto-refunded within 7 days — you risk a code review, nothing more.</p></details>
+<details><summary>Not ready for a PR?</summary><p>Start with the free scan or the $299 audit — see exactly what's broken first, then upgrade.</p></details>
+</div>
+
+<div class="downsell">
+  Not ready to grant repo access? <a href="/scan/">Run the free scan</a> or <a href="/audit/">get the $299 audit</a> first — see the findings, then upgrade to the done-for-you Pack.
+</div>
 
 <footer>
   <p>Refund auto-fires if CI fails within 7 days. <a href="/legal/terms.html">Terms</a> apply.</p>
@@ -883,13 +1064,20 @@ def build_index_page(pricing):
 <main>
   <section class="hero">
     <div class="container">
-      <div class="eyebrow">AWS deadlines that break deploys</div>
-      <h1>Migration kits for AWS platform deprecations.</h1>
-      <p class="lede">EOLkits scans deprecated runtimes, patches source and IaC, generates rollout plans, and keeps every fact tied to a primary source.</p>
+      <div class="eyebrow">AWS runtime &amp; OS EOLs that break production</div>
+      <h1>Find what AWS is about to break in your stack — free.</h1>
+      <p class="lede">Run the open-source scanner on your own files and see every deprecation, scored, in ~30 seconds — no signup. Then fix it yourself with the MIT CLIs, or let us do it: a $299 audit report or a done-for-you migration PR. Every finding cited to AWS's own docs.</p>
       <div class="cta-row">
-        <a class="btn-primary" href="/migrate/">See Deadlines</a>
+        <a class="btn-primary" href="/scan/">Run the free scan</a>
         <a class="btn-secondary" href="https://github.com/ntoledo319/EOLkits">Clone the CLIs</a>
+        <a class="btn-ghost" href="/migrate/">See the deadlines</a>
       </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p class="sub">Free &amp; open-source (MIT) · every finding cited to an AWS primary source · hash-anchored, verifiable reports · 30-day money-back on paid tiers</p>
     </div>
   </section>
 
@@ -926,7 +1114,7 @@ def build_index_page(pricing):
   <section class="section dark" id="pricing">
     <div class="container">
       <h2>Pricing</h2>
-      <p class="sub">The CLIs are free. Paid tiers add hosted fulfillment, reports, and automated PRs.</p>
+      <p class="sub">Try before you buy: the CLIs and the <a href="/scan/">browser scanner</a> are free — see exactly what breaks first. Paid tiers do the work for you, with a 30-day money-back guarantee.</p>
       <div class="pricing-grid">
         <article class="pricing-card">
           <h3>CLI</h3>
@@ -936,9 +1124,10 @@ def build_index_page(pricing):
         </article>
         <article class="pricing-card featured">
           <h3>Audit PDF</h3>
-          <div class="price">${audit["base"]}</div>
-          <p>Hash-anchored report, verification URL, severity scoring, and rollout roadmap.</p>
+          <div class="price">from ${audit["base"]}</div>
+          <p>Hash-anchored, cited report: severity × blast-radius scoring, roll-forward roadmap, cost-of-not-fixing estimate. Delivered in ~5 min. 30-day money-back.</p>
           <a class="btn-primary" href="/audit/">Order audit</a>
+          <p class="small"><a href="/audit/sample/">See a sample report →</a></p>
         </article>
         <article class="pricing-card">
           <h3>Migration Pack</h3>
@@ -952,13 +1141,8 @@ def build_index_page(pricing):
           <p>Weekly re-scan of a read-only IAM role, delta PDF on change, and an auto-PR on each new deprecation.</p>
           <a class="btn-outline" href="/drift/">Start watching</a>
         </article>
-        <article class="pricing-card">
-          <h3>Org License</h3>
-          <div class="price">${org_base:,}<span class="per">/yr</span></div>
-          <p>Live rule-pack feed, private rule extensions, and unlimited runs across your whole org.</p>
-          <a class="btn-outline" href="/license/">Get a license</a>
-        </article>
       </div>
+      <p class="sub">Running this org-wide? An annual <a href="/license/">Org License</a> (${org_base:,}/yr) covers unlimited runs, private rule extensions, and a live rule-pack feed.</p>
     </div>
   </section>
 </main>
@@ -1593,7 +1777,7 @@ function render(all) {
   const n = all.length;
   box.innerHTML = '<p class="scan-count">' + n + ' finding' + (n === 1 ? '' : 's') + ' — all detected locally in your browser.</p>' +
     '<table class="scan-tbl"><thead><tr><th>Severity</th><th>What</th><th>File</th><th>Deadline / fix</th><th>Detail</th></tr></thead><tbody>' + rows + '</tbody></table>' +
-    '<a class="scan-cta" href="' + auditLink(deadline, kit) + '">Get the full migration audit — every function, AMI &amp; dependency, hash-anchored PDF &rarr;</a>';
+    '<a class="scan-cta" href="' + auditLink(deadline, kit) + '">Fix all of this — full audit of every function, AMI &amp; dependency, hash-anchored PDF, 30-day money-back &rarr;</a>';
 }
 const dz = $('#dz'), fi = $('#fi'); let acc = [];
 function handle(files) { acc = []; const arr = [...files]; let pending = arr.length; if (!pending) return; arr.forEach((file) => { const r = new FileReader(); r.onload = () => { try { acc = acc.concat(scanFile(file.name, r.result)); } catch (e) {} if (--pending === 0) render(acc); }; r.onerror = () => { if (--pending === 0) render(acc); }; r.readAsText(file); }); }
@@ -1602,6 +1786,18 @@ dz.addEventListener('dragleave', () => dz.classList.remove('over'));
 dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('over'); handle(e.dataTransfer.files); });
 dz.addEventListener('click', () => fi.click());
 fi.addEventListener('change', () => handle(fi.files));
+var lf = document.getElementById('leadForm');
+if (lf) lf.addEventListener('submit', function (e) {
+  e.preventDefault();
+  var msg = document.getElementById('leadMsg');
+  if (document.getElementById('leadHoney').value) { if (msg) msg.textContent = 'Thanks!'; lf.reset(); return; }
+  var email = document.getElementById('leadEmail').value;
+  if (msg) msg.textContent = 'Saving...';
+  fetch('/api/v1/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, product: 'eolkits', source: 'scan' }) })
+    .then(function (r) { return r.ok ? (r.json().catch(function () { return {}; })) : Promise.reject(); })
+    .then(function () { if (msg) msg.textContent = '✓ You are on the list.'; lf.reset(); })
+    .catch(function () { if (msg) msg.textContent = 'Could not save — email hello@toledotechnologies.com'; });
+});
 """
 
 
@@ -1668,6 +1864,17 @@ def build_scan_page(deprecations):
         '<p>Hit a specific error message? See <a href="/fix/">common AWS migration error fixes &rarr;</a></p>\n'
         "<p><small>This free scan covers the high-blast-radius cases. The paid audit checks every function, AMI and launch "
         "template in your account, produces a hash-anchored PDF and a roll-forward roadmap, and is priced by how close your deadline is.</small></p>\n"
+        '<section class="leadcap" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:1.25rem;margin:2rem 0">\n'
+        "<h2 style=\"margin-top:0\">Not migrating today? Don't get caught by the next deadline.</h2>\n"
+        "<p>AWS retires runtimes on a schedule. Drop your email and we'll warn you before each deadline that affects your stack &mdash; no spam, one heads-up per deadline.</p>\n"
+        '<form id="leadForm" autocomplete="on" style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center">\n'
+        '<input type="email" id="leadEmail" name="email" placeholder="you@company.com" required style="padding:.6rem;border:1px solid #cbd5e1;border-radius:6px;min-width:260px">\n'
+        '<input type="text" name="_honey" id="leadHoney" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px" value="">\n'
+        '<button type="submit" style="background:#2563eb;color:#fff;border:0;padding:.65rem 1.2rem;border-radius:6px;font-weight:600;cursor:pointer">Email me deadline alerts</button>\n'
+        '<span id="leadMsg" style="font-size:.9rem;color:#16a34a"></span>\n'
+        "</form>\n"
+        '<p style="font-size:.8rem;color:#6b7280;margin:.5rem 0 0">Free. Unsubscribe anytime. We email you only about AWS deadlines that hit your stack.</p>\n'
+        "</section>\n"
     )
     tail = "</body>\n</html>\n"
     return head + body + "<script>\nconst DATA = " + data + ";\n" + _SCAN_JS + "\n</script>\n" + tail
@@ -1931,6 +2138,7 @@ def main():
     pages = {
         "index.html": build_index_page(pricing),
         "audit/index.html": build_audit_page(pricing),
+        "audit/sample/index.html": build_audit_sample_page(pricing),
         "scan/index.html": build_scan_page(deprecations),
         "pack/index.html": build_pack_page(pricing),
         "license/index.html": build_license_page(pricing),
