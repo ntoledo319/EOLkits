@@ -1108,6 +1108,66 @@ def build_lambda_schedule_page(deprecations, pricing_view):
     )
 
 
+def build_al2_checklist_page(deprecations, pricing_view):
+    """Head-term page — the Amazon Linux 2 -> AL2023 migration checklist, the highest-
+    volume query in the current deadline window. Built from the cited deprecations.yml
+    AL2 entry; cross-links the matching /fix pages. Static & deterministic."""
+    import html as _h
+    ap = pricing_view.get("audit_pdf", {}) if isinstance(pricing_view, dict) else {}
+    audit_base = ap.get("base", 299) if isinstance(ap, dict) else 299
+    al2 = next((d for d in deprecations.get("deprecations", [])
+                if "amazon linux 2" in str(d.get("name", "")).lower()), {})
+    date = _h.escape(str(al2.get("date", "2026-06-30")))
+    src = _h.escape(str(al2.get("url", "https://aws.amazon.com/blogs/aws/update-on-amazon-linux-2-end-of-life/")))
+    changes_html = "".join("<li>" + _h.escape(c) + "</li>" for c in al2.get("breaking_changes", []))
+    faq = {
+        "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+            {"@type": "Question", "name": "When is Amazon Linux 2 end of life?",
+             "acceptedAnswer": {"@type": "Answer", "text": "Amazon Linux 2 reaches end of life on " + date.replace("&amp;", "&") + ". After that there are no more security patches, no new AMIs, and no extras updates — anything still on AL2 runs unpatched."}},
+            {"@type": "Question", "name": "What breaks moving from Amazon Linux 2 to AL2023?",
+             "acceptedAnswer": {"@type": "Answer", "text": "yum is replaced by dnf, amazon-linux-extras is gone, ntpd is replaced by chronyd, iptables is replaced by nftables, and Python 2 is no longer available. Package names also change (version-namespaced or moved to SPAL)."}},
+            {"@type": "Question", "name": "Can I keep running Amazon Linux 2 after EOL?",
+             "acceptedAnswer": {"@type": "Answer", "text": "The instances keep running, but receive no security patches and no new AMIs, and new launches of the AL2 AMI stop. Running unpatched in production is the risk — migrate to Amazon Linux 2023."}},
+            {"@type": "Question", "name": "How do I find Amazon Linux 2 usage in my account?",
+             "acceptedAnswer": {"@type": "Answer", "text": "Run the free scanner at eolkits.com/scan over your Terraform/CloudFormation/Packer/Ansible (nothing is uploaded), or use the al2023-gate CLI to enumerate AL2 AMIs, launch templates, and node groups across regions."}},
+        ],
+    }
+    return (
+        '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+        '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
+        "<title>Amazon Linux 2 end-of-life: migration checklist (AL2 → AL2023) | EOLkits</title>\n"
+        '<meta name="description" content="Amazon Linux 2 is EOL ' + date + '. A step-by-step AL2 to AL2023 migration checklist: yum to dnf, amazon-linux-extras, ntpd to chronyd, iptables to nftables, Python 2 removal — with the fix for each error. Free scanner to find your AL2 usage.">\n'
+        '<link rel="canonical" href="' + SITE_URL + '/amazon-linux-2-eol-checklist/">\n'
+        '<link rel="stylesheet" href="/style.css">\n'
+        '<script defer src="/track.js"></script>\n'
+        '<script type="application/ld+json">' + json.dumps(faq) + "</script>\n"
+        "<style>.chk li{margin:.4rem 0}.cta{display:inline-block;margin:1rem 0;padding:.7rem 1.2rem;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600}"
+        ".note{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:1rem;margin:1rem 0}</style>\n"
+        "</head>\n"
+        '<body class="container article">\n'
+        '<nav class="breadcrumb"><a href="/">Home</a> / <a href="/migrate/">Deadlines</a> / <span>Amazon Linux 2 checklist</span></nav>\n'
+        "<h1>Amazon Linux 2 end-of-life: migration checklist (AL2 → AL2023)</h1>\n"
+        '<div class="note"><strong>Amazon Linux 2 reaches end of life ' + date + '.</strong> After that: no security patches, no new AMIs, no extras updates. Anything still pinned to AL2 in a launch template, EKS node group, ECS task, Beanstalk env, or container base image runs unpatched. <a href="' + src + '" target="_blank" rel="noopener nofollow">[AWS source]</a></div>\n'
+        '<p><a class="cta" href="/scan/">Scan your stack free — find every AL2 reference →</a></p>\n'
+        "<h2>What changes on AL2023</h2>\n<ul>" + changes_html + "</ul>\n"
+        "<h2>The checklist</h2>\n<ol class=\"chk\">\n"
+        "<li><strong>Inventory.</strong> Find every AL2 AMI, launch template, EKS node group, ECS task definition, Beanstalk platform, and container base image. (<a href=\"/scan/\">free scan</a> or the <code>al2023-gate</code> CLI.)</li>\n"
+        "<li><strong>Rebuild the base AMI on AL2023</strong> (Packer/EC2 Image Builder), then bake your app layers on top.</li>\n"
+        "<li><strong>Package manager.</strong> Move <code>yum</code> usage to <code>dnf</code> and drop <code>amazon-linux-extras</code> — install packages directly, version-namespaced, or via SPAL. (<a href=\"/fix/amazon-linux-extras-command-not-found/\">extras fix</a> · <a href=\"/fix/amazon-linux-2023-dnf-unable-to-find-a-match/\">missing-package fix</a>)</li>\n"
+        "<li><strong>Time sync.</strong> Replace <code>ntpd</code> with <code>chronyd</code>. (<a href=\"/fix/amazon-linux-2023-ntpd-service-not-found/\">ntpd fix</a>)</li>\n"
+        "<li><strong>Firewall.</strong> Move <code>iptables</code> rules to <code>nftables</code>.</li>\n"
+        "<li><strong>Python.</strong> AL2023 ships no Python 2 — port <code>python2</code> scripts/shebangs to <code>python3</code>. (<a href=\"/fix/amazon-linux-2023-python2-command-not-found/\">python2 fix</a>)</li>\n"
+        "<li><strong>Test</strong> boot, app start, networking, and time sync on a canary instance.</li>\n"
+        "<li><strong>Roll out</strong> with a staged canary (5 → 25 → 50 → 100%) and a tested rollback to the previous AMI.</li>\n"
+        "</ol>\n"
+        "<h2>Do it faster</h2>\n"
+        '<p>The free <a href="/scan/">scanner</a> and the MIT <code>al2023-gate</code> CLI find and patch most of this. Want it done for you? A <a href="/audit/">hash-anchored audit ($'
+        + str(audit_base)
+        + ', 30-day money-back)</a> scores every finding by blast-radius and hands back a roll-forward plan; the <a href="/pack/">Migration Pack</a> opens the PR. See the full <a href="/migrate/amazon-linux-2-eol/">Amazon Linux 2 migration guide</a>.</p>\n'
+        "</body>\n</html>\n"
+    )
+
+
 def build_track_js():
     """First-party pageview beacon for content pages (home/scan/migrate/fix). The
     commerce pages fire their own richer inline events; this gives the TOP of the
@@ -2255,6 +2315,7 @@ def main():
         "blog/index.html": build_blog_index(),
         "vs/index.html": build_vs_index(COMPETITORS),
         "lambda-runtime-deprecation-schedule/index.html": build_lambda_schedule_page(deprecations, build_pricing_view(pricing)),
+        "amazon-linux-2-eol-checklist/index.html": build_al2_checklist_page(deprecations, build_pricing_view(pricing)),
         "deprecations.ics": build_deprecations_ics(deprecations),
     }
     pages["widget.js"] = build_widget_js()

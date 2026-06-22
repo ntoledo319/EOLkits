@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Amazon Linux 2 end-of-life: migration checklist (AL2 → AL2023) | EOLkits</title>
+<meta name="description" content="Amazon Linux 2 is EOL 2026-06-30. A step-by-step AL2 to AL2023 migration checklist: yum to dnf, amazon-linux-extras, ntpd to chronyd, iptables to nftables, Python 2 removal — with the fix for each error. Free scanner to find your AL2 usage.">
+<link rel="canonical" href="https://eolkits.com/amazon-linux-2-eol-checklist/">
+<link rel="stylesheet" href="/style.css">
+<script defer src="/track.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When is Amazon Linux 2 end of life?", "acceptedAnswer": {"@type": "Answer", "text": "Amazon Linux 2 reaches end of life on 2026-06-30. After that there are no more security patches, no new AMIs, and no extras updates \u2014 anything still on AL2 runs unpatched."}}, {"@type": "Question", "name": "What breaks moving from Amazon Linux 2 to AL2023?", "acceptedAnswer": {"@type": "Answer", "text": "yum is replaced by dnf, amazon-linux-extras is gone, ntpd is replaced by chronyd, iptables is replaced by nftables, and Python 2 is no longer available. Package names also change (version-namespaced or moved to SPAL)."}}, {"@type": "Question", "name": "Can I keep running Amazon Linux 2 after EOL?", "acceptedAnswer": {"@type": "Answer", "text": "The instances keep running, but receive no security patches and no new AMIs, and new launches of the AL2 AMI stop. Running unpatched in production is the risk \u2014 migrate to Amazon Linux 2023."}}, {"@type": "Question", "name": "How do I find Amazon Linux 2 usage in my account?", "acceptedAnswer": {"@type": "Answer", "text": "Run the free scanner at eolkits.com/scan over your Terraform/CloudFormation/Packer/Ansible (nothing is uploaded), or use the al2023-gate CLI to enumerate AL2 AMIs, launch templates, and node groups across regions."}}]}</script>
+<style>.chk li{margin:.4rem 0}.cta{display:inline-block;margin:1rem 0;padding:.7rem 1.2rem;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600}.note{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:1rem;margin:1rem 0}</style>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
+</head>
+<body class="container article">
+<nav class="breadcrumb"><a href="/">Home</a> / <a href="/migrate/">Deadlines</a> / <span>Amazon Linux 2 checklist</span></nav>
+<h1>Amazon Linux 2 end-of-life: migration checklist (AL2 → AL2023)</h1>
+<div class="note"><strong>Amazon Linux 2 reaches end of life 2026-06-30.</strong> After that: no security patches, no new AMIs, no extras updates. Anything still pinned to AL2 in a launch template, EKS node group, ECS task, Beanstalk env, or container base image runs unpatched. <a href="https://aws.amazon.com/blogs/aws/update-on-amazon-linux-2-end-of-life/" target="_blank" rel="noopener nofollow">[AWS source]</a></div>
+<p><a class="cta" href="/scan/">Scan your stack free — find every AL2 reference →</a></p>
+<h2>What changes on AL2023</h2>
+<ul><li>No security patches after EOL</li><li>yum replaced with dnf</li><li>amazon-linux-extras not available</li><li>ntpd replaced with chronyd</li><li>iptables replaced with nftables</li><li>Python 2 no longer available</li></ul>
+<h2>The checklist</h2>
+<ol class="chk">
+<li><strong>Inventory.</strong> Find every AL2 AMI, launch template, EKS node group, ECS task definition, Beanstalk platform, and container base image. (<a href="/scan/">free scan</a> or the <code>al2023-gate</code> CLI.)</li>
+<li><strong>Rebuild the base AMI on AL2023</strong> (Packer/EC2 Image Builder), then bake your app layers on top.</li>
+<li><strong>Package manager.</strong> Move <code>yum</code> usage to <code>dnf</code> and drop <code>amazon-linux-extras</code> — install packages directly, version-namespaced, or via SPAL. (<a href="/fix/amazon-linux-extras-command-not-found/">extras fix</a> · <a href="/fix/amazon-linux-2023-dnf-unable-to-find-a-match/">missing-package fix</a>)</li>
+<li><strong>Time sync.</strong> Replace <code>ntpd</code> with <code>chronyd</code>. (<a href="/fix/amazon-linux-2023-ntpd-service-not-found/">ntpd fix</a>)</li>
+<li><strong>Firewall.</strong> Move <code>iptables</code> rules to <code>nftables</code>.</li>
+<li><strong>Python.</strong> AL2023 ships no Python 2 — port <code>python2</code> scripts/shebangs to <code>python3</code>. (<a href="/fix/amazon-linux-2023-python2-command-not-found/">python2 fix</a>)</li>
+<li><strong>Test</strong> boot, app start, networking, and time sync on a canary instance.</li>
+<li><strong>Roll out</strong> with a staged canary (5 → 25 → 50 → 100%) and a tested rollback to the previous AMI.</li>
+</ol>
+<h2>Do it faster</h2>
+<p>The free <a href="/scan/">scanner</a> and the MIT <code>al2023-gate</code> CLI find and patch most of this. Want it done for you? A <a href="/audit/">hash-anchored audit ($299, 30-day money-back)</a> scores every finding by blast-radius and hands back a roll-forward plan; the <a href="/pack/">Migration Pack</a> opens the PR. See the full <a href="/migrate/amazon-linux-2-eol/">Amazon Linux 2 migration guide</a>.</p>
+</body>
+</html>
