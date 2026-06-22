@@ -7,6 +7,11 @@
 <meta name="description" content="node-sass (LibSass) is deprecated and has no prebuilt binary for current Node versions. Replace node-sass with Dart Sass: `npm uninstall node-sass &amp;&amp; npm i">
 <link rel="canonical" href="https://eolkits.com/fix/node-sass-deprecated-unsupported/">
 <link rel="stylesheet" href="/style.css">
+<meta property="og:image" content="https://eolkits.com/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://eolkits.com/og-default.png">
 <style>.fix-err{background:#0f172a;color:#e2e8f0;padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem}.fix-steps li{margin:.35rem 0}.fix-cta{display:inline-block;margin-top:1rem;padding:.7rem 1.2rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}.fix-rel{background:#fff7ed;border:1px solid #fed7aa;padding:.6rem .8rem;border-radius:8px}</style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does \"Node Sass does not yet support your current environment\" mean?", "acceptedAnswer": {"@type": "Answer", "text": "node-sass (LibSass) is deprecated and has no prebuilt binary for current Node versions. node-sass wraps LibSass, which is end-of-life. It ships no Node 22 prebuild, so installs fail to find a compatible binary on new runtimes."}}, {"@type": "Question", "name": "How do I fix \"Node Sass does not yet support your current environment\"?", "acceptedAnswer": {"@type": "Answer", "text": "Replace node-sass with Dart Sass: `npm uninstall node-sass && npm install -D sass`. The `sass` package is pure JS (no native build) and is a near drop-in for most build pipelines. Update any tooling config that names `node-sass` explicitly (e.g. webpack sass-loader `implementation: require('sass')`). Source: https://sass-lang.com/blog/libsass-is-deprecated/"}}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Fix: Node Sass does not yet support your current environment", "step": [{"@type": "HowToStep", "position": 1, "text": "Replace node-sass with Dart Sass: `npm uninstall node-sass && npm install -D sass`."}, {"@type": "HowToStep", "position": 2, "text": "The `sass` package is pure JS (no native build) and is a near drop-in for most build pipelines."}, {"@type": "HowToStep", "position": 3, "text": "Update any tooling config that names `node-sass` explicitly (e.g. webpack sass-loader `implementation: require('sass')`)."}], "citation": "https://sass-lang.com/blog/libsass-is-deprecated/"}</script>
@@ -48,7 +53,7 @@
 <ol class="fix-steps"><li>Replace node-sass with Dart Sass: `npm uninstall node-sass &amp;&amp; npm install -D sass`.</li><li>The `sass` package is pure JS (no native build) and is a near drop-in for most build pipelines.</li><li>Update any tooling config that names `node-sass` explicitly (e.g. webpack sass-loader `implementation: require(&#x27;sass&#x27;)`).</li></ol>
 <p class="fix-rel">Related deadline: <a href="/migrate/lambda-node.js-20-phase-1/">Lambda Node.js 20 Phase 1</a> — <strong>2027-02-01</strong>.</p>
 <h2>Find every instance in your project</h2>
-<p>The free <a href="/scan">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>
+<p>The free <a href="/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>
 <p>Primary source: <a href="https://sass-lang.com/blog/libsass-is-deprecated/" target="_blank" rel="noopener nofollow">https://sass-lang.com/blog/libsass-is-deprecated/</a></p>
 <p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-sass-deprecated-unsupported&deadline=2027-02-01&kit=lambda-lifeline">Get the full migration audit — $299, hash-anchored PDF &rarr;</a></p>
 </body>

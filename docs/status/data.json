@@ -1,25 +1,25 @@
 {
-  "generated_at": "2026-06-17T04:04:53.663449Z",
+  "generated_at": "2026-06-21T00:00:00Z",
   "checks": {
     "stripe": {
       "ok": true,
-      "last_checked": "2026-06-17T04:04:53.663449Z"
+      "last_checked": "2026-06-21T00:00:00Z"
     },
     "worker": {
       "ok": true,
-      "last_checked": "2026-06-17T04:04:53.663449Z"
+      "last_checked": "2026-06-21T00:00:00Z"
     },
     "runner": {
       "ok": true,
-      "last_checked": "2026-06-17T04:04:53.663449Z"
+      "last_checked": "2026-06-21T00:00:00Z"
     },
     "email": {
       "ok": true,
-      "last_checked": "2026-06-17T04:04:53.663449Z"
+      "last_checked": "2026-06-21T00:00:00Z"
     },
     "github": {
       "ok": true,
-      "last_checked": "2026-06-17T04:04:53.663449Z"
+      "last_checked": "2026-06-21T00:00:00Z"
     }
   },
   "metrics": {

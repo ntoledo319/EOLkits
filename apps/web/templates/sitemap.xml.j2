@@ -20,7 +20,7 @@
     {% endfor %}
 
     <!-- Free tools + verbatim-error fixes (M1/M2 cold-reach surfaces) -->
-    <url><loc>{{ site_url }}/scan</loc><lastmod>{{ now }}</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+    <url><loc>{{ site_url }}/scan/</loc><lastmod>{{ now }}</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
     <url><loc>{{ site_url }}/fix/</loc><lastmod>{{ now }}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
     {% for slug in fixes %}
     <url><loc>{{ site_url }}/fix/{{ slug }}/</loc><lastmod>{{ now }}</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>

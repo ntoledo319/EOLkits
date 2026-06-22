@@ -7,6 +7,11 @@
 <meta name="description" content="The abstract base classes moved from collections to collections.abc; the old aliases were removed in Python 3.10. Import from collections.abc: `from collec">
 <link rel="canonical" href="https://eolkits.com/fix/collections-has-no-attribute-mapping/">
 <link rel="stylesheet" href="/style.css">
+<meta property="og:image" content="https://eolkits.com/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://eolkits.com/og-default.png">
 <style>.fix-err{background:#0f172a;color:#e2e8f0;padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem}.fix-steps li{margin:.35rem 0}.fix-cta{display:inline-block;margin-top:1rem;padding:.7rem 1.2rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}.fix-rel{background:#fff7ed;border:1px solid #fed7aa;padding:.6rem .8rem;border-radius:8px}</style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does \"AttributeError: module 'collections' has no attribute 'Mapping'\" mean?", "acceptedAnswer": {"@type": "Answer", "text": "The abstract base classes moved from collections to collections.abc; the old aliases were removed in Python 3.10. collections.Mapping (and Sequence, Iterable, etc.) were deprecated aliases since Python 3.3 and removed in 3.10. Older code or a stale dependency still references collections.Mapping."}}, {"@type": "Question", "name": "How do I fix \"AttributeError: module 'collections' has no attribute 'Mapping'\"?", "acceptedAnswer": {"@type": "Answer", "text": "Import from collections.abc: `from collections.abc import Mapping`. Replace references like `collections.Mapping` with `collections.abc.Mapping`. Upgrade dependencies that still use the old path (a common offender in older pyyaml/jsonschema pins). Source: https://docs.python.org/3/whatsnew/3.10.html"}}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Fix: AttributeError: module 'collections' has no attribute 'Mapping'", "step": [{"@type": "HowToStep", "position": 1, "text": "Import from collections.abc: `from collections.abc import Mapping`."}, {"@type": "HowToStep", "position": 2, "text": "Replace references like `collections.Mapping` with `collections.abc.Mapping`."}, {"@type": "HowToStep", "position": 3, "text": "Upgrade dependencies that still use the old path (a common offender in older pyyaml/jsonschema pins)."}], "citation": "https://docs.python.org/3/whatsnew/3.10.html"}</script>
@@ -48,7 +53,7 @@
 <ol class="fix-steps"><li>Import from collections.abc: `from collections.abc import Mapping`.</li><li>Replace references like `collections.Mapping` with `collections.abc.Mapping`.</li><li>Upgrade dependencies that still use the old path (a common offender in older pyyaml/jsonschema pins).</li></ol>
 <p class="fix-rel">Related deadline: <a href="/migrate/lambda-python-3.9-eol/">Lambda Python 3.9 EOL</a> — <strong>2027-02-01</strong>.</p>
 <h2>Find every instance in your project</h2>
-<p>The free <a href="/scan">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>
+<p>The free <a href="/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>
 <p>Primary source: <a href="https://docs.python.org/3/whatsnew/3.10.html" target="_blank" rel="noopener nofollow">https://docs.python.org/3/whatsnew/3.10.html</a></p>
 <p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=collections-has-no-attribute-mapping&deadline=2027-02-01&kit=python-pivot">Get the full migration audit — $299, hash-anchored PDF &rarr;</a></p>
 </body>

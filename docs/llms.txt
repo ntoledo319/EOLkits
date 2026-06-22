@@ -23,7 +23,7 @@
 - [Error: The module was compiled against a different Node.js version using NODE_MODULE_VERSION](https://eolkits.com/fix/node-module-version-mismatch/): A precompiled native addon was built for a different Node.js ABI than the one now running. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 - [Node Sass does not yet support your current environment](https://eolkits.com/fix/node-sass-deprecated-unsupported/): node-sass (LibSass) is deprecated and has no prebuilt binary for current Node versions. Source: https://sass-lang.com/blog/libsass-is-deprecated/
 - [DeprecationWarning: datetime.datetime.utcnow() is deprecated](https://eolkits.com/fix/datetime-utcnow-deprecated/): datetime.utcnow() is deprecated in Python 3.12 because it returns a naive (timezone-unaware) datetime. Source: https://docs.python.org/3/whatsnew/3.12.html
-- [Free in-browser scanner](https://eolkits.com/scan): drop IaC / dependency files to find deprecated runtimes and incompatible dependencies locally — nothing uploaded.
+- [Free in-browser scanner](https://eolkits.com/scan/): drop IaC / dependency files to find deprecated runtimes and incompatible dependencies locally — nothing uploaded.
 
 ## Pricing
 

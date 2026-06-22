@@ -90,33 +90,99 @@ def get_days_until_deadline(deadline_str):
         return 999
 
 
-def days_until_nearest_enforcement(dep, today=None):
-    """Days until the NEAREST FUTURE enforcement date for a deprecation.
+def nearest_enforcement(dep, today=None):
+    """(days_until, date_str) for the NEAREST FUTURE enforcement date a deprecation
+    carries ('date' = block-create, 'block_update_date' = block-update).
 
     Fixes the surge-collapse bug (LB-3): pricing keyed off a single 'date'
     (block-create) dropped to the standard tier the moment it passed — even while
     the harder block-update enforcement was still weeks ahead (the exact Feb->Mar
     2027 demand peak where the procrastinator mass sits). We now consider every
-    enforcement date the entry carries ('date' = block-create, 'block_update_date'
-    = block-update) and return the smallest non-negative days-until, so surge
-    pricing stays live through the real peak instead of giving itself away.
+    enforcement date and return the smallest non-negative days-until.
+
+    Returning the DATE alongside the count also keeps copy honest: the block-create
+    date is often already past while the real countdown runs to block-update, so a
+    "N days until <dep.date>" headline showed a date that disagreed with N (and with
+    the front-end JS countdown). Callers interpolate THIS date, not the raw entry.
     """
     if today is None:
         today = datetime.now(UTC).date()
-    diffs = []
+    candidates = []
     for key in ("date", "block_update_date"):
         val = dep.get(key)
         if not val:
             continue
         try:
             d = datetime.strptime(val, "%Y-%m-%d").date()
-            diffs.append((d - today).days)
+            candidates.append(((d - today).days, val))
         except Exception:
             continue
-    if not diffs:
-        return 999
-    future = [x for x in diffs if x >= 0]
-    return min(future) if future else max(diffs)
+    if not candidates:
+        return 999, str(dep.get("date", ""))
+    future = [c for c in candidates if c[0] >= 0]
+    return min(future) if future else max(candidates)
+
+
+def days_until_nearest_enforcement(dep, today=None):
+    """Back-compat shim returning only the day count (see nearest_enforcement)."""
+    return nearest_enforcement(dep, today)[0]
+
+
+def _build_date():
+    """The single, date-granular build timestamp. Using date precision (not the
+    wall-clock instant) is what keeps the emitted site byte-for-byte identical across
+    any two rebuilds on the same UTC day — the determinism guarantee EOLkits sells.
+    The previous microsecond/second timestamps changed on every rebuild."""
+    return datetime.now(UTC).strftime("%Y-%m-%d")
+
+
+def _truncate_meta(text, limit=158):
+    """Collapse whitespace and trim a meta description to <= limit chars on a word
+    boundary, so it isn't cut mid-word in SERPs. The value is plain text (the
+    template escapes it), so this never truncates inside an HTML entity."""
+    text = " ".join(str(text).split())
+    if len(text) <= limit:
+        return text
+    return text[:limit].rsplit(" ", 1)[0].rstrip(",.;:") + "…"
+
+
+def _og_image_meta():
+    """OG + Twitter image tags (absolute URLs, no user data) so links unfurl with a
+    card instead of a blank box. The PNG itself is emitted by write_og_image()."""
+    img = f"{SITE_URL}/og-default.png"
+    return (
+        f'<meta property="og:image" content="{img}">\n'
+        '<meta property="og:image:width" content="1200">\n'
+        '<meta property="og:image:height" content="630">\n'
+        '<meta name="twitter:card" content="summary_large_image">\n'
+        f'<meta name="twitter:image" content="{img}">\n'
+    )
+
+
+def write_og_image(path):
+    """Emit a deterministic 1200x630 social card (solid brand slate) with only the
+    stdlib, so every page's og:image/twitter:image resolves and unfurls aren't blank.
+    Pure function of its inputs — preserves the build's determinism guarantee.
+    (Placeholder art; a designed card can replace it without touching any meta tag.)"""
+    import struct
+    import zlib
+
+    width, height = 1200, 630
+    pixel = bytes((0x0F, 0x17, 0x2A))  # brand slate #0f172a
+
+    def _chunk(tag, data):
+        body = tag + data
+        return struct.pack(">I", len(data)) + body + struct.pack(">I", zlib.crc32(body) & 0xFFFFFFFF)
+
+    raw = (b"\x00" + pixel * width) * height  # per row: filter byte 0 + RGB pixels
+    png = (
+        b"\x89PNG\r\n\x1a\n"
+        + _chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0))
+        + _chunk(b"IDAT", zlib.compress(raw, 9))
+        + _chunk(b"IEND", b"")
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(png)
 
 
 def get_surge_price(base_price, days_until):
@@ -508,47 +574,58 @@ def build_pricing_view(full_pricing):
 def _audit_checkout_link(dep):
     """Deadline- and kit-tagged link to the on-site audit page, which carries
     the deadline into the server Checkout Session (so surge pricing + attribution
-    survive). Replaces per-tier direct Stripe Payment Links."""
-    q = (
-        f"deadline={dep['date']}"
-        f"&utm_source=migrate&utm_medium=cta&utm_campaign={dep.get('slug', '')}"
-    )
+    survive). Replaces per-tier direct Stripe Payment Links.
+
+    The deadline carried is the NEAREST enforcement date — the same date the page's
+    displayed surge price is computed from — so the server recomputes the identical
+    tier and the charged price matches what the buyer saw."""
+    from urllib.parse import urlencode
+
+    _, deadline_date = nearest_enforcement(dep)
+    q = {
+        "deadline": deadline_date,
+        "utm_source": "migrate",
+        "utm_medium": "cta",
+        "utm_campaign": dep.get("slug", ""),
+    }
     if dep.get("kit"):
-        q += f"&kit={dep['kit']}"
-    return f"/audit/?{q}"
+        q["kit"] = dep["kit"]
+    return "/audit/?" + urlencode(q)
 
 
 def _pack_checkout_link(dep):
-    q = f"utm_source=migrate&utm_medium=cta&utm_campaign={dep.get('slug', '')}"
+    from urllib.parse import urlencode
+
+    q = {"utm_source": "migrate", "utm_medium": "cta", "utm_campaign": dep.get("slug", "")}
     if dep.get("kit"):
-        q += f"&kit={dep['kit']}"
-    return f"/pack/?{q}"
+        q["kit"] = dep["kit"]
+    return "/pack/?" + urlencode(q)
 
 
 def compute_urgency(dep, pricing_view):
     """Deterministic urgency + surge pricing derived ONLY from the cited
     deadline date in deprecations.yml and the tiers in pricing.yml."""
-    days = days_until_nearest_enforcement(dep)
+    days, deadline_date = nearest_enforcement(dep)
     audit = pricing_view["audit_pdf"]
 
     if days < 0:
         tier, label = "passed", "deadline passed"
         headline = (
-            f"This deadline passed on {dep['date']}. "
+            f"This deadline passed on {deadline_date}. "
             "Affected resources are now in the post-deadline window — clean up before the next enforcement phase."
         )
         audit_price = audit["base"]
     elif days <= 7:
         tier, label = "urgent", "less than 7 days"
-        headline = f"Only {days} days until the {dep['date']} deadline. This is the final week."
+        headline = f"Only {days} days until the {deadline_date} deadline. This is the final week."
         audit_price = audit["surge_7d_price"]
     elif days <= 30:
         tier, label = "soon", "within 30 days"
-        headline = f"{days} days until the {dep['date']} deadline."
+        headline = f"{days} days until the {deadline_date} deadline."
         audit_price = audit["surge_30d_price"]
     else:
         tier, label = "ahead", "more than 30 days out"
-        headline = f"{days} days until the {dep['date']} deadline — enough runway to migrate safely."
+        headline = f"{days} days until the {deadline_date} deadline — enough runway to migrate safely."
         audit_price = audit["base"]
 
     return {
@@ -556,6 +633,9 @@ def compute_urgency(dep, pricing_view):
         "label": label,
         "headline": headline,
         "days_until": days,
+        # The date the day count actually runs to — interpolated wherever a date is
+        # shown next to days_until, so copy and the JS countdown never disagree.
+        "deadline_date": deadline_date,
         "audit_price": audit_price,
         # Server-routed, deadline+kit+utm tagged (price is recomputed server-side
         # from the deadline, so the charged price matches audit_price shown here).
@@ -601,24 +681,31 @@ def build_migration_pages(deprecations, full_pricing):
     for dep in all_deps:
         dep["slug"] = slugify(dep["name"])
 
-    now_iso = datetime.now(UTC).isoformat()
+    build_date = _build_date()
     pages = {}
     for dep in all_deps:
         urgency = compute_urgency(dep, pricing_view)
         related = find_related(dep, all_deps)
+        meta_description = _truncate_meta(
+            f"{dep['name']} ends {urgency['deadline_date']} ({urgency['label']}). "
+            f"{dep.get('service', '')}. {len(dep.get('breaking_changes', []))} breaking changes, "
+            f"exact migration facts, and a free CLI ({dep.get('kit') or 'EOLkits'}) to scan, "
+            "codemod, and ship before the deadline."
+        )
         html = template.render(
             deprecation=dep,
             pricing=pricing_view,
             urgency=urgency,
             related=related,
             site_url=SITE_URL,
-            now=now_iso,
+            now=build_date,
+            meta_description=meta_description,
         )
         pages[f"migrate/{dep['slug']}/index.html"] = html
 
     # Hub / index page that links every deprecation page (internal linking +
     # crawlable entry point referenced by every leaf page's breadcrumb).
-    pages["migrate/index.html"] = build_migrate_index(all_deps, pricing_view, now_iso)
+    pages["migrate/index.html"] = build_migrate_index(all_deps, pricing_view, build_date)
 
     return pages
 
@@ -711,7 +798,7 @@ def build_llms_txt(deprecations, pricing_view):
                 f"{fx.get('summary', '')} Source: {fx.get('source_url', '')}"
             )
         lines.append(
-            f"- [Free in-browser scanner]({SITE_URL}/scan): drop IaC / dependency files "
+            f"- [Free in-browser scanner]({SITE_URL}/scan/): drop IaC / dependency files "
             f"to find deprecated runtimes and incompatible dependencies locally — nothing uploaded."
         )
 
@@ -1087,7 +1174,9 @@ fetch('/status/data.json').then(r=>r.json()).then(d=>{
 
 
 def build_status_data_seed():
-    now = datetime.now(UTC).isoformat().replace("+00:00", "Z")
+    # Date-stable so the committed seed doesn't churn on every rebuild; the live
+    # status feed is refreshed at runtime by status-synth.yml.
+    now = _build_date() + "T00:00:00Z"
     return json.dumps(
         {
             "generated_at": now,
@@ -1217,7 +1306,7 @@ def build_deprecations_ics(deprecations):
         lines += [
             "BEGIN:VEVENT",
             f"UID:{uid}",
-            f"DTSTAMP:{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}",
+            f"DTSTAMP:{_build_date().replace('-', '')}T000000Z",
             f"DTSTART;VALUE=DATE:{dtstart}",
             f"DTEND;VALUE=DATE:{dtend}",
             f"SUMMARY:{summary}",
@@ -1544,9 +1633,10 @@ def build_scan_page(deprecations):
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
         "<title>Free AWS Lambda Runtime &amp; Dependency EOL Scanner — EOLkits</title>\n"
         '<meta name="description" content="Drop your SAM/CDK/Terraform/Serverless, package.json or requirements.txt to instantly find deprecated AWS Lambda runtimes and the Node 22 / Python 3.12 dependency breakages that block a migration. Runs entirely in your browser — nothing is uploaded.">\n'
-        f'<link rel="canonical" href="{SITE_URL}/scan">\n'
+        f'<link rel="canonical" href="{SITE_URL}/scan/">\n'
         '<link rel="stylesheet" href="/style.css">\n'
-        "<style>"
+        + _og_image_meta()
+        + "<style>"
         "#dz{border:2px dashed #94a3b8;border-radius:10px;padding:2.5rem 1rem;text-align:center;cursor:pointer;background:#f8fafc}"
         "#dz.over{border-color:#2563eb;background:#eff6ff}"
         ".scan-tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.88rem}"
@@ -1669,7 +1759,8 @@ def build_error_pages(fixes, deprecations, full_pricing):
             '<meta name="description" content="' + desc + '">\n'
             '<link rel="canonical" href="' + SITE_URL + "/fix/" + slug + '/">\n'
             '<link rel="stylesheet" href="/style.css">\n'
-            "<style>.fix-err{background:#0f172a;color:#e2e8f0;padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem}"
+            + _og_image_meta()
+            + "<style>.fix-err{background:#0f172a;color:#e2e8f0;padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem}"
             ".fix-steps li{margin:.35rem 0}.fix-cta{display:inline-block;margin-top:1rem;padding:.7rem 1.2rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}"
             ".fix-rel{background:#fff7ed;border:1px solid #fed7aa;padding:.6rem .8rem;border-radius:8px}</style>\n"
             '<script type="application/ld+json">' + json.dumps(faq) + "</script>\n"
@@ -1688,7 +1779,7 @@ def build_error_pages(fixes, deprecations, full_pricing):
             '<h2>How to fix it</h2>\n<ol class="fix-steps">' + steps_html + "</ol>\n"
             + rel_html
             + "<h2>Find every instance in your project</h2>\n"
-            + '<p>The free <a href="/scan">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>\n'
+            + '<p>The free <a href="/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>\n'
             + (('<p>Primary source: <a href="' + _h.escape(source) + '" target="_blank" rel="noopener nofollow">' + _h.escape(source) + "</a></p>\n") if source else "")
             + '<p><a class="fix-cta" href="' + audit_link + '">Get the full migration audit — ' + cta_price + ", hash-anchored PDF &rarr;</a></p>\n"
             "</body>\n</html>\n"
@@ -1712,7 +1803,7 @@ def build_error_pages(fixes, deprecations, full_pricing):
         '<nav class="breadcrumb"><a href="/">Home</a> / <span>Fixes</span></nav>\n'
         "<h1>AWS migration error fixes</h1>\n"
         "<p>Exact-match causes and verified fixes for the errors developers hit migrating off deprecated AWS runtimes and Amazon Linux 2. "
-        'Every fix cites a primary source. Not sure which apply to you? <a href="/scan">Scan your project free</a> — it runs entirely in your browser.</p>\n'
+        'Every fix cites a primary source. Not sure which apply to you? <a href="/scan/">Scan your project free</a> — it runs entirely in your browser.</p>\n'
         '<ul class="fix-list">' + items + "</ul>\n"
         '<p><a href="/migrate/">See all tracked AWS deadlines &rarr;</a></p>\n'
         "</body>\n</html>\n"
@@ -1782,7 +1873,8 @@ def build_deprecations_rss(deprecations):
     feed readers a citable, auto-updating list of every tracked AWS deadline."""
     import html as _h
 
-    now = datetime.now(UTC)
+    # Pin to midnight UTC of the build day so two same-day rebuilds are byte-identical.
+    now = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
     pub = now.strftime("%a, %d %b %Y %H:%M:%S GMT")
     ordered = sorted(deprecations.get("deprecations", []), key=lambda d: d.get("date", "9999-99-99"))
     items = []
@@ -1896,6 +1988,11 @@ def main():
         with open(full_path, "w") as f:
             f.write(inject_first_touch(path, normalize_project_links(content)))
         print(f"Built: docs/{path}")
+
+    # Binary social card (written outside the text loop) so every page's
+    # og:image / twitter:image resolves instead of unfurling blank.
+    write_og_image(DOCS_DIR / "og-default.png")
+    print("Built: docs/og-default.png")
 
     # Render legal docs from Markdown into real, indexable HTML (deterministic,
     # stdlib-only). Replaces the old shutil.copy that served raw markdown as
