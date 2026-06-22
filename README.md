@@ -6,7 +6,7 @@
 [![tests](https://img.shields.io/badge/tests-172%20passing-brightgreen)](#tests)
 [![license](https://img.shields.io/badge/license-MIT%20(open%20core)-blue)](#license)
 
-> **Amazon Linux 2 reaches end-of-life in 19 days (Jun 30, 2026).** The `al2023-gate` CLI below is free and MIT-licensed — clone it, scan your accounts, and run the migration yourself. If you'd rather have it done for you, the team offers a paid audit that scores every finding and hands back a roll-forward plan: [eolkits.com/audit](https://eolkits.com/audit).
+> **Check your own stack in 30 seconds — free, in your browser, nothing uploaded: [eolkits.com/scan](https://eolkits.com/scan).** Amazon Linux 2 reaches end-of-life **Jun 30, 2026**; Lambda Python 3.9–3.11 and Node 18/20 are in their own EOL waves. The CLIs below are free and MIT — clone and run them yourself. Prefer it done for you? A [$299 audit](https://eolkits.com/audit) (hash-anchored, **30-day money-back**) or a [done-for-you migration PR](https://eolkits.com/pack) (auto-refund if your CI fails). Every tracked deadline: [eolkits.com/migrate](https://eolkits.com/migrate). Hit a specific error? [eolkits.com/fix](https://eolkits.com/fix).
 
 AWS is killing runtimes on a hard schedule. When a deadline passes, deploys fail, functions get frozen, AMIs stop receiving patches. Most shops find out in production.
 
