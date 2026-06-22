@@ -8,6 +8,8 @@ import os
 import secrets
 import re
 import sys
+import time
+from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -20,7 +22,7 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Resp
 
 from . import pricing
 from .config import settings
-from .email import render_audit_delivery_email, send_email
+from .email import EmailDeliveryError, render_audit_delivery_email, send_email
 from .security import sha256_hex, verify_github_signature, verify_stripe_signature
 from .store import Store
 from .stripe_client import (
@@ -38,6 +40,14 @@ ALLOWED_EXTENSIONS = {".yaml", ".yml", ".json", ".tf", ".tfvars", ".js", ".ts", 
 OVERRIDE_LABEL = "override:ci-failure"
 CI_FAILURE_CONCLUSIONS = {"failure", "timed_out"}
 DRAIN_INTERVAL_SECONDS = 30
+# How often the drain loop re-attempts owner alerts for durably-captured leads
+# whose notification failed — so an email outage self-heals WITHOUT an external
+# cron, not only on the next process restart.
+LEAD_SWEEP_INTERVAL_SECONDS = 3600
+# A job still in 'running' longer than this is presumed orphaned by a crash and
+# is reclaimed by the drainer. MUST exceed the longest legitimate job runtime
+# (the 900s runner timeout) so a merely-slow job is never double-run.
+STALE_RUNNING_SECONDS = 1800
 
 # Studio microsites + eolkits that POST to /api/v1/lead — used for BOTH the CORS
 # allowlist and the 303 redirect allowlist, so the lead endpoint can honor each
@@ -52,38 +62,37 @@ _SITE_ORIGINS = (
     "https://ai.toledotechnologies.com",
 )
 
-app = FastAPI(title="EOLkits GRACE API", version="1.0.0")
+store = Store(settings.db_path)
+logger = logging.getLogger("eolkits_grace")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Fail closed: refuse to run in production without live secrets.
+    settings.require_runtime_secrets()
+    settings.uploads_dir.mkdir(parents=True, exist_ok=True)
+    settings.reports_dir.mkdir(parents=True, exist_ok=True)
+    drain_task: asyncio.Task | None = None
+    # Drain any jobs that were durably queued but not completed before a restart.
+    if settings.environment.strip().lower() != "test":
+        drain_task = asyncio.create_task(_drain_loop())
+        # Heal any leads captured-but-not-alerted during a prior email outage, off the
+        # event loop so a slow email provider can't delay startup.
+        asyncio.create_task(asyncio.to_thread(resend_unnotified_leads))
+    try:
+        yield
+    finally:
+        if drain_task:
+            drain_task.cancel()
+
+
+app = FastAPI(title="EOLkits GRACE API", version="1.0.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=sorted({settings.public_site_url, *_SITE_ORIGINS}),
     allow_methods=["GET", "POST", "PUT", "OPTIONS"],
     allow_headers=["*"],
 )
-
-store = Store(settings.db_path)
-logger = logging.getLogger("eolkits_grace")
-_drain_task: asyncio.Task | None = None
-
-
-@app.on_event("startup")
-async def startup() -> None:
-    # Fail closed: refuse to run in production without live secrets.
-    settings.require_runtime_secrets()
-    settings.uploads_dir.mkdir(parents=True, exist_ok=True)
-    settings.reports_dir.mkdir(parents=True, exist_ok=True)
-    # Drain any jobs that were durably queued but not completed before a restart.
-    if settings.environment.strip().lower() != "test":
-        global _drain_task
-        _drain_task = asyncio.create_task(_drain_loop())
-        # Heal any leads captured-but-not-alerted during a prior email outage, off the
-        # event loop so a slow email provider can't delay startup.
-        asyncio.create_task(asyncio.to_thread(resend_unnotified_leads))
-
-
-@app.on_event("shutdown")
-async def shutdown() -> None:
-    if _drain_task:
-        _drain_task.cancel()
 
 
 @app.get("/health")
@@ -102,8 +111,8 @@ async def health() -> dict[str, Any]:
 
 @app.get("/status")
 @app.get("/status.json")
-async def status() -> dict[str, Any]:
-    return {
+async def status(x_admin_token: str | None = Header(None)) -> dict[str, Any]:
+    data: dict[str, Any] = {
         "timestamp": datetime.now(UTC).isoformat(),
         "overall": "healthy",
         "environment": settings.environment,
@@ -114,9 +123,13 @@ async def status() -> dict[str, Any]:
             "email": {"ok": bool(settings.resend_api_key), "configured": bool(settings.resend_api_key)},
             "runner": {"ok": bool(settings.runner_url or settings.enable_inline_runner), "url": bool(settings.runner_url)},
         },
-        "recent_jobs": store.recent_jobs(20),
         "funnel_7d": store.event_counts(7),
     }
+    # recent_jobs carries per-order payloads (emails, repos, errors). Only expose it
+    # to an authenticated admin — never to an unauthenticated caller.
+    if _admin_ok(x_admin_token):
+        data["recent_jobs"] = store.recent_jobs(20)
+    return data
 
 
 # ---- uploads ----------------------------------------------------------------- #
@@ -332,6 +345,48 @@ async def record_event(request: Request) -> dict[str, Any]:
 _EMAIL_KEYS = ("email", "Email", "e-mail", "your-email", "your_email")
 _NAME_KEYS = ("name", "Name", "full_name", "fullname", "contact", "company", "Business", "agency_name")
 
+# Pragmatic email shape check — rejects obvious junk without trying to be RFC 5322.
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+# Lightweight in-process anti-flood for the public, CORS-open lead endpoint. Single
+# process + SQLite, so a per-IP sliding window in memory is sufficient; it resets on
+# restart, which is fine for spam control (the durable lead row is the real record).
+_LEAD_RATE: dict[str, list[float]] = {}
+_LEAD_RATE_WINDOW_SECONDS = 60.0
+_LEAD_RATE_MAX = 8
+
+
+def _client_ip(request: Request) -> str:
+    # Behind the GRACE host Caddy, request.client.host is the proxy (127.0.0.1), so
+    # prefer the left-most X-Forwarded-For hop for per-client bucketing.
+    xff = request.headers.get("x-forwarded-for", "")
+    if xff:
+        return xff.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+def _lead_rate_ok(ip: str) -> bool:
+    now = time.monotonic()
+    bucket = [t for t in _LEAD_RATE.get(ip, []) if now - t < _LEAD_RATE_WINDOW_SECONDS]
+    if len(bucket) >= _LEAD_RATE_MAX:
+        _LEAD_RATE[ip] = bucket
+        return False
+    bucket.append(now)
+    _LEAD_RATE[ip] = bucket
+    if len(_LEAD_RATE) > 4096:  # bound memory: drop fully-expired buckets
+        for key in [k for k, v in _LEAD_RATE.items() if all(now - t >= _LEAD_RATE_WINDOW_SECONDS for t in v)]:
+            _LEAD_RATE.pop(key, None)
+    return True
+
+
+def _admin_ok(token: str | None) -> bool:
+    expected = settings.admin_token
+    if not expected or not token:
+        return False
+    import hmac as _hmac
+
+    return _hmac.compare_digest(expected, token)
+
 
 def _esc(value: Any) -> str:
     return str(value or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
@@ -373,6 +428,10 @@ def _send_lead_notification(lead_id: int, product: str, source: str, fields: dic
                 send_email(settings, to=to, subject=subject, html=html)
                 sent += 1
                 break
+            except EmailDeliveryError as exc:
+                logger.warning("LEAD %s notify to %s attempt %d failed: %s", lead_id, to, attempt, exc)
+                if not exc.retryable:
+                    break  # permanent failure (e.g. bad recipient) — a retry won't help
             except Exception as exc:  # noqa: BLE001 — alert path must never raise
                 logger.warning("LEAD %s notify to %s attempt %d failed: %s", lead_id, to, attempt, exc)
     if sent:
@@ -389,7 +448,8 @@ def _send_lead_notification(lead_id: int, product: str, source: str, fields: dic
 
 def resend_unnotified_leads(max_batch: int = 50) -> dict[str, int]:
     """Re-attempt owner alerts for any durably-captured lead not yet confirmed-sent.
-    Idempotent; safe to run on startup and from a daily cron. Self-heals a transient
+    Idempotent; runs once at startup and then on a cadence from the drain loop
+    (LEAD_SWEEP_INTERVAL_SECONDS) — no external cron required. Self-heals a transient
     email outage without ever touching the (already durable) lead rows."""
     pending = store.unnotified_leads(limit=max_batch)
     for row in pending:
@@ -441,6 +501,8 @@ async def capture_lead(request: Request, background_tasks: BackgroundTasks) -> R
     303-redirects to `_next` (preserving the prior FormSubmit UX) — or returns
     JSON when no redirect target is given. Replaces FormSubmit, which silently
     dropped every submission at mxroute."""
+    if not _lead_rate_ok(_client_ip(request)):
+        raise HTTPException(status_code=429, detail="Too many submissions. Please try again shortly.")
     raw: dict[str, str] = {}
     try:
         form = await request.form()
@@ -469,7 +531,7 @@ async def capture_lead(request: Request, background_tasks: BackgroundTasks) -> R
     source = (raw.get("source") or request.headers.get("referer") or "").strip()[:200]
     for control in ("product", "source", "next"):
         fields.pop(control, None)
-    if not email or "@" not in email:
+    if not email or not _EMAIL_RE.match(email.strip()):
         raise HTTPException(status_code=400, detail="A valid email is required.")
 
     lead_id = store.record_lead(
@@ -1091,15 +1153,32 @@ def _execute_job(job_id: int, job: dict[str, Any]) -> None:
 
 
 async def _drain_loop() -> None:
+    # Start the clock now so the first PERIODIC lead sweep runs one interval after
+    # the one-shot startup sweep, instead of stacking on top of it.
+    last_lead_sweep = time.monotonic()
     while True:
         try:
-            await asyncio.get_event_loop().run_in_executor(None, _drain_once)
+            await asyncio.get_running_loop().run_in_executor(None, _drain_once)
         except Exception:  # pragma: no cover - never let the loop die
-            pass
+            logger.exception("drain loop iteration failed")
+        # Self-heal unnotified leads on a cadence, so an email outage recovers without
+        # an external cron (it previously only recovered on a full process restart).
+        now = time.monotonic()
+        if now - last_lead_sweep >= LEAD_SWEEP_INTERVAL_SECONDS:
+            last_lead_sweep = now
+            try:
+                await asyncio.to_thread(resend_unnotified_leads)
+            except Exception:  # pragma: no cover - the sweep must never kill the loop
+                logger.exception("periodic lead re-send sweep failed")
         await asyncio.sleep(DRAIN_INTERVAL_SECONDS)
 
 
 def _drain_once() -> None:
+    # Recover jobs orphaned in 'running' by a prior crash BEFORE claiming new work,
+    # so a paid order interrupted mid-fulfillment is retried rather than lost.
+    reclaimed = store.reclaim_stale_running_jobs(STALE_RUNNING_SECONDS)
+    if reclaimed:
+        logger.warning("reclaimed %d job(s) stuck in 'running' (likely a prior crash)", reclaimed)
     for job_row in store.claim_pending_jobs():
         _run_job(int(job_row["id"]), job_row["payload"])
 
@@ -1354,12 +1433,17 @@ def _maybe_refund_for_pr(repo: str, pr_number: int) -> None:
     if store.mark_refunded(session_id, refund.get("id", "")):
         email = purchase.get("email")
         if email:
-            send_email(
-                settings,
-                to=email,
-                subject="EOLkits Migration Pack — automatic refund issued",
-                html=f"<p>CI failed on your migration PR (#{pr_number} in {repo}) within the {window_days}-day guarantee window, so your purchase has been refunded.</p>",
-            )
+            # The refund itself is already done and durably recorded; a failure to
+            # send the courtesy notice must not raise out of this background task.
+            try:
+                send_email(
+                    settings,
+                    to=email,
+                    subject="EOLkits Migration Pack — automatic refund issued",
+                    html=f"<p>CI failed on your migration PR (#{pr_number} in {repo}) within the {window_days}-day guarantee window, so your purchase has been refunded.</p>",
+                )
+            except EmailDeliveryError as exc:
+                logger.warning("refund issued for %s but notice email failed: %s", session_id, exc)
 
 
 def _pr_has_override_label(repo: str, pr_number: int) -> bool:

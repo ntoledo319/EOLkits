@@ -44,6 +44,10 @@ class Settings:
     runner_token: str | None = os.environ.get("RUNNER_TOKEN")
     enable_inline_runner: bool = _bool_env("EOLKITS_INLINE_RUNNER", True)
 
+    # Optional bearer for the detailed /status fields (recent jobs + funnel). When
+    # unset, /status exposes only high-level health — never internal job/funnel data.
+    admin_token: str | None = os.environ.get("EOLKITS_ADMIN_TOKEN")
+
     # Secret used to sign short-lived internal upload URLs handed to the runner
     # (SSRF mitigation — see app._signed_upload_url / audit_pdf._download_input).
     internal_url_secret: str = os.environ.get("EOLKITS_INTERNAL_URL_SECRET", "")

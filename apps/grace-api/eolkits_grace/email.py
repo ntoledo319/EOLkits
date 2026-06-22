@@ -8,6 +8,20 @@ from .config import Settings
 RESEND_API = "https://api.resend.com/emails"
 
 
+class EmailDeliveryError(RuntimeError):
+    """Raised when an email could NOT be delivered.
+
+    Every caller drives retry / durable-recovery off an exception (the lead
+    re-send sweep, the job-queue backoff). A failed send must therefore surface
+    as a raised exception — never as a quietly-returned ``{"ok": False}`` that
+    looks like success and silently drops the message. ``retryable`` marks the
+    transient cases (no provider yet, 429, 5xx) worth re-attempting."""
+
+    def __init__(self, message: str, *, retryable: bool) -> None:
+        super().__init__(message)
+        self.retryable = retryable
+
+
 def render_audit_delivery_email(
     *,
     pdf_url: str,
@@ -43,29 +57,42 @@ def send_email(
     html: str,
     attachments: list[dict] | None = None,
 ) -> dict:
+    """Send one email via Resend. Returns the provider payload on success and
+    RAISES :class:`EmailDeliveryError` on any failure (no provider configured,
+    transport error, or a non-2xx response) so callers never mistake a failed
+    send for a delivered one."""
     if not settings.resend_api_key:
-        return {"ok": False, "error": "no_provider", "retryable": True}
-    response = requests.post(
-        RESEND_API,
-        headers={
-            "Authorization": f"Bearer {settings.resend_api_key}",
-            "Content-Type": "application/json",
-        },
-        json={
-            "from": "EOLkits <noreply@eolkits.com>",
-            "to": [to],
-            "subject": subject,
-            "html": html,
-            "attachments": attachments,
-        },
-        timeout=30,
-    )
-    if response.ok:
-        return {"ok": True, **response.json()}
-    return {
-        "ok": False,
-        "status": response.status_code,
-        "error": response.text,
-        "retryable": response.status_code == 429 or response.status_code >= 500,
+        raise EmailDeliveryError(
+            "no email provider configured (RESEND_API_KEY unset)", retryable=True
+        )
+    payload: dict = {
+        "from": "EOLkits <noreply@eolkits.com>",
+        "to": [to],
+        "subject": subject,
+        "html": html,
     }
+    if attachments:
+        payload["attachments"] = attachments
+    try:
+        response = requests.post(
+            RESEND_API,
+            headers={
+                "Authorization": f"Bearer {settings.resend_api_key}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+            timeout=30,
+        )
+    except requests.RequestException as exc:
+        raise EmailDeliveryError(f"email transport error: {exc}", retryable=True) from exc
+    if response.ok:
+        try:
+            return {"ok": True, **response.json()}
+        except ValueError:
+            return {"ok": True}
+    retryable = response.status_code == 429 or response.status_code >= 500
+    raise EmailDeliveryError(
+        f"email provider returned {response.status_code}: {response.text[:500]}",
+        retryable=retryable,
+    )
 

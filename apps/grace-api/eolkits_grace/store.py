@@ -375,7 +375,7 @@ class Store:
 
     def unnotified_leads(self, limit: int = 100) -> list[dict[str, Any]]:
         """Durably-captured leads the owner was NOT yet successfully alerted about —
-        the recovery queue for the daily re-send sweep (self-heals email outages)."""
+        the recovery queue for the periodic re-send sweep (self-heals email outages)."""
         with self.connect() as conn:
             rows = conn.execute(
                 "SELECT * FROM leads WHERE notified = 0 ORDER BY id ASC LIMIT ?", (limit,)
@@ -485,6 +485,45 @@ class Store:
                 (status, attempts, next_attempt_at, error[:2000], _now(), job_id),
             )
             return status
+
+    def reclaim_stale_running_jobs(self, cutoff_seconds: int) -> int:
+        """Recover jobs orphaned in 'running' by a crash/restart mid-execution.
+
+        ``try_claim`` moves a job pending -> running; if the process dies before
+        the job finishes, nothing else ever re-claims it (the drainer only looks
+        at 'pending'), so a paid order silently never fulfils. This sweep returns
+        any job stuck in 'running' past ``cutoff_seconds`` back to 'pending' so the
+        drainer re-runs it — or dead-letters it once max_attempts is exhausted, so
+        a process-crashing poison-pill job can't loop forever. ``cutoff_seconds``
+        MUST exceed the longest legitimate job runtime (the runner timeout) so a
+        job that is merely slow is never double-run.
+        """
+        cutoff = (datetime.now(UTC) - timedelta(seconds=cutoff_seconds)).isoformat()
+        reclaimed = 0
+        with self.connect() as conn:
+            rows = conn.execute(
+                "SELECT id, attempts, max_attempts FROM jobs "
+                "WHERE status = 'running' AND updated_at < ?",
+                (cutoff,),
+            ).fetchall()
+            for row in rows:
+                attempts = int(row["attempts"]) + 1
+                if attempts >= int(row["max_attempts"] or DEFAULT_MAX_ATTEMPTS):
+                    conn.execute(
+                        "UPDATE jobs SET status = 'dead_letter', attempts = ?, "
+                        "last_error = 'reclaimed: exceeded max attempts after stalling in running', "
+                        "updated_at = ? WHERE id = ?",
+                        (attempts, _now(), row["id"]),
+                    )
+                else:
+                    conn.execute(
+                        "UPDATE jobs SET status = 'pending', attempts = ?, next_attempt_at = NULL, "
+                        "last_error = 'reclaimed from stale running (likely a prior crash)', "
+                        "updated_at = ? WHERE id = ?",
+                        (attempts, _now(), row["id"]),
+                    )
+                reclaimed += 1
+        return reclaimed
 
     def claim_pending_jobs(self, limit: int = 25) -> list[dict[str, Any]]:
         """Return jobs that are pending and due (next_attempt_at <= now)."""
