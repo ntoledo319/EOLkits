@@ -1034,6 +1034,80 @@ def build_verify_page():
         return None
 
 
+def build_lambda_schedule_page(deprecations, pricing_view):
+    """Head-term reference page — the AWS Lambda runtime deprecation schedule, built
+    from the cited deprecations.yml. Targets high-volume 'lambda runtime deprecation
+    schedule / dates / end of life' queries; each row links its /migrate guide + the
+    AWS source. Static & deterministic (not passed through _interpolate_api)."""
+    import html as _h
+    ap = pricing_view.get("audit_pdf", {}) if isinstance(pricing_view, dict) else {}
+    audit_base = ap.get("base", 299) if isinstance(ap, dict) else 299
+    lam = [
+        d for d in deprecations.get("deprecations", [])
+        if "lambda" in (str(d.get("service", "")) + " " + " ".join(d.get("tags", []))).lower()
+    ]
+    lam.sort(key=lambda d: str(d.get("block_update_date") or d.get("date") or "9999-12-31"))
+    rows = ""
+    for d in lam:
+        name = _h.escape(str(d.get("name", "")))
+        slug = slugify(str(d.get("name", "")))
+        rt = _h.escape(_runtime_id_from_name(str(d.get("name", ""))) or name)
+        create = _h.escape(str(d.get("date") or "—"))
+        update = _h.escape(str(d.get("block_update_date") or "—"))
+        sev = _h.escape(str(d.get("severity", "")))
+        tags = " ".join(d.get("tags", [])).lower()
+        target = "python3.12" if "python" in tags else ("nodejs22" if "nodejs" in tags else "—")
+        src = _h.escape(str(d.get("url", "")))
+        rows += (
+            '<tr><td><a href="/migrate/' + slug + '/"><code>' + rt + "</code></a></td>"
+            "<td>" + create + "</td><td>" + update + "</td>"
+            '<td class="sev sev-' + sev + '">' + sev + "</td>"
+            "<td><code>" + target + "</code></td>"
+            '<td><a href="' + src + '" target="_blank" rel="noopener nofollow">AWS</a></td></tr>'
+        )
+    faq = {
+        "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+            {"@type": "Question", "name": "What happens when an AWS Lambda runtime is deprecated?",
+             "acceptedAnswer": {"@type": "Answer", "text": "Existing functions keep running, but stop receiving security patches. AWS then blocks creating new functions on the runtime, and about 30 days later blocks updating existing ones — after that the function is frozen until you move it to a supported runtime."}},
+            {"@type": "Question", "name": "How do I find which Lambda runtimes I'm using?",
+             "acceptedAnswer": {"@type": "Answer", "text": "Run the free scanner at eolkits.com/scan over your SAM/CDK/Terraform/Serverless config (nothing is uploaded), or run: aws lambda list-functions --query 'Functions[].Runtime'."}},
+            {"@type": "Question", "name": "What should I upgrade Lambda Python and Node runtimes to?",
+             "acceptedAnswer": {"@type": "Answer", "text": "AWS recommends python3.12 for Python and nodejs22.x for Node. Both run on Amazon Linux 2023; expect to fix removed stdlib modules (distutils, cgi), the unbundled AWS SDK v2 on Node 18+, and native-wheel/ABI changes."}},
+        ],
+    }
+    return (
+        '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+        '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
+        "<title>AWS Lambda runtime deprecation schedule (2026–2027) | EOLkits</title>\n"
+        '<meta name="description" content="Every AWS Lambda runtime deprecation date — when AWS blocks creating and updating functions on python3.9-3.11 and nodejs18/20, the recommended upgrade target, and the AWS source. Plus a free scanner to find yours.">\n'
+        '<link rel="canonical" href="' + SITE_URL + '/lambda-runtime-deprecation-schedule/">\n'
+        '<link rel="stylesheet" href="/style.css">\n'
+        '<script defer src="/track.js"></script>\n'
+        '<script type="application/ld+json">' + json.dumps(faq) + "</script>\n"
+        "<style>.sched{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.92rem}"
+        ".sched th,.sched td{border:1px solid #e5e7eb;padding:.5rem .6rem;text-align:left}"
+        ".sched th{background:#f3f4f6}.sched .sev{font-weight:700}"
+        ".sev-critical{color:#dc2626}.sev-high{color:#ea580c}.sev-medium{color:#ca8a04}"
+        ".cta{display:inline-block;margin:1rem 0;padding:.7rem 1.2rem;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600}</style>\n"
+        "</head>\n"
+        '<body class="container article">\n'
+        '<nav class="breadcrumb"><a href="/">Home</a> / <a href="/migrate/">Deadlines</a> / <span>Lambda runtime schedule</span></nav>\n'
+        "<h1>AWS Lambda runtime deprecation schedule (2026–2027)</h1>\n"
+        "<p>When each AWS Lambda runtime stops getting patches, when AWS blocks <strong>creating</strong> new functions on it, when AWS blocks <strong>updating</strong> existing ones, and what to move to. Every date comes from the AWS Lambda runtime deprecation table — each row links the source.</p>\n"
+        '<p><a class="cta" href="/scan/">Scan your stack free — find your deprecated runtimes →</a></p>\n'
+        '<table class="sched"><thead><tr><th>Runtime</th><th>Blocks create</th><th>Blocks update</th><th>Severity</th><th>Upgrade to</th><th>Source</th></tr></thead><tbody>\n'
+        + rows
+        + "\n</tbody></table>\n"
+        '<p class="muted">Functions keep running after deprecation, but become unpatched and — after the block-update date — unmodifiable. Dates reflect the AWS-published schedule and can shift; the linked AWS page is authoritative.</p>\n'
+        "<h2>Fixing the upgrade</h2>\n"
+        '<p>The upgrade usually surfaces specific errors — removed stdlib modules, the unbundled AWS SDK v2 on Node 18+, native-wheel/ABI breaks. See <a href="/fix/">common migration error fixes</a>, or get a <a href="/audit/">hash-anchored audit ($'
+        + str(audit_base)
+        + ', 30-day money-back)</a> that scores every finding and hands back a roll-forward plan.</p>\n'
+        '<p><a href="/migrate/">See all tracked AWS deadlines →</a></p>\n'
+        "</body>\n</html>\n"
+    )
+
+
 def build_track_js():
     """First-party pageview beacon for content pages (home/scan/migrate/fix). The
     commerce pages fire their own richer inline events; this gives the TOP of the
@@ -2180,6 +2254,7 @@ def main():
         "status/data.json": build_status_data_seed(),
         "blog/index.html": build_blog_index(),
         "vs/index.html": build_vs_index(COMPETITORS),
+        "lambda-runtime-deprecation-schedule/index.html": build_lambda_schedule_page(deprecations, build_pricing_view(pricing)),
         "deprecations.ics": build_deprecations_ics(deprecations),
     }
     pages["widget.js"] = build_widget_js()

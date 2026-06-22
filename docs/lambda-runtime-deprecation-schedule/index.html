@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AWS Lambda runtime deprecation schedule (2026–2027) | EOLkits</title>
+<meta name="description" content="Every AWS Lambda runtime deprecation date — when AWS blocks creating and updating functions on python3.9-3.11 and nodejs18/20, the recommended upgrade target, and the AWS source. Plus a free scanner to find yours.">
+<link rel="canonical" href="https://eolkits.com/lambda-runtime-deprecation-schedule/">
+<link rel="stylesheet" href="/style.css">
+<script defer src="/track.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What happens when an AWS Lambda runtime is deprecated?", "acceptedAnswer": {"@type": "Answer", "text": "Existing functions keep running, but stop receiving security patches. AWS then blocks creating new functions on the runtime, and about 30 days later blocks updating existing ones \u2014 after that the function is frozen until you move it to a supported runtime."}}, {"@type": "Question", "name": "How do I find which Lambda runtimes I'm using?", "acceptedAnswer": {"@type": "Answer", "text": "Run the free scanner at eolkits.com/scan over your SAM/CDK/Terraform/Serverless config (nothing is uploaded), or run: aws lambda list-functions --query 'Functions[].Runtime'."}}, {"@type": "Question", "name": "What should I upgrade Lambda Python and Node runtimes to?", "acceptedAnswer": {"@type": "Answer", "text": "AWS recommends python3.12 for Python and nodejs22.x for Node. Both run on Amazon Linux 2023; expect to fix removed stdlib modules (distutils, cgi), the unbundled AWS SDK v2 on Node 18+, and native-wheel/ABI changes."}}]}</script>
+<style>.sched{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.92rem}.sched th,.sched td{border:1px solid #e5e7eb;padding:.5rem .6rem;text-align:left}.sched th{background:#f3f4f6}.sched .sev{font-weight:700}.sev-critical{color:#dc2626}.sev-high{color:#ea580c}.sev-medium{color:#ca8a04}.cta{display:inline-block;margin:1rem 0;padding:.7rem 1.2rem;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600}</style>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
+</head>
+<body class="container article">
+<nav class="breadcrumb"><a href="/">Home</a> / <a href="/migrate/">Deadlines</a> / <span>Lambda runtime schedule</span></nav>
+<h1>AWS Lambda runtime deprecation schedule (2026–2027)</h1>
+<p>When each AWS Lambda runtime stops getting patches, when AWS blocks <strong>creating</strong> new functions on it, when AWS blocks <strong>updating</strong> existing ones, and what to move to. Every date comes from the AWS Lambda runtime deprecation table — each row links the source.</p>
+<p><a class="cta" href="/scan/">Scan your stack free — find your deprecated runtimes →</a></p>
+<table class="sched"><thead><tr><th>Runtime</th><th>Blocks create</th><th>Blocks update</th><th>Severity</th><th>Upgrade to</th><th>Source</th></tr></thead><tbody>
+<tr><td><a href="/migrate/lambda-node.js-20-phase-1/"><code>nodejs20.x</code></a></td><td>2027-02-01</td><td>2027-03-03</td><td class="sev sev-high">high</td><td><code>nodejs22</code></td><td><a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">AWS</a></td></tr><tr><td><a href="/migrate/lambda-python-3.9-eol/"><code>python3.9</code></a></td><td>2027-02-01</td><td>2027-03-03</td><td class="sev sev-high">high</td><td><code>python3.12</code></td><td><a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">AWS</a></td></tr><tr><td><a href="/migrate/lambda-python-3.10-eol/"><code>python3.10</code></a></td><td>2027-02-01</td><td>2027-03-03</td><td class="sev sev-high">high</td><td><code>python3.12</code></td><td><a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">AWS</a></td></tr><tr><td><a href="/migrate/lambda-node.js-18-eol/"><code>nodejs18.x</code></a></td><td>2027-02-01</td><td>2027-03-03</td><td class="sev sev-high">high</td><td><code>nodejs22</code></td><td><a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">AWS</a></td></tr><tr><td><a href="/migrate/lambda-python-3.8-eol/"><code>python3.8</code></a></td><td>2027-02-01</td><td>2027-03-03</td><td class="sev sev-high">high</td><td><code>python3.12</code></td><td><a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">AWS</a></td></tr><tr><td><a href="/migrate/lambda-python-3.11-eol/"><code>python3.11</code></a></td><td>2027-07-31</td><td>2027-08-31</td><td class="sev sev-medium">medium</td><td><code>python3.12</code></td><td><a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">AWS</a></td></tr>
+</tbody></table>
+<p class="muted">Functions keep running after deprecation, but become unpatched and — after the block-update date — unmodifiable. Dates reflect the AWS-published schedule and can shift; the linked AWS page is authoritative.</p>
+<h2>Fixing the upgrade</h2>
+<p>The upgrade usually surfaces specific errors — removed stdlib modules, the unbundled AWS SDK v2 on Node 18+, native-wheel/ABI breaks. See <a href="/fix/">common migration error fixes</a>, or get a <a href="/audit/">hash-anchored audit ($299, 30-day money-back)</a> that scores every finding and hands back a roll-forward plan.</p>
+<p><a href="/migrate/">See all tracked AWS deadlines →</a></p>
+</body>
+</html>
