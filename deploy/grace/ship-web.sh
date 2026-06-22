@@ -36,7 +36,7 @@ fi
 if [ "${1:-}" != "--apply" ]; then
   echo "==> DRY RUN — no changes will be made. Re-run with --apply to deploy."
   echo "    Target: $GRACE_HOST:$GRACE_WEBROOT/"
-  rsync -avn --delete docs/ "$GRACE_HOST:$GRACE_WEBROOT/"
+  rsync -avn --delete --rsync-path="sudo rsync" -e "ssh -o BatchMode=yes -o ConnectTimeout=15" docs/ "$GRACE_HOST:$GRACE_WEBROOT/"
   exit 0
 fi
 
@@ -45,7 +45,8 @@ ssh "$GRACE_HOST" "sudo tar czf /tmp/eolkits-webroot-backup-\$(date +%F-%H%M).tg
   echo "  (snapshot skipped — continuing)"
 
 echo "==> Deploying docs/ -> $GRACE_HOST:$GRACE_WEBROOT/  (Caddy serves files directly; no reload needed)"
-rsync -av --delete docs/ "$GRACE_HOST:$GRACE_WEBROOT/"
+# Web root is root/uid-owned; --rsync-path="sudo rsync" writes via the box's passwordless sudo.
+rsync -av --delete --rsync-path="sudo rsync" -e "ssh -o BatchMode=yes -o ConnectTimeout=15" docs/ "$GRACE_HOST:$GRACE_WEBROOT/"
 
 echo "==> Verifying live site"
 curl -sI "https://eolkits.com/audit/" | head -1
