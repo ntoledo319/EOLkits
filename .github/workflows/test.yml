@@ -13,7 +13,7 @@ jobs:
       matrix:
         kit: [al2023-gate, python-pivot]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -39,7 +39,7 @@ jobs:
   test-node-kit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -59,7 +59,7 @@ jobs:
   test-worker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -84,7 +84,7 @@ jobs:
   test-runner:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -104,7 +104,7 @@ jobs:
   test-grace-api:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -124,7 +124,7 @@ jobs:
   test-web:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -187,7 +187,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Set up Python
         uses: actions/setup-python@v6
