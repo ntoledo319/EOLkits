@@ -32,7 +32,10 @@ test('scan --fixture --json emits well-formed JSON', () => {
   const orders = data.find(d => d.function_name === 'api-orders-ingest');
   assert.equal(orders.runtime, 'nodejs20.x');
   assert.equal(orders.recommended_target, 'nodejs22.x');
-  assert.ok(orders.days_until_block_update > 100); // Sep 30 2026 > 100 days from scan date
+  // Well-formed JSON check: the countdown field must be a finite number, not a magic
+  // magnitude (block_update = 2027-03-03, so a hardcoded threshold silently rots as time passes).
+  assert.equal(typeof orders.days_until_block_update, 'number');
+  assert.ok(Number.isFinite(orders.days_until_block_update));
 });
 
 test('scan --fixture --format csv emits CSV header', () => {

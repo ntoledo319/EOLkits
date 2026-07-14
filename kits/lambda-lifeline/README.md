@@ -6,9 +6,9 @@
 
 | Runtime | Phase 1 — patches stop | Phase 2 — block create | Phase 3 — block update (hard) |
 |---|---|---|---|
-| `nodejs16.x` | Jun 12, 2024 ✗ past | Aug 31, 2026 | **Sep 30, 2026** |
-| `nodejs18.x` | Sep 1, 2025 ✗ past  | Aug 31, 2026 | **Sep 30, 2026** |
-| `nodejs20.x` | **Apr 30, 2026**    | Aug 31, 2026 | **Sep 30, 2026** |
+| `nodejs16.x` | Jun 12, 2024 ✗ past | Feb 1, 2027 | **Mar 3, 2027** |
+| `nodejs18.x` | Sep 1, 2025 ✗ past  | Feb 1, 2027 | **Mar 3, 2027** |
+| `nodejs20.x` | **Apr 30, 2026**    | Feb 1, 2027 | **Mar 3, 2027** |
 
 If you run Node on Lambda, you are on the clock.
 
@@ -175,7 +175,7 @@ npm test
 - [ ] `al2023-gate` — Amazon Linux 2 → AL2023 migration kit (June 30, 2026 deadline)
 - [ ] `python-pivot` — Lambda Python 3.9/3.10 → 3.12 kit (October 31, 2026 deadline)
 - [ ] Node 22 → 24 migration pack (April 30, 2027 deadline)
-- [ ] Ruby 3.2 → 3.4 kit (Aug 31, 2026 deadline)
+- [ ] Ruby 3.2 → 3.4 kit (Mar 3, 2027 block-update deadline)
 
 Sign up for notifications at [eolkits.com](https://eolkits.com).
 

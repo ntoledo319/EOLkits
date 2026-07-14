@@ -40,7 +40,7 @@ export class EOLkitsScanner {
             const line = text.substring(0, match.index).split('\n').length - 1;
             findings.push({
                 severity: 'critical',
-                message: 'Lambda Node.js 20 runtime deprecated (EOL: 2026-04-30)',
+                message: 'Lambda Node.js 20 deprecated 2026-04-30 (no security patches); AWS blocks function updates 2027-03-03',
                 file: document.fileName,
                 line: line + 1,
                 character: match.index - text.lastIndexOf('\n', match.index) - 1,
@@ -48,19 +48,20 @@ export class EOLkitsScanner {
             });
         }
 
-        // Check for Python 3.9-3.11
+        // Check for Python 3.9-3.11 — AWS Lambda runtime deprecation dates
+        // (docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html), not Python community EOL.
         const pythonPattern = /Runtime:\s*python3\.(9|10|11)/g;
         while ((match = pythonPattern.exec(text)) !== null) {
             const line = text.substring(0, match.index).split('\n').length - 1;
             const version = match[1];
             const eolDates: Record<string, string> = {
-                '9': '2026-10-31',
-                '10': '2027-04-30',
-                '11': '2027-10-31'
+                '9': '2025-12-15',
+                '10': '2026-10-31',
+                '11': '2027-06-30'
             };
             findings.push({
                 severity: version === '9' ? 'high' : 'medium',
-                message: `Lambda Python 3.${version} deprecated (EOL: ${eolDates[version]})`,
+                message: `Lambda Python 3.${version} deprecated (AWS Lambda EOL: ${eolDates[version]})`,
                 file: document.fileName,
                 line: line + 1,
                 character: match.index - text.lastIndexOf('\n', match.index) - 1,
