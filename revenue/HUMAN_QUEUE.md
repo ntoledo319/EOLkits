@@ -8,23 +8,19 @@ Legend: 🔴 KYC-latency (start first) · 🟢 minutes of clicking · ⚪ option
 
 ---
 
-## CORE BATCH — unlocks the $4k paths (~30 min active)
+## ⛔ REMOVED 2026-07-14 (owner constraint — DECISIONS D7)
+- ~~HQ-1 Upwork account~~, ~~HQ-2 publish Upwork/Fiverr gig~~, ~~HQ-3 send proposals~~ — owner won't do Upwork
+  (ongoing personal time) or Fiverr (KYC won't clear). No outreach path. See `OPPORTUNITIES.md`.
 
-### 🔴 HQ-1 — Create + ID-verify an Upwork seller account  *(Bet A · ~10 min + verification wait)*
-- **Why human-only:** identity/KYC verification; the agent may not create accounts or transact.
-- **Steps:** 1) https://www.upwork.com/signup/ → "I'm a freelancer." 2) Fill profile (title: "AWS Lambda / Amazon
-  Linux runtime EOL migration — automated, guaranteed"). 3) Complete ID verification. 4) Add a payout method.
-- **Then tell the agent "Upwork yes"** → it re-runs the live demand search and drafts one tailored proposal per
-  matching job (you paste + send — HQ-3).
-- **Link:** https://www.upwork.com/signup/ · **~10 min** (+ async verification).
+## CORE BATCH — one-time setups, then autonomous forever (fits the "no ongoing time" constraint)
 
-### 🟢 HQ-2 — Publish the fixed-scope gig  *(Bet A · ~5 min)*
-- **Why human-only:** listing goes live under your identity.
-- **Steps:** Upwork "Project Catalog" (or Fiverr Gig) → title/description/pricing the agent drafts in
-  `launch/distribution/fast-cash/`. Price **$499**, scope = one runtime family (Node **or** Python **or** AL2).
-- **~5 min** (after the agent hands you the copy).
+### 🟢 HQ-1′ — Create a Gumroad account for the digital bundle  *(Bet A′ · ~5 min, one-time)*
+- **Why human-only:** account + payout/KYC (Merchant of Record). **Watch:** Fiverr wouldn't verify you — if Gumroad
+  also rejects KYC, we sell the bundle via the existing eolkits.com Stripe rail instead (no new account).
+- **Steps:** https://gumroad.com → sign up → add payout method. Then the agent builds the bundle zip + listing copy;
+  you click publish (HQ-2′, next cycle). **~5 min.**
 
-### 🔴 HQ-4 — Register the GitHub App + put creds on the GRACE box  *(Bet B · ~10 min)*
+### 🔴 HQ-4 — Register the GitHub App + put creds on the GRACE box  *(Bet B · ~10 min, one-time)*
 - **Why human-only:** requires GitHub org settings + SSH to the VPS (key is on your Mac only, outside the agent's jail).
 - **Steps:** 1) https://github.com/settings/apps/new → name "EOLkits Migration", set permissions (Contents: R/W,
   Pull requests: R/W), generate a **private key** (.pem). 2) `ssh ubuntu@15.204.209.97`; paste `APP_ID` + the key path
@@ -72,7 +68,8 @@ Legend: 🔴 KYC-latency (start first) · 🟢 minutes of clicking · ⚪ option
 
 ---
 
-## Running total
-Core batch ≈ **30 min active** (HQ-1,2,4,5,6). Optional batch ≈ 33 min if all done. Keep the whole run ≤60 min by
-doing the core batch now and the compounding batch opportunistically. **The single highest-ROI action is HQ-1 (Upwork)
-+ telling the agent "Upwork yes."**
+## Running total (post-pivot)
+Everything here is now **one-time setup, no ongoing owner time.** Core ≈ **20 min** (HQ-1′,4,5,6). The COMPOUNDING
+batch below is now the **primary growth engine** (outreach is off the table), so those publishes matter more than
+before — but each is still a one-time click. **Highest-ROI now: HQ-7 (`vsce publish`) + HQ-10 (GitHub Action listing)
++ HQ-4 (GitHub App)** — they turn on the discovery flywheel that feeds every sale.

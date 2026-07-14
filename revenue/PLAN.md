@@ -14,25 +14,32 @@ Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH
 EOLkits is real, live, tested, and delivering (email fixed in prior work; Stripe links live). It has earned **$0**
 because it has **~0 qualified traffic and 0 buyers** — the bottleneck is 100% distribution + demand, not product.
 Cycle-0 audit + verified platform research + 40+ scored frames confirm: **no autonomous $0 action reaches a ready
-buyer in 28 days** — every payment channel is first-publish KYC-gated. The two paths that can actually collect $4k
-both need ~15–60 min of owner account/click work (batched in HUMAN_QUEUE). Realistic honest outcomes: autonomous-only
-≈ **$0–600**; owner does Upwork + 1–2 closes ≈ **$1,000–2,500**; full **$4,000** needs 3 Migration-Pack sales or a
-strong Upwork run — both owner-dependent.
+buyer in 28 days** — every payment channel is first-publish KYC-gated. **UPDATE 2026-07-14:** the owner ruled out
+Upwork (ongoing personal time) and Fiverr (KYC won't clear), so the fast-outreach path is gone (DECISIONS D7). The
+**compounding flywheel is now the primary engine** — one-time marketplace publishes + autonomous content — feeding
+the $299 audit and $1,499 Pack by *discovery*, not outreach. Realistic honest outcomes: **$4,000 by Day 28 is now
+very unlikely** (flywheel compounds over months); collected-by-Day-28 ≈ **$0–600**; the real inflection is the
+**Q1-2027 Lambda block wave (Feb 1 / Mar 3 2027)**.
 
 ---
 
 ## The 2–3 concurrent bets (§6)
 
-### Bet A — FAST · Productized "AWS runtime EOL audit + fix PR" gig on Upwork/Fiverr
-- **Frame:** sell a service artifact on a marketplace that supplies BOTH demand and escrow payment.
-- **Arithmetic to $4k:** gig priced **$499**; Upwork 10% → **$449.10 net/gig**. 1 gig = first dollar; a healthy
-  new-seller 4-wk run of **3–4 gigs = $1,347–$1,796 net** (≈⅓–½ of goal). Pair with Bet B to reach $4k.
-- **Funnel:** Upwork job feed (CTOs posting "migrate Lambda off Node 18/20", "Amazon Linux 2 upgrade", "Python 3.10
-  Lambda EOL") where the owner submits **agent-drafted** proposals; + Fiverr search for "AWS Lambda runtime upgrade."
-  Built-in buyer intent + escrow; no owned audience needed.
-- **Falsifier:** owner sends ~15 agent-drafted proposals over 2 weeks → **0 funded contracts** ⇒ niche/new-seller
-  thesis dead; shift effort to Bet B + Bet C.
-- **Human unlocks:** HQ-1 (Upwork/Fiverr account + KYC), HQ-2 (publish gig), HQ-3 (send drafted proposals).
+### ~~Bet A — Upwork/Fiverr gig~~ · **KILLED 2026-07-14 (owner constraint — see DECISIONS D7)**
+Owner: no Upwork ("won't spend my own time on platforms"), no Fiverr ("they won't verify me"). No owner outreach and
+no fast-gig shortcut exists. Replaced by:
+
+### Bet A′ — FAST(er) · Gumroad "AWS Runtime EOL Migration Toolkit" digital bundle
+- **Frame:** sell a bundle/service-artifact via a Merchant-of-Record with built-in payments and **one-time setup, no
+  per-job owner time** (fits the owner constraint).
+- **Arithmetic to $4k:** bundle at **$79** (packaging + migration playbook PDF + IaC templates + the 3 free CLIs),
+  Gumroad 10%+$0.50 → **~$70 net/sale**. This is a *first-dollar / volume* play, not a $4k driver on its own
+  (~57 sales for $4k); its job is a cheap early conversion + a lead into the $299 audit.
+- **Funnel:** the same discovery flywheel (Bet C) → a low-friction $79 buy for teams not ready for a $299 audit.
+- **Falsifier:** Gumroad rejects the owner's KYC (as Fiverr did) ⇒ bundle sold via the existing Stripe rail on
+  eolkits.com instead; or 3 weeks live with traffic and 0 sales ⇒ the code is too "free-on-GitHub" to sell — drop it.
+- **Human unlocks:** HQ-1′ (Gumroad account — one-time; verify KYC clears), HQ-2′ (agent builds the bundle zip +
+  listing copy; owner clicks publish). **Not yet built — next cycle.**
 
 ### Bet B — HEAVY · $1,499 Migration Pack (real PR, CI-fail auto-refund)
 - **Frame:** fixed-scope service artifact via the already-live Stripe link; highest revenue-per-unit.
@@ -70,15 +77,17 @@ strong Upwork run — both owner-dependent.
    unchanged. (Prevented a wrong-date edit the synthesis had suggested.)
 4. **The six `revenue/` state files** (this brain).
 
-## Next actions (priority order)
-- **P0 — Owner:** burn down HUMAN_QUEUE, KYC items first (HQ-1 Upwork, HQ-4 GitHub App, HQ-6 test purchase).
-- **P1 — Agent (next cycle):** on Upwork "yes" → re-run demand search + draft one tailored proposal per live job.
-  Publish the VS Code `.vsix` prep is done; write an `ovsx`/`vsce` one-command PUBLISH doc. Draft the Gumroad/Lemon
-  Squeezy "AWS EOL Migration Toolkit" bundle as a first-dollar fallback.
+## Next actions (priority order) — post-pivot
+- **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,
+  HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack)
+  and HQ-6 one real test purchase. **All one-time setup — no ongoing owner time** (fits the constraint).
 - **P1 — Agent (next cycle):** authority content ship — a dev.to article "The AWS Lambda Node.js 20 deadline everyone
   gets wrong" (many blogs cite the superseded Sep 30 2026; AWS delayed it to Mar 3 2027) → auto-publishes + backlinks.
+  This is the highest-leverage autonomous move now that outreach is off the table.
+- **P1 — Agent (next cycle):** build the **Gumroad bundle** (zip + playbook + listing copy) so Bet A′ is one publish-click.
 - **P2 — Agent:** reframe AL2 copy/pyproject from "before Jun 30 2026" (past) to post-EOL emergency; verify the live
   `/migrate` AL2 page shows correct post-deadline framing.
+- **P2 — Agent:** write the one-command PUBLISH docs for `vsce`/`ovsx`/PyPI so each owner publish is copy-paste.
 
 ## Leading indicator to watch
 `eolkits.com/status` (data.json, rebuilt daily) — the first `checkout_click` in `track.js` means a buyer is imminent.

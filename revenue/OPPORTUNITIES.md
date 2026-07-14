@@ -8,7 +8,7 @@ frames win; owned-audience organic loses **unless the audience already exists �
 ## Verified platform facts (July 2026 — the fee/latency reality that sets T/H/U/R)
 | Platform | Fee | Built-in payments? | Owner unlock (KYC/publish) | Live latency | Scriptable |
 |---|---|---|---|---|---|
-| **Upwork / Fiverr** | ~10% (Upwork) / 20% (Fiverr) | ✅ + **escrow + built-in demand** | Create + ID-verify seller acct; owner **sends** proposals | KYC hours–days | proposals drafted, not sent |
+| ~~Upwork / Fiverr~~ **RULED OUT** | — | — | Owner won't do Upwork (ongoing time) / can't verify on Fiverr (2026-07-14) | — | — |
 | **VS Code Marketplace** | $0 | ❌ (Free/Free-Trial only) | MS acct + Azure DevOps PAT → `vsce publish` | minutes–hours | yes (token) |
 | **Open VSX** | $0 | ❌ | Eclipse acct + Publisher Agreement → `ovsx publish` | ~instant | yes (token) |
 | **GitHub Marketplace — Action** | $0 | ❌ (Actions can't charge) | Web-UI publish from a **dedicated public repo** w/ release | instant | web-UI only |
@@ -24,7 +24,8 @@ scan/PR service, not a per-call REST API (would need a new hosted endpoint). Ski
 ## Ranked opportunities (across all assets)
 | # | Frame | Asset | T | H | D | U (4wk, after fees) | Why / risk |
 |---|---|---|---|---|---|---|---|
-| **1** | **Productized "AWS runtime EOL audit + fix PR" gig** | fast-cash playbook + kits + grace-api | ~7 | 30 | **marketplace (demand+escrow)** | **$450–1,800** | Only channel with built-in *demand* AND payment. New-seller-no-reviews is the risk. **→ Bet A** |
+| ~~1~~ | ~~Upwork/Fiverr productized gig~~ **KILLED 2026-07-14** | — | — | — | — | — | Owner: no Upwork (ongoing time), no Fiverr (KYC won't clear). See DECISIONS D7. |
+| **1′** | **Gumroad "AWS EOL Migration Toolkit" bundle** | kits + playbook + templates | ~7 | 15 | platform-listed (MoR payments) | ~$70/sale | One-time setup, no per-job time (fits owner). Volume/first-dollar play. **→ Bet A′** |
 | **2** | **$1,499 Migration Pack** (real PR, CI-fail auto-refund) | kits + grace-api + runner + github-app | 10 | 40 | owned-audience (today) | **$1,455 / sale** | 3 sales clear $4k. Fulfillment path UNVERIFIED. **→ Bet B** |
 | 3 | **Sell placement:** VS Code + Open VSX extension → $299 audit | apps/vscode-extension | 10 | 45 | platform-listed | ~$290 | 30M VS Code + 300M/mo Open VSX (Cursor/VSCodium). Cold-install→buy is slow. **→ Bet C** |
 | 4 | **Sell output:** $299 Audit via the live surge-priced site | apps/web + grace-api | 5 | 5 | owned-audience | $0–290 | Already live; gated purely on qualified traffic. |

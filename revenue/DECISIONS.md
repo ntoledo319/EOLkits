@@ -47,6 +47,23 @@ ruby3.2, dotnet6). Therefore:
 - **AL2 post-EOL reframe** (pyproject/copy still say "before Jun 30 2026") — flagged for next cycle; the live site
   already renders past-deadline framing dynamically (verified via `test_surge.py`), so it is not a live falsehood today.
 
+### D7 — PIVOT (2026-07-14): Bet A (Upwork/Fiverr) is DEAD — owner constraint
+Owner answered the Bet-A distribution question: **no Upwork** ("we don't do platforms I have to spend my own time
+on") and **no Fiverr** ("they won't verify me to get an account"). Saved as a cross-project preference (global
+`~/.claude/CLAUDE.md` + project memory `owner-distribution-constraints`). Consequences:
+- **Bet A removed.** There is no owner-driven outreach and no "fast gig" shortcut. The fastest-dollar lever is gone.
+- **The compounding flywheel (Bet C) becomes the PRIMARY engine** — it is the only distribution the owner tolerates:
+  one-time publishes (VS Code/Open VSX/PyPI/npm/GitHub Action) + fully-autonomous content (dev.to/SEO). It feeds the
+  $299 audit and the $1,499 Pack (Bet B) via *discovery*, not outreach.
+- **New fast-first-dollar candidate:** a **Gumroad digital-product bundle** ("AWS Runtime EOL Migration Toolkit" =
+  packaging + playbook + templates around the free CLIs) — one-time setup, built-in payments, no per-job time.
+  Caveat: Gumroad/Lemon Squeezy do their own KYC; the owner's Fiverr verification failure means this may also reject
+  them — flag, don't assume. Gumroad's onboarding is the lightest; try it first.
+- **Honest timeline shifts out:** with zero owner outreach + a cold start, **$4,000 by Day 28 is now very unlikely.**
+  The flywheel compounds over **months**, not weeks; the real inflection is the correctly-dated **Q1-2027 Lambda block
+  wave (Feb 1 / Mar 3 2027)**. Realistic collected-by-Day-28 ≈ $0–600 unless a marketplace publish goes live fast and
+  a cold-discovery audit lands. Recorded honestly per §8 gap law rather than riding an impossible plan.
+
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in
