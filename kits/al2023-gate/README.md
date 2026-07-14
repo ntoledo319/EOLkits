@@ -1,7 +1,7 @@
 # al2023-gate
 ### Amazon Linux 2 → AL2023 migration kit — scan, remap, patch, ship, rollback
 
-> **Deadline: 2026-06-30.** Amazon Linux 2 standard support ends. No new updates. No new patches. Critical CVEs become your problem. AWS will not extend again — the date has already been pushed twice.
+> **Amazon Linux 2 reached end of standard support on 2026-06-30 — that date has now passed.** AL2 is unpatched: no new updates, no security patches, no CVE backports. Every AL2 box you still run is accumulating unfixed vulnerabilities. Migrating to AL2023 is the fix.
 
 `al2023-gate` is a single-binary, dependency-light Python tool that finds every AL2-based compute resource in your AWS account, generates the Packer template + Ansible patches + cloud-init diffs to rebuild them on AL2023, and produces resource-type-specific migration runbooks you can actually execute.
 
@@ -17,11 +17,11 @@ Works offline (fixture mode) for demos, audits, or air-gapped reviews. Works liv
 
 | Milestone | Date | What breaks |
 |---|---|---|
-| **Standard support ends** | **2026-06-30** | No patches, no security updates, no CVE backports |
+| **Standard support ended** | **2026-06-30** (passed) | No patches, no security updates, no CVE backports — in effect now |
 | Maintenance support ends | 2027-06-30 | Full EOL. Instance launches from AL2 AMIs start failing. |
 | New AL2 AMI publications | Stopped | Already happening for most AWS-official AL2 AMIs |
 
-**63 days out** as of this release. If you have production EC2, EKS, ECS, or Elastic Beanstalk resources on AL2, you need a migration plan today.
+**The standard-support date has passed.** If you still run production EC2, EKS, ECS, or Elastic Beanstalk on AL2, every day is unpatched exposure — you need a migration plan now, not a deadline countdown.
 
 Primary source: <https://aws.amazon.com/amazon-linux-2/faqs/>
 

@@ -73,6 +73,9 @@ on") and **no Fiverr** ("they won't verify me to get an account"). Saved as a cr
   (Feb 1 / Mar 3 2027) + the Q1-2027 cluster. Canonical → the live `/migrate/lambda-node.js-20-phase-1/` page (verified
   live, showing the correct dates). Auto-publishes via the box cron = a real backlink + authority for the now-primary
   flywheel. Distinct from article 02 (which is the how-to-migrate piece), so no thin/duplicate SEO risk.
+- **Closed the last flagged §2.5 truth item:** reframed `al2023-gate` README + pyproject from now-false future-deadline
+  copy ("before Jun 30 2026", "63 days out", "support ends") to post-EOL reality (AL2 support **ended** 2026-06-30; now
+  unpatched) — truthful and a stronger hook. 48/48 tests still green.
 
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail

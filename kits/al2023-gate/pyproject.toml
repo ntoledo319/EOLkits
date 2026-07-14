@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "al2023-gate"
 version = "1.0.0"
-description = "Amazon Linux 2 → AL2023 migration kit. Scan AMIs, remap packages (yum→dnf), diff cloud-init, patch Ansible playbooks, generate Packer templates, and swap ECS/EKS AMIs safely before Jun 30, 2026 EOL."
+description = "Amazon Linux 2 → AL2023 migration kit. Scan AMIs, remap packages (yum→dnf), diff cloud-init, patch Ansible playbooks, generate Packer templates, and swap ECS/EKS AMIs off Amazon Linux 2 (end-of-life 2026-06-30, now unpatched)."
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
