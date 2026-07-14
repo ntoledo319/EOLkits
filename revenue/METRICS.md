@@ -29,7 +29,7 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | VS Code Marketplace installs | 0 (not published) | 2026-07-13 |
 | Open VSX installs | 0 (not published) | 2026-07-13 |
 | PyPI / npm downloads | 0 (not published) | 2026-07-13 |
-| dev.to articles staged on branch | **6** (`01`–`06`; the autonomous cloud routine added `04`–`06` since the handoff — engine is alive) | 2026-07-13 |
+| dev.to articles staged on branch | **7** (`01`–`07`; `07` "Node 20 real deadline" authored 2026-07-14 — auto-publishes via box cron, canonical → eolkits.com) | 2026-07-14 |
 | GitHub Marketplace (Action) | not listed | 2026-07-13 |
 
 ## Listings / rails status

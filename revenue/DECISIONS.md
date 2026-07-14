@@ -64,6 +64,16 @@ on") and **no Fiverr** ("they won't verify me to get an account"). Saved as a cr
   wave (Feb 1 / Mar 3 2027)**. Realistic collected-by-Day-28 ≈ $0–600 unless a marketplace publish goes live fast and
   a cold-discovery audit lands. Recorded honestly per §8 gap law rather than riding an impossible plan.
 
+### D8 — Continued cycle (2026-07-14): scheduled loop + authority content ship
+- **Stood up the recurring engine:** cloud routine `eolkits-revenue-loop` (`trig_012izHpubRLjE946gBC1BzeN`), daily 06:00
+  UTC (2 AM ET), runs the AGENTS.md cycle on `marketing-machine-v2` (headless; no VPS/local access; sonnet-5). This is
+  a *remote/managed* Claude Code routine, not local OS cron — jail-compliant (§1.6).
+- **Shipped an authority article** (`launch/distribution/devto/07-nodejs20-lambda-real-deadline.md`): corrects the
+  widespread "Node 20 blocks Sep 30 2026" myth (the superseded 30/60-day math) with the AWS-verified real dates
+  (Feb 1 / Mar 3 2027) + the Q1-2027 cluster. Canonical → the live `/migrate/lambda-node.js-20-phase-1/` page (verified
+  live, showing the correct dates). Auto-publishes via the box cron = a real backlink + authority for the now-primary
+  flywheel. Distinct from article 02 (which is the how-to-migrate piece), so no thin/duplicate SEO risk.
+
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in
