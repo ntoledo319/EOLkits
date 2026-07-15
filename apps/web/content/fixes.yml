@@ -336,3 +336,59 @@ fixes:
     source_url: "https://docs.aws.amazon.com/linux/al2023/ug/package-management.html"
     related_migrate: amazon-linux-2-eol
     kit: al2023-gate
+
+  - slug: amazon-linux-2023-iptables-service-not-found
+    error: "Failed to start iptables.service: Unit iptables.service not found."
+    context: "Amazon Linux 2023"
+    summary: "Amazon Linux 2023 drops the iptables-services unit; nftables is the default firewall backend."
+    cause: "On Amazon Linux 2, the `iptables-services` package shipped an `iptables.service` that saved and restored rules across reboots. AL2023 standardizes on nftables and does not install that service by default, so user-data / cloud-init / Ansible that enables or starts `iptables.service` fails on AL2023."
+    fix_steps:
+      - "Migrate rules to nftables: convert existing rules with `iptables-translate`, save them under `/etc/nftables/`, and enable `sudo systemctl enable --now nftables`."
+      - "To keep iptables syntax, use the `iptables-nft` compatibility layer (rules are stored by nftables); manage persistence with the `nftables` service, not `iptables.service`."
+      - "Remove `iptables-services` / `iptables.service` references from user-data, Ansible, and Packer builds."
+      - "Verify the active ruleset with `sudo nft list ruleset`."
+    source_url: "https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html"
+    related_migrate: amazon-linux-2-eol
+    kit: al2023-gate
+
+  - slug: python-no-module-named-smtpd
+    error: "ModuleNotFoundError: No module named 'smtpd'"
+    context: "AWS Lambda / Python 3.12+"
+    summary: "The standard-library smtpd module was removed in Python 3.12 (PEP 594)."
+    cause: "`smtpd` was deprecated in Python 3.6 and removed from the standard library in Python 3.12. Code that imports `smtpd` (often `DebuggingServer` or a local test SMTP server) breaks when a Lambda function, layer, or build moves to the python3.12 runtime."
+    fix_steps:
+      - "Replace `smtpd` with the maintained `aiosmtpd` library (`pip install aiosmtpd`); it reimplements the same functionality on asyncio."
+      - "For a drop-in shim, the `standard-smtpd` package on PyPI restores the removed module."
+      - "If you only used `smtpd` for a test server, switch tests to `aiosmtpd.controller.Controller`."
+      - "Bundle the replacement in your deployment package or a Lambda layer built for the target runtime."
+    source_url: "https://docs.python.org/3/whatsnew/3.12.html"
+    related_migrate: lambda-python-3.9-eol
+    kit: python-pivot
+
+  - slug: python-no-module-named-asyncore
+    error: "ModuleNotFoundError: No module named 'asyncore'"
+    context: "AWS Lambda / Python 3.12+"
+    summary: "asyncore and asynchat were removed from the standard library in Python 3.12 (PEP 594)."
+    cause: "`asyncore` and its companion `asynchat` were deprecated in Python 3.6 and removed in Python 3.12. Older network code and some libraries that still import them fail at import time on the python3.12 runtime."
+    fix_steps:
+      - "Port the code to `asyncio` — its protocols and transports are the supported replacement for `asyncore`/`asynchat`."
+      - "If a third-party dependency imports `asyncore`, upgrade it to an asyncio-based release; many have shipped one."
+      - "For an unavoidable legacy import, vendor the pure-Python `asyncore.py` / `asynchat.py` from a Python 3.11 source tree into your package."
+      - "Re-test on python3.12 to surface other PEP 594 removals (`smtpd`, `imp`, `distutils`)."
+    source_url: "https://docs.python.org/3/whatsnew/3.12.html"
+    related_migrate: lambda-python-3.9-eol
+    kit: python-pivot
+
+  - slug: node-error-decoder-routines-unsupported
+    error: "error:1E08010C:DECODER routines::unsupported"
+    context: "AWS Lambda / Node.js 18+ (OpenSSL 3)"
+    summary: "OpenSSL 3, bundled with Node.js 17+, refuses to load a private key stored in a legacy format."
+    cause: "Node.js 18/20/22 ship OpenSSL 3, which disables some legacy algorithms and key encodings by default. Loading an old-format key (e.g. a traditional PKCS#1 PEM or one encrypted with a weak cipher) via `crypto.createPrivateKey`, `https`, JWT signing, or a TLS client then throws `DECODER routines::unsupported` after a runtime upgrade."
+    fix_steps:
+      - "Re-encode the key to PKCS#8: `openssl pkcs8 -topk8 -in old.pem -out new.pem` (add `-nocrypt` for an unencrypted key)."
+      - "If the key uses a legacy cipher, re-write it with a modern one: `openssl rsa -in old.pem -out new.pem`."
+      - "For unavoidable legacy material, start Node with `--openssl-legacy-provider` — a stopgap, not a fix."
+      - "Rotate any weak keys and store the PKCS#8 version in your Lambda config or secret."
+    source_url: "https://nodejs.org/api/crypto.html"
+    related_migrate: lambda-node.js-20-phase-1
+    kit: lambda-lifeline

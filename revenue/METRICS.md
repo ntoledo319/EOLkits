@@ -30,6 +30,7 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | Open VSX installs | 0 (not published) | 2026-07-13 |
 | PyPI / npm downloads | 0 (not published) | 2026-07-13 |
 | dev.to articles staged on branch | **7** (`01`–`07`; `07` "Node 20 real deadline" authored 2026-07-14 — auto-publishes via box cron, canonical → eolkits.com) | 2026-07-14 |
+| high-intent `/fix` error pages | **27** (added 4 verified-accurate 2026-07-14: AL2023 iptables.service, py3.12 smtpd, py3.12 asyncore, OpenSSL3 DECODER) — box rebuilds from `fixes.yml` on deploy | 2026-07-14 |
 | GitHub Marketplace (Action) | not listed | 2026-07-13 |
 
 ## Listings / rails status
