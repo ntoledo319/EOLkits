@@ -21,6 +21,16 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-07-13 | **VS Code extension packages** | `vsce package` → valid `eolkits-vscode-1.0.0.vsix`, 18 files, 23.86 KB (compiles via tsc). |
 | 2026-07-13 | **Stripe rails live** | `pricing.yml` has live payment links for all paid SKUs; `test_mode: false`. **End-to-end purchase still UNVERIFIED.** |
 
+## "Shipped & good" — live-site verification (2026-07-15)
+| Check | Result |
+|---|---|
+| All sitemap URLs live | **54/54 return HTTP 200** (curl sweep) |
+| Content quality | No `{API_URL}` / placeholder-text / TODO leaks (the "placeholder" hits are the email input's `placeholder=` attr) |
+| **Money rail (the key test)** | ✅ **WORKS in prod** — `POST /api/audit/checkout` → HTTP 200 → `{"url":"https://checkout.stripe.com/c/pay/cs_live_…"}`. A real **live** Stripe checkout session is created; a buyer reaches a genuine Stripe payment page. (Only the post-payment PDF/email link is still untested — needs a real $299 purchase, HQ-6.) |
+| Price | $299 standard (code + `test_surge_tier_matches_pricing`) |
+| Lighthouse (home, desktop) | **SEO 100, Agentic 100**, Accessibility 81; Best-Practices score was an audit artifact (452s degraded run; **zero** console errors/warnings/issues confirmed independently) |
+| Visual quality | Professional dark landing page, proof-first, clear CTAs + trust line (screenshot on file) |
+
 ## Traffic / installs / signups
 | Metric | Value | As of |
 |---|---|---|
