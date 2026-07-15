@@ -12,13 +12,14 @@ Legend: 🔴 KYC-latency (start first) · 🟢 minutes of clicking · ⚪ option
 - ~~HQ-1 Upwork account~~, ~~HQ-2 publish Upwork/Fiverr gig~~, ~~HQ-3 send proposals~~ — owner won't do Upwork
   (ongoing personal time) or Fiverr (KYC won't clear). No outreach path. See `OPPORTUNITIES.md`.
 
-## 🎯 FASTEST PATH TO ACTUAL BUYERS — one-time ~10–15 min (drafts ready)
-The agent can't post as you or cold-contact anyone (the one hard rule), and paid ads cost money — so the closest-to-a-
-buyer move is answering people **already asking about this exact EOL**. The agent found 3 live AWS re:Post questions
-and **drafted genuinely-helpful, TOS-clean answers** (help first, tool mentioned once with disclosure) in
-**`launch/distribution/repost-answers.md`**. You paste them (from your re:Post account). Each is a real engineer with
-this problem right now — peak intent, $0, and it also builds durable SEO/backlinks. **This is a one-time burst, not
-ongoing work.** (Post after tonight's deploy so the `/eol-checker/` link is live, or drop that one link.)
+## 🎯 FASTEST PATH TO ACTUAL BUYERS — paste ready-made answers (drafts stay stocked automatically)
+The agent can't post as you or cold-contact anyone (the one hard rule), so the closest-to-a-buyer move is answering
+people **already asking about this exact EOL**. Vetted, help-first, TOS-clean answers are ready to paste:
+- **`launch/distribution/repost-answers.md`** — batch 1 (3 answers). ✅ **Owner posted all 3 on 2026-07-15 (pending moderation).**
+- **`launch/distribution/repost-answers-batch2.md`** — batch 2 (**7 more**, drafted + accuracy/uniqueness-vetted 2026-07-15).
+**AUTOMATED:** the nightly routine now keeps this backlog stocked — it drafts fresh answers to new questions each cycle
+(it never posts). So your only job is: open a file, paste each answer to its linked thread from your re:Post account
+(one unique answer per thread). Each is a real engineer with the problem now — peak intent, $0, durable SEO/backlinks.
 
 ## CORE BATCH — one-time setups, then autonomous forever (fits the "no ongoing time" constraint)
 

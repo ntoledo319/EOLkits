@@ -164,6 +164,21 @@ measurable.** Reaction plan by signal:
 - **No clicks after the answers are approved + indexed** → pure distribution; draft a bigger high-intent backlog + keep the organic engine compounding.
 Next agent move: draft more help-first answers (Stack Overflow + more re:Post) to widen the top of funnel while we wait for signal.
 
+### D13 — Answer-backlog batch 2 + AUTOMATED the drafting (2026-07-15)
+Owner said "yea [draft more] and see what you can automate." Did both:
+- **Batch 2 shipped:** 7 more vetted help-first answers to real, verified re:Post threads (Node20 static-site stack,
+  SSM State-Manager py3.9, Synthetics canary py3.8, py3.9→3.11 "go straight to 3.12", py3.12 locale error, bulk
+  Poetry 3.8/3.9→3.12, py3.7 "[Action Required]" email) → `launch/distribution/repost-answers-batch2.md`. Drafted via a
+  7-agent parallel workflow + a vetting pass (all dates match the AWS table with the hedge; unique closings; only
+  allowed links; help-first). Backlog now 10 total (3 posted + 7 ready).
+- **AUTOMATED the recurring version:** updated the `eolkits-revenue-loop` cloud routine (`trig_012izHpubRLjE946gBC1BzeN`)
+  so drafting fresh answers into the backlog is a STANDING nightly priority, with guards (only real/verified questions,
+  DRAFT-never-post, skip if web is down). The owner's answer backlog now refills itself.
+- **Honest automation boundary (the reason this can't be fully hands-off):** finding + drafting is automated; **posting
+  is not** — §2.4 forbids the agent posting as a human / auto-contact, and it needs the owner's account. The whole
+  pipeline (build, deploy, content, dev.to, fulfillment PDF/PR, refund, answer-drafting) is automated *except* the
+  human-gated distribution touchpoints (posting answers + one-time marketplace/account creation). That is irreducible.
+
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in
