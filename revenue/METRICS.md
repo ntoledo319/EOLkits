@@ -31,6 +31,14 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | Lighthouse (home, desktop) | **SEO 100, Agentic 100**, Accessibility 81; Best-Practices score was an audit artifact (452s degraded run; **zero** console errors/warnings/issues confirmed independently) |
 | Visual quality | Professional dark landing page, proof-first, clear CTAs + trust line (screenshot on file) |
 
+## Distribution actions taken (the demand test)
+| Date | Action | Status |
+|---|---|---|
+| 2026-07-15 | **Owner posted all 3 drafted re:Post answers** (AL2 EOL migration, Lambda py3.9 EoL, AL2 motd-date) — the first real distribution action | **LIVE, pending re:Post moderation** |
+| — | Baseline at post time (`/status/data.json` 2026-07-15T00:00Z): **0 audits, 0 PRs, 0 subs** | any tick up = first buyer signal |
+
+**Watch:** `eolkits.com/status` — first `checkout_click` (buyer imminent) → first `audits delivered > 0` (first dollar). The daily 2 AM routine also reports this each run.
+
 ## Traffic / installs / signups
 | Metric | Value | As of |
 |---|---|---|
