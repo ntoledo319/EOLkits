@@ -204,22 +204,17 @@ $ python-pivot rollback --function payment-webhook --alias live --apply
 
 ## Free vs paid
 
-| | Free (this repo) | Team ($999) | Enterprise ($2,499) |
-|---|---|---|---|
-| Scanner | ✓ | ✓ | ✓ |
-| Codemod | ✓ | ✓ | ✓ |
-| Native-wheel audit (30+ pkgs) | ✓ | ✓ | ✓ |
-| IaC patcher (SAM/CDK/TF/SLS) | ✓ | ✓ | ✓ |
-| Canary deploy + rollback | ✓ | ✓ | ✓ |
-| PDF migration playbook | — | ✓ | ✓ |
-| 2-hour captioned video walkthrough | — | ✓ | ✓ |
-| Extended wheel table (200+ pkgs, private indexes) | — | ✓ | ✓ |
-| Custom codemod rules for your codebase | — | 3 | Unlimited |
-| Priority Slack channel | — | ✓ (7 days) | ✓ (30 days) |
-| Live migration pairing session | — | — | 2 × 90 min |
-| On-call during cutover | — | — | ✓ |
+This repo is free and unlimited — every command above, no trial. If you'd rather EOLkits run the scan and do the
+migration for you, these are the two things actually for sale (live Stripe checkout, no account required):
 
-Bundle with `lambda-lifeline` (Node.js 20 → 22) and `al2023-gate` (AL2 → AL2023): see <https://eolkits-kits.com>.
+| | This repo (free) | **Audit PDF · $299** | **Migration Pack · $1,499** |
+|---|---|---|---|
+| Scanner + full CLI, MIT | ✓ | — | — |
+| Hash-anchored, severity-scored PDF report of your account | — | ✓ (email ≤5 min) | ✓ |
+| Real PR — codemods + IaC patches + canary plan, on your repo | — | — | ✓ |
+| Guarantee | — | — | Auto-refund if CI fails |
+
+Buy at [eolkits.com/audit](https://eolkits.com/audit) or [eolkits.com/pack](https://eolkits.com/pack).
 
 ---
 

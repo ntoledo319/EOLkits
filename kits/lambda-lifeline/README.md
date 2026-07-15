@@ -154,19 +154,19 @@ npm test
 - GitHub Actions CI template
 - MIT license — use it however you want
 
-## What the paid tiers add
+## If you'd rather not run it yourself
 
-| | **Solo · $499** | **Team · $999** | **Enterprise · $2,499** |
+This repo is free and unlimited — no trial, no locked commands. If you want EOLkits to run the scan and do the
+migration for you, these are the two things actually for sale (live Stripe checkout, no account required):
+
+| | This repo (free) | **Audit PDF · $299** | **Migration Pack · $1,499** |
 |---|---|---|---|
-| Everything above | ✓ | ✓ | ✓ |
-| 30-page PDF runbook | ✓ | ✓ | ✓ |
-| 3-min video walkthrough | ✓ | ✓ | ✓ |
-| Private Discord support | | ✓ (team of 10) | ✓ (unlimited seats) |
-| Custom codemod rules for your stack | | | ✓ |
-| 30-day update guarantee (free Node 22 → 24 kit) | | | ✓ |
-| 48-hour priority response SLA | | | ✓ |
+| Scanner + full CLI, MIT | ✓ | — | — |
+| Hash-anchored, severity-scored PDF report of your account | — | ✓ (email ≤5 min) | ✓ |
+| Real PR opened on your repo — codemods + IaC patches + canary plan | — | — | ✓ |
+| Guarantee | — | — | Auto-refund if CI fails |
 
-**Bundle all 3 EOLkits Kits** (lambda-lifeline + al2023-gate + python-pivot) for **$999 / $1,999 / $4,997** → [eolkits.com](https://eolkits.com)
+Buy at [eolkits.com/audit](https://eolkits.com/audit) or [eolkits.com/pack](https://eolkits.com/pack).
 
 ---
 
@@ -194,10 +194,8 @@ Sign up for notifications at [eolkits.com](https://eolkits.com).
 
 ## License
 
-MIT. Use it commercially, fork it, rewrite it. If it saves your weekend, consider buying a Team or Enterprise tier to fund the next kit.
+MIT. Use it commercially, fork it, rewrite it. If it saves your weekend, an [eolkits.com/audit](https://eolkits.com/audit) purchase funds the next kit.
 
 ## Support
 
 - GitHub Issues: bug reports, feature requests
-- Email: support@eolkits-kits.dev (paid tier gets 48h SLA)
-- Discord: invite link included in paid tier receipts

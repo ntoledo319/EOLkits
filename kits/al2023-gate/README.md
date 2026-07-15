@@ -193,23 +193,17 @@ Same command supports `--kind eks|ecs|beanstalk` — each with resource-appropri
 
 ## Free vs paid
 
-| | Free (this repo) | Team ($999) | Enterprise ($2,499) |
-|---|---|---|---|
-| Scanner | ✓ | ✓ | ✓ |
-| Remap table (~50 pkgs) | ✓ | ✓ | ✓ |
-| Packer generator | ✓ | ✓ | ✓ |
-| cloud-init differ | ✓ | ✓ | ✓ |
-| Ansible patcher | ✓ | ✓ | ✓ |
-| 4 runbooks (ASG/EKS/ECS/EB) | ✓ | ✓ | ✓ |
-| PDF migration playbook (printable) | — | ✓ | ✓ |
-| 2-hour captioned video walkthrough | — | ✓ | ✓ |
-| Expanded remap table (200+ pkgs, EE repos, Wavefront, Datadog, New Relic agents) | — | ✓ | ✓ |
-| Custom remap entries for your stack | — | 3 | Unlimited |
-| Priority Slack channel | — | ✓ (7 days) | ✓ (30 days) |
-| Live migration pairing session | — | — | 2 × 90 min |
-| On-call during cutover window | — | — | ✓ |
+This repo is free and unlimited — every command above, no trial. If you'd rather EOLkits run the scan and do the
+migration for you, these are the two things actually for sale (live Stripe checkout, no account required):
 
-Bundle with `lambda-lifeline` + `python-pivot`: see <https://eolkits-kits.com>.
+| | This repo (free) | **Audit PDF · $299** | **Migration Pack · $1,499** |
+|---|---|---|---|
+| Scanner + full CLI, MIT | ✓ | — | — |
+| Hash-anchored, severity-scored PDF report of your account | — | ✓ (email ≤5 min) | ✓ |
+| Real PR / migration work on your repo | — | — | ✓ |
+| Guarantee | — | — | Auto-refund if CI fails |
+
+Buy at [eolkits.com/audit](https://eolkits.com/audit) or [eolkits.com/pack](https://eolkits.com/pack).
 
 ---
 
