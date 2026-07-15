@@ -80,8 +80,12 @@ on") and **no Fiverr** ("they won't verify me to get an account"). Saved as a cr
   (al2023-gate/python-pivot on PyPI, lambda-lifeline on npm), both Python wheels build + pass `twine check` + install
   clean into a fresh venv + run their console scripts, and lambda-lifeline `npm pack`s cleanly. Wrote
   `launch/PUBLISH-CHECKLIST.md` — verified copy-paste commands for every one-time publish (PyPI/npm/VS Code/Open VSX)
-  so the owner's flywheel activation is friction-minimal and guaranteed to work. GitHub Action still needs a dedicated
-  public repo (scaffold = next cycle).
+  so the owner's flywheel activation is friction-minimal and guaranteed to work.
+- **Verification corrected a wrong assumption (again):** I had claimed the GitHub Action needs a *dedicated* repo.
+  GitHub's docs say a monorepo is fine — Marketplace only needs `action.yml` at the repo **root** (present, with
+  branding) + a release. So HQ-10 lists **directly from the existing EOLkits repo** (no scaffold, no new repo). Fixed
+  in HUMAN_QUEUE, OPPORTUNITIES, and PUBLISH-CHECKLIST §5. (Second time this cycle that verifying beat a plausible
+  assumption — reinforces §8.)
 
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail

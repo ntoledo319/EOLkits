@@ -57,10 +57,11 @@ both wheels build, pass `twine check`, install clean into a fresh venv, and thei
 clean. Exact verified copy-paste commands are in **`launch/PUBLISH-CHECKLIST.md` §1–2**. Just create the accounts
 (PyPI: register+2FA+token; npm: `npm login`) and run them. AL2 pyproject copy already reframed post-EOL.
 
-### ⚪ HQ-10 — List the GitHub Action on Marketplace  *(~8 min · free; peak-intent funnel)*
-- The Action must live in a **dedicated public repo** (Marketplace can't list a monorepo action). Agent will prep a
-  `eolkits-action` repo layout; you then: repo → "Draft a release" → check "Publish this Action to the GitHub
-  Marketplace" → accept the developer agreement → pick categories → publish.
+### ⚪ HQ-10 — List the GitHub Action on Marketplace  *(~5 min · free; peak-intent funnel · NO new repo needed)*
+- **Verified (GitHub docs):** list it **directly from the existing EOLkits repo** — root `action.yml` is present with
+  name/description/branding, monorepos are allowed, and tags exist. Steps: on GitHub open `action.yml` → **Draft a
+  release** → check **Publish this Action to the GitHub Marketplace** → accept the Developer Agreement (first time) →
+  pick categories → set tag+title → **Publish** (2FA). Full detail: `launch/PUBLISH-CHECKLIST.md` §5.
 
 ### ⚪ HQ-11 — Confirm DEVTO_API_KEY is on the box  *(~1 min · likely already done)*
 - Prior handoff says the key is at `/home/ubuntu/.eolkits-dist.env`. Verify the daily cron is auto-publishing dev.to

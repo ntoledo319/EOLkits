@@ -54,11 +54,13 @@ cd apps/vscode-extension
 npx ovsx publish -p <token>
 ```
 
-## 5. GitHub Action Marketplace — needs a dedicated public repo  ⚠️ prep pending
-The Action **cannot** be listed from this monorepo — GitHub Marketplace requires `action.yml` at the **root of its
-own public repo**. Next agent cycle will scaffold an `eolkits-action` repo layout; then: create the repo → push →
-"Draft a release" → check "Publish to Marketplace" → accept the developer agreement → pick categories → publish.
-Actions can't charge (funnel only), but it reaches engineers at the CI-failure moment.
+## 5. GitHub Action Marketplace — publish directly from this repo  ✅ ready (no dedicated repo needed)
+Verified against the GitHub docs: Marketplace requires `action.yml` at the repo **root** (✅ `./action.yml` is there,
+with `name` + `description` + `branding`) plus a published release. A **monorepo is permitted** — nested manifests
+(e.g. `apps/github-action/action.yml`) simply aren't listed. The existing tags (v1 / v1.0.0 / v1.1.0) qualify.
+**Steps (one-time):** on GitHub, open `action.yml` → **Draft a release** → check **Publish this Action to the GitHub
+Marketplace** → accept the Developer Agreement (first time only) → pick categories → set the tag + title → **Publish**
+(requires 2FA). Actions can't charge (funnel only), but it reaches engineers at the exact CI-failure moment.
 
 ---
 

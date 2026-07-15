@@ -11,7 +11,7 @@ frames win; owned-audience organic loses **unless the audience already exists �
 | ~~Upwork / Fiverr~~ **RULED OUT** | — | — | Owner won't do Upwork (ongoing time) / can't verify on Fiverr (2026-07-14) | — | — |
 | **VS Code Marketplace** | $0 | ❌ (Free/Free-Trial only) | MS acct + Azure DevOps PAT → `vsce publish` | minutes–hours | yes (token) |
 | **Open VSX** | $0 | ❌ | Eclipse acct + Publisher Agreement → `ovsx publish` | ~instant | yes (token) |
-| **GitHub Marketplace — Action** | $0 | ❌ (Actions can't charge) | Web-UI publish from a **dedicated public repo** w/ release | instant | web-UI only |
+| **GitHub Marketplace — Action** | $0 | ❌ (Actions can't charge) | Web-UI publish **from the existing repo** (root action.yml present; monorepo OK — verified) w/ release | instant | web-UI only |
 | **GitHub Marketplace — App** | GitHub 5% / dev 95% | ✅ | Org/publisher **verification** + bank/tax | days–weeks | — |
 | **Gumroad** | 10% + $0.50 (Merchant of Record) | ✅ | Acct + payout; MoR handles sales tax | instant | API |
 | **Lemon Squeezy** | 5% + $0.50 (+surcharges), MoR | ✅ | Acct + KYC + payout; MoR handles tax | short | API |
@@ -29,7 +29,7 @@ scan/PR service, not a per-call REST API (would need a new hosted endpoint). Ski
 | **2** | **$1,499 Migration Pack** (real PR, CI-fail auto-refund) | kits + grace-api + runner + github-app | 10 | 40 | owned-audience (today) | **$1,455 / sale** | 3 sales clear $4k. Fulfillment path UNVERIFIED. **→ Bet B** |
 | 3 | **Sell placement:** VS Code + Open VSX extension → $299 audit | apps/vscode-extension | 10 | 45 | platform-listed | ~$290 | 30M VS Code + 300M/mo Open VSX (Cursor/VSCodium). Cold-install→buy is slow. **→ Bet C** |
 | 4 | **Sell output:** $299 Audit via the live surge-priced site | apps/web + grace-api | 5 | 5 | owned-audience | $0–290 | Already live; gated purely on qualified traffic. |
-| 5 | **Sell placement:** GitHub Action on Marketplace | apps/github-action | 14 | 40 | platform-listed | ~$300 | Peak-intent (CI failure). Needs a dedicated public repo; can't charge. |
+| 5 | **Sell placement:** GitHub Action on Marketplace | apps/github-action | 14 | 5 | platform-listed | ~$300 | Peak-intent (CI failure). Lists directly from the existing repo (no dedicated repo — verified); can't charge. |
 | 6 | **Sell the code:** CLIs on PyPI + npm w/ in-CLI CTA | 3 kits | 15 | 20 | platform-listed | ~$150 | Makes README `pip install` real; embeds CTA at max-urgency. New pkgs rank low. |
 | 7 | **Sell placement:** dev.to canonical backlinks | launch/distribution | 4 | 5 | platform-listed | ~$150 | Already wired; converts dev.to authority into eolkits.com backlinks. Gated on DEVTO key on box. |
 | 8 | **White-label:** grace-api `/partners/*` Stripe-Connect reseller (70/30) | apps/grace-api | 21 | 45 | owned-audience | ~$250 | Fully coded, unmarketed. One AWS MSP brings its own client book. Medium-term. |
