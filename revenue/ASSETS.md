@@ -45,6 +45,10 @@ Verified this cycle by reading manifests + running CLIs/tests directly (not trus
 - **The one paid capability:** native-binary ABI audit (sharp/bcrypt/better-sqlite3/etc. → exact Node-22 min versions) + alarm-gated canary — the two most common Node-upgrade failure modes, eliminated.
 - **Smallest sellable unit:** $299 Audit PDF.
 - **Note:** Dates were **stale/wrong (Sep 30 2026)** and are now **corrected to the AWS-authoritative Feb 1 / Mar 3 2027** block window across `src/scan`, banner, README, tests (see DECISIONS — a §2.5 truth fix).
+- **Note (2026-07-15):** README's "paid tiers" (Solo $499/Team $999/Enterprise $2,499 + a $999/$1,999/$4,997 bundle,
+  Slack channel, pairing sessions, on-call, `support@eolkits-kits.dev`) were **fabricated — no such SKU, domain, or
+  fulfillment exists.** Replaced with the real Audit PDF ($299) / Migration Pack ($1,499) ladder linking to the live
+  eolkits.com Stripe checkout (see DECISIONS D11). Same fix applied to al2023-gate and python-pivot READMEs.
 
 ---
 

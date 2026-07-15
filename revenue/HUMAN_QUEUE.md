@@ -92,6 +92,11 @@ clean. Exact verified copy-paste commands are in **`launch/PUBLISH-CHECKLIST.md`
 
 ---
 
+## Cycle 2026-07-15 (cloud routine)
+No new items added — this cycle's ship (README truth fix, commit `915ebb1`) was fully autonomous, in-jail, $0, no
+human contact needed. The queue below is unchanged from 2026-07-14; **HQ-7/HQ-10/HQ-4 remain the highest-ROI owner
+clicks** (they unlock the discovery flywheel every other bet depends on).
+
 ## Running total (post-pivot)
 Everything here is now **one-time setup, no ongoing owner time.** Core ≈ **20 min** (HQ-1′,4,5,6). The COMPOUNDING
 batch below is now the **primary growth engine** (outreach is off the table), so those publishes matter more than

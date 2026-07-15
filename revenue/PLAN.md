@@ -79,16 +79,34 @@ no fast-gig shortcut exists. Replaced by:
    unchanged. (Prevented a wrong-date edit the synthesis had suggested.)
 4. **The six `revenue/` state files** (this brain).
 
+## Cycle 2026-07-15 (cloud routine)
+5. **Truth fix — removed fabricated pricing from all 3 kit READMEs** (`915ebb1`): `lambda-lifeline`, `al2023-gate`,
+   `python-pivot` each advertised a "Solo $499 / Team $999 / Enterprise $2,499" tier ladder, a $999/$1,999/$4,997
+   kit bundle, a Slack channel, live pairing sessions, on-call support, and `support@eolkits-kits.dev` — **none of
+   which exist** in `pricing.yml`, `grace-api`, or Stripe; `eolkits-kits.com` is not a real domain. This is a live,
+   public-repo §2.5 violation (undeliverable claims) and a conversion dead-end (a reader who clicks through finds
+   nothing to buy). Replaced with the real, working ladder — Audit PDF $299 / Migration Pack $1,499 — linking to the
+   live `eolkits.com/audit` and `/pack` Stripe checkouts. `lambda-lifeline` tests still 24/24 green. See DECISIONS D11.
+   **Why this over a new dev.to article this cycle:** WebFetch (the tool this loop uses for primary-source lookups)
+   returned HTTP 403 on every URL tested this cycle, including AWS docs and a control site (`example.com`) — a
+   sandbox/proxy outage, not an AWS block. §2.5 requires verifying new AWS date claims against the authoritative
+   runtimes table before shipping; with that tool down, the correct move was a fix that needed **no new external
+   fact-checking** (reuses already-cross-checked SKUs/prices) rather than risk shipping an unverified date, which is
+   exactly the mistake D3 caught last cycle. A new article is still queued — see Next actions.
+
 ## Next actions (priority order) — post-pivot
 - **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,
   HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack)
   and HQ-6 one real test purchase. **All one-time setup — no ongoing owner time** (fits the constraint).
-- **P1 — Agent (next cycle):** authority content ship — a dev.to article "The AWS Lambda Node.js 20 deadline everyone
-  gets wrong" (many blogs cite the superseded Sep 30 2026; AWS delayed it to Mar 3 2027) → auto-publishes + backlinks.
-  This is the highest-leverage autonomous move now that outreach is off the table.
+- **P1 — Agent (next cycle):** a new, non-duplicative dev.to article — first re-verify WebFetch/primary-source access
+  is back (it 403'd on every URL 2026-07-15, including a control site); if a new AWS date claim can't be verified
+  against the authoritative runtimes table, ship a tutorial-format piece instead (e.g. "scan your AWS account for
+  EOL runtimes free" using an already-verified kit) rather than risk another D3-style stale-date error.
 - **P1 — Agent (next cycle):** build the **Gumroad bundle** (zip + playbook + listing copy) so Bet A′ is one publish-click.
-- **P2 — Agent:** reframe AL2 copy/pyproject from "before Jun 30 2026" (past) to post-EOL emergency; verify the live
-  `/migrate` AL2 page shows correct post-deadline framing.
+- **Done this cycle:** repo-wide grep (`.md`/`.py`/`.yml`/`.html`/`.ts`/`.js`/`.mjs`) for the same fabricated-tier
+  pattern (`eolkits-kits`, "Team ($999)", "Enterprise ($2,499)", fake Slack/on-call/pairing claims) found no other
+  live occurrence outside the 3 kit READMEs already fixed (one stale mention remains in the **retired, undeployed**
+  `apps/worker` — left alone per prior DECISIONS "do not revive").
 - **P2 — Agent:** write the one-command PUBLISH docs for `vsce`/`ovsx`/PyPI so each owner publish is copy-paste.
 
 ## Leading indicator to watch

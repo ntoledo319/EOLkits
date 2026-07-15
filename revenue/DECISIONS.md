@@ -125,6 +125,35 @@ organic reach → the already-live Stripe, which compounds over weeks. So I pour
 - **Honest expectation:** none of this produces a dollar this week; it's the compounding engine, and the daily 2 AM
   routine keeps feeding it. A near-term dollar still needs either owner reach (the one-time publishes) or time.
 
+### D11 — Cloud cycle (2026-07-15): fabricated-pricing truth fix; WebFetch outage → no new date claims
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was already at the tip
+  recorded in D10 (`649f346`); no other cycle had pushed since.
+- **Found (not previously flagged in ASSETS/DECISIONS):** all three kit READMEs (`lambda-lifeline`, `al2023-gate`,
+  `python-pivot`) carried a "Free vs paid" table advertising **Solo $499 / Team $999 / Enterprise $2,499** tiers, a
+  **$999/$1,999/$4,997** 3-kit bundle, a "Priority Slack channel," "Live migration pairing session," "On-call during
+  cutover," a 48h-SLA `support@eolkits-kits.dev` address, and links to `eolkits-kits.com`. **None of this exists** —
+  `pricing.yml` has no such SKUs, `grace-api` has no such fulfillment, and `eolkits-kits.com` is not the product's
+  domain (that's `eolkits.com`). This is a live, public-repo violation of §2.5/hard-constraint-5 (truth only, every
+  claim demonstrable today) and a conversion dead-end: a reader who clicks through to buy "Team" finds nothing.
+  **Likely origin:** template/boilerplate copy from an earlier planning pass that was never reconciled with the real
+  Stripe SKUs once `pricing.yml`/`grace-api` were built. Fixed: replaced with the real, live ladder (Audit PDF $299,
+  Migration Pack $1,499) linking to the working `eolkits.com/audit` and `/pack` Stripe checkouts. Commit `915ebb1`.
+  Repo-wide grep across `.md/.py/.yml/.html/.ts/.js/.mjs` found one more stale echo only in the **retired, undeployed**
+  `apps/worker` (superseded by grace-api per ASSETS.md) — left alone, not a live claim.
+- **Why a truth fix over a new dev.to article this cycle:** attempted to verify additional AWS Lambda runtime dates
+  (to write a non-duplicative 8th article, e.g. on a runtime family not yet covered) via `WebFetch`. Every URL tested
+  — the AWS Lambda runtimes doc, two secondary sources, and a neutral control (`https://example.com`) — returned
+  HTTP 403. This reads as a sandbox/proxy-layer outage this cycle, not an AWS-side block (a real 403 wouldn't hit
+  `example.com` too). Per §2.5 ("verify every factual claim against authoritative primary sources before shipping"),
+  writing a new article with unverifiable dates risked repeating **D3's exact mistake** (shipping a plausible-but-wrong
+  date). Substituted the highest-leverage task that needed **zero new external fact-checking**: a truth fix using
+  only already-cross-checked figures (the SKUs/prices in `pricing.yml`, verified live in METRICS 2026-07-15).
+- **Ship-law check:** externally visible ✅ — 3 README files on the public `ntoledo319/EOLkits` repo, live the moment
+  this pushes and auto-deploys. Not a new dollar-generating surface (no new listing/payment rail), but a real trust/
+  conversion defect removed from existing traffic-facing pages (kit READMEs are what a cold GitHub visitor reads).
+- **Deferred to next cycle:** the new dev.to article (re-check WebFetch first; fall back to a no-new-dates tutorial
+  format if still down) and the Gumroad bundle build (Bet A′) — both queued in PLAN.md, neither dropped.
+
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in

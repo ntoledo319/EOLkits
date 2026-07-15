@@ -57,4 +57,12 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | PyPI / npm | ⛔ publish HUMAN-gated (HQ-9) — but **de-risked 2026-07-14**: names free, wheels build + `twine check` PASS + install-and-run verified; commands in `launch/PUBLISH-CHECKLIST.md` |
 | Upwork / Fiverr gig | ⛔ HUMAN-gated (HQ-1/2) |
 
+## Cycle 2026-07-15 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-07-15 | **Tooling outage noted:** WebFetch 403'd on every tested URL (AWS docs, repost.aws, endoflife.date, `example.com` control) | Sandbox/proxy issue, not an AWS block. No new AWS date claims were shipped this cycle as a result — see PLAN + DECISIONS D11. |
+| 2026-07-15 | **Truth fix shipped:** fabricated "Team $999 / Enterprise $2,499" tiers (+ fake bundle, Slack, on-call, `eolkits-kits.com`, `support@eolkits-kits.dev`) removed from all 3 kit READMEs | Commit `915ebb1`. Repo-wide grep (md/py/yml/html/ts/js/mjs) confirms no other live occurrence. |
+| 2026-07-15 | **Regression check:** lambda-lifeline `npm test` still 24/24 after README edit | Ran directly this cycle. |
+| 2026-07-15 | **collected dollars unchanged** | $0. No payment-rail or listing change this cycle — this was a truth/conversion fix on already-live pages, not a new SKU. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._
