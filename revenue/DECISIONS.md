@@ -87,6 +87,30 @@ on") and **no Fiverr** ("they won't verify me to get an account"). Saved as a cr
   in HUMAN_QUEUE, OPPORTUNITIES, and PUBLISH-CHECKLIST §5. (Second time this cycle that verifying beat a plausible
   assumption — reinforces §8.)
 
+### D9 — Money-path review of the $1,499 Pack (Bet B) + one critical fix
+Ran a rigorous read-only review of the Pack fulfillment path (Stripe webhook → job → runner → PR → CI-failure refund).
+**Result: fully implemented (no stubs on this path), but never executed and thin on tests. Fixed the worst bug; flagged
+the rest as pre-sale gates (HUMAN_QUEUE HQ-5).**
+- **FIXED (critical, money-losing):** a Pack could be charged with a blank `installation_id` → job dead-letters → no PR
+  opens → no `check_run` ever fires → the CI-failure auto-refund never triggers → **buyer charged $1,499, gets nothing,
+  no refund, silently.** Fix: `_queue_fulfillment` now falls back to the stored `github:repo:<name>` → installation
+  mapping (`app.py`). Added regression test (`test_app.py`, 36/36 green).
+- **FLAGGED for owner (do NOT sell the Pack until decided):**
+  - *Refund gap:* auto-refund only fires on the Checks API (`check_run`/`check_suite`); repos reporting CI via the legacy
+    **Status API** get no refund → broken guarantee. (Subscribe to `status` events, or document the limitation.)
+  - *Over-refund:* it refunds on the **first** red check on the bot's PR — a flaky/unrelated third-party check (Vercel,
+    CodeCov, lint) → a full **$1,499** refund while the buyer keeps a correct migration. Money-losing default. Owner
+    policy decision (I did not unilaterally change refund semantics — money behavior).
+  - *No coverage on the refund/CI half:* I added one test (installation fallback); the `_handle_ci_event` → refund chain
+    is still unexercised by any harness. Only `apps/runner/scripts/sandbox_e2e.py` proves the PR half (needs real App
+    creds, no payment).
+- **SEPARATE, IMPORTANT (do-no-harm / §2.5):** `org_license` ($14,999) and `drift_watch` ($19/mo) fulfillment is
+  **stubbed** (`apps/runner/main.py` handlers return status strings, do nothing) — those SKUs are purchasable on the
+  live site but **deliver nothing**. Not the active bets, but selling them today = vaporware. Owner must implement or
+  pull them from the pricing page before anyone buys. Logged as HQ item.
+- `apps/runner/Dockerfile` is a broken dead trap (not used in prod; prod builds `apps/grace-api/Dockerfile` inline). Do
+  not point a `RUNNER_URL` at it.
+
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in

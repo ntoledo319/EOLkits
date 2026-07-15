@@ -50,6 +50,8 @@ no fast-gig shortcut exists. Replaced by:
   buyer. The auto-refund-if-CI-fails guarantee makes a cold $1,499 ask viable.
 - **Falsifier:** `sandbox_e2e.py` against a sandbox repo does **not** produce a clean, CI-passing PR end-to-end
   (grace-api + github-app path is UNVERIFIED today) ⇒ pull the Pack until proven; or no repo-access buyer in 28 days.
+- **Money-path reviewed 2026-07-14 (DECISIONS D9):** one critical charge-with-no-delivery-no-refund bug FIXED (+test);
+  refund-policy gaps + stubbed org_license/drift_watch flagged. **Pre-sale gates are in HQ-5 / HQ-5b — clear them first.**
 - **Human unlocks:** HQ-4 (register GitHub App + creds to VPS `.env`, SSH owner-only), HQ-5 (run `sandbox_e2e.py`),
   HQ-6 (one real $1,499 Stripe charge+refund test).
 

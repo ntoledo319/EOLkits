@@ -301,3 +301,28 @@ def test_surge_tier_matches_pricing(tmp_path, monkeypatch):
     assert pricing.audit_tier(7)["stripe_price_id"] == "price_1TRoEZDL3cQl851o9DFh1DIz"
     assert pricing.audit_tier(30)["stripe_price_id"] == "price_1TRoGiDL3cQl851ouqnljzMx"
 
+
+def test_migration_pack_fulfillment_resolves_installation_from_repo_mapping(tmp_path, monkeypatch):
+    """A paid Pack with no installation_id in checkout metadata must fall back to the stored
+    repo->installation mapping. Otherwise the job dead-letters (no PR -> no check_run ->
+    the CI-failure auto-refund never fires): the buyer is charged $1,499 and gets nothing."""
+    from fastapi import BackgroundTasks
+
+    mod, _ = _load_app(tmp_path, monkeypatch)
+    # Seed the mapping as the GitHub App installation webhook would.
+    mod.store.put_json("github:repo:acme/widgets", {"installation_id": 424242, "account": "acme"})
+
+    captured: dict = {}
+    monkeypatch.setattr(mod, "_enqueue_job", lambda job, bt, dedupe_key=None: captured.update(job) or 1)
+
+    # No installation_id in metadata -> must resolve from the repo mapping.
+    mod._queue_fulfillment("cs_test_1", "migration_pack", "buyer@example.com", {"repo": "acme/widgets"}, BackgroundTasks())
+    assert captured["type"] == "migration_pr"
+    assert captured["repo"] == "acme/widgets"
+    assert str(captured["installationId"]) == "424242"
+
+    # An explicit installation_id still wins (fallback must not clobber it).
+    captured.clear()
+    mod._queue_fulfillment("cs_test_2", "migration_pack", "buyer@example.com", {"repo": "acme/widgets", "installation_id": "999"}, BackgroundTasks())
+    assert str(captured["installationId"]) == "999"
+

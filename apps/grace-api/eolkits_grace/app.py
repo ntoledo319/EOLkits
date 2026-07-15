@@ -1099,8 +1099,16 @@ def _queue_fulfillment(
             dedupe_key=f"fulfill:{session_id}",
         )
     elif sku == "migration_pack":
+        repo = metadata.get("repo")
+        installation_id = metadata.get("installation_id")
+        # installation_id is optional at checkout; fall back to the stored repo->installation
+        # mapping so a paid Pack never dead-letters on a missing/blank id. A dead-lettered job
+        # opens no PR, so no check_run/check_suite ever fires -> the CI-failure auto-refund can
+        # never trigger either: the buyer would be charged $1,499 and receive nothing, silently.
+        if not installation_id and repo:
+            installation_id = _repo_installation(repo)
         _enqueue_job(
-            {"type": "migration_pr", "sessionId": session_id, "email": email, "repo": metadata.get("repo"), "installationId": metadata.get("installation_id")},
+            {"type": "migration_pr", "sessionId": session_id, "email": email, "repo": repo, "installationId": installation_id},
             background_tasks,
             dedupe_key=f"fulfill:{session_id}",
         )

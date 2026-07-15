@@ -34,9 +34,24 @@ Legend: 🔴 KYC-latency (start first) · 🟢 minutes of clicking · ⚪ option
   ≤5 min → refund in the Stripe dashboard. (Ideally also HQ-5 below before selling the $1,499 Pack.)
 - **~5 min.**
 
-### 🟢 HQ-5 — Verify the Pack PR path once (after HQ-4)  *(Bet B · ~5 min, agent-assisted)*
-- Run `sandbox_e2e.py` against a throwaway repo with the real App creds → confirm a clean, CI-passing PR opens.
-  **Do not sell the $1,499 Pack until this is green** (the auto-refund guarantee must be honest, §2.5).
+### 🟡 HQ-5 — Prove the $1,499 Pack end-to-end BEFORE selling it  *(Bet B · ~30 min — the guarantee must be real)*
+Money-path reviewed 2026-07-14 (see DECISIONS D9). Fully coded; the worst bug is fixed (installation fallback + test).
+Remaining gates — **do not sell a Pack until all pass** (a broken PR or broken refund destroys trust):
+1. **PR half (no payment):** after HQ-4, run `docker exec eolkits-api python /app/runner/scripts/sandbox_e2e.py` with
+   real App creds against `ntoledo319/eolkits-sandbox` → expect `{"ok": true, "pr_url": …}`; confirm the PR really opened
+   with a diff + the guarantee body + labels.
+2. **Refund half (real self-purchase — the only true test):** buy a Pack with your own card + the sandbox repo + a
+   correct installation_id ($1,499, refund yourself) → confirm the PR opens and `/status` shows `pr_number` set → make
+   CI **fail** → confirm GitHub delivered `check_run/completed/failure`, `purchases.refunded=1`, the Stripe refund, and
+   the refund email. Then repeat with the `override:ci-failure` label and confirm **no** refund fires.
+3. **Decide two policy gaps first (DECISIONS D9):** (a) repos using the legacy **Status API** get no auto-refund —
+   subscribe to `status` events or document it; (b) refund currently fires on **any** red check — a flaky third-party
+   check → a full $1,499 refund. Decide the refund policy before selling.
+
+### 🔴 HQ-5b — org_license / drift_watch are purchasable but deliver NOTHING (§2.5)  *(~5 min decision)*
+`org_license` ($14,999) and `drift_watch` ($19/mo) fulfillment is **stubbed** (returns a status string, does no work).
+They are live on the pricing page. **Either implement them or remove them from the pricing page** — do not let anyone
+buy a SKU that delivers nothing. (Not urgent while traffic ≈ 0, but a truth/do-no-harm blocker before any real push.)
 
 ---
 
