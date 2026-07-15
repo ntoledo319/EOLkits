@@ -111,6 +111,20 @@ the rest as pre-sale gates (HUMAN_QUEUE HQ-5).**
 - `apps/runner/Dockerfile` is a broken dead trap (not used in prod; prod builds `apps/grace-api/Dockerfile` inline). Do
   not point a `RUNNER_URL` at it.
 
+### D10 — "Make money autonomously": maxed the only zero-owner-action lever (organic funnel)
+Owner directive: make money without any owner action. Honest constraint restated: every fast/paid-buyer channel is
+KYC/account-gated or forbidden (autonomous human contact); the **only** fully-autonomous path to a real dollar is
+organic reach → the already-live Stripe, which compounds over weeks. So I poured effort into that lever:
+- **+4 high-intent `/fix` error pages** (23→27), each web-verified accurate — capture someone at the exact error, funnel to the fix/audit.
+- **Built `/eol-checker/`** — a free, client-side, deterministic interactive tool (paste config / click runtimes → live
+  AWS block/EOL dates, nothing uploaded) that routes to /scan + /audit. Verified: byte-deterministic rebuild, JS
+  syntax + logic executed in node (correct block/EOL messaging, kind-aware so AL2 reads "end of life" not "functions
+  frozen"; IMDS excluded), no XSS (user paste only used for `indexOf`), all web tests pass. Registered in the pages
+  dict + sitemap + one topical internal link (not orphaned). **Tools earn backlinks** — the projections' #1 new-domain
+  bottleneck. Source-only commit (box rebuilds `docs/` from source on deploy).
+- **Honest expectation:** none of this produces a dollar this week; it's the compounding engine, and the daily 2 AM
+  routine keeps feeding it. A near-term dollar still needs either owner reach (the one-time publishes) or time.
+
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in

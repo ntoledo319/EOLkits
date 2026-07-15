@@ -31,6 +31,7 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | PyPI / npm downloads | 0 (not published) | 2026-07-13 |
 | dev.to articles staged on branch | **7** (`01`–`07`; `07` "Node 20 real deadline" authored 2026-07-14 — auto-publishes via box cron, canonical → eolkits.com) | 2026-07-14 |
 | high-intent `/fix` error pages | **27** (added 4 verified-accurate 2026-07-14: AL2023 iptables.service, py3.12 smtpd, py3.12 asyncore, OpenSSL3 DECODER) — box rebuilds from `fixes.yml` on deploy | 2026-07-14 |
+| free interactive tool | **`/eol-checker/`** built 2026-07-14 — paste config/click runtimes → live block/EOL dates (client-side, nothing uploaded); deterministic, funnels to /scan + /audit. A linkable/shareable backlink asset (the #1 new-domain bottleneck) | 2026-07-14 |
 | GitHub Marketplace (Action) | not listed | 2026-07-13 |
 
 ## Listings / rails status

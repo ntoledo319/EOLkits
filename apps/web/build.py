@@ -1095,6 +1095,7 @@ def build_lambda_schedule_page(deprecations, pricing_view):
         "<h1>AWS Lambda runtime deprecation schedule (2026–2027)</h1>\n"
         "<p>When each AWS Lambda runtime stops getting patches, when AWS blocks <strong>creating</strong> new functions on it, when AWS blocks <strong>updating</strong> existing ones, and what to move to. Every date comes from the AWS Lambda runtime deprecation table — each row links the source.</p>\n"
         '<p><a class="cta" href="/scan/">Scan your stack free — find your deprecated runtimes →</a></p>\n'
+        '<p>Prefer a 10-second check? Paste your config into the <a href="/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>\n'
         '<table class="sched"><thead><tr><th>Runtime</th><th>Blocks create</th><th>Blocks update</th><th>Severity</th><th>Upgrade to</th><th>Source</th></tr></thead><tbody>\n'
         + rows
         + "\n</tbody></table>\n"
@@ -1105,6 +1106,141 @@ def build_lambda_schedule_page(deprecations, pricing_view):
         + ', 30-day money-back)</a> that scores every finding and hands back a roll-forward plan.</p>\n'
         '<p><a href="/migrate/">See all tracked AWS deadlines →</a></p>\n'
         "</body>\n</html>\n"
+    )
+
+
+def build_eol_checker_page(deprecations, pricing_view):
+    """Free interactive tool: paste your runtimes / IaC (or click chips) and instantly see
+    which are past AWS end-of-life and when AWS blocks them. Runs entirely client-side —
+    nothing is uploaded. The dataset is baked from the cited deprecations.yml, so the built
+    HTML is static & deterministic (the day-countdown is computed in the browser). A linkable,
+    shareable top-of-funnel asset that routes to the free /scan and the paid /audit."""
+    import html as _h
+    ap = pricing_view.get("audit_pdf", {}) if isinstance(pricing_view, dict) else {}
+    audit_base = ap.get("base", 299) if isinstance(ap, dict) else 299
+
+    rows = {}
+    for d in deprecations.get("deprecations", []):
+        name = str(d.get("name", ""))
+        tags = " ".join(d.get("tags", [])).lower()
+        block_create = str(d.get("date") or "")
+        block_update = str(d.get("block_update_date") or d.get("date") or "")
+        sev = str(d.get("severity", "medium"))
+        slug = slugify(name)
+        if "nodejs" in tags:
+            rid = _runtime_id_from_name(name) or name
+            matches = [rid.lower(), rid.replace(".x", "").lower()]
+            target, kind = "nodejs22.x", "runtime"
+        elif "python" in tags:
+            rid = _runtime_id_from_name(name) or name
+            matches = [rid.lower()]
+            target, kind = "python3.12", "runtime"
+        elif "al2" in tags or "amazon linux 2" in name.lower():
+            rid = "Amazon Linux 2"
+            matches = ["amazonlinux2", "amazon-linux-2", "amazon linux 2", "al2", "amazonlinux:2"]
+            target, kind = "Amazon Linux 2023", "os"
+        else:
+            # Only Lambda runtimes + the AL2 OS belong in an "EOL checker"; skip config
+            # enforcements (e.g. IMDSv1) so the block/EOL messaging stays accurate.
+            continue
+        rows[rid] = {
+            "id": rid, "label": rid, "matches": sorted({m for m in matches if m}),
+            "blockCreate": block_create, "blockUpdate": block_update,
+            "sev": sev, "target": target, "slug": slug, "kind": kind,
+        }
+    data = sorted(rows.values(), key=lambda r: (r["blockUpdate"] or "9999-99-99", r["id"]))
+    data_json = json.dumps(data, sort_keys=True)
+
+    faq = {
+        "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+            {"@type": "Question", "name": "How do I know if my AWS Lambda runtime is deprecated?",
+             "acceptedAnswer": {"@type": "Answer", "text": "Paste your SAM/CloudFormation/Terraform/Serverless config or a list of runtimes into this checker, or click the runtime you use. It matches against the AWS Lambda runtime deprecation table and shows the block-create and block-update dates. For a full account scan across all regions, use the free scanner at eolkits.com/scan."}},
+            {"@type": "Question", "name": "Is Amazon Linux 2 end of life?",
+             "acceptedAnswer": {"@type": "Answer", "text": "Yes. Amazon Linux 2 reached end of standard support on 2026-06-30. It no longer receives security patches; migrate to Amazon Linux 2023."}},
+            {"@type": "Question", "name": "Does this tool upload my configuration?",
+             "acceptedAnswer": {"@type": "Answer", "text": "No. The check runs entirely in your browser; nothing is sent to a server."}},
+        ],
+    }
+
+    js = (
+        "<script>\n"
+        "var RT = " + data_json + ";\n"
+        "function daysBetween(a,b){return Math.round((a-b)/86400000);}\n"
+        "function statusFor(r){\n"
+        "  var now=new Date();var bc=r.blockCreate?new Date(r.blockCreate+'T00:00:00Z'):null;var bu=r.blockUpdate?new Date(r.blockUpdate+'T00:00:00Z'):null;\n"
+        "  if(r.kind==='os'){\n"
+        "    if(bc&&now>bc)return{cls:'crit',txt:'Reached end of life '+r.blockCreate+' — no security patches. Migrate to '+r.target+'.'};\n"
+        "    if(bc){var d=daysBetween(bc,now);return{cls:d<60?'crit':(d<180?'high':'med'),txt:d+' days until end of life ('+r.blockCreate+'). Migrate to '+r.target+'.'};}\n"
+        "    return{cls:'high',txt:'End of life — migrate to '+r.target+'.'};\n"
+        "  }\n"
+        "  if(bu&&now>bu)return{cls:'crit',txt:'Updates already BLOCKED (since '+r.blockUpdate+') — functions are frozen on this runtime.'};\n"
+        "  if(bc&&now>bc)return{cls:'crit',txt:'New-function creation BLOCKED (since '+r.blockCreate+'); updates block '+r.blockUpdate+'.'};\n"
+        "  if(bc){var dc=daysBetween(bc,now);return{cls:dc<60?'crit':(dc<180?'high':'med'),txt:dc+' days until AWS blocks creating new functions ('+r.blockCreate+'); updates block '+r.blockUpdate+'.'};}\n"
+        "  return{cls:'high',txt:'Deprecated / end-of-life — migrate off it.'};\n"
+        "}\n"
+        "var picked={};\n"
+        "function render(){\n"
+        "  var out=document.getElementById('results');var keys=Object.keys(picked);\n"
+        "  if(!keys.length){out.innerHTML='';return;}\n"
+        "  var rowsById={};RT.forEach(function(r){rowsById[r.id]=r;});\n"
+        "  var html='<table class=\"res\"><thead><tr><th>Runtime</th><th>Status</th><th>Upgrade to</th><th></th></tr></thead><tbody>';\n"
+        "  keys.sort();keys.forEach(function(k){var r=rowsById[k];if(!r)return;var s=statusFor(r);\n"
+        "    html+='<tr class=\"'+s.cls+'\"><td><code>'+r.label+'</code></td><td>'+s.txt+'</td><td>'+(r.target?'<code>'+r.target+'</code>':'\\u2014')+'</td><td><a href=\"/migrate/'+r.slug+'/\">fix &rarr;</a></td></tr>';});\n"
+        "  html+='</tbody></table>';\n"
+        "  html+='<div class=\"ctaway\"><strong>This is a quick check of what you pasted.</strong> A real migration also needs every region, your IaC, and native-dependency landmines. '+\n"
+        "    '<a class=\"cta\" href=\"/scan/\">Run the full free scan &rarr;</a> or <a href=\"/audit/\">get a $"
+        + str(audit_base) + " hash-anchored audit</a> (30-day money-back).</div>';\n"
+        "  out.innerHTML=html;\n"
+        "}\n"
+        "function check(){\n"
+        "  var t=(document.getElementById('inp').value||'').toLowerCase();\n"
+        "  RT.forEach(function(r){if(r.matches.some(function(m){return t.indexOf(m)>=0;}))picked[r.id]=1;});\n"
+        "  render();\n"
+        "}\n"
+        "function toggle(id){if(picked[id])delete picked[id];else picked[id]=1;render();var el=document.querySelector('[data-id=\"'+id+'\"]');if(el)el.classList.toggle('on');}\n"
+        "document.addEventListener('DOMContentLoaded',function(){\n"
+        "  var chips=document.getElementById('chips');\n"
+        "  RT.forEach(function(r){var b=document.createElement('button');b.className='chip';b.setAttribute('data-id',r.id);b.textContent=r.label;b.onclick=function(){toggle(r.id);};chips.appendChild(b);});\n"
+        "  document.getElementById('go').onclick=check;\n"
+        "});\n"
+        "</script>\n"
+    )
+
+    return (
+        '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+        '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
+        "<title>AWS runtime EOL checker — is your Lambda runtime or Amazon Linux deprecated? | EOLkits</title>\n"
+        '<meta name="description" content="Free, instant check: paste your AWS Lambda runtimes or IaC (or click your runtime) and see which are past end-of-life and when AWS blocks creating/updating functions. Nothing uploaded. Dates from the AWS runtime deprecation table.">\n'
+        '<link rel="canonical" href="' + SITE_URL + '/eol-checker/">\n'
+        '<link rel="stylesheet" href="/style.css">\n'
+        '<script defer src="/track.js"></script>\n'
+        '<script type="application/ld+json">' + json.dumps(faq) + "</script>\n"
+        "<style>#chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.75rem 0}"
+        ".chip{border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:.35rem .7rem;font-size:.85rem;cursor:pointer;font-family:inherit}"
+        ".chip.on{background:#2563eb;color:#fff;border-color:#2563eb}"
+        "#inp{width:100%;min-height:110px;font-family:ui-monospace,Menlo,monospace;font-size:.85rem;padding:.6rem;border:1px solid #cbd5e1;border-radius:6px}"
+        ".res{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}"
+        ".res th,.res td{border:1px solid #e5e7eb;padding:.5rem .6rem;text-align:left;vertical-align:top}"
+        ".res th{background:#f3f4f6}.res tr.crit td{background:#fef2f2}.res tr.high td{background:#fff7ed}.res tr.med td{background:#fefce8}"
+        ".cta{display:inline-block;margin:.3rem .3rem .3rem 0;padding:.7rem 1.2rem;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600}"
+        ".ctaway{margin:1rem 0;padding:1rem;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px}"
+        "#go{padding:.6rem 1.1rem;background:#111827;color:#fff;border:0;border-radius:6px;font-weight:600;cursor:pointer;font-family:inherit}</style>\n"
+        "</head>\n"
+        '<body class="container article">\n'
+        '<nav class="breadcrumb"><a href="/">Home</a> / <a href="/migrate/">Deadlines</a> / <span>EOL checker</span></nav>\n'
+        "<h1>Is your AWS runtime past end-of-life?</h1>\n"
+        "<p>Paste your SAM / CloudFormation / Terraform / Serverless config (or a list of runtimes), or click the runtimes you use. This checks them against the <a href=\"/lambda-runtime-deprecation-schedule/\">AWS runtime deprecation schedule</a> and shows exactly when AWS blocks creating and updating functions. <strong>Runs in your browser — nothing is uploaded.</strong></p>\n"
+        '<div id="chips"></div>\n'
+        '<textarea id="inp" placeholder="Paste template.yaml / serverless.yml / *.tf here — e.g. Runtime: nodejs20.x, python3.9, FROM amazonlinux:2 ..."></textarea>\n'
+        '<p><button id="go">Check my runtimes</button></p>\n'
+        '<div id="results"></div>\n'
+        '<p class="muted">Dates come from the AWS Lambda runtime deprecation table and can shift; the per-runtime <a href="/migrate/">migration guides</a> link the AWS source. Functions keep running after deprecation, but become unpatched and — after the block-update date — frozen.</p>\n'
+        "<h2>Once you know what's exposed</h2>\n"
+        '<p>Each deprecated runtime fails in specific ways — removed stdlib modules, the unbundled AWS SDK v2 on Node 18+, native-wheel/ABI breaks, Amazon Linux 2 &rarr; 2023 package renames. See the <a href="/fix/">common error fixes</a>, run the <a href="/scan/">free full scanner</a>, or get a <a href="/audit/">hash-anchored audit ($'
+        + str(audit_base)
+        + ", 30-day money-back)</a> that scores every finding and hands back a roll-forward plan.</p>\n"
+        + js
+        + "</body>\n</html>\n"
     )
 
 
@@ -2476,6 +2612,7 @@ def main():
         "status/data.json": build_status_data_seed(),
         "blog/index.html": build_blog_index(),
         "vs/index.html": build_vs_index(COMPETITORS),
+        "eol-checker/index.html": build_eol_checker_page(deprecations, build_pricing_view(pricing)),
         "lambda-runtime-deprecation-schedule/index.html": build_lambda_schedule_page(deprecations, build_pricing_view(pricing)),
         "amazon-linux-2-eol-checklist/index.html": build_al2_checklist_page(deprecations, build_pricing_view(pricing)),
         "amazon-linux-2-vs-amazon-linux-2023/index.html": build_al2_vs_al2023_page(deprecations, build_pricing_view(pricing)),
