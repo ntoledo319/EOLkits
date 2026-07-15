@@ -1,5 +1,7 @@
 WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
+**▶ RESUME: read `HANDOFF-2026-07-15.md` at the repo root FIRST** (then `AGENTS.md`, then all six `revenue/` files).
+
 # PLAN — Revenue Loop v2 (EOLkits)
 
 **Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
