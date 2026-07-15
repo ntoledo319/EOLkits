@@ -52,10 +52,10 @@ Legend: 🔴 KYC-latency (start first) · 🟢 minutes of clicking · ⚪ option
   `npx ovsx publish -p <token>` from `apps/vscode-extension/`.
 
 ### ⚪ HQ-9 — Publish the CLIs to PyPI (+ lambda-lifeline to npm)  *(~10 min · makes `pip install` real)*
-- PyPI: https://pypi.org/account/register/ → verify email → enable 2FA → create an API token →
-  `python3 -m build && TWINE_USERNAME=__token__ TWINE_PASSWORD=<token> twine upload dist/*` in each Python kit.
-- npm: `npm adduser` → `npm publish` in `kits/lambda-lifeline`. (Update the AL2 pyproject "before Jun 30 2026" copy
-  first — it's now post-EOL; the agent will prep this.)
+**✅ DE-RISKED 2026-07-14:** all three names are free (al2023-gate, python-pivot on PyPI; lambda-lifeline on npm);
+both wheels build, pass `twine check`, install clean into a fresh venv, and their console scripts run; npm packs
+clean. Exact verified copy-paste commands are in **`launch/PUBLISH-CHECKLIST.md` §1–2**. Just create the accounts
+(PyPI: register+2FA+token; npm: `npm login`) and run them. AL2 pyproject copy already reframed post-EOL.
 
 ### ⚪ HQ-10 — List the GitHub Action on Marketplace  *(~8 min · free; peak-intent funnel)*
 - The Action must live in a **dedicated public repo** (Marketplace can't list a monorepo action). Agent will prep a

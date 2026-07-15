@@ -76,6 +76,12 @@ on") and **no Fiverr** ("they won't verify me to get an account"). Saved as a cr
 - **Closed the last flagged §2.5 truth item:** reframed `al2023-gate` README + pyproject from now-false future-deadline
   copy ("before Jun 30 2026", "63 days out", "support ends") to post-EOL reality (AL2 support **ended** 2026-06-30; now
   unpatched) — truthful and a stronger hook. 48/48 tests still green.
+- **De-risked the flywheel publishes (HQ-9):** verified (jail-local venv) that all 3 registry names are free
+  (al2023-gate/python-pivot on PyPI, lambda-lifeline on npm), both Python wheels build + pass `twine check` + install
+  clean into a fresh venv + run their console scripts, and lambda-lifeline `npm pack`s cleanly. Wrote
+  `launch/PUBLISH-CHECKLIST.md` — verified copy-paste commands for every one-time publish (PyPI/npm/VS Code/Open VSX)
+  so the owner's flywheel activation is friction-minimal and guaranteed to work. GitHub Action still needs a dedicated
+  public repo (scaffold = next cycle).
 
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail

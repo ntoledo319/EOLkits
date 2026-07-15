@@ -42,7 +42,7 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | Open VSX | ⛔ HUMAN-gated (HQ-8) |
 | GitHub Marketplace (Action) | ⛔ HUMAN-gated (HQ-10) |
 | GitHub App (Pack fulfillment) | ⛔ not registered (HQ-4) |
-| PyPI / npm | ⛔ HUMAN-gated (HQ-9) |
+| PyPI / npm | ⛔ publish HUMAN-gated (HQ-9) — but **de-risked 2026-07-14**: names free, wheels build + `twine check` PASS + install-and-run verified; commands in `launch/PUBLISH-CHECKLIST.md` |
 | Upwork / Fiverr gig | ⛔ HUMAN-gated (HQ-1/2) |
 
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._
