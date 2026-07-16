@@ -39,7 +39,9 @@ scan/PR service, not a per-call REST API (would need a new hosted endpoint). Ski
 - **Sell a component:** extract the canary-deploy-with-alarm-rollback engine as a standalone library. High build cost, unclear buyer. Deferred.
 - **Sell access (SaaS):** hosted multi-account scanner. Requires the API productized + hosting; grace-api is fulfillment-shaped, not per-call. Deferred.
 - **Sell a service artifact (Org License $14,999/yr):** enterprise; long cycle, needs sales motion. Not a 28-day driver.
-- **Sell output (Drift Watch $19/mo):** recurring; needs an install base first. Compounding, post-day-28.
+- **Sell output (Drift Watch $19/mo):** recurring; needs an install base first. Compounding, post-day-28. **UPDATE
+  2026-07-16:** its live self-serve checkout was pulled (DECISIONS D14) — fulfillment is a no-op stub, so this frame
+  is now dormant until someone actually builds IAM-role-based weekly re-scanning; not an active near-term opportunity.
 
 ## The honest constraint that dominates all of this
 Every payment-enabled channel is **first-publish KYC-gated** (marketplaces need identity/bank). No autonomous

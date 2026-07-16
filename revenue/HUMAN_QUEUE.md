@@ -57,10 +57,23 @@ Remaining gates — **do not sell a Pack until all pass** (a broken PR or broken
    subscribe to `status` events or document it; (b) refund currently fires on **any** red check — a flaky third-party
    check → a full $1,499 refund. Decide the refund policy before selling.
 
-### 🔴 HQ-5b — org_license / drift_watch are purchasable but deliver NOTHING (§2.5)  *(~5 min decision)*
-`org_license` ($14,999) and `drift_watch` ($19/mo) fulfillment is **stubbed** (returns a status string, does no work).
-They are live on the pricing page. **Either implement them or remove them from the pricing page** — do not let anyone
-buy a SKU that delivers nothing. (Not urgent while traffic ≈ 0, but a truth/do-no-harm blocker before any real push.)
+### 🟡 HQ-5b — org_license / drift_watch fulfillment gaps (§2.5) — **drift_watch self-serve checkout pulled 2026-07-16**
+**UPDATE 2026-07-16:** the site-side fix is shipped (commit `2a843b9`, deploys via the daily box cron) — `/drift/`
+no longer offers a live checkout, the homepage card says "coming soon," and the audit-success upsell soliciting it
+is removed. **What's still open, human-only:**
+1. **Deactivate the `drift_watch` Stripe Price/Payment Link** in the Stripe dashboard (or leave it — with the site no
+   longer linking to `/api/drift/checkout`, the residual exposure is only someone hitting a stale/shared URL
+   directly). ~2 min, optional but tidy. Link: https://dashboard.stripe.com/prices → find "Drift Watch."
+2. **org_license ($14,999/yr) is lower-risk than drift_watch** — `/license/` is an inquiry form ("provisioned
+   manually after verification"), not self-serve, so a human is already in the loop before any charge. The real gap:
+   `_store_license` in `grace-api/app.py` generates and stores a real license key but **never emails it to the
+   buyer**. This is a safe, small, testable backend fix (queued for a future cycle) — but it needs an **owner VPS
+   redeploy** to take effect regardless of when it's written, since `apps/grace-api` is not on the git-push
+   auto-deploy path (only `apps/web`/the static site is). When you next redeploy `eolkits-api` for any reason, check
+   `revenue/DECISIONS.md` D14 for whether that fix has landed yet.
+3. **Once drift_watch fulfillment is actually built** (real IAM-role validation + a scheduled weekly scan + delta
+   PDF — a multi-day feature, intentionally not attempted autonomously given the security sensitivity of assuming a
+   customer's IAM role), revert the "coming soon" copy and restore the checkout.
 
 ---
 
@@ -97,6 +110,11 @@ clean. Exact verified copy-paste commands are in **`launch/PUBLISH-CHECKLIST.md`
 No new items added — this cycle's ship (README truth fix, commit `915ebb1`) was fully autonomous, in-jail, $0, no
 human contact needed. The queue below is unchanged from 2026-07-14; **HQ-7/HQ-10/HQ-4 remain the highest-ROI owner
 clicks** (they unlock the discovery flywheel every other bet depends on).
+
+## Cycle 2026-07-16 (cloud routine)
+HQ-5b updated (see above) — drift_watch's live checkout is pulled (fully autonomous, in-jail, $0). Two small optional
+items added under HQ-5b (deactivate the Stripe Price; note the org_license email gap for the next VPS redeploy).
+Nothing here requires urgent owner action; **HQ-7/HQ-10/HQ-4 + pasting the answer backlog remain highest-ROI.**
 
 ## Running total (post-pivot)
 Everything here is now **one-time setup, no ongoing owner time.** Core ≈ **20 min** (HQ-1′,4,5,6). The COMPOUNDING

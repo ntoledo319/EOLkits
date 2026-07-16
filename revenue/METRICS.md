@@ -73,4 +73,14 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-07-15 | **Regression check:** lambda-lifeline `npm test` still 24/24 after README edit | Ran directly this cycle. |
 | 2026-07-15 | **collected dollars unchanged** | $0. No payment-rail or listing change this cycle — this was a truth/conversion fix on already-live pages, not a new SKU. |
 
+## Cycle 2026-07-16 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-07-16 | **WebFetch/direct fetch still down** (3rd consecutive cycle) — `WebFetch` on `https://example.com` (neutral control) returned HTTP 403; a direct `curl` through the environment proxy also 403'd (`CONNECT tunnel failed`) on `example.com` and the AWS docs URL | `WebSearch` (separate backend) does work, but URL-resolution can't be confirmed — per the outage rule, skipped new answer-backlog/dev.to drafting this cycle. |
+| 2026-07-16 | **Found + fixed a live truth/do-no-harm issue:** `drift_watch` ($19/mo) had a fully-live self-serve checkout (`/drift/` → `/api/drift/checkout`) and an active upsell on the audit success page, but fulfillment (`apps/runner/main.py handle_drift_watch_setup`) is a complete no-op — no IAM validation, no scan, no delta PDF, ever. A subscriber would be charged monthly, indefinitely, for nothing. | Read `apps/runner/main.py` + `apps/grace-api/eolkits_grace/app.py` directly this cycle. |
+| 2026-07-16 | **Shipped:** replaced the live checkout with an honest "coming soon" waitlist page; removed the Drift Watch upsell from the audit success flow; marked README "(coming soon)" | Commit `2a843b9`. |
+| 2026-07-16 | **Regression check:** apps/web `test_determinism.py` 4/4 + `test_surge.py` 4/4 still green after the build.py edit (local rebuild via jail-local Python 3.12 venv, no `{API_URL}` leaks) | Ran directly this cycle; venv deleted after use. |
+| 2026-07-16 | **collected dollars unchanged** | $0. This was a solicitation/truth fix on a stubbed SKU, not a new payment-rail change. |
+| 2026-07-16 | **re:Post batch-1 answers status unchanged** — no new moderation/approval signal observed this cycle (not independently checkable without fetch access) | See D12; owner posted 2026-07-15, still pending as of last check. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

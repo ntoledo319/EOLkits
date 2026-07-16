@@ -72,6 +72,13 @@ Verified this cycle by reading manifests + running CLIs/tests directly (not trus
 - **License:** MIT/first-party. Safe.
 - **The one paid capability:** turns a Stripe checkout into a delivered hash-anchored audit PDF automatically — this is the "sell output" money event.
 - **`pricing.yml`:** all Stripe product/price IDs + payment links present and live (test_mode: false).
+- **Note (2026-07-16):** `drift_watch` fulfillment (`apps/runner/main.py handle_drift_watch_setup`) is a complete
+  no-op stub (no IAM validation, no scan, no delta PDF) — its live self-serve checkout was **pulled from the website**
+  this cycle (see DECISIONS D14) since selling it delivered nothing, recurringly. `org_license` fulfillment
+  (`_store_license` in `grace-api/app.py`) is more real (generates + stores a genuine license key) but never emails
+  it to the buyer — lower risk since `/license/` is an inquiry form, not self-serve, but still an open backend gap
+  (HUMAN_QUEUE HQ-5b). Neither `apps/grace-api` nor `apps/runner` deploy on the `git push` auto-deploy path — only
+  `apps/web` does; backend fixes need an owner VPS redeploy to take effect.
 
 ---
 

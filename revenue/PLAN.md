@@ -96,19 +96,38 @@ no fast-gig shortcut exists. Replaced by:
    fact-checking** (reuses already-cross-checked SKUs/prices) rather than risk shipping an unverified date, which is
    exactly the mistake D3 caught last cycle. A new article is still queued — see Next actions.
 
+## Cycle 2026-07-16 (cloud routine)
+6. **WebFetch/direct fetch confirmed still down** — 3rd consecutive cycle (`example.com` control → HTTP 403; direct
+   `curl` through the proxy also 403'd). `WebSearch` works but can't confirm a URL resolves, so per the outage rule,
+   no new re:Post answers or dev.to article this cycle — see DECISIONS D14.
+7. **Truth/do-no-harm fix — pulled Drift Watch's live self-serve checkout** (`2a843b9`): `drift_watch` ($19/mo) had
+   a fully live, actively-upsold checkout (`/drift/` page, homepage "Start watching" CTA, and an upsell card on the
+   audit success page shown to every $299 buyer) but its fulfillment is a complete no-op — a subscriber would be
+   charged monthly, forever, for nothing. Replaced with an honest "coming soon / join the waitlist" page, removed the
+   upsell, marked README "(coming soon)." `org_license` checked too and found lower-risk (inquiry form, not
+   self-serve; the real key IS generated, just never emailed — deferred). Full reasoning + verification in DECISIONS
+   D14. This closes an active live-harm exposure that opened up now that real distribution (the re:Post answers) has
+   started sending traffic.
+
 ## Next actions (priority order) — post-pivot
 - **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,
   HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack)
   and HQ-6 one real test purchase. **All one-time setup — no ongoing owner time** (fits the constraint).
 - **P1 — Agent (next cycle):** a new, non-duplicative dev.to article — first re-verify WebFetch/primary-source access
-  is back (it 403'd on every URL 2026-07-15, including a control site); if a new AWS date claim can't be verified
-  against the authoritative runtimes table, ship a tutorial-format piece instead (e.g. "scan your AWS account for
-  EOL runtimes free" using an already-verified kit) rather than risk another D3-style stale-date error.
+  is back (it 403'd on every URL for 3 consecutive cycles now, 2026-07-15 and 2026-07-16, including a control site
+  and a direct curl through the proxy — see DECISIONS D14); if a new AWS date claim can't be verified against the
+  authoritative runtimes table, ship a tutorial-format piece instead (e.g. "scan your AWS account for EOL runtimes
+  free" using an already-verified kit) rather than risk another D3-style stale-date error.
 - **P1 — Agent (next cycle):** build the **Gumroad bundle** (zip + playbook + listing copy) so Bet A′ is one publish-click.
-- **Done this cycle:** repo-wide grep (`.md`/`.py`/`.yml`/`.html`/`.ts`/`.js`/`.mjs`) for the same fabricated-tier
+- **P1 — Agent (next cycle):** fix `org_license`'s missing license-key email delivery (`_store_license` in
+  `grace-api/app.py` generates a real key but never sends it) — safe, small, testable with a unit test; note it won't
+  take effect live until the owner's next VPS redeploy of `eolkits-api` (not on the git-push auto-deploy path).
+- **Done 2026-07-15:** repo-wide grep (`.md`/`.py`/`.yml`/`.html`/`.ts`/`.js`/`.mjs`) for the same fabricated-tier
   pattern (`eolkits-kits`, "Team ($999)", "Enterprise ($2,499)", fake Slack/on-call/pairing claims) found no other
   live occurrence outside the 3 kit READMEs already fixed (one stale mention remains in the **retired, undeployed**
   `apps/worker` — left alone per prior DECISIONS "do not revive").
+- **Done 2026-07-16:** pulled `drift_watch`'s live self-serve checkout (§2.5 do-no-harm — see DECISIONS D14); a real
+  §2.5 truth/harm violation, not padding.
 - **P2 — Agent:** write the one-command PUBLISH docs for `vsce`/`ovsx`/PyPI so each owner publish is copy-paste.
 
 ## Leading indicator to watch

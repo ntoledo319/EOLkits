@@ -179,6 +179,64 @@ Owner said "yea [draft more] and see what you can automate." Did both:
   pipeline (build, deploy, content, dev.to, fulfillment PDF/PR, refund, answer-drafting) is automated *except* the
   human-gated distribution touchpoints (posting answers + one-time marketplace/account creation). That is irreducible.
 
+### D14 — Cloud cycle (2026-07-16): confirmed WebFetch outage persists; pulled Drift Watch's live self-serve checkout (§2.5 do-no-harm)
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `affbae6` (D13's
+  handoff commit); no conflicts.
+- **Re-tested WebFetch/WebSearch before picking a task** (per D11/D13's guard): `WebFetch` on `https://example.com`
+  (neutral control) → **still HTTP 403**; a direct `curl` through the environment's proxy also failed (`CONNECT
+  tunnel failed, response 403`) on both `example.com` and the AWS docs URL. `WebSearch` (a separate backend) *does*
+  work and returns snippets/links, but the rule requires a URL that **resolves** (fetchable) before drafting a new
+  re:Post answer or dev.to claim — with fetch fully down, that can't be verified. Per §2.5/PLAN's explicit outage
+  rule, skipped anything needing new external facts (new answer-backlog entries, a new dev.to article) and shipped a
+  different in-jail task requiring zero new external verification.
+- **Found (reading `HUMAN_QUEUE.md` HQ-5b + `apps/runner/main.py` + `apps/grace-api/eolkits_grace/app.py`):**
+  `drift_watch` ($19/mo) is **not** a dormant stub sitting behind a form — it has a fully live, actively-solicited
+  self-serve checkout: a dedicated `/drift/` page posts to `/api/grace-api`'s `POST /api/drift/checkout` (a real Stripe
+  Checkout Session), the homepage pricing card links to it ("Start watching"), and the **audit success page actively
+  upsold it** ("Never get surprised again... Add Drift Watch →") to every $299 buyer. But `handle_drift_watch_setup`
+  in `apps/runner/main.py` is a pure no-op (no IAM role validation, no scan, no delta PDF — the code comments say
+  "Validate IAM role / Store watch configuration / Schedule first scan" and none of it is implemented), and
+  `_execute_job` in `grace-api/app.py` never even processes the `drift_watch_setup` result (no confirmation, no
+  storage). A subscriber would be **charged $19/month, indefinitely, for nothing, silently** — worse than a one-time
+  charge because it recurs. This is squarely hard-constraint-5 (truth only) + constraint-7 (do no harm); traffic just
+  started flowing (D12/D13's re:Post answers, pending moderation), so the exposure window is now open, not
+  theoretical.
+  - **Checked `org_license` ($14,999/yr) too, for comparison:** lower risk than assumed in HQ-5b — `/license/` is an
+    **inquiry form** ("Organization licenses are provisioned manually after verification"), not a self-serve
+    checkout, so there's a human (the owner) in the loop before any charge in the normal flow. The backend gap is
+    real but narrower: `_store_license` in `grace-api/app.py` *does* generate and store a real license key (secure
+    random token, 1-year expiry) — it just never emails it to the buyer. Deferred to a follow-up cycle (backend fix,
+    needs an owner VPS redeploy to take effect anyway — see below).
+  - **Fixed (this cycle, in `apps/web/build.py` + `README.md`):** replaced the live `/drift/` checkout form with an
+    honest "coming soon — join the waitlist" page (mailto capture to the site's existing `hello@toledotechnologies.com`
+    contact, no payment, no fake success path); changed the homepage pricing card CTA from "Start watching" to "Join
+    the waitlist" with a "(coming soon)" badge; **removed** the Drift Watch upsell card from the audit success page
+    entirely (it was actively soliciting a purchase of something that delivers nothing); marked the README pricing
+    table row "(coming soon)" / "Not yet available — in development." Commit `2a843b9`.
+  - **Scope note — why this is a frontend-only fix:** `apps/web` is on the daily auto-deploy path (box cron rebuilds
+    `docs/` from source and rsyncs); `apps/grace-api` (the actual `/api/drift/checkout` endpoint) is **not** —
+    it's a separately-built Docker image on the VPS that only redeploys when the owner SSHes in and rebuilds it
+    (confirmed via `deploy/grace/docker-compose.eolkits-api.yml` + `deploy/grace/ship-web.sh`'s own comment: "The API
+    satellite ... is already live and is NOT touched here"). So pulling the *solicitation* (the only thing this
+    branch can ship) closes the active-harm exposure today; the backend endpoint itself still exists and would still
+    accept a `drift_watch` checkout if someone reached it directly (e.g., a stale bookmark or an old shared link) —
+    that residual requires either an owner-side API redeploy (to have `/api/drift/checkout` return "not available") or
+    the owner disabling the Stripe Price server-side. Logged as a HUMAN_QUEUE item (HQ-5b, revised) since it needs
+    VPS access this jail doesn't have.
+  - **Verified before shipping:** local rebuild (`python3.12 -m venv` jail-local, `pip install jinja2 pyyaml pytest`)
+    — clean build, pre-flight `{API_URL}`-leak gate passes, `test_determinism.py` 4/4 and `test_surge.py` 4/4 (via
+    `python3 apps/web/test_surge.py`, a standalone script, not pytest-collected) still green. `docs/` reverted
+    (`git checkout -- docs/ && git clean -fd docs/`) before committing — source-only, per repo convention (§8 gotcha
+    #3); the jail-local venv was deleted after use.
+- **Ship-law check:** externally visible ✅ — the moment this deploys (~07:17 UTC tomorrow via the box cron), a real
+  visitor to `/drift/` or the homepage or an audit success page sees the honest state instead of a live but
+  fulfillment-empty subscription offer. This is a genuine, live truth/do-no-harm fix, not a no-op cycle.
+- **Deferred to next cycle:** (1) the `org_license` license-key email-delivery gap (safe, small, testable backend fix
+  — but won't take effect until the owner's next VPS redeploy regardless of when it's written, so it isn't this
+  cycle's *ship*); (2) re-check WebFetch/WebSearch fetch access before attempting new re:Post answers or a new dev.to
+  article — this is now the **third** cycle in a row (D11 → this) the fetch path has been down; if it's still down
+  next cycle too, that's worth flagging to the owner as possibly more than a transient blip.
+
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in
