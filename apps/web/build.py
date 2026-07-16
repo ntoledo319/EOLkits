@@ -1491,10 +1491,10 @@ def build_index_page(pricing):
           <a class="btn-outline" href="/pack/">Get pack</a>
         </article>
         <article class="pricing-card">
-          <h3>Drift Watch</h3>
+          <h3>Drift Watch <span class="small">(coming soon)</span></h3>
           <div class="price">${drift_base}<span class="per">/mo</span></div>
-          <p>Weekly re-scan of a read-only IAM role, delta PDF on change, and an auto-PR on each new deprecation.</p>
-          <a class="btn-outline" href="/drift/">Start watching</a>
+          <p>Weekly re-scan of a read-only IAM role, delta PDF on change, and an auto-PR on each new deprecation. In development — not yet purchasable.</p>
+          <a class="btn-outline" href="/drift/">Join the waitlist</a>
         </article>
       </div>
       <p class="sub">Running this org-wide? An annual <a href="/license/">Org License</a> (${org_base:,}/yr) covers unlimited runs, private rule extensions, and a live rule-pack feed.</p>
@@ -1569,7 +1569,9 @@ def build_partners_page():
 
 
 def build_drift_page(pricing):
-    """Self-serve Drift Watch ($19/mo MRR) subscription checkout page."""
+    """Drift Watch waitlist page. NOT a checkout: fulfillment (weekly re-scan,
+    IAM role validation, delta PDF, auto-PR) is not built yet, so this must
+    never take a payment (AGENTS.md §2.5 truth-only / do-no-harm)."""
     skus = pricing.get("skus", pricing)
     price = skus.get("drift_watch", {}).get("price_usd", 19)
     html = """<!DOCTYPE html>
@@ -1577,60 +1579,37 @@ def build_drift_page(pricing):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Drift Watch — EOLkits</title>
-<meta name="description" content="$PRICE/mo: weekly re-scan of a read-only IAM role, a delta PDF when a new AWS deprecation touches your stack, and an auto-opened migration PR.">
+<title>Drift Watch (coming soon) — EOLkits</title>
+<meta name="description" content="Planned $PRICE/mo: weekly re-scan of a read-only IAM role, a delta PDF when a new AWS deprecation touches your stack, and an auto-opened migration PR. In development — join the waitlist.">
 <link rel="canonical" href="https://eolkits.com/drift/">
 <style>
 body{font-family:system-ui,-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:2rem;line-height:1.6}
 .brand{color:#2563eb;font-weight:600}
 h1{margin-top:0}
+.badge{display:inline-block;background:#fef3c7;color:#92400e;border-radius:999px;padding:.2rem .75rem;font-size:.8rem;font-weight:600;margin-bottom:.5rem}
 .price{font-size:3rem;font-weight:700;color:#0ea5e9}
 .feature{background:#f9fafb;border-radius:8px;padding:1rem;margin:.75rem 0}
-button{background:#2563eb;color:white;border:none;padding:0.75rem 1.5rem;border-radius:6px;font-size:1rem;cursor:pointer}
-button:hover{background:#1d4ed8}
+.btn{display:inline-block;background:#2563eb;color:#fff;padding:.6rem 1.2rem;border-radius:6px;text-decoration:none;font-weight:600}
 footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
 </style>
 </head>
 <body>
 <a href="/" class="brand">← EOLkits</a>
 <h1>Drift Watch</h1>
-<p class="price">$PRICE<span style="font-size:1rem;font-weight:normal;color:#6b7280">/month</span></p>
-<p>Never get caught by an AWS deadline again. Weekly re-scan of a <strong>read-only</strong> IAM role — you grant read-only access, nothing more — with a delta PDF the moment a new deprecation touches your stack, plus an auto-opened migration PR so the fix starts itself.</p>
+<p class="badge">Coming soon — not yet available to buy</p>
+<p class="price">$PRICE<span style="font-size:1rem;font-weight:normal;color:#6b7280">/month (planned)</span></p>
+<p>The plan: weekly re-scan of a <strong>read-only</strong> IAM role — you'd grant read-only access, nothing more — with a delta PDF the moment a new deprecation touches your stack, plus an auto-opened migration PR. <strong>This isn't built yet</strong>, so there's nothing to subscribe to today — no charge, no signup, just an honest heads-up so you can plan around it.</p>
 <div class="feature"><strong>Weekly scan</strong> — cron-driven, zero effort after setup.</div>
 <div class="feature"><strong>Delta PDF on change</strong> — only when something actually shifts, so it stays signal, not noise.</div>
 <div class="feature"><strong>Auto-PR on new deprecation</strong> — the migration is opened for you, with the same CI-failure refund stance as the Migration Pack.</div>
-<h3>Subscribe</h3>
-<form id="driftForm">
-  <p><input type="email" id="driftEmail" name="email" placeholder="your@email.com" required style="padding:0.5rem;width:300px"></p>
-  <p><input type="text" id="driftRepo" name="repo" placeholder="owner/repo (optional)" style="padding:0.5rem;width:300px"></p>
-  <button id="driftSubmit" type="submit">Subscribe — $PRICE/mo</button>
-  <p id="driftStatus" style="color:#6b7280;font-size:.875rem"></p>
-</form>
-<p style="color:#6b7280;font-size:.9rem">🔒 Secure checkout via Stripe · no contract, cancel anytime · read-only access only. Not sure yet? <a href="/scan/">Run the free scan first →</a></p>
+<h3>Want a heads-up when it ships?</h3>
+<p>Email <a href="mailto:hello@toledotechnologies.com?subject=Drift%20Watch%20waitlist">hello@toledotechnologies.com</a> with subject "Drift Watch waitlist" and we'll let you know.</p>
+<p style="color:#6b7280;font-size:.9rem">In the meantime, the one-time <a href="/audit/">Audit PDF</a> and <a href="/pack/">Migration Pack</a> are live today, or run the <a href="/scan/">free scanner</a> yourself any time.</p>
 <script>
-const API = '{API_URL}';
-const qp = new URLSearchParams(location.search);
-const f = document.getElementById('driftForm');
-const s = document.getElementById('driftStatus');
-const b = document.getElementById('driftSubmit');
-if (qp.get('cancelled')) s.textContent = 'Checkout cancelled.';
-try {{ navigator.sendBeacon(API + '/api/events', new Blob([JSON.stringify({{ event: 'view', sku: 'drift_watch', path: location.pathname, utm_source: qp.get('utm_source') || '', utm_campaign: qp.get('utm_campaign') || '' }})], {{ type: 'application/json' }})); }} catch (e) {{}}
-f.addEventListener('submit', async (e) => {{
-  e.preventDefault();
-  const email = document.getElementById('driftEmail').value;
-  if (!email) return;
-  b.disabled = true; s.textContent = 'Opening secure checkout...';
-  try {{
-    const body = new URLSearchParams({{ email: email, repo: document.getElementById('driftRepo').value, source: 'drift_page', utm_source: qp.get('utm_source') || '', utm_campaign: qp.get('utm_campaign') || '' }});
-    const r = await fetch(API + '/api/drift/checkout', {{ method: 'POST', headers: {{ 'Content-Type': 'application/x-www-form-urlencoded' }}, body: body }});
-    const d = await r.json();
-    if (!r.ok || !d.url) throw new Error(d.error || 'Checkout failed');
-    window.location.href = d.url;
-  }} catch (err) {{ b.disabled = false; s.textContent = err instanceof Error ? err.message : 'Checkout failed'; }}
-}});
+try {{ navigator.sendBeacon('{API_URL}/api/events', new Blob([JSON.stringify({{ event: 'view', sku: 'drift_watch_waitlist', path: location.pathname }})], {{ type: 'application/json' }})); }} catch (e) {{}}
 </script>
 <footer>
-  <p>Cancel anytime. <a href="/">Home</a> · <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></p>
+  <p><a href="/">Home</a> · <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></p>
 </footer>
 </body>
 </html>""".replace("$PRICE", str(price))
@@ -1671,8 +1650,7 @@ function h(html) {{ body.innerHTML = html; }}
 if (sku === 'audit') {{
   title.textContent = 'Your audit is on the way';
   h('<div class="card"><p>Payment received. Your hash-anchored audit PDF is generating now and lands in your inbox within ~5 minutes.</p><p>Verify authenticity any time at <a href="/verify/">/verify/</a>.</p></div>'
-    + '<div class="card upsell"><h3>Want it fixed, not just found?</h3><p>Upgrade to a <strong>Migration Pack</strong> within 48 hours and we credit your $299 audit toward the $1,499 — a real PR with codemods, IaC patches, canary plan, and a CI-failure refund guarantee.</p><p><a class="btn" href="/pack/?utm_source=audit_upsell&utm_medium=success&utm_campaign=audit48h">Apply my $299 credit →</a></p></div>'
-    + '<div class="card"><h3>Never get surprised again</h3><p>Add <strong>Drift Watch</strong> ($19/mo) — weekly re-scan of a read-only role, a delta PDF when a new AWS deadline hits your stack, and an auto-PR. Cancel anytime.</p><p><a class="btn" href="/drift/?utm_source=audit_success&utm_medium=success&utm_campaign=drift_xsell">Add Drift Watch →</a></p></div>');
+    + '<div class="card upsell"><h3>Want it fixed, not just found?</h3><p>Upgrade to a <strong>Migration Pack</strong> within 48 hours and we credit your $299 audit toward the $1,499 — a real PR with codemods, IaC patches, canary plan, and a CI-failure refund guarantee.</p><p><a class="btn" href="/pack/?utm_source=audit_upsell&utm_medium=success&utm_campaign=audit48h">Apply my $299 credit →</a></p></div>');
 }} else if (sku === 'pack') {{
   title.textContent = 'Migration Pack confirmed';
   h('<div class="card"><p>Payment received. We are opening your migration PR now (within ~5 minutes). Watch the repo you authorized.</p><p>If CI fails on the PR within 7 days and you have not added the <code>override:ci-failure</code> label, you are refunded automatically.</p><p>Track fulfillment on the <a href="/status/">status page</a>.</p></div>');
