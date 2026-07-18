@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-07-18T22:12:34Z",
+  "generated_at": "2026-07-18T23:10:29Z",
   "checks": {
-    "stripe": {"ok": false, "last_checked": "2026-07-18T22:12:34Z"},
-    "worker": {"ok": false, "code": 200, "last_checked": "2026-07-18T22:12:34Z"},
-    "runner": {"ok": false, "last_checked": "2026-07-18T22:12:34Z"},
-    "email": {"ok": false, "last_checked": "2026-07-18T22:12:34Z"},
-    "github": {"ok": false, "last_checked": "2026-07-18T22:12:34Z"},
-    "pages": {"ok": true, "code": 200, "last_checked": "2026-07-18T22:12:34Z"},
-    "audit_page": {"ok": true, "code": 200, "last_checked": "2026-07-18T22:12:34Z"},
-    "pack_page": {"ok": true, "code": 200, "last_checked": "2026-07-18T22:12:34Z"},
-    "ics_feed": {"ok": true, "code": 200, "last_checked": "2026-07-18T22:12:34Z"}
+    "stripe": {"ok": false, "last_checked": "2026-07-18T23:10:29Z"},
+    "worker": {"ok": false, "code": 200, "last_checked": "2026-07-18T23:10:29Z"},
+    "runner": {"ok": false, "last_checked": "2026-07-18T23:10:29Z"},
+    "email": {"ok": false, "last_checked": "2026-07-18T23:10:29Z"},
+    "github": {"ok": false, "last_checked": "2026-07-18T23:10:29Z"},
+    "pages": {"ok": true, "code": 200, "last_checked": "2026-07-18T23:10:29Z"},
+    "audit_page": {"ok": true, "code": 200, "last_checked": "2026-07-18T23:10:29Z"},
+    "pack_page": {"ok": true, "code": 200, "last_checked": "2026-07-18T23:10:29Z"},
+    "ics_feed": {"ok": true, "code": 200, "last_checked": "2026-07-18T23:10:29Z"}
   },
   "metrics": {
     "audits_delivered_7d": 0,
