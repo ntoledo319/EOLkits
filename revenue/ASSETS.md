@@ -109,6 +109,19 @@ Verified this cycle by reading manifests + running CLIs/tests directly (not trus
 
 ---
 
+## Cluster 6 — Packaged distribution (new sellable surface, not a new codebase)
+### `launch/gumroad/` — built 2026-07-18
+- **What:** packages the 3 free CLIs (source, unmodified) + an original `MIGRATION-PLAYBOOK.md` + `ATTRIBUTIONS.md`
+  into a Gumroad-ready zip via `build_bundle.sh`, plus complete listing copy (`LISTING-COPY.md`) for a **$79**
+  "AWS Runtime EOL Migration Toolkit" SKU. This is Bet A′'s deliverable.
+- **Completeness:** ✅ build script verified to run clean (164KB / 137 files, no secrets, `dist/` gitignored).
+  Publish itself is owner-gated (Gumroad account + KYC + click) — see HUMAN_QUEUE HQ-1′/HQ-2′.
+- **License:** re-packages the already-MIT/Apache-2.0-clean kits; no new dependencies. ATTRIBUTIONS generated.
+- **The one paid capability:** the consolidated playbook + one-download convenience — the underlying tools stay
+  free/MIT on GitHub, so what's sold is packaging + curation, not exclusivity.
+- **Smallest sellable unit:** this bundle IS the smallest sellable unit for this frame (no further decomposition
+  useful at $79).
+
 ## License hygiene (pre-publish §9)
 All kits MIT; runtime deps are Apache-2.0 (boto3, @aws-sdk/*). **No copyleft contamination.** An ATTRIBUTIONS
 file + AI-provenance disclosure must be generated before any paid packaging that a marketplace requires.
