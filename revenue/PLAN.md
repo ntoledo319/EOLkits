@@ -40,8 +40,9 @@ no fast-gig shortcut exists. Replaced by:
 - **Funnel:** the same discovery flywheel (Bet C) → a low-friction $79 buy for teams not ready for a $299 audit.
 - **Falsifier:** Gumroad rejects the owner's KYC (as Fiverr did) ⇒ bundle sold via the existing Stripe rail on
   eolkits.com instead; or 3 weeks live with traffic and 0 sales ⇒ the code is too "free-on-GitHub" to sell — drop it.
-- **Human unlocks:** HQ-1′ (Gumroad account — one-time; verify KYC clears), HQ-2′ (agent builds the bundle zip +
-  listing copy; owner clicks publish). **Not yet built — next cycle.**
+- **Human unlocks:** HQ-1′ (Gumroad account — one-time; verify KYC clears), HQ-2′ (owner runs the build script,
+  uploads the zip, pastes the listing copy, clicks publish). **Built 2026-07-18 — see `launch/gumroad/`, HQ-2′ is
+  now a ~10-minute click-through, not agent work.**
 
 ### Bet B — HEAVY · $1,499 Migration Pack (real PR, CI-fail auto-refund)
 - **Frame:** fixed-scope service artifact via the already-live Stripe link; highest revenue-per-unit.
@@ -109,16 +110,31 @@ no fast-gig shortcut exists. Replaced by:
    D14. This closes an active live-harm exposure that opened up now that real distribution (the re:Post answers) has
    started sending traffic.
 
+## Cycle 2026-07-18 (cloud routine)
+8. **Built the Gumroad bundle end-to-end** (`launch/gumroad/`): a verified-working `build_bundle.sh` that assembles
+   the 3 kit sources + an original `MIGRATION-PLAYBOOK.md` (consolidates the Q1-2027 block cluster + AL2 EOL +
+   per-kit migration steps, sourced entirely from the repo's own already-verified `deprecations.yml` — no new
+   external fetch needed) + `ATTRIBUTIONS.md` (§9 license-hygiene gate: MIT + Apache-2.0 deps, no copyleft, AI
+   provenance disclosed) into a 164KB/137-file zip, tested locally. `LISTING-COPY.md` has the entire Gumroad listing
+   (title/price $79/description/tags/refund policy) ready to paste plus exact publish steps. This closes out Bet A′
+   — the owner's only remaining step is HQ-1′/HQ-2′ (~10 min). See DECISIONS D15.
+9. **Confirmed the WebFetch/proxy outage is a persistent gateway policy denial, not transient** — checked
+   `$HTTPS_PROXY/__agentproxy/status` this cycle (previous cycles only saw the symptom, not the cause): both
+   `example.com` and the AWS docs URL show `connect_rejected` / "gateway answered 403 to CONNECT (policy denial or
+   upstream failure)" in `recentRelayFailures`. 4th consecutive cycle blocked from new external fact-verification —
+   worth the owner's attention if it doesn't self-resolve, since it's now blocking the standing re:Post-backlog
+   priority every cycle it persists.
+
 ## Next actions (priority order) — post-pivot
 - **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,
-  HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack)
-  and HQ-6 one real test purchase. **All one-time setup — no ongoing owner time** (fits the constraint).
+  HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack),
+  HQ-6 one real test purchase, and now **HQ-1′/HQ-2′ (Gumroad — fully built, ~10 min to publish)**. **All one-time
+  setup — no ongoing owner time** (fits the constraint).
 - **P1 — Agent (next cycle):** a new, non-duplicative dev.to article — first re-verify WebFetch/primary-source access
-  is back (it 403'd on every URL for 3 consecutive cycles now, 2026-07-15 and 2026-07-16, including a control site
-  and a direct curl through the proxy — see DECISIONS D14); if a new AWS date claim can't be verified against the
-  authoritative runtimes table, ship a tutorial-format piece instead (e.g. "scan your AWS account for EOL runtimes
-  free" using an already-verified kit) rather than risk another D3-style stale-date error.
-- **P1 — Agent (next cycle):** build the **Gumroad bundle** (zip + playbook + listing copy) so Bet A′ is one publish-click.
+  is back (it has now 403'd on every URL for **4 consecutive cycles** — 2026-07-15, -16, and -18 — including a
+  control site and a direct curl/proxy-status check confirming a gateway-level `connect_rejected` policy denial, not
+  an AWS-side block — see DECISIONS D14/D15); if still down, ship a tutorial-format piece instead (e.g. "scan your
+  AWS account for EOL runtimes free" using an already-verified kit) rather than risk a stale-date error.
 - **P1 — Agent (next cycle):** fix `org_license`'s missing license-key email delivery (`_store_license` in
   `grace-api/app.py` generates a real key but never sends it) — safe, small, testable with a unit test; note it won't
   take effect live until the owner's next VPS redeploy of `eolkits-api` (not on the git-push auto-deploy path).
@@ -128,6 +144,8 @@ no fast-gig shortcut exists. Replaced by:
   `apps/worker` — left alone per prior DECISIONS "do not revive").
 - **Done 2026-07-16:** pulled `drift_watch`'s live self-serve checkout (§2.5 do-no-harm — see DECISIONS D14); a real
   §2.5 truth/harm violation, not padding.
+- **Done 2026-07-18:** built the Gumroad bundle (`launch/gumroad/`) — zip build script + migration playbook +
+  ATTRIBUTIONS + ready-to-paste listing copy. Bet A′ is now a single owner publish-click. See DECISIONS D15.
 - **P2 — Agent:** write the one-command PUBLISH docs for `vsce`/`ovsx`/PyPI so each owner publish is copy-paste.
 
 ## Leading indicator to watch

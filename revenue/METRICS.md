@@ -64,6 +64,7 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | GitHub App (Pack fulfillment) | ⛔ not registered (HQ-4) |
 | PyPI / npm | ⛔ publish HUMAN-gated (HQ-9) — but **de-risked 2026-07-14**: names free, wheels build + `twine check` PASS + install-and-run verified; commands in `launch/PUBLISH-CHECKLIST.md` |
 | Upwork / Fiverr gig | ⛔ HUMAN-gated (HQ-1/2) |
+| Gumroad "AWS Runtime EOL Migration Toolkit" ($79) | ⛔ **bundle built + verified 2026-07-18**, publish HUMAN-gated (HQ-1′/HQ-2′, ~10 min) |
 
 ## Cycle 2026-07-15 (cloud routine)
 | Timestamp (UTC) | Observation | Evidence |
@@ -82,5 +83,12 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-07-16 | **Regression check:** apps/web `test_determinism.py` 4/4 + `test_surge.py` 4/4 still green after the build.py edit (local rebuild via jail-local Python 3.12 venv, no `{API_URL}` leaks) | Ran directly this cycle; venv deleted after use. |
 | 2026-07-16 | **collected dollars unchanged** | $0. This was a solicitation/truth fix on a stubbed SKU, not a new payment-rail change. |
 | 2026-07-16 | **re:Post batch-1 answers status unchanged** — no new moderation/approval signal observed this cycle (not independently checkable without fetch access) | See D12; owner posted 2026-07-15, still pending as of last check. |
+
+## Cycle 2026-07-18 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-07-18 | **WebFetch/proxy outage confirmed persistent (4th cycle), root cause identified** | `$HTTPS_PROXY/__agentproxy/status` shows `recentRelayFailures` with `connect_rejected` / "gateway answered 403 to CONNECT (policy denial or upstream failure)" for both `example.com` and `docs.aws.amazon.com` — a gateway-level policy denial, not an AWS block or a transient blip. Skipped new re:Post-answer/dev.to drafting per the standing outage rule. |
+| 2026-07-18 | **Shipped: Gumroad bundle built and verified** | `launch/gumroad/build_bundle.sh` runs clean → `eolkits-migration-toolkit.zip`, 164K, 137 files, no secrets/`.env`/`.git` leaked (checked via `unzip -l` + grep). Playbook + attributions + 3 kit sources included. Not yet published (owner step). |
+| 2026-07-18 | **collected dollars unchanged** | $0. This is a pre-publish asset build, not a new live listing — Gumroad account (HQ-1′) + publish click (HQ-2′) are still owner-gated. |
 
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

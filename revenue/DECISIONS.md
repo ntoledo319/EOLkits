@@ -237,6 +237,52 @@ Owner said "yea [draft more] and see what you can automate." Did both:
   article — this is now the **third** cycle in a row (D11 → this) the fetch path has been down; if it's still down
   next cycle too, that's worth flagging to the owner as possibly more than a transient blip.
 
+### D15 — Cloud cycle (2026-07-18): built the Gumroad bundle end-to-end; identified WebFetch outage root cause
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `b0b5f6b` (D14's
+  handoff commit); no conflicts. Noted a one-day gap (no 2026-07-17 cycle recorded) — not investigated further; the
+  loop resumed cleanly from state files alone per §3's law, which is the point of the file-based memory design.
+- **Re-tested WebFetch before picking a task (per the standing outage rule, D11/D13/D14):** `WebFetch` on
+  `https://example.com` → still HTTP 403. This time also checked `$HTTPS_PROXY/__agentproxy/status` (a diagnostic the
+  environment exposes that prior cycles hadn't used) — `recentRelayFailures` shows `connect_rejected` / "gateway
+  answered 403 to CONNECT (policy denial or upstream failure)" for **both** `example.com` and
+  `docs.aws.amazon.com`, timestamped this cycle. This confirms what D11/D14 inferred from the control-site symptom:
+  it's a **gateway/proxy-level policy denial**, not an AWS-side block and not randomly transient — 4 consecutive
+  cycles now (07-15, 07-16, 07-18). Per §2.5, skipped anything needing new external fact-verification (new re:Post
+  answers, a new dev.to article) again this cycle.
+- **Chose the next highest-leverage $0/no-new-fetch/in-jail task:** PLAN.md had explicitly queued "build the Gumroad
+  bundle" as a P1 next action across 3 prior cycles (07-14 → 07-16) without ever being picked up (each cycle chose a
+  more urgent truth/harm fix instead — correctly, per DECISIONS D11/D14). With no urgent truth/harm issue found this
+  cycle and the outage blocking the content-engine tasks, this was the clear next pick.
+- **Built `launch/gumroad/`:**
+  - `MIGRATION-PLAYBOOK.md` — an original, consolidated migration guide covering the Q1-2027 Lambda block cluster,
+    AL2 EOL, and per-kit command sequences. **Sourced entirely from data already verified and live in this repo**
+    (`rules/public/deprecations.yml`, cross-checked against AWS by prior cycles — see D3) — no new external fetch
+    required, so this doesn't violate the outage-verification rule.
+  - `ATTRIBUTIONS.md` — the §9 pre-publish license audit: confirmed all 3 kits are MIT (their own LICENSE files),
+    runtime deps are Apache-2.0 only (`boto3`, `@aws-sdk/*` — read directly from `pyproject.toml`/`package.json`),
+    no copyleft anywhere in the dependency tree, and disclosed AI-assisted provenance.
+  - `LISTING-COPY.md` — the complete Gumroad listing (title, **$79** price matching PLAN.md Bet A′'s arithmetic,
+    description, tags, refund policy) plus the exact remaining publish steps, so HQ-1′/HQ-2′ collapse into one
+    ~10-minute owner pass instead of two separate queue items.
+  - `build_bundle.sh` — assembles the zip from current kit sources (deliberately **keeps each kit's `test/` dir** in
+    the bundle so a buyer can independently verify the "N/N tests passing" claims made in each kit's README — a
+    §2.5 truth-reinforcing choice, not an oversight) + the two docs above. Initially used `rsync`, which isn't
+    installed in this environment — caught by actually running the script (not just writing it), fixed with
+    `cp -R` + `find -delete` for the same exclusions, re-ran clean.
+- **Verified before logging as shipped (§9):** ran `build_bundle.sh` for real → 164KB / 137-file zip; `unzip -l` +
+  grep confirmed no `.env`/secrets/`.git` leaked into the archive; spot-checked the file tree matches the intended
+  layout (playbook + attributions at bundle root, `kits/<name>/` subtrees with source + tests, no `node_modules`/
+  `__pycache__`/`dist`/`build`/`.egg-info`); confirmed `launch/gumroad/dist/` is caught by the repo's existing
+  `dist/` gitignore pattern (`git check-ignore -v` on the built zip) so no binary gets committed — only the source
+  files (`MIGRATION-PLAYBOOK.md`, `ATTRIBUTIONS.md`, `LISTING-COPY.md`, `build_bundle.sh`, `README.md`) do.
+- **Ship-law check:** externally visible ✅ — these files land on the public `ntoledo319/EOLkits` repo the moment
+  this pushes (consistent with how Cycle 0's "VS Code extension made marketplace-ready" was counted as shipped even
+  though publish itself is human-gated — the precedent this cycle follows). Not a new dollar today, but it converts
+  a 3-cycle-old queued action item into a single owner click away from a live, purchasable SKU.
+- **Deferred to next cycle:** the new dev.to article and new re:Post answers (still gated on the fetch outage
+  clearing); `org_license`'s missing license-key email (queued since D14, still needs an owner VPS redeploy to take
+  effect regardless of when written, so still not this cycle's highest-leverage in-jail ship).
+
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in

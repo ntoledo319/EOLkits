@@ -23,11 +23,16 @@ people **already asking about this exact EOL**. Vetted, help-first, TOS-clean an
 
 ## CORE BATCH — one-time setups, then autonomous forever (fits the "no ongoing time" constraint)
 
-### 🟢 HQ-1′ — Create a Gumroad account for the digital bundle  *(Bet A′ · ~5 min, one-time)*
-- **Why human-only:** account + payout/KYC (Merchant of Record). **Watch:** Fiverr wouldn't verify you — if Gumroad
-  also rejects KYC, we sell the bundle via the existing eolkits.com Stripe rail instead (no new account).
-- **Steps:** https://gumroad.com → sign up → add payout method. Then the agent builds the bundle zip + listing copy;
-  you click publish (HQ-2′, next cycle). **~5 min.**
+### 🟢 HQ-1′ + HQ-2′ — Publish the Gumroad bundle (built 2026-07-18)  *(Bet A′ · ~10 min total, one-time)*
+- **Why human-only:** account + payout/KYC (Merchant of Record) + the actual "Publish" click. **Watch:** Fiverr
+  wouldn't verify you — if Gumroad also rejects KYC, sell the bundle via the existing eolkits.com Stripe rail instead
+  (no new account needed; ping the agent next cycle to wire up a `bundle` SKU in `pricing.yml`).
+- **Everything else is done** — `launch/gumroad/` has the built+verified zip source, the migration playbook, license
+  ATTRIBUTIONS, and the entire Gumroad listing copy (title/price $79/description/tags/refund policy) ready to paste.
+- **Steps:** 1) https://gumroad.com → sign up → add payout method (~5 min). 2) From the repo root:
+  `bash launch/gumroad/build_bundle.sh` (writes `launch/gumroad/dist/eolkits-migration-toolkit.zip`). 3) On Gumroad,
+  **New product → Digital product** → paste every field from `launch/gumroad/LISTING-COPY.md` → upload the zip →
+  **Publish**. Full walkthrough with exact copy-paste text is in that file. **~10 min.**
 
 ### 🔴 HQ-4 — Register the GitHub App + put creds on the GRACE box  *(Bet B · ~10 min, one-time)*
 - **Why human-only:** requires GitHub org settings + SSH to the VPS (key is on your Mac only, outside the agent's jail).
@@ -116,8 +121,17 @@ HQ-5b updated (see above) — drift_watch's live checkout is pulled (fully auton
 items added under HQ-5b (deactivate the Stripe Price; note the org_license email gap for the next VPS redeploy).
 Nothing here requires urgent owner action; **HQ-7/HQ-10/HQ-4 + pasting the answer backlog remain highest-ROI.**
 
+## Cycle 2026-07-18 (cloud routine)
+HQ-1′/HQ-2′ merged and fully specified — the Gumroad bundle (zip + playbook + attributions + listing copy) is built
+and verified; the owner's remaining step is purely account+publish clicks (~10 min), no agent work left on Bet A′.
+**Tooling note:** WebFetch/direct-proxy fetch has now failed for 4 consecutive cycles (2026-07-15, -16, -18 —
+confirmed today via `$HTTPS_PROXY/__agentproxy/status` as a gateway-level `connect_rejected` policy denial on
+`example.com` and AWS docs both). This blocks new re:Post-answer drafting and new dev.to articles until it clears —
+not an owner action item yet, but flagging in case it doesn't self-resolve.
+
 ## Running total (post-pivot)
-Everything here is now **one-time setup, no ongoing owner time.** Core ≈ **20 min** (HQ-1′,4,5,6). The COMPOUNDING
+Everything here is now **one-time setup, no ongoing owner time.** Core ≈ **30 min** (HQ-1′+2′,4,5,6). The COMPOUNDING
 batch below is now the **primary growth engine** (outreach is off the table), so those publishes matter more than
 before — but each is still a one-time click. **Highest-ROI now: HQ-7 (`vsce publish`) + HQ-10 (GitHub Action listing)
-+ HQ-4 (GitHub App)** — they turn on the discovery flywheel that feeds every sale.
++ HQ-4 (GitHub App) + HQ-1′/2′ (Gumroad, now fully built)** — they turn on the discovery flywheel and the first
+low-ticket SKU.

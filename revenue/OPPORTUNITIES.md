@@ -25,7 +25,7 @@ scan/PR service, not a per-call REST API (would need a new hosted endpoint). Ski
 | # | Frame | Asset | T | H | D | U (4wk, after fees) | Why / risk |
 |---|---|---|---|---|---|---|---|
 | ~~1~~ | ~~Upwork/Fiverr productized gig~~ **KILLED 2026-07-14** | — | — | — | — | — | Owner: no Upwork (ongoing time), no Fiverr (KYC won't clear). See DECISIONS D7. |
-| **1′** | **Gumroad "AWS EOL Migration Toolkit" bundle** | kits + playbook + templates | ~7 | 15 | platform-listed (MoR payments) | ~$70/sale | One-time setup, no per-job time (fits owner). Volume/first-dollar play. **→ Bet A′** |
+| **1′** | **Gumroad "AWS EOL Migration Toolkit" bundle** | kits + playbook + templates | ~7 | 10 | platform-listed (MoR payments) | ~$70/sale | One-time setup, no per-job time (fits owner). Volume/first-dollar play. **→ Bet A′ — bundle built + verified 2026-07-18, owner-minutes now ~10 (down from 15).** |
 | **2** | **$1,499 Migration Pack** (real PR, CI-fail auto-refund) | kits + grace-api + runner + github-app | 10 | 40 | owned-audience (today) | **$1,455 / sale** | 3 sales clear $4k. Fulfillment path UNVERIFIED. **→ Bet B** |
 | 3 | **Sell placement:** VS Code + Open VSX extension → $299 audit | apps/vscode-extension | 10 | 45 | platform-listed | ~$290 | 30M VS Code + 300M/mo Open VSX (Cursor/VSCodium). Cold-install→buy is slow. **→ Bet C** |
 | 4 | **Sell output:** $299 Audit via the live surge-priced site | apps/web + grace-api | 5 | 5 | owned-audience | $0–290 | Already live; gated purely on qualified traffic. |
