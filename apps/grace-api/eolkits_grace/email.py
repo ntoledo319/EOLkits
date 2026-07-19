@@ -49,6 +49,28 @@ def render_audit_delivery_email(
 </body></html>"""
 
 
+def render_license_delivery_email(
+    *,
+    license_key: str,
+    company: str,
+    expires_at: str,
+    verify_url: str,
+) -> str:
+    return f"""<!doctype html>
+<html><body style="font-family:system-ui,-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:24px;line-height:1.6">
+<h2 style="margin:0 0 12px">Your EOLkits Org License is active</h2>
+<p>Thanks for licensing EOLkits for <strong>{company}</strong>. Your key is below — keep it somewhere your team can find it.</p>
+<p style="background:#f3f4f6;border-radius:8px;padding:16px;font-family:monospace;font-size:16px;letter-spacing:1px">{license_key}</p>
+<h3 style="margin-top:24px;font-size:14px;color:#374151">Details</h3>
+<ul style="font-size:13px;color:#4b5563">
+<li>Expires: <code>{expires_at}</code></li>
+<li>Verify this key: <a href="{verify_url}">{verify_url}</a></li>
+</ul>
+<p style="font-size:13px;color:#4b5563;margin-top:16px">This license covers unlimited runs, private rule extensions, and the live rule-pack feed for your organization.</p>
+<p style="font-size:12px;color:#6b7280;margin-top:32px">This is a transactional message. You are receiving it because you purchased an Org License on EOLkits.</p>
+</body></html>"""
+
+
 def send_email(
     settings: Settings,
     *,

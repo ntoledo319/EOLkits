@@ -326,3 +326,39 @@ def test_migration_pack_fulfillment_resolves_installation_from_repo_mapping(tmp_
     mod._queue_fulfillment("cs_test_2", "migration_pack", "buyer@example.com", {"repo": "acme/widgets", "installation_id": "999"}, BackgroundTasks())
     assert str(captured["installationId"]) == "999"
 
+
+def test_store_license_emails_the_key_to_the_buyer(tmp_path, monkeypatch):
+    """A paid Org License must have its key emailed, not just written to the store —
+    otherwise the buyer is charged $14,999 and has no way to know their key exists."""
+    mod, _ = _load_app(tmp_path, monkeypatch, RESEND_API_KEY="re_test")
+
+    monkeypatch.setattr(mod.secrets, "token_hex", lambda n: "ABCD1234")
+
+    sent: dict = {}
+    monkeypatch.setattr(
+        mod,
+        "send_email",
+        lambda settings, *, to, subject, html: sent.update(to=to, subject=subject, html=html),
+    )
+
+    mod._store_license({"email": "buyer@example.com", "company": "Acme Corp"})
+
+    assert sent["to"] == "buyer@example.com"
+    assert "Acme Corp" in sent["html"]
+    expected_key = "-".join(["ABCD1234"] * 4)
+    stored = mod.store.get_json(f"license:{expected_key}")
+    assert stored["company"] == "Acme Corp"
+    assert expected_key in sent["html"]
+
+
+def test_store_license_without_email_does_not_crash(tmp_path, monkeypatch):
+    """Some historical/manual jobs may lack an email; storing must still succeed and
+    must not attempt (and fail) a send to nowhere."""
+    mod, _ = _load_app(tmp_path, monkeypatch, RESEND_API_KEY="re_test")
+
+    def _boom(*a, **k):
+        raise AssertionError("send_email must not be called without a recipient")
+
+    monkeypatch.setattr(mod, "send_email", _boom)
+    mod._store_license({"company": "Acme Corp"})
+

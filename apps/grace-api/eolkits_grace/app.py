@@ -22,7 +22,12 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Resp
 
 from . import pricing
 from .config import settings
-from .email import EmailDeliveryError, render_audit_delivery_email, send_email
+from .email import (
+    EmailDeliveryError,
+    render_audit_delivery_email,
+    render_license_delivery_email,
+    send_email,
+)
 from .security import sha256_hex, verify_github_signature, verify_stripe_signature
 from .store import Store
 from .stripe_client import (
@@ -1315,6 +1320,19 @@ def _store_license(job: dict[str, Any]) -> None:
             "key": key,
         },
         ttl_seconds=86400 * 366,
+    )
+    if not email:
+        return
+    send_email(
+        settings,
+        to=email,
+        subject="Your EOLkits Org License is active",
+        html=render_license_delivery_email(
+            license_key=key,
+            company=company,
+            expires_at=expires.isoformat(),
+            verify_url=f"{settings.public_api_url}/api/license/verify?key={key}",
+        ),
     )
 
 
