@@ -283,6 +283,58 @@ Owner said "yea [draft more] and see what you can automate." Did both:
   clearing); `org_license`'s missing license-key email (queued since D14, still needs an owner VPS redeploy to take
   effect regardless of when written, so still not this cycle's highest-leverage in-jail ship).
 
+### D16 — Cloud cycle (2026-07-19): confirmed WebFetch outage persists (5th cycle); shipped the deferred org_license email fix
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `d6b993b` (D15's
+  handoff commit); no conflicts.
+- **Re-tested WebFetch before picking a task (per the standing outage rule, D11/D13/D14/D15):** `WebFetch` on
+  `https://example.com` → still HTTP 403. Checked `$HTTPS_PROXY/__agentproxy/status` — this time
+  `recentRelayFailures` was **empty** (unlike D15's `connect_rejected` entries), yet the fetch itself still 403'd,
+  including a direct retry against the authoritative `docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html`
+  URL. So the tool is still unusable for primary-source verification regardless of what the status page shows —
+  5th consecutive cycle (07-15, -16, -18, -19; no 07-17 cycle recorded, consistent with D15's note).
+- **New finding this cycle — a live illustration of why the outage rule exists:** ran `WebSearch` (a separate,
+  working backend) for the Node.js 20 Lambda block date as a sanity check. It returned **the exact superseded
+  2026 dates** (April 30 2026 EOL / June 1 2026 create-block / July 1 2026 update-block) from HeroDevs/CloudQuery —
+  the same wrong sources D3 identified and corrected on 2026-07-13. This confirms `WebSearch` alone (without a
+  working `WebFetch` to hit the authoritative AWS table directly) is not sufficient to safely draft new
+  date-bearing content; the outage rule (skip new fact-dependent shipping when `WebFetch` is down) is doing real
+  work, not being overly cautious. Per §2.5, skipped new re:Post-answer drafting and any new dev.to article again.
+- **Chose the next highest-leverage $0/no-new-fetch/in-jail task:** the `org_license` license-key email-delivery gap
+  (flagged D9, confirmed D14, deferred D14→D15→this cycle as "queued for a future cycle" each time) — a real
+  hard-constraint-5/§2.5 gap: a genuine $14,999 charge whose fulfillment (`_store_license` in `grace-api/app.py`)
+  generated and stored a real license key but never sent it anywhere the buyer could see it. Safe, small, testable,
+  and needs zero new external fact-checking — the correct pick for an outage cycle, and the reason it kept losing to
+  more urgent truth/harm fixes in prior cycles (D11 fabricated pricing, D14 drift_watch live-harm) no longer applies
+  since no new urgent issue was found this cycle.
+- **Shipped (`apps/grace-api/eolkits_grace/email.py`, `app.py`, `test/test_app.py`; commit `edfba40`):**
+  - Added `render_license_delivery_email()` in `email.py`, mirroring the existing `render_audit_delivery_email()`
+    pattern (same file, same transactional-email framing).
+  - `_store_license()` now calls the existing `send_email()` after storing the key — same Resend path already used
+    for audit-PDF delivery, so a failed send raises `EmailDeliveryError`, which `_run_job`'s existing try/except
+    already routes into the job-queue's retry/dead-letter machinery (D9's pattern) with **zero new plumbing**.
+    No-op (no crash) if a job somehow lacks an email.
+  - Verify-link fix caught during self-review: initially pointed the email's "verify this key" link at
+    `/license/?key=...` — but that static page (built by `apps/web/build.py build_license_page`) has no client-side
+    JS reading a query param (unlike `/verify/` for audits, which does). Linking there would be a truth violation
+    (§2.5: a "verify" link that verifies nothing). Corrected to the real, working
+    `{PUBLIC_API_URL}/api/license/verify?key=...` JSON endpoint (already tested, returns `valid`/`company`/
+    `expiresAt`/`features`) — less polished than a dedicated page, but true today, which is the bar.
+  - **2 regression tests added** (`test_store_license_emails_the_key_to_the_buyer`,
+    `test_store_license_without_email_does_not_crash`), following the `test_migration_pack_fulfillment_...` pattern
+    from D9 (monkeypatch the collaborator, assert on captured call args, deterministic key via a monkeypatched
+    `secrets.token_hex`). Full suite run in a jail-local venv (`apps/grace-api/requirements.txt` + `pytest` + `httpx`,
+    deleted after use, per D14's convention) — **38/38 green** (was 36 before D9's fix, +2 this cycle).
+- **Ship-law check:** externally visible ✅ on the public repo the moment this pushes — a real code change + tests,
+  same "shipped" bar D9 used for its `grace-api/app.py` fix. **Does NOT take effect in production** until the owner's
+  next VPS redeploy of `eolkits-api` (`apps/grace-api` is not on the git-push auto-deploy path — confirmed again via
+  `deploy/grace/ship-web.sh`'s own comment, same as D14 found for drift_watch). Recorded honestly in HUMAN_QUEUE
+  rather than counted as a live fix.
+- **Deferred to next cycle:** new dev.to article + new re:Post answers (still gated on the fetch outage clearing —
+  now worth flagging to the owner if it doesn't self-resolve, since standing distribution work has been blocked for
+  5 of the last 5 cycles); a repo-wide check for any other stubbed/silent-failure fulfillment paths beyond
+  drift_watch (fixed) and org_license (fixed this cycle) — migration_pack and audit_pdf are both reviewed (D9) and
+  exercised by tests, so the known gap surface is now closed.
+
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in

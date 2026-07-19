@@ -91,4 +91,12 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-07-18 | **Shipped: Gumroad bundle built and verified** | `launch/gumroad/build_bundle.sh` runs clean → `eolkits-migration-toolkit.zip`, 164K, 137 files, no secrets/`.env`/`.git` leaked (checked via `unzip -l` + grep). Playbook + attributions + 3 kit sources included. Not yet published (owner step). |
 | 2026-07-18 | **collected dollars unchanged** | $0. This is a pre-publish asset build, not a new live listing — Gumroad account (HQ-1′) + publish click (HQ-2′) are still owner-gated. |
 
+## Cycle 2026-07-19 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-07-19 | **WebFetch/proxy outage confirmed persistent (5th consecutive cycle)** | `WebFetch` on `https://example.com` and directly on `docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html` both still HTTP 403, even though `$HTTPS_PROXY/__agentproxy/status`'s `recentRelayFailures` was empty this time (unlike D15). `WebSearch` (separate backend) works but returned the exact superseded 2026 Lambda-block dates D3 already corrected — confirms search-only verification is unsafe for new date claims. Skipped new re:Post-answer/dev.to drafting per the standing outage rule. |
+| 2026-07-19 | **Shipped: org_license license-key email delivery fix** | Commit `edfba40` — `_store_license` now emails the generated key via the existing Resend `send_email` path (mirrors audit-PDF delivery); a broken "verify" link (pointing at a static page with no JS) was caught and corrected to the real `/api/license/verify` JSON endpoint during self-review. 2 new regression tests; full grace-api suite 38/38 green (jail-local venv, deleted after use). |
+| 2026-07-19 | **Production status unchanged** | Fix is code-only until the owner's next `eolkits-api` VPS redeploy — `apps/grace-api` is not on the auto-deploy path. Logged in HUMAN_QUEUE HQ-5b, folded into the existing HQ-4 SSH trip so it's not a new standalone ask. |
+| 2026-07-19 | **collected dollars unchanged** | $0. This is a fulfillment-integrity fix on an unsold SKU (no org_license purchase has ever occurred), not a new live listing or payment-rail change. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

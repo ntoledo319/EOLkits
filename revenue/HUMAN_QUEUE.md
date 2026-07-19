@@ -69,13 +69,13 @@ is removed. **What's still open, human-only:**
 1. **Deactivate the `drift_watch` Stripe Price/Payment Link** in the Stripe dashboard (or leave it — with the site no
    longer linking to `/api/drift/checkout`, the residual exposure is only someone hitting a stale/shared URL
    directly). ~2 min, optional but tidy. Link: https://dashboard.stripe.com/prices → find "Drift Watch."
-2. **org_license ($14,999/yr) is lower-risk than drift_watch** — `/license/` is an inquiry form ("provisioned
-   manually after verification"), not self-serve, so a human is already in the loop before any charge. The real gap:
-   `_store_license` in `grace-api/app.py` generates and stores a real license key but **never emails it to the
-   buyer**. This is a safe, small, testable backend fix (queued for a future cycle) — but it needs an **owner VPS
-   redeploy** to take effect regardless of when it's written, since `apps/grace-api` is not on the git-push
-   auto-deploy path (only `apps/web`/the static site is). When you next redeploy `eolkits-api` for any reason, check
-   `revenue/DECISIONS.md` D14 for whether that fix has landed yet.
+2. **org_license ($14,999/yr) email-delivery gap — FIXED IN CODE 2026-07-19 (commit `edfba40`), NEEDS A VPS REDEPLOY
+   TO GO LIVE.** `_store_license` in `grace-api/app.py` used to generate and store a real license key but never
+   email it to the buyer; it now sends it via the existing Resend path (same as audit-PDF delivery), tested
+   (38/38 green — see DECISIONS D16). **Why this is still a queue item:** `apps/grace-api` is not on the git-push
+   auto-deploy path (only `apps/web`/the static site is) — this fix sits in the repo but does nothing in production
+   until you next redeploy `eolkits-api` on the VPS. **Action:** next time you SSH in for any reason (e.g. HQ-4's
+   GitHub App creds), redeploy `eolkits-api` too so this lands — no separate trip needed, just don't skip it.
 3. **Once drift_watch fulfillment is actually built** (real IAM-role validation + a scheduled weekly scan + delta
    PDF — a multi-day feature, intentionally not attempted autonomously given the security sensitivity of assuming a
    customer's IAM role), revert the "coming soon" copy and restore the checkout.
@@ -128,6 +128,13 @@ and verified; the owner's remaining step is purely account+publish clicks (~10 m
 confirmed today via `$HTTPS_PROXY/__agentproxy/status` as a gateway-level `connect_rejected` policy denial on
 `example.com` and AWS docs both). This blocks new re:Post-answer drafting and new dev.to articles until it clears —
 not an owner action item yet, but flagging in case it doesn't self-resolve.
+
+## Cycle 2026-07-19 (cloud routine)
+HQ-5b's org_license item updated: the code fix is done and tested (commit `edfba40`), the remaining ask is just
+"redeploy `eolkits-api` next time you're on the VPS anyway" — no new standalone action, folded into HQ-4's existing
+SSH trip. WebFetch/proxy outage confirmed persistent a 5th consecutive cycle (2026-07-15, -16, -18, -19); this is
+now blocking the standing re:Post-answer-backlog priority for that long — worth a look if it doesn't clear on its
+own, since it's the main thing keeping the content engine idle each cycle.
 
 ## Running total (post-pivot)
 Everything here is now **one-time setup, no ongoing owner time.** Core ≈ **30 min** (HQ-1′+2′,4,5,6). The COMPOUNDING

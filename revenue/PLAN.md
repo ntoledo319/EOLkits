@@ -125,19 +125,34 @@ no fast-gig shortcut exists. Replaced by:
    worth the owner's attention if it doesn't self-resolve, since it's now blocking the standing re:Post-backlog
    priority every cycle it persists.
 
+## Cycle 2026-07-19 (cloud routine)
+10. **Shipped the deferred org_license email-delivery fix** (`edfba40`): `_store_license` in `grace-api/app.py`
+    generated + stored a real license key on a $14,999 checkout but never sent it anywhere the buyer could see it —
+    queued since D9/D14, deferred twice more (D14, D15) each time a more urgent truth/harm fix pre-empted it. This
+    cycle found no more-urgent issue, so it finally got picked up. Now sends the key via the existing Resend path
+    (same pattern as audit-PDF delivery); a self-review catch corrected an initially-dead "verify" link to the real
+    working API endpoint. 2 new regression tests, 38/38 green. **Code-only** — needs the owner's next `eolkits-api`
+    VPS redeploy to take effect in production (not on the git-push auto-deploy path); folded into the existing HQ-4
+    SSH trip so it isn't a new standalone owner ask.
+11. **Re-confirmed the WebFetch/proxy outage — 5th consecutive cycle** (07-15, -16, -18, -19), and this cycle found a
+    concrete reason the outage rule matters: a `WebSearch` sanity-check for the Node20 Lambda block date returned
+    the exact superseded 2026 dates (D3 already corrected these on 2026-07-13) — confirming search alone can't
+    safely stand in for a working `WebFetch` against the authoritative AWS table. Skipped new re:Post answers/dev.to
+    again. Worth the owner's attention if it doesn't clear soon — it's now blocked the standing distribution
+    priority for 5 straight cycles.
+
 ## Next actions (priority order) — post-pivot
 - **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,
   HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack),
   HQ-6 one real test purchase, and now **HQ-1′/HQ-2′ (Gumroad — fully built, ~10 min to publish)**. **All one-time
   setup — no ongoing owner time** (fits the constraint).
 - **P1 — Agent (next cycle):** a new, non-duplicative dev.to article — first re-verify WebFetch/primary-source access
-  is back (it has now 403'd on every URL for **4 consecutive cycles** — 2026-07-15, -16, and -18 — including a
-  control site and a direct curl/proxy-status check confirming a gateway-level `connect_rejected` policy denial, not
-  an AWS-side block — see DECISIONS D14/D15); if still down, ship a tutorial-format piece instead (e.g. "scan your
-  AWS account for EOL runtimes free" using an already-verified kit) rather than risk a stale-date error.
-- **P1 — Agent (next cycle):** fix `org_license`'s missing license-key email delivery (`_store_license` in
-  `grace-api/app.py` generates a real key but never sends it) — safe, small, testable with a unit test; note it won't
-  take effect live until the owner's next VPS redeploy of `eolkits-api` (not on the git-push auto-deploy path).
+  is back (it has now 403'd on every URL for **5 consecutive cycles** — 2026-07-15, -16, -18, -19 — including a
+  control site and the AWS docs URL directly, plus this cycle's proof that `WebSearch` alone surfaces stale/wrong
+  dates — see DECISIONS D14/D15/D16); if still down, ship a tutorial-format piece instead (e.g. "scan your AWS
+  account for EOL runtimes free" using an already-verified kit) rather than risk a stale-date error.
+- **Done 2026-07-19:** fixed `org_license`'s missing license-key email delivery (commit `edfba40`, DECISIONS D16) —
+  code-only, still needs the owner's next VPS redeploy of `eolkits-api` to take effect live (folded into HQ-4).
 - **Done 2026-07-15:** repo-wide grep (`.md`/`.py`/`.yml`/`.html`/`.ts`/`.js`/`.mjs`) for the same fabricated-tier
   pattern (`eolkits-kits`, "Team ($999)", "Enterprise ($2,499)", fake Slack/on-call/pairing claims) found no other
   live occurrence outside the 3 kit READMEs already fixed (one stale mention remains in the **retired, undeployed**

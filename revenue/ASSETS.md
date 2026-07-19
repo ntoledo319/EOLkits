@@ -74,11 +74,13 @@ Verified this cycle by reading manifests + running CLIs/tests directly (not trus
 - **`pricing.yml`:** all Stripe product/price IDs + payment links present and live (test_mode: false).
 - **Note (2026-07-16):** `drift_watch` fulfillment (`apps/runner/main.py handle_drift_watch_setup`) is a complete
   no-op stub (no IAM validation, no scan, no delta PDF) — its live self-serve checkout was **pulled from the website**
-  this cycle (see DECISIONS D14) since selling it delivered nothing, recurringly. `org_license` fulfillment
-  (`_store_license` in `grace-api/app.py`) is more real (generates + stores a genuine license key) but never emails
-  it to the buyer — lower risk since `/license/` is an inquiry form, not self-serve, but still an open backend gap
-  (HUMAN_QUEUE HQ-5b). Neither `apps/grace-api` nor `apps/runner` deploy on the `git push` auto-deploy path — only
-  `apps/web` does; backend fixes need an owner VPS redeploy to take effect.
+  this cycle (see DECISIONS D14) since selling it delivered nothing, recurringly.
+- **Update (2026-07-19):** `org_license` fulfillment (`_store_license` in `grace-api/app.py`) generated + stored a
+  genuine license key but never emailed it to the buyer — **fixed this cycle** (commit `edfba40`, DECISIONS D16):
+  now sends the key via the existing Resend `send_email` path (same pattern as audit-PDF delivery), with the
+  job-queue's existing retry/dead-letter handling covering send failures. 2 regression tests added (38/38 green).
+  Neither `apps/grace-api` nor `apps/runner` deploy on the `git push` auto-deploy path — only `apps/web` does; this
+  fix needs an **owner VPS redeploy of `eolkits-api`** to take effect in production (queued, see HUMAN_QUEUE).
 
 ---
 
