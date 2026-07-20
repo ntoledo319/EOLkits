@@ -99,4 +99,13 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-07-19 | **Production status unchanged** | Fix is code-only until the owner's next `eolkits-api` VPS redeploy — `apps/grace-api` is not on the auto-deploy path. Logged in HUMAN_QUEUE HQ-5b, folded into the existing HQ-4 SSH trip so it's not a new standalone ask. |
 | 2026-07-19 | **collected dollars unchanged** | $0. This is a fulfillment-integrity fix on an unsold SKU (no org_license purchase has ever occurred), not a new live listing or payment-rail change. |
 
+## Cycle 2026-07-20 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-07-20 | **WebFetch outage root-caused as a permanent policy denial (6th consecutive cycle: 07-15,-16,-18,-19,-20)** | `/root/.ccr/README.md`: "403/407 from the proxy: the destination host is not allowed by your organization's egress policy for this session. Do not retry or route around it." Confirms this is a fixed environment configuration (registries allowlisted, general web denied), not a transient fault — see DECISIONS D17. |
+| 2026-07-20 | **No new truth/harm gap found** in a fresh audit of `apps/runner/main.py` handlers vs. `grace-api/app.py` dispatch — `handle_license_key`/`handle_drift_watch_setup` confirmed dead code, not live bugs. | Read directly this cycle; known gap surface (D16) stays closed. |
+| 2026-07-20 | **Shipped: dev.to article 09** (`09-lambda-glibc-version-not-found.md`), sourced entirely from the already-verified `fixes.yml` entry — no new external fetch. Canonical → the real, registered `/fix/lambda-glibc-version-not-found/` page. | Frontmatter validated against `publish_devto.py`'s own parser this cycle; all 9 articles parse correctly. |
+| 2026-07-20 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship + a root-cause finding, not a new SKU. |
+| 2026-07-20 | **dev.to articles staged on branch: 9** (was 7 as of 07-14; article 08 shipped 07-19 by a separate process, unlogged until this cycle; article 09 shipped this cycle) | `launch/distribution/devto/01`–`09`. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

@@ -335,6 +335,54 @@ Owner said "yea [draft more] and see what you can automate." Did both:
   drift_watch (fixed) and org_license (fixed this cycle) — migration_pack and audit_pdf are both reviewed (D9) and
   exercised by tests, so the known gap surface is now closed.
 
+### D17 — Cloud cycle (2026-07-20): root-caused the "WebFetch outage" as a permanent policy denial, not a transient outage; shipped dev.to article 09 from already-verified repo data
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `5747950` (a
+  `content(devto): add article 08` commit dated 2026-07-19 13:10 UTC, pushed *after* D16's `16fc3a0` cycle commit by
+  a different process/session — not previously logged in PLAN's cycle history. No conflicts. Logging it now: article
+  08 (`08-node-crypto-createcipher-removed.md`, DEP0106 `crypto.createCipher` removal in Node 22) is real,
+  non-duplicative, well-established technical fact (not a disputed AWS EOL date), and already on the branch.
+- **Re-tested WebFetch before picking a task, as every cycle since D11 has:** `WebFetch` on `https://example.com` →
+  still HTTP 403 (6th consecutive cycle: 07-15, -16, -18, -19, -20; no 07-17 run recorded). `$HTTPS_PROXY/__agentproxy/status`
+  again showed `connect_rejected` for both `example.com` and `docs.aws.amazon.com`, timestamped this cycle.
+- **New this cycle — read `/root/.ccr/README.md` (the proxy's own diagnostic doc) instead of only checking the status
+  endpoint.** It states explicitly: *"403 / 407 from the proxy: The destination host is not allowed by your
+  organization's egress policy for this session. Do not retry or route around it — report the blocked host."* This
+  reframes 5 prior cycles of "outage, recheck next cycle" language: **this is not a transient fault that clears on
+  its own — it is this environment's configured egress policy**, deliberately allowlisting only package registries
+  (npm, PyPI, crates, Go proxy, `*.anthropic.com`) and denying general web hosts including neutral controls and AWS
+  docs. Re-testing it every cycle going forward is a wasted step; the fix (if wanted) is an owner-side change to this
+  cloud environment's network policy, not something inside the WORKSPACE_ROOT jail can touch (§1 — machine/environment
+  config is outside the agent's authority; this is exactly what "report it" means per the proxy's own instructions).
+  **Flagging to the owner** (see HUMAN_QUEUE) rather than silently continuing the same per-cycle check-and-skip.
+- **Practical consequence for the standing distribution priority:** new re:Post answers and dev.to articles that need
+  a *newly fact-checked* AWS date or external claim are **not possible from this environment as currently configured**
+  — not "currently down." The content engine's viable path going forward is the pattern D15 (Gumroad playbook) and
+  the 07-19 article-08 commit both already used successfully: source new content **entirely from data already
+  verified and live in this repo** (`fixes.yml`, `deprecations.yml`, prior AWS-table cross-checks logged in D3/D8).
+- **Before writing new content, did a fresh no-fetch-required audit for other truth/harm gaps** (the pattern that beat
+  a content ship in D11 and D14): read `apps/runner/main.py`'s 5 job handlers and traced `_execute_job` /
+  `_dispatch_runner` in `apps/grace-api/eolkits_grace/app.py`. Confirmed `handle_license_key` and
+  `handle_drift_watch_setup` in `apps/runner/main.py` are dead code paths — `_execute_job` calls `_store_license()`
+  (the real, already-fixed-in-D16 implementation) directly for `license_key` jobs regardless of what the runner
+  handler returns, and has no dispatch case at all for `drift_watch_setup` (consistent with D14's finding, and that
+  checkout is already pulled from the site). **No new live truth/harm issue found** — the known gap surface D16
+  called closed is still closed.
+- **Shipped: dev.to article 09** (`launch/distribution/devto/09-lambda-glibc-version-not-found.md`) — covers
+  `/lib64/libc.so.6: version 'GLIBC_2.28' not found`, a real, high-intent, verbatim Lambda error already documented
+  in this repo's live `apps/web/content/fixes.yml` (`slug: lambda-glibc-version-not-found`, with AL2-vs-AL2023 glibc
+  versions, fix steps, and an AWS source URL already recorded from a prior cycle's verification — reused, not
+  re-fetched). Non-duplicative: no existing article (01–08) covers native-dependency/glibc errors specifically.
+  Canonical → `eolkits.com/fix/lambda-glibc-version-not-found/`, confirmed the slug is real and registered in
+  `apps/web/content/fixes.yml`. Frontmatter validated by running the repo's own `publish_devto.py` parser locally
+  (`_parse()`) against all 9 articles — title/canonical_url/4-tag-max all parse correctly, matches the existing
+  articles' shape exactly, ready for the box's dev.to auto-publish cron.
+- **Ship-law check:** externally visible ✅ — lands on the public repo the moment this pushes, auto-publishes via the
+  existing dev.to cron once `DEVTO_API_KEY` is confirmed on the box (HQ-11).
+- **Deferred:** re:Post answer drafting stays paused — that pattern (answering a *specific real thread found this
+  cycle*) structurally requires a working fetch to find and confirm a real, resolving thread URL; there's no
+  repo-only-data substitute for it the way there is for AWS-fact articles. This will stay blocked until either the
+  environment's egress policy changes or the owner runs the search/draft step from their own machine.
+
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in

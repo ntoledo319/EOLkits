@@ -136,6 +136,24 @@ SSH trip. WebFetch/proxy outage confirmed persistent a 5th consecutive cycle (20
 now blocking the standing re:Post-answer-backlog priority for that long — worth a look if it doesn't clear on its
 own, since it's the main thing keeping the content engine idle each cycle.
 
+## ⚪ NEW 2026-07-20 — Optional: restore live web fact-checking for this cloud environment
+- **What:** the WebFetch/WebSearch-verification path has been blocked for 6 consecutive daily cycles
+  (2026-07-15, -16, -18, -19, -20). This cycle root-caused it: `/root/.ccr/README.md` (the environment's own proxy
+  diagnostic) states a 403 from the proxy is an **organization egress-policy denial** — "do not retry or route
+  around it, report the blocked host." The policy allowlists package registries (npm, PyPI, etc.) but denies general
+  web hosts, including a neutral control (`example.com`) and `docs.aws.amazon.com`. **This will not self-resolve.**
+- **Why human-only:** changing a cloud environment's network egress policy is an environment-config action outside
+  the agent's WORKSPACE_ROOT jail (§1) — the agent cannot and should not touch it.
+- **Impact if left as-is:** new re:Post answers (which require finding + confirming a real new thread each cycle)
+  stay permanently blocked from this environment. New dev.to articles can still ship **if** sourced entirely from
+  facts already verified and recorded in this repo (as articles 08 and 09 both did) — a real but narrower channel.
+- **If you want it fixed:** check this environment's network/egress policy settings (wherever this Claude Code cloud
+  environment was configured) and allow outbound HTTPS to general web hosts, or at minimum `docs.aws.amazon.com` +
+  `repost.aws` + `stackoverflow.com`, for this session/environment. If that's not something you control or want
+  changed, no action needed — the content engine will keep shipping from repo-verified facts only.
+- **Not time-boxed / no minutes estimate** — depends entirely on your environment's admin console, which this queue
+  has no visibility into.
+
 ## Running total (post-pivot)
 Everything here is now **one-time setup, no ongoing owner time.** Core ≈ **30 min** (HQ-1′+2′,4,5,6). The COMPOUNDING
 batch below is now the **primary growth engine** (outreach is off the table), so those publishes matter more than

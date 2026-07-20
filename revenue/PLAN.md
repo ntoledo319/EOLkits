@@ -141,16 +141,40 @@ no fast-gig shortcut exists. Replaced by:
     again. Worth the owner's attention if it doesn't clear soon — it's now blocked the standing distribution
     priority for 5 straight cycles.
 
+## Cycle 2026-07-20 (cloud routine)
+12. **Root-caused the "WebFetch outage"** (6 consecutive cycles: 07-15, -16, -18, -19, -20): `/root/.ccr/README.md`
+    states plainly that a 403 from the proxy is an **organization egress-policy denial**, not a transient fault —
+    "do not retry or route around it, report the blocked host." This environment's policy allowlists only package
+    registries (npm/PyPI/crates/Go proxy) and denies general web including neutral controls and AWS docs. **This is
+    not going to clear on its own** — re-testing it every cycle was the wrong framing; see DECISIONS D17 and
+    HUMAN_QUEUE for the owner-facing ask. The content engine's only viable path now is sourcing new articles/pages
+    entirely from data **already verified and live in this repo** (as D15's Gumroad playbook and the 07-19 article-08
+    commit both already did) — new re:Post answers (which require finding + confirming a real new thread URL each
+    time) have no such substitute and stay blocked until the policy changes.
+13. **Found (2026-07-19, unlogged until now):** a separate process pushed `content(devto): add article 08` (commit
+    `5747950`, Node 22 `crypto.createCipher` removal) after D16's cycle commit — real, non-duplicative, low-risk
+    fact (a well-established Node.js API removal, not a disputed AWS date). Logged here for continuity.
+14. **Fresh no-fetch truth/harm audit found no new issue** — traced `apps/runner/main.py`'s job handlers against
+    `_execute_job`/`_dispatch_runner` in `grace-api/app.py`; confirmed `handle_license_key`/`handle_drift_watch_setup`
+    are dead code (the real license logic is `_store_license`, already fixed D16; drift_watch has no dispatch case,
+    consistent with D14's already-shipped fix). The known gap surface stays closed.
+15. **Shipped dev.to article 09** (`09-lambda-glibc-version-not-found.md`) — the `GLIBC_2.28 not found` native-Lambda-
+    dependency error, sourced entirely from the already-verified `apps/web/content/fixes.yml` entry (no new fetch).
+    Non-duplicative of articles 01–08. Canonical → the real, registered `/fix/lambda-glibc-version-not-found/` page.
+    Frontmatter validated against the repo's own `publish_devto.py` parser.
+
 ## Next actions (priority order) — post-pivot
 - **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,
   HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack),
   HQ-6 one real test purchase, and now **HQ-1′/HQ-2′ (Gumroad — fully built, ~10 min to publish)**. **All one-time
   setup — no ongoing owner time** (fits the constraint).
-- **P1 — Agent (next cycle):** a new, non-duplicative dev.to article — first re-verify WebFetch/primary-source access
-  is back (it has now 403'd on every URL for **5 consecutive cycles** — 2026-07-15, -16, -18, -19 — including a
-  control site and the AWS docs URL directly, plus this cycle's proof that `WebSearch` alone surfaces stale/wrong
-  dates — see DECISIONS D14/D15/D16); if still down, ship a tutorial-format piece instead (e.g. "scan your AWS
-  account for EOL runtimes free" using an already-verified kit) rather than risk a stale-date error.
+- **P0-NEW — Owner, only if you want live web fact-checking back:** this cloud environment's egress policy denies
+  general web access by design (confirmed via `/root/.ccr/README.md`, not a bug) — see HUMAN_QUEUE. Without it, new
+  re:Post answers (which need a freshly-found, confirmed real thread) can't be drafted from this environment; new
+  dev.to articles still can, as long as they're sourced from already-repo-verified facts (as article 09 was).
+- **P1 — Agent (next cycle):** another no-new-fetch dev.to article or `/fix`-page-sourced piece (candidates already
+  in `fixes.yml` without an article yet: `node-error-decoder-routines-unsupported`, `lambda-runtime-importmoduleerror-
+  cannot-find-module`, `python-asyncio-has-no-attribute-coroutine`) — same safe pattern as article 09, no fetch needed.
 - **Done 2026-07-19:** fixed `org_license`'s missing license-key email delivery (commit `edfba40`, DECISIONS D16) —
   code-only, still needs the owner's next VPS redeploy of `eolkits-api` to take effect live (folded into HQ-4).
 - **Done 2026-07-15:** repo-wide grep (`.md`/`.py`/`.yml`/`.html`/`.ts`/`.js`/`.mjs`) for the same fabricated-tier
