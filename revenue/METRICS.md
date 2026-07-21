@@ -108,4 +108,12 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-07-20 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship + a root-cause finding, not a new SKU. |
 | 2026-07-20 | **dev.to articles staged on branch: 9** (was 7 as of 07-14; article 08 shipped 07-19 by a separate process, unlogged until this cycle; article 09 shipped this cycle) | `launch/distribution/devto/01`–`09`. |
 
+## Cycle 2026-07-21 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-07-21 | **WebFetch outage confirmed persistent (7th consecutive cycle: 07-15,-16,-18,-19,-20,-21)** | `WebFetch` on `https://example.com` (neutral control) → still HTTP 403; `$HTTPS_PROXY/__agentproxy/status` showed an empty `recentRelayFailures` this time (like D16), consistent with D17's root cause that this is a standing egress-policy denial, not a per-request fault worth re-diagnosing each cycle. |
+| 2026-07-21 | **Shipped: dev.to article 10** (`10-python-asyncio-has-no-attribute-coroutine.md`), sourced entirely from the already-verified `fixes.yml` entry — no new external fetch. Canonical → the real, registered `/fix/python-asyncio-has-no-attribute-coroutine/` page. | Frontmatter validated against `publish_devto.py`'s own parser this cycle; all 10 articles parse correctly; confirmed non-duplicative via grep against articles 01–09. |
+| 2026-07-21 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship only. |
+| 2026-07-21 | **dev.to articles staged on branch: 10** (was 9 as of 07-20) | `launch/distribution/devto/01`–`10`. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

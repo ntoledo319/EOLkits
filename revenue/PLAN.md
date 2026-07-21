@@ -163,6 +163,19 @@ no fast-gig shortcut exists. Replaced by:
     Non-duplicative of articles 01–08. Canonical → the real, registered `/fix/lambda-glibc-version-not-found/` page.
     Frontmatter validated against the repo's own `publish_devto.py` parser.
 
+## Cycle 2026-07-21 (cloud routine)
+16. **WebFetch re-tested, still 403 on the neutral control (`example.com`)** — 7th cycle blocked from fresh external
+    fact-checking (07-15, -16, -18, -19, -20, -21; no 07-17 run recorded). Per D17's root cause (permanent egress
+    policy denial, not transient), no re-diagnosis needed — went straight to the no-new-fetch content path.
+17. **Shipped dev.to article 10** (`10-python-asyncio-has-no-attribute-coroutine.md`) — the Python 3.11
+    `AttributeError: module 'asyncio' has no attribute 'coroutine'` removal, sourced entirely from the
+    already-verified `fixes.yml` entry (`python-asyncio-has-no-attribute-coroutine`, `source_url:
+    docs.python.org/3/whatsnew/3.11.html`, itself an uncontroversial, long-established Python stdlib fact, not a
+    disputed AWS date). Non-duplicative of articles 01–09 (checked: no existing article covers the asyncio.coroutine
+    removal; article 04's one "asyncio" mention is an unrelated telnetlib3 replacement note). Canonical → the real,
+    registered `/fix/python-asyncio-has-no-attribute-coroutine/` page. Frontmatter validated against
+    `publish_devto.py`'s own `_parse()` for all 10 articles — title/canonical_url/4-tag-max all parse correctly.
+
 ## Next actions (priority order) — post-pivot
 - **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,
   HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack),
@@ -172,9 +185,13 @@ no fast-gig shortcut exists. Replaced by:
   general web access by design (confirmed via `/root/.ccr/README.md`, not a bug) — see HUMAN_QUEUE. Without it, new
   re:Post answers (which need a freshly-found, confirmed real thread) can't be drafted from this environment; new
   dev.to articles still can, as long as they're sourced from already-repo-verified facts (as article 09 was).
-- **P1 — Agent (next cycle):** another no-new-fetch dev.to article or `/fix`-page-sourced piece (candidates already
-  in `fixes.yml` without an article yet: `node-error-decoder-routines-unsupported`, `lambda-runtime-importmoduleerror-
-  cannot-find-module`, `python-asyncio-has-no-attribute-coroutine`) — same safe pattern as article 09, no fetch needed.
+- **P1 — Agent (next cycle):** another no-new-fetch dev.to article or `/fix`-page-sourced piece (candidates still
+  in `fixes.yml` without an article: `node-error-decoder-routines-unsupported` (OpenSSL3 legacy-key DECODER error),
+  `lambda-runtime-importmoduleerror-cannot-find-module` (broader ImportModuleError triage: esbuild bundling, layer
+  arch mismatch — distinct enough from article 05's aws-sdk-specific piece and article 09's glibc-specific piece to
+  be non-duplicative)) — same safe pattern as articles 09/10, no fetch needed.
+- **Done 2026-07-21:** shipped dev.to article 10 (`python-asyncio-has-no-attribute-coroutine`, commit pending this
+  cycle's push) — see above.
 - **Done 2026-07-19:** fixed `org_license`'s missing license-key email delivery (commit `edfba40`, DECISIONS D16) —
   code-only, still needs the owner's next VPS redeploy of `eolkits-api` to take effect live (folded into HQ-4).
 - **Done 2026-07-15:** repo-wide grep (`.md`/`.py`/`.yml`/`.html`/`.ts`/`.js`/`.mjs`) for the same fabricated-tier

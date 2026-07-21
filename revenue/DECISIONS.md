@@ -383,6 +383,34 @@ Owner said "yea [draft more] and see what you can automate." Did both:
   repo-only-data substitute for it the way there is for AWS-fact articles. This will stay blocked until either the
   environment's egress policy changes or the owner runs the search/draft step from their own machine.
 
+### D18 — Cloud cycle (2026-07-21): 7th consecutive WebFetch-blocked cycle; shipped dev.to article 10 from already-verified repo data
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `8506bc7` (D17's
+  article-09 commit); no conflicts.
+- **Re-tested WebFetch before picking a task, per the standing rule:** `WebFetch` on `https://example.com` → still
+  HTTP 403 (7th consecutive cycle: 07-15, -16, -18, -19, -20, -21; no 07-17 run recorded). `$HTTPS_PROXY/__agentproxy/status`
+  showed an empty `recentRelayFailures` this time — same pattern D16 saw and D17 already explained: the status
+  endpoint not showing a failure doesn't mean the fetch works, since this is a standing policy denial (per
+  `/root/.ccr/README.md`), not a per-request transient fault. No new diagnosis needed; went straight to the
+  no-new-fetch content path D15/D17 established.
+- **Shipped: dev.to article 10** (`launch/distribution/devto/10-python-asyncio-has-no-attribute-coroutine.md`) —
+  covers `AttributeError: module 'asyncio' has no attribute 'coroutine'`, the Python 3.11 removal of the legacy
+  `@asyncio.coroutine` decorator. Sourced entirely from the already-verified `fixes.yml` entry (slug
+  `python-asyncio-has-no-attribute-coroutine`, `source_url: docs.python.org/3/whatsnew/3.11.html` — an
+  uncontroversial, long-established Python stdlib fact, not a disputed AWS EOL date, so no new fact-verification
+  risk). Checked non-duplication before writing: grepped all prior articles for "asyncio" — only hit is article 04's
+  unrelated one-line mention of `telnetlib3` as an "asyncio-native" replacement library, not coverage of this error.
+  Canonical → the real, registered `/fix/python-asyncio-has-no-attribute-coroutine/` page (confirmed the slug exists
+  in `fixes.yml` and `apps/web/build.py`'s M2 pass builds `/fix/<slug>/` pages deterministically from it).
+- **Verified before logging as shipped:** ran `publish_devto.py`'s own `_parse()` against all 10 articles —
+  title/canonical_url present, tags ≤4, no parse errors; confirmed the title is unique across the batch (no dev.to
+  duplicate-title rejection risk).
+- **Ship-law check:** externally visible ✅ — lands on the public repo the moment this pushes, auto-publishes via the
+  existing dev.to cron once `DEVTO_API_KEY` is confirmed on the box (HQ-11, unchanged).
+- **Deferred:** re:Post answer drafting stays paused (needs a working fetch to find/confirm a real new thread — no
+  repo-only substitute, per D17). Next dev.to candidates already scoped in PLAN.md: `node-error-decoder-routines-
+  unsupported` (OpenSSL3 legacy-key DECODER error) and `lambda-runtime-importmoduleerror-cannot-find-module` (broader
+  ImportModuleError triage, distinct enough from articles 05/09 to be non-duplicative).
+
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in
