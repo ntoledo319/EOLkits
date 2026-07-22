@@ -411,6 +411,34 @@ Owner said "yea [draft more] and see what you can automate." Did both:
   unsupported` (OpenSSL3 legacy-key DECODER error) and `lambda-runtime-importmoduleerror-cannot-find-module` (broader
   ImportModuleError triage, distinct enough from articles 05/09 to be non-duplicative).
 
+### D19 — Cloud cycle (2026-07-22): 8th consecutive WebFetch-blocked cycle; shipped dev.to article 11 from already-verified repo data
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `709d367` (D18's
+  article-10 commit); no conflicts, nothing else had pushed since.
+- **Re-tested WebFetch before picking a task, per the standing rule:** `WebFetch` on `https://example.com` → still
+  HTTP 403 Forbidden (8th consecutive cycle: 07-15, -16, -18, -19, -20, -21, -22; no 07-17 run recorded). Consistent
+  with D17's root cause (a standing egress-policy denial, not a per-request fault) — no new diagnosis run, went
+  straight to the no-new-fetch content path D15/D17/D18 established.
+- **Shipped: dev.to article 11** (`launch/distribution/devto/11-node-decoder-routines-unsupported.md`) — covers
+  `error:1E08010C:DECODER routines::unsupported`, the OpenSSL 3 refusal to load a legacy-format (PKCS#1 / weak-cipher)
+  private key, surfacing on Lambda after a Node.js runtime upgrade. Sourced entirely from the already-verified
+  `fixes.yml` entry (slug `node-error-decoder-routines-unsupported`, `source_url: nodejs.org/api/crypto.html` — an
+  uncontroversial Node.js/OpenSSL API fact, not a disputed AWS EOL date, so no new fact-verification risk). Checked
+  non-duplication before writing: article 06 covers a *different* OpenSSL 3 error (`digital envelope
+  routines::unsupported`, a build-time MD4-hash failure in webpack/react-scripts/Jest) — this article covers a
+  runtime private-key-decoding failure, a distinct root cause and a distinct fix (re-encode to PKCS#8, not upgrade a
+  bundler). Canonical → `eolkits.com/fix/node-error-decoder-routines-unsupported/`; confirmed the slug is real and
+  registered in `fixes.yml`, and that `apps/web/build.py`'s M2 pass builds `/fix/<slug>/` pages deterministically for
+  every entry (read the build logic directly this cycle, not assumed).
+- **Verified before logging as shipped:** ran `publish_devto.py`'s own `_parse()` against all 11 articles —
+  title/canonical_url present, tags ≤4 (4 exactly), no parse errors, no duplicate titles across the batch.
+- **Ship-law check:** externally visible ✅ — lands on the public repo the moment this pushes, auto-publishes via the
+  existing dev.to cron once `DEVTO_API_KEY` is confirmed on the box (HQ-11, unchanged, still unverified from this
+  jail since it requires VPS access).
+- **Deferred:** re:Post answer drafting stays paused (needs a working fetch to find/confirm a real new thread — no
+  repo-only substitute, per D17). Next dev.to candidate already scoped in PLAN.md:
+  `lambda-runtime-importmoduleerror-cannot-find-module` (broader ImportModuleError triage — esbuild bundling
+  defaults, layer/arch mismatch — distinct enough from articles 05/09 to be non-duplicative).
+
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in

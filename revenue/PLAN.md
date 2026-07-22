@@ -176,6 +176,19 @@ no fast-gig shortcut exists. Replaced by:
     registered `/fix/python-asyncio-has-no-attribute-coroutine/` page. Frontmatter validated against
     `publish_devto.py`'s own `_parse()` for all 10 articles — title/canonical_url/4-tag-max all parse correctly.
 
+## Cycle 2026-07-22 (cloud routine)
+18. **WebFetch re-tested, still 403 on the neutral control (`example.com`)** — 8th cycle blocked from fresh external
+    fact-checking (07-15, -16, -18, -19, -20, -21, -22; no 07-17 run recorded). Per D17's root cause (permanent
+    egress policy denial), no re-diagnosis needed — went straight to the no-new-fetch content path.
+19. **Shipped dev.to article 11** (`11-node-decoder-routines-unsupported.md`) — the OpenSSL 3
+    `error:1E08010C:DECODER routines::unsupported` failure when Lambda loads a legacy-format (PKCS#1 / weak-cipher)
+    private key after a Node.js runtime upgrade, sourced entirely from the already-verified `fixes.yml` entry
+    (`node-error-decoder-routines-unsupported`, `source_url: nodejs.org/api/crypto.html`). Confirmed non-duplicative
+    of article 06 (which covers a *different* OpenSSL 3 error — build-time `digital envelope routines::unsupported`
+    from webpack's MD4 hash call, not runtime key decoding). Canonical → the real, registered
+    `/fix/node-error-decoder-routines-unsupported/` page. Frontmatter validated against `publish_devto.py`'s own
+    `_parse()` for all 11 articles — title/canonical_url/4-tag-max all parse correctly, no duplicate titles.
+
 ## Next actions (priority order) — post-pivot
 - **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,
   HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack),
@@ -185,13 +198,15 @@ no fast-gig shortcut exists. Replaced by:
   general web access by design (confirmed via `/root/.ccr/README.md`, not a bug) — see HUMAN_QUEUE. Without it, new
   re:Post answers (which need a freshly-found, confirmed real thread) can't be drafted from this environment; new
   dev.to articles still can, as long as they're sourced from already-repo-verified facts (as article 09 was).
-- **P1 — Agent (next cycle):** another no-new-fetch dev.to article or `/fix`-page-sourced piece (candidates still
-  in `fixes.yml` without an article: `node-error-decoder-routines-unsupported` (OpenSSL3 legacy-key DECODER error),
-  `lambda-runtime-importmoduleerror-cannot-find-module` (broader ImportModuleError triage: esbuild bundling, layer
-  arch mismatch — distinct enough from article 05's aws-sdk-specific piece and article 09's glibc-specific piece to
-  be non-duplicative)) — same safe pattern as articles 09/10, no fetch needed.
-- **Done 2026-07-21:** shipped dev.to article 10 (`python-asyncio-has-no-attribute-coroutine`, commit pending this
+- **P1 — Agent (next cycle):** another no-new-fetch dev.to article or `/fix`-page-sourced piece (candidate still
+  in `fixes.yml` without an article: `lambda-runtime-importmoduleerror-cannot-find-module` — broader ImportModuleError
+  triage: esbuild bundling, layer arch mismatch, distinct enough from article 05's aws-sdk-specific piece and article
+  09's glibc-specific piece to be non-duplicative) — same safe pattern as articles 09/10/11, no fetch needed. After
+  that candidate, the remaining `fixes.yml` entries not yet covered are AL2023 dnf/iptables package-management errors
+  and the stdlib-removal pieces (`smtpd`, `asyncore`) — still viable no-fetch sources once ImportModuleError ships.
+- **Done 2026-07-22:** shipped dev.to article 11 (`node-error-decoder-routines-unsupported`, commit pending this
   cycle's push) — see above.
+- **Done 2026-07-21:** shipped dev.to article 10 (`python-asyncio-has-no-attribute-coroutine`, commit `709d367`).
 - **Done 2026-07-19:** fixed `org_license`'s missing license-key email delivery (commit `edfba40`, DECISIONS D16) —
   code-only, still needs the owner's next VPS redeploy of `eolkits-api` to take effect live (folded into HQ-4).
 - **Done 2026-07-15:** repo-wide grep (`.md`/`.py`/`.yml`/`.html`/`.ts`/`.js`/`.mjs`) for the same fabricated-tier

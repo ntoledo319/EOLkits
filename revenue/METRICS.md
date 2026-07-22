@@ -116,4 +116,12 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-07-21 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship only. |
 | 2026-07-21 | **dev.to articles staged on branch: 10** (was 9 as of 07-20) | `launch/distribution/devto/01`–`10`. |
 
+## Cycle 2026-07-22 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-07-22 | **WebFetch outage confirmed persistent (8th consecutive cycle: 07-15,-16,-18,-19,-20,-21,-22)** | `WebFetch` on `https://example.com` (neutral control) → still HTTP 403 Forbidden. Consistent with D17's root cause (standing egress-policy denial) — no new diagnosis run, went straight to the no-new-fetch content path. |
+| 2026-07-22 | **Shipped: dev.to article 11** (`11-node-decoder-routines-unsupported.md`), sourced entirely from the already-verified `fixes.yml` entry (`node-error-decoder-routines-unsupported`, `source_url: nodejs.org/api/crypto.html`) — no new external fetch. Canonical → the real, registered `/fix/node-error-decoder-routines-unsupported/` page. | Frontmatter validated against `publish_devto.py`'s own parser this cycle; all 11 articles parse correctly (title/canonical_url/4-tag-max), no duplicate titles; confirmed non-duplicative of article 06 (different OpenSSL 3 error — build-time MD4 hash vs. runtime key decoding). |
+| 2026-07-22 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship only. |
+| 2026-07-22 | **dev.to articles staged on branch: 11** (was 10 as of 07-21) | `launch/distribution/devto/01`–`11`. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._
