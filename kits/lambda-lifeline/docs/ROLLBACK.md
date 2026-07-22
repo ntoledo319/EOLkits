@@ -75,7 +75,7 @@ Aliases can't cross a runtime boundary if the old version doesn't exist. If you 
    ```
 2. Point alias at new published version.
 
-**Note:** After **August 31, 2026** you cannot create functions on `nodejs20.x` at all, and after **September 30, 2026** you cannot update them. Rollbacks to EOL runtimes become impossible past these dates — this is why version pinning + alias-based deploys matter.
+**Note:** After **February 1, 2027** you cannot create functions on `nodejs20.x` at all, and after **March 3, 2027** you cannot update them. Rollbacks to EOL runtimes become impossible past these dates — this is why version pinning + alias-based deploys matter.
 
 ## 5. Dependency rollback
 

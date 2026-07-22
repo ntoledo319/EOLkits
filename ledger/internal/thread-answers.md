@@ -32,9 +32,9 @@ Use ONLY when someone has explicitly asked: "how do I migrate Node 20 Lambdas?" 
 ```
 AWS ends support for Node 20 on Lambda in three phases:
 
-- Apr 30, 2026 — no more security patches (Phase 1)
-- Aug 31, 2026 — new functions on nodejs20.x rejected (Phase 2)
-- Sep 30, 2026 — updates to existing functions rejected (Phase 3, hard cliff)
+- Apr 30, 2026 — no more security patches (Phase 1, passed)
+- Feb 1, 2027 — new functions on nodejs20.x rejected (Phase 2, block-create)
+- Mar 3, 2027 — updates to existing functions rejected (Phase 3, block-update, hard cliff)
 
 Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 

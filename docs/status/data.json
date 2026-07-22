@@ -1,31 +1,30 @@
 {
-  "generated_at": "2026-06-22T00:00:00Z",
+  "generated_at": "2026-07-22T00:00:00Z",
   "checks": {
     "stripe": {
       "ok": true,
-      "last_checked": "2026-06-22T00:00:00Z"
+      "last_checked": "2026-07-22T00:00:00Z"
     },
     "worker": {
       "ok": true,
-      "last_checked": "2026-06-22T00:00:00Z"
+      "last_checked": "2026-07-22T00:00:00Z"
     },
     "runner": {
       "ok": true,
-      "last_checked": "2026-06-22T00:00:00Z"
+      "last_checked": "2026-07-22T00:00:00Z"
     },
     "email": {
       "ok": true,
-      "last_checked": "2026-06-22T00:00:00Z"
+      "last_checked": "2026-07-22T00:00:00Z"
     },
     "github": {
       "ok": true,
-      "last_checked": "2026-06-22T00:00:00Z"
+      "last_checked": "2026-07-22T00:00:00Z"
     }
   },
   "metrics": {
     "audits_delivered_7d": 0,
     "prs_opened_7d": 0,
-    "drift_watch_subscribers": 0,
     "rules_in_public_pack": 0
   }
 }

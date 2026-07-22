@@ -31,6 +31,26 @@ not the engine. The engine is dev.to backlinks + the content corpus. Treat email
 aws-samples/*, awsdocs/*, *-assignment, learn-terraform-*, *-Solution-CS*, training-*, example-*,
 *-collection, Task-Management-System, sample-apps, and similar tutorial repos.
 
+## Candidates refreshed 2026-07-22 (fresh `gh search code`, Eve)
+Ran the AL2-Dockerfile + `nodejs18.x`-terraform searches again. **AL2 Dockerfile hits are still
+almost all samples/edu/infra-vendors** (RedisBloom, nginxinc, sensu, awslabs, aws-node-termination-handler
+knowingly ship AL2 — not buyers). The **`nodejs18.x`-in-terraform** query is the better vein — it
+surfaces real teams with prod Lambda on a runtime that hits the **Feb 1, 2027 block-create wall**:
+
+**Real orgs with provable exposure (fix-first, help-first only — no hard sell):**
+- `bcgov/PaymentCommonComponent` — BC Gov payments platform (nodejs18.x in TF). Gov = slow procurement.
+- `cisagov/XFD` — US CISA. Real, but federal; a courtesy heads-up at most.
+- `nulib/infrastructure` — Northwestern University Libraries infra.
+- `nhs-england-tools/terraform-aws-opennext` — NHS England (OpenNext module).
+- `exercism/terraform` — Exercism (nonprofit OSS product) — the most "product team" of the set.
+- Consultancy modules (`DNXLabs/*`, `RJPearson94/terraform-aws-open-next`) — could be *referral partners*, not targets.
+
+**Verdict (unchanged, now with data):** genuine exposure exists but skews **gov / edu / nonprofit / OSS-module**
+— long cycles, low impulse-buy. Arm B stays a **careful, low-volume side bet**: lead with a real scanner
+finding + the free Action, never a pitch. The compounding engine is still the content corpus + dev.to
+backlinks, not this list. ⛔ Also: the migration-bot install link is currently 404 (see `outreach.md` banner)
+— fix that before any Arm B send that references the App.
+
 ## Better targeting (when there's time)
 GitHub code search surfaces mostly OSS. Higher-intent signals: a company domain in the repo,
 recent commits, a `SECURITY.md`/`SUPPORT` contact, or a careers page. Or pivot to a list source

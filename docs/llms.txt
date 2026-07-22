@@ -38,6 +38,10 @@
 - [/lib64/libc.so.6: version `GLIBC_2.28' not found](https://eolkits.com/fix/lambda-glibc-version-not-found/): A native binary in your package needs a newer glibc than the Lambda runtime's base OS provides. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 - [Runtime.ImportModuleError: Error: Cannot find module](https://eolkits.com/fix/lambda-runtime-importmoduleerror-cannot-find-module/): Lambda can't load a dependency your handler imports — most often after a runtime upgrade changed what's bundled. Source: https://repost.aws/knowledge-center/lambda-import-module-error-nodejs
 - [Error: Unable to find a match: <package>](https://eolkits.com/fix/amazon-linux-2023-dnf-unable-to-find-a-match/): A package that existed on Amazon Linux 2 isn't in the Amazon Linux 2023 repositories under that name. Source: https://docs.aws.amazon.com/linux/al2023/ug/package-management.html
+- [Failed to start iptables.service: Unit iptables.service not found.](https://eolkits.com/fix/amazon-linux-2023-iptables-service-not-found/): Amazon Linux 2023 drops the iptables-services unit; nftables is the default firewall backend. Source: https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html
+- [ModuleNotFoundError: No module named 'smtpd'](https://eolkits.com/fix/python-no-module-named-smtpd/): The standard-library smtpd module was removed in Python 3.12 (PEP 594). Source: https://docs.python.org/3/whatsnew/3.12.html
+- [ModuleNotFoundError: No module named 'asyncore'](https://eolkits.com/fix/python-no-module-named-asyncore/): asyncore and asynchat were removed from the standard library in Python 3.12 (PEP 594). Source: https://docs.python.org/3/whatsnew/3.12.html
+- [error:1E08010C:DECODER routines::unsupported](https://eolkits.com/fix/node-error-decoder-routines-unsupported/): OpenSSL 3, bundled with Node.js 17+, refuses to load a private key stored in a legacy format. Source: https://nodejs.org/api/crypto.html
 - [Free in-browser scanner](https://eolkits.com/scan/): drop IaC / dependency files to find deprecated runtimes and incompatible dependencies locally — nothing uploaded.
 
 ## Pricing

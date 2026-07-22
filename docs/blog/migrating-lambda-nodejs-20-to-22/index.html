@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Migrating AWS Lambda Node.js 20 to Node.js 22: A complete guide (Sep 30, 2026 cliff) | EOLkits</title>
+<title>Migrating AWS Lambda Node.js 20 to Node.js 22: A complete guide (Feb 1 / Mar 3, 2027 cliffs) | EOLkits</title>
 <meta name="description" content="AWS runs a 3-phase deprecation process for every Lambda runtime. Phase 1 ends security patches. Phase 2 blocks creating new functions on the deprecated run">
 <link rel="canonical" href="https://eolkits.com/blog/migrating-lambda-nodejs-20-to-22/">
 <link rel="stylesheet" href="/style.css">
@@ -34,19 +34,19 @@
 </script>
 </head>
 <body class="container article">
-<h1>Migrating AWS Lambda Node.js 20 to Node.js 22: A complete guide (Sep 30, 2026 cliff)</h1>
-<blockquote>Published 2026-04-28. Updated 2026-05-21 — Phase 1 EOL has passed; this guide is now positioned as the <strong>cleanup path before the Sep 30 Phase 3 cliff</strong> (after which AWS blocks updates to existing <code>nodejs20.x</code> functions). For teams running AWS Lambda functions on <code>nodejs20.x</code>. Source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" rel="noopener">AWS Lambda runtimes official docs</a>.</blockquote>
+<h1>Migrating AWS Lambda Node.js 20 to Node.js 22: A complete guide (Feb 1 / Mar 3, 2027 cliffs)</h1>
+<blockquote>Published 2026-04-28. Updated 2026-07-22 — Phase 1 EOL has passed; this guide is now positioned as the <strong>cleanup path before the Feb 1 / Mar 3, 2027 block cliffs</strong> (after which AWS blocks creating, then updating, existing <code>nodejs20.x</code> functions). For teams running AWS Lambda functions on <code>nodejs20.x</code>. Source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" rel="noopener">AWS Lambda runtimes official docs</a>.</blockquote>
 <h2>TL;DR</h2>
 <ul>
-<li><strong>April 30, 2026</strong>: AWS stops security patches for <code>nodejs20.x</code> (Phase 1).</li>
-<li><strong>August 31, 2026</strong>: AWS blocks creating *new* functions on <code>nodejs20.x</code> (Phase 2).</li>
-<li><strong>September 30, 2026</strong>: AWS blocks *updating* existing functions on <code>nodejs20.x</code> (Phase 3, the hard cliff).</li>
+<li><strong>April 30, 2026</strong>: AWS stops security patches for <code>nodejs20.x</code> (Phase 1 — passed).</li>
+<li><strong>February 1, 2027</strong>: AWS blocks creating *new* functions on <code>nodejs20.x</code> (Phase 2, block-create).</li>
+<li><strong>March 3, 2027</strong>: AWS blocks *updating* existing functions on <code>nodejs20.x</code> (Phase 3, block-update — the hard cliff).</li>
 <li>Migrating to <code>nodejs22.x</code> is a semver-breaking change. Most code works. A specific set of patterns will break. This post documents all of them.</li>
 <li>We built an open-source CLI called <a href="https://github.com/ntoledo319/EOLkits/tree/main/kits/lambda-lifeline" rel="noopener"><code>lambda-lifeline</code></a> that automates the whole migration: scan, codemod, audit, IaC patch, canary deploy with auto-rollback.</li>
 </ul>
 <hr>
 <h2>Why this is happening</h2>
-<p>AWS runs a 3-phase deprecation process for every Lambda runtime. Phase 1 ends security patches. Phase 2 blocks creating new functions on the deprecated runtime. Phase 3 blocks *updating* existing functions. The phases are always spaced ~3-4 months apart, and once Phase 3 hits, your only option is a full deploy with a new runtime.</p>
+<p>AWS runs a 3-phase deprecation process for every Lambda runtime. Phase 1 ends security patches. Phase 2 blocks creating new functions on the deprecated runtime. Phase 3 blocks *updating* existing functions. For <code>nodejs20.x</code>, block-create (Feb 1, 2027) and block-update (Mar 3, 2027) land about a month apart, and once Phase 3 hits, your only option is a full deploy with a new runtime.</p>
 <p>Node.js 20 itself is officially supported by the Node.js Foundation until April 2026 (<a href="https://github.com/nodejs/release#release-schedule" rel="noopener">Node.js release schedule</a>). AWS Lambda aligns to the upstream EOL date, so April 30, 2026 is the start of the 3-phase countdown.</p>
 <p>Node.js 22 is the next LTS. Upstream maintenance continues until April 2027. That&#x27;s the target runtime.</p>
 <hr>

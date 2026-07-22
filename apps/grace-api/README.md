@@ -18,7 +18,7 @@ shared **lead-capture bus** for the Toledo studio microsites.
 | GET | `/health`, `/status` | liveness + component health |
 | POST | `/api/events` | first-party funnel beacon (no third-party tracker) |
 | POST | `/api/v1/lead` | **generic lead capture** (studio + any product) — see below |
-| POST | `/api/audit/checkout`, `/api/pack/checkout`, `/api/drift/checkout` | Stripe checkout |
+| POST | `/api/audit/checkout`, `/api/pack/checkout` | Stripe checkout (drift retired 2026-07-22 → 410) |
 | POST | `/webhook/stripe`, `/webhook/github` | webhooks (idempotent) |
 | POST | `/api/license/inquiry`, `/partners/signup` | inquiry/partner forms |
 

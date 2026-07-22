@@ -1,5 +1,7 @@
 # Partner outreach
 
+> ⛔ **BLOCKER before this sends (owner action):** the GitHub App install link this doc uses — `github.com/apps/eolkits-migration-bot/installations/new` — **404s** (verified 2026-07-22). The App is private/unlisted or under a different public slug, so recipients (and paying pack customers) can't install it. **Do not send any App-install variant until the App is set to Public** in GitHub → Settings → Developer settings → GitHub Apps (or give Eve the real public slug to update code + docs). Until then, lead outreach with the working free entry points: the browser scanner (`eolkits.com/scan`) and the GitHub Action (`ntoledo319/EOLkits@v1`).
+
 Three variants for three relationships. Pick the one that matches the target. Fill the bracketed fields and send.
 
 ## Voice notes
@@ -33,7 +35,7 @@ github.com/ntoledo319/EOLkits
 — Nicholas Toledo
 ```
 
-> **Post-deadline cleanup variant:** the same template works for `lambda-lifeline` (Node 20 → 22, Phase 1 already passed Apr 30) — swap the subject to `nodejs20.x cleanup before Sep 30 cliff — auto-migration PR for [repo]` and update the body's deadline framing to "Phase 3 (Sep 30) is the hard cliff." Don't lead with Apr 30 — that's history; lead with Sep 30.
+> **Post-deadline cleanup variant:** the same template works for `lambda-lifeline` (Node 20 → 22, Phase 1 already passed Apr 30) — swap the subject to `nodejs20.x cleanup before the Feb 1 / Mar 3, 2027 block cliffs — auto-migration PR for [repo]` and update the body's deadline framing to "block-create is Feb 1, 2027; block-update (the hard cliff) is Mar 3, 2027." Don't lead with Apr 30 — that's history; lead with the 2027 block cliffs.
 
 ## Variant 2 — WARM CONTACT (waitlist, network, mutuals)
 
@@ -44,7 +46,7 @@ Subject: EOLkits is live — want me to run it on [repo / your stack]?
 
 [name] —
 
-Soft-launched EOLkits this week. Three CLIs for the AWS runtime deprecations breaking prod this year (AL2 Jun 30, Python 3.x waves, plus Node 20 cleanup before the Sep 30 cliff). I think [repo / your team's stack] would be a clean target — saw [specific thing about their setup, e.g. "the SAM templates in [repo] still pin nodejs20.x" or "your team mentioned Python 3.10 functions back in [context]"].
+Soft-launched EOLkits this week. Three CLIs for the AWS runtime deprecations breaking prod this year (AL2 Jun 30, Python 3.x waves, plus Node 20 cleanup before the Feb 1 / Mar 3, 2027 block cliffs). I think [repo / your team's stack] would be a clean target — saw [specific thing about their setup, e.g. "the SAM templates in [repo] still pin nodejs20.x" or "your team mentioned Python 3.10 functions back in [context]"].
 
 Looking for two or three real-world end-to-end runs before I post to HN on Tuesday morning. The deal: install the GitHub App at github.com/apps/eolkits-migration-bot, pick the repos you want it to touch, it opens one PR per repo with the migration applied. Free, MIT, dry-run by default, opt-out by dropping a `.no-eolkits` file.
 

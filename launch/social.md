@@ -21,7 +21,7 @@ CLIs for the AWS deprecation deadlines that break prod:
 
 – al2023-gate (Amazon Linux 2 → AL2023, Jun 30)
 – python-pivot (Lambda Python 3.9-3.11 → 3.12)
-– lambda-lifeline (nodejs20.x → 22 — Phase 1 passed Apr 30; cliff Sep 30)
+– lambda-lifeline (nodejs20.x → 22 — Phase 1 passed Apr 30; block cliffs Feb 1 / Mar 3, 2027)
 
 MIT. Deterministic, CI-gated builds. Property- and mutation-tested.
 
@@ -57,7 +57,7 @@ EOLkits is three open-source CLIs that automate AWS runtime migrations off the d
 
 – al2023-gate — Amazon Linux 2 → AL2023 (Jun 30, 2026 — live deadline)
 – python-pivot — Lambda Python 3.9 / 3.10 / 3.11 → 3.12 (rolling EOL waves)
-– lambda-lifeline — Node.js 16 / 18 / 20 → 22 (Phase 1 passed Apr 30; Phase 3 cliff Sep 30)
+– lambda-lifeline — Node.js 16 / 18 / 20 → 22 (Phase 1 passed Apr 30; block cliffs Feb 1 / Mar 3, 2027)
 
 Each kit scans your account, runs codemods (dry-run by default), patches IaC across SAM / CDK / Terraform / Serverless / Packer / Ansible, generates a staged canary deploy plan, and produces a tested rollback script. The free GitHub Action runs the dry-run pass on every PR and comments findings.
 

@@ -227,17 +227,17 @@ def test_events_beacon_records_funnel(tmp_path, monkeypatch):
     assert status["funnel_7d"].get("view") == 1
 
 
-def test_drift_checkout_uses_subscription_mode(tmp_path, monkeypatch):
+def test_drift_checkout_is_retired(tmp_path, monkeypatch):
     mod, client = _load_app(tmp_path, monkeypatch)
     r = client.post(
         "/api/drift/checkout",
         data={"email": "buyer@example.com", "repo": "owner/repo", "utm_source": "home"},
         headers={"accept": "application/json"},
     )
-    assert r.status_code == 200
-    # Demo Stripe returns the sandbox URL; the checkout_started event is recorded.
-    assert r.json()["url"].startswith("https://checkout.stripe.com/test")
-    assert mod.store.event_counts(7).get("checkout_started") == 1
+    # Drift Watch was retired 2026-07-22: fulfillment was never implemented, so the
+    # endpoint must refuse rather than open a subscription and charge for nothing.
+    assert r.status_code == 410
+    assert not mod.store.event_counts(7).get("checkout_started")
 
 
 def test_audit_checkout_propagates_attribution_metadata(tmp_path, monkeypatch):

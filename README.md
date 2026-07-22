@@ -3,7 +3,7 @@
 > CLIs for the AWS deprecation deadlines that break production. Next up: **Amazon Linux 2 (Jun 30, 2026)**. Also: **Lambda Python 3.9/3.10/3.11** waves, and post-deadline cleanup for **Lambda Node.js 20**.
 
 [![landing](https://img.shields.io/badge/landing-live-brightgreen)](https://eolkits.com)
-[![tests](https://img.shields.io/badge/tests-172%20passing-brightgreen)](#tests)
+[![tests](https://img.shields.io/badge/tests-168%20passing-brightgreen)](#tests)
 [![license](https://img.shields.io/badge/license-MIT%20(open%20core)-blue)](#license)
 
 > **Check your own stack in 30 seconds — free, in your browser, nothing uploaded: [eolkits.com/scan](https://eolkits.com/scan).** Amazon Linux 2 reaches end-of-life **Jun 30, 2026**; Lambda Python 3.9–3.11 and Node 18/20 are in their own EOL waves. The CLIs below are free and MIT — clone and run them yourself. Prefer it done for you? A [$299 audit](https://eolkits.com/audit) (hash-anchored, **30-day money-back**) or a [done-for-you migration PR](https://eolkits.com/pack) (auto-refund if your CI fails). Every tracked deadline: [eolkits.com/migrate](https://eolkits.com/migrate). Hit a specific error? [eolkits.com/fix](https://eolkits.com/fix).
@@ -22,7 +22,7 @@ AWS is killing runtimes on a hard schedule. When a deadline passes, deploys fail
 | [**python-pivot**](./kits/python-pivot) | **Lambda Python 3.9/3.10/3.11** EOL waves | `distutils`, `imp`, `collections.Mapping`, native wheels | Active |
 | [**lambda-lifeline**](./kits/lambda-lifeline) | Apr 30, 2026 — Lambda Node.js 20 EOL (Phase 1, **passed**) | `require()`, `aws-sdk` v2, `URL` globals, OpenSSL 3 hashes | Post-deadline cleanup |
 
-> Phase 1 for Node.js 20 ended Apr 30, 2026 — security patches stop. Phase 2 (Aug 31) blocks creating new functions on `nodejs20.x`; Phase 3 (Sep 30) blocks updating existing ones. If you're still on `nodejs20.x`, `lambda-lifeline` is the cleanup path before the Sep 30 cliff.
+> Phase 1 for Node.js 20 ended Apr 30, 2026 — security patches stop. Phase 2 (Feb 1, 2027) blocks creating new functions on `nodejs20.x`; Phase 3 (Mar 3, 2027) blocks updating existing ones. If you're still on `nodejs20.x`, `lambda-lifeline` is the cleanup path before the Feb 1 / Mar 3, 2027 block cliffs.
 
 Every kit ships the same 6 pillars:
 
@@ -48,7 +48,7 @@ pip install -e .
 al2023-gate --help
 ```
 
-For Node 20 cleanup (before the Sep 30 Phase 3 cliff):
+For Node 20 cleanup (before the Feb 1 / Mar 3, 2027 block cliffs):
 
 ```bash
 cd EOLkits/kits/lambda-lifeline
@@ -153,7 +153,7 @@ cd apps/runner && pytest -q
 cd apps/worker && npm test
 ```
 
-172 passing across kits + apps (al2023-gate 48, python-pivot 44, lambda-lifeline 29, runner 8, worker 8, grace-api 35 — counted 2026-06-21).
+168 passing across kits + apps (al2023-gate 48, python-pivot 44, lambda-lifeline 24, runner 8, worker 8, grace-api 36 — counted 2026-07-22).
 
 ---
 
@@ -162,7 +162,7 @@ cd apps/worker && npm test
 Shipped:
 - [x] al2023-gate — Amazon Linux 2 → AL2023 *(Jun 30, 2026 — live deadline)*
 - [x] python-pivot — Lambda Python 3.9/3.10/3.11 → 3.12 *(rolling EOL waves)*
-- [x] lambda-lifeline — Lambda Node.js 20 → 22 *(Phase 1 passed Apr 30; Phase 3 cliff Sep 30)*
+- [x] lambda-lifeline — Lambda Node.js 20 → 22 *(Phase 1 passed Apr 30, 2026; block-create Feb 1, block-update Mar 3, 2027)*
 
 Queued:
 - [ ] imds-v2-gate — IMDSv1 → IMDSv2 enforcement

@@ -283,33 +283,12 @@ async def pack_checkout(
 
 
 @app.post("/api/drift/checkout")
-async def drift_checkout(
-    request: Request,
-    email: str = Form(...),
-    repo: str | None = Form(None),
-    iam_role: str | None = Form(None),
-    source: str | None = Form(None),
-    utm_source: str | None = Form(None),
-    utm_medium: str | None = Form(None),
-    utm_campaign: str | None = Form(None),
-) -> Response:
-    # Drift Watch is recurring ($19/mo) -> subscription-mode Checkout Session.
-    price_id = pricing.price_id_for_sku("drift_watch")
-    price = int(pricing.expected_amount_cents("drift_watch") or 1900) // 100
-    attribution = _attribution(source, utm_source, utm_medium, utm_campaign, None)
-    session = create_checkout_session(
-        settings,
-        sku="drift_watch",
-        email=email,
-        price_id=price_id,
-        price_usd=price,
-        metadata={"repo": repo or "", "iam_role": iam_role or "", **attribution},
-        success_path="/success/?sku=drift&session_id={CHECKOUT_SESSION_ID}",
-        cancel_path="/drift/?cancelled=1",
-        mode="subscription",
-    )
-    store.record_event("checkout_started", {"sku": "drift_watch", **attribution})
-    return _checkout_response(request, session["url"], price, session["mode"])
+async def drift_checkout(request: Request) -> Response:
+    # Drift Watch was retired 2026-07-22. Its fulfillment (IAM-role validation,
+    # weekly scan, delta PDF, auto-PR) was never implemented, so the $19/mo
+    # subscription is no longer offered. Reject any checkout attempt outright
+    # rather than charge a card for a service that does not run.
+    raise HTTPException(status_code=410, detail="Drift Watch is no longer available")
 
 
 @app.post("/api/events")
@@ -728,7 +707,7 @@ async def support_ask(request: Request) -> dict[str, Any]:
     if not question:
         raise HTTPException(status_code=400, detail="Missing question")
     canned = {
-        "pricing": "See https://eolkits.com/#pricing for current pricing. CLI is free (MIT). Paid tiers: Audit PDF, Migration Pack, Org License, Drift Watch.",
+        "pricing": "See https://eolkits.com/#pricing for current pricing. CLI is free (MIT). Paid tiers: Audit PDF ($299) and Migration Pack ($1,499).",
         "refund": "Migration Pack purchases auto-refund if CI fails within 7 days. Audit PDFs are non-refundable but include verification. Terms: https://eolkits.com/legal/terms",
         "install": "Install any kit from https://github.com/ntoledo319/EOLkits. Each kit README has package-specific setup.",
         "license": "CLI code is MIT licensed. Paid tiers grant access to hosted automation and reports.",
@@ -1112,17 +1091,15 @@ def _queue_fulfillment(
             background_tasks,
             dedupe_key=f"fulfill:{session_id}",
         )
-    elif sku == "org_license":
-        _enqueue_job(
-            {"type": "license_key", "sessionId": session_id, "email": email, "company": metadata.get("company")},
-            background_tasks,
-            dedupe_key=f"fulfill:{session_id}",
-        )
-    elif sku == "drift_watch":
-        _enqueue_job(
-            {"type": "drift_watch_setup", "sessionId": session_id, "email": email, "repo": metadata.get("repo"), "iam_role": metadata.get("iam_role")},
-            background_tasks,
-            dedupe_key=f"fulfill:{session_id}",
+    else:
+        # org_license and drift_watch were retired 2026-07-22 (fulfillment was
+        # never real). There is no live app path that mints a paid session for
+        # them anymore, but if a straggler session for any unrecognized SKU is
+        # ever recorded as paid, log it loudly so it can be refunded by hand
+        # rather than silently swallowed. NEVER fake-fulfill.
+        logger.error(
+            "paid session %s has unfulfillable sku=%r (email=%r) — refund manually in Stripe",
+            session_id, sku, email,
         )
 
 
@@ -1154,8 +1131,6 @@ def _execute_job(job_id: int, job: dict[str, Any]) -> None:
         _fulfill_audit(result, job)
         if job.get("transfer"):
             _settle_partner_transfer(job, result)
-    if job.get("type") == "license_key":
-        _store_license(job)
     if job.get("type") == "migration_pr":
         _record_pr_linkage(job, result)
 
@@ -1297,25 +1272,6 @@ def _record_pr_linkage(job: dict[str, Any], result: dict[str, Any]) -> None:
     repo = result.get("repo") or job.get("repo")
     if session_id and pr_url and pr_number and repo:
         store.link_purchase_pr(session_id, pr_url=pr_url, pr_number=int(pr_number), repo=repo)
-
-
-def _store_license(job: dict[str, Any]) -> None:
-    company = job.get("company") or "EOLkits customer"
-    email = job.get("email")
-    key = "-".join(secrets.token_hex(4).upper() for _ in range(4))
-    expires = datetime.now(UTC).replace(microsecond=0)
-    expires = expires.replace(year=expires.year + 1)
-    store.put_json(
-        f"license:{key}",
-        {
-            "company": company,
-            "email": email,
-            "createdAt": datetime.now(UTC).isoformat(),
-            "expiresAt": expires.isoformat(),
-            "key": key,
-        },
-        ttl_seconds=86400 * 366,
-    )
 
 
 # ---- GitHub installation mapping + refund engine ----------------------------- #

@@ -43,7 +43,7 @@ Everything is **dry-run by default**. You pass `--apply` to make changes. Every 
 
 ## Why this exists
 
-On **April 30, 2026** AWS stops applying security patches to `nodejs20.x` Lambda functions. On **August 31** you can't create new ones. On **September 30** you can't even update code or config on the existing ones — they become frozen until you migrate.
+On **April 30, 2026** AWS stops applying security patches to `nodejs20.x` Lambda functions. On **February 1, 2027** you can't create new ones. On **March 3, 2027** you can't even update code or config on the existing ones — they become frozen until you migrate.
 
 The official AWS Health emails tell you *that* it's happening. They don't tell you *which* of your 300 functions across 5 accounts and 3 regions are affected, *which* of your `package.json` deps will `NODE_MODULE_VERSION`-mismatch, *which* of your Terraform files has `runtime = "nodejs20.x"` buried in it, or how to ship the upgrade without a 3 AM pager.
 
