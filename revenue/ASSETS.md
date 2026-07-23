@@ -60,7 +60,7 @@ Verified this cycle by reading manifests + running CLIs/tests directly (not trus
 - **License:** MIT/first-party. Safe.
 - **The one paid capability (indirect):** it *converts* — surge-aware pricing, proof-first + guarantee copy; it is the machine that turns a stranger into a $299/$1,499 checkout.
 - **Smallest sellable unit:** N/A (it's the funnel, not the product). Verified: `deprecations.yml` dates are **correct** (Node/Python blocks Feb 1 / Mar 3 2027 per AWS) — left unchanged.
-- **`launch/distribution/`:** dev.to publisher (10 articles as of 2026-07-21, canonical→eolkits.com), fast-cash Upwork/Fiverr/re:Post playbook, X threads, value-first email kit, video scripts.
+- **`launch/distribution/`:** dev.to publisher (12 articles as of 2026-07-23, canonical→eolkits.com), fast-cash Upwork/Fiverr/re:Post playbook, X threads, value-first email kit, video scripts.
 
 ---
 

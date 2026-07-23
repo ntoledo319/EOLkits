@@ -439,6 +439,57 @@ Owner said "yea [draft more] and see what you can automate." Did both:
   `lambda-runtime-importmoduleerror-cannot-find-module` (broader ImportModuleError triage — esbuild bundling
   defaults, layer/arch mismatch — distinct enough from articles 05/09 to be non-duplicative).
 
+### D20 — Cloud cycle (2026-07-23): 9th consecutive WebFetch-blocked cycle; shipped dev.to article 12 (triage guide) from already-verified repo data
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `ab660bc`; no
+  conflicts.
+- **Re-tested WebFetch before picking a task, per the standing rule:** `WebFetch` on `https://example.com` → still
+  HTTP 403 Forbidden (9th consecutive cycle: 07-15, -16, -18, -19, -20, -21, -22, -23; no 07-17 run recorded).
+  Consistent with D17's root cause (a standing egress-policy denial, not a per-request fault) — no new diagnosis run,
+  went straight to the no-new-fetch content path D15/D17/D18/D19 established.
+- **Found (unlogged until now):** a separate process (author "Eve", co-authored by Claude Opus 4.8) pushed
+  `fix(site): correct live blog Node-20 block dates to AWS-accurate Feb 1 / Mar 3, 2027` (commit `ab660bc`, dated
+  2026-07-22 11:21 ET) after article 11's commit — corrected the last two stale "Sep 30, 2026" mentions (in
+  `launch/blog-post.md`'s TL;DR/updated-date line and `apps/web/build.py`'s blog-index description) to the same
+  AWS-authoritative Feb 1 (block-create) / Mar 3 2027 (block-update) dates D3 established 2026-07-13. Read the full
+  diff this cycle: it's correct and consistent with already-verified facts, no conflict with any other change — same
+  "another process pushed to this branch, log it and move on" pattern D17 documented for article 08. Confirms
+  multiple concurrent routines/sessions operate on this branch, as the AGENTS.md prompt anticipates ("other
+  cycles/routines push here; always integrate first").
+- **Shipped: dev.to article 12** (`launch/distribution/devto/12-lambda-importmoduleerror-triage.md`) — a
+  triage/decision-tree guide for `Runtime.ImportModuleError: Cannot find module`, identifying which of four common
+  root causes applies (aws-sdk v2 removal on nodejs18+, esbuild 0.22+ excluding `node_modules`, a Lambda layer built
+  on the wrong OS/arch, or a glibc/native-binary ABI mismatch) rather than re-explaining any one in depth. Sourced
+  entirely from the already-verified `fixes.yml` entry (`lambda-runtime-importmoduleerror-cannot-find-module`,
+  `source_url: repost.aws/knowledge-center/lambda-import-module-error-nodejs`) — no new external fetch, so no risk of
+  repeating D3's original mistake (shipping a plausible-but-wrong fact).
+- **Checked non-duplication before writing (read both candidate articles in full):** article 05
+  (`05-aws-sdk-v2-cannot-find-module.md`) is a deep migration guide scoped specifically to the `aws-sdk` v2→v3 case
+  (it does mention the esbuild gotcha in one short section, but only in the context of the aws-sdk package
+  specifically). Article 09 (`09-lambda-glibc-version-not-found.md`) is a deep dive scoped specifically to the glibc/
+  native-binary case. Neither treats the layer-OS/arch-mismatch cause or gives a general decision procedure for
+  telling the four causes apart — article 12 fills that gap and links out to 05/09 for the two causes that already
+  have full treatments, rather than duplicating their content.
+- **Verified before logging as shipped (§9):**
+  - Confirmed the canonical slug (`lambda-runtime-importmoduleerror-cannot-find-module`) is real and registered in
+    `apps/web/content/fixes.yml` (line 311), and that the two cross-linked slugs (`node-cannot-find-module-aws-sdk`,
+    `lambda-glibc-version-not-found`) match articles 05/09's own canonical URLs exactly.
+  - Ran `publish_devto.py`'s own `_parse()` against all 12 articles — title/canonical_url present, tags = 4 for every
+    article, zero parse errors, zero duplicate titles across the batch.
+  - Ran `apps/web`'s own test suite in a **fresh jail-local `python3.12` venv** (not `python3` default, which resolved
+    to 3.11 in this environment and hit a pre-existing 3.12-only f-string syntax feature in `build.py` unrelated to
+    this cycle's change — caught by actually running the tests, matching D15's "ran it for real, not just wrote it"
+    discipline): `test_determinism.py` 4/4, `test_surge.py` all 4 assertions pass. This also serves as a regression
+    check on the unrelated `ab660bc` blog-date commit (#21) — confirms it didn't break the build. Venv deleted after
+    use; `git status` confirmed no stray build artifacts before committing.
+- **Ship-law check:** externally visible ✅ — lands on the public repo the moment this pushes, auto-publishes via the
+  existing dev.to cron once `DEVTO_API_KEY` is confirmed on the box (HQ-11, unchanged, still unverified from this
+  jail since it requires VPS access).
+- **Deferred:** re:Post answer drafting stays paused (needs a working fetch to find/confirm a real new thread — no
+  repo-only substitute, per D17). Next dev.to candidates, confirmed still uncovered by grepping all 12 existing
+  articles this cycle: `amazon-linux-2023-dnf-unable-to-find-a-match` + `amazon-linux-2023-iptables-service-not-found`
+  (only a passing one-line mention exists today, in article 01's general AL2 overview — no dedicated deep dive), and
+  the two stdlib-removal pieces (`python-no-module-named-smtpd`, `python-no-module-named-asyncore`).
+
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in

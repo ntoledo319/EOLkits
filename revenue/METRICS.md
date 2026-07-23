@@ -124,4 +124,14 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-07-22 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship only. |
 | 2026-07-22 | **dev.to articles staged on branch: 11** (was 10 as of 07-21) | `launch/distribution/devto/01`–`11`. |
 
+## Cycle 2026-07-23 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-07-23 | **WebFetch outage confirmed persistent (9th consecutive cycle: 07-15,-16,-18,-19,-20,-21,-22,-23)** | `WebFetch` on `https://example.com` (neutral control) → still HTTP 403 Forbidden. Consistent with D17's root cause (standing egress-policy denial) — no new diagnosis run, went straight to the no-new-fetch content path. |
+| 2026-07-23 | **Found (unlogged until now): a separate process pushed `fix(site): correct live blog Node-20 block dates...`** (commit `ab660bc`, 2026-07-22) correcting the last stale "Sep 30, 2026" mentions in `launch/blog-post.md` + the blog index to the already-established Feb 1 / Mar 3 2027 dates | Read the commit diff directly this cycle; consistent with D3, no conflict. |
+| 2026-07-23 | **Shipped: dev.to article 12** (`12-lambda-importmoduleerror-triage.md`), sourced entirely from the already-verified `fixes.yml` entry (`lambda-runtime-importmoduleerror-cannot-find-module`) — no new external fetch. Canonical → the real, registered `/fix/lambda-runtime-importmoduleerror-cannot-find-module/` page. | Frontmatter validated against `publish_devto.py`'s own parser this cycle; all 12 articles parse correctly, no duplicate titles; confirmed non-duplicative of articles 05 (aws-sdk-specific) and 09 (glibc-specific) — this is a triage/decision-tree piece routing to both rather than repeating them. |
+| 2026-07-23 | **Regression check:** `apps/web` `test_determinism.py` 4/4 + `test_surge.py` 4/4 still green (jail-local `python3.12` venv, deleted after use) — confirms the unrelated `ab660bc` blog-date commit didn't break the build. | Ran directly this cycle. |
+| 2026-07-23 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship only. |
+| 2026-07-23 | **dev.to articles staged on branch: 12** (was 11 as of 07-22) | `launch/distribution/devto/01`–`12`. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

@@ -189,6 +189,32 @@ no fast-gig shortcut exists. Replaced by:
     `/fix/node-error-decoder-routines-unsupported/` page. Frontmatter validated against `publish_devto.py`'s own
     `_parse()` for all 11 articles — title/canonical_url/4-tag-max all parse correctly, no duplicate titles.
 
+## Cycle 2026-07-23 (cloud routine)
+20. **WebFetch re-tested, still 403 on the neutral control (`example.com`)** — 9th consecutive cycle blocked from
+    fresh external fact-checking (07-15, -16, -18, -19, -20, -21, -22, -23; no 07-17 run recorded). Per D17's root
+    cause (permanent egress policy denial), no re-diagnosis needed — went straight to the no-new-fetch content path.
+21. **Found (unlogged until now): a separate process pushed `fix(site): correct live blog Node-20 block dates to
+    AWS-accurate Feb 1 / Mar 3, 2027`** (commit `ab660bc`, authored "Eve" + Claude Opus 4.8, dated 2026-07-22) after
+    article 11's commit — corrected the last two stale "Sep 30, 2026" mentions in `launch/blog-post.md` +
+    `apps/web/build.py`'s blog-index copy to the same AWS-authoritative Feb 1 / Mar 3 2027 dates D3 established
+    2026-07-13. Consistent with already-verified facts, no conflict — logged here per the article-08 precedent (D17).
+22. **Shipped dev.to article 12** (`12-lambda-importmoduleerror-triage.md`) — a triage/decision-tree guide for
+    `Runtime.ImportModuleError: Cannot find module` that identifies which of four root causes applies (aws-sdk v2
+    removal, esbuild 0.22+ external node_modules, layer OS/arch mismatch, glibc/native-binary mismatch) and routes
+    two of them to the existing deep-dive articles (05, 09) rather than duplicating them. Sourced entirely from the
+    already-verified `fixes.yml` entry (`lambda-runtime-importmoduleerror-cannot-find-module`, `source_url:
+    repost.aws/knowledge-center/lambda-import-module-error-nodejs`) — no new external fetch. Confirmed non-duplicative:
+    article 05 is a deep migration guide for the aws-sdk-specific case only; article 09 is a deep dive on the glibc
+    case only; this is the first piece covering the full triage plus the esbuild/layer-arch causes neither existing
+    article treats in depth. Canonical → the real, registered `/fix/lambda-runtime-importmoduleerror-cannot-find-module/`
+    page (slug confirmed in `fixes.yml`). Frontmatter validated via `publish_devto.py`'s own `_parse()` against all 12
+    articles — title/canonical_url/4-tag-max all parse correctly, zero duplicate titles. Also ran `apps/web`'s own
+    `test_determinism.py` (4/4) and `test_surge.py` (4/4 assertions) in a jail-local `python3.12` venv (deleted after
+    use) to confirm the unrelated blog-date commit (#21) didn't regress the build — clean.
+23. **This exhausts the currently-scoped no-fetch dev.to backlog** per PLAN's prior "remaining fixes.yml entries"
+    note — AL2023 dnf/iptables package-management errors and the stdlib-removal pieces (`smtpd`, `asyncore`) are the
+    next candidates once picked up (each already has a `fixes.yml` entry with a source_url, so still no-fetch-viable).
+
 ## Next actions (priority order) — post-pivot
 - **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,
   HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack),
@@ -198,14 +224,15 @@ no fast-gig shortcut exists. Replaced by:
   general web access by design (confirmed via `/root/.ccr/README.md`, not a bug) — see HUMAN_QUEUE. Without it, new
   re:Post answers (which need a freshly-found, confirmed real thread) can't be drafted from this environment; new
   dev.to articles still can, as long as they're sourced from already-repo-verified facts (as article 09 was).
-- **P1 — Agent (next cycle):** another no-new-fetch dev.to article or `/fix`-page-sourced piece (candidate still
-  in `fixes.yml` without an article: `lambda-runtime-importmoduleerror-cannot-find-module` — broader ImportModuleError
-  triage: esbuild bundling, layer arch mismatch, distinct enough from article 05's aws-sdk-specific piece and article
-  09's glibc-specific piece to be non-duplicative) — same safe pattern as articles 09/10/11, no fetch needed. After
-  that candidate, the remaining `fixes.yml` entries not yet covered are AL2023 dnf/iptables package-management errors
-  and the stdlib-removal pieces (`smtpd`, `asyncore`) — still viable no-fetch sources once ImportModuleError ships.
-- **Done 2026-07-22:** shipped dev.to article 11 (`node-error-decoder-routines-unsupported`, commit pending this
-  cycle's push) — see above.
+- **P1 — Agent (next cycle):** another no-new-fetch dev.to article, sourced from a `fixes.yml` entry not yet covered:
+  `amazon-linux-2023-dnf-unable-to-find-a-match` + `amazon-linux-2023-iptables-service-not-found` (AL2023
+  package/service-name migration errors — only a passing mention exists today, in article 01's general AL2 overview,
+  not a dedicated deep dive), or the stdlib-removal pieces (`python-no-module-named-smtpd`,
+  `python-no-module-named-asyncore`). Same safe pattern as articles 09/10/11/12, no fetch needed.
+- **Done 2026-07-23:** shipped dev.to article 12 (`lambda-runtime-importmoduleerror-cannot-find-module`, a triage
+  guide, commit pending this cycle's push) — see above.
+- **Done 2026-07-22:** shipped dev.to article 11 (`node-error-decoder-routines-unsupported`, commit `ab660bc`'s
+  parent, i.e. `e3fdf6f`) — see above.
 - **Done 2026-07-21:** shipped dev.to article 10 (`python-asyncio-has-no-attribute-coroutine`, commit `709d367`).
 - **Done 2026-07-19:** fixed `org_license`'s missing license-key email delivery (commit `edfba40`, DECISIONS D16) —
   code-only, still needs the owner's next VPS redeploy of `eolkits-api` to take effect live (folded into HQ-4).
