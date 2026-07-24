@@ -134,4 +134,14 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-07-23 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship only. |
 | 2026-07-23 | **dev.to articles staged on branch: 12** (was 11 as of 07-22) | `launch/distribution/devto/01`–`12`. |
 
+## Cycle 2026-07-24 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-07-24 | **WebFetch outage confirmed persistent (10th consecutive cycle: 07-15,-16,-18 through -24)** | `WebFetch` on `https://example.com` (neutral control) → still HTTP 403 Forbidden. Consistent with D17's root cause (standing egress-policy denial) — no new diagnosis run, went straight to the no-new-fetch content path. |
+| 2026-07-24 | **Shipped: dev.to article 13** (`13-al2023-dnf-unable-to-find-a-match.md`), sourced entirely from the already-verified `fixes.yml` entry (`amazon-linux-2023-dnf-unable-to-find-a-match`, `source_url: docs.aws.amazon.com/linux/al2023/ug/package-management.html`) — no new external fetch. Canonical → `/fix/amazon-linux-2023-dnf-unable-to-find-a-match/`, confirmed already referenced from the live `apps/web/build.py` AL2 checklist page. | Frontmatter validated against `publish_devto.py`'s own parser this cycle; all 13 articles parse correctly (4 tags each), no duplicate titles; confirmed non-duplicative of article 01 (one-line overview mention only). |
+| 2026-07-24 | **Truth/harm sweep: no new issue found** | Reviewed all commits since the 07-23 audit — only automated `chore(status)` synthetic checks and dependency-bump commits from other routines; no fulfillment/checkout-path change to review. |
+| 2026-07-24 | **Regression check:** `apps/web` `test_determinism.py` 4/4 + `test_surge.py` 4/4 green (jail-local `python3.12` venv, deleted after use) | Ran directly this cycle. |
+| 2026-07-24 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship only. |
+| 2026-07-24 | **dev.to articles staged on branch: 13** (was 12 as of 07-23) | `launch/distribution/devto/01`–`13`. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

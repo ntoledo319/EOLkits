@@ -490,6 +490,45 @@ Owner said "yea [draft more] and see what you can automate." Did both:
   (only a passing one-line mention exists today, in article 01's general AL2 overview — no dedicated deep dive), and
   the two stdlib-removal pieces (`python-no-module-named-smtpd`, `python-no-module-named-asyncore`).
 
+### D21 — Cloud cycle (2026-07-24): 10th consecutive WebFetch-blocked cycle; shipped dev.to article 13 (AL2023 dnf error) from already-verified repo data
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `d93d830` (D20's
+  article-12 commit); no conflicts, only automated `chore(status)` and dependency-bump commits from other routines
+  had landed since.
+- **Re-tested WebFetch before picking a task, per the standing rule:** `WebFetch` on `https://example.com` → still
+  HTTP 403 Forbidden (10th consecutive cycle: 07-15, -16, -18 through -24; no 07-17 run recorded). Consistent with
+  D17's root cause (a standing egress-policy denial, not a per-request fault) — no new diagnosis run, went straight
+  to the no-new-fetch content path D15/D17–D20 established.
+- **Truth/harm sweep found nothing new:** reviewed the commit log since the last audit (07-23) — only synthetic
+  status-check and dependency-bump commits from other concurrent routines; no fulfillment or checkout-path change
+  worth reviewing this cycle.
+- **Shipped: dev.to article 13** (`launch/distribution/devto/13-al2023-dnf-unable-to-find-a-match.md`) — the
+  Amazon Linux 2023 `Error: Unable to find a match: <package>` dnf lookup failure that hits scripts migrating off
+  AL2 (renamed, version-namespaced, SPAL-hosted, EPEL-only, or genuinely dropped packages). Sourced entirely from
+  the already-verified `fixes.yml` entry (`amazon-linux-2023-dnf-unable-to-find-a-match`, `source_url:
+  docs.aws.amazon.com/linux/al2023/ug/package-management.html`) — no new external fetch, so no risk of repeating
+  D3's original mistake.
+- **Checked non-duplication before writing:** grepped article 01 (`01-amazon-linux-2-eol.md`) — it mentions this
+  exact error in a one-line overview-table entry only ("the package was renamed/version-namespaced/moved to SPAL —
+  `dnf search` for the real name"), with no walkthrough of `dnf provides`, SPAL vs. EPEL vs. version-namespacing, or
+  the `dnf-plugin-support-info` check this article adds. No other article touches AL2023 package management.
+- **Verified before logging as shipped (§9):**
+  - Confirmed the canonical slug (`amazon-linux-2023-dnf-unable-to-find-a-match`) is registered in `fixes.yml`
+    (line 325) and is already referenced from a **live, deployed** page — `apps/web/build.py`'s
+    `build_al2_checklist_page` links `/fix/amazon-linux-2023-dnf-unable-to-find-a-match/` from the AL2 checklist —
+    so this article's canonical target isn't a speculative or orphaned page.
+  - Ran `publish_devto.py`'s own `_parse()` against all 13 articles — title/canonical_url present, tags = 4 for
+    every article, zero parse errors, zero duplicate titles across the batch.
+  - Ran `apps/web`'s test suite in a fresh jail-local `python3.12` venv (`pip install pytest pyyaml`, matching
+    D20's fix for the 3.12-only f-string syntax in `build.py`): `test_determinism.py` 4/4, `test_surge.py` 4/4 —
+    clean, confirming the unrelated concurrent commits since 07-23 didn't regress the build. Venv deleted after use.
+- **Ship-law check:** externally visible ✅ — lands on the public repo the moment this pushes, auto-publishes via the
+  existing dev.to cron once `DEVTO_API_KEY` is confirmed on the box (HQ-11, unchanged, still unverified from this
+  jail since it requires VPS access).
+- **Deferred:** re:Post answer drafting stays paused (needs a working fetch to find/confirm a real new thread — no
+  repo-only substitute, per D17). Next dev.to candidates, confirmed still uncovered: `amazon-linux-2023-iptables-
+  service-not-found` (the nftables migration counterpart to this cycle's dnf piece), and the two stdlib-removal
+  entries (`python-no-module-named-smtpd`, `python-no-module-named-asyncore`).
+
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in

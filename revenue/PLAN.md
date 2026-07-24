@@ -215,6 +215,24 @@ no fast-gig shortcut exists. Replaced by:
     note — AL2023 dnf/iptables package-management errors and the stdlib-removal pieces (`smtpd`, `asyncore`) are the
     next candidates once picked up (each already has a `fixes.yml` entry with a source_url, so still no-fetch-viable).
 
+## Cycle 2026-07-24 (cloud routine)
+24. **WebFetch re-tested, still 403 on the neutral control (`example.com`)** — 10th consecutive cycle blocked from
+    fresh external fact-checking (07-15, -16, -18 through -24; no 07-17 run recorded). Per D17's root cause (permanent
+    egress policy denial), no re-diagnosis needed — went straight to the no-new-fetch content path.
+25. **Truth/harm sweep found nothing new** — checked all commits since the last cycle's audit (07-23 → 07-24): only
+    automated `chore(status): synthetic check` and dependency-bump commits landed from other routines; no new
+    fulfillment-path or checkout-path change to review this cycle.
+26. **Shipped dev.to article 13** (`13-al2023-dnf-unable-to-find-a-match.md`) — the AL2023 `Error: Unable to find a
+    match: <package>` dnf lookup failure (renamed/version-namespaced/SPAL/EPEL/dropped packages after moving off
+    AL2), sourced entirely from the already-verified `fixes.yml` entry (`amazon-linux-2023-dnf-unable-to-find-a-match`,
+    `source_url: docs.aws.amazon.com/linux/al2023/ug/package-management.html`) — no new external fetch. Confirmed
+    non-duplicative: article 01 only lists this error in a one-line overview table, no dedicated deep dive. Canonical
+    → `/fix/amazon-linux-2023-dnf-unable-to-find-a-match/`, confirmed already referenced from the live, deployed AL2
+    checklist page (`build_al2_checklist_page` in `apps/web/build.py`) — not a new orphan page. Frontmatter validated
+    via `publish_devto.py`'s own `_parse()` against all 13 articles — 4 tags each, zero parse errors, zero duplicate
+    titles. Ran `apps/web`'s `test_determinism.py` + `test_surge.py` (4/4 total) in a fresh jail-local `python3.12`
+    venv (deleted after use) — regression-clean.
+
 ## Next actions (priority order) — post-pivot
 - **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,
   HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack),
@@ -225,12 +243,13 @@ no fast-gig shortcut exists. Replaced by:
   re:Post answers (which need a freshly-found, confirmed real thread) can't be drafted from this environment; new
   dev.to articles still can, as long as they're sourced from already-repo-verified facts (as article 09 was).
 - **P1 — Agent (next cycle):** another no-new-fetch dev.to article, sourced from a `fixes.yml` entry not yet covered:
-  `amazon-linux-2023-dnf-unable-to-find-a-match` + `amazon-linux-2023-iptables-service-not-found` (AL2023
-  package/service-name migration errors — only a passing mention exists today, in article 01's general AL2 overview,
-  not a dedicated deep dive), or the stdlib-removal pieces (`python-no-module-named-smtpd`,
-  `python-no-module-named-asyncore`). Same safe pattern as articles 09/10/11/12, no fetch needed.
-- **Done 2026-07-23:** shipped dev.to article 12 (`lambda-runtime-importmoduleerror-cannot-find-module`, a triage
-  guide, commit pending this cycle's push) — see above.
+  `amazon-linux-2023-iptables-service-not-found` (the nftables migration counterpart to article 13's dnf piece — also
+  only a passing mention in article 01 today), or the stdlib-removal pieces (`python-no-module-named-smtpd`,
+  `python-no-module-named-asyncore` — could combine into one "Python 3.12 stdlib removals" piece as article 10 did
+  for `asyncio.coroutine`). Same safe pattern as articles 09–13, no fetch needed.
+- **Done 2026-07-24:** shipped dev.to article 13 (`amazon-linux-2023-dnf-unable-to-find-a-match`, commit `9cc53dc`).
+- **Done 2026-07-23:** shipped dev.to article 12 (`lambda-runtime-importmoduleerror-cannot-find-module`, commit
+  `d93d830`) — see above.
 - **Done 2026-07-22:** shipped dev.to article 11 (`node-error-decoder-routines-unsupported`, commit `ab660bc`'s
   parent, i.e. `e3fdf6f`) — see above.
 - **Done 2026-07-21:** shipped dev.to article 10 (`python-asyncio-has-no-attribute-coroutine`, commit `709d367`).
