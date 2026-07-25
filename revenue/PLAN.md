@@ -233,6 +233,22 @@ no fast-gig shortcut exists. Replaced by:
     titles. Ran `apps/web`'s `test_determinism.py` + `test_surge.py` (4/4 total) in a fresh jail-local `python3.12`
     venv (deleted after use) — regression-clean.
 
+## Cycle 2026-07-25 (cloud routine)
+27. **Proxy status checked, 11th consecutive cycle since the 07-15 outage began** — `$HTTPS_PROXY/__agentproxy/status`
+    `recentRelayFailures: []` (empty, same as D19/D20 saw). Per D17's root cause (a standing egress-policy denial
+    documented in `/root/.ccr/README.md`), an empty failure log doesn't mean the policy lifted, just that nothing
+    hit the denied path yet — went straight to the no-new-fetch content path, no re-diagnosis spent.
+28. **Truth/harm sweep found nothing new** — `git log f60a892..HEAD` was empty before this cycle's commit; no other
+    routine landed commits since the 07-24 audit.
+29. **Shipped dev.to article 14** (`14-al2023-iptables-service-not-found.md`, commit `52fe7e9`) — the AL2023
+    `Failed to start iptables.service` error (nftables replaces iptables-services by default), sourced entirely from
+    the already-verified `fixes.yml` entry (`amazon-linux-2023-iptables-service-not-found`) — no new external fetch.
+    This was the exact next candidate flagged by cycles 07-23/-24. Confirmed non-duplicative (zero "iptables" hits
+    across articles 01–13); canonical target already linked from the live AL2 checklist page (`build.py:1293`), not
+    an orphan. Ran `apps/web`'s tests via `pytest` in a jail-local `python3.12` venv — 4/4 + 4/4 green (also caught
+    that a bare `python3 test_determinism.py` silently no-ops with exit 0, a false-pass trap worth flagging for any
+    future cycle that reuses this pattern).
+
 ## Next actions (priority order) — post-pivot
 - **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,
   HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack),
@@ -243,10 +259,12 @@ no fast-gig shortcut exists. Replaced by:
   re:Post answers (which need a freshly-found, confirmed real thread) can't be drafted from this environment; new
   dev.to articles still can, as long as they're sourced from already-repo-verified facts (as article 09 was).
 - **P1 — Agent (next cycle):** another no-new-fetch dev.to article, sourced from a `fixes.yml` entry not yet covered:
-  `amazon-linux-2023-iptables-service-not-found` (the nftables migration counterpart to article 13's dnf piece — also
-  only a passing mention in article 01 today), or the stdlib-removal pieces (`python-no-module-named-smtpd`,
-  `python-no-module-named-asyncore` — could combine into one "Python 3.12 stdlib removals" piece as article 10 did
-  for `asyncio.coroutine`). Same safe pattern as articles 09–13, no fetch needed.
+  the stdlib-removal pieces (`python-no-module-named-smtpd`, `python-no-module-named-asyncore` — could combine into
+  one "Python 3.12 stdlib removals" piece as article 10 did for `asyncio.coroutine`), or
+  `amazon-linux-2023-ntpd-service-not-found` / `amazon-linux-2023-python2-command-not-found` (both already linked
+  from the live AL2 checklist page per `build.py:1292-1295`, neither has a dedicated deep-dive yet). Same safe
+  pattern as articles 09–14, no fetch needed.
+- **Done 2026-07-25:** shipped dev.to article 14 (`amazon-linux-2023-iptables-service-not-found`, commit `52fe7e9`).
 - **Done 2026-07-24:** shipped dev.to article 13 (`amazon-linux-2023-dnf-unable-to-find-a-match`, commit `9cc53dc`).
 - **Done 2026-07-23:** shipped dev.to article 12 (`lambda-runtime-importmoduleerror-cannot-find-module`, commit
   `d93d830`) — see above.

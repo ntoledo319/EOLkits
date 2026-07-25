@@ -144,4 +144,14 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-07-24 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship only. |
 | 2026-07-24 | **dev.to articles staged on branch: 13** (was 12 as of 07-23) | `launch/distribution/devto/01`–`13`. |
 
+## Cycle 2026-07-25 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-07-25 | **Proxy status checked (11th consecutive cycle since the outage started 07-15)** | `$HTTPS_PROXY/__agentproxy/status` `recentRelayFailures: []` (empty, same as D19/D20) — per D17's root cause this doesn't mean the policy lifted, just that nothing hit the denied path yet. Went straight to the no-new-fetch content path, no re-diagnosis. |
+| 2026-07-25 | **Truth/harm sweep: no new issue found** | `git log f60a892..HEAD` was empty before this cycle's commit — no other routine landed commits since the 07-24 audit. |
+| 2026-07-25 | **Shipped: dev.to article 14** (`14-al2023-iptables-service-not-found.md`), sourced entirely from the already-verified `fixes.yml` entry (`amazon-linux-2023-iptables-service-not-found`, `source_url: docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html`) — no new external fetch. Canonical → `/fix/amazon-linux-2023-iptables-service-not-found/`, confirmed already linked from the live `apps/web/build.py` AL2 checklist page (line 1293). | Commit `52fe7e9`. Frontmatter validated via `publish_devto.py`'s own `_parse()` against all 14 articles — 4 tags each, zero parse errors, zero duplicate titles; confirmed non-duplicative (zero "iptables" hits in articles 01–13). |
+| 2026-07-25 | **Regression check:** `apps/web` `test_determinism.py` 4/4 (via `pytest` — caught that a bare `python3 test_determinism.py` silently no-ops with exit 0, a false-pass trap) + `test_surge.py` 4/4 green (jail-local `python3.12` venv, deleted after use) | Ran directly this cycle. |
+| 2026-07-25 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship only. |
+| 2026-07-25 | **dev.to articles staged on branch: 14** (was 13 as of 07-24) | `launch/distribution/devto/01`–`14`. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

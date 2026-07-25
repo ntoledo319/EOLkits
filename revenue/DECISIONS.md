@@ -529,6 +529,47 @@ Owner said "yea [draft more] and see what you can automate." Did both:
   service-not-found` (the nftables migration counterpart to this cycle's dnf piece), and the two stdlib-removal
   entries (`python-no-module-named-smtpd`, `python-no-module-named-asyncore`).
 
+### D22 — Cloud cycle (2026-07-25): 11th consecutive WebFetch-blocked cycle; shipped dev.to article 14 (AL2023 iptables→nftables) from already-verified repo data
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `f60a892` (D21's
+  cycle-log commit); already up to date, no conflicts.
+- **Checked the proxy status before picking a task, per the standing rule:** `$HTTPS_PROXY/__agentproxy/status`
+  showed `recentRelayFailures: []` (empty) this cycle — same as D19/D20 saw. Per D17's root cause (the outage is a
+  standing egress-policy denial documented in `/root/.ccr/README.md`, not a per-request fault), an empty failure log
+  doesn't mean the policy lifted — it only means nothing hit the denied path yet this cycle. Went straight to the
+  no-new-fetch content path rather than burning cycle time re-proving the same root cause an 11th time.
+- **Truth/harm sweep found nothing new:** `git log f60a892..HEAD` was empty before this cycle's commit — no commits
+  landed from any other routine since the 07-24 audit, so nothing new to review.
+- **Shipped: dev.to article 14** (`launch/distribution/devto/14-al2023-iptables-service-not-found.md`, commit
+  `52fe7e9`) — the Amazon Linux 2023 `Failed to start iptables.service: Unit iptables.service not found.` error that
+  hits user-data/cloud-init/Ansible provisioning migrated off AL2, where nftables replaces the iptables-services unit
+  by default. Sourced entirely from the already-verified `fixes.yml` entry
+  (`amazon-linux-2023-iptables-service-not-found`, `source_url: docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html`)
+  — no new external fetch. This is the exact next candidate D20/D21 both flagged (the nftables counterpart to
+  article 13's dnf piece).
+- **Checked non-duplication before writing:** grepped all 13 existing articles for "iptables" — zero hits. Article 01
+  doesn't mention the firewall migration at all (its AL2023 checklist section covers dnf, ntpd, and Python 2 only,
+  per `apps/web/build.py` lines 1292–1295); the live AL2 checklist page links this fix's canonical slug directly
+  (`build.py:1293`), confirming it's a real, non-orphan target, not a speculative page.
+- **Verified before logging as shipped (§9):**
+  - Confirmed the canonical slug is registered in `fixes.yml` (line 340) and already linked from the live, deployed
+    AL2 checklist page (`build.py:1293`) — not an orphan.
+  - Ran `publish_devto.py`'s own `_parse()` against all 14 articles — title/canonical_url present, tags = 4 for
+    every article, zero parse errors, zero duplicate titles.
+  - Ran `apps/web`'s test suite in a fresh jail-local `python3.12` venv (`pip install pytest pyyaml jinja2` — the
+    default `python3` in this environment resolves to 3.11 and hits the same pre-existing 3.12-only f-string syntax
+    D20/D21 already worked around): `test_determinism.py` 4/4 (via `pytest`, since it has no `__main__` runner —
+    confirmed this cycle that a bare `python3 test_determinism.py` silently no-ops with exit 0 and prints nothing,
+    which would have been a false-pass if not caught), `test_surge.py` 4/4. Venv deleted after use.
+- **Ship-law check:** externally visible ✅ — lands on the public repo the moment this pushes, auto-publishes via the
+  existing dev.to cron once `DEVTO_API_KEY` is confirmed on the box (HQ-11, unchanged, still unverified from this
+  jail since it requires VPS access).
+- **Deferred:** re:Post answer drafting stays paused (needs a working fetch to find/confirm a real new thread — no
+  repo-only substitute, per D17). Remaining no-fetch dev.to candidates in `fixes.yml` not yet covered: the two
+  stdlib-removal entries (`python-no-module-named-smtpd`, `python-no-module-named-asyncore` — could combine into one
+  "Python 3.12 stdlib removals" piece, as article 10 did for `asyncio.coroutine`), and
+  `amazon-linux-2023-ntpd-service-not-found` / `amazon-linux-2023-python2-command-not-found` (both already referenced
+  from the live AL2 checklist page per `build.py:1292-1295`, neither has a dedicated deep-dive article yet).
+
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in
