@@ -154,4 +154,15 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-07-25 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship only. |
 | 2026-07-25 | **dev.to articles staged on branch: 14** (was 13 as of 07-24) | `launch/distribution/devto/01`–`14`. |
 
+## Cycle 2026-07-26 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-07-26 | **Proxy status checked (12th consecutive cycle since the outage started 07-15)** | `$HTTPS_PROXY/__agentproxy/status` `recentRelayFailures: []` (empty, same as 07-25). Per D17's root cause, went straight to the no-new-fetch content path, no re-diagnosis. |
+| 2026-07-26 | **Truth/harm sweep: no new issue found** | `git log db5d4e6..HEAD` was empty before this cycle's commit — no other routine landed commits since the 07-25 audit. |
+| 2026-07-26 | **Shipped: dev.to article 15** (`15-python312-smtpd-asyncore-removed.md`), sourced entirely from the already-verified `fixes.yml` entries (`python-no-module-named-smtpd`, `python-no-module-named-asyncore`, `source_url: docs.python.org/3/whatsnew/3.12.html`) — no new external fetch. Canonical → `/fix/python-no-module-named-smtpd/`, confirmed a live generated page (`build_error_pages` in `apps/web/build.py` generates a `/fix/<slug>/` page for every `fixes.yml` entry). | Commit `560941c`. Frontmatter validated via `publish_devto.py`'s own `_parse()` against all 15 articles — 4 tags each, zero parse errors, zero duplicate titles; confirmed non-duplicative (zero "smtpd"/"asyncore" hits in articles 01–14). |
+| 2026-07-26 | **Regression check:** `apps/web` `test_determinism.py` 4/4 (via `pytest`) + `test_surge.py` 4/4 (via direct script run — it has no pytest-collectible tests) green (jail-local `python3.12` venv, deleted after use) | Ran directly this cycle. |
+| 2026-07-26 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship only. |
+| 2026-07-26 | **dev.to articles staged on branch: 15** (was 14 as of 07-25) | `launch/distribution/devto/01`–`15`. |
+| 2026-07-26 | **No-fetch dev.to backlog nearly exhausted** | Only 2 uncovered `fixes.yml` entries remain with a dedicated-deep-dive gap: `amazon-linux-2023-ntpd-service-not-found`, `amazon-linux-2023-python2-command-not-found`. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

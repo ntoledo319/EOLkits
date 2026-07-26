@@ -43,6 +43,11 @@ scan/PR service, not a per-call REST API (would need a new hosted endpoint). Ski
   2026-07-16:** its live self-serve checkout was pulled (DECISIONS D14) — fulfillment is a no-op stub, so this frame
   is now dormant until someone actually builds IAM-role-based weekly re-scanning; not an active near-term opportunity.
 
+## Reviewed (no change) — cycles 2026-07-19 through 2026-07-26
+Ranking and frame scores unchanged: no new platform fact, fee change, or bet re-scoring this window. Frame #7
+(dev.to canonical backlinks) is the one actively compounding — 15 articles staged as of 2026-07-26, still gated on
+`DEVTO_API_KEY` confirmation (HQ-11) for the auto-publish cron to actually post them.
+
 ## The honest constraint that dominates all of this
 Every payment-enabled channel is **first-publish KYC-gated** (marketplaces need identity/bank). No autonomous
 $0 action reaches a *ready buyer* inside 28 days. The frames that can actually collect $4k (Upwork gig, Migration

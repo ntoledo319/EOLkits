@@ -249,6 +249,29 @@ no fast-gig shortcut exists. Replaced by:
     that a bare `python3 test_determinism.py` silently no-ops with exit 0, a false-pass trap worth flagging for any
     future cycle that reuses this pattern).
 
+## Cycle 2026-07-26 (cloud routine)
+30. **Proxy status checked, 12th consecutive cycle since the 07-15 outage began** — `$HTTPS_PROXY/__agentproxy/status`
+    `recentRelayFailures: []` (empty again, same as 07-25). Per D17's root cause (standing egress-policy denial), no
+    re-diagnosis spent — went straight to the no-new-fetch content path.
+31. **Truth/harm sweep found nothing new** — `git log db5d4e6..HEAD` was empty before this cycle's commit; no other
+    routine landed commits since the 07-25 audit.
+32. **Shipped dev.to article 15** (`15-python312-smtpd-asyncore-removed.md`, commit `560941c`) — combines the two
+    remaining PEP 594 stdlib-removal `fixes.yml` entries (`python-no-module-named-smtpd`,
+    `python-no-module-named-asyncore`) into one piece, the exact next candidate flagged since D20/D22 (same
+    combine-related-removals pattern article 10 used for `asyncio.coroutine`). Sourced entirely from the
+    already-verified `fixes.yml` entries (`source_url: docs.python.org/3/whatsnew/3.12.html`) — no new external
+    fetch. Confirmed non-duplicative (zero prior "smtpd"/"asyncore" hits across articles 01–14). Confirmed both
+    canonical slugs are live, non-orphan pages: `apps/web/build.py`'s `build_error_pages` generates a `/fix/<slug>/`
+    page for **every** entry in `fixes.yml` automatically (not just ones cross-linked from the AL2 checklist), so
+    both targets resolve. Ran `apps/web`'s tests in a fresh jail-local `python3.12` venv — `test_determinism.py` 4/4
+    via `pytest`, `test_surge.py` 4/4 via direct script run (it has no pytest-collectible tests, same false-pass
+    trap D22 flagged) — clean, venv deleted after use.
+33. **This exhausts the currently-scoped no-fetch dev.to backlog again** — every `fixes.yml` entry flagged as a
+    candidate across cycles 07-22 through 07-25 (AL2023 dnf, AL2023 iptables, Python smtpd/asyncore) is now shipped.
+    Remaining `fixes.yml` entries not yet covered by a dedicated deep-dive: `amazon-linux-2023-ntpd-service-not-found`
+    and `amazon-linux-2023-python2-command-not-found` (both already linked from the live AL2 checklist page per
+    `build.py:1292/1295`) — next candidates once picked up.
+
 ## Next actions (priority order) — post-pivot
 - **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,
   HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack),
@@ -259,11 +282,12 @@ no fast-gig shortcut exists. Replaced by:
   re:Post answers (which need a freshly-found, confirmed real thread) can't be drafted from this environment; new
   dev.to articles still can, as long as they're sourced from already-repo-verified facts (as article 09 was).
 - **P1 — Agent (next cycle):** another no-new-fetch dev.to article, sourced from a `fixes.yml` entry not yet covered:
-  the stdlib-removal pieces (`python-no-module-named-smtpd`, `python-no-module-named-asyncore` — could combine into
-  one "Python 3.12 stdlib removals" piece as article 10 did for `asyncio.coroutine`), or
-  `amazon-linux-2023-ntpd-service-not-found` / `amazon-linux-2023-python2-command-not-found` (both already linked
-  from the live AL2 checklist page per `build.py:1292-1295`, neither has a dedicated deep-dive yet). Same safe
-  pattern as articles 09–14, no fetch needed.
+  `amazon-linux-2023-ntpd-service-not-found` or `amazon-linux-2023-python2-command-not-found` (both already linked
+  from the live AL2 checklist page per `build.py:1292/1295`, neither has a dedicated deep-dive yet). Same safe
+  pattern as articles 09–15, no fetch needed. This is now the last un-shipped no-fetch pair — after these two, the
+  next cycle should re-scan `fixes.yml` in full for any entry not yet covered by an article.
+- **Done 2026-07-26:** shipped dev.to article 15 (`python-no-module-named-smtpd` + `python-no-module-named-asyncore`
+  combined, commit `560941c`).
 - **Done 2026-07-25:** shipped dev.to article 14 (`amazon-linux-2023-iptables-service-not-found`, commit `52fe7e9`).
 - **Done 2026-07-24:** shipped dev.to article 13 (`amazon-linux-2023-dnf-unable-to-find-a-match`, commit `9cc53dc`).
 - **Done 2026-07-23:** shipped dev.to article 12 (`lambda-runtime-importmoduleerror-cannot-find-module`, commit

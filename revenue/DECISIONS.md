@@ -570,6 +570,50 @@ Owner said "yea [draft more] and see what you can automate." Did both:
   `amazon-linux-2023-ntpd-service-not-found` / `amazon-linux-2023-python2-command-not-found` (both already referenced
   from the live AL2 checklist page per `build.py:1292-1295`, neither has a dedicated deep-dive article yet).
 
+### D23 — Cloud cycle (2026-07-26): 12th consecutive WebFetch-blocked cycle; shipped dev.to article 15 (Python 3.12 smtpd/asyncore removal), no-fetch backlog nearly exhausted
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `db5d4e6` (D22's
+  cycle-log commit); already up to date, no conflicts.
+- **Checked the proxy status before picking a task, per the standing rule:** `$HTTPS_PROXY/__agentproxy/status`
+  showed `recentRelayFailures: []` (empty) this cycle — same as the last several cycles. Per D17's root cause (the
+  outage is a standing egress-policy denial documented in `/root/.ccr/README.md`, not a per-request fault), went
+  straight to the no-new-fetch content path rather than re-proving the same root cause a 12th time.
+- **Truth/harm sweep found nothing new:** `git log db5d4e6..HEAD` was empty before this cycle's commit — no commits
+  landed from any other routine since the 07-25 audit, so nothing new to review.
+- **Shipped: dev.to article 15** (`launch/distribution/devto/15-python312-smtpd-asyncore-removed.md`, commit
+  `560941c`) — combines the two remaining PEP 594 stdlib-removal `fixes.yml` entries (`python-no-module-named-smtpd`,
+  `python-no-module-named-asyncore`) into one piece, following the same "combine related removals into one article"
+  pattern D20/D22 flagged and article 10 used for `asyncio.coroutine`. Sourced entirely from the already-verified
+  `fixes.yml` entries (`source_url: docs.python.org/3/whatsnew/3.12.html` for both) — no new external fetch, so no
+  risk of repeating D3's original mistake (shipping a plausible-but-wrong fact).
+- **Checked non-duplication before writing:** grepped all 14 existing articles for "smtpd" and "asyncore" — zero
+  hits in either case. No other article touches Python 3.12's stdlib removals beyond article 10's `asyncio.coroutine`
+  piece (a different, already-shipped removal).
+- **Verified before logging as shipped (§9):**
+  - Confirmed both canonical slugs are registered in `fixes.yml` (lines 354, 368) and resolve to real, live pages —
+    read `apps/web/build.py`'s `build_error_pages` function directly this cycle and confirmed it generates a
+    `/fix/<slug>/` page for **every** entry in `fixes.yml` automatically, not only entries cross-linked from the AL2
+    checklist page. This is a stronger orphan-check than prior cycles used (which relied on finding an explicit
+    cross-link) — worth noting for future cycles: absence of a checklist cross-link does not mean a fix page is an
+    orphan, since every `fixes.yml` entry gets a page regardless.
+  - Ran `publish_devto.py`'s own `_parse()` against all 15 articles — title/canonical_url present, tags = 4 for
+    every article, zero parse errors, zero duplicate titles across the batch.
+  - Ran `apps/web`'s test suite in a fresh jail-local `python3.12` venv (`pip install pytest pyyaml jinja2`):
+    `test_determinism.py` 4/4 via `pytest`; `test_surge.py` 4/4 via a direct script run since it has no
+    pytest-collectible test functions (confirmed this cycle: `pytest test_surge.py` collects 0 items — the same
+    false-pass trap D22 flagged for the bare-`python3` invocation, but for the pytest path instead). Both clean.
+    Venv deleted after use.
+- **Ship-law check:** externally visible ✅ — lands on the public repo the moment this pushes, auto-publishes via the
+  existing dev.to cron once `DEVTO_API_KEY` is confirmed on the box (HQ-11, unchanged, still unverified from this
+  jail since it requires VPS access).
+- **Backlog status:** this exhausts every `fixes.yml` candidate flagged across cycles 07-22 through 07-25 (AL2023
+  dnf, AL2023 iptables, Python smtpd/asyncore). Two `fixes.yml` entries remain without a dedicated deep-dive:
+  `amazon-linux-2023-ntpd-service-not-found`, `amazon-linux-2023-python2-command-not-found` (both already
+  cross-linked from the live AL2 checklist page, `build.py:1292/1295`) — next candidates. After those ship, the
+  next cycle should re-scan `fixes.yml` in full (not just the previously-flagged list) for any remaining gap, since
+  the explicitly-tracked queue is nearly empty.
+- **Deferred:** re:Post answer drafting stays paused (needs a working fetch to find/confirm a real new thread — no
+  repo-only substitute, per D17).
+
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in
