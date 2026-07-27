@@ -272,6 +272,45 @@ no fast-gig shortcut exists. Replaced by:
     and `amazon-linux-2023-python2-command-not-found` (both already linked from the live AL2 checklist page per
     `build.py:1292/1295`) — next candidates once picked up.
 
+## Cycle 2026-07-27 (cloud routine)
+34. **Found (unlogged until now): a separate process pushed `feat(devto): article 16 — node-sass Lambda runtime
+    upgrade breakage`** (commit `3d623cc`, 2026-07-26 13:12 UTC, ~7h after the 07-26 cycle's own commits) — the
+    "Node Sass does not yet support your current environment" error on Lambda/Node runtime upgrades, sourced from
+    the already-verified `fixes.yml` entry (`node-sass-deprecated-unsupported`, `source_url:
+    sass-lang.com/blog/libsass-is-deprecated/`). Verified this cycle: canonical slug registered (line 104), no
+    other article mentions "node-sass," frontmatter parses clean, fact (LibSass EOL, no Node 18+ prebuild, repo
+    archived) matches well-established public record. Consistent with the article-08 / blog-date-fix precedent
+    (D17-era note: unlogged commits from other routines get checked and logged, not re-done).
+35. **WebFetch re-tested, still 403 on the neutral control (`example.com`)** — 13th consecutive cycle blocked from
+    fresh external fact-checking (07-15, -16, -18 through -27; no 07-17 run recorded). Per D17's root cause
+    (permanent egress-policy denial), no re-diagnosis needed — went straight to the no-new-fetch content path.
+36. **Corrected the backlog assumption from D23/cycle 07-26:** that cycle believed only 2 `fixes.yml` entries lacked
+    a dedicated article. A full re-scan (27 total `fixes.yml` slugs vs. every article's `canonical_url`) found
+    **13 entries still uncovered**, not 2 — the prior "nearly exhausted" read only checked the explicitly-flagged
+    short list, not the full file. Uncovered: `amazon-linux-extras-command-not-found`, `python-no-module-named-
+    distutils`, `python-no-module-named-imp`, `collections-has-no-attribute-mapping`, `node-module-version-
+    mismatch`, `datetime-utcnow-deprecated`, `python-no-module-named-cgi`, `amazon-linux-2023-python2-command-not-
+    found` (shipped this cycle, see below), `amazon-linux-2023-ntpd-service-not-found`, `node-punycode-module-
+    deprecated`, `python-no-module-named-telnetlib`, `python-no-module-named-crypt`, `python-no-module-named-
+    lib2to3`. (`lambda-python-runtime-no-longer-supported` / `lambda-nodejs-runtime-no-longer-supported` are
+    reasonably covered by the existing `/migrate/` deep-dive articles 02/03/04/07, so not counted as gaps.) The
+    no-fetch content engine has real runway left — 12 more candidates after this cycle's ship, all with a
+    `source_url` already in the repo.
+37. **Truth/harm sweep found nothing new** beyond the article-16 commit already reviewed above.
+38. **Shipped dev.to article 17** (`17-al2023-python2-command-not-found.md`, commit `0a0e7a2`) — the
+    `/usr/bin/env: 'python2': No such file or directory` error on Amazon Linux 2023 (which ships no Python 2 at
+    all, unlike AL2's bundled 2.7), sourced entirely from the already-verified `fixes.yml` entry
+    (`amazon-linux-2023-python2-command-not-found`, `source_url: docs.aws.amazon.com/linux/al2023/ug/compare-with-
+    al2.html`) — no new external fetch. Confirmed non-duplicative: article 01 only lists this in a one-line AL2023
+    checklist item, no dedicated deep dive. Canonical target confirmed live and cross-linked from the AL2 checklist
+    page (`apps/web/build.py:1295`). Frontmatter validated via `publish_devto.py`'s own `_parse()` against all 17
+    articles — title/canonical_url/tags(≤4) all parse correctly, zero duplicate titles. Ran `apps/web`'s
+    `test_determinism.py` (4/4 via pytest) + `test_surge.py` (4/4, direct run) in a fresh jail-local `python3.12`
+    venv — clean, venv deleted after use.
+39. **Next candidate for 07-28:** `amazon-linux-2023-ntpd-service-not-found` (the chrony-migration counterpart to
+    this cycle's python2 piece, both cross-linked from the same AL2 checklist page) — then re-scan the remaining
+    11-entry list above for the next-highest-intent pick.
+
 ## Next actions (priority order) — post-pivot
 - **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,
   HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack),
@@ -281,11 +320,13 @@ no fast-gig shortcut exists. Replaced by:
   general web access by design (confirmed via `/root/.ccr/README.md`, not a bug) — see HUMAN_QUEUE. Without it, new
   re:Post answers (which need a freshly-found, confirmed real thread) can't be drafted from this environment; new
   dev.to articles still can, as long as they're sourced from already-repo-verified facts (as article 09 was).
-- **P1 — Agent (next cycle):** another no-new-fetch dev.to article, sourced from a `fixes.yml` entry not yet covered:
-  `amazon-linux-2023-ntpd-service-not-found` or `amazon-linux-2023-python2-command-not-found` (both already linked
-  from the live AL2 checklist page per `build.py:1292/1295`, neither has a dedicated deep-dive yet). Same safe
-  pattern as articles 09–15, no fetch needed. This is now the last un-shipped no-fetch pair — after these two, the
-  next cycle should re-scan `fixes.yml` in full for any entry not yet covered by an article.
+- **P1 — Agent (next cycle):** another no-new-fetch dev.to article. 12 `fixes.yml` entries remain uncovered as of
+  07-27 (full list in the 07-27 cycle log above) — next pick: `amazon-linux-2023-ntpd-service-not-found` (chrony
+  migration, same AL2 checklist page as this cycle's python2 piece). Same safe pattern as articles 09–17, no fetch
+  needed.
+- **Done 2026-07-27:** logged the found article 16 (node-sass, commit `3d623cc`, shipped by a separate process
+  07-26); shipped dev.to article 17 (`amazon-linux-2023-python2-command-not-found`, commit `0a0e7a2`); corrected
+  the backlog count from "~2 left" to "12 left" after a full `fixes.yml` re-scan.
 - **Done 2026-07-26:** shipped dev.to article 15 (`python-no-module-named-smtpd` + `python-no-module-named-asyncore`
   combined, commit `560941c`).
 - **Done 2026-07-25:** shipped dev.to article 14 (`amazon-linux-2023-iptables-service-not-found`, commit `52fe7e9`).

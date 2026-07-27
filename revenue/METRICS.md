@@ -165,4 +165,15 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-07-26 | **dev.to articles staged on branch: 15** (was 14 as of 07-25) | `launch/distribution/devto/01`–`15`. |
 | 2026-07-26 | **No-fetch dev.to backlog nearly exhausted** | Only 2 uncovered `fixes.yml` entries remain with a dedicated-deep-dive gap: `amazon-linux-2023-ntpd-service-not-found`, `amazon-linux-2023-python2-command-not-found`. |
 
+## Cycle 2026-07-27 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-07-27 | **WebFetch re-tested — 13th consecutive cycle blocked** | `WebFetch` on `https://example.com` (neutral control) → still HTTP 403 Forbidden. Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis, went straight to the no-new-fetch content path. |
+| 2026-07-27 | **Found + verified (unlogged until now): article 16 shipped by a separate process 07-26** (`3d623cc`, node-sass Lambda breakage) | Verified canonical slug, non-duplication, and fact accuracy (LibSass EOL, matches `sass-lang.com/blog/libsass-is-deprecated/` already in `fixes.yml`) this cycle. |
+| 2026-07-27 | **Backlog re-scan: 12 `fixes.yml` entries still uncovered** (was believed to be ~2) | Full grep of all 27 `fixes.yml` slugs against all article `canonical_url`s — see PLAN.md cycle log for the list. |
+| 2026-07-27 | **Shipped: dev.to article 17** (`17-al2023-python2-command-not-found.md`), sourced entirely from the already-verified `fixes.yml` entry (`amazon-linux-2023-python2-command-not-found`) — no new external fetch. Canonical → `/fix/amazon-linux-2023-python2-command-not-found/`, confirmed live and cross-linked from the AL2 checklist page (`build.py:1295`). | Commit `0a0e7a2`. Frontmatter validated via `publish_devto.py`'s own `_parse()` against all 17 articles — tags ≤4 each, zero parse errors, zero duplicate titles; confirmed non-duplicative (article 01 only has a one-line mention). |
+| 2026-07-27 | **Regression check:** `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) green (jail-local `python3.12` venv, deleted after use) | Ran directly this cycle. |
+| 2026-07-27 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship + backlog audit only. |
+| 2026-07-27 | **dev.to articles staged on branch: 17** (was 15 as of 07-26; article 16 found this cycle, article 17 shipped this cycle) | `launch/distribution/devto/01`–`17`. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

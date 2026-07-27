@@ -614,6 +614,62 @@ Owner said "yea [draft more] and see what you can automate." Did both:
 - **Deferred:** re:Post answer drafting stays paused (needs a working fetch to find/confirm a real new thread — no
   repo-only substitute, per D17).
 
+### D24 — Cloud cycle (2026-07-27): 13th consecutive WebFetch-blocked cycle; logged a found unlogged commit (article 16), corrected the backlog-size assumption, shipped dev.to article 17
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `3d623cc`
+  (an unlogged commit, see below); no conflicts.
+- **Checked WebFetch directly this cycle (not just the proxy status log):** `WebFetch` on `https://example.com`
+  (neutral control) → still HTTP 403 Forbidden. 13th consecutive blocked cycle (07-15, -16, -18 through -27; no
+  07-17 run recorded). Per D17's root cause (standing egress-policy denial, not transient), no re-diagnosis spent —
+  went straight to the no-new-fetch content path.
+- **Found and verified an unlogged commit from a separate process:** `3d623cc` ("feat(devto): article 16 — node-sass
+  Lambda runtime upgrade breakage"), timestamped 2026-07-26 13:12 UTC — ~7 hours after D23's own cycle commit
+  (`f4efa3b`, 06:11 UTC) closed out the 07-26 cycle. Same pattern as the article-08 commit (D18) and the blog-date
+  fix (D20): another routine or session shipped directly to this branch without going through the revenue-loop
+  state-file update. Verified rather than re-done or reverted:
+  - Canonical slug `node-sass-deprecated-unsupported` is registered in `fixes.yml` (line 104) with
+    `source_url: https://sass-lang.com/blog/libsass-is-deprecated/` — already vetted by an earlier cycle, not a
+    new unverified claim.
+  - Grepped all other 16 articles for "node-sass" — zero hits, confirming non-duplication.
+  - Fact-checked against public-record knowledge (not fetch, since fetch is down): LibSass was deprecated by the
+    Sass team in October 2020 and the `sass/node-sass` GitHub repo was archived in July 2024; no Node 18/20/22
+    prebuilt binaries exist. This is uncontroversial, long-settled software history, not a disputed AWS date —
+    within the class of facts D17/D20 established as safe to rely on without a working fetch.
+  - Ran `publish_devto.py`'s own `_parse()` against it along with all other articles — parses clean.
+- **Corrected a backlog-size error from D23:** D23 stated the no-fetch dev.to backlog was "nearly exhausted" with
+  only 2 `fixes.yml` entries uncovered. That claim only checked the explicitly-flagged short list carried cycle to
+  cycle, not the full file. This cycle grepped all 27 `fixes.yml` slugs against every article's `canonical_url` and
+  found **12 entries still uncovered** post-this-cycle's-ship (13 before it): `amazon-linux-extras-command-not-found`,
+  `python-no-module-named-distutils`, `python-no-module-named-imp`, `collections-has-no-attribute-mapping`,
+  `node-module-version-mismatch`, `datetime-utcnow-deprecated`, `python-no-module-named-cgi`,
+  `amazon-linux-2023-ntpd-service-not-found`, `node-punycode-module-deprecated`, `python-no-module-named-telnetlib`,
+  `python-no-module-named-crypt`, `python-no-module-named-lib2to3` (`lambda-python-runtime-no-longer-supported` and
+  `lambda-nodejs-runtime-no-longer-supported` are reasonably covered by the existing `/migrate/` deep-dives, so not
+  counted as gaps). **Worth flagging for future cycles:** re-scan the full `fixes.yml` file periodically rather than
+  trusting a carried-forward short list, which is exactly how D23's undercount happened.
+- **Shipped: dev.to article 17** (`launch/distribution/devto/17-al2023-python2-command-not-found.md`, commit
+  `0a0e7a2`) — the `/usr/bin/env: 'python2': No such file or directory` error on Amazon Linux 2023 (which removed
+  Python 2 entirely, unlike AL2's bundled 2.7), sourced entirely from the already-verified `fixes.yml` entry
+  (`amazon-linux-2023-python2-command-not-found`, `source_url: docs.aws.amazon.com/linux/al2023/ug/compare-with-
+  al2.html`) — no new external fetch.
+- **Checked non-duplication before writing:** grepped all 16 prior articles for "python2" — only article 01's
+  one-line AL2023-checklist mention, no dedicated deep dive. Canonical slug confirmed live and cross-linked from
+  the AL2 checklist page (`apps/web/build.py:1295`), not an orphan.
+- **Verified before logging as shipped (§9):** ran `publish_devto.py`'s own `_parse()` against all 17 articles —
+  title/canonical_url present, tags ≤4 for every article, zero parse errors, zero duplicate titles. Ran `apps/web`'s
+  test suite in a fresh jail-local `python3.12` venv (`pip install pytest pyyaml jinja2`): `test_determinism.py`
+  4/4 via pytest, `test_surge.py` 4/4 via direct script run (no pytest-collectible tests, the same false-pass trap
+  D22/D23 flagged) — both clean. Venv deleted after use.
+- **Ship-law check:** externally visible ✅ — lands on the public repo the moment this pushes, auto-publishes via the
+  existing dev.to cron once `DEVTO_API_KEY` is confirmed on the box (HQ-11, unchanged, still unverified from this
+  jail since it requires VPS access).
+- **Truth/harm sweep:** reviewed the one commit since the last logged cycle (`3d623cc`, the article-16 find above,
+  already vetted) — no fulfillment/checkout-path change to review this cycle.
+- **Next candidate flagged for 07-28:** `amazon-linux-2023-ntpd-service-not-found` (the chrony-migration
+  counterpart to this cycle's python2 piece, both cross-linked from the same AL2 checklist page), then continue
+  down the corrected 11-entry remaining list.
+- **Deferred:** re:Post answer drafting stays paused (needs a working fetch to find/confirm a real new thread — no
+  repo-only substitute, per D17).
+
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in
