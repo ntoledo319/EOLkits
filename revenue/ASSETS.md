@@ -128,7 +128,7 @@ Verified this cycle by reading manifests + running CLIs/tests directly (not trus
 All kits MIT; runtime deps are Apache-2.0 (boto3, @aws-sdk/*). **No copyleft contamination.** An ATTRIBUTIONS
 file + AI-provenance disclosure must be generated before any paid packaging that a marketplace requires.
 
-## Reviewed (no change) — cycles 2026-07-19 through 2026-07-27
+## Reviewed (no change) — cycles 2026-07-19 through 2026-07-28
 No new codebase, SKU, or fulfillment-path change to record this cycle beyond what's already logged in
-`DECISIONS.md`/`METRICS.md` (dev.to articles 09–17 are `launch/distribution/` content shipped from the existing
+`DECISIONS.md`/`METRICS.md` (dev.to articles 09–18 are `launch/distribution/` content shipped from the existing
 `apps/web` asset, not a new asset cluster). Audit stays current as of Cycle 0 + the D14/D16 fulfillment fixes.

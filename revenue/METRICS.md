@@ -176,4 +176,15 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-07-27 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship + backlog audit only. |
 | 2026-07-27 | **dev.to articles staged on branch: 17** (was 15 as of 07-26; article 16 found this cycle, article 17 shipped this cycle) | `launch/distribution/devto/01`–`17`. |
 
+## Cycle 2026-07-28 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-07-28 | **WebFetch re-tested — 14th consecutive cycle blocked** | `WebFetch` on `https://example.com` (neutral control) → still HTTP 403 Forbidden; `$HTTPS_PROXY/__agentproxy/status` `recentRelayFailures: []` (empty). Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis, went straight to the no-new-fetch content path. |
+| 2026-07-28 | **Truth/harm sweep: no new issue found** | `git fetch origin marketing-machine-v2` showed no new commits ahead of the branch tip this cycle started from — no other routine landed commits since the 07-27 audit. |
+| 2026-07-28 | **Shipped: dev.to article 18** (`18-al2023-ntpd-service-not-found.md`), sourced entirely from the already-verified `fixes.yml` entry (`amazon-linux-2023-ntpd-service-not-found`, `source_url: docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html`) — no new external fetch. Canonical → `/fix/amazon-linux-2023-ntpd-service-not-found/`, confirmed live and cross-linked from the AL2 checklist page (`build.py:1293`). | Commit `1173106`. Frontmatter validated via `publish_devto.py`'s own `_parse()` against all 18 articles — 4 tags each, zero parse errors, zero duplicate titles; confirmed non-duplicative (article 01 only has a one-line overview mention). |
+| 2026-07-28 | **Regression check:** `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) green (jail-local `python3.12` venv, deleted after use) | Ran directly this cycle. |
+| 2026-07-28 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship only. |
+| 2026-07-28 | **dev.to articles staged on branch: 18** (was 17 as of 07-27) | `launch/distribution/devto/01`–`18`. |
+| 2026-07-28 | **No-fetch dev.to backlog: 11 `fixes.yml` entries remain uncovered** | Full list in DECISIONS D25; next candidate `amazon-linux-extras-command-not-found`. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

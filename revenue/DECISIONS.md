@@ -675,3 +675,45 @@ $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in
 HUMAN_QUEUE — above all **HQ-1 (Upwork) + "Upwork yes."** This is recorded honestly rather than papered over with
 optimistic projections.
+
+### D25 — Cloud cycle (2026-07-28): 14th consecutive WebFetch-blocked cycle; shipped dev.to article 18 (AL2023 ntpd→chrony) from already-verified repo data
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `526ca05` (D24's
+  handoff commit); no conflicts, no other routine had pushed since.
+- **Re-tested WebFetch before picking a task, per the standing rule:** `WebFetch` on `https://example.com` (neutral
+  control) → still HTTP 403 Forbidden (14th consecutive cycle: 07-15, -16, -18 through -28; no 07-17 run recorded).
+  `$HTTPS_PROXY/__agentproxy/status` showed an empty `recentRelayFailures`, same pattern as several prior cycles —
+  per D17's root cause (a standing egress-policy denial, not a per-request fault), this doesn't mean the policy
+  lifted, just that nothing hit the denied path yet. No re-diagnosis spent — went straight to the no-new-fetch
+  content path.
+- **Truth/harm sweep found nothing new:** `git log <D24's commit>..HEAD` was empty before this cycle's commit — no
+  other routine landed commits since the 07-27 audit; nothing new to review.
+- **Shipped: dev.to article 18** (`launch/distribution/devto/18-al2023-ntpd-service-not-found.md`, commit
+  `1173106`) — the Amazon
+  Linux 2023 `Failed to start ntpd.service: Unit ntpd.service not found` error (AL2023 standardizes on chrony
+  instead of ntpd), sourced entirely from the already-verified `fixes.yml` entry
+  (`amazon-linux-2023-ntpd-service-not-found`, `source_url: docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html`)
+  — no new external fetch. This was the exact next candidate flagged by D24/cycle 07-27 (the chrony counterpart to
+  that cycle's python2 piece, both cross-linked from the same AL2 checklist page, `apps/web/build.py:1293`).
+  Confirmed non-duplicative: grepped all prior articles for "ntpd" — only hit is article 01's one-line AL2023
+  overview-table mention, no dedicated deep dive. Canonical target confirmed live and cross-linked from the AL2
+  checklist page (`build.py:1293`), not an orphan.
+- **Verified before logging as shipped (§9):** ran `publish_devto.py`'s own `_parse()` against all 18 articles —
+  title/canonical_url present, tags = 4 for every article, zero parse errors, zero duplicate titles. Ran `apps/web`'s
+  `test_determinism.py` (4/4 via pytest) + `test_surge.py` (4/4, direct run — no pytest-collectible tests, the same
+  false-pass trap D22 flagged) in a fresh jail-local `python3.12` venv (`pip install pytest pyyaml jinja2`) — both
+  clean, venv deleted after use, `git status` confirmed no stray build artifacts before committing.
+- **Ship-law check:** externally visible ✅ — lands on the public repo the moment this pushes, auto-publishes via the
+  existing dev.to cron once `DEVTO_API_KEY` is confirmed on the box (HQ-11, unchanged, still unverified from this
+  jail since it requires VPS access).
+- **Backlog status:** 11 `fixes.yml` entries remain uncovered as of this cycle — the D24 (07-27) full re-scan found
+  12 uncovered entries (13 minus `amazon-linux-2023-python2-command-not-found`, shipped that same cycle); this
+  cycle shipped one more (`amazon-linux-2023-ntpd-service-not-found`), leaving 11 carried forward unchanged (not
+  re-verified against a fresh full grep this cycle, since no other article landed between 07-27 and this cycle's
+  pick): `amazon-linux-extras-command-not-found`, `python-no-module-named-distutils`,
+  `python-no-module-named-imp`, `collections-has-no-attribute-mapping`, `node-module-version-mismatch`,
+  `datetime-utcnow-deprecated`, `python-no-module-named-cgi`, `node-punycode-module-deprecated`,
+  `python-no-module-named-telnetlib`, `python-no-module-named-crypt`, `python-no-module-named-lib2to3`. Next pick:
+  `amazon-linux-extras-command-not-found` (first item in the carried-forward list, not yet spot-checked this cycle
+  for a `source_url`).
+- **Deferred:** re:Post answer drafting stays paused (needs a working fetch to find/confirm a real new thread — no
+  repo-only substitute, per D17).

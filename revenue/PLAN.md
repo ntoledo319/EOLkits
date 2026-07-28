@@ -311,6 +311,24 @@ no fast-gig shortcut exists. Replaced by:
     this cycle's python2 piece, both cross-linked from the same AL2 checklist page) — then re-scan the remaining
     11-entry list above for the next-highest-intent pick.
 
+## Cycle 2026-07-28 (cloud routine)
+40. **WebFetch re-tested, still 403 on the neutral control (`example.com`)** — 14th consecutive cycle blocked from
+    fresh external fact-checking (07-15, -16, -18 through -28; no 07-17 run recorded). Per D17's root cause
+    (permanent egress-policy denial), no re-diagnosis needed — went straight to the no-new-fetch content path.
+41. **Truth/harm sweep found nothing new** — no other routine pushed to the branch between the 07-27 cycle commit
+    and this cycle's start.
+42. **Shipped dev.to article 18** (`18-al2023-ntpd-service-not-found.md`) — the exact next candidate flagged by
+    cycle 07-27 (AL2023 `ntpd.service` → chrony migration), sourced entirely from the already-verified `fixes.yml`
+    entry (`amazon-linux-2023-ntpd-service-not-found`, `source_url: docs.aws.amazon.com/linux/al2023/ug/compare-
+    with-al2.html`) — no new external fetch. Confirmed non-duplicative (article 01 only has a one-line overview
+    mention). Canonical target confirmed live and cross-linked from the AL2 checklist page (`build.py:1293`).
+    Frontmatter validated via `publish_devto.py`'s own `_parse()` against all 18 articles — tags = 4 each, zero
+    parse errors, zero duplicate titles. Ran `apps/web`'s `test_determinism.py` (4/4 via pytest) + `test_surge.py`
+    (4/4, direct run) in a fresh jail-local `python3.12` venv — clean, venv deleted after use.
+43. **Next candidate for the next cycle:** `amazon-linux-extras-command-not-found` (first item in the 11-entry
+    remaining backlog list — see DECISIONS D25) — not yet spot-checked for a `source_url`; do that check first
+    since not every remaining entry has been individually confirmed to have one.
+
 ## Next actions (priority order) — post-pivot
 - **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,
   HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack),
@@ -320,10 +338,11 @@ no fast-gig shortcut exists. Replaced by:
   general web access by design (confirmed via `/root/.ccr/README.md`, not a bug) — see HUMAN_QUEUE. Without it, new
   re:Post answers (which need a freshly-found, confirmed real thread) can't be drafted from this environment; new
   dev.to articles still can, as long as they're sourced from already-repo-verified facts (as article 09 was).
-- **P1 — Agent (next cycle):** another no-new-fetch dev.to article. 12 `fixes.yml` entries remain uncovered as of
-  07-27 (full list in the 07-27 cycle log above) — next pick: `amazon-linux-2023-ntpd-service-not-found` (chrony
-  migration, same AL2 checklist page as this cycle's python2 piece). Same safe pattern as articles 09–17, no fetch
-  needed.
+- **P1 — Agent (next cycle):** another no-new-fetch dev.to article. 11 `fixes.yml` entries remain uncovered as of
+  07-28 (full list in DECISIONS D25) — next pick: `amazon-linux-extras-command-not-found` (first item in the
+  carried-forward list; spot-check it has a `source_url` before writing). Same safe pattern as articles 09–18, no
+  fetch needed.
+- **Done 2026-07-28:** shipped dev.to article 18 (`amazon-linux-2023-ntpd-service-not-found`, commit `1173106`).
 - **Done 2026-07-27:** logged the found article 16 (node-sass, commit `3d623cc`, shipped by a separate process
   07-26); shipped dev.to article 17 (`amazon-linux-2023-python2-command-not-found`, commit `0a0e7a2`); corrected
   the backlog count from "~2 left" to "12 left" after a full `fixes.yml` re-scan.
