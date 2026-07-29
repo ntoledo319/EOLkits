@@ -43,10 +43,10 @@ scan/PR service, not a per-call REST API (would need a new hosted endpoint). Ski
   2026-07-16:** its live self-serve checkout was pulled (DECISIONS D14) — fulfillment is a no-op stub, so this frame
   is now dormant until someone actually builds IAM-role-based weekly re-scanning; not an active near-term opportunity.
 
-## Reviewed (no change) — cycles 2026-07-19 through 2026-07-28
+## Reviewed (no change) — cycles 2026-07-19 through 2026-07-29
 Ranking and frame scores unchanged: no new platform fact, fee change, or bet re-scoring this window. Frame #7
-(dev.to canonical backlinks) is the one actively compounding — 18 articles staged as of 2026-07-28 (11 more
-`fixes.yml` entries still uncovered per the running backlog list in DECISIONS D25, so runway remains), still gated
+(dev.to canonical backlinks) is the one actively compounding — 19 articles staged as of 2026-07-29 (10 more
+`fixes.yml` entries still uncovered per the running backlog list in DECISIONS D26, so runway remains), still gated
 on `DEVTO_API_KEY` confirmation (HQ-11) for the auto-publish cron to actually post them.
 
 ## The honest constraint that dominates all of this

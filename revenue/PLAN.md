@@ -329,6 +329,24 @@ no fast-gig shortcut exists. Replaced by:
     remaining backlog list — see DECISIONS D25) — not yet spot-checked for a `source_url`; do that check first
     since not every remaining entry has been individually confirmed to have one.
 
+## Cycle 2026-07-29 (cloud routine)
+44. **WebFetch re-tested, still 403 on the neutral control (`example.com`)** — 15th consecutive cycle blocked from
+    fresh external fact-checking (07-15, -16, -18 through -29; no 07-17 run recorded). Per D17's root cause
+    (permanent egress-policy denial), no re-diagnosis needed — went straight to the no-new-fetch content path.
+45. **Truth/harm sweep found nothing new** — `git log 217f14b..HEAD` was empty before this cycle's commit; no other
+    routine landed commits since the 07-28 audit.
+46. **Shipped dev.to article 19** (`19-amazon-linux-extras-command-not-found.md`) — the exact next candidate flagged
+    by cycle 07-28 (first item in the D25 11-entry backlog list), sourced entirely from the already-verified
+    `fixes.yml` entry (`amazon-linux-extras-command-not-found`, `source_url: docs.aws.amazon.com/linux/al2023/ug/
+    compare-with-al2.html`) — no new external fetch. Confirmed non-duplicative (articles 01 and 13 only mention
+    `amazon-linux-extras` in passing overview/context lines, no dedicated deep dive). Canonical target confirmed live
+    and cross-linked from the AL2 checklist page (`build.py:1292`). Frontmatter validated via `publish_devto.py`'s
+    own `_parse()` against all 19 articles — tags = 4 each, zero parse errors, zero duplicate titles. Ran `apps/web`'s
+    `test_determinism.py` (4/4 via pytest) + `test_surge.py` (4/4, direct run) in a fresh jail-local `python3.12`
+    venv — clean, venv deleted after use.
+47. **Next candidate for the next cycle:** `python-no-module-named-distutils` (next item in the 10-entry remaining
+    backlog list — see DECISIONS D25/this cycle) — not yet spot-checked for a `source_url`; do that check first.
+
 ## Next actions (priority order) — post-pivot
 - **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,
   HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack),
@@ -338,10 +356,11 @@ no fast-gig shortcut exists. Replaced by:
   general web access by design (confirmed via `/root/.ccr/README.md`, not a bug) — see HUMAN_QUEUE. Without it, new
   re:Post answers (which need a freshly-found, confirmed real thread) can't be drafted from this environment; new
   dev.to articles still can, as long as they're sourced from already-repo-verified facts (as article 09 was).
-- **P1 — Agent (next cycle):** another no-new-fetch dev.to article. 11 `fixes.yml` entries remain uncovered as of
-  07-28 (full list in DECISIONS D25) — next pick: `amazon-linux-extras-command-not-found` (first item in the
-  carried-forward list; spot-check it has a `source_url` before writing). Same safe pattern as articles 09–18, no
+- **P1 — Agent (next cycle):** another no-new-fetch dev.to article. 10 `fixes.yml` entries remain uncovered as of
+  07-29 (full list in DECISIONS D25/D26) — next pick: `python-no-module-named-distutils` (next item in the
+  carried-forward list; spot-check it has a `source_url` before writing). Same safe pattern as articles 09–19, no
   fetch needed.
+- **Done 2026-07-29:** shipped dev.to article 19 (`amazon-linux-extras-command-not-found`).
 - **Done 2026-07-28:** shipped dev.to article 18 (`amazon-linux-2023-ntpd-service-not-found`, commit `1173106`).
 - **Done 2026-07-27:** logged the found article 16 (node-sass, commit `3d623cc`, shipped by a separate process
   07-26); shipped dev.to article 17 (`amazon-linux-2023-python2-command-not-found`, commit `0a0e7a2`); corrected

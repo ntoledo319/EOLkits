@@ -187,4 +187,15 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-07-28 | **dev.to articles staged on branch: 18** (was 17 as of 07-27) | `launch/distribution/devto/01`–`18`. |
 | 2026-07-28 | **No-fetch dev.to backlog: 11 `fixes.yml` entries remain uncovered** | Full list in DECISIONS D25; next candidate `amazon-linux-extras-command-not-found`. |
 
+## Cycle 2026-07-29 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-07-29 | **WebFetch re-tested — 15th consecutive cycle blocked** | `WebFetch` on `https://example.com` (neutral control) → still HTTP 403 Forbidden; `$HTTPS_PROXY/__agentproxy/status` shows a fresh `connect_rejected` entry for `example.com:443` timestamped this cycle. Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis, went straight to the no-new-fetch content path. |
+| 2026-07-29 | **Truth/harm sweep: no new issue found** | `git log 217f14b..HEAD` was empty before this cycle's commit — no other routine landed commits since the 07-28 audit. |
+| 2026-07-29 | **Shipped: dev.to article 19** (`19-amazon-linux-extras-command-not-found.md`), sourced entirely from the already-verified `fixes.yml` entry (`amazon-linux-extras-command-not-found`, `source_url: docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html`) — no new external fetch. Canonical → `/fix/amazon-linux-extras-command-not-found/`, confirmed live and cross-linked from the AL2 checklist page (`build.py:1292`). | Frontmatter validated via `publish_devto.py`'s own `_parse()` against all 19 articles — 4 tags each, zero parse errors, zero duplicate titles; confirmed non-duplicative (articles 01/13 only have passing mentions, no dedicated deep dive). |
+| 2026-07-29 | **Regression check:** `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) green (jail-local `python3.12` venv, deleted after use) | Ran directly this cycle. |
+| 2026-07-29 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship only. |
+| 2026-07-29 | **dev.to articles staged on branch: 19** (was 18 as of 07-28) | `launch/distribution/devto/01`–`19`. |
+| 2026-07-29 | **No-fetch dev.to backlog: 10 `fixes.yml` entries remain uncovered** | Full list in DECISIONS D25/D26; next candidate `python-no-module-named-distutils`. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._
