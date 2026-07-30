@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 17 (2026-07-30) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -347,6 +347,43 @@ no fast-gig shortcut exists. Replaced by:
 47. **Next candidate for the next cycle:** `python-no-module-named-distutils` (next item in the 10-entry remaining
     backlog list — see DECISIONS D25/this cycle) — not yet spot-checked for a `source_url`; do that check first.
 
+## Cycle 2026-07-30 (cloud routine)
+48. **WebFetch re-tested, still 403 on the neutral control (`example.com`)** — 16th consecutive cycle blocked from
+    fresh external fact-checking (07-15, -16, -18 through -30; no 07-17 run recorded). Per D17's root cause
+    (permanent egress-policy denial), no re-diagnosis needed — went straight to the no-new-fetch content path.
+49. **Truth/harm sweep found nothing new** — `git log 800d69a..HEAD` was empty before this cycle's commit; no other
+    routine landed commits since the 07-29 audit.
+50. **Corrected the backlog itself — 9 of the 10 "uncovered" entries carried forward since D26 were already covered
+    at content level, not just missing a `canonical_url` cross-link.** The D25/D26 scans checked "does any article's
+    `canonical_url` point at this slug," which misses entries an *existing* article already deep-dives under a
+    different canonical target. Re-read articles 03 and 04 in full: article 03
+    (`python312-lambda-breaks.md`) already gives `python-no-module-named-distutils`, `python-no-module-named-imp`,
+    `collections-has-no-attribute-mapping`, and `datetime-utcnow-deprecated` each their own paragraph with the exact
+    error text and fix; article 04 (`python313-dead-batteries.md`) already gives `python-no-module-named-cgi`,
+    `python-no-module-named-telnetlib`, `python-no-module-named-crypt`, and `python-no-module-named-lib2to3` full
+    dedicated sections (code samples + fixes each). `node-module-version-mismatch` has the exact `NODE_MODULE_VERSION`
+    error text and fix already in article 02 (`lambda-node20-to-22.md`) plus a full node-sass-specific treatment in
+    article 16. Writing "new" articles for any of these would have been duplicative padding, which §7/§12 forbid
+    ("quality over quantity — skip, do not pad"). Only **`node-punycode-module-deprecated`** had zero mentions
+    anywhere in articles 01–19 — confirmed via `grep -rl punycode` across the whole devto directory.
+51. **Shipped dev.to article 20** (`20-node-punycode-module-deprecated.md`) — the Node.js `[DEP0040]
+    DeprecationWarning: The punycode module is deprecated` warning that gets loud on `nodejs22.x` Lambda upgrades,
+    sourced entirely from the already-verified `fixes.yml` entry (`node-punycode-module-deprecated`, `source_url:
+    nodejs.org/api/punycode.html`) — no new external fetch. Canonical → `/fix/node-punycode-module-deprecated/`,
+    confirmed live (every `fixes.yml` entry gets an auto-generated `/fix/<slug>/` page per `build_error_pages` in
+    `apps/web/build.py`). Frontmatter validated against `publish_devto.py`'s own `_parse()` for all 20 articles —
+    title/canonical_url present, 4 tags each, zero parse errors, zero duplicate titles, zero duplicate canonical
+    URLs. Ran `apps/web`'s tests in a fresh jail-local **`python3.12`** venv (deleted after use) — first attempt used
+    a default `python3.11` venv and hit a real pre-existing syntax incompatibility (`build.py:1977`'s f-string
+    contains a backslash, which Python 3.11 rejects and 3.12 allows) — a trap worth flagging explicitly for any
+    future cycle: **the venv must be `python3.12`, not whatever `python3 -m venv` resolves to on this box** (which is
+    3.11). With 3.12, `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) both clean.
+52. **This closes the no-fetch dev.to backlog for real** — all 27 `fixes.yml` entries now have either a dedicated
+    deep-dive article or clear paragraph-level coverage in an existing one. The next content ship needs either (a)
+    working WebFetch to source a genuinely new topic (still blocked, 16 cycles running), or (b) a fresh angle on
+    already-covered material that isn't padding — e.g. a synthesis/index piece, or waiting for `fixes.yml` to grow
+    new entries. Flagging this as a real state change, not just "keep shipping the same pattern."
+
 ## Next actions (priority order) — post-pivot
 - **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,
   HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack),
@@ -356,10 +393,13 @@ no fast-gig shortcut exists. Replaced by:
   general web access by design (confirmed via `/root/.ccr/README.md`, not a bug) — see HUMAN_QUEUE. Without it, new
   re:Post answers (which need a freshly-found, confirmed real thread) can't be drafted from this environment; new
   dev.to articles still can, as long as they're sourced from already-repo-verified facts (as article 09 was).
-- **P1 — Agent (next cycle):** another no-new-fetch dev.to article. 10 `fixes.yml` entries remain uncovered as of
-  07-29 (full list in DECISIONS D25/D26) — next pick: `python-no-module-named-distutils` (next item in the
-  carried-forward list; spot-check it has a `source_url` before writing). Same safe pattern as articles 09–19, no
-  fetch needed.
+- **P1 — Agent (next cycle):** the no-fetch `fixes.yml` backlog is now genuinely exhausted (see #50–52 above — the
+  prior "10 remaining" count was wrong, 9 of those were already covered in articles 02/03/04). Next cycle should
+  (a) re-check WebFetch first per the standing rule, and if still blocked, (b) look for a non-padding content angle
+  — e.g. an index/triage piece linking the existing 20 articles by symptom, or a truth/harm sweep — rather than
+  writing a duplicate deep-dive on an already-covered error.
+- **Done 2026-07-30:** shipped dev.to article 20 (`node-punycode-module-deprecated`); corrected the backlog list —
+  9 of 10 "remaining" entries were already covered in existing articles, only punycode was a true gap.
 - **Done 2026-07-29:** shipped dev.to article 19 (`amazon-linux-extras-command-not-found`).
 - **Done 2026-07-28:** shipped dev.to article 18 (`amazon-linux-2023-ntpd-service-not-found`, commit `1173106`).
 - **Done 2026-07-27:** logged the found article 16 (node-sass, commit `3d623cc`, shipped by a separate process

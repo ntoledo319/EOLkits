@@ -757,3 +757,64 @@ optimistic projections.
   for a `source_url`).
 - **Deferred:** re:Post answer drafting stays paused (needs a working fetch to find/confirm a real new thread — no
   repo-only substitute, per D17).
+
+### D27 — Cloud cycle (2026-07-30): 16th consecutive WebFetch-blocked cycle; corrected the backlog and shipped the one genuine gap (dev.to article 20, punycode deprecation)
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `800d69a`
+  (D26/article-19's commit); no conflicts, no other routine had pushed since.
+- **Re-tested WebFetch before picking a task, per the standing rule:** `WebFetch` on `https://example.com` (neutral
+  control) → still HTTP 403 Forbidden (16th consecutive cycle: 07-15, -16, -18 through -30; no 07-17 run recorded).
+  `$HTTPS_PROXY/__agentproxy/status` showed empty `recentRelayFailures`. Per D17's root cause (a standing
+  egress-policy denial, not a per-request fault), no re-diagnosis spent — went straight to the no-new-fetch content
+  path.
+- **Truth/harm sweep found nothing new:** `git log 800d69a..HEAD` was empty before this cycle's commit — no other
+  routine landed commits since the 07-29 audit.
+- **Corrected a real error in the carried-forward backlog list.** D25/D26 built the "N entries uncovered" list by
+  checking whether any article's `canonical_url` pointed at each `fixes.yml` slug — a check that misses an entry an
+  *existing* article already covers under a *different* canonical target (e.g. article 03's canonical is
+  `lambda-python-3.9-eol`, but its body also fully explains the `distutils`, `imp`, `collections.Mapping`, and
+  `datetime.utcnow()` errors, each of which has its own separate `fixes.yml` slug/canonical). Read articles 02, 03,
+  and 04 in full this cycle instead of just grepping canonical links:
+  - Article 03 (`03-python312-lambda-breaks.md`) already gives `python-no-module-named-distutils`,
+    `python-no-module-named-imp`, `collections-has-no-attribute-mapping`, and `datetime-utcnow-deprecated` each a
+    dedicated paragraph with the exact error string and the exact fix.
+  - Article 04 (`04-python313-dead-batteries.md`) already gives `python-no-module-named-cgi`,
+    `python-no-module-named-telnetlib`, `python-no-module-named-crypt`, and `python-no-module-named-lib2to3` each a
+    full section with code samples and fixes — a genuine deep dive, not a passing mention.
+  - `node-module-version-mismatch` already has its exact error text and fix in article 02
+    (`02-lambda-node20-to-22.md`, "Native addons must be rebuilt" section) plus a full node-sass-specific treatment
+    in article 16.
+  - Writing new "deep dive" articles for any of these 9 would have been duplicative padding — directly against
+    §7/§12 ("quality over quantity — skip, do not pad") and the non-duplication requirement in the scheduled task's
+    own instructions.
+  - Only **`node-punycode-module-deprecated`** had zero prior mentions anywhere: `grep -rl punycode
+    launch/distribution/devto/*.md` returned no hits before this cycle. Confirmed it has a `source_url`
+    (`https://nodejs.org/api/punycode.html`) already in `fixes.yml` (line 227).
+- **Shipped: dev.to article 20** (`launch/distribution/devto/20-node-punycode-module-deprecated.md`) — the
+  `[DEP0040] DeprecationWarning: The punycode module is deprecated` warning that gets loud on Node.js 22 Lambda
+  runtime upgrades (usually surfaced by a transitive dependency's bare `require('punycode')` rather than the
+  team's own code), sourced entirely from the already-verified `fixes.yml` entry
+  (`node-punycode-module-deprecated`, `source_url: nodejs.org/api/punycode.html`) — no new external fetch.
+- **Verified before logging as shipped (§9):**
+  - Confirmed the canonical slug is registered in `fixes.yml` (line 227) and every `fixes.yml` entry auto-generates
+    a live `/fix/<slug>/` page via `build_error_pages` in `apps/web/build.py` — not an orphan target.
+  - Ran `publish_devto.py`'s own `_parse()` logic against all 20 articles in a standalone script — title/canonical_url
+    present, tags = 4 for every article, zero parse errors, zero duplicate titles, zero duplicate canonical URLs.
+  - Ran `apps/web`'s test suite. **Caught and worked around a real trap:** the default `python3 -m venv` on this box
+    resolves to Python 3.11, and `apps/web/build.py:1977` contains an f-string with a backslash inside the
+    expression part (`f"<li>{inline(re.sub(r'^[-*]\s+', '', s))}</li>"`), which is a `SyntaxError` under 3.11 but
+    valid under 3.12+ (relaxed f-string grammar, PEP 701). This is a pre-existing repo condition, unrelated to this
+    cycle's change — but it means every prior cycle's "jail-local `python3.12` venv" note (D20 onward) was
+    load-bearing, not incidental, and any future cycle that types a bare `python3 -m venv` on this box will get a
+    false regression signal. Re-ran with `python3.12 -m venv` explicitly: `test_determinism.py` 4/4 (pytest),
+    `test_surge.py` 4/4 (direct run, no pytest-collectible tests) — both clean, venv deleted after use.
+- **Ship-law check:** externally visible ✅ — lands on the public repo the moment this pushes, auto-publishes via the
+  existing dev.to cron once `DEVTO_API_KEY` is confirmed on the box (HQ-11, unchanged, still unverified from this
+  jail since it requires VPS access).
+- **Backlog status: exhausted.** All 27 `fixes.yml` entries now have either a dedicated deep-dive article or clear
+  paragraph-level coverage in an existing one (verified this cycle by content, not just canonical-link grep). The
+  next dev.to ship needs either working WebFetch (still blocked, 16 cycles) to source a genuinely new topic, or a
+  non-padding angle on existing material (e.g. a symptom-indexed synthesis piece linking the 20 articles), or new
+  `fixes.yml` entries to be added first. Flagged in PLAN.md as a real state change for the next cycle to act on,
+  not a "next candidate" continuation.
+- **Deferred:** re:Post answer drafting stays paused (needs a working fetch to find/confirm a real new thread — no
+  repo-only substitute, per D17).

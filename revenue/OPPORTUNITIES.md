@@ -43,11 +43,14 @@ scan/PR service, not a per-call REST API (would need a new hosted endpoint). Ski
   2026-07-16:** its live self-serve checkout was pulled (DECISIONS D14) — fulfillment is a no-op stub, so this frame
   is now dormant until someone actually builds IAM-role-based weekly re-scanning; not an active near-term opportunity.
 
-## Reviewed (no change) — cycles 2026-07-19 through 2026-07-29
+## Reviewed (no change) — cycles 2026-07-19 through 2026-07-30
 Ranking and frame scores unchanged: no new platform fact, fee change, or bet re-scoring this window. Frame #7
-(dev.to canonical backlinks) is the one actively compounding — 19 articles staged as of 2026-07-29 (10 more
-`fixes.yml` entries still uncovered per the running backlog list in DECISIONS D26, so runway remains), still gated
-on `DEVTO_API_KEY` confirmation (HQ-11) for the auto-publish cron to actually post them.
+(dev.to canonical backlinks) is the one actively compounding — 20 articles staged as of 2026-07-30, still gated
+on `DEVTO_API_KEY` confirmation (HQ-11) for the auto-publish cron to actually post them. **2026-07-30 (D27):** the
+no-fetch `fixes.yml` backlog that fed this frame's cadence is now exhausted — 9 of the 10 "remaining" entries
+tracked since D26 turned out to already be covered inside existing articles (content-level check, not just
+canonical-link grep); only the punycode entry was a genuine gap and it shipped this cycle. Sustaining this frame's
+cadence past article 20 needs either working WebFetch (still blocked) or new `fixes.yml` entries.
 
 ## The honest constraint that dominates all of this
 Every payment-enabled channel is **first-publish KYC-gated** (marketplaces need identity/bank). No autonomous
