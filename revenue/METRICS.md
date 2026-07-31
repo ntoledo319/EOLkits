@@ -210,4 +210,14 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-07-30 | **dev.to articles staged on branch: 20** (was 19 as of 07-29) | `launch/distribution/devto/01`–`20`. |
 | 2026-07-30 | **No-fetch dev.to backlog: exhausted** | All 27 `fixes.yml` entries now have dedicated or paragraph-level article coverage — see DECISIONS this cycle for the full accounting. Next content ship needs either working WebFetch or a non-padding angle (index/synthesis piece). |
 
+## Cycle 2026-07-31 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-07-31 | **WebFetch re-tested — 17th consecutive cycle blocked** | `WebFetch` on `https://example.com` (neutral control) → still HTTP 403 Forbidden; `$HTTPS_PROXY/__agentproxy/status` `recentRelayFailures: []`. Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis, went straight to the no-new-fetch content path. |
+| 2026-07-31 | **Truth/harm sweep: no new issue found** | `git log 461add4..HEAD` was empty before this cycle's commit — no other routine landed commits since the 07-30 audit. |
+| 2026-07-31 | **Shipped: dev.to article 21** (`21-runtime-upgrade-error-map.md`), a synthesis piece (not a per-slug deep dive) linking all 25 existing `/fix/` pages by migration path — sourced entirely from already-verified `fixes.yml` data, no new external fetch. Canonical → `/fix/` hub page (previously unused as a canonical target — checked). | Commit `24c3edc`. Frontmatter validated via `publish_devto.py`'s own `_parse()` against all 21 articles — zero parse errors, zero duplicate titles, zero duplicate canonical URLs; all 25 `/fix/<slug>/` links cross-checked against `fixes.yml` — all real. |
+| 2026-07-31 | **Regression check:** `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) green in a fresh jail-local `python3.12` venv (deleted after use) | Ran directly this cycle. |
+| 2026-07-31 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship (synthesis angle) only. |
+| 2026-07-31 | **dev.to articles staged on branch: 21** (was 20 as of 07-30) | `launch/distribution/devto/01`–`21`. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

@@ -710,6 +710,44 @@ Owner said "yea [draft more] and see what you can automate." Did both:
 - **Deferred:** re:Post answer drafting stays paused (needs a working fetch to find/confirm a real new thread — no
   repo-only substitute, per D17).
 
+### D28 — Cloud cycle (2026-07-31): 17th consecutive WebFetch-blocked cycle; shipped dev.to article 21, a non-padding synthesis piece, since the per-slug backlog was exhausted D27
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `461add4`
+  (D27/article-20's commit); no conflicts, no other routine had pushed since.
+- **Re-tested WebFetch before picking a task, per the standing rule:** `WebFetch` on `https://example.com` (neutral
+  control) → still HTTP 403 Forbidden (17th consecutive cycle: 07-15, -16, -18 through -31; no 07-17 run recorded).
+  `$HTTPS_PROXY/__agentproxy/status` showed empty `recentRelayFailures`. Per D17's root cause (a standing
+  egress-policy denial, not a per-request fault), no re-diagnosis spent — went straight to the no-new-fetch content
+  path.
+- **Truth/harm sweep found nothing new:** `git log 461add4..HEAD` was empty before this cycle's commit — no other
+  routine landed commits since the 07-30 audit.
+- **Picked the exact next move D27 flagged:** the per-slug `fixes.yml` backlog was confirmed exhausted last cycle
+  (all 27 entries have dedicated or paragraph-level coverage). D27's PLAN.md note named the next non-padding angle
+  as "a symptom-indexed synthesis piece linking the existing 20 articles" — built that this cycle rather than
+  inventing a new direction.
+- **Shipped: dev.to article 21** (`launch/distribution/devto/21-runtime-upgrade-error-map.md`, commit `24c3edc`) —
+  organizes all 25 existing `/fix/` pages by **migration path** (Python 3.9→3.12, Python 3.11/3.12→3.13, Node
+  16/18→20/22, Amazon Linux 2→2023) in the order the errors actually appear during that specific upgrade, rather
+  than the site's own `/fix/` hub page (which sorts alphabetically by context+error — read `build_error_pages` in
+  `apps/web/build.py` directly this cycle to confirm the hub's sort key, lines 2434-2436, before concluding this
+  angle was non-duplicative of the hub itself). Sourced entirely from already-verified `fixes.yml` entries — zero
+  new external fetch, so zero risk of repeating D3's original mistake.
+- **Verified before logging as shipped (§9):**
+  - Ran `publish_devto.py`'s own `_parse()` against all 21 articles — title/canonical_url present, tags = 4, zero
+    parse errors, zero duplicate titles, zero duplicate canonical URLs (confirmed `/fix/` — the new article's
+    canonical — was not already used by any of the other 20).
+  - Cross-checked all 25 `/fix/<slug>/` links the new article makes against the real slugs in `fixes.yml` via a
+    standalone script — all 25 resolved, zero invalid/typo'd slugs.
+  - Ran `apps/web`'s test suite in a fresh jail-local `python3.12` venv (confirmed `python3.12` binary present this
+    cycle before defaulting to it, per the D27 trap warning about `python3 -m venv` resolving to 3.11 on this box):
+    `test_determinism.py` 4/4 (pytest), `test_surge.py` 4/4 (direct run) — both clean, venv deleted after use.
+- **Ship-law check:** externally visible ✅ — lands on the public repo the moment this pushes, auto-publishes via the
+  existing dev.to cron once `DEVTO_API_KEY` is confirmed on the box (HQ-11, unchanged, still unverified from this
+  jail since it requires VPS access).
+- **Deferred:** re:Post answer drafting stays paused (needs a working fetch to find/confirm a real new thread — no
+  repo-only substitute, per D17), now 17 cycles running. Next dev.to angle if this environment's fetch stays down:
+  a buyer-search-term-framed piece (e.g. symptom-first rather than runtime-upgrade-first framing) — flagged for the
+  next cycle to consider only if no more-urgent truth/harm issue presents first.
+
 ### D6 — Honest gate posture
 $4,000 by Day 28 from $0/$0 is **owner-labor-gated, not agent-gated.** The agent will keep shipping in-jail
 improvements (packages, content, truth), but the needle moves only when the owner burns down the CORE BATCH in

@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 17 (2026-07-30) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 18 (2026-07-31) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -384,6 +384,28 @@ no fast-gig shortcut exists. Replaced by:
     already-covered material that isn't padding — e.g. a synthesis/index piece, or waiting for `fixes.yml` to grow
     new entries. Flagging this as a real state change, not just "keep shipping the same pattern."
 
+## Cycle 2026-07-31 (cloud routine)
+53. **WebFetch re-tested, still 403 on the neutral control (`example.com`)** — 17th consecutive cycle blocked from
+    fresh external fact-checking (07-15, -16, -18 through -31; no 07-17 run recorded). Per D17's root cause
+    (permanent egress-policy denial), no re-diagnosis needed. `$HTTPS_PROXY/__agentproxy/status` `recentRelayFailures: []`.
+54. **Truth/harm sweep found nothing new** — `git log 461add4..HEAD` was empty before this cycle's commit; no other
+    routine landed commits since the 07-30 audit.
+55. **Shipped dev.to article 21** (`21-runtime-upgrade-error-map.md`) — the non-padding synthesis angle flagged by
+    D27/cycle 07-30 as the next move once the per-slug backlog was exhausted. Links all 25 existing `/fix/` pages,
+    organized by the 4 real migration paths (Python 3.9→3.12, Python→3.13, Node 18/20→22, AL2→AL2023) in the order
+    the errors actually appear, instead of the site's alphabetical `/fix/` hub ordering. Sourced entirely from
+    already-verified `fixes.yml` data — no new external fetch. Canonical → the live `/fix/` hub page (not previously
+    used as a canonical target by any article — checked). Verified: frontmatter parses clean via `publish_devto.py`'s
+    own `_parse()`, zero duplicate titles/canonicals across all 21 articles, all 25 referenced `/fix/<slug>/` links
+    cross-checked against `fixes.yml` (all real). Ran `apps/web`'s tests in a fresh jail-local `python3.12` venv
+    (deleted after use) — `test_determinism.py` 4/4 (pytest), `test_surge.py` 4/4 (direct run) — clean.
+56. **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked, the
+    per-slug backlog and this synthesis piece are both now shipped — the next non-padding no-fetch angle (if one is
+    needed) would be a symptom-indexed piece from the *buyer's* search terms (e.g. "why did my Lambda deploy break
+    overnight" style framing) rather than the runtime-upgrade framing already covered by articles 01–21, or a
+    truth/harm sweep if nothing fresh presents. If WebFetch is back, resume new re:Post-answer drafting first (the
+    standing distribution priority, paused since 07-15).
+
 ## Next actions (priority order) — post-pivot
 - **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,
   HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack),
@@ -398,6 +420,9 @@ no fast-gig shortcut exists. Replaced by:
   (a) re-check WebFetch first per the standing rule, and if still blocked, (b) look for a non-padding content angle
   — e.g. an index/triage piece linking the existing 20 articles by symptom, or a truth/harm sweep — rather than
   writing a duplicate deep-dive on an already-covered error.
+- **Done 2026-07-31:** shipped dev.to article 21, a non-padding synthesis piece (runtime-upgrade error map across
+  all 4 migration paths, linking all 25 existing `/fix/` pages) — the next-move candidate D27/cycle 07-30 flagged
+  once the per-slug backlog was exhausted.
 - **Done 2026-07-30:** shipped dev.to article 20 (`node-punycode-module-deprecated`); corrected the backlog list —
   9 of 10 "remaining" entries were already covered in existing articles, only punycode was a true gap.
 - **Done 2026-07-29:** shipped dev.to article 19 (`amazon-linux-extras-command-not-found`).
