@@ -145,7 +145,7 @@ fixes:
     error: "The runtime parameter of nodejs18.x is no longer supported for creating or updating AWS Lambda functions"
     context: "AWS Lambda"
     summary: "AWS Lambda is blocking create/update operations on a deprecated Node.js runtime."
-    cause: "Per the AWS Lambda runtime deprecation table, nodejs18.x is deprecated; AWS first blocks creating new functions on the runtime, then blocks updating existing ones. nodejs16.x and earlier are already blocked. The error fires when a deploy targets a runtime past its block date."
+    cause: "Per the AWS Lambda runtime deprecation table, nodejs16.x and nodejs18.x are both deprecated (patches stopped) and share the same block dates: AWS blocks creating new functions on 2027-02-01 and updating existing ones on 2027-03-03 (AWS delayed both beyond the usual 30/60 days, in a cluster with nodejs20.x and several Python runtimes). The error fires once a deploy targets a runtime past its block date."
     fix_steps:
       - "Move to a supported runtime — AWS recommends nodejs22.x."
       - "SAM/CloudFormation: `Runtime: nodejs22.x`. CDK: `runtime: lambda.Runtime.NODEJS_22_X`. Terraform: `runtime = \"nodejs22.x\"`. Serverless: `runtime: nodejs22.x`."
