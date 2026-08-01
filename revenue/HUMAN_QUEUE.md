@@ -235,6 +235,14 @@ cycle: HQ-1′/2′ (Gumroad, ~10 min), HQ-7 (`vsce publish`), HQ-10 (GitHub Act
 18 days into the 28-day window (Day 0 = 07-13); at $0 collected, the gap math in PLAN.md is unchanged — none of
 these show any observed signal of having been actioned yet.
 
+## Cycle 2026-08-01 (cloud routine)
+No new items added — this cycle's ships (a live truth-bug fix in `fixes.yml`, commit `668f505`, and dev.to article
+22, symptom-first framing) were fully autonomous, in-jail, $0, no human contact needed. WebFetch outage confirmed
+persistent an 18th consecutive cycle; the standing owner-facing ask (2026-07-20 entry) is unchanged. **Still the
+highest-ROI owner clicks, unactioned as of this cycle: HQ-1′/2′ (Gumroad, ~10 min), HQ-7 (`vsce publish`), HQ-10
+(GitHub Action listing), HQ-4 (GitHub App).** 19 days into the 28-day window (Day 0 = 07-13); at $0 collected, the
+gap math in PLAN.md is unchanged — none of these show any observed signal of having been actioned yet.
+
 ## Running total (post-pivot)
 Everything here is now **one-time setup, no ongoing owner time.** Core ≈ **30 min** (HQ-1′+2′,4,5,6). The COMPOUNDING
 batch below is now the **primary growth engine** (outreach is off the table), so those publishes matter more than

@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 18 (2026-07-31) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 19 (2026-08-01) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -406,7 +406,51 @@ no fast-gig shortcut exists. Replaced by:
     truth/harm sweep if nothing fresh presents. If WebFetch is back, resume new re:Post-answer drafting first (the
     standing distribution priority, paused since 07-15).
 
+## Cycle 2026-08-01 (cloud routine)
+57. **WebFetch re-tested, still 403 on the neutral control (`example.com`)** — 18th consecutive cycle blocked from
+    fresh external fact-checking (07-15, -16, -18 through 08-01; no 07-17 run recorded). Per D17's root cause
+    (permanent egress-policy denial), no re-diagnosis needed — went straight to the no-new-fetch path.
+58. **Truth/harm sweep found nothing new via commit diff** (`git log 7552d91..HEAD` was empty before this cycle's
+    commit), but a **deeper sweep — reading fix-page cause text against the repo's own already-verified data,
+    not just checking for new commits — found a real live truth bug**: `apps/web/content/fixes.yml`'s
+    `lambda-nodejs-runtime-no-longer-supported` entry (a live public `/fix/` page) claimed **"nodejs16.x and
+    earlier are already blocked"** — directly contradicted by this repo's own already-verified authoritative data
+    (`kits/lambda-lifeline/README.md`, corrected 2026-07-13 against the live AWS table, and dev.to article 07):
+    `nodejs16.x` shares the same **delayed** Q1-2027 block dates as `nodejs18.x`/`nodejs20.x` (block-create
+    2027-02-01, block-update 2027-03-03), not already blocked. This stale claim predates the 2026-07-13 date-
+    correction sweep, which fixed the more prominent countdown copy but never touched this specific `fixes.yml`
+    cause field. **Fixed this cycle** (commit `668f505`) — corrected to match the verified cluster dates.
+59. **Shipped dev.to article 22** (`22-why-did-my-aws-deploy-break-no-code-changes.md`) — a symptom-first
+    diagnostic piece ("nothing changed in git, why did this break?"), distinct from article 21's migration-path
+    framing: routes a reader from "no code changes" straight to (a) Lambda block-date calendar cutoffs, (b) AL2
+    EOL, or (c) three non-calendar silent-drift causes (unpinned base images, transitive dependency resolution,
+    IaC provider defaults). Sourced entirely from already-verified `rules/public/deprecations.yml` (re-confirmed
+    dates this cycle: node16/18/20 + python3.8/3.9/3.10 → Feb 1/Mar 3 2027; python3.11 → Jul 31/Aug 31 2027; AL2
+    EOL Jun 30 2026, already past) — no new external fetch. Canonical → the live `/eol-checker/` page (previously
+    unused as a canonical target — checked, confirmed self-canonicalizing and live via `build_eol_checker_page`).
+    Confirmed non-duplicative: grepped all 21 prior articles for the "no code change" framing — only two single-line
+    asides exist (articles 11, 12), neither is a dedicated piece on this angle. Frontmatter validated: all 22
+    articles now have unique titles/canonicals, ≤4 tags, zero parse errors (standalone script matching
+    `publish_devto.py`'s own `_parse()`).
+60. **Regression check:** ran `apps/web`'s `test_determinism.py` (4/4, pytest) + `test_surge.py` (4/4, direct run)
+    in a fresh jail-local `python3.12` venv (deleted after use, per the D27 trap re: `python3 -m venv` resolving to
+    3.11 on this box), then a full `python3 apps/web/build.py` rebuild to confirm the `fixes.yml` fix renders
+    correctly on the live `/fix/lambda-nodejs-runtime-no-longer-supported/` page with zero `{API_URL}` leaks. The
+    rebuild also revealed the git-tracked `docs/` snapshot is stale/incomplete (missing several already-shipped
+    `/fix/` pages and `/eol-checker/` entirely, plus stale AL2-EOL badge/countdown text) — consistent with prior
+    cycles' precedent (D14's `2a843b9`) of not committing `docs/` rebuilds in a source-only commit, so the rebuild
+    output was discarded (`git checkout -- docs/` + removed new untracked dirs) rather than committed; the daily
+    box cron rebuilds `docs/` from source on every deploy regardless.
+61. **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked, the
+    deeper "read the cause text, not just the commit diff" sweep this cycle found one real bug in ~30 fix-page
+    entries checked — worth another pass over the remaining fix pages' cause text against `deprecations.yml`/
+    `lambda-lifeline/README.md` before defaulting to more content. If a fresh sweep finds nothing, the next
+    non-padding content angle (if one is needed) is still open — the per-slug and two synthesis angles (migration-
+    path, symptom-first) are now both shipped.
+
 ## Next actions (priority order) — post-pivot
+- **Done 2026-08-01:** fixed a live truth bug (`fixes.yml`'s stale "nodejs16.x already blocked" claim, commit
+  `668f505`); shipped dev.to article 22 (symptom-first "why did my deploy break with no code changes" framing).
 - **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,
   HQ-9 PyPI/npm, HQ-10 GitHub Action listing, HQ-11 confirm dev.to key. Plus HQ-4 GitHub App (enables the $1,499 Pack),
   HQ-6 one real test purchase, and now **HQ-1′/HQ-2′ (Gumroad — fully built, ~10 min to publish)**. **All one-time

@@ -220,4 +220,14 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-07-31 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content ship (synthesis angle) only. |
 | 2026-07-31 | **dev.to articles staged on branch: 21** (was 20 as of 07-30) | `launch/distribution/devto/01`–`21`. |
 
+## Cycle 2026-08-01 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-01 | **WebFetch re-tested — 18th consecutive cycle blocked** | `WebFetch` on `https://example.com` (neutral control) → still HTTP 403 Forbidden; `$HTTPS_PROXY/__agentproxy/status` `recentRelayFailures: []`. Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis, went straight to the no-new-fetch path. |
+| 2026-08-01 | **Truth/harm sweep found a real live bug via a deeper check (not just the commit-diff sweep)** | `apps/web/content/fixes.yml`'s `lambda-nodejs-runtime-no-longer-supported` entry (live `/fix/` page) claimed "nodejs16.x and earlier are already blocked" — contradicted by this repo's own already-verified data (`kits/lambda-lifeline/README.md`, dev.to article 07): nodejs16.x shares the delayed Q1-2027 block dates (Feb 1 create / Mar 3 update 2027), not already blocked. |
+| 2026-08-01 | **Shipped: truth fix** | Commit `668f505` — corrected the `fixes.yml` cause text to match the verified cluster dates. Re-verified: full site rebuild renders the corrected text on the live page, zero `{API_URL}` leaks, `test_determinism.py` 4/4 + `test_surge.py` 4/4 green (jail-local `python3.12` venv, deleted after use). |
+| 2026-08-01 | **Shipped: dev.to article 22** (`22-why-did-my-aws-deploy-break-no-code-changes.md`) — symptom-first framing ("nothing changed in git, why did this break"), distinct from article 21's migration-path framing. Sourced entirely from already-verified `deprecations.yml` data — no new external fetch. Canonical → `/eol-checker/` (previously unused as a canonical target, confirmed live). | Same commit `668f505`. Frontmatter validated — all 22 articles unique titles/canonicals, ≤4 tags, zero parse errors. |
+| 2026-08-01 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a truth fix + content ship. |
+| 2026-08-01 | **dev.to articles staged on branch: 22** (was 21 as of 07-31) | `launch/distribution/devto/01`–`22`. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

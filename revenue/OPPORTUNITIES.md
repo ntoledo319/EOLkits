@@ -52,6 +52,15 @@ tracked since D26 turned out to already be covered inside existing articles (con
 canonical-link grep); only the punycode entry was a genuine gap and it shipped this cycle. Sustaining this frame's
 cadence past article 20 needs either working WebFetch (still blocked) or new `fixes.yml` entries.
 
+## Reviewed (no change) — 2026-08-01
+Ranking and frame scores unchanged — no new platform fact this cycle. Frame #7 (dev.to canonical backlinks) is now
+at 22 articles (21: migration-path synthesis, 22: symptom-first synthesis — both non-padding angles on the same
+exhausted per-slug backlog, D28/D29). Considered checking whether Hashnode (`launch/distribution/publish_hashnode.py`,
+built but never wired into the box cron or logged in this file) was an unexploited second free backlink channel —
+it is not: `launch/distribution/README.md` already documents that Hashnode's publishing API went paid on
+2026-05-13, so it correctly stays unused. No new frame identified this cycle; the deeper-sweep truth fix (D29) was
+higher-leverage than a third content angle.
+
 ## The honest constraint that dominates all of this
 Every payment-enabled channel is **first-publish KYC-gated** (marketplaces need identity/bank). No autonomous
 $0 action reaches a *ready buyer* inside 28 days. The frames that can actually collect $4k (Upwork gig, Migration

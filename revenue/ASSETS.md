@@ -134,3 +134,11 @@ No new codebase, SKU, or fulfillment-path change to record this cycle beyond wha
 `apps/web` asset, not a new asset cluster). Audit stays current as of Cycle 0 + the D14/D16 fulfillment fixes.
 2026-07-30: the no-fetch `fixes.yml` content backlog that fed articles 09–20 is now exhausted (D27) — the next
 content ship against this asset needs either working WebFetch or a non-padding synthesis angle.
+
+## 2026-08-01: found + fixed a live truth bug in `apps/web/content/fixes.yml`
+`lambda-nodejs-runtime-no-longer-supported`'s cause text claimed "nodejs16.x and earlier are already blocked,"
+contradicting this repo's own already-verified data (`kits/lambda-lifeline/README.md`, dev.to article 07): the
+runtime is deprecated but not blocked until the same delayed Feb 1/Mar 3 2027 dates as nodejs18.x/nodejs20.x. Fixed
+(commit `668f505`). Found via a deeper content-level sweep (reading cause text against verified sources), not the
+usual commit-diff check — see DECISIONS D29 for the process note. Also shipped dev.to article 22 (symptom-first
+"why did my deploy break with no code changes" framing, 22nd `launch/distribution/` article).
