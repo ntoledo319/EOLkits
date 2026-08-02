@@ -61,6 +61,11 @@ it is not: `launch/distribution/README.md` already documents that Hashnode's pub
 2026-05-13, so it correctly stays unused. No new frame identified this cycle; the deeper-sweep truth fix (D29) was
 higher-leverage than a third content angle.
 
+## Reviewed (no change) — 2026-08-02
+Ranking and frame scores unchanged — no new platform fact this cycle. This cycle was a truth/harm sweep (5 more
+instances of the recurring superseded-2026-date bug found and fixed in `README.md`/`lambda-lifeline`, see DECISIONS
+D30), not a frame re-evaluation.
+
 ## The honest constraint that dominates all of this
 Every payment-enabled channel is **first-publish KYC-gated** (marketplaces need identity/bank). No autonomous
 $0 action reaches a *ready buyer* inside 28 days. The frames that can actually collect $4k (Upwork gig, Migration

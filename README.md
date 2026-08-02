@@ -22,7 +22,7 @@ AWS is killing runtimes on a hard schedule. When a deadline passes, deploys fail
 | [**python-pivot**](./kits/python-pivot) | **Lambda Python 3.9/3.10/3.11** EOL waves | `distutils`, `imp`, `collections.Mapping`, native wheels | Active |
 | [**lambda-lifeline**](./kits/lambda-lifeline) | Apr 30, 2026 — Lambda Node.js 20 EOL (Phase 1, **passed**) | `require()`, `aws-sdk` v2, `URL` globals, OpenSSL 3 hashes | Post-deadline cleanup |
 
-> Phase 1 for Node.js 20 ended Apr 30, 2026 — security patches stop. Phase 2 (Aug 31) blocks creating new functions on `nodejs20.x`; Phase 3 (Sep 30) blocks updating existing ones. If you're still on `nodejs20.x`, `lambda-lifeline` is the cleanup path before the Sep 30 cliff.
+> Node.js 20 Lambda: security patches stopped Apr 30, 2026. AWS delayed the hard block dates into the synchronized Q1-2027 cluster — creating new `nodejs20.x` functions is blocked **Feb 1, 2027**; updating existing ones is blocked **Mar 3, 2027**. If you're still on `nodejs20.x`, `lambda-lifeline` is the cleanup path before the Mar 3, 2027 cliff.
 
 Every kit ships the same 6 pillars:
 
@@ -48,7 +48,7 @@ pip install -e .
 al2023-gate --help
 ```
 
-For Node 20 cleanup (before the Sep 30 Phase 3 cliff):
+For Node 20 cleanup (before the Mar 3, 2027 Phase 3 cliff):
 
 ```bash
 cd EOLkits/kits/lambda-lifeline
@@ -162,7 +162,7 @@ cd apps/worker && npm test
 Shipped:
 - [x] al2023-gate — Amazon Linux 2 → AL2023 *(Jun 30, 2026 — live deadline)*
 - [x] python-pivot — Lambda Python 3.9/3.10/3.11 → 3.12 *(rolling EOL waves)*
-- [x] lambda-lifeline — Lambda Node.js 20 → 22 *(Phase 1 passed Apr 30; Phase 3 cliff Sep 30)*
+- [x] lambda-lifeline — Lambda Node.js 20 → 22 *(Phase 1 passed Apr 30, 2026; Phase 3 cliff Mar 3, 2027)*
 
 Queued:
 - [ ] imds-v2-gate — IMDSv1 → IMDSv2 enforcement

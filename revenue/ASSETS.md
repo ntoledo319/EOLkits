@@ -135,6 +135,14 @@ No new codebase, SKU, or fulfillment-path change to record this cycle beyond wha
 2026-07-30: the no-fetch `fixes.yml` content backlog that fed articles 09–20 is now exhausted (D27) — the next
 content ship against this asset needs either working WebFetch or a non-padding synthesis angle.
 
+## 2026-08-02: found + fixed 4 more instances of the recurring superseded-date bug (+1 self-contradiction)
+Root `README.md` (3 instances — the most-visible file in the whole public repo) and
+`kits/lambda-lifeline/docs/ROLLBACK.md` (1 instance) still claimed Node.js 20 Lambda blocks create/update on
+Aug 31/Sep 30, 2026 — the exact superseded dates D3 corrected elsewhere on 2026-07-13. A 5th instance was inside
+`kits/lambda-lifeline/README.md` itself: the Phase-dates table (fixed by D3) was correct, but a prose sentence 35
+lines below it was never touched, so the file contradicted itself for 20 days. All 5 corrected to Feb 1, 2027 /
+Mar 3, 2027. Found via a full-content re-read (not commit-diff), per D29's own recommendation — see DECISIONS D30.
+
 ## 2026-08-01: found + fixed a live truth bug in `apps/web/content/fixes.yml`
 `lambda-nodejs-runtime-no-longer-supported`'s cause text claimed "nodejs16.x and earlier are already blocked,"
 contradicting this repo's own already-verified data (`kits/lambda-lifeline/README.md`, dev.to article 07): the

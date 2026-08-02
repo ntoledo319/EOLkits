@@ -929,3 +929,60 @@ optimistic projections.
   independent of what changed recently — that is how this one was found.
 - **Deferred:** re:Post answer drafting stays paused (needs a working fetch to find/confirm a real new thread — no
   repo-only substitute, per D17), now 18 cycles running.
+
+### D30 — Cloud cycle (2026-08-02): 19th consecutive WebFetch-blocked cycle; acted on D29's own recommendation — a batch re-read of public date claims found 4 more live instances of the same Sep-30/Aug-31-2026 bug, all fixed
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was already at `19b95d8`
+  (D29's cycle-commit tip); nothing else had pushed since.
+- **Re-tested WebFetch before picking a task, per the standing rule:** `WebFetch` on `https://example.com` → still
+  HTTP 403 Forbidden (19th consecutive cycle: 07-15, -16, -18 through 08-02; no 07-17 run recorded).
+  `$HTTPS_PROXY/__agentproxy/status` `recentRelayFailures: []`. Consistent with D17's root cause (standing
+  egress-policy denial) — no re-diagnosis needed, went straight to the no-new-fetch path.
+- **Took D29's own process note as this cycle's task:** D29 explicitly recommended "future cycles periodically spend
+  part of a cycle re-reading a batch of existing `/fix/` page cause text against `deprecations.yml`/
+  `lambda-lifeline/README.md` directly, independent of what changed recently" because a commit-diff-only sweep only
+  catches new regressions, not 19-day-old pre-existing bugs (like the nodejs16.x one D29 itself found). Did the full
+  version this cycle: read every one of the 27 `fixes.yml` entries in full (not just grepping slugs) against
+  `deprecations.yml` — **found zero new date bugs there** (the nodejs16.x fix from D29 was the only one; the rest are
+  internally consistent). Then widened the sweep with a repo-wide grep for the exact superseded-date strings ("Sep 30
+  2026," "Aug 31 2026," and variants) that have now recurred as a live bug **three separate times** (D3's original
+  find in `lambda-lifeline`, a separate process's `ab660bc` fix to `launch/blog-post.md`, and D29's `fixes.yml` fix) —
+  this pattern clearly wasn't fully stamped out by any single prior pass.
+- **Found 4 more live, public-facing instances of the same bug, all previously missed:**
+  1. **Root `README.md` line 25** (the single most-visible file in the entire public repo — the GitHub landing page)
+     claimed Node.js 20 Lambda "Phase 2 (Aug 31) blocks creating new functions... Phase 3 (Sep 30) blocks updating."
+  2. **Root `README.md` line 51** ("Node 20 cleanup (before the Sep 30 Phase 3 cliff)").
+  3. **Root `README.md` line 165** (Roadmap table: "Phase 3 cliff Sep 30").
+  4. **`kits/lambda-lifeline/docs/ROLLBACK.md` line 78** ("After August 31, 2026 you cannot create functions...
+     after September 30, 2026 you cannot update them").
+  5. **`kits/lambda-lifeline/README.md` line 46** — the most striking instance: this is the *same file* D3 already
+     corrected on 2026-07-13 (the Phase-dates table at lines 7–11 is correct), but a separate prose sentence 35 lines
+     below the table was never touched — the file has been self-contradictory for 20 days, stating both the correct
+     and the wrong dates on the same page.
+  All five overstate urgency by ~5 months (claim a 2026 block date; the AWS-verified real date, per the Lambda
+  runtimes table AWS itself delayed to, is Q1-2027) — the same class of §2.5 truth violation as D3's original find,
+  not a new kind of bug.
+- **Fixed all 5** (3 files: `README.md`, `kits/lambda-lifeline/README.md`, `kits/lambda-lifeline/docs/ROLLBACK.md`) —
+  replaced every instance with the AWS-authoritative Feb 1, 2027 (block-create) / Mar 3, 2027 (block-update) dates,
+  consistent phrasing with the already-correct copy elsewhere in the same files (the "Q1-2027 cluster" framing used
+  throughout `deprecations.yml`, `fixes.yml`, and `launch/blog-post.md`). Re-ran the grep after editing — zero
+  remaining "Sep 30/September 30/Aug 31/August 31" hits anywhere in `README.md`, `kits/`, `apps/`, or `action.yml`.
+- **Verified before shipping (§9):** `cd kits/lambda-lifeline && npm test` — 24/24 green (README prose isn't
+  test-covered, but this confirms the edit didn't touch anything test-adjacent). Ran `apps/web`'s
+  `test_determinism.py` (4/4, pytest) + `test_surge.py` (4/4, direct run) in a fresh jail-local `python3.12` venv
+  (per the D27 trap — bare `python3 -m venv` resolves to 3.11 on this box), deleted after use — clean, confirms no
+  regression from these markdown-only edits (they don't touch `apps/web` at all, but running the suite anyway matches
+  the cycle's standing discipline). Also spot-checked `apps/web/content/fixes.yml` still parses (27 entries, no
+  syntax break) since it was read but not edited this cycle.
+- **Ship-law check:** externally visible ✅ — `README.md` is the first thing anyone opening
+  `github.com/ntoledo319/EOLkits` sees; `kits/lambda-lifeline/README.md` and `ROLLBACK.md` are what anyone evaluating
+  or already running that kit reads. All three land on the public repo the instant this pushes — no owner action,
+  no deploy-cron dependency (unlike `apps/web` content, these are GitHub-rendered directly).
+- **Process note validated:** D29's own recommendation, acted on one cycle later, immediately paid off — this is
+  exactly the kind of pre-existing (not commit-diff-visible) bug a periodic full-content re-read catches and a
+  git-log-based sweep cannot. Worth continuing as a recurring (not one-off) practice, e.g. once every several cycles
+  when WebFetch stays blocked and the per-slug/synthesis content angles are otherwise exhausted.
+- **Deferred:** re:Post answer drafting stays paused (needs a working fetch to find/confirm a real new thread — no
+  repo-only substitute, per D17), now 19 cycles running. No new dev.to article this cycle — the truth-fix sweep was
+  the higher-leverage pick (a live, 20-day-old falsehood on the repo's own front door outranks a 23rd article on an
+  already-well-covered backlog), consistent with the D29/D14/D11 precedent of truth fixes pre-empting a content ship
+  when a real issue is found.

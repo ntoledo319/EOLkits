@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 19 (2026-08-01) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 20 (2026-08-02) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -448,7 +448,37 @@ no fast-gig shortcut exists. Replaced by:
     non-padding content angle (if one is needed) is still open — the per-slug and two synthesis angles (migration-
     path, symptom-first) are now both shipped.
 
+## Cycle 2026-08-02 (cloud routine)
+62. **WebFetch re-tested, still 403 on the neutral control (`example.com`)** — 19th consecutive cycle blocked from
+    fresh external fact-checking (07-15, -16, -18 through 08-02; no 07-17 run recorded). Per D17's root cause
+    (permanent egress-policy denial), no re-diagnosis needed.
+63. **Acted on D29's own recommendation: a full batch re-read of public date claims (not just a commit-diff check)**
+    — read all 27 `fixes.yml` entries in full against `deprecations.yml` (found zero new bugs there — 08-01's
+    nodejs16.x fix was the only one), then grepped the whole repo for the exact superseded-date strings that have
+    now recurred 3 times as a live bug (D3, a separate process's `ab660bc`, D29's `fixes.yml` fix).
+64. **Found and fixed 4 more live instances of the same "Sep 30/Aug 31, 2026" superseded-date bug**, all previously
+    missed: root `README.md` (3 instances — lines 25, 51, 165; **the single most-visible file in the whole public
+    repo**) and `kits/lambda-lifeline/docs/ROLLBACK.md` (1 instance). A 5th instance was in
+    `kits/lambda-lifeline/README.md` line 46 — the same file D3 corrected on 2026-07-13, which had been
+    self-contradictory for 20 days (correct dates in its own table, wrong dates 35 lines later in prose). All
+    corrected to the AWS-authoritative Feb 1, 2027 (block-create) / Mar 3, 2027 (block-update) dates, phrased
+    consistently with the rest of the repo's already-correct copy. See DECISIONS D30 for full detail.
+65. **Regression check:** `kits/lambda-lifeline` `npm test` 24/24 green; `apps/web` `test_determinism.py` (4/4,
+    pytest) + `test_surge.py` (4/4, direct run) green in a fresh jail-local `python3.12` venv (deleted after use).
+    Re-ran the stale-date grep post-fix — zero remaining hits in `README.md`/`kits/`/`apps/`/`action.yml`.
+66. **No new dev.to article this cycle** — the truth-fix sweep (a 20-day-old live falsehood on the repo's own front
+    door) outranked a 23rd content piece on an already-exhausted backlog, consistent with the D29/D14/D11 precedent.
+67. **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked, consider
+    repeating this cycle's full-content (not commit-diff) sweep on other public surfaces not yet checked this way —
+    `apps/vscode-extension` README/marketplace copy, `apps/github-action`/`action.yml` description, and the kit
+    READMEs' other sections — before defaulting to a new content angle, since this cycle proved the pattern still
+    has yield. If a sweep finds nothing and WebFetch is still down, the per-slug and both synthesis content angles
+    remain exhausted per D27–D29.
+
 ## Next actions (priority order) — post-pivot
+- **Done 2026-08-02:** found + fixed 4 more live instances (root `README.md` ×3 + `lambda-lifeline/ROLLBACK.md`) of
+  the same superseded 2026-date bug, plus a 5th self-contradiction inside `lambda-lifeline/README.md` itself — a
+  full-content sweep (not just commit-diff), per D29's own recommendation. See DECISIONS D30.
 - **Done 2026-08-01:** fixed a live truth bug (`fixes.yml`'s stale "nodejs16.x already blocked" claim, commit
   `668f505`); shipped dev.to article 22 (symptom-first "why did my deploy break with no code changes" framing).
 - **P0 — Owner (one-time, then autonomous forever):** the flywheel publishes — HQ-7 `vsce publish`, HQ-8 `ovsx publish`,

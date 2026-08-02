@@ -230,4 +230,14 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-08-01 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a truth fix + content ship. |
 | 2026-08-01 | **dev.to articles staged on branch: 22** (was 21 as of 07-31) | `launch/distribution/devto/01`–`22`. |
 
+## Cycle 2026-08-02 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-02 | **WebFetch re-tested — 19th consecutive cycle blocked** | `WebFetch` on `https://example.com` (neutral control) → still HTTP 403 Forbidden; `$HTTPS_PROXY/__agentproxy/status` `recentRelayFailures: []`. Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis, went straight to the no-new-fetch path. |
+| 2026-08-02 | **Truth/harm sweep (full-content re-read, not commit-diff) found 4 more live instances of the recurring superseded-date bug** — root `README.md` (3 instances: lines 25, 51, 165 — the most-visible file in the whole public repo) + `kits/lambda-lifeline/docs/ROLLBACK.md` (1 instance) + a 5th self-contradiction inside `kits/lambda-lifeline/README.md` itself (table correct since 07-13, prose sentence at line 46 never fixed). | Read all 27 `fixes.yml` entries in full (zero new bugs there) + repo-wide grep for "Sep 30/Aug 31 2026" variants. See DECISIONS D30. |
+| 2026-08-02 | **Shipped: all 5 instances corrected** to the AWS-authoritative Feb 1, 2027 / Mar 3, 2027 dates across `README.md`, `kits/lambda-lifeline/README.md`, `kits/lambda-lifeline/docs/ROLLBACK.md`. | 3 files changed. Post-fix grep confirms zero remaining stale-date hits in `README.md`/`kits/`/`apps/`/`action.yml`. |
+| 2026-08-02 | **Regression check:** `kits/lambda-lifeline` `npm test` 24/24 + `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) green (jail-local `python3.12` venv, deleted after use) | Ran directly this cycle. |
+| 2026-08-02 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a truth fix on public-facing docs only, no dev.to article this cycle (truth fix outranked a 23rd content piece). |
+| 2026-08-02 | **dev.to articles staged on branch: 22** (unchanged from 08-01 — no new article this cycle) | `launch/distribution/devto/01`–`22`. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._
