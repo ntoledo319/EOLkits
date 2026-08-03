@@ -94,8 +94,8 @@ Allow ~24 hours for the index to populate after saving.
 **Reframe complete (2026-05-21):** the launch artifacts (`launch/show-hn-final.md`,
 `launch/social.md`, `launch/outreach.md`, `launch/hn-replies.md`,
 `launch/blog-post.md`) now lead with AL2023 (Jun 30, 2026 — live deadline).
-`lambda-lifeline` is positioned as post-deadline cleanup before the Sep 30
-Phase 3 cliff. README.md hero updated.
+`lambda-lifeline` is positioned as post-deadline cleanup before the Feb 1 / Mar 3, 2027
+block-cliff cluster. README.md hero updated.
 
 The previous launch windows (2026-05-05 and 2026-05-06) were missed when work was
 backburnered. The target is now **Tue 2026-06-02 or Wed 2026-06-03, 6–9 AM PT** —

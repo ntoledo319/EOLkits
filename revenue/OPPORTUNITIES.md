@@ -61,6 +61,14 @@ it is not: `launch/distribution/README.md` already documents that Hashnode's pub
 2026-05-13, so it correctly stays unused. No new frame identified this cycle; the deeper-sweep truth fix (D29) was
 higher-leverage than a third content angle.
 
+## Reviewed (no change) — 2026-08-03 (Day-21 §8 gate)
+Ranking and frame scores unchanged. This was the formal Day-21 gate (§8: Day 7/14/21) — recomputed the gap
+($0 collected, $4,000 gap, unchanged) and evaluated repositioning per the "≥5 live days with zero signal" rule.
+Conclusion: no pivot warranted, since none of the 3 bets have actually gone live in the distribution sense yet
+(every publish step remains owner-gated and unactioned 21 days running) — the gate clause is for underperforming
+live bets, not un-launched ones. See DECISIONS D31 for the full reasoning. This cycle's ship was a 13-instance
+truth-fix sweep (8 files), not a frame re-evaluation.
+
 ## Reviewed (no change) — 2026-08-02
 Ranking and frame scores unchanged — no new platform fact this cycle. This cycle was a truth/harm sweep (5 more
 instances of the recurring superseded-2026-date bug found and fixed in `README.md`/`lambda-lifeline`, see DECISIONS

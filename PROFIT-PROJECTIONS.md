@@ -32,9 +32,10 @@ not promises — the autopsy's first rule was "no fantasy numbers," and this hon
    only be *captured* as it searches, which compounds slowly.
 3. **Faceless brand, no social proof yet.** Suppresses conversion until the first reviews/stars/case
    studies exist. (Chicken-and-egg: needs sales to get proof to get sales.)
-4. **Deadline timing.** AL2 (Jun 30) is too soon to capture. The next catalysts: **Node 20 Phase-3
-   cliff (Sep 30, 2026)** — small bump — and the **Lambda Q1-2027 block cluster (Feb 1 / Mar 3, 2027)**
-   for python3.8–3.10 and nodejs18/20 — the big one the corpus is built for.
+4. **Deadline timing.** AL2 (Jun 30) is too soon to capture. The next catalyst is the **Lambda Q1-2027
+   block cluster (Feb 1 / Mar 3, 2027)** for python3.8–3.10 and nodejs16/18/20 — the big one the corpus
+   is built for. (There is no separate Sep 2026 Node-20 event — AWS delayed that runtime's block dates
+   into the same Q1-2027 cluster; see `rules/public/deprecations.yml`.)
 
 ---
 
@@ -56,7 +57,7 @@ uncertain input; ranges are wide on purpose):
 |---|---|---|---|
 | Jul 2026 (M1) | ~0/day | 0–10/day | 10–30/day |
 | Aug (M2) | 0–3/day | 5–25/day | 25–70/day |
-| Sep (M3 · Node-20 cliff) | 2–10/day | 15–60/day | 60–150/day |
+| Sep (M3) | 2–10/day | 15–60/day | 60–150/day |
 | Q4 2026 (Oct–Dec) | 5–20/day | 30–120/day | 120–300/day |
 | Feb–Mar 2027 (Lambda wave) | 15–50/day | 80–300/day | 300–800/day |
 

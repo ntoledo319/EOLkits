@@ -33,9 +33,11 @@ Use ONLY when someone has explicitly asked: "how do I migrate Node 20 Lambdas?" 
 AWS ends support for Node 20 on Lambda in three phases:
 
 - Apr 30, 2026 — no more security patches (Phase 1)
-- Aug 31, 2026 — new functions on nodejs20.x rejected (Phase 2)
-- Sep 30, 2026 — updates to existing functions rejected (Phase 3, hard cliff)
+- Feb 1, 2027 — new functions on nodejs20.x rejected (Phase 2, block-create)
+- Mar 3, 2027 — updates to existing functions rejected (Phase 3, block-update, hard cliff)
 
+(AWS delayed the original Aug/Sep 2026 schedule into this synchronized Q1-2027 cluster —
+double-check the live table before quoting, since AWS has revised these dates before.)
 Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 
 The migration target is nodejs22.x. The breaking changes that actually trip code:
@@ -104,12 +106,15 @@ https://github.com/ntoledo319/EOLkits/tree/main/kits/al2023-gate
 ## Answer template — Lambda Python 3.9 / 3.10 / 3.11 → 3.12
 
 ```
-AWS Lambda runtime deprecation for Python follows the same 3-phase pattern:
+AWS Lambda runtime deprecation for Python follows the same 3-phase pattern. AWS has
+delayed these block dates before, so double-check the live table before quoting:
 
-- python3.9: Phase 1 was Dec 15, 2025 (past). Phase 2 Jan 14, 2026. Phase 3 Feb 13, 2026.
-- python3.10: Phase 1 Oct 31, 2026. Phase 2 Nov 30, 2026. Phase 3 Dec 31, 2026.
-- python3.11: Phase 1 Jun 30, 2027.
+- python3.8: Phase 1 was Oct 14, 2024 (past). Phase 2 (block-create) Feb 1, 2027. Phase 3 (block-update) Mar 3, 2027.
+- python3.9: Phase 1 was Dec 15, 2025 (past). Phase 2 (block-create) Feb 1, 2027. Phase 3 (block-update) Mar 3, 2027.
+- python3.10: Phase 1 Oct 31, 2026. Phase 2 (block-create) Feb 1, 2027. Phase 3 (block-update) Mar 3, 2027.
+- python3.11: Phase 1 Jun 30, 2027. Phase 2 (block-create) Jul 31, 2027. Phase 3 (block-update) Aug 31, 2027.
 
+(python3.8/3.9/3.10 share the same synchronized Q1-2027 block cluster as nodejs16/18/20.)
 Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 
 Target runtime: python3.12. The breaking changes that actually matter for Lambda code:

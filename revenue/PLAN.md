@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 20 (2026-08-02) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 21 (2026-08-03) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -475,7 +475,75 @@ no fast-gig shortcut exists. Replaced by:
     has yield. If a sweep finds nothing and WebFetch is still down, the per-slug and both synthesis content angles
     remain exhausted per D27–D29.
 
+## Cycle 2026-08-03 (cloud routine) — Day 21 §8 GATE
+68. **WebFetch re-tested, still 403 on the neutral control (`example.com`)** — 20th consecutive cycle blocked from
+    fresh external fact-checking (07-15, -16, -18 through 08-03; no 07-17 run recorded). Per D17's root cause
+    (permanent egress-policy denial), no re-diagnosis needed.
+69. **§8 Day-21 gate recompute:** collected = $0, gap = $4,000, unchanged. All 3 bets remain blocked on owner-only
+    actions (HQ-1′/2′ Gumroad, HQ-4 GitHub App, HQ-7/8/9/10 flywheel publishes) that have sat unactioned for the
+    full 21-day window — no observed signal exists (no listing, no install, no sale) because nothing the agent can
+    ship autonomously has gone in front of a buyer yet, not because a live bet underperformed. The §8 gate's
+    "reposition after 5 live days of zero signal" clause doesn't cleanly apply here: none of the 3 bets have
+    actually gone live in the distribution sense (Bet B's Stripe link has been live since Day 0 with $0, but its
+    own pre-sale gates — HQ-5/6 — are unactioned, so a $1,499 sale today would be selling an unverified fulfillment
+    path, which the plan explicitly says not to do). **No portfolio pivot warranted this gate** — the correct
+    response is the one already in force: keep shipping $0/no-human-contact truth fixes and content, and keep
+    flagging the same unactioned owner batch, which is unchanged from every cycle since 07-22.
+70. **Found the widest-reaching truth-bug instance yet of the recurring Sep-30/Aug-31-2026 superseded-date bug**,
+    via a full-content sweep of files D30 hadn't yet checked (`HANDOFF.md`, `PROFIT-PROJECTIONS.md`, and — critically —
+    the `launch/` ready-to-post HN/social/outreach copy and `ledger/internal/thread-answers.md`, a **live reusable
+    answer-template file** meant to seed future real replies to real engineers). Found and fixed **8 files, 13
+    instances**: `HANDOFF.md` (1), `PROFIT-PROJECTIONS.md` (2, incl. a fabricated standalone "Sep 30 2026 Node-20
+    cliff" catalyst that doesn't exist — the real Node-20 cliff IS the Q1-2027 cluster already mentioned one line
+    later in the same doc), `launch/show-hn-final.md` (2), `launch/hn-replies.md` (1), `launch/social.md` (2),
+    `launch/outreach.md` (2, one of which explicitly instructed future outreach to "lead with Sep 30" — the worst
+    instance found to date since it was actively coaching the wrong framing into future sends),
+    `ledger/internal/thread-answers.md` (4 — python3.9/3.10 Phase 2/3 dates were also wrong, in addition to the
+    Node20 ones; this is the one that mattered most: if this template's Sep 30/Aug 31 2026 dates had been reused as
+    a source for a future re:Post/SO answer, it would have put a false claim in front of a real potential buyer,
+    directly violating this cycle's own drafting rule). Also added a correction banner (not a silent rewrite) to
+    `research/phase1_findings.md`, a dated 2026-04-28 historical scan snapshot whose Phase 2/3 dates reflect the
+    now-known-wrong blog sources of the era — kept as a historical record but flagged so a cold reader isn't misled.
+    All 5 instances were the same root cause D3 already diagnosed: AWS delayed the block-create/block-update dates
+    from the originally-published 2026 schedule into a synchronized Q1-2027 cluster (Feb 1 / Mar 3, 2027), and
+    these 8 files (mostly launch/outreach copy and internal planning docs, last touched 2026-06-22, before D3's
+    07-13 correction sweep) never got the memo.
+71. **Found + verified (unlogged until now): a separate process pushed dev.to article 23** (`23-node-module-
+    version-mismatch-lambda.md`, commit `ffac09f`, 2026-08-02 13:11 UTC, ~15 min after this branch's D30 cycle
+    commit) covering the `NODE_MODULE_VERSION` native-addon ABI error on a Node 20→22 Lambda upgrade. **Flagging a
+    real overlap, not reverting it:** D26 (2026-07-30) explicitly found this exact topic already covered — article
+    02 has a dedicated paragraph on the same error with the same fix (rebuild, sharp/bcrypt/better-sqlite3 version
+    pins, node-sass/fibers replacement) — and concluded writing a dedicated piece would be "duplicative padding,"
+    which §7/§12 forbid. Article 23 does add genuine incremental depth beyond that one paragraph (a version table,
+    a Lambda-base-image Docker rebuild snippet, `engines` pinning, a pre-deploy smoke-test tip) and its canonical
+    slug (`node-module-version-mismatch`) is real and registered in `fixes.yml` — so it's not fabricated or broken,
+    just a padding-adjacent duplicate of already-shipped article 02 content. Did not revert: it may already be
+    live on dev.to via the box's auto-publish cron (this jail has no dev.to account access to check or unpublish),
+    and removing another routine's already-committed, factually-accurate work isn't the kind of "truth fix" this
+    plan's do-no-harm rule is for. Logged so a future cycle doesn't independently re-discover the same overlap and
+    waste a cycle on it, and as a data point that multiple concurrent routines on this branch don't always share
+    the same non-duplication memory — worth the owner's attention only if it recurs.
+72. **Regression check:** `kits/lambda-lifeline` `npm test` 24/24 green; `apps/web` `test_determinism.py` (4/4,
+    pytest) + `test_surge.py` (4/4, direct run) green in a fresh jail-local `python3.12` venv (deleted after use).
+    Post-fix repo-wide grep confirms zero remaining stale-date hits outside the DECISIONS/ASSETS/METRICS/PLAN
+    history logs (which correctly narrate the bug's own history) and article 07/22 (which correctly quote the myth
+    as the thing being debunked) and the now-correction-bannered `research/phase1_findings.md`.
+73. **No new dev.to article this cycle** — the 13-instance truth-fix sweep (the widest yet, reaching live
+    HN/social/outreach copy and a reusable answer template, not just static pages) outranked a 24th content piece,
+    consistent with the D29/D30/D14/D11 precedent of truth fixes pre-empting content when a real issue is found.
+74. **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked, the
+    remaining unswept public surfaces per D30's list are `apps/vscode-extension` README/marketplace copy and
+    `apps/github-action`/`action.yml` description — do those next, since this cycle proved the full-content-sweep
+    pattern still has high yield (13 more instances found on the 3rd pass). If a sweep there finds nothing, the
+    per-slug and both synthesis content angles remain exhausted per D27–D29 and a 4th angle (or new `fixes.yml`
+    entries) would be needed for further no-fetch content.
+
 ## Next actions (priority order) — post-pivot
+- **Done 2026-08-03 (Day-21 §8 gate):** gap recompute ($0 collected, $4,000 gap, unchanged — see cycle log #69); no
+  portfolio pivot warranted (blocker is unactioned owner clicks, not bet underperformance); found + fixed the
+  widest-reaching instance yet of the recurring superseded-date bug — 8 files / 13 instances, including live
+  HN/social/outreach copy and a reusable answer-template file (`ledger/internal/thread-answers.md`) that could have
+  fed a false claim into a future real answer. See DECISIONS D31.
 - **Done 2026-08-02:** found + fixed 4 more live instances (root `README.md` ×3 + `lambda-lifeline/ROLLBACK.md`) of
   the same superseded 2026-date bug, plus a 5th self-contradiction inside `lambda-lifeline/README.md` itself — a
   full-content sweep (not just commit-diff), per D29's own recommendation. See DECISIONS D30.

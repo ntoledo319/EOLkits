@@ -252,6 +252,17 @@ contact needed. WebFetch outage confirmed persistent a 19th consecutive cycle; t
 28-day window (Day 0 = 07-13); at $0 collected, the gap math in PLAN.md is unchanged — none of these show any
 observed signal of having been actioned yet.
 
+## Cycle 2026-08-03 (cloud routine) — Day 21 §8 gate
+No new items added — this cycle's ship (a 13-instance truth-fix sweep across 8 files, incl. a live answer-template
+file, commit pending) was fully autonomous, in-jail, $0, no human contact needed. This was the formal Day-21 gate
+(§8); recomputed the gap ($0 collected, $4,000 gap, unchanged) and confirmed no pivot is warranted — see DECISIONS
+D31. WebFetch outage confirmed persistent a 20th consecutive cycle; the standing owner-facing ask (2026-07-20
+entry) is unchanged. **Still the highest-ROI owner clicks, unactioned as of this cycle: HQ-1′/2′ (Gumroad, ~10
+min), HQ-7 (`vsce publish`), HQ-10 (GitHub Action listing), HQ-4 (GitHub App).** 21 days into the 28-day window
+(Day 0 = 07-13); at $0 collected, the gap math is unchanged — none of these show any observed signal of having
+been actioned yet. **Only 7 days remain in the original 28-day window** — the core batch (HQ-1′/2′, HQ-4, HQ-6,
+HQ-7, HQ-10, ~35 min total) is the only lever left that can still move the needle before Day 28.
+
 ## Running total (post-pivot)
 Everything here is now **one-time setup, no ongoing owner time.** Core ≈ **30 min** (HQ-1′+2′,4,5,6). The COMPOUNDING
 batch below is now the **primary growth engine** (outreach is off the table), so those publishes matter more than

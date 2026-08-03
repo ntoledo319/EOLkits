@@ -135,6 +135,16 @@ No new codebase, SKU, or fulfillment-path change to record this cycle beyond wha
 2026-07-30: the no-fetch `fixes.yml` content backlog that fed articles 09–20 is now exhausted (D27) — the next
 content ship against this asset needs either working WebFetch or a non-padding synthesis angle.
 
+## 2026-08-03: found + fixed 13 more instances of the recurring superseded-date bug across 8 files (widest sweep yet)
+Extended D30's sweep to files it hadn't covered: `HANDOFF.md`, `PROFIT-PROJECTIONS.md`, the `launch/` ready-to-post
+HN/social/outreach copy (`show-hn-final.md`, `hn-replies.md`, `social.md`, `outreach.md`), `research/
+phase1_findings.md`, and — the highest-risk find — `ledger/internal/thread-answers.md`, a **live reusable
+answer-template file** meant to seed future real replies to real AWS re:Post/Stack Overflow threads. All carried
+the same superseded Aug 31/Sep 30 2026 (and, in the answer template, also wrong Jan/Feb/Nov/Dec 2026 python3.9/3.10)
+dates D3 already corrected elsewhere. All 8 files were last touched 2026-06-22, before D3's 07-13 sweep — simply
+never in scope of any prior pass. Fixed all 13 direct instances to Feb 1/Mar 3, 2027 (Q1-2027 cluster); added a
+correction banner (not a rewrite) to the dated historical research snapshot. See DECISIONS D31.
+
 ## 2026-08-02: found + fixed 4 more instances of the recurring superseded-date bug (+1 self-contradiction)
 Root `README.md` (3 instances — the most-visible file in the whole public repo) and
 `kits/lambda-lifeline/docs/ROLLBACK.md` (1 instance) still claimed Node.js 20 Lambda blocks create/update on

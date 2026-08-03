@@ -986,3 +986,115 @@ optimistic projections.
   the higher-leverage pick (a live, 20-day-old falsehood on the repo's own front door outranks a 23rd article on an
   already-well-covered backlog), consistent with the D29/D14/D11 precedent of truth fixes pre-empting a content ship
   when a real issue is found.
+
+### D31 — Cloud cycle (2026-08-03): Day-21 §8 gate — no pivot warranted; 20th consecutive WebFetch-blocked cycle; widest truth-bug sweep yet (8 files, 13 instances, incl. a live answer-template file)
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `ffac09f`
+  (D30's truth-fix commit `acd67d0` plus an unlogged article-23 commit `ffac09f` from a separate process — see
+  below); no conflicts.
+- **Re-tested WebFetch before picking a task, per the standing rule:** `WebFetch` on `https://example.com` (neutral
+  control) → still HTTP 403 Forbidden (20th consecutive cycle: 07-15, -16, -18 through 08-03; no 07-17 run
+  recorded). `$HTTPS_PROXY/__agentproxy/status` `recentRelayFailures: []`. Consistent with D17's root cause
+  (standing egress-policy denial) — no re-diagnosis needed, went straight to the no-new-fetch path.
+- **Day 21 = a formal §8 gate (Day 7/14/21).** Recomputed per the gap law: collected = $0.00, gap = $4,000.00,
+  unchanged since Day 0. Evaluated whether any bet needs repositioning per §8's "≥5 live days with zero signal"
+  rule: Bet A′ (Gumroad) and Bet C (VS Code/Open VSX/PyPI/npm/GitHub Action flywheel) have never actually gone
+  live in the distribution sense — every publish step is owner-gated (HQ-1′/2′, HQ-7/8/9/10) and none has been
+  actioned in 21 days, so there is no live-bet performance to reposition, only an unactioned setup step. Bet B's
+  Stripe link has technically been live since Day 0 with $0 sales, but its own pre-sale verification gates
+  (HQ-5 sandbox e2e, HQ-6 one real purchase) are also unactioned — selling a $1,499 Pack today would mean selling
+  an unverified fulfillment path against an auto-refund guarantee that's never been tested, which the plan already
+  says not to do (HUMAN_QUEUE HQ-5: "do not sell a Pack until all pass"). **Conclusion: no portfolio pivot this
+  gate.** The honest diagnosis (established since D7 and reiterated every cycle since 07-22) stands: the
+  bottleneck is unactioned owner clicks, not a failing bet, and the §8 repositioning clause is built for "we tried
+  a channel and it didn't convert," not "we haven't been allowed to try the channel yet." Recording this
+  explicitly rather than silently skipping the gate, per §8's own instruction to recompute at every gate.
+- **Found (unlogged until now): a separate process pushed dev.to article 23** (`ffac09f`, `23-node-module-
+  version-mismatch-lambda.md`, 2026-08-02 13:11 UTC — ~15 min after D30's own cycle commit) covering the
+  `NODE_MODULE_VERSION` native-addon ABI mismatch on a Node 20→22 Lambda upgrade. Checked it against D26's
+  (2026-07-30) own finding: D26 explicitly identified this exact topic as already covered by article 02's
+  dedicated paragraph (same error text, same fix — rebuild, sharp/bcrypt/better-sqlite3 version floors, replace
+  node-sass/fibers) and concluded a standalone article would be "duplicative padding" that §7/§12 forbid. Read
+  article 23 in full this cycle: it does add real incremental depth beyond that one paragraph (a NODE_MODULE_VERSION
+  version table, a Lambda-base-image Docker rebuild command, an `engines` CI-pin recommendation, a pre-deploy
+  smoke-test tip) and its canonical slug is real and registered in `fixes.yml` — so it isn't fabricated, just a
+  padding-adjacent duplicate of already-shipped content. **Decision: log it, don't revert it.** Two reasons: (1) it
+  may already be live on dev.to via the box's auto-publish cron by the time this cycle runs — this jail has no
+  dev.to account access to check or unpublish, and (2) removing another routine's already-committed,
+  factually-accurate work over a "should this exist" judgment call isn't what the do-no-harm rule (§2.7 "branch,
+  don't trash") is for. Flagging as a coordination gap worth the owner's attention only if the pattern recurs
+  (multiple concurrent routines on this branch don't always share the same non-duplication memory).
+- **Went looking for other public surfaces D30 hadn't yet checked with a full-content read** (per D30's own
+  recommendation to continue the periodic sweep practice once the commit-diff sweep and per-slug/synthesis content
+  angles are otherwise exhausted for the cycle) — checked `HANDOFF.md`, `PROFIT-PROJECTIONS.md`, and the `launch/`
+  ready-to-post distribution copy (`show-hn-final.md`, `hn-replies.md`, `social.md`, `outreach.md`) plus
+  `research/phase1_findings.md` and `ledger/internal/thread-answers.md`, none of which any prior cycle's grep had
+  covered (D30's sweep scope was `README.md`/`kits/`/`apps/`/`action.yml` only).
+- **Found 13 more live instances of the same recurring superseded-2026-date bug across 8 files** — the widest
+  single-cycle instance count yet, and structurally the most dangerous batch found so far because most of it is
+  either staged-for-posting distribution copy or a reusable answer template, not just static documentation:
+  1. **`HANDOFF.md`** (1 instance) — "before the Sep 30 Phase 3 cliff."
+  2. **`PROFIT-PROJECTIONS.md`** (2 instances) — a fabricated standalone "Node 20 Phase-3 cliff (Sep 30, 2026)"
+     revenue catalyst that doesn't exist (the real Node-20 cliff *is* the Q1-2027 cluster already correctly named
+     one line later in the same sentence — the doc was self-contradictory), plus a projections-table row labeled
+     "Sep (M3 · Node-20 cliff)."
+  3. **`launch/show-hn-final.md`** (2 instances) — literal ready-to-post Hacker News submission copy stating
+     "Phase 3, the update-blocking cliff, is Sep 30" and "cliff Sep 30" in the kit list.
+  4. **`launch/hn-replies.md`** (1 instance) — a canned reply template for *correcting* a hypothetical HN
+     commenter, ironically asserting the wrong date as the correction: "the Node 20 hard cliff is actually Sep 30."
+  5. **`launch/social.md`** (2 instances) — X/Twitter launch-thread copy, "cliff Sep 30" ×2.
+  6. **`launch/outreach.md`** (2 instances) — cold/warm outreach email templates; one explicitly *instructed*
+     future sends to lead with the wrong date: "Don't lead with Apr 30 — that's history; lead with Sep 30" — the
+     single worst instance found in any cycle to date, since it was actively coaching future outreach toward the
+     wrong framing rather than just stating it once.
+  7. **`ledger/internal/thread-answers.md`** (4 instances) — **the highest-risk file in the batch**: a reusable
+     answer template explicitly built to be pasted into real replies on real AWS re:Post/Stack Overflow threads
+     (the exact mechanism this plan's own standing distribution priority uses). Wrong on both the Node20 Phase 2/3
+     dates *and* the python3.9/python3.10 Phase 2/3 dates (Jan 14/Feb 13 2026 and Nov 30/Dec 31 2026 respectively —
+     also superseded, also belonging to the same Q1-2027 cluster). Had this template ever been reused as a source
+     for a fresh answer draft, it would have put a false, ~5-months-overstated-urgency claim directly in front of a
+     real engineer — precisely the failure mode hard-constraint-5 and this task's own drafting rules exist to
+     prevent, discovered before it ever happened rather than after.
+  8. **`research/phase1_findings.md`** (3 instances) — a dated 2026-04-28 historical research snapshot, sourced
+     from the same now-known-wrong blogs (CloudQuery, HeroDevs) D3 already identified as the origin of this whole
+     bug class. **Handled differently from the other 7:** rather than silently rewrite a dated research artifact
+     (which would misrepresent what the research actually found on that date), added a correction banner directly
+     under the title stating the Phase 2/3 dates are superseded and pointing to `deprecations.yml` as the current
+     source of truth — preserves the historical record honestly while preventing a cold reader from citing it as
+     current.
+  All match the same root cause D3 diagnosed on 2026-07-13: AWS delayed the block-create/block-update dates from
+  the originally-published 2026 schedule into a synchronized Q1-2027 cluster (Feb 1 / Mar 3, 2027 for
+  nodejs16/18/20 + python3.8/3.9/3.10; Jul 31 / Aug 31, 2027 for python3.11). All 8 files were last touched
+  2026-06-22 per `git log` — before D3's 07-13 correction sweep, confirming they were simply never in scope of any
+  prior pass (D3 covered `lambda-lifeline`+`deprecations.yml`; D11 covered kit READMEs' pricing, not dates; D20/D30
+  covered `README.md`/`kits/`/`apps/`/`action.yml` only).
+- **Fixed all 13 instances across the 7 direct-edit files**, replacing every wrong date with the AWS-authoritative
+  Feb 1, 2027 (block-create) / Mar 3, 2027 (block-update) for nodejs16/18/20 + python3.8/9/10, and Jul 31 / Aug 31,
+  2027 for python3.11, matching the phrasing already used consistently in `deprecations.yml`/`fixes.yml`/
+  `launch/blog-post.md`; added the correction banner to `research/phase1_findings.md` per above. Deliberately left
+  dev.to articles 07 and 22 untouched — both correctly *quote* the Sep 30/Aug 31 2026 dates as the debunked myth
+  they're each explicitly correcting, verified by reading the surrounding sentence in both before excluding them
+  from the fix, not by pattern-matching the grep hit alone.
+- **Verified before shipping (§9):**
+  - Re-ran the repo-wide grep for every stale-date variant after editing — zero remaining hits outside
+    `revenue/DECISIONS.md`/`ASSETS.md`/`METRICS.md`/`PLAN.md` (which correctly narrate this bug's own history and
+    must keep the old dates to be an accurate log), article 07/22 (correctly quoting the myth being debunked), and
+    the now-correction-bannered `research/phase1_findings.md`.
+  - `kits/lambda-lifeline` `npm test` — 24/24 green (these edits don't touch that kit's source, ran anyway per
+    standing cycle discipline).
+  - `apps/web` `test_determinism.py` (4/4, pytest) + `test_surge.py` (4/4, direct run) green in a fresh jail-local
+    `python3.12` venv (per the D27 trap — bare `python3 -m venv` resolves to 3.11 on this box), deleted after use.
+  - `git status` confirmed only the 8 intended files modified, nothing untracked left behind.
+- **Ship-law check:** externally visible ✅ — all 8 files are on the public `ntoledo319/EOLkits` repo and land the
+  instant this pushes; no owner action or deploy-cron dependency (these are plain repo files, GitHub-rendered
+  directly or read as source by future drafting cycles, not built by `apps/web`).
+- **Process note:** this is the third consecutive cycle (D29, D30, this one) where a periodic full-content sweep —
+  not a commit-diff check — found real, previously-unnoticed truth bugs, and each pass found the bug in files the
+  *previous* pass hadn't thought to check (fix-page cause text → README/kit docs → launch/outreach/answer-template
+  copy). The pattern keeps paying off because "public-facing" turned out to be broader than any single pass
+  assumed — this cycle's find in particular (a live answer-template file) is a reminder that "public" in a public
+  repo includes internal planning/ops files, not just customer-facing pages. Recommend the next full-content sweep
+  (whenever one is next warranted) check the two remaining unswept surfaces D30 flagged: `apps/vscode-extension`
+  README/marketplace copy and `apps/github-action`/`action.yml` description.
+- **Deferred:** re:Post answer drafting stays paused (needs a working fetch to find/confirm a real new thread — no
+  repo-only substitute, per D17), now 20 cycles running. No new dev.to article this cycle — the 13-instance
+  truth-fix sweep outranked a 24th content piece, consistent with the D29/D30/D14/D11 precedent.

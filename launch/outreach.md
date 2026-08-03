@@ -33,7 +33,7 @@ github.com/ntoledo319/EOLkits
 — Nicholas Toledo
 ```
 
-> **Post-deadline cleanup variant:** the same template works for `lambda-lifeline` (Node 20 → 22, Phase 1 already passed Apr 30) — swap the subject to `nodejs20.x cleanup before Sep 30 cliff — auto-migration PR for [repo]` and update the body's deadline framing to "Phase 3 (Sep 30) is the hard cliff." Don't lead with Apr 30 — that's history; lead with Sep 30.
+> **Post-deadline cleanup variant:** the same template works for `lambda-lifeline` (Node 20 → 22, Phase 1 already passed Apr 30) — swap the subject to `nodejs20.x cleanup before the Mar 3, 2027 block cliff — auto-migration PR for [repo]` and update the body's deadline framing to "Phase 3 (block-update, Mar 3, 2027) is the hard cliff." Don't lead with Apr 30 — that's history; lead with the still-upcoming Feb 1 / Mar 3, 2027 cluster.
 
 ## Variant 2 — WARM CONTACT (waitlist, network, mutuals)
 
@@ -44,7 +44,7 @@ Subject: EOLkits is live — want me to run it on [repo / your stack]?
 
 [name] —
 
-Soft-launched EOLkits this week. Three CLIs for the AWS runtime deprecations breaking prod this year (AL2 Jun 30, Python 3.x waves, plus Node 20 cleanup before the Sep 30 cliff). I think [repo / your team's stack] would be a clean target — saw [specific thing about their setup, e.g. "the SAM templates in [repo] still pin nodejs20.x" or "your team mentioned Python 3.10 functions back in [context]"].
+Soft-launched EOLkits this week. Three CLIs for the AWS runtime deprecations breaking prod this year (AL2 Jun 30, Python 3.x waves, plus Node 20 cleanup before the Feb 1 / Mar 3, 2027 block cliff). I think [repo / your team's stack] would be a clean target — saw [specific thing about their setup, e.g. "the SAM templates in [repo] still pin nodejs20.x" or "your team mentioned Python 3.10 functions back in [context]"].
 
 Looking for two or three real-world end-to-end runs before I post to HN on Tuesday morning. The deal: install the GitHub App at github.com/apps/eolkits-migration-bot, pick the repos you want it to touch, it opens one PR per repo with the migration applied. Free, MIT, dry-run by default, opt-out by dropping a `.no-eolkits` file.
 
