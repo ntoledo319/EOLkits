@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 21 (2026-08-03) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 22 (2026-08-04) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -538,7 +538,47 @@ no fast-gig shortcut exists. Replaced by:
     per-slug and both synthesis content angles remain exhausted per D27–D29 and a 4th angle (or new `fixes.yml`
     entries) would be needed for further no-fetch content.
 
+## Cycle 2026-08-04 (cloud routine)
+75. **WebFetch re-tested, still 403 on the neutral control (`example.com`)** — 21st consecutive cycle blocked from
+    fresh external fact-checking (07-15, -16, -18 through 08-04; no 07-17 run recorded). Per D17's root cause
+    (permanent egress-policy denial), no re-diagnosis needed.
+76. **Swept the two remaining unswept surfaces D30/D31 flagged — both clean.** `apps/vscode-extension` (README,
+    package.json, and critically `src/scanner.ts` — the actual in-editor scan-time deprecation dates, not just
+    prose) and `apps/github-action` (`action.yml`, README.md). `scanner.ts`'s hardcoded Python 3.9/3.10/3.11 dates
+    and Node20 message were cross-checked line-by-line against `rules/public/deprecations.yml` — exact match, zero
+    bugs found in either app.
+77. **A repo-wide grep beyond the two flagged surfaces (same escalating pattern as D29→D30→D31) found the same
+    recurring superseded-date bug in a layer no prior sweep had checked: the git-committed `docs/` build snapshot.**
+    `docs/blog/migrating-lambda-nodejs-20-to-22/index.html` (title, H1, blockquote, TL;DR list, one body paragraph
+    — 4 passages) still carried the pre-07-22-correction dates. Root cause: the box's daily deploy cron
+    (`deploy/grace/cron-deploy-eolkits-web.sh`) rebuilds `docs/` from source and rsyncs to the live site but never
+    pushes the rebuild back to git — so eolkits.com has shown the correct dates since 07-22, but the **repo-visible**
+    copy (linked from the VS Code extension, GitHub Action, and root READMEs as "the code") stayed permanently
+    stale regardless of how many times the box redeployed. See DECISIONS D32 for the full root-cause trace.
+78. **Shipped: targeted patch of the 4 stale passages** (commit pending) to match `launch/blog-post.md`'s
+    already-corrected wording exactly — not a full `apps/web/build.py` rebuild-and-commit (precedent against that
+    per D14/D28, since a full rebuild pulls in broader unrelated `docs/` drift). Verified: post-fix grep confirms
+    zero remaining stale-date hits in `docs/`; repo-wide re-check confirms the only 2 remaining matches anywhere are
+    the already-reviewed exceptions (the correction-bannered `research/phase1_findings.md` table, and dev.to
+    article 07 which correctly quotes the myth being debunked).
+79. **Regression check:** `kits/lambda-lifeline` `npm test` 24/24 green; `apps/web` `test_determinism.py` (4/4,
+    pytest) + `test_surge.py` (4/4, direct run) green in a fresh jail-local `python3.12` venv (deleted after use).
+    `git status` confirmed only the one intended file modified.
+80. **No new dev.to article this cycle** — the truth fix (a public-repo-visible stale build artifact, found via
+    the same full-content-sweep pattern that's now found a real bug 4 cycles running) outranked a 24th content
+    piece, consistent with the D29/D30/D31 precedent.
+81. **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked, D32's
+    process note flags `docs/` as now proven in-scope for future sweeps (not just source files) — but this cycle's
+    sweep found only the one file with the bug (repo-wide grep in `docs/` post-fix is clean), so the next
+    full-content sweep candidate, if one is needed, would need a fresh angle (e.g. checking `docs/` pages generated
+    from *other* launch/ source docs that were corrected D29-era, to confirm none of those have a similarly stale
+    `docs/` snapshot) rather than re-sweeping the same two now-clean app surfaces. If a sweep finds nothing, the
+    per-slug and both synthesis content angles remain exhausted per D27–D29 and a 4th content angle (or new
+    `fixes.yml` entries) would be needed for further no-fetch content.
+
 ## Next actions (priority order) — post-pivot
+- **Done 2026-08-04:** swept `apps/vscode-extension`/`apps/github-action` (clean); found + fixed the recurring
+  superseded-date bug in a new layer — the committed `docs/` build snapshot (1 file, 4 passages). See DECISIONS D32.
 - **Done 2026-08-03 (Day-21 §8 gate):** gap recompute ($0 collected, $4,000 gap, unchanged — see cycle log #69); no
   portfolio pivot warranted (blocker is unactioned owner clicks, not bet underperformance); found + fixed the
   widest-reaching instance yet of the recurring superseded-date bug — 8 files / 13 instances, including live

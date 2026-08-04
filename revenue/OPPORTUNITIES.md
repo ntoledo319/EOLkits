@@ -61,6 +61,11 @@ it is not: `launch/distribution/README.md` already documents that Hashnode's pub
 2026-05-13, so it correctly stays unused. No new frame identified this cycle; the deeper-sweep truth fix (D29) was
 higher-leverage than a third content angle.
 
+## Reviewed (no change) — 2026-08-04
+Ranking and frame scores unchanged — no new platform fact this cycle. This cycle swept the last two unswept public
+surfaces (VS Code extension, GitHub Action) clean, then found + fixed the recurring superseded-date bug in a new
+layer (the committed `docs/` build snapshot, see DECISIONS D32) — a truth/harm fix, not a frame re-evaluation.
+
 ## Reviewed (no change) — 2026-08-03 (Day-21 §8 gate)
 Ranking and frame scores unchanged. This was the formal Day-21 gate (§8: Day 7/14/21) — recomputed the gap
 ($0 collected, $4,000 gap, unchanged) and evaluated repositioning per the "≥5 live days with zero signal" rule.

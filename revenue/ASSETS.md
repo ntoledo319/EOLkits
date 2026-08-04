@@ -153,6 +153,17 @@ Aug 31/Sep 30, 2026 — the exact superseded dates D3 corrected elsewhere on 202
 lines below it was never touched, so the file contradicted itself for 20 days. All 5 corrected to Feb 1, 2027 /
 Mar 3, 2027. Found via a full-content re-read (not commit-diff), per D29's own recommendation — see DECISIONS D30.
 
+## 2026-08-04: found + fixed the same recurring superseded-date bug in a new layer — the committed `docs/` build snapshot
+Swept the two remaining unswept surfaces D30/D31 flagged (`apps/vscode-extension`, `apps/github-action`) — both
+clean, including `scanner.ts`'s hardcoded deprecation dates, verified line-by-line against `deprecations.yml`. A
+follow-up repo-wide grep found the bug one layer deeper than any prior sweep had checked:
+`docs/blog/migrating-lambda-nodejs-20-to-22/index.html`, the git-committed static build output, still carried the
+pre-07-22 dates (title, H1, blockquote, TL;DR list, one paragraph) — because the box's daily deploy cron rebuilds
+`docs/` fresh and rsyncs straight to the live site without ever pushing the rebuild back to git, so the *live* page
+has been correct since 07-22 but the *repo-committed* snapshot stays permanently stale. Patched the 4 stale
+passages directly (not a full rebuild-and-commit, per D14/D28 precedent) to match the already-corrected source
+wording in `launch/blog-post.md`. See DECISIONS D32.
+
 ## 2026-08-01: found + fixed a live truth bug in `apps/web/content/fixes.yml`
 `lambda-nodejs-runtime-no-longer-supported`'s cause text claimed "nodejs16.x and earlier are already blocked,"
 contradicting this repo's own already-verified data (`kits/lambda-lifeline/README.md`, dev.to article 07): the

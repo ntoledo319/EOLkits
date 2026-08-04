@@ -1098,3 +1098,62 @@ optimistic projections.
 - **Deferred:** re:Post answer drafting stays paused (needs a working fetch to find/confirm a real new thread — no
   repo-only substitute, per D17), now 20 cycles running. No new dev.to article this cycle — the 13-instance
   truth-fix sweep outranked a 24th content piece, consistent with the D29/D30/D14/D11 precedent.
+
+## D32 — 2026-08-04 (cloud routine): closed out D31's two remaining unswept surfaces, found the bug one layer deeper — in the committed `docs/` build snapshot, not the source files
+- **WebFetch re-tested first, per standing rule:** `https://example.com` (neutral control) → still HTTP 403
+  Forbidden. 21st consecutive cycle blocked (07-15, -16, -18 through 08-04; no 07-17 run recorded). Per D17's root
+  cause (permanent egress-policy denial), no re-diagnosis spent — went straight to the no-new-fetch path.
+- **Swept the two remaining unswept surfaces D30/D31 flagged:** `apps/vscode-extension` (README.md, package.json,
+  `src/scanner.ts` — the actual scan-time deprecation-date logic, not just prose) and `apps/github-action`
+  (`action.yml`, README.md, root `action.yml` covered already by D30). **Both clean** — `scanner.ts`'s hardcoded
+  Python 3.9/3.10/3.11 dates (`2025-12-15` / `2026-10-31` / `2027-06-30`) and the Node20 message (`deprecated
+  2026-04-30 ... blocks function updates 2027-03-03`) were cross-checked line-by-line against
+  `rules/public/deprecations.yml` and match exactly — no stale date found in either app.
+- **Ran a repo-wide grep anyway (not just the two flagged surfaces), since the last three full-content sweeps (D29,
+  D30, D31) each found bugs a narrower check would have missed. This one found a bug too — in a different layer
+  than any prior pass checked:** `docs/blog/migrating-lambda-nodejs-20-to-22/index.html`, the **committed static
+  build snapshot**, still carried the pre-correction title (`Sep 30, 2026 cliff`), H1, blockquote, TL;DR list
+  (`August 31, 2026` / `September 30, 2026`), and "Why this is happening" paragraph — the exact same stale-date bug
+  class D3/D20/D29/D30/D31 already corrected, but in `docs/`, which none of those five prior passes had checked.
+- **Root cause, confirmed via `git log` + the deploy scripts (`deploy/grace/cron-deploy-eolkits-web.sh`,
+  `.github/workflows/deploy-pages.yml`, `HANDOFF-2026-07-15.md` lines 140-142):** `docs/` is tracked in git but was
+  last committed 2026-06-22 — **before** the source markdown (`launch/blog-post.md`) was corrected on 2026-07-22
+  (the `ab660bc` commit D22 logged). The box's daily cron rebuilds `docs/` from source and rsyncs straight to
+  `/var/www/eolkits` — it does **not** push the rebuilt `docs/` back to git — so the *live* eolkits.com page has
+  been correct since 07-22, but the **git-committed snapshot stays permanently stale** regardless of how many times
+  the box redeploys, because nothing ever re-commits it. This is a real, if secondary, public-repo exposure:
+  anyone browsing `github.com/ntoledo319/EOLkits` (linked from the VS Code extension README, the GitHub Action
+  README, and this repo's own root README as "the code") and opening this file sees the wrong dates, independent
+  of what eolkits.com itself shows.
+- **Fix approach — targeted string patch, not a full `apps/web/build.py` rebuild-and-commit:** D14/D28 already
+  established precedent against committing full `docs/` rebuilds (HANDOFF-2026-07-15.md explicitly warns the
+  snapshot is broader-scope-stale/incomplete and a full rebuild pulled in unrelated churn when tried during D28's
+  cycle). Instead, patched the 4 specific stale passages in this one file to match `launch/blog-post.md`'s
+  already-corrected wording exactly (title, H1, blockquote incl. its `Updated` date, the 3-item TL;DR list, and the
+  "phases spaced ~3-4 months apart" → "block-create/block-update land about a month apart" sentence, which was also
+  stale relative to the corrected source) — same minimal-diff philosophy as every prior date-fix cycle.
+- **Verified before shipping (§9):**
+  - Repo-wide grep for the stale-date pattern confirms zero remaining hits in `docs/` after the fix, and zero
+    unexplained hits anywhere else in the repo (the only two remaining matches are the already-reviewed
+    `research/phase1_findings.md` correction-banner table and dev.to article 07, both of which correctly *quote*
+    the wrong dates as the myth being corrected — verified again this cycle, not just pattern-matched).
+  - Grepped `docs/` separately for the exact stale title string to confirm it doesn't recur elsewhere (blog index,
+    sitemap, RSS) — single-file, contained.
+  - `kits/lambda-lifeline` `npm test` — 24/24 green. `apps/web` `test_determinism.py` (4/4, pytest) +
+    `test_surge.py` (4/4, direct run) green in a fresh jail-local `python3.12` venv (per the D27 trap — bare
+    `python3 -m venv` resolves to 3.11 on this box), deleted after use.
+  - `git status` confirmed only the one intended file modified.
+- **Ship-law check:** externally visible ✅ — this file is on the public `ntoledo319/EOLkits` repo and renders
+  directly on GitHub (and would serve via the `deploy-pages.yml` GitHub Pages workflow if that ever fires from this
+  branch) the instant this pushes; no owner action or box-cron dependency needed for the *repo-visible* copy (the
+  live eolkits.com copy was already correct since 07-22, independent of this fix).
+- **Process note:** this is the fourth consecutive cycle (D29, D30, D31, this one) where a full-content sweep found
+  a real bug, and the fourth time the bug turned up in a layer the *previous* sweep hadn't thought to check
+  (fix-page cause text → README/kit docs → launch/outreach/answer-template copy → the committed build-output
+  snapshot). Recommend the next full-content sweep (whenever one is next warranted) treat `docs/` as in-scope
+  alongside source files, since "public-facing" has now proven to include build artifacts, not just source.
+- **No new dev.to article this cycle** — this was a from-scratch sweep of the two flagged surfaces (both clean)
+  that then found a new bug class in an unswept layer; the truth fix took priority over a 24th content piece,
+  consistent with the D29/D30/D31 precedent of truth fixes pre-empting content when a real issue surfaces.
+- **Deferred:** re:Post answer drafting stays paused (needs a working fetch, no repo-only substitute, per D17), now
+  21 cycles running.

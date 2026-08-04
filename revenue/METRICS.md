@@ -252,4 +252,15 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-08-03 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a Day-21 gate recompute (no pivot) + a truth fix on public-facing/outreach docs only, no new dev.to article this cycle (13-instance truth-fix sweep outranked a 24th content piece). |
 | 2026-08-03 | **dev.to articles staged on branch: 23** (was 22 as of 08-02; article 23 found this cycle, pushed by a separate process 08-02, not shipped by this cycle) | `launch/distribution/devto/01`–`23`. |
 
+## Cycle 2026-08-04 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-04 | **WebFetch re-tested — 21st consecutive cycle blocked** | `WebFetch` on `https://example.com` (neutral control) → still HTTP 403 Forbidden. Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis, went straight to the no-new-fetch path. |
+| 2026-08-04 | **Swept the two remaining unswept surfaces D30/D31 flagged (`apps/vscode-extension`, `apps/github-action`) — both clean** | `scanner.ts`'s hardcoded Python/Node deprecation dates cross-checked line-by-line against `rules/public/deprecations.yml` — exact match, no bug. |
+| 2026-08-04 | **A repo-wide grep beyond the two flagged surfaces found the same recurring superseded-date bug in a new layer: the committed `docs/` build snapshot** — `docs/blog/migrating-lambda-nodejs-20-to-22/index.html` (title, H1, blockquote, TL;DR list, one body paragraph — 4 passages) still had the pre-07-22-correction dates, because the box's daily cron rebuilds+rsyncs `docs/` to the live site but never pushes the rebuild back to git. | See DECISIONS D32 for the root-cause trace via `deploy/grace/cron-deploy-eolkits-web.sh` + `HANDOFF-2026-07-15.md`. |
+| 2026-08-04 | **Shipped: targeted patch of all 4 stale passages** to match `launch/blog-post.md`'s already-corrected wording exactly (Feb 1 / Mar 3, 2027 cliffs) — not a full rebuild-and-commit (precedent against that per D14/D28). | 1 file changed: `docs/blog/migrating-lambda-nodejs-20-to-22/index.html`. Post-fix grep: zero remaining stale-date hits in `docs/`; repo-wide re-check confirms the only 2 remaining matches are the already-reviewed exceptions (correction-bannered historical table, myth-debunking article 07). |
+| 2026-08-04 | **Regression check:** `kits/lambda-lifeline` `npm test` 24/24 + `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) green (jail-local `python3.12` venv, deleted after use) | Ran directly this cycle. |
+| 2026-08-04 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a truth fix on a public-repo build artifact only, no new dev.to article this cycle (truth fix outranked a 24th content piece). |
+| 2026-08-04 | **dev.to articles staged on branch: 23** (unchanged from 08-03) | `launch/distribution/devto/01`–`23`. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._
