@@ -23,7 +23,7 @@ jobs:
       matrix:
         kit: [al2023-gate, python-pivot]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up Python
         uses: actions/setup-python@v6
