@@ -2426,6 +2426,7 @@ def build_error_pages(fixes, deprecations, full_pricing):
             + rel_html
             + "<h2>Find every instance in your project</h2>\n"
             + '<p>The free <a href="/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>\n'
+            + '<p>Prefer a 10-second check? Paste your config into the <a href="/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>\n'
             + (('<p>Primary source: <a href="' + _h.escape(source) + '" target="_blank" rel="noopener nofollow">' + _h.escape(source) + "</a></p>\n") if source else "")
             + '<p><a class="fix-cta" href="' + audit_link + '">Get the full migration audit — ' + cta_price + ", hash-anchored PDF &rarr;</a></p>\n"
             "</body>\n</html>\n"
