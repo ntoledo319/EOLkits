@@ -263,4 +263,14 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-08-04 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a truth fix on a public-repo build artifact only, no new dev.to article this cycle (truth fix outranked a 24th content piece). |
 | 2026-08-04 | **dev.to articles staged on branch: 23** (unchanged from 08-03) | `launch/distribution/devto/01`–`23`. |
 
+## Cycle 2026-08-05 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-05 | **WebFetch re-tested — 22nd consecutive cycle blocked** | `WebFetch` on `https://example.com` (neutral control) → still HTTP 403 Forbidden. Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis. |
+| 2026-08-05 | **Truth/harm sweep found nothing new — extended `docs/` check clean** | Repo-wide grep for every known superseded-date variant (2026 Sep/Aug, Jan/Feb, Nov/Dec, and the older Apr/Jun/Jul schedule) outside `revenue/` found only already-reviewed exceptions. `deprecations.ics` + `lambda-runtime-deprecation-schedule/index.html` both correct. `fixes.yml` still 27 entries — no new content source. |
+| 2026-08-05 | **Explored and rejected an unverifiable content angle** | `kits/lambda-lifeline`'s codemod has an undocumented Buffer.toString/streams `highWaterMark` claim this agent couldn't verify with WebFetch down; declined to ship it per §2.5. The `assert`→`with` rule is already covered in article 02 (non-duplication check). |
+| 2026-08-05 | **Shipped: cross-linked all 27 `/fix/` pages to `/eol-checker/`** | Commit `3314d93`. A site-quality/conversion improvement (not truth-fix, not new content) — both those categories are exhausted this cycle. Verified via full rebuild: 27/27 pages carry the link, zero `{API_URL}` leaks; `test_determinism.py` 4/4 + `test_surge.py` 4/4 green (jail-local `python3.12` venv, deleted after use). |
+| 2026-08-05 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle. |
+| 2026-08-05 | **dev.to articles staged on branch: 23** (unchanged from 08-03/08-04 — no new article this cycle) | `launch/distribution/devto/01`–`23`. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

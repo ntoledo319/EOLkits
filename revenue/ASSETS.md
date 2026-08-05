@@ -164,6 +164,13 @@ has been correct since 07-22 but the *repo-committed* snapshot stays permanently
 passages directly (not a full rebuild-and-commit, per D14/D28 precedent) to match the already-corrected source
 wording in `launch/blog-post.md`. See DECISIONS D32.
 
+## 2026-08-05: `apps/web` gains one new asset detail — `/fix/` pages now cross-link `/eol-checker/`
+No new codebase or SKU. `build_error_pages` in `apps/web/build.py` now links every `/fix/<slug>/` page to
+`/eol-checker/` (previously only linked `/scan/` + the audit CTA), closing a discoverability gap on the site's own
+flagged #1 new-domain-authority asset. See DECISIONS D33. Truth/harm sweep this cycle (extended into
+`docs/deprecations.ics` + the deprecation-schedule page) found nothing new — the superseded-date bug appears
+cleared after 4 straight correction cycles (D29-D32). `fixes.yml` still 27 entries, no new content-source growth.
+
 ## 2026-08-01: found + fixed a live truth bug in `apps/web/content/fixes.yml`
 `lambda-nodejs-runtime-no-longer-supported`'s cause text claimed "nodejs16.x and earlier are already blocked,"
 contradicting this repo's own already-verified data (`kits/lambda-lifeline/README.md`, dev.to article 07): the

@@ -79,6 +79,13 @@ Ranking and frame scores unchanged — no new platform fact this cycle. This cyc
 instances of the recurring superseded-2026-date bug found and fixed in `README.md`/`lambda-lifeline`, see DECISIONS
 D30), not a frame re-evaluation.
 
+## Reviewed (no change) — 2026-08-05
+Ranking and frame scores unchanged — no new platform fact this cycle. Both standing fallback categories (truth-fix
+sweep, no-fetch dev.to content) came up exhausted on the same cycle for the first time; shipped a third,
+still-legitimate category instead (internal cross-linking / conversion, `/fix/` pages → `/eol-checker/`, see
+DECISIONS D33) rather than force either. Not a frame re-evaluation — frame #3 (VS Code/Open VSX placement) and
+frame #7 (dev.to backlinks) are unchanged and still owner-gated/exhausted respectively.
+
 ## The honest constraint that dominates all of this
 Every payment-enabled channel is **first-publish KYC-gated** (marketplaces need identity/bank). No autonomous
 $0 action reaches a *ready buyer* inside 28 days. The frames that can actually collect $4k (Upwork gig, Migration

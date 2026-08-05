@@ -1157,3 +1157,62 @@ optimistic projections.
   consistent with the D29/D30/D31 precedent of truth fixes pre-empting content when a real issue surfaces.
 - **Deferred:** re:Post answer drafting stays paused (needs a working fetch, no repo-only substitute, per D17), now
   21 cycles running.
+
+## D33 — 2026-08-05 (cloud routine): both the truth-fix sweep and the no-fetch content backlog came up exhausted; shipped a third category — a site-quality cross-link — instead of forcing either
+- **WebFetch re-tested first, per standing rule:** `https://example.com` → still HTTP 403 Forbidden. 22nd consecutive
+  blocked cycle (07-15, -16, -18 through 08-05; no 07-17 run recorded). No re-diagnosis per D17.
+- **Truth/harm sweep, extending D32's `docs/` scope:** repo-wide grep for every known superseded-date variant this
+  bug class has ever taken (the Q1-2027-cluster wrong dates: Sep 30/Aug 31 2026, Jan 14-15/Feb 13-15 2026, Nov
+  30/Dec 31 2026; and the even-older Apr 30/Jun 1/Jul 1 2026 30-60-day schedule D16 first flagged as a WebSearch
+  trap) found **zero new instances** outside the already-reviewed exceptions (`HANDOFF-2026-07-15.md`'s
+  myth-explanation, `research/phase1_findings.md`'s correction banner, article 07's myth-debunk, and legitimate
+  `April 30, 2026` *deprecation*-date mentions, which are a different, correct date from the 2027 *block* dates and
+  must not be confused with the bug being swept for). Also checked two layers D32 hadn't: `docs/deprecations.ics`
+  (the committed calendar export) and `docs/lambda-runtime-deprecation-schedule/index.html` — both correct. After
+  four consecutive cycles (D29→D32) each finding real bugs in a progressively deeper layer, this is the first clean
+  sweep — a genuine state change worth recording, not just "checked, nothing" boilerplate: the truth-debt built up
+  before the 07-22/08-02/08-03/08-04 correction sweeps appears to be actually cleared now, not just not-yet-found.
+- **`fixes.yml` re-checked: still exactly 27 entries**, same as D27's exhaustion finding — no new source data for
+  a no-fetch content piece.
+- **Explored a candidate content angle, then rejected it — the interesting part of this cycle.** Read
+  `kits/lambda-lifeline/src/codemod/index.mjs` looking for undocumented, already-repo-resident Node 20→22 facts (the
+  pattern that's worked before: repo-verified data, no new fetch). Found 4 codemod rules: `assert`→`with` import
+  attributes, the matching dynamic-`import()` form, a "Buffer.toString negative end index throws RangeError in Node
+  22" lint rule, and a "Node 22 changed default stream highWaterMark 16KB→64KB" lint rule. Checked non-duplication
+  before going further (the discipline every content cycle since D18 has used): the `assert`→`with` change is
+  **already covered at paragraph level in article 02** (confirmed via grep of all 24 articles) — writing a
+  dedicated piece on it would repeat exactly the padding mistake D26 flagged once already (and article 23, per D31,
+  already made once). The other two rules are the actually-new material, but this agent has no independent way to
+  verify the Buffer/streams claims are accurate without a working WebFetch against Node.js's own release notes —
+  they're plausible-sounding and already resident in the kit's shipped code, but "already in the repo" is not the
+  same bar as "verified," and §2.5 requires verification before **new** public claims, not just non-fabrication.
+  Correctly declined to ship this rather than gamble on an unverifiable technical claim, consistent with the
+  discipline D3's original mistake (a plausible-but-wrong date) taught this loop to apply everywhere, not just to
+  AWS dates.
+- **Shipped instead, a third category this loop hasn't used in 22 cycles: a pure site-quality/conversion cross-link,
+  not a truth fix and not new content.** All 27 `/fix/` pages (`apps/web/build.py`'s `build_error_pages`) already
+  linked `/scan/` and the audit CTA but never `/eol-checker/` — the free interactive tool built 2026-07-14 that
+  METRICS.md itself flags as "the #1 new-domain bottleneck" answer (a linkable/shareable backlink asset). Added one
+  line reusing the exact CTA copy already live elsewhere on the site (`build.py:1098`, verified via grep before
+  reuse — not a new invented claim). Zero new external facts; a pure internal-linking/discoverability improvement.
+  Commit `3314d93`.
+- **Verified before shipping (§9):** full local rebuild in a fresh jail-local `python3.12` venv (per the D27 trap),
+  deleted after use — `test_determinism.py` 4/4 (pytest), `test_surge.py` 4/4 (direct run); grep confirmed all 27
+  rebuilt `/fix/` pages carry the new link (27/27), zero `{API_URL}` leaks anywhere in the rebuild. `docs/` rebuild
+  discarded before commit (`git checkout -- docs/ && git clean -fd docs/`), source-only per D14/D28 precedent —
+  `git status` confirmed only `apps/web/build.py` staged.
+- **Ship-law check:** externally visible ✅ — lands on the public repo immediately, and takes effect on the live
+  eolkits.com site the next time the box's daily cron rebuilds `docs/` from source (same deploy path every other
+  `apps/web/build.py` change in this loop's history has used).
+- **Process note — why this matters beyond one cycle:** this is the first cycle where *both* of this loop's
+  standing fallback categories (truth-fix sweep, no-fetch content) came up genuinely empty on the same day, not
+  just one or the other. Finding a third, still-legitimate ship category (site-quality/conversion, zero new facts)
+  rather than forcing a padding article or a low-confidence claim is the correct anti-stall response per §7's
+  scope-fear/substitution rules — "missing capability → find a free substitute... never wait for perfect." Future
+  cycles hitting the same double-exhaustion should look here first (internal cross-linking, UX/conversion
+  copy audits) before either forcing content or declaring a false "nothing to ship."
+- **Deferred:** re:Post answer drafting stays paused (needs a working fetch, no repo-only substitute, per D17), now
+  22 cycles running. The Buffer.toString/streams `highWaterMark` codemod claims are left as-is in the kit (already
+  shipped there long before this state-file era, out of scope for this cycle's jail-bounded, no-new-fetch
+  discipline to retroactively fact-check) — flagged here only so a future cycle with working WebFetch access
+  knows to verify them before ever citing them in new public content.

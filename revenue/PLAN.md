@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 22 (2026-08-04) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 23 (2026-08-05) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -576,7 +576,48 @@ no fast-gig shortcut exists. Replaced by:
     per-slug and both synthesis content angles remain exhausted per D27–D29 and a 4th content angle (or new
     `fixes.yml` entries) would be needed for further no-fetch content.
 
+## Cycle 2026-08-05 (cloud routine)
+82. **WebFetch re-tested, still 403 on the neutral control (`example.com`)** — 22nd consecutive cycle blocked from
+    fresh external fact-checking (07-15, -16, -18 through 08-05; no 07-17 run recorded). Per D17's root cause
+    (permanent egress-policy denial), no re-diagnosis needed.
+83. **Truth/harm sweep found nothing new — the debt from D29–D32 appears cleared.** Repo-wide grep for every known
+    superseded-date variant (Sep 30/Aug 31 2026, Jan 14–15/Feb 13–15 2026, Nov 30/Dec 31 2026, and the older
+    Apr 30/Jun 1/Jul 1 2026 schedule) outside `revenue/` state logs found only the already-reviewed exceptions
+    (`HANDOFF-2026-07-15.md` explaining the myth, `research/phase1_findings.md`'s correction banner, article 07's
+    myth-debunk, and legitimate `April 30, 2026` deprecation-date mentions distinct from the 2027 block dates).
+    Extended the sweep into `docs/` beyond D32's one fixed file — the committed `deprecations.ics` calendar export
+    and `docs/lambda-runtime-deprecation-schedule/index.html` both carry the correct Feb 1/Mar 3 2027 dates, no new
+    stale layer found. `fixes.yml` still has exactly 27 entries (no new source data since D27's exhaustion finding)
+    — no new-fetch-free content candidate there either.
+84. **Explored, then correctly rejected, a candidate dev.to angle:** `kits/lambda-lifeline/src/codemod/index.mjs`
+    has 4 undocumented Node 20→22 codemod rules (`assert`→`with` import attributes, dynamic-import assert, a
+    Buffer.toString negative-end-index claim, a streams `highWaterMark` default-change claim). Checked non-duplication
+    first: the `assert`→`with` rule is **already covered** at paragraph level in article 02 (confirmed via grep) —
+    writing a dedicated piece on it would repeat the exact padding mistake D26 already flagged once (and article 23
+    already made once, per D31). The other two rules (Buffer negative-index, streams `highWaterMark`) are technical
+    claims this agent could not independently verify against an authoritative source with WebFetch down — per §2.5,
+    declined to ship new public content repeating an unverified claim, even one already resident in the kit's own
+    code. Abandoned this angle rather than force a ship.
+85. **Shipped instead: cross-linked all 27 `/fix/` pages to `/eol-checker/`** (`apps/web/build.py`, commit `3314d93`)
+    — every fix page already linked `/scan/` and the audit CTA but never the free interactive EOL-checker tool
+    (built 2026-07-14, flagged in METRICS as the site's answer to its #1 new-domain-authority bottleneck). Zero new
+    external facts — reused the exact CTA copy already proven live elsewhere on the site (`build.py:1098`). A pure
+    internal cross-link/discoverability improvement, not a truth fix or new content piece — a different shippable
+    category than the last 22 cycles have used, picked because both of those were genuinely exhausted this cycle.
+86. **Regression check:** full local rebuild in a fresh jail-local `python3.12` venv (deleted after use) —
+    `test_determinism.py` 4/4 (pytest), `test_surge.py` 4/4 (direct run), rebuild confirms 27/27 fix pages carry the
+    new link, zero `{API_URL}` leaks. `docs/` rebuild discarded before commit (source-only, per D14/D28 precedent) —
+    only `apps/web/build.py` committed.
+87. **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked, both the
+    per-slug/synthesis content angles and the truth-fix sweep are exhausted as of this cycle — the next non-padding
+    lever (if one is needed) is likely another site-quality/conversion improvement in the same vein as this cycle's
+    ship (e.g., check whether `/migrate/` pages cross-link `/eol-checker/` and each other as thoroughly as `/fix/`
+    pages now do), or wait for `fixes.yml` to gain new entries / WebFetch to clear.
+
 ## Next actions (priority order) — post-pivot
+- **Done 2026-08-05:** shipped a site-quality ship (not truth-fix, not content) — cross-linked all 27 `/fix/` pages
+  to `/eol-checker/`, commit `3314d93`. Truth-fix sweep and no-fetch content backlog both confirmed exhausted this
+  cycle (see cycle log #82–87); explored but correctly rejected an unverifiable dev.to angle (kit codemod rules).
 - **Done 2026-08-04:** swept `apps/vscode-extension`/`apps/github-action` (clean); found + fixed the recurring
   superseded-date bug in a new layer — the committed `docs/` build snapshot (1 file, 4 passages). See DECISIONS D32.
 - **Done 2026-08-03 (Day-21 §8 gate):** gap recompute ($0 collected, $4,000 gap, unchanged — see cycle log #69); no
