@@ -1216,3 +1216,43 @@ optimistic projections.
   shipped there long before this state-file era, out of scope for this cycle's jail-bounded, no-new-fetch
   discipline to retroactively fact-check) — flagged here only so a future cycle with working WebFetch access
   knows to verify them before ever citing them in new public content.
+
+## D34 — 2026-08-06 (cloud routine): extended D33's site-quality cross-link pattern to the /migrate/ pages — the exact gap D33 itself flagged as the next candidate
+- **WebFetch re-tested first, per standing rule:** `https://example.com` → still HTTP 403 Forbidden. 23rd consecutive
+  blocked cycle (07-15, -16, -18 through 08-06; no 07-17 run recorded). No re-diagnosis per D17.
+- **Truth/harm sweep:** `git log 87a61ba..HEAD` was empty before this cycle's commit — no other routine landed
+  commits since the 08-05 cycle. `fixes.yml` still exactly 27 entries (no new no-fetch content candidate);
+  `deprecations.yml` still exactly 8 active deprecations (no new `/migrate/` page candidate either).
+- **Picked up D33's own explicit next-candidate note** ("check whether `/migrate/` pages cross-link `/eol-checker/`
+  and each other as thoroughly as `/fix/` pages now do"). Verified the gap first: `apps/web/templates/migrate.html.j2`
+  and `migrate_index.html.j2` link `/scan/`, `/audit/sample/`, `/pack/`, and (via the existing `related` block) other
+  `/migrate/` pages — but never `/eol-checker/`, and the index never linked the `/fix/` hub either. Confirmed via
+  grep before editing (not assumed).
+- **Shipped:** added one line to `migrate.html.j2` (next to the existing scan-CTA line, same phrasing D33 already
+  proved live and reusable: "Prefer a 10-second check? Paste your config into the free AWS EOL checker — nothing
+  uploaded.") and one line to `migrate_index.html.j2` (same eol-checker phrasing, plus a pointer to the `/fix/`
+  hub — closing the loop the other direction, since `/fix/index.html`'s hub already links back to `/migrate/`).
+  Zero new external facts — pure copy reuse. Commit `90a06ae`.
+- **Verified before shipping (§9):** created a fresh jail-local `python3.12` venv (per the D27 trap — default
+  `python3 -m venv` resolves to 3.11 on this box), installed `jinja2`/`pyyaml`/`pytest`, ran a full
+  `python3 apps/web/build.py` rebuild — clean, no errors. Grepped the rebuild output: all 8 `docs/migrate/<slug>/`
+  pages plus `docs/migrate/index.html` carry the new `/eol-checker/` link (8/8 + index), the index also carries the
+  new `/fix/` link, zero `{API_URL}` leaks in `docs/migrate/`. Ran `apps/web/test_determinism.py` (4/4, pytest) +
+  `test_surge.py` (4/4, direct run) — clean. Ran `kits/lambda-lifeline` `npm test` — 24/24 green (unaffected by this
+  change, run for the same full-regression discipline every content/site cycle uses). `docs/` rebuild discarded
+  before commit (`git checkout -- docs/` + removed 5 newly-untracked dirs the local rebuild produced, consistent
+  with D32/D33's note that the git-tracked `docs/` snapshot lags the box's daily cron rebuild) — `git status`
+  confirmed only the 2 intended template files staged. Venv deleted after use.
+- **Ship-law check:** externally visible ✅ — lands on the public repo immediately, takes effect on the live
+  eolkits.com site on the box's next daily `docs/` rebuild-and-deploy cron, same path every prior `apps/web`
+  template/build.py change in this loop has used.
+- **Day count:** Day 24 of 28 (Day 0 = 2026-07-13, today = 2026-08-06 per system date). $0 collected, $4,000 gap,
+  unchanged — no new owner action has landed since the last cycle (see HUMAN_QUEUE). 4 days remain in the original
+  28-day window; the core owner batch (HQ-1′/2′, HQ-4, HQ-6, HQ-7, HQ-10, ~35 min total) remains the only lever that
+  can still move the collected-dollars needle before Day 28.
+- **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked: this
+  cycle closed the one gap D33 explicitly flagged, so the next site-quality candidate (if the truth-sweep and
+  no-fetch content backlog are still both exhausted) needs a fresh angle — e.g. whether the Gumroad bundle's
+  `MIGRATION-PLAYBOOK.md` and the dev.to article-21/22 synthesis pieces cross-link `/eol-checker/` and each other,
+  or a fresh full-content sweep of a surface not yet checked this way (the kit READMEs' non-pricing sections, or
+  `launch/gumroad/LISTING-COPY.md`).

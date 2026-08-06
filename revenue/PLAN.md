@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 23 (2026-08-05) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 24 (2026-08-06) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -614,7 +614,30 @@ no fast-gig shortcut exists. Replaced by:
     ship (e.g., check whether `/migrate/` pages cross-link `/eol-checker/` and each other as thoroughly as `/fix/`
     pages now do), or wait for `fixes.yml` to gain new entries / WebFetch to clear.
 
+## Cycle 2026-08-06 (cloud routine)
+88. **WebFetch re-tested, still 403 on the neutral control (`example.com`)** — 23rd consecutive cycle blocked from
+    fresh external fact-checking (07-15, -16, -18 through 08-06; no 07-17 run recorded). Per D17's root cause
+    (permanent egress-policy denial), no re-diagnosis needed.
+89. **Truth/harm sweep found nothing new** — `git log 87a61ba..HEAD` was empty before this cycle's commit; no other
+    routine landed commits since the 08-05 cycle. `fixes.yml` still 27 entries, `deprecations.yml` still 8 active
+    deprecations — no new no-fetch content candidate on either axis.
+90. **Shipped the exact next candidate D33 flagged: cross-linked all 8 `/migrate/` pages + the `/migrate/` index to
+    `/eol-checker/`, and the index to the `/fix/` hub** (`apps/web/templates/migrate.html.j2` +
+    `migrate_index.html.j2`, commit `90a06ae`). Mirrors D33's `/fix/`→`/eol-checker/` cross-link exactly — same
+    reused CTA copy, zero new external facts. See DECISIONS D34.
+91. **Regression check:** full local rebuild in a fresh jail-local `python3.12` venv (deleted after use) —
+    `test_determinism.py` 4/4 (pytest), `test_surge.py` 4/4 (direct run); `kits/lambda-lifeline` `npm test` 24/24
+    green. Grep confirmed 8/8 `/migrate/<slug>/` pages + the index carry the new link, zero `{API_URL}` leaks.
+    `docs/` rebuild discarded before commit (source-only, per D14/D28/D33 precedent) — only the 2 template files
+    committed.
+92. **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked, check
+    whether the Gumroad bundle's `MIGRATION-PLAYBOOK.md` and the dev.to synthesis articles (21, 22) cross-link
+    `/eol-checker/`, or run a fresh full-content sweep on a not-yet-checked surface (kit READMEs' non-pricing
+    sections, `launch/gumroad/LISTING-COPY.md`) — the same pattern that's kept finding real, non-padding gaps.
+
 ## Next actions (priority order) — post-pivot
+- **Done 2026-08-06:** cross-linked all 8 `/migrate/` pages + index to `/eol-checker/` (and the index to `/fix/`),
+  commit `90a06ae` — the exact next candidate D33 flagged. See DECISIONS D34.
 - **Done 2026-08-05:** shipped a site-quality ship (not truth-fix, not content) — cross-linked all 27 `/fix/` pages
   to `/eol-checker/`, commit `3314d93`. Truth-fix sweep and no-fetch content backlog both confirmed exhausted this
   cycle (see cycle log #82–87); explored but correctly rejected an unverifiable dev.to angle (kit codemod rules).
