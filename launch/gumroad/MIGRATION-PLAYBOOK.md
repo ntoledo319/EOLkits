@@ -7,7 +7,8 @@ Maintained by [EOLkits](https://eolkits.com). Dates below are pulled directly fr
 deprecation table (`docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html`) and the Amazon Linux 2 FAQ
 (`aws.amazon.com/amazon-linux-2/faqs/`) — the same data that drives the live deadline calendar at
 [eolkits.com/status](https://eolkits.com/status). If AWS revises a date, the calendar updates; this document is a
-snapshot as of **2026-07-18**.
+snapshot as of **2026-07-18**. Prefer a 10-second check over reading the tables below? Paste your config into the
+free [AWS EOL checker](https://eolkits.com/eol-checker/) — nothing uploaded.
 
 ---
 
