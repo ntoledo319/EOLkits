@@ -86,6 +86,11 @@ still-legitimate category instead (internal cross-linking / conversion, `/fix/` 
 DECISIONS D33) rather than force either. Not a frame re-evaluation — frame #3 (VS Code/Open VSX placement) and
 frame #7 (dev.to backlinks) are unchanged and still owner-gated/exhausted respectively.
 
+## Reviewed (no change) — 2026-08-07
+Ranking and frame scores unchanged — no new platform fact this cycle. This cycle closed the exact gap D34 flagged
+(dev.to article 21 + Gumroad `MIGRATION-PLAYBOOK.md` now cross-link `/eol-checker/`, see DECISIONS D35), not a
+frame re-evaluation.
+
 ## The honest constraint that dominates all of this
 Every payment-enabled channel is **first-publish KYC-gated** (marketplaces need identity/bank). No autonomous
 $0 action reaches a *ready buyer* inside 28 days. The frames that can actually collect $4k (Upwork gig, Migration

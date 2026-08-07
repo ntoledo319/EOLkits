@@ -282,4 +282,13 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-08-06 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle. |
 | 2026-08-06 | **dev.to articles staged on branch: 23** (unchanged — no new article this cycle, site-quality ship instead) | `launch/distribution/devto/01`–`23`. |
 
+## Cycle 2026-08-07 (cloud routine)
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-07 | **WebFetch re-tested — 24th consecutive cycle blocked** | `WebFetch` on `https://example.com` (neutral control) → `EGRESS_BLOCKED` (explicit error type this time, same permanent egress-policy denial per D17). Consistent with D17's root cause — no re-diagnosis, went straight to the no-new-fetch path. |
+| 2026-08-07 | **Truth/harm sweep found nothing new** | `git log 90a06ae..HEAD` empty before this cycle's commit — no other routine landed commits since 08-06. `fixes.yml` still 27 entries — no new content candidate. |
+| 2026-08-07 | **Shipped: cross-linked dev.to article 21 + Gumroad `MIGRATION-PLAYBOOK.md` to `/eol-checker/`** | Commit `ad4893a`. The exact next candidate D34 flagged (article 22 already had the link; article 21 and the playbook didn't). Verified: bundle rebuild clean (164K/137 files, unchanged), article 21 frontmatter still parses; `test_determinism.py` 4/4 + `test_surge.py` 4/4 + `kits/lambda-lifeline` `npm test` 24/24 green (jail-local `python3.12` venv, deleted after use). |
+| 2026-08-07 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle. |
+| 2026-08-07 | **dev.to articles staged on branch: 23** (unchanged — no new article this cycle, existing article 21 edited in place instead) | `launch/distribution/devto/01`–`23`. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

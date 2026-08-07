@@ -1256,3 +1256,51 @@ optimistic projections.
   `MIGRATION-PLAYBOOK.md` and the dev.to article-21/22 synthesis pieces cross-link `/eol-checker/` and each other,
   or a fresh full-content sweep of a surface not yet checked this way (the kit READMEs' non-pricing sections, or
   `launch/gumroad/LISTING-COPY.md`).
+
+## D35 — 2026-08-07 (cloud routine): closed the exact D34-flagged gap — article 21 + MIGRATION-PLAYBOOK.md now cross-link /eol-checker/
+- **WebFetch re-tested first, per standing rule:** `https://example.com` → `EGRESS_BLOCKED` (same permanent-policy
+  denial as every prior cycle, now surfaced with an explicit error type instead of a bare HTTP 403 — same root cause
+  per D17, no re-diagnosis needed). 24th consecutive blocked cycle (07-15, -16, -18 through 08-07; no 07-17 run
+  recorded).
+- **Truth/harm sweep:** `git log 90a06ae..HEAD` was empty before this cycle's commit — no other routine landed
+  commits since the 08-06 cycle. `fixes.yml` still exactly 27 entries; no new no-fetch content candidate.
+- **Picked up D34's own explicit next-candidate note** (checking whether the Gumroad `MIGRATION-PLAYBOOK.md` and
+  dev.to articles 21/22 cross-link `/eol-checker/`). Verified the gap first via grep before editing: article 22
+  already links `/eol-checker/` (its canonical target and inline in the body) — no gap there. Article 21 (the
+  runtime-upgrade error map) linked only `/scan` at its close. `MIGRATION-PLAYBOOK.md` linked `/audit` and `/pack`
+  but never `/eol-checker/`. Also checked `launch/gumroad/LISTING-COPY.md` (a Gumroad sales-page copy block, not a
+  discovery surface like the playbook/articles) — has no `eol-checker` mention either, but left alone: adding a
+  free-tool CTA to a paid-product sales listing risks diluting the $79 offer's conversion, a different tradeoff than
+  the playbook/article content pages, and D34 didn't flag it as a gap — out of scope for this cycle.
+- **Shipped:** one sentence added to article 21's closing paragraph (reusing the exact "paste your runtimes... 10
+  seconds... nothing uploaded" phrasing pattern article 22 and the site itself already use) and one sentence added
+  to `MIGRATION-PLAYBOOK.md`'s intro (same phrasing, reusing `build.py:1098`'s exact live CTA copy verified via grep
+  before reuse — not a new invented claim). Zero new external facts — pure copy reuse, the same category D33/D34
+  established. Commit `ad4893a`.
+- **Verified before shipping (§9):** rebuilt the Gumroad bundle (`bash launch/gumroad/build_bundle.sh`) — clean,
+  164K/137 files (unchanged file count from the last verified build, confirming no accidental file additions/leaks),
+  `unzip -l` confirms the updated `MIGRATION-PLAYBOOK.md` is inside. Confirmed article 21's YAML frontmatter still
+  parses correctly (title/canonical_url/tags unchanged, only body edited) and the new `eol-checker` string is
+  present in the body. Full local rebuild in a fresh jail-local `python3.12` venv (deleted after use):
+  `test_determinism.py` 4/4 (pytest), `test_surge.py` 4/4 (direct run), `kits/lambda-lifeline` `npm test` 24/24 —
+  all green (this ship doesn't touch `apps/web` or the kit, run for the same full-regression discipline every
+  content cycle uses). `docs/` rebuild discarded before commit, source-only per D14/D28 precedent — `git status`
+  confirmed only the two intended files staged.
+- **Ship-law check:** externally visible ✅ — lands on the public repo immediately (same "public repo is external
+  visibility" standard D31–D34 already established for docs/content edits). The dev.to article-21 edit does **not**
+  update the already-live dev.to post — `publish_devto.py` is create-only and skips any title already on the
+  account (confirmed by reading the script this cycle), so this specifically keeps the *repo's source of truth*
+  consistent with the site's cross-linking pattern, not a live dev.to page update. The `MIGRATION-PLAYBOOK.md` edit
+  takes effect the next time the owner runs `build_bundle.sh` and publishes/republishes the Gumroad listing (still
+  owner-gated, HQ-1′/HQ-2′, unactioned) — this ships the improvement ahead of that publish so it's included whenever
+  it happens, same as every truth-fix/content commit that's landed on this branch while the publish step sits queued.
+- **Day count:** Day 25 of 28 (Day 0 = 2026-07-13, today = 2026-08-07 per system date). $0 collected, $4,000 gap,
+  unchanged — no new owner action has landed since the last cycle (see HUMAN_QUEUE). 3 days remain in the original
+  28-day window; the core owner batch (HQ-1′/2′, HQ-4, HQ-6, HQ-7, HQ-10, ~35 min total) remains the only lever that
+  can still move the collected-dollars needle before Day 28.
+- **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked: this
+  cycle closed both gaps D34 flagged (article 21, playbook), so the next site-quality candidate needs a fresh
+  angle — e.g. a full-content sweep of the 3 kit READMEs' non-pricing sections (last swept for truth bugs, not for
+  cross-linking) for missing `/eol-checker/`/`/scan` mentions, or re-verify the dev.to article canonical-URL set
+  against the current live `/fix/` and `/migrate/` page list for any newly-added page that isn't yet the canonical
+  target of any article.

@@ -635,7 +635,28 @@ no fast-gig shortcut exists. Replaced by:
     `/eol-checker/`, or run a fresh full-content sweep on a not-yet-checked surface (kit READMEs' non-pricing
     sections, `launch/gumroad/LISTING-COPY.md`) — the same pattern that's kept finding real, non-padding gaps.
 
+## Cycle 2026-08-07 (cloud routine)
+93. **WebFetch re-tested, `EGRESS_BLOCKED` on the neutral control (`example.com`)** — 24th consecutive cycle blocked
+    from fresh external fact-checking (07-15, -16, -18 through 08-07; no 07-17 run recorded). Per D17's root cause
+    (permanent egress-policy denial), no re-diagnosis needed; the tool now surfaces an explicit error type instead
+    of a bare HTTP 403, same underlying denial.
+94. **Truth/harm sweep found nothing new** — `git log 90a06ae..HEAD` was empty before this cycle's commit; no other
+    routine landed commits since the 08-06 cycle. `fixes.yml` still 27 entries — no new no-fetch content candidate.
+95. **Picked up D34's own explicit next-candidate note**: checked whether the Gumroad `MIGRATION-PLAYBOOK.md` and
+    dev.to articles 21/22 cross-link `/eol-checker/`. Article 22 already did; article 21 and the playbook didn't.
+96. **Shipped: added one `/eol-checker/` cross-link to article 21's closing paragraph and one to the playbook's
+    intro**, reusing the exact live CTA phrasing (`build.py:1098`) — zero new external facts. Commit `ad4893a`.
+97. **Regression check:** rebuilt the Gumroad bundle (clean, 164K/137 files, unchanged file count); confirmed
+    article 21's frontmatter still parses. `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4
+    (direct run) + `kits/lambda-lifeline` `npm test` 24/24 green (jail-local `python3.12` venv, deleted after use).
+98. **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked: this
+    cycle closed both gaps D34 flagged, so the next site-quality candidate needs a fresh angle — e.g. a
+    full-content sweep of the 3 kit READMEs' non-pricing sections for missing `/eol-checker/`/`/scan` mentions, or
+    re-verify the dev.to article canonical-URL set against the current live `/fix/`/`/migrate/` page list.
+
 ## Next actions (priority order) — post-pivot
+- **Done 2026-08-07:** cross-linked dev.to article 21 + Gumroad `MIGRATION-PLAYBOOK.md` to `/eol-checker/`, commit
+  `ad4893a` — the exact next candidate D34 flagged (article 22 already had the link). See DECISIONS D35.
 - **Done 2026-08-06:** cross-linked all 8 `/migrate/` pages + index to `/eol-checker/` (and the index to `/fix/`),
   commit `90a06ae` — the exact next candidate D33 flagged. See DECISIONS D34.
 - **Done 2026-08-05:** shipped a site-quality ship (not truth-fix, not content) — cross-linked all 27 `/fix/` pages

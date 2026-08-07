@@ -294,6 +294,17 @@ unchanged — none of these show any observed signal of having been actioned yet
 original 28-day window** — the core batch (HQ-1′/2′, HQ-4, HQ-6, HQ-7, HQ-10, ~35 min total) is the only lever left
 that can still move the needle before Day 28.
 
+## Cycle 2026-08-07 (cloud routine)
+No new items added — this cycle's ship (cross-linking dev.to article 21 + Gumroad `MIGRATION-PLAYBOOK.md` to
+`/eol-checker/`, commit `ad4893a`) was fully autonomous, in-jail, $0, no human contact needed. WebFetch outage
+confirmed persistent a 24th consecutive cycle (now surfacing as an explicit `EGRESS_BLOCKED` error type rather than
+a bare 403 — same root cause, no change in status). **Still the highest-ROI owner clicks, unactioned as of this
+cycle: HQ-1′/2′ (Gumroad, ~10 min), HQ-7 (`vsce publish`), HQ-10 (GitHub Action listing), HQ-4 (GitHub App).**
+25 days into the 28-day window (Day 0 = 07-13); at $0 collected, the gap math is unchanged — none of these show any
+observed signal of having been actioned yet. **Only 3 days remain in the original 28-day window** — the core batch
+(HQ-1′/2′, HQ-4, HQ-6, HQ-7, HQ-10, ~35 min total) is the only lever left that can still move the needle before Day
+28.
+
 ## Running total (post-pivot)
 Everything here is now **one-time setup, no ongoing owner time.** Core ≈ **30 min** (HQ-1′+2′,4,5,6). The COMPOUNDING
 batch below is now the **primary growth engine** (outreach is off the table), so those publishes matter more than
