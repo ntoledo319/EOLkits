@@ -164,6 +164,12 @@ has been correct since 07-22 but the *repo-committed* snapshot stays permanently
 passages directly (not a full rebuild-and-commit, per D14/D28 precedent) to match the already-corrected source
 wording in `launch/blog-post.md`. See DECISIONS D32.
 
+## 2026-08-08: `apps/web` gains one more cross-link detail — `/vs/` comparison pages now link `/eol-checker/`
+No new codebase or SKU. The 3 competitor comparison pages (CloudQuery, HeroDevs, aws-samples runtime-update-helper)
+plus their `/vs/` index now link to `/eol-checker/` — previously they had no CTA beyond a "Home" footer link. Same
+category of change as the 2026-08-05/-06/-07 entries below (site-quality cross-linking, not a new asset). Truth/harm
+sweep this cycle found nothing new; `fixes.yml` still 27 entries, dev.to still 23 articles. See DECISIONS D36.
+
 ## 2026-08-05: `apps/web` gains one new asset detail — `/fix/` pages now cross-link `/eol-checker/`
 No new codebase or SKU. `build_error_pages` in `apps/web/build.py` now links every `/fix/<slug>/` page to
 `/eol-checker/` (previously only linked `/scan/` + the audit CTA), closing a discoverability gap on the site's own

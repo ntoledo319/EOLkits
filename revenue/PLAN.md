@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 24 (2026-08-06) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 26 (2026-08-08) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -721,3 +721,32 @@ no fast-gig shortcut exists. Replaced by:
 ## Leading indicator to watch
 `eolkits.com/status` (data.json, rebuilt daily) — the first `checkout_click` in `track.js` means a buyer is imminent.
 Clicks with no buys ⇒ a conversion/trust problem to fix, not a traffic problem.
+
+## Cycle 2026-08-08 (cloud routine) — Day 26
+74. **WebFetch re-tested via the tool itself (not just proxy status), still `EGRESS_BLOCKED`** — 25th consecutive
+    cycle blocked from fresh external fact-checking (07-15, -16, -18 through 08-08; no 07-17 run recorded). Per D17's
+    root cause (permanent egress-policy denial), no re-diagnosis needed.
+75. **Truth/harm sweep found nothing new** — repo-wide grep for every known superseded-date variant outside
+    `revenue/` found only the 3 already-reviewed correctly-contextual exceptions (`HANDOFF-2026-07-15.md`'s gotcha
+    #1 explaining the landmine, `research/phase1_findings.md`'s correction-bannered historical table, and dev.to
+    article 07 debunking the myth). `fixes.yml` still 27 entries, `launch/distribution/devto/` still 23 articles —
+    no new content-source growth on either axis; no new commits from other routines since `b8a542b`.
+76. **Found the next cross-link gap in the same pattern D33-D35 established:** grepped `apps/web/build.py` for
+    every page builder that links to `/eol-checker/` — only `build_lambda_schedule_page` and `build_error_pages`
+    (the `/fix/` pages) did. The 3 `/vs/<competitor>/` comparison pages (CloudQuery, HeroDevs, aws-samples
+    runtime-update-helper) plus their `/vs/` index had **zero CTA beyond "Home"** — a visitor actively comparing
+    migration tools hit a dead end instead of a path to the free checker.
+77. **Shipped: cross-linked all 3 `/vs/` pages + the `/vs/` index to `/eol-checker/`** (commit `d76cfb4`). Verified
+    via full rebuild: all 4 pages carry the new link, zero `{API_URL}` leaks; `test_determinism.py` 4/4 (pytest) +
+    `test_surge.py` 4/4 (direct run) + `kits/lambda-lifeline` `npm test` 24/24 all green (jail-local `python3.12`
+    venv, deleted after use). `docs/` rebuild output discarded (`git checkout -- docs/` + `git clean -fd docs/`)
+    per established convention — the box cron rebuilds `docs/` fresh from source on every deploy.
+78. **Day-26 status: only 2 days remain in the original 28-day window.** Collected = $0, gap = $4,000, unchanged
+    since Day 0. HUMAN_QUEUE core batch (HQ-1′/2′ Gumroad, HQ-4 GitHub App, HQ-7/8/9/10 flywheel publishes) remains
+    entirely unactioned 26 days running — no observed signal exists because nothing autonomous has reached a buyer
+    yet, not because a live bet underperformed (consistent with the Day-21 gate finding, D31). No portfolio pivot
+    warranted — same conclusion as every gate since Day 21.
+79. **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked, sweep
+    the remaining page builders not yet cross-linked to `/eol-checker/` (`build_audit_page`, `build_pack_page`,
+    `build_scan_page`, `build_al2_vs_al2023_page`, `build_index_page` — check each for an existing equivalent CTA
+    before adding a redundant one, since several likely already funnel to `/audit/` directly and don't need it).

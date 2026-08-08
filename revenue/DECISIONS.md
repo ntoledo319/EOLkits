@@ -1304,3 +1304,53 @@ optimistic projections.
   cross-linking) for missing `/eol-checker/`/`/scan` mentions, or re-verify the dev.to article canonical-URL set
   against the current live `/fix/` and `/migrate/` page list for any newly-added page that isn't yet the canonical
   target of any article.
+
+## D36 — 2026-08-08 (cloud routine): closed the /vs/ comparison-page cross-link gap
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was already at the
+  tip (`b8a542b`, D35's cycle commit); no other routine had pushed since.
+- **WebFetch re-tested via the tool itself (not just the proxy status endpoint), per standing rule:**
+  `https://example.com` → `EGRESS_BLOCKED`. 25th consecutive blocked cycle (07-15, -16, -18 through 08-08; no 07-17
+  run recorded). Consistent with D17's root cause — no re-diagnosis.
+- **Truth/harm sweep found nothing new:** repo-wide grep for every known superseded-date variant outside
+  `revenue/` found only the 3 already-reviewed, correctly-contextual exceptions (`HANDOFF-2026-07-15.md`'s
+  landmine-explainer, `research/phase1_findings.md`'s correction-bannered table, dev.to article 07's myth-debunk).
+  `fixes.yml` still 27 entries, dev.to still 23 articles — no new content-source growth. `git log b8a542b..HEAD`
+  empty before this cycle's commit.
+- **Found the next instance of the D33-D35 cross-link pattern:** grepped `apps/web/build.py` for every `def
+  build_*` page function that links to `/eol-checker/` — only `build_lambda_schedule_page` and `build_error_pages`
+  did. Read `build_vs_page`/`build_vs_index` (the 3 competitor comparison pages + their index) in full: zero CTA
+  beyond a "Home" / "All comparisons" footer link. A visitor actively comparing EOLkits against CloudQuery,
+  HeroDevs, or the aws-samples helper script — high commercial intent, mid-funnel — hit a dead end instead of a
+  path to engage further. Checked `build_scan_page` too (a candidate): it already links `/fix/`, and is itself a
+  competing "checker" UX (drop-files vs. paste-config), so a self-referential cross-link there is lower-value and
+  was left alone this cycle rather than force it.
+- **Shipped:** one sentence added to each of the 3 `/vs/<competitor>/` pages ("Deciding between tools? Paste your
+  config into the free AWS EOL checker...") and one to the `/vs/` index ("Skip the reading — paste your config
+  into the free AWS EOL checker instead"), reusing the same "nothing uploaded / 10-second check" phrasing already
+  established on the `/fix/` and `/migrate/` pages — zero new external facts, pure copy reuse in the same category
+  D33-D35 established. Commit `d76cfb4`.
+- **Verified before shipping (§9):** full local rebuild in a jail-local `python3.12` venv (matching the D27 trap —
+  `python3 -m venv` on this box already resolves to 3.12, confirmed this cycle, no longer a trap here) — all 4
+  `/vs/` pages carry the new link (`grep -rl eol-checker docs/vs/`), zero `{API_URL}` leaks anywhere in `docs/`.
+  `test_determinism.py` 4/4 (pytest), `test_surge.py` 4/4 (direct run), `kits/lambda-lifeline` `npm test` 24/24 —
+  all green. `docs/` rebuild output discarded before commit (`git checkout -- docs/` reverted tracked changes;
+  `git clean -fd docs/` removed untracked artifacts the stale committed snapshot didn't have — e.g. `docs/eol-checker/`
+  itself and 4 `/fix/` pages — consistent with D32's finding that the committed `docs/` snapshot lags the live
+  site; not committing a full rebuild here keeps that precedent, the box cron handles it) — source-only, `git
+  status` confirmed only `apps/web/build.py` staged.
+- **Ship-law check:** externally visible ✅ — lands on the public repo immediately, same standard D31-D35 use for
+  docs/content edits; takes effect on eolkits.com on the box's next daily `docs/` rebuild-and-deploy cron.
+- **Day count:** Day 26 of 28 (Day 0 = 2026-07-13, today = 2026-08-08 per system date). $0 collected, $4,000 gap,
+  unchanged — no new owner action has landed since the last cycle (see HUMAN_QUEUE). Only 2 days remain in the
+  original 28-day window; the core owner batch (HQ-1′/2′, HQ-4, HQ-6, HQ-7, HQ-10, ~35 min total) remains the only
+  lever that can still move the collected-dollars needle before Day 28. Given the window is nearly exhausted with
+  the entire core batch unactioned, the honest read (consistent with D7's honest-timeline call) is that $4,000 by
+  Day 28 will not happen absent an owner action landing in the next 2 days — the compounding flywheel (content +
+  cross-linking + the standing re:Post-answer backlog) continues regardless of the Day-28 boundary, since AGENTS.md's
+  loop has no natural stop condition tied to the original window and the real inflection (Q1-2027 Lambda block wave)
+  is still 6 months out.
+- **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked: the
+  `/vs/` gap is now closed; remaining page builders without an `/eol-checker/` CTA are `build_audit_page`,
+  `build_pack_page`, `build_al2_vs_al2023_page`, `build_index_page` — check each for an existing equivalent CTA
+  (likely already funnel straight to `/audit/`/`/pack/` checkout, where adding a free-tool link could be
+  conversion-negative) before adding one; don't force the pattern onto a page where it doesn't fit.

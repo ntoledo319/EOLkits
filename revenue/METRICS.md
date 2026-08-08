@@ -291,4 +291,14 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-08-07 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle. |
 | 2026-08-07 | **dev.to articles staged on branch: 23** (unchanged — no new article this cycle, existing article 21 edited in place instead) | `launch/distribution/devto/01`–`23`. |
 
+## Cycle 2026-08-08 (cloud routine) — Day 26
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-08 | **WebFetch re-tested via the tool itself — 25th consecutive cycle blocked** | `WebFetch` on `https://example.com` → `EGRESS_BLOCKED` error type (same as 08-07). Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis. |
+| 2026-08-08 | **Truth/harm sweep found nothing new** | Repo-wide grep for every known superseded-date variant outside `revenue/` found only 3 already-reviewed, correctly-contextual exceptions. `fixes.yml` still 27 entries, dev.to still 23 articles — no new content-source growth. No new commits from other routines since `b8a542b`. |
+| 2026-08-08 | **Shipped: cross-linked all 3 `/vs/` comparison pages + the `/vs/` index to `/eol-checker/`** | Commit `d76cfb4`. Verified via full rebuild: 4/4 pages carry the link, zero `{API_URL}` leaks; `test_determinism.py` 4/4 + `test_surge.py` 4/4 + `kits/lambda-lifeline` `npm test` 24/24 green (jail-local `python3.12` venv, deleted after use). |
+| 2026-08-08 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a site-quality cross-link, same category as the last 3 cycles. |
+| 2026-08-08 | **dev.to articles staged on branch: 23** (unchanged — no new article this cycle) | `launch/distribution/devto/01`–`23`. |
+| 2026-08-08 | **Day 26 of 28 — only 2 days remain in the original window.** | HUMAN_QUEUE core batch still fully unactioned; no observed buyer signal. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._
