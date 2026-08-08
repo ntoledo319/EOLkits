@@ -1764,6 +1764,7 @@ def build_vs_index(competitors):
 <p>Factual comparisons updated nightly from public sources. No logos used. Plain-text product names under nominative fair use.</p>
 <ul>{items}</ul>
 <p style="color:#6b7280;font-size:.85rem">Pages reflect public data as of the timestamp shown on each page. If a fact is wrong or outdated, open an issue.</p>
+<p>Skip the reading — paste your config into the <a href="/eol-checker/">free AWS EOL checker</a> instead.</p>
 <footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a></footer></body></html>"""
 
 
@@ -1784,6 +1785,7 @@ def build_vs_page(competitor):
 <tr><td>Hash-anchored audit reports</td><td>Yes</td><td>{competitor.get("hash_anchored", "—")}</td></tr>
 <tr><td>Pricing</td><td>Free CLI; Audit $299; Pack $1,499</td><td>{competitor.get("pricing", "—")}</td></tr></table>
 <p class="muted">Trademark notice: "{competitor["name"]}" is referenced in plain text under nominative fair use. No logos are used. If you operate this product and a fact above is wrong, please open an issue at <a href="https://github.com/ntoledo319/EOLkits/issues">github.com/ntoledo319/EOLkits/issues</a> and we will correct within 24h of confirmation.</p>
+<p>Deciding between tools? Paste your config into the <a href="/eol-checker/">free AWS EOL checker</a> — nothing uploaded, see your actual block/EOL dates in 10 seconds.</p>
 <footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a> · <a href="/vs/">All comparisons</a></footer></body></html>"""
 
 
