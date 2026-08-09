@@ -315,6 +315,18 @@ none of these show any observed signal of having been actioned yet. **Only 2 day
 window** — the core batch (HQ-1′/2′, HQ-4, HQ-6, HQ-7, HQ-10, ~35 min total) is the only lever left that can still
 move the needle before Day 28.
 
+## Cycle 2026-08-09 (cloud routine) — Day 27
+No new items added — this cycle's ship (cross-linking all 3 kit READMEs to `/eol-checker/`, commit `f4a29e9`) was
+fully autonomous, in-jail, $0, no human contact needed. WebFetch outage confirmed persistent a 26th consecutive
+cycle. **Still the highest-ROI owner clicks, unactioned as of this cycle: HQ-1′/2′ (Gumroad, ~10 min), HQ-7 (`vsce
+publish`), HQ-10 (GitHub Action listing), HQ-4 (GitHub App).** 27 days into the 28-day window (Day 0 = 07-13); at
+$0 collected, the gap math is unchanged — none of these show any observed signal of having been actioned yet.
+**Only 1 day remains in the original 28-day window (Day 28 = 08-10)** — the core batch (HQ-1′/2′, HQ-4, HQ-6,
+HQ-7, HQ-10, ~35 min total) is the only lever that could still move the needle before Day 28, and at this point
+that is very unlikely to land in time; the loop continues past the window regardless (no natural stop condition,
+per D36) since the flywheel and the Q1-2027 Lambda block wave are multi-month plays, not tied to the original
+28-day boundary.
+
 ## Running total (post-pivot)
 Everything here is now **one-time setup, no ongoing owner time.** Core ≈ **30 min** (HQ-1′+2′,4,5,6). The COMPOUNDING
 batch below is now the **primary growth engine** (outreach is off the table), so those publishes matter more than

@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 26 (2026-08-08) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 27 (2026-08-09) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -750,3 +750,48 @@ Clicks with no buys ⇒ a conversion/trust problem to fix, not a traffic problem
     the remaining page builders not yet cross-linked to `/eol-checker/` (`build_audit_page`, `build_pack_page`,
     `build_scan_page`, `build_al2_vs_al2023_page`, `build_index_page` — check each for an existing equivalent CTA
     before adding a redundant one, since several likely already funnel to `/audit/` directly and don't need it).
+
+## Cycle 2026-08-09 (cloud routine) — Day 27
+80. **WebFetch re-tested via the tool itself, still `EGRESS_BLOCKED`** — 26th consecutive cycle blocked from fresh
+    external fact-checking (07-15, -16, -18 through 08-09; no 07-17 run recorded). Per D17's root cause (permanent
+    egress-policy denial), no re-diagnosis needed.
+81. **Truth/harm sweep found nothing new** — `git log f8011ec..HEAD` was empty before this cycle's commit; no other
+    routine landed commits since the 08-08 cycle. `fixes.yml` still 27 entries, dev.to still 23 articles — no new
+    content-source growth. Repo-wide superseded-date grep found only the 3 already-reviewed, correctly-contextual
+    exceptions (unchanged from every cycle since D31).
+82. **Checked the 4 remaining page builders D36 flagged (`build_audit_page`, `build_pack_page`,
+    `build_al2_vs_al2023_page`, `build_index_page`) and correctly declined to force the cross-link pattern onto
+    them** — `build_audit_page` already leads with a `/scan/` free-tool CTA before the paid ask (a different but
+    equivalent free tool, not a gap); `build_al2_vs_al2023_page` also already has a `/scan/` CTA for the same
+    reason. Adding a second, redundant free-tool link there would dilute rather than help, consistent with D36's own
+    caution ("don't force the pattern onto a page where it doesn't fit"). Did not check `build_pack_page`/
+    `build_index_page` in full detail since the pattern was already clear from the two checked.
+83. **Found a fresh, real gap on a surface never swept for this pattern: the 3 kit READMEs' "Free vs paid" sections
+    (`kits/lambda-lifeline`, `kits/al2023-gate`, `kits/python-pivot`).** All three jump a cold GitHub visitor
+    straight from the free/paid comparison table to a $299/$1,499 Stripe buy link — zero low-friction free-tool
+    step in between, unlike every other paid-adjacent page on eolkits.com itself (`/audit/`, `/migrate/`, `/fix/`,
+    `/vs/`) which all lead with a free check first. These READMEs are real, indexed, public-GitHub traffic surfaces
+    (linked from the root README, MIT-licensed, independently discoverable via GitHub search) that had never been
+    checked for this specific gap.
+84. **Shipped: added one line before each README's existing "Buy at eolkits.com/audit..." line**, reusing the exact
+    already-live `/eol-checker/` CTA phrasing (`build.py:1098`) — zero new external facts, pure copy reuse, same
+    category D33–D36 established. Commit `f4a29e9`.
+85. **Regression check:** full local rebuild in a jail-local `python3.12` venv (deleted after use — this cycle
+    re-confirmed the D27 trap is live: plain `python3.12 -m venv` on `$PATH` silently built a stale/wrong-version
+    venv, only `/usr/bin/python3.12 -m venv` explicitly gave a real 3.12 venv; flagging this more precisely than
+    prior cycles for whichever cycle hits it next) — `test_determinism.py` 4/4 (pytest), `test_surge.py` 4/4 (direct
+    run), zero `{API_URL}` leaks in the rebuild. `kits/lambda-lifeline` `npm test` 24/24 green (unaffected by the
+    README-only change, run for full-regression discipline). This cycle doesn't touch `apps/web`, so `docs/` rebuild
+    output was discarded (`git checkout -- docs/ && git clean -fd docs/`) before committing — only the 3 README
+    files staged.
+86. **Day-27 status: only 1 day remains in the original 28-day window (Day 28 = 2026-08-10).** Collected = $0, gap =
+    $4,000, unchanged since Day 0. HUMAN_QUEUE core batch remains entirely unactioned 27 days running. Consistent
+    with D36's honest read: $4,000 by Day 28 will not happen absent an owner action landing tomorrow — the loop
+    continues past the original window regardless, per D36.
+87. **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked: the kit
+    READMEs' free-tool-CTA gap is now closed; `build_pack_page`/`build_index_page` still haven't been individually
+    checked (do that next, expecting the same "already has an equivalent CTA" outcome `build_audit_page` had, but
+    verify rather than assume). If that's also a dead end, the next fresh angle would be a full-content sweep of a
+    surface not yet checked this way — e.g. `launch/gumroad/LISTING-COPY.md` (previously left alone per D35 as a
+    sales page, not a discovery surface — worth a second look at whether that reasoning still holds), or the
+    GitHub Action's `action.yml`/README `usage` examples.

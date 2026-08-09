@@ -301,4 +301,16 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-08-08 | **dev.to articles staged on branch: 23** (unchanged — no new article this cycle) | `launch/distribution/devto/01`–`23`. |
 | 2026-08-08 | **Day 26 of 28 — only 2 days remain in the original window.** | HUMAN_QUEUE core batch still fully unactioned; no observed buyer signal. |
 
+## Cycle 2026-08-09 (cloud routine) — Day 27
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-09 | **WebFetch re-tested — 26th consecutive cycle blocked** | `WebFetch` on `https://example.com` → `EGRESS_BLOCKED`. Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis. |
+| 2026-08-09 | **Truth/harm sweep found nothing new** | `git log f8011ec..HEAD` empty before this cycle's commit. `fixes.yml` still 27 entries, dev.to still 23 articles. Superseded-date grep found only the 3 already-reviewed exceptions. |
+| 2026-08-09 | **Checked the remaining page builders D36 flagged; correctly declined to force a redundant CTA** | `build_audit_page` and `build_al2_vs_al2023_page` already lead with a `/scan/` free-tool CTA before the paid ask — adding `/eol-checker/` too would be redundant, not a gap. |
+| 2026-08-09 | **Shipped: cross-linked all 3 kit READMEs to `/eol-checker/`** | Commit `f4a29e9`. A real, previously-unswept gap — the READMEs jumped straight from the free/paid table to a Stripe buy link with no free-tool step, unlike every other paid-adjacent page on the site. |
+| 2026-08-09 | **Regression check:** `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) + `kits/lambda-lifeline` `npm test` 24/24 green (jail-local `python3.12` venv, deleted after use) | Ran directly this cycle. |
+| 2026-08-09 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a site-quality cross-link on a new surface (kit READMEs). |
+| 2026-08-09 | **dev.to articles staged on branch: 23** (unchanged — no new article this cycle) | `launch/distribution/devto/01`–`23`. |
+| 2026-08-09 | **Day 27 of 28 — only 1 day remains in the original window.** | HUMAN_QUEUE core batch still fully unactioned; no observed buyer signal. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

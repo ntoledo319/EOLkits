@@ -1354,3 +1354,61 @@ optimistic projections.
   `build_pack_page`, `build_al2_vs_al2023_page`, `build_index_page` — check each for an existing equivalent CTA
   (likely already funnel straight to `/audit/`/`/pack/` checkout, where adding a free-tool link could be
   conversion-negative) before adding one; don't force the pattern onto a page where it doesn't fit.
+
+## D37 — 2026-08-09 (cloud routine): checked the remaining page builders (correctly skipped 2 of 4 as redundant); found and closed a real, previously-unswept cross-link gap on the 3 kit READMEs
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was already at the
+  tip (`f8011ec`, D36's cycle commit); no other routine had pushed since.
+- **WebFetch re-tested via the tool itself, per standing rule:** `https://example.com` → `EGRESS_BLOCKED`. 26th
+  consecutive blocked cycle (07-15, -16, -18 through 08-09; no 07-17 run recorded). Consistent with D17's root
+  cause — no re-diagnosis.
+- **Truth/harm sweep found nothing new:** `git log f8011ec..HEAD` empty before this cycle's commit — no other
+  routine landed commits since 08-08. Repo-wide superseded-date grep found only the 3 already-reviewed,
+  correctly-contextual exceptions (`HANDOFF-2026-07-15.md`, `research/phase1_findings.md`'s correction banner,
+  dev.to article 07's myth-debunk) — unchanged since D31. `fixes.yml` still 27 entries, dev.to still 23 articles —
+  no new no-fetch content candidate on either axis.
+- **Picked up D36's own explicit next-candidate list** (`build_audit_page`, `build_pack_page`,
+  `build_al2_vs_al2023_page`, `build_index_page` — the remaining page builders without an `/eol-checker/` link).
+  Read `build_audit_page` and `build_al2_vs_al2023_page` in full before touching anything: both already lead with
+  a `/scan/` free-tool CTA ahead of the paid ask (`/scan/` is the site's other free tool — drop-files vs.
+  paste-config — not a missing CTA, just a different one). Adding a second, redundant free-tool link would dilute
+  the page rather than close a real gap, exactly the failure mode D36 itself warned against ("don't force the
+  pattern onto a page where it doesn't fit"). Correctly declined to edit either page. Did not exhaustively check
+  `build_pack_page`/`build_index_page` this cycle — flagged as the next candidates, expecting the same outcome but
+  not assuming it.
+- **Found a fresh, real gap on a surface this specific cross-link sweep had never checked: the 3 kit READMEs'
+  "Free vs paid" sections** (`kits/lambda-lifeline/README.md`, `kits/al2023-gate/README.md`,
+  `kits/python-pivot/README.md`). Read all three in full: each jumps a cold reader straight from the free/paid
+  comparison table to a `Buy at eolkits.com/audit ... or eolkits.com/pack` line — a $299 or $1,499 ask with zero
+  low-friction free-tool step in between. This is inconsistent with every other paid-adjacent surface on
+  eolkits.com itself (`/audit/`, `/migrate/`, `/fix/`, `/vs/`, and now the kit READMEs' own table row above the
+  buy line, which *does* mention the free CLI) — all of which lead with a free check before the paid ask. These
+  READMEs are a real, non-trivial, previously-unswept traffic surface: public, MIT-licensed, linked from the root
+  `README.md`, and independently discoverable via GitHub search — not an internal/admin surface.
+- **Shipped:** one line added before each README's existing "Buy at eolkits.com/audit..." line ("Prefer a 10-second
+  check first? Paste your config into the free AWS EOL checker — nothing uploaded."), reusing the exact phrasing
+  already verified live on the site (`build.py:1098`) and already reused for `/fix/`, `/migrate/`, and `/vs/` in
+  D33–D36. Zero new external facts, pure copy reuse — same category as the last 4 cycles. Commit `f4a29e9`.
+- **Verified before shipping (§9):** full local rebuild in a jail-local `python3.12` venv (deleted after use) —
+  `test_determinism.py` 4/4 (pytest), `test_surge.py` 4/4 (direct run), zero `{API_URL}` leaks; `kits/lambda-lifeline`
+  `npm test` 24/24 green (this ship doesn't touch `apps/web` or the kit's own code, run for full-regression
+  discipline). `docs/` rebuild output discarded before commit (`git checkout -- docs/ && git clean -fd docs/`,
+  source-only per D14/D28 precedent) — `git status` confirmed only the 3 intended README files staged.
+  **Process note for future cycles:** hit a real trap creating the venv — running the bare `python3.12` command
+  (relying on `$PATH`) silently produced a venv whose `python3` still resolved to 3.11 and hit the same
+  backslash-in-f-string `SyntaxError` D27 first flagged; using the fully-qualified `/usr/bin/python3.12 -m venv`
+  fixed it. The D27 trap is evidently still live and more specific than previously written down — future cycles
+  should use the absolute interpreter path, not a bare `python3.12`/`python3 -m venv`, and should verify
+  `python3 --version` inside the activated venv before trusting it.
+- **Ship-law check:** externally visible ✅ — lands on the public `ntoledo319/EOLkits` repo immediately; each kit
+  README is independently browsable on GitHub regardless of the site's own daily deploy cron.
+- **Day count:** Day 27 of 28 (Day 0 = 2026-07-13, today = 2026-08-09 per system date). $0 collected, $4,000 gap,
+  unchanged — no new owner action has landed since the last cycle. Only 1 day remains in the original 28-day
+  window (Day 28 = 2026-08-10); consistent with D36's honest read, $4,000 by Day 28 will not happen absent an
+  owner action landing tomorrow. The loop has no natural stop condition tied to the original window (per D36) and
+  will keep compounding the flywheel regardless.
+- **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked: verify
+  `build_pack_page` and `build_index_page` for the same "already has an equivalent CTA" pattern `build_audit_page`
+  had (don't assume); if both are also dead ends, the next fresh angle is a full-content sweep of a surface not
+  yet checked this way — `launch/gumroad/LISTING-COPY.md` (previously left alone by D35 as a sales page, not a
+  discovery surface — worth re-examining whether that reasoning still holds now that the kit-README precedent
+  shows even paid-adjacent copy benefits from a free-tool mention) or the GitHub Action's `action.yml`/README.
