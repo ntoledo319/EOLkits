@@ -203,6 +203,8 @@ migration for you, these are the two things actually for sale (live Stripe check
 | Real PR / migration work on your repo | — | — | ✓ |
 | Guarantee | — | — | Auto-refund if CI fails |
 
+Prefer a 10-second check first? Paste your config into the [free AWS EOL checker](https://eolkits.com/eol-checker/) — nothing uploaded.
+
 Buy at [eolkits.com/audit](https://eolkits.com/audit) or [eolkits.com/pack](https://eolkits.com/pack).
 
 ---
