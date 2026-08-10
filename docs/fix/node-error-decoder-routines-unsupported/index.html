@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>error:1E08010C:DECODER routines::unsupported — cause &amp; fix (AWS Lambda / Node.js 18+ (OpenSSL 3)) | EOLkits</title>
+<meta name="description" content="OpenSSL 3, bundled with Node.js 17+, refuses to load a private key stored in a legacy format. Re-encode the key to PKCS#8: `openssl pkcs8 -topk8 -in old.pe">
+<link rel="canonical" href="https://eolkits.com/fix/node-error-decoder-routines-unsupported/">
+<link rel="stylesheet" href="/style.css">
+<script defer src="/track.js"></script>
+<meta property="og:image" content="https://eolkits.com/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://eolkits.com/og-default.png">
+<style>.fix-err{background:#0f172a;color:#e2e8f0;padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem}.fix-steps li{margin:.35rem 0}.fix-cta{display:inline-block;margin-top:1rem;padding:.7rem 1.2rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}.fix-rel{background:#fff7ed;border:1px solid #fed7aa;padding:.6rem .8rem;border-radius:8px}</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does \"error:1E08010C:DECODER routines::unsupported\" mean?", "acceptedAnswer": {"@type": "Answer", "text": "OpenSSL 3, bundled with Node.js 17+, refuses to load a private key stored in a legacy format. Node.js 18/20/22 ship OpenSSL 3, which disables some legacy algorithms and key encodings by default. Loading an old-format key (e.g. a traditional PKCS#1 PEM or one encrypted with a weak cipher) via `crypto.createPrivateKey`, `https`, JWT signing, or a TLS client then throws `DECODER routines::unsupported` after a runtime upgrade."}}, {"@type": "Question", "name": "How do I fix \"error:1E08010C:DECODER routines::unsupported\"?", "acceptedAnswer": {"@type": "Answer", "text": "Re-encode the key to PKCS#8: `openssl pkcs8 -topk8 -in old.pem -out new.pem` (add `-nocrypt` for an unencrypted key). If the key uses a legacy cipher, re-write it with a modern one: `openssl rsa -in old.pem -out new.pem`. For unavoidable legacy material, start Node with `--openssl-legacy-provider` \u2014 a stopgap, not a fix. Rotate any weak keys and store the PKCS#8 version in your Lambda config or secret. Source: https://nodejs.org/api/crypto.html"}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Fix: error:1E08010C:DECODER routines::unsupported", "step": [{"@type": "HowToStep", "position": 1, "text": "Re-encode the key to PKCS#8: `openssl pkcs8 -topk8 -in old.pem -out new.pem` (add `-nocrypt` for an unencrypted key)."}, {"@type": "HowToStep", "position": 2, "text": "If the key uses a legacy cipher, re-write it with a modern one: `openssl rsa -in old.pem -out new.pem`."}, {"@type": "HowToStep", "position": 3, "text": "For unavoidable legacy material, start Node with `--openssl-legacy-provider` \u2014 a stopgap, not a fix."}, {"@type": "HowToStep", "position": 4, "text": "Rotate any weak keys and store the PKCS#8 version in your Lambda config or secret."}], "citation": "https://nodejs.org/api/crypto.html"}</script>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
+</head>
+<body class="container article">
+<nav class="breadcrumb"><a href="/">Home</a> / <a href="/fix/">Fixes</a> / <span>AWS Lambda / Node.js 18+ (OpenSSL 3)</span></nav>
+<p class="muted">AWS Lambda / Node.js 18+ (OpenSSL 3)</p>
+<h1>error:1E08010C:DECODER routines::unsupported</h1>
+<pre class="fix-err"><code>error:1E08010C:DECODER routines::unsupported</code></pre>
+<h2>What it means</h2>
+<p>OpenSSL 3, bundled with Node.js 17+, refuses to load a private key stored in a legacy format.</p>
+<h2>Why it happens</h2>
+<p>Node.js 18/20/22 ship OpenSSL 3, which disables some legacy algorithms and key encodings by default. Loading an old-format key (e.g. a traditional PKCS#1 PEM or one encrypted with a weak cipher) via `crypto.createPrivateKey`, `https`, JWT signing, or a TLS client then throws `DECODER routines::unsupported` after a runtime upgrade.</p>
+<h2>How to fix it</h2>
+<ol class="fix-steps"><li>Re-encode the key to PKCS#8: `openssl pkcs8 -topk8 -in old.pem -out new.pem` (add `-nocrypt` for an unencrypted key).</li><li>If the key uses a legacy cipher, re-write it with a modern one: `openssl rsa -in old.pem -out new.pem`.</li><li>For unavoidable legacy material, start Node with `--openssl-legacy-provider` — a stopgap, not a fix.</li><li>Rotate any weak keys and store the PKCS#8 version in your Lambda config or secret.</li></ol>
+<p class="fix-rel">Related deadline: <a href="/migrate/lambda-node.js-20-phase-1/">Lambda Node.js 20 Phase 1</a> — <strong>2027-02-01</strong>.</p>
+<h2>Find every instance in your project</h2>
+<p>The free <a href="/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>
+<p>Primary source: <a href="https://nodejs.org/api/crypto.html" target="_blank" rel="noopener nofollow">https://nodejs.org/api/crypto.html</a></p>
+<p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-error-decoder-routines-unsupported&deadline=2027-02-01&kit=lambda-lifeline">Get the full migration audit — $299, hash-anchored PDF &rarr;</a></p>
+</body>
+</html>

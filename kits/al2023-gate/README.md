@@ -1,7 +1,7 @@
 # al2023-gate
 ### Amazon Linux 2 → AL2023 migration kit — scan, remap, patch, ship, rollback
 
-> **Deadline: 2026-06-30.** Amazon Linux 2 standard support ends. No new updates. No new patches. Critical CVEs become your problem. AWS will not extend again — the date has already been pushed twice.
+> **Amazon Linux 2 reached end of standard support on 2026-06-30 — that date has now passed.** AL2 is unpatched: no new updates, no security patches, no CVE backports. Every AL2 box you still run is accumulating unfixed vulnerabilities. Migrating to AL2023 is the fix.
 
 `al2023-gate` is a single-binary, dependency-light Python tool that finds every AL2-based compute resource in your AWS account, generates the Packer template + Ansible patches + cloud-init diffs to rebuild them on AL2023, and produces resource-type-specific migration runbooks you can actually execute.
 
@@ -17,11 +17,11 @@ Works offline (fixture mode) for demos, audits, or air-gapped reviews. Works liv
 
 | Milestone | Date | What breaks |
 |---|---|---|
-| **Standard support ends** | **2026-06-30** | No patches, no security updates, no CVE backports |
+| **Standard support ended** | **2026-06-30** (passed) | No patches, no security updates, no CVE backports — in effect now |
 | Maintenance support ends | 2027-06-30 | Full EOL. Instance launches from AL2 AMIs start failing. |
 | New AL2 AMI publications | Stopped | Already happening for most AWS-official AL2 AMIs |
 
-**63 days out** as of this release. If you have production EC2, EKS, ECS, or Elastic Beanstalk resources on AL2, you need a migration plan today.
+**The standard-support date has passed.** If you still run production EC2, EKS, ECS, or Elastic Beanstalk on AL2, every day is unpatched exposure — you need a migration plan now, not a deadline countdown.
 
 Primary source: <https://aws.amazon.com/amazon-linux-2/faqs/>
 
@@ -193,23 +193,17 @@ Same command supports `--kind eks|ecs|beanstalk` — each with resource-appropri
 
 ## Free vs paid
 
-| | Free (this repo) | Team ($999) | Enterprise ($2,499) |
-|---|---|---|---|
-| Scanner | ✓ | ✓ | ✓ |
-| Remap table (~50 pkgs) | ✓ | ✓ | ✓ |
-| Packer generator | ✓ | ✓ | ✓ |
-| cloud-init differ | ✓ | ✓ | ✓ |
-| Ansible patcher | ✓ | ✓ | ✓ |
-| 4 runbooks (ASG/EKS/ECS/EB) | ✓ | ✓ | ✓ |
-| PDF migration playbook (printable) | — | ✓ | ✓ |
-| 2-hour captioned video walkthrough | — | ✓ | ✓ |
-| Expanded remap table (200+ pkgs, EE repos, Wavefront, Datadog, New Relic agents) | — | ✓ | ✓ |
-| Custom remap entries for your stack | — | 3 | Unlimited |
-| Priority Slack channel | — | ✓ (7 days) | ✓ (30 days) |
-| Live migration pairing session | — | — | 2 × 90 min |
-| On-call during cutover window | — | — | ✓ |
+This repo is free and unlimited — every command above, no trial. If you'd rather EOLkits run the scan and do the
+migration for you, these are the two things actually for sale (live Stripe checkout, no account required):
 
-Bundle with `lambda-lifeline` + `python-pivot`: see <https://eolkits-kits.com>.
+| | This repo (free) | **Audit PDF · $299** | **Migration Pack · $1,499** |
+|---|---|---|---|
+| Scanner + full CLI, MIT | ✓ | — | — |
+| Hash-anchored, severity-scored PDF report of your account | — | ✓ (email ≤5 min) | ✓ |
+| Real PR / migration work on your repo | — | — | ✓ |
+| Guarantee | — | — | Auto-refund if CI fails |
+
+Buy at [eolkits.com/audit](https://eolkits.com/audit) or [eolkits.com/pack](https://eolkits.com/pack).
 
 ---
 

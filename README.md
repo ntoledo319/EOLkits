@@ -3,10 +3,10 @@
 > CLIs for the AWS deprecation deadlines that break production. **Amazon Linux 2 is now past EOL (Jun 30, 2026).** Also: **Lambda Python 3.9/3.10/3.11** waves, and the Lambda Node.js 16/18/20 block cliffs (**Feb 1 / Mar 3, 2027**).
 
 [![landing](https://img.shields.io/badge/landing-live-brightgreen)](https://eolkits.com)
-[![tests](https://img.shields.io/badge/tests-149%20passing-brightgreen)](#tests)
+[![tests](https://img.shields.io/badge/tests-168%20passing-brightgreen)](#tests)
 [![license](https://img.shields.io/badge/license-MIT%20(open%20core)-blue)](#license)
 
-> **Amazon Linux 2 reached end-of-life on Jun 30, 2026 — it is now unpatched.** Anything still pinned to AL2 (launch templates, EKS/ECS node groups, Beanstalk platforms, Lambda base images) gets no new AMIs and no security backports. The `al2023-gate` CLI below is free and MIT-licensed — clone it, scan your accounts, and run the migration yourself. If you'd rather have it done for you, the team offers a paid audit that scores every finding and hands back a roll-forward plan: [eolkits.com/audit](https://eolkits.com/audit).
+> **Check your own stack in 30 seconds — free, in your browser, nothing uploaded: [eolkits.com/scan](https://eolkits.com/scan).** Amazon Linux 2 **reached end-of-life on Jun 30, 2026 and is now unpatched** — anything still pinned to it (launch templates, EKS/ECS node groups, Beanstalk platforms, Lambda base images) gets no new AMIs and no security backports. Lambda Python 3.9–3.11 and Node 18/20 are in their own EOL waves. The CLIs below are free and MIT — clone and run them yourself. Prefer it done for you? A hash-anchored [audit](https://eolkits.com/audit) (from $299; $599 inside 7 days of a deadline) or a [done-for-you migration PR](https://eolkits.com/pack) that **auto-refunds if your CI fails**. Every tracked deadline: [eolkits.com/migrate](https://eolkits.com/migrate). Hit a specific error? [eolkits.com/fix](https://eolkits.com/fix).
 
 AWS is killing runtimes on a hard schedule. When a deadline passes, deploys fail, functions get frozen, AMIs stop receiving patches. Most shops find out in production.
 
@@ -18,7 +18,7 @@ AWS is killing runtimes on a hard schedule. When a deadline passes, deploys fail
 
 | Kit | Deadline | What breaks | Status |
 |---|---|---|---|
-| [**al2023-gate**](./kits/al2023-gate) | **Jun 30, 2026** — Amazon Linux 2 EOL | `yum`, `amazon-linux-extras`, `ntpd`, `iptables`, Python 2 | **Live deadline** |
+| [**al2023-gate**](./kits/al2023-gate) | **Past EOL** — Amazon Linux 2 ended Jun 30, 2026 | `yum`, `amazon-linux-extras`, `ntpd`, `iptables`, Python 2 | **Unpatched now — remediate** |
 | [**python-pivot**](./kits/python-pivot) | **Lambda Python 3.9/3.10/3.11** EOL waves | `distutils`, `imp`, `collections.Mapping`, native wheels | Active |
 | [**lambda-lifeline**](./kits/lambda-lifeline) | Apr 30, 2026 — Lambda Node.js 20 EOL (Phase 1, **passed**) | `require()`, `aws-sdk` v2, `URL` globals, OpenSSL 3 hashes | Post-deadline cleanup |
 
@@ -39,7 +39,7 @@ Every kit ships the same 6 pillars:
 
 Each kit is standalone. `al2023-gate` and `python-pivot` are Python CLIs; `lambda-lifeline` is a Node CLI. Clone and install the one you need.
 
-For the live deadline (AL2 → AL2023, Jun 30):
+If you're still on AL2 (past EOL, unpatched) — AL2 → AL2023:
 
 ```bash
 git clone https://github.com/ntoledo319/EOLkits.git
@@ -48,7 +48,7 @@ pip install -e .
 al2023-gate --help
 ```
 
-For Node 20 cleanup (before the Mar 3, 2027 block-update cliff):
+For Node 20 cleanup (before the Feb 1 / Mar 3, 2027 block cliffs):
 
 ```bash
 cd EOLkits/kits/lambda-lifeline
@@ -92,7 +92,7 @@ The action runs dry-run, path-safe checks from all three kits and can comment fi
 
 ## 30-second demo
 
-Live deadline first — Amazon Linux 2 → AL2023:
+Still on Amazon Linux 2? It's past EOL and unpatched — AL2 → AL2023:
 
 ```bash
 # Scan what's about to break (offline, no AWS creds needed)
@@ -153,16 +153,16 @@ cd apps/runner && pytest -q
 cd apps/worker && npm test
 ```
 
-149 passing across kits + apps (al2023-gate 48, python-pivot 44, lambda-lifeline 29, runner 8, worker 8, grace-api 12 — counted 2026-06-09).
+168 passing across kits + apps (al2023-gate 48, python-pivot 44, lambda-lifeline 24, runner 8, worker 8, grace-api 36 — counted 2026-07-22).
 
 ---
 
 ## Roadmap
 
 Shipped:
-- [x] al2023-gate — Amazon Linux 2 → AL2023 *(Jun 30, 2026 — live deadline)*
+- [x] al2023-gate — Amazon Linux 2 → AL2023 *(EOL passed Jun 30, 2026 — now unpatched)*
 - [x] python-pivot — Lambda Python 3.9/3.10/3.11 → 3.12 *(rolling EOL waves)*
-- [x] lambda-lifeline — Lambda Node.js 20 → 22 *(Phase 1 passed Apr 30; block-update cliff Mar 3, 2027)*
+- [x] lambda-lifeline — Lambda Node.js 20 → 22 *(Phase 1 passed Apr 30, 2026; block-create Feb 1, block-update Mar 3, 2027)*
 
 Queued:
 - [ ] imds-v2-gate — IMDSv1 → IMDSv2 enforcement

@@ -17,10 +17,6 @@ def run_job(job: dict) -> dict:
         return handle_audit_pdf(job)
     if job_type == "migration_pr":
         return handle_migration_pr(job)
-    if job_type == "license_key":
-        return handle_license_key(job)
-    if job_type == "drift_watch_setup":
-        return handle_drift_watch_setup(job)
     if job_type == "email":
         return handle_email(job)
     raise ValueError(f"Unknown job type: {job_type}")
@@ -138,40 +134,6 @@ def handle_migration_pr(job: dict) -> dict:
         "pr_url": pr_info["pr_url"],
         "pr_number": pr_info["pr_number"],
         "repo": repo,
-    }
-
-
-def handle_license_key(job: dict) -> dict:
-    """Generate and email a license key."""
-    company = job.get("company")
-    email = job.get("email")
-
-    # Generate license key
-    # Store in KV
-    # Queue email job
-
-    return {
-        "company": company,
-        "email": email,
-        "status": "key_generated",
-    }
-
-
-def handle_drift_watch_setup(job: dict) -> dict:
-    """Set up drift monitoring for a repository."""
-    repo = job.get("repo")
-    iam_role = job.get("iam_role") or job.get("iamRole")
-    email = job.get("email")
-
-    # Validate IAM role
-    # Store watch configuration
-    # Schedule first scan
-
-    return {
-        "repo": repo,
-        "iam_role": iam_role,
-        "email": email,
-        "status": "watch_configured",
     }
 
 

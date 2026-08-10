@@ -139,11 +139,29 @@ class Store:
                 );
                 CREATE INDEX IF NOT EXISTS idx_events_ts ON events(ts);
                 CREATE INDEX IF NOT EXISTS idx_events_name ON events(name);
+
+                -- Generic inbound lead capture (studio microsites + any product).
+                -- Replaces FormSubmit; this row is the durable guarantee a lead is
+                -- never silently dropped, independent of email delivery.
+                CREATE TABLE IF NOT EXISTS leads (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ts TEXT NOT NULL,
+                    email TEXT NOT NULL,
+                    name TEXT,
+                    product TEXT,
+                    source TEXT,
+                    fields TEXT,
+                    notified INTEGER NOT NULL DEFAULT 0
+                );
+                CREATE INDEX IF NOT EXISTS idx_leads_ts ON leads(ts);
+                CREATE INDEX IF NOT EXISTS idx_leads_email ON leads(email);
                 """
             )
             # Add columns to pre-existing `jobs` tables BEFORE creating any index
             # that references them (an old prod DB has jobs without dedupe_key).
             self._migrate_jobs_columns(conn)
+            # An old prod `leads` table (created before notify-hardening) lacks `notified`.
+            self._migrate_leads_columns(conn)
             conn.execute(
                 "CREATE UNIQUE INDEX IF NOT EXISTS idx_jobs_dedupe ON jobs(dedupe_key) "
                 "WHERE dedupe_key IS NOT NULL"
@@ -159,6 +177,16 @@ class Store:
         ):
             if column not in existing:
                 conn.execute(ddl)
+
+    def _migrate_leads_columns(self, conn: sqlite3.Connection) -> None:
+        existing = {row["name"] for row in conn.execute("PRAGMA table_info(leads)")}
+        if "notified" not in existing:
+            conn.execute("ALTER TABLE leads ADD COLUMN notified INTEGER NOT NULL DEFAULT 0")
+            # Pre-existing leads predate notify-hardening — treat them as already handled
+            # so the first-boot re-send sweep does NOT spam duplicate alerts for old rows.
+            # New inserts still start at notified=0 (the column default) and earn the flag
+            # only on a confirmed send.
+            conn.execute("UPDATE leads SET notified = 1")
 
     # ---- kv ---------------------------------------------------------------- #
 
@@ -305,6 +333,59 @@ class Store:
             )
             return int(cur.lastrowid)
 
+    # ---- leads ------------------------------------------------------------ #
+
+    def record_lead(
+        self,
+        *,
+        email: str,
+        name: str | None = None,
+        product: str | None = None,
+        source: str | None = None,
+        fields: dict[str, Any] | None = None,
+    ) -> int:
+        """Durably record an inbound lead. The returned id confirms capture even
+        if the notification email later fails — this row is the guarantee."""
+        with self.connect() as conn:
+            cur = conn.execute(
+                "INSERT INTO leads(ts, email, name, product, source, fields) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (
+                    _now(),
+                    str(email)[:200],
+                    _trunc(name, 200),
+                    _trunc(product),
+                    _trunc(source, 200),
+                    json.dumps(fields or {})[:4000],
+                ),
+            )
+            return int(cur.lastrowid)
+
+    def recent_leads(self, limit: int = 100) -> list[dict[str, Any]]:
+        with self.connect() as conn:
+            rows = conn.execute(
+                "SELECT * FROM leads ORDER BY id DESC LIMIT ?", (limit,)
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def mark_lead_notified(self, lead_id: int) -> None:
+        """Flip a lead to notified=1 only after a confirmed owner alert send."""
+        with self.connect() as conn:
+            conn.execute("UPDATE leads SET notified = 1 WHERE id = ?", (int(lead_id),))
+
+    def unnotified_leads(self, limit: int = 100) -> list[dict[str, Any]]:
+        """Durably-captured leads the owner was NOT yet successfully alerted about —
+        the recovery queue for the periodic re-send sweep (self-heals email outages)."""
+        with self.connect() as conn:
+            rows = conn.execute(
+                "SELECT * FROM leads WHERE notified = 0 ORDER BY id ASC LIMIT ?", (limit,)
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def count_unnotified(self) -> int:
+        with self.connect() as conn:
+            return int(conn.execute("SELECT COUNT(*) AS n FROM leads WHERE notified = 0").fetchone()["n"])
+
     def event_counts(self, since_days: int = 7) -> dict[str, int]:
         cutoff = (datetime.now(UTC) - timedelta(days=since_days)).isoformat()
         with self.connect() as conn:
@@ -404,6 +485,45 @@ class Store:
                 (status, attempts, next_attempt_at, error[:2000], _now(), job_id),
             )
             return status
+
+    def reclaim_stale_running_jobs(self, cutoff_seconds: int) -> int:
+        """Recover jobs orphaned in 'running' by a crash/restart mid-execution.
+
+        ``try_claim`` moves a job pending -> running; if the process dies before
+        the job finishes, nothing else ever re-claims it (the drainer only looks
+        at 'pending'), so a paid order silently never fulfils. This sweep returns
+        any job stuck in 'running' past ``cutoff_seconds`` back to 'pending' so the
+        drainer re-runs it — or dead-letters it once max_attempts is exhausted, so
+        a process-crashing poison-pill job can't loop forever. ``cutoff_seconds``
+        MUST exceed the longest legitimate job runtime (the runner timeout) so a
+        job that is merely slow is never double-run.
+        """
+        cutoff = (datetime.now(UTC) - timedelta(seconds=cutoff_seconds)).isoformat()
+        reclaimed = 0
+        with self.connect() as conn:
+            rows = conn.execute(
+                "SELECT id, attempts, max_attempts FROM jobs "
+                "WHERE status = 'running' AND updated_at < ?",
+                (cutoff,),
+            ).fetchall()
+            for row in rows:
+                attempts = int(row["attempts"]) + 1
+                if attempts >= int(row["max_attempts"] or DEFAULT_MAX_ATTEMPTS):
+                    conn.execute(
+                        "UPDATE jobs SET status = 'dead_letter', attempts = ?, "
+                        "last_error = 'reclaimed: exceeded max attempts after stalling in running', "
+                        "updated_at = ? WHERE id = ?",
+                        (attempts, _now(), row["id"]),
+                    )
+                else:
+                    conn.execute(
+                        "UPDATE jobs SET status = 'pending', attempts = ?, next_attempt_at = NULL, "
+                        "last_error = 'reclaimed from stale running (likely a prior crash)', "
+                        "updated_at = ? WHERE id = ?",
+                        (attempts, _now(), row["id"]),
+                    )
+                reclaimed += 1
+        return reclaimed
 
     def claim_pending_jobs(self, limit: int = 25) -> list[dict[str, Any]]:
         """Return jobs that are pending and due (next_attempt_at <= now)."""

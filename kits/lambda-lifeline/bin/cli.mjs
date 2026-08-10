@@ -13,7 +13,7 @@ import { rollbackCommand } from '../src/rollback/index.mjs';
 const BANNER = `
  ╔══════════════════════════════════════════════════════════════╗
  ║  lambda-lifeline · AWS Lambda Node.js 20 EOL Migration Kit   ║
- ║  Deadlines: Apr 30, 2026 (patches) · Sep 30, 2026 (updates)  ║
+ ║  Deadlines: Apr 30, 2026 (patches) · Mar 03, 2027 (updates)  ║
  ║  https://github.com/ntoledo319/EOLkits · MIT                 ║
  ╚══════════════════════════════════════════════════════════════╝
 `;

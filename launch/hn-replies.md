@@ -96,7 +96,7 @@ Verifiable. Every PDF embeds the SHA-256 of the input artifact, the rule-pack ve
 ```
 Honest answer: I had the kits done in February. Posted nothing. Life got in the way and the original launch window in early May passed. The Apr 30 Phase 1 EOL for Node 20 is now history — that's fair criticism and I'd rather own it than dance around it.
 
-What's still live: Amazon Linux 2 EOL is Jun 30 (about three weeks from this post). Lambda Python 3.9/3.10/3.11 are still in their EOL waves. And the Node 20 hard cliff is actually Sep 30 — Phase 3, when AWS blocks updates to existing functions — so lambda-lifeline is still useful as cleanup if you have functions still on nodejs20.x. The kits don't expire when one of their deadlines does. But the framing on the README and this post leads with what's still ahead of us, not what's behind.
+What's still live: Amazon Linux 2 EOL is Jun 30 (about three weeks from this post). Lambda Python 3.9/3.10/3.11 are still in their EOL waves. And the Node 20 hard cliff is actually Mar 3, 2027 — Phase 3, when AWS blocks updates to existing functions (block-create is Feb 1, 2027) — so lambda-lifeline is still useful as cleanup if you have functions still on nodejs20.x. The kits don't expire when one of their deadlines does. But the framing on the README and this post leads with what's still ahead of us, not what's behind.
 ```
 
 ## If someone is hostile

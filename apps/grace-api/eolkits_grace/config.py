@@ -34,10 +34,19 @@ class Settings:
     github_app_private_key: str | None = os.environ.get("GITHUB_APP_PRIVATE_KEY")
     github_app_slug: str | None = os.environ.get("GITHUB_APP_SLUG")
     resend_api_key: str | None = os.environ.get("RESEND_API_KEY")
+    # Where inbound leads (/api/v1/lead) are emailed. Comma-separated. Defaults to
+    # the studio inbox; set to a guaranteed-deliverable address in prod so leads
+    # never route back through the dead FormSubmit/mxroute path. The durable
+    # `leads` row is the real guarantee regardless of this.
+    lead_notify_to: str = os.environ.get("LEAD_NOTIFY_TO", "hello@toledotechnologies.com")
 
     runner_url: str | None = os.environ.get("RUNNER_URL")
     runner_token: str | None = os.environ.get("RUNNER_TOKEN")
     enable_inline_runner: bool = _bool_env("EOLKITS_INLINE_RUNNER", True)
+
+    # Optional bearer for the detailed /status fields (recent jobs + funnel). When
+    # unset, /status exposes only high-level health — never internal job/funnel data.
+    admin_token: str | None = os.environ.get("EOLKITS_ADMIN_TOKEN")
 
     # Secret used to sign short-lived internal upload URLs handed to the runner
     # (SSRF mitigation — see app._signed_upload_url / audit_pdf._download_input).

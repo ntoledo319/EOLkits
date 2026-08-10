@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Failed to start iptables.service: Unit iptables.service not found. — cause &amp; fix (Amazon Linux 2023) | EOLkits</title>
+<meta name="description" content="Amazon Linux 2023 drops the iptables-services unit; nftables is the default firewall backend. Migrate rules to nftables: convert existing rules with `iptab">
+<link rel="canonical" href="https://eolkits.com/fix/amazon-linux-2023-iptables-service-not-found/">
+<link rel="stylesheet" href="/style.css">
+<script defer src="/track.js"></script>
+<meta property="og:image" content="https://eolkits.com/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://eolkits.com/og-default.png">
+<style>.fix-err{background:#0f172a;color:#e2e8f0;padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem}.fix-steps li{margin:.35rem 0}.fix-cta{display:inline-block;margin-top:1rem;padding:.7rem 1.2rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}.fix-rel{background:#fff7ed;border:1px solid #fed7aa;padding:.6rem .8rem;border-radius:8px}</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does \"Failed to start iptables.service: Unit iptables.service not found.\" mean?", "acceptedAnswer": {"@type": "Answer", "text": "Amazon Linux 2023 drops the iptables-services unit; nftables is the default firewall backend. On Amazon Linux 2, the `iptables-services` package shipped an `iptables.service` that saved and restored rules across reboots. AL2023 standardizes on nftables and does not install that service by default, so user-data / cloud-init / Ansible that enables or starts `iptables.service` fails on AL2023."}}, {"@type": "Question", "name": "How do I fix \"Failed to start iptables.service: Unit iptables.service not found.\"?", "acceptedAnswer": {"@type": "Answer", "text": "Migrate rules to nftables: convert existing rules with `iptables-translate`, save them under `/etc/nftables/`, and enable `sudo systemctl enable --now nftables`. To keep iptables syntax, use the `iptables-nft` compatibility layer (rules are stored by nftables); manage persistence with the `nftables` service, not `iptables.service`. Remove `iptables-services` / `iptables.service` references from user-data, Ansible, and Packer builds. Verify the active ruleset with `sudo nft list ruleset`. Source: https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html"}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Fix: Failed to start iptables.service: Unit iptables.service not found.", "step": [{"@type": "HowToStep", "position": 1, "text": "Migrate rules to nftables: convert existing rules with `iptables-translate`, save them under `/etc/nftables/`, and enable `sudo systemctl enable --now nftables`."}, {"@type": "HowToStep", "position": 2, "text": "To keep iptables syntax, use the `iptables-nft` compatibility layer (rules are stored by nftables); manage persistence with the `nftables` service, not `iptables.service`."}, {"@type": "HowToStep", "position": 3, "text": "Remove `iptables-services` / `iptables.service` references from user-data, Ansible, and Packer builds."}, {"@type": "HowToStep", "position": 4, "text": "Verify the active ruleset with `sudo nft list ruleset`."}], "citation": "https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html"}</script>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
+</head>
+<body class="container article">
+<nav class="breadcrumb"><a href="/">Home</a> / <a href="/fix/">Fixes</a> / <span>Amazon Linux 2023</span></nav>
+<p class="muted">Amazon Linux 2023</p>
+<h1>Failed to start iptables.service: Unit iptables.service not found.</h1>
+<pre class="fix-err"><code>Failed to start iptables.service: Unit iptables.service not found.</code></pre>
+<h2>What it means</h2>
+<p>Amazon Linux 2023 drops the iptables-services unit; nftables is the default firewall backend.</p>
+<h2>Why it happens</h2>
+<p>On Amazon Linux 2, the `iptables-services` package shipped an `iptables.service` that saved and restored rules across reboots. AL2023 standardizes on nftables and does not install that service by default, so user-data / cloud-init / Ansible that enables or starts `iptables.service` fails on AL2023.</p>
+<h2>How to fix it</h2>
+<ol class="fix-steps"><li>Migrate rules to nftables: convert existing rules with `iptables-translate`, save them under `/etc/nftables/`, and enable `sudo systemctl enable --now nftables`.</li><li>To keep iptables syntax, use the `iptables-nft` compatibility layer (rules are stored by nftables); manage persistence with the `nftables` service, not `iptables.service`.</li><li>Remove `iptables-services` / `iptables.service` references from user-data, Ansible, and Packer builds.</li><li>Verify the active ruleset with `sudo nft list ruleset`.</li></ol>
+<p class="fix-rel">Related deadline: <a href="/migrate/amazon-linux-2-eol/">Amazon Linux 2 EOL</a> — <strong>2026-06-30</strong>.</p>
+<h2>Find every instance in your project</h2>
+<p>The free <a href="/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>
+<p>Primary source: <a href="https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html" target="_blank" rel="noopener nofollow">https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html</a></p>
+<p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=amazon-linux-2023-iptables-service-not-found&deadline=2026-06-30&kit=al2023-gate">Get the full migration audit — $299, hash-anchored PDF &rarr;</a></p>
+</body>
+</html>

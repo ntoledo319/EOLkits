@@ -3,9 +3,13 @@ from __future__ import annotations
 import asyncio
 import base64
 import json
+import logging
+import os
 import secrets
 import re
 import sys
+import time
+from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -18,7 +22,7 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Resp
 
 from . import pricing
 from .config import settings
-from .email import render_audit_delivery_email, send_email
+from .email import EmailDeliveryError, render_audit_delivery_email, send_email
 from .security import sha256_hex, verify_github_signature, verify_stripe_signature
 from .store import Store
 from .stripe_client import (
@@ -36,35 +40,59 @@ ALLOWED_EXTENSIONS = {".yaml", ".yml", ".json", ".tf", ".tfvars", ".js", ".ts", 
 OVERRIDE_LABEL = "override:ci-failure"
 CI_FAILURE_CONCLUSIONS = {"failure", "timed_out"}
 DRAIN_INTERVAL_SECONDS = 30
+# How often the drain loop re-attempts owner alerts for durably-captured leads
+# whose notification failed — so an email outage self-heals WITHOUT an external
+# cron, not only on the next process restart.
+LEAD_SWEEP_INTERVAL_SECONDS = 3600
+# A job still in 'running' longer than this is presumed orphaned by a crash and
+# is reclaimed by the drainer. MUST exceed the longest legitimate job runtime
+# (the 900s runner timeout) so a merely-slow job is never double-run.
+STALE_RUNNING_SECONDS = 1800
 
-app = FastAPI(title="EOLkits GRACE API", version="1.0.0")
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[settings.public_site_url, "https://eolkits.com"],
-    allow_methods=["GET", "POST", "PUT", "OPTIONS"],
-    allow_headers=["*"],
+# Studio microsites + eolkits that POST to /api/v1/lead — used for BOTH the CORS
+# allowlist and the 303 redirect allowlist, so the lead endpoint can honor each
+# form's `_next` without ever becoming an open redirector.
+_SITE_ORIGINS = (
+    "https://eolkits.com",
+    "https://toledotechnologies.com",
+    "https://web.toledotechnologies.com",
+    "https://sitelift.toledotechnologies.com",
+    "https://apps.toledotechnologies.com",
+    "https://mobile.toledotechnologies.com",
+    "https://ai.toledotechnologies.com",
 )
 
 store = Store(settings.db_path)
-_drain_task: asyncio.Task | None = None
+logger = logging.getLogger("eolkits_grace")
 
 
-@app.on_event("startup")
-async def startup() -> None:
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     # Fail closed: refuse to run in production without live secrets.
     settings.require_runtime_secrets()
     settings.uploads_dir.mkdir(parents=True, exist_ok=True)
     settings.reports_dir.mkdir(parents=True, exist_ok=True)
+    drain_task: asyncio.Task | None = None
     # Drain any jobs that were durably queued but not completed before a restart.
     if settings.environment.strip().lower() != "test":
-        global _drain_task
-        _drain_task = asyncio.create_task(_drain_loop())
+        drain_task = asyncio.create_task(_drain_loop())
+        # Heal any leads captured-but-not-alerted during a prior email outage, off the
+        # event loop so a slow email provider can't delay startup.
+        asyncio.create_task(asyncio.to_thread(resend_unnotified_leads))
+    try:
+        yield
+    finally:
+        if drain_task:
+            drain_task.cancel()
 
 
-@app.on_event("shutdown")
-async def shutdown() -> None:
-    if _drain_task:
-        _drain_task.cancel()
+app = FastAPI(title="EOLkits GRACE API", version="1.0.0", lifespan=lifespan)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=sorted({settings.public_site_url, *_SITE_ORIGINS}),
+    allow_methods=["GET", "POST", "PUT", "OPTIONS"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/health")
@@ -75,13 +103,16 @@ async def health() -> dict[str, Any]:
         "storage": "filesystem",
         "database": "sqlite",
         "runner": "http" if settings.runner_url else "inline" if settings.enable_inline_runner else "disabled",
+        # A non-zero value means leads were captured but the owner alert failed — a
+        # silent-drop early-warning the old FormSubmit path could never give.
+        "unnotified_leads": store.count_unnotified(),
     }
 
 
 @app.get("/status")
 @app.get("/status.json")
-async def status() -> dict[str, Any]:
-    return {
+async def status(x_admin_token: str | None = Header(None)) -> dict[str, Any]:
+    data: dict[str, Any] = {
         "timestamp": datetime.now(UTC).isoformat(),
         "overall": "healthy",
         "environment": settings.environment,
@@ -92,9 +123,13 @@ async def status() -> dict[str, Any]:
             "email": {"ok": bool(settings.resend_api_key), "configured": bool(settings.resend_api_key)},
             "runner": {"ok": bool(settings.runner_url or settings.enable_inline_runner), "url": bool(settings.runner_url)},
         },
-        "recent_jobs": store.recent_jobs(20),
         "funnel_7d": store.event_counts(7),
     }
+    # recent_jobs carries per-order payloads (emails, repos, errors). Only expose it
+    # to an authenticated admin — never to an unauthenticated caller.
+    if _admin_ok(x_admin_token):
+        data["recent_jobs"] = store.recent_jobs(20)
+    return data
 
 
 # ---- uploads ----------------------------------------------------------------- #
@@ -248,33 +283,12 @@ async def pack_checkout(
 
 
 @app.post("/api/drift/checkout")
-async def drift_checkout(
-    request: Request,
-    email: str = Form(...),
-    repo: str | None = Form(None),
-    iam_role: str | None = Form(None),
-    source: str | None = Form(None),
-    utm_source: str | None = Form(None),
-    utm_medium: str | None = Form(None),
-    utm_campaign: str | None = Form(None),
-) -> Response:
-    # Drift Watch is recurring ($19/mo) -> subscription-mode Checkout Session.
-    price_id = pricing.price_id_for_sku("drift_watch")
-    price = int(pricing.expected_amount_cents("drift_watch") or 1900) // 100
-    attribution = _attribution(source, utm_source, utm_medium, utm_campaign, None)
-    session = create_checkout_session(
-        settings,
-        sku="drift_watch",
-        email=email,
-        price_id=price_id,
-        price_usd=price,
-        metadata={"repo": repo or "", "iam_role": iam_role or "", **attribution},
-        success_path="/success/?sku=drift&session_id={CHECKOUT_SESSION_ID}",
-        cancel_path="/drift/?cancelled=1",
-        mode="subscription",
-    )
-    store.record_event("checkout_started", {"sku": "drift_watch", **attribution})
-    return _checkout_response(request, session["url"], price, session["mode"])
+async def drift_checkout(request: Request) -> Response:
+    # Drift Watch was retired 2026-07-22. Its fulfillment (IAM-role validation,
+    # weekly scan, delta PDF, auto-PR) was never implemented, so the $19/mo
+    # subscription is no longer offered. Reject any checkout attempt outright
+    # rather than charge a card for a service that does not run.
+    raise HTTPException(status_code=410, detail="Drift Watch is no longer available")
 
 
 @app.post("/api/events")
@@ -301,6 +315,210 @@ async def record_event(request: Request) -> dict[str, Any]:
         },
     )
     return {"ok": True}
+
+
+# ---- generic lead capture (studio microsites + any product) ------------------ #
+
+# Inbound forms use heterogeneous field names; these are the priority orders for
+# the two identity columns. Everything else is preserved verbatim in `fields`.
+_EMAIL_KEYS = ("email", "Email", "e-mail", "your-email", "your_email")
+_NAME_KEYS = ("name", "Name", "full_name", "fullname", "contact", "company", "Business", "agency_name")
+
+# Pragmatic email shape check — rejects obvious junk without trying to be RFC 5322.
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+# Lightweight in-process anti-flood for the public, CORS-open lead endpoint. Single
+# process + SQLite, so a per-IP sliding window in memory is sufficient; it resets on
+# restart, which is fine for spam control (the durable lead row is the real record).
+_LEAD_RATE: dict[str, list[float]] = {}
+_LEAD_RATE_WINDOW_SECONDS = 60.0
+_LEAD_RATE_MAX = 8
+
+
+def _client_ip(request: Request) -> str:
+    # Behind the GRACE host Caddy, request.client.host is the proxy (127.0.0.1), so
+    # prefer the left-most X-Forwarded-For hop for per-client bucketing.
+    xff = request.headers.get("x-forwarded-for", "")
+    if xff:
+        return xff.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+def _lead_rate_ok(ip: str) -> bool:
+    now = time.monotonic()
+    bucket = [t for t in _LEAD_RATE.get(ip, []) if now - t < _LEAD_RATE_WINDOW_SECONDS]
+    if len(bucket) >= _LEAD_RATE_MAX:
+        _LEAD_RATE[ip] = bucket
+        return False
+    bucket.append(now)
+    _LEAD_RATE[ip] = bucket
+    if len(_LEAD_RATE) > 4096:  # bound memory: drop fully-expired buckets
+        for key in [k for k, v in _LEAD_RATE.items() if all(now - t >= _LEAD_RATE_WINDOW_SECONDS for t in v)]:
+            _LEAD_RATE.pop(key, None)
+    return True
+
+
+def _admin_ok(token: str | None) -> bool:
+    expected = settings.admin_token
+    if not expected or not token:
+        return False
+    import hmac as _hmac
+
+    return _hmac.compare_digest(expected, token)
+
+
+def _esc(value: Any) -> str:
+    return str(value or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def _lead_email_html(product: str, source: str, fields: dict[str, str]) -> str:
+    rows = "".join(
+        f"<tr><td style='padding:4px 12px 4px 0;color:#6b7280;font-size:13px;vertical-align:top'>{_esc(k)}</td>"
+        f"<td style='padding:4px 0;font-size:13px'><strong>{_esc(v)}</strong></td></tr>"
+        for k, v in fields.items()
+    )
+    return (
+        "<!doctype html><html><body style=\"font-family:system-ui,-apple-system,sans-serif;"
+        "max-width:600px;margin:0 auto;padding:24px;line-height:1.5\">"
+        f"<h2 style=\"margin:0 0 4px\">New lead &mdash; {_esc(product) or 'studio'}</h2>"
+        f"<p style=\"margin:0 0 16px;color:#6b7280;font-size:13px\">via {_esc(source) or 'website'}</p>"
+        f"<table style=\"border-collapse:collapse;width:100%\">{rows}</table>"
+        "<p style=\"font-size:12px;color:#9ca3af;margin-top:24px\">Captured by the GRACE lead bus "
+        "(/api/v1/lead). Reply directly to reach the prospect.</p></body></html>"
+    )
+
+
+def _send_lead_notification(lead_id: int, product: str, source: str, fields: dict[str, str]) -> None:
+    """Owner alert for a captured lead. The lead ROW is already durable; this only
+    flips `notified=1` after a CONFIRMED send. It retries transient failures and, if
+    every attempt fails, logs LOUDLY and leaves `notified=0` so the row surfaces in
+    the recovery queue — instead of silently dropping the way FormSubmit did one layer
+    up. `resend_unnotified_leads` then self-heals once email recovers. Never raises."""
+    recipients = [a.strip() for a in (settings.lead_notify_to or "").split(",") if a.strip()]
+    if not recipients:
+        logger.error("LEAD %s captured but LEAD_NOTIFY_TO is empty — OWNER NOT ALERTED", lead_id)
+        return
+    html = _lead_email_html(product, source, fields)
+    subject = f"New lead: {product or 'studio inquiry'}"
+    sent = 0
+    for to in recipients:
+        for attempt in (1, 2):
+            try:
+                send_email(settings, to=to, subject=subject, html=html)
+                sent += 1
+                break
+            except EmailDeliveryError as exc:
+                logger.warning("LEAD %s notify to %s attempt %d failed: %s", lead_id, to, attempt, exc)
+                if not exc.retryable:
+                    break  # permanent failure (e.g. bad recipient) — a retry won't help
+            except Exception as exc:  # noqa: BLE001 — alert path must never raise
+                logger.warning("LEAD %s notify to %s attempt %d failed: %s", lead_id, to, attempt, exc)
+    if sent:
+        try:
+            store.mark_lead_notified(lead_id)
+        except Exception:
+            logger.exception("LEAD %s alert sent but failed to mark notified", lead_id)
+    else:
+        logger.error(
+            "LEAD %s captured but ALL notify attempts failed (recipients=%s) — durable row kept; "
+            "will retry via the re-send sweep", lead_id, recipients,
+        )
+
+
+def resend_unnotified_leads(max_batch: int = 50) -> dict[str, int]:
+    """Re-attempt owner alerts for any durably-captured lead not yet confirmed-sent.
+    Idempotent; runs once at startup and then on a cadence from the drain loop
+    (LEAD_SWEEP_INTERVAL_SECONDS) — no external cron required. Self-heals a transient
+    email outage without ever touching the (already durable) lead rows."""
+    pending = store.unnotified_leads(limit=max_batch)
+    for row in pending:
+        try:
+            fields = json.loads(row.get("fields") or "{}")
+        except Exception:
+            fields = {}
+        _send_lead_notification(int(row["id"]), row.get("product") or "", row.get("source") or "", fields)
+    remaining = store.count_unnotified()
+    if remaining:
+        logger.error("re-send sweep: %d lead(s) STILL unnotified after retry", remaining)
+    elif pending:
+        logger.info("re-send sweep: healed %d previously-unnotified lead(s)", len(pending))
+    return {"attempted": len(pending), "still_unnotified": remaining}
+
+
+def _resolve_next(next_url: str, request: Request) -> str:
+    """Return a safe absolute redirect target, or "" for none (caller sends JSON).
+
+    An absolute http(s) `_next` is honored only when its origin is allow-listed; a
+    site-relative `/path` is prefixed with the request Origin (also allow-listed).
+    This preserves each form's prior FormSubmit `_next` UX — including forms whose
+    `_next` is relative — without the endpoint becoming an open redirector."""
+    if not next_url:
+        return ""
+    if next_url.lower().startswith(("http://", "https://")):
+        m = re.match(r"^(https?://[^/]+)", next_url)
+        return next_url if (m and m.group(1) in _SITE_ORIGINS) else ""
+    if next_url.startswith("/") and not next_url.startswith("//"):
+        origin = request.headers.get("origin") or ""
+        if not origin:
+            m = re.match(r"^(https?://[^/]+)", request.headers.get("referer") or "")
+            origin = m.group(1) if m else ""
+        if origin in _SITE_ORIGINS:
+            return origin + next_url
+    return ""
+
+
+def _respond(target: str, payload: dict[str, Any]) -> Response:
+    return RedirectResponse(target, status_code=303) if target else JSONResponse(payload)
+
+
+@app.post("/api/v1/lead")
+async def capture_lead(request: Request, background_tasks: BackgroundTasks) -> Response:
+    """Generic lead capture for the studio microsites and any product.
+
+    Accepts a native HTML form POST (urlencoded/multipart) or JSON, records the
+    lead durably, fires an owner notification over the working email path, and
+    303-redirects to `_next` (preserving the prior FormSubmit UX) — or returns
+    JSON when no redirect target is given. Replaces FormSubmit, which silently
+    dropped every submission at mxroute."""
+    if not _lead_rate_ok(_client_ip(request)):
+        raise HTTPException(status_code=429, detail="Too many submissions. Please try again shortly.")
+    raw: dict[str, str] = {}
+    try:
+        form = await request.form()
+        for k, v in form.multi_items():
+            k, v = str(k), str(v)
+            raw[k] = f"{raw[k]}, {v}" if k in raw else v  # join checkbox arrays
+    except Exception:
+        raw = {}
+    if not raw:
+        try:
+            body = await request.json()
+            if isinstance(body, dict):
+                raw = {str(k): str(v) for k, v in body.items()}
+        except Exception:
+            raw = {}
+
+    target = _resolve_next(raw.get("_next") or raw.get("next") or "", request)
+    # Honeypot: bots fill the hidden _honey field. Accept silently; record nothing.
+    if raw.get("_honey") or raw.get("_gotcha"):
+        return _respond(target, {"ok": True})
+
+    fields = {k: v for k, v in raw.items() if not k.startswith("_") and str(v).strip()}
+    email = next((fields[k] for k in _EMAIL_KEYS if fields.get(k)), "")
+    name = next((fields[k] for k in _NAME_KEYS if fields.get(k)), "")
+    product = (raw.get("product") or raw.get("_subject") or "").strip()[:120]
+    source = (raw.get("source") or request.headers.get("referer") or "").strip()[:200]
+    for control in ("product", "source", "next"):
+        fields.pop(control, None)
+    if not email or not _EMAIL_RE.match(email.strip()):
+        raise HTTPException(status_code=400, detail="A valid email is required.")
+
+    lead_id = store.record_lead(
+        email=email, name=name, product=product, source=source, fields=fields
+    )
+    store.record_event("lead", {"source": source, "sku": product, "meta": {"lead_id": lead_id}})
+    background_tasks.add_task(_send_lead_notification, lead_id, product, source, fields)
+    return _respond(target, {"ok": True, "lead_id": lead_id})
 
 
 # ---- webhooks ---------------------------------------------------------------- #
@@ -489,7 +707,7 @@ async def support_ask(request: Request) -> dict[str, Any]:
     if not question:
         raise HTTPException(status_code=400, detail="Missing question")
     canned = {
-        "pricing": "See https://eolkits.com/#pricing for current pricing. CLI is free (MIT). Paid tiers: Audit PDF, Migration Pack, Org License, Drift Watch.",
+        "pricing": "See https://eolkits.com/#pricing for current pricing. CLI is free (MIT). Paid tiers: Audit PDF ($299) and Migration Pack ($1,499).",
         "refund": "Migration Pack purchases auto-refund if CI fails within 7 days. Audit PDFs are non-refundable but include verification. Terms: https://eolkits.com/legal/terms",
         "install": "Install any kit from https://github.com/ntoledo319/EOLkits. Each kit README has package-specific setup.",
         "license": "CLI code is MIT licensed. Paid tiers grant access to hosted automation and reports.",
@@ -788,6 +1006,36 @@ def _payment_intent_id(session: dict[str, Any]) -> str | None:
     return pi
 
 
+def _notify_marketing_sink(
+    sku: str | None, amount: Any, currency: str | None, metadata: dict[str, Any]
+) -> None:
+    """Best-effort, fire-and-forget revenue signal to the GRACE marketing sink so the
+    Growth Engine can attribute a sale to the surface that produced it (scan, fix, ...).
+    Never raises into fulfillment; the purchase is already durably recorded locally.
+    No-op unless EOLKITS_MARKETING_SINK_URL is set, e.g.
+    https://<grace-host>/api/v1/marketing/event.
+    NOTE: GRACE must allowlist site 'eolkits' in marketing.py _PUBLIC_SITES (and widen
+    the amount_cents cap for org-license sales) — see the marketing-machine runbook."""
+    url = os.environ.get("EOLKITS_MARKETING_SINK_URL")
+    if not url:
+        return
+    try:
+        slug = metadata.get("utm_source") or metadata.get("source") or metadata.get("kit") or ""
+        requests.post(
+            url,
+            json={
+                "site": "eolkits",
+                "slug": str(slug)[:120],
+                "kind": str(sku or "sale")[:40],
+                "amount_cents": int(amount or 0),
+                "currency": str(currency or "usd")[:8],
+            },
+            timeout=4,
+        )
+    except Exception:
+        pass  # attribution mirror is best-effort; the sale is already recorded locally
+
+
 def _ingest_paid_session(session_id: str, background_tasks: BackgroundTasks) -> None:
     """Retrieve the authoritative session, validate it, durably record the
     purchase, and durably queue fulfillment."""
@@ -810,6 +1058,9 @@ def _ingest_paid_session(session_id: str, background_tasks: BackgroundTasks) -> 
         deadline=metadata.get("deadline"),
         metadata=metadata,
     )
+    background_tasks.add_task(
+        _notify_marketing_sink, sku, info["amount_total"], info["currency"], metadata
+    )
     _queue_fulfillment(session_id, sku, info["email"], metadata, background_tasks)
 
 
@@ -827,22 +1078,28 @@ def _queue_fulfillment(
             dedupe_key=f"fulfill:{session_id}",
         )
     elif sku == "migration_pack":
+        repo = metadata.get("repo")
+        installation_id = metadata.get("installation_id")
+        # installation_id is optional at checkout; fall back to the stored repo->installation
+        # mapping so a paid Pack never dead-letters on a missing/blank id. A dead-lettered job
+        # opens no PR, so no check_run/check_suite ever fires -> the CI-failure auto-refund can
+        # never trigger either: the buyer would be charged $1,499 and receive nothing, silently.
+        if not installation_id and repo:
+            installation_id = _repo_installation(repo)
         _enqueue_job(
-            {"type": "migration_pr", "sessionId": session_id, "email": email, "repo": metadata.get("repo"), "installationId": metadata.get("installation_id")},
+            {"type": "migration_pr", "sessionId": session_id, "email": email, "repo": repo, "installationId": installation_id},
             background_tasks,
             dedupe_key=f"fulfill:{session_id}",
         )
-    elif sku == "org_license":
-        _enqueue_job(
-            {"type": "license_key", "sessionId": session_id, "email": email, "company": metadata.get("company")},
-            background_tasks,
-            dedupe_key=f"fulfill:{session_id}",
-        )
-    elif sku == "drift_watch":
-        _enqueue_job(
-            {"type": "drift_watch_setup", "sessionId": session_id, "email": email, "repo": metadata.get("repo"), "iam_role": metadata.get("iam_role")},
-            background_tasks,
-            dedupe_key=f"fulfill:{session_id}",
+    else:
+        # org_license and drift_watch were retired 2026-07-22 (fulfillment was
+        # never real). There is no live app path that mints a paid session for
+        # them anymore, but if a straggler session for any unrecognized SKU is
+        # ever recorded as paid, log it loudly so it can be refunded by hand
+        # rather than silently swallowed. NEVER fake-fulfill.
+        logger.error(
+            "paid session %s has unfulfillable sku=%r (email=%r) — refund manually in Stripe",
+            session_id, sku, email,
         )
 
 
@@ -874,22 +1131,37 @@ def _execute_job(job_id: int, job: dict[str, Any]) -> None:
         _fulfill_audit(result, job)
         if job.get("transfer"):
             _settle_partner_transfer(job, result)
-    if job.get("type") == "license_key":
-        _store_license(job)
     if job.get("type") == "migration_pr":
         _record_pr_linkage(job, result)
 
 
 async def _drain_loop() -> None:
+    # Start the clock now so the first PERIODIC lead sweep runs one interval after
+    # the one-shot startup sweep, instead of stacking on top of it.
+    last_lead_sweep = time.monotonic()
     while True:
         try:
-            await asyncio.get_event_loop().run_in_executor(None, _drain_once)
+            await asyncio.get_running_loop().run_in_executor(None, _drain_once)
         except Exception:  # pragma: no cover - never let the loop die
-            pass
+            logger.exception("drain loop iteration failed")
+        # Self-heal unnotified leads on a cadence, so an email outage recovers without
+        # an external cron (it previously only recovered on a full process restart).
+        now = time.monotonic()
+        if now - last_lead_sweep >= LEAD_SWEEP_INTERVAL_SECONDS:
+            last_lead_sweep = now
+            try:
+                await asyncio.to_thread(resend_unnotified_leads)
+            except Exception:  # pragma: no cover - the sweep must never kill the loop
+                logger.exception("periodic lead re-send sweep failed")
         await asyncio.sleep(DRAIN_INTERVAL_SECONDS)
 
 
 def _drain_once() -> None:
+    # Recover jobs orphaned in 'running' by a prior crash BEFORE claiming new work,
+    # so a paid order interrupted mid-fulfillment is retried rather than lost.
+    reclaimed = store.reclaim_stale_running_jobs(STALE_RUNNING_SECONDS)
+    if reclaimed:
+        logger.warning("reclaimed %d job(s) stuck in 'running' (likely a prior crash)", reclaimed)
     for job_row in store.claim_pending_jobs():
         _run_job(int(job_row["id"]), job_row["payload"])
 
@@ -1000,25 +1272,6 @@ def _record_pr_linkage(job: dict[str, Any], result: dict[str, Any]) -> None:
     repo = result.get("repo") or job.get("repo")
     if session_id and pr_url and pr_number and repo:
         store.link_purchase_pr(session_id, pr_url=pr_url, pr_number=int(pr_number), repo=repo)
-
-
-def _store_license(job: dict[str, Any]) -> None:
-    company = job.get("company") or "EOLkits customer"
-    email = job.get("email")
-    key = "-".join(secrets.token_hex(4).upper() for _ in range(4))
-    expires = datetime.now(UTC).replace(microsecond=0)
-    expires = expires.replace(year=expires.year + 1)
-    store.put_json(
-        f"license:{key}",
-        {
-            "company": company,
-            "email": email,
-            "createdAt": datetime.now(UTC).isoformat(),
-            "expiresAt": expires.isoformat(),
-            "key": key,
-        },
-        ttl_seconds=86400 * 366,
-    )
 
 
 # ---- GitHub installation mapping + refund engine ----------------------------- #
@@ -1144,12 +1397,17 @@ def _maybe_refund_for_pr(repo: str, pr_number: int) -> None:
     if store.mark_refunded(session_id, refund.get("id", "")):
         email = purchase.get("email")
         if email:
-            send_email(
-                settings,
-                to=email,
-                subject="EOLkits Migration Pack — automatic refund issued",
-                html=f"<p>CI failed on your migration PR (#{pr_number} in {repo}) within the {window_days}-day guarantee window, so your purchase has been refunded.</p>",
-            )
+            # The refund itself is already done and durably recorded; a failure to
+            # send the courtesy notice must not raise out of this background task.
+            try:
+                send_email(
+                    settings,
+                    to=email,
+                    subject="EOLkits Migration Pack — automatic refund issued",
+                    html=f"<p>CI failed on your migration PR (#{pr_number} in {repo}) within the {window_days}-day guarantee window, so your purchase has been refunded.</p>",
+                )
+            except EmailDeliveryError as exc:
+                logger.warning("refund issued for %s but notice email failed: %s", session_id, exc)
 
 
 def _pr_has_override_label(repo: str, pr_number: int) -> bool:

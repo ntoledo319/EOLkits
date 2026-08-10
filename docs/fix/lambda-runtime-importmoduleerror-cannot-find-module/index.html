@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Runtime.ImportModuleError: Error: Cannot find module — cause &amp; fix (AWS Lambda) | EOLkits</title>
+<meta name="description" content="Lambda can&#x27;t load a dependency your handler imports — most often after a runtime upgrade changed what&#x27;s bundled. If it names `aws-sdk` on nodejs18+: migrat">
+<link rel="canonical" href="https://eolkits.com/fix/lambda-runtime-importmoduleerror-cannot-find-module/">
+<link rel="stylesheet" href="/style.css">
+<script defer src="/track.js"></script>
+<meta property="og:image" content="https://eolkits.com/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://eolkits.com/og-default.png">
+<style>.fix-err{background:#0f172a;color:#e2e8f0;padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem}.fix-steps li{margin:.35rem 0}.fix-cta{display:inline-block;margin-top:1rem;padding:.7rem 1.2rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}.fix-rel{background:#fff7ed;border:1px solid #fed7aa;padding:.6rem .8rem;border-radius:8px}</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does \"Runtime.ImportModuleError: Error: Cannot find module\" mean?", "acceptedAnswer": {"@type": "Answer", "text": "Lambda can't load a dependency your handler imports \u2014 most often after a runtime upgrade changed what's bundled. Common right after changing the runtime: (1) on nodejs18+ the AWS SDK v2 ('aws-sdk') is no longer preinstalled \u2014 only @aws-sdk v3 is; (2) a bundler (esbuild >= 0.22) now omits node_modules from the bundle by default; (3) a Lambda layer was built on a different OS/arch than the runtime; (4) a native binary needs a different glibc. The handler then throws ImportModuleError at cold start."}}, {"@type": "Question", "name": "How do I fix \"Runtime.ImportModuleError: Error: Cannot find module\"?", "acceptedAnswer": {"@type": "Answer", "text": "If it names `aws-sdk` on nodejs18+: migrate to @aws-sdk v3 modular clients, or bundle aws-sdk v2 explicitly (see the dedicated /fix page). esbuild >= 0.22: set `packages: 'bundle'` (or `--packages=bundle`) so dependencies are included again. Build layers/packages on the runtime's base image (e.g. `public.ecr.aws/lambda/nodejs:22`) and match the architecture (x86_64 vs arm64). Confirm the module is where Lambda expects it (`nodejs/node_modules/...` for a layer; top level for a function package) and that the handler string matches the file path. Source: https://repost.aws/knowledge-center/lambda-import-module-error-nodejs"}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Fix: Runtime.ImportModuleError: Error: Cannot find module", "step": [{"@type": "HowToStep", "position": 1, "text": "If it names `aws-sdk` on nodejs18+: migrate to @aws-sdk v3 modular clients, or bundle aws-sdk v2 explicitly (see the dedicated /fix page)."}, {"@type": "HowToStep", "position": 2, "text": "esbuild >= 0.22: set `packages: 'bundle'` (or `--packages=bundle`) so dependencies are included again."}, {"@type": "HowToStep", "position": 3, "text": "Build layers/packages on the runtime's base image (e.g. `public.ecr.aws/lambda/nodejs:22`) and match the architecture (x86_64 vs arm64)."}, {"@type": "HowToStep", "position": 4, "text": "Confirm the module is where Lambda expects it (`nodejs/node_modules/...` for a layer; top level for a function package) and that the handler string matches the file path."}], "citation": "https://repost.aws/knowledge-center/lambda-import-module-error-nodejs"}</script>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
+</head>
+<body class="container article">
+<nav class="breadcrumb"><a href="/">Home</a> / <a href="/fix/">Fixes</a> / <span>AWS Lambda</span></nav>
+<p class="muted">AWS Lambda</p>
+<h1>Runtime.ImportModuleError: Error: Cannot find module</h1>
+<pre class="fix-err"><code>Runtime.ImportModuleError: Error: Cannot find module</code></pre>
+<h2>What it means</h2>
+<p>Lambda can&#x27;t load a dependency your handler imports — most often after a runtime upgrade changed what&#x27;s bundled.</p>
+<h2>Why it happens</h2>
+<p>Common right after changing the runtime: (1) on nodejs18+ the AWS SDK v2 (&#x27;aws-sdk&#x27;) is no longer preinstalled — only @aws-sdk v3 is; (2) a bundler (esbuild &gt;= 0.22) now omits node_modules from the bundle by default; (3) a Lambda layer was built on a different OS/arch than the runtime; (4) a native binary needs a different glibc. The handler then throws ImportModuleError at cold start.</p>
+<h2>How to fix it</h2>
+<ol class="fix-steps"><li>If it names `aws-sdk` on nodejs18+: migrate to @aws-sdk v3 modular clients, or bundle aws-sdk v2 explicitly (see the dedicated /fix page).</li><li>esbuild &gt;= 0.22: set `packages: &#x27;bundle&#x27;` (or `--packages=bundle`) so dependencies are included again.</li><li>Build layers/packages on the runtime&#x27;s base image (e.g. `public.ecr.aws/lambda/nodejs:22`) and match the architecture (x86_64 vs arm64).</li><li>Confirm the module is where Lambda expects it (`nodejs/node_modules/...` for a layer; top level for a function package) and that the handler string matches the file path.</li></ol>
+<p class="fix-rel">Related deadline: <a href="/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 EOL</a> — <strong>2027-02-01</strong>.</p>
+<h2>Find every instance in your project</h2>
+<p>The free <a href="/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>
+<p>Primary source: <a href="https://repost.aws/knowledge-center/lambda-import-module-error-nodejs" target="_blank" rel="noopener nofollow">https://repost.aws/knowledge-center/lambda-import-module-error-nodejs</a></p>
+<p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=lambda-runtime-importmoduleerror-cannot-find-module&deadline=2027-02-01&kit=lambda-lifeline">Get the full migration audit — $299, hash-anchored PDF &rarr;</a></p>
+</body>
+</html>

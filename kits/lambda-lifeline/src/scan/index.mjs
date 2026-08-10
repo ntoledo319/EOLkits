@@ -18,14 +18,17 @@ const EOL_RUNTIMES = new Set([
   'provided.al2',
 ]);
 
+// Dates from the AWS Lambda runtime deprecation table (docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html).
+// AWS delayed the usual 30/60-day block windows into a synchronized Q1-2027 cluster
+// (block_create 2027-02-01, block_update 2027-03-03) for these Amazon Linux 2/AL2023 runtimes.
 const PHASE_DATES = {
-  'nodejs16.x': { phase1: '2024-06-12', block_create: '2026-08-31', block_update: '2026-09-30' },
-  'nodejs18.x': { phase1: '2025-09-01', block_create: '2026-08-31', block_update: '2026-09-30' },
-  'nodejs20.x': { phase1: '2026-04-30', block_create: '2026-08-31', block_update: '2026-09-30' },
-  'python3.9':  { phase1: '2025-12-15', block_create: '2026-08-31', block_update: '2026-09-30' },
-  'python3.10': { phase1: '2026-10-31', block_create: '2026-11-30', block_update: '2027-01-15' },
-  'ruby3.2':    { phase1: '2026-03-31', block_create: '2026-08-31', block_update: '2026-09-30' },
-  'dotnet6':    { phase1: '2024-12-20', block_create: '2026-08-31', block_update: '2026-09-30' },
+  'nodejs16.x': { phase1: '2024-06-12', block_create: '2027-02-01', block_update: '2027-03-03' },
+  'nodejs18.x': { phase1: '2025-09-01', block_create: '2027-02-01', block_update: '2027-03-03' },
+  'nodejs20.x': { phase1: '2026-04-30', block_create: '2027-02-01', block_update: '2027-03-03' },
+  'python3.9':  { phase1: '2025-12-15', block_create: '2027-02-01', block_update: '2027-03-03' },
+  'python3.10': { phase1: '2026-10-31', block_create: '2027-02-01', block_update: '2027-03-03' },
+  'ruby3.2':    { phase1: '2026-03-31', block_create: '2027-02-01', block_update: '2027-03-03' },
+  'dotnet6':    { phase1: '2024-12-20', block_create: '2027-02-01', block_update: '2027-03-03' },
 };
 
 const UPGRADE_TARGETS = {

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AWS runtime EOL checker — is your Lambda runtime or Amazon Linux deprecated? | EOLkits</title>
+<meta name="description" content="Free, instant check: paste your AWS Lambda runtimes or IaC (or click your runtime) and see which are past end-of-life and when AWS blocks creating/updating functions. Nothing uploaded. Dates from the AWS runtime deprecation table.">
+<link rel="canonical" href="https://eolkits.com/eol-checker/">
+<link rel="stylesheet" href="/style.css">
+<script defer src="/track.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I know if my AWS Lambda runtime is deprecated?", "acceptedAnswer": {"@type": "Answer", "text": "Paste your SAM/CloudFormation/Terraform/Serverless config or a list of runtimes into this checker, or click the runtime you use. It matches against the AWS Lambda runtime deprecation table and shows the block-create and block-update dates. For a full account scan across all regions, use the free scanner at eolkits.com/scan."}}, {"@type": "Question", "name": "Is Amazon Linux 2 end of life?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Amazon Linux 2 reached end of standard support on 2026-06-30. It no longer receives security patches; migrate to Amazon Linux 2023."}}, {"@type": "Question", "name": "Does this tool upload my configuration?", "acceptedAnswer": {"@type": "Answer", "text": "No. The check runs entirely in your browser; nothing is sent to a server."}}]}</script>
+<style>#chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.75rem 0}.chip{border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:.35rem .7rem;font-size:.85rem;cursor:pointer;font-family:inherit}.chip.on{background:#2563eb;color:#fff;border-color:#2563eb}#inp{width:100%;min-height:110px;font-family:ui-monospace,Menlo,monospace;font-size:.85rem;padding:.6rem;border:1px solid #cbd5e1;border-radius:6px}.res{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}.res th,.res td{border:1px solid #e5e7eb;padding:.5rem .6rem;text-align:left;vertical-align:top}.res th{background:#f3f4f6}.res tr.crit td{background:#fef2f2}.res tr.high td{background:#fff7ed}.res tr.med td{background:#fefce8}.cta{display:inline-block;margin:.3rem .3rem .3rem 0;padding:.7rem 1.2rem;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600}.ctaway{margin:1rem 0;padding:1rem;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px}#go{padding:.6rem 1.1rem;background:#111827;color:#fff;border:0;border-radius:6px;font-weight:600;cursor:pointer;font-family:inherit}</style>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var ext = ref && ref.indexOf(location.host)===-1;
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
+      utm_source: q.get('utm_source')||aeo||'',
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||'',
+      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+    }));
+  }catch(e){}
+})();
+</script>
+</head>
+<body class="container article">
+<nav class="breadcrumb"><a href="/">Home</a> / <a href="/migrate/">Deadlines</a> / <span>EOL checker</span></nav>
+<h1>Is your AWS runtime past end-of-life?</h1>
+<p>Paste your SAM / CloudFormation / Terraform / Serverless config (or a list of runtimes), or click the runtimes you use. This checks them against the <a href="/lambda-runtime-deprecation-schedule/">AWS runtime deprecation schedule</a> and shows exactly when AWS blocks creating and updating functions. <strong>Runs in your browser — nothing is uploaded.</strong></p>
+<div id="chips"></div>
+<textarea id="inp" placeholder="Paste template.yaml / serverless.yml / *.tf here — e.g. Runtime: nodejs20.x, python3.9, FROM amazonlinux:2 ..."></textarea>
+<p><button id="go">Check my runtimes</button></p>
+<div id="results"></div>
+<p class="muted">Dates come from the AWS Lambda runtime deprecation table and can shift; the per-runtime <a href="/migrate/">migration guides</a> link the AWS source. Functions keep running after deprecation, but become unpatched and — after the block-update date — frozen.</p>
+<h2>Once you know what's exposed</h2>
+<p>Each deprecated runtime fails in specific ways — removed stdlib modules, the unbundled AWS SDK v2 on Node 18+, native-wheel/ABI breaks, Amazon Linux 2 &rarr; 2023 package renames. See the <a href="/fix/">common error fixes</a>, run the <a href="/scan/">free full scanner</a>, or get a <a href="/audit/">hash-anchored audit ($299, 30-day money-back)</a> that scores every finding and hands back a roll-forward plan.</p>
+<script>
+var RT = [{"blockCreate": "2026-06-30", "blockUpdate": "2026-06-30", "id": "Amazon Linux 2", "kind": "os", "label": "Amazon Linux 2", "matches": ["al2", "amazon linux 2", "amazon-linux-2", "amazonlinux2", "amazonlinux:2"], "sev": "critical", "slug": "amazon-linux-2-eol", "target": "Amazon Linux 2023"}, {"blockCreate": "2027-02-01", "blockUpdate": "2027-03-03", "id": "nodejs18.x", "kind": "runtime", "label": "nodejs18.x", "matches": ["nodejs18", "nodejs18.x"], "sev": "high", "slug": "lambda-node.js-18-eol", "target": "nodejs22.x"}, {"blockCreate": "2027-02-01", "blockUpdate": "2027-03-03", "id": "nodejs20.x", "kind": "runtime", "label": "nodejs20.x", "matches": ["nodejs20", "nodejs20.x"], "sev": "high", "slug": "lambda-node.js-20-phase-1", "target": "nodejs22.x"}, {"blockCreate": "2027-02-01", "blockUpdate": "2027-03-03", "id": "python3.10", "kind": "runtime", "label": "python3.10", "matches": ["python3.10"], "sev": "high", "slug": "lambda-python-3.10-eol", "target": "python3.12"}, {"blockCreate": "2027-02-01", "blockUpdate": "2027-03-03", "id": "python3.8", "kind": "runtime", "label": "python3.8", "matches": ["python3.8"], "sev": "high", "slug": "lambda-python-3.8-eol", "target": "python3.12"}, {"blockCreate": "2027-02-01", "blockUpdate": "2027-03-03", "id": "python3.9", "kind": "runtime", "label": "python3.9", "matches": ["python3.9"], "sev": "high", "slug": "lambda-python-3.9-eol", "target": "python3.12"}, {"blockCreate": "2027-07-31", "blockUpdate": "2027-08-31", "id": "python3.11", "kind": "runtime", "label": "python3.11", "matches": ["python3.11"], "sev": "medium", "slug": "lambda-python-3.11-eol", "target": "python3.12"}];
+function daysBetween(a,b){return Math.round((a-b)/86400000);}
+function statusFor(r){
+  var now=new Date();var bc=r.blockCreate?new Date(r.blockCreate+'T00:00:00Z'):null;var bu=r.blockUpdate?new Date(r.blockUpdate+'T00:00:00Z'):null;
+  if(r.kind==='os'){
+    if(bc&&now>bc)return{cls:'crit',txt:'Reached end of life '+r.blockCreate+' — no security patches. Migrate to '+r.target+'.'};
+    if(bc){var d=daysBetween(bc,now);return{cls:d<60?'crit':(d<180?'high':'med'),txt:d+' days until end of life ('+r.blockCreate+'). Migrate to '+r.target+'.'};}
+    return{cls:'high',txt:'End of life — migrate to '+r.target+'.'};
+  }
+  if(bu&&now>bu)return{cls:'crit',txt:'Updates already BLOCKED (since '+r.blockUpdate+') — functions are frozen on this runtime.'};
+  if(bc&&now>bc)return{cls:'crit',txt:'New-function creation BLOCKED (since '+r.blockCreate+'); updates block '+r.blockUpdate+'.'};
+  if(bc){var dc=daysBetween(bc,now);return{cls:dc<60?'crit':(dc<180?'high':'med'),txt:dc+' days until AWS blocks creating new functions ('+r.blockCreate+'); updates block '+r.blockUpdate+'.'};}
+  return{cls:'high',txt:'Deprecated / end-of-life — migrate off it.'};
+}
+var picked={};
+function render(){
+  var out=document.getElementById('results');var keys=Object.keys(picked);
+  if(!keys.length){out.innerHTML='';return;}
+  var rowsById={};RT.forEach(function(r){rowsById[r.id]=r;});
+  var html='<table class="res"><thead><tr><th>Runtime</th><th>Status</th><th>Upgrade to</th><th></th></tr></thead><tbody>';
+  keys.sort();keys.forEach(function(k){var r=rowsById[k];if(!r)return;var s=statusFor(r);
+    html+='<tr class="'+s.cls+'"><td><code>'+r.label+'</code></td><td>'+s.txt+'</td><td>'+(r.target?'<code>'+r.target+'</code>':'\u2014')+'</td><td><a href="/migrate/'+r.slug+'/">fix &rarr;</a></td></tr>';});
+  html+='</tbody></table>';
+  html+='<div class="ctaway"><strong>This is a quick check of what you pasted.</strong> A real migration also needs every region, your IaC, and native-dependency landmines. '+
+    '<a class="cta" href="/scan/">Run the full free scan &rarr;</a> or <a href="/audit/">get a $299 hash-anchored audit</a> (30-day money-back).</div>';
+  out.innerHTML=html;
+}
+function check(){
+  var t=(document.getElementById('inp').value||'').toLowerCase();
+  RT.forEach(function(r){if(r.matches.some(function(m){return t.indexOf(m)>=0;}))picked[r.id]=1;});
+  render();
+}
+function toggle(id){if(picked[id])delete picked[id];else picked[id]=1;render();var el=document.querySelector('[data-id="'+id+'"]');if(el)el.classList.toggle('on');}
+document.addEventListener('DOMContentLoaded',function(){
+  var chips=document.getElementById('chips');
+  RT.forEach(function(r){var b=document.createElement('button');b.className='chip';b.setAttribute('data-id',r.id);b.textContent=r.label;b.onclick=function(){toggle(r.id);};chips.appendChild(b);});
+  document.getElementById('go').onclick=check;
+});
+</script>
+</body>
+</html>

@@ -4,7 +4,8 @@ This is the single source of truth for SKU -> Stripe Price IDs, amounts, and the
 deadline-driven audit surge tiers. Both the checkout path and the webhook
 validation path use it so the price we charge always matches a real, approved
 Stripe Price object (verified live: surge_7d $599, surge_30d $399, standard
-$299, migration_pack $1499, org_license $14999, drift_watch $19).
+$299, migration_pack $1499). org_license and drift_watch were retired
+2026-07-22 (fulfillment was never implemented — see pricing.yml).
 """
 
 from __future__ import annotations

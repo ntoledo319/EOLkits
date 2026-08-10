@@ -1,24 +1,45 @@
 {
   "name": "eolkits-vscode",
   "displayName": "EOLkits - AWS Deprecation Scanner",
-  "description": "Real-time AWS deprecation detection in VS Code",
+  "description": "Find AWS runtime & OS end-of-life risks (Lambda Node/Python, Amazon Linux 2) in your IaC and code, right in the editor — offline, nothing uploaded.",
   "version": "1.0.0",
   "publisher": "eolkits",
+  "icon": "icon.png",
+  "galleryBanner": {
+    "color": "#E8801A",
+    "theme": "dark"
+  },
+  "homepage": "https://eolkits.com",
+  "bugs": {
+    "url": "https://github.com/ntoledo319/EOLkits/issues"
+  },
+  "qna": "marketplace",
+  "pricing": "Free",
+  "sponsor": {
+    "url": "https://eolkits.com/audit/?utm_source=vscode&utm_medium=marketplace&source=vscode"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
   "categories": [
     "Linters",
-    "Debuggers",
-    "Programming Languages"
+    "Other"
   ],
   "keywords": [
     "aws",
     "lambda",
     "deprecation",
+    "end-of-life",
+    "eol",
     "migration",
+    "amazon linux",
+    "cloudformation",
+    "terraform",
     "nodejs",
-    "python"
+    "python",
+    "serverless",
+    "devops",
+    "sre"
   ],
   "activationEvents": [
     "onLanguage:yaml",

@@ -6,9 +6,9 @@
 
 | Runtime | Phase 1 — patches stop | Phase 2 — block create | Phase 3 — block update (hard) |
 |---|---|---|---|
-| `nodejs16.x` | Jun 12, 2024 ✗ past | Aug 31, 2026 | **Sep 30, 2026** |
-| `nodejs18.x` | Sep 1, 2025 ✗ past  | Aug 31, 2026 | **Sep 30, 2026** |
-| `nodejs20.x` | **Apr 30, 2026**    | Aug 31, 2026 | **Sep 30, 2026** |
+| `nodejs16.x` | Jun 12, 2024 ✗ past | Feb 1, 2027 | **Mar 3, 2027** |
+| `nodejs18.x` | Sep 1, 2025 ✗ past  | Feb 1, 2027 | **Mar 3, 2027** |
+| `nodejs20.x` | **Apr 30, 2026**    | Feb 1, 2027 | **Mar 3, 2027** |
 
 If you run Node on Lambda, you are on the clock.
 
@@ -43,7 +43,7 @@ Everything is **dry-run by default**. You pass `--apply` to make changes. Every 
 
 ## Why this exists
 
-On **April 30, 2026** AWS stops applying security patches to `nodejs20.x` Lambda functions. On **August 31** you can't create new ones. On **September 30** you can't even update code or config on the existing ones — they become frozen until you migrate.
+On **April 30, 2026** AWS stops applying security patches to `nodejs20.x` Lambda functions. On **February 1, 2027** you can't create new ones. On **March 3, 2027** you can't even update code or config on the existing ones — they become frozen until you migrate.
 
 The official AWS Health emails tell you *that* it's happening. They don't tell you *which* of your 300 functions across 5 accounts and 3 regions are affected, *which* of your `package.json` deps will `NODE_MODULE_VERSION`-mismatch, *which* of your Terraform files has `runtime = "nodejs20.x"` buried in it, or how to ship the upgrade without a 3 AM pager.
 
@@ -154,19 +154,19 @@ npm test
 - GitHub Actions CI template
 - MIT license — use it however you want
 
-## What the paid tiers add
+## If you'd rather not run it yourself
 
-| | **Solo · $499** | **Team · $999** | **Enterprise · $2,499** |
+This repo is free and unlimited — no trial, no locked commands. If you want EOLkits to run the scan and do the
+migration for you, these are the two things actually for sale (live Stripe checkout, no account required):
+
+| | This repo (free) | **Audit PDF · $299** | **Migration Pack · $1,499** |
 |---|---|---|---|
-| Everything above | ✓ | ✓ | ✓ |
-| 30-page PDF runbook | ✓ | ✓ | ✓ |
-| 3-min video walkthrough | ✓ | ✓ | ✓ |
-| Private Discord support | | ✓ (team of 10) | ✓ (unlimited seats) |
-| Custom codemod rules for your stack | | | ✓ |
-| 30-day update guarantee (free Node 22 → 24 kit) | | | ✓ |
-| 48-hour priority response SLA | | | ✓ |
+| Scanner + full CLI, MIT | ✓ | — | — |
+| Hash-anchored, severity-scored PDF report of your account | — | ✓ (email ≤5 min) | ✓ |
+| Real PR opened on your repo — codemods + IaC patches + canary plan | — | — | ✓ |
+| Guarantee | — | — | Auto-refund if CI fails |
 
-**Bundle all 3 EOLkits Kits** (lambda-lifeline + al2023-gate + python-pivot) for **$999 / $1,999 / $4,997** → [eolkits.com](https://eolkits.com)
+Buy at [eolkits.com/audit](https://eolkits.com/audit) or [eolkits.com/pack](https://eolkits.com/pack).
 
 ---
 
@@ -175,7 +175,7 @@ npm test
 - [ ] `al2023-gate` — Amazon Linux 2 → AL2023 migration kit (June 30, 2026 deadline)
 - [ ] `python-pivot` — Lambda Python 3.9/3.10 → 3.12 kit (October 31, 2026 deadline)
 - [ ] Node 22 → 24 migration pack (April 30, 2027 deadline)
-- [ ] Ruby 3.2 → 3.4 kit (Aug 31, 2026 deadline)
+- [ ] Ruby 3.2 → 3.4 kit (Mar 3, 2027 block-update deadline)
 
 Sign up for notifications at [eolkits.com](https://eolkits.com).
 
@@ -194,10 +194,8 @@ Sign up for notifications at [eolkits.com](https://eolkits.com).
 
 ## License
 
-MIT. Use it commercially, fork it, rewrite it. If it saves your weekend, consider buying a Team or Enterprise tier to fund the next kit.
+MIT. Use it commercially, fork it, rewrite it. If it saves your weekend, an [eolkits.com/audit](https://eolkits.com/audit) purchase funds the next kit.
 
 ## Support
 
 - GitHub Issues: bug reports, feature requests
-- Email: support@eolkits-kits.dev (paid tier gets 48h SLA)
-- Discord: invite link included in paid tier receipts
