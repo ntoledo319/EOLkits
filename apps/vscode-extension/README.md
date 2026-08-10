@@ -51,6 +51,7 @@ Right-click any folder in the Explorer to scan it directly.
 The extension tells you **what** is deprecated. To **fix** it, EOLkits ships:
 
 - **Free, MIT CLIs** — one per deadline (`al2023-gate`, `python-pivot`, `lambda-lifeline`). They rewrite source and IaC, generate a staged canary rollout, and produce a rollback script. Clone and run them yourself: <https://github.com/ntoledo319/EOLkits>
+- Prefer a 10-second check before installing? Paste your config into the **[free AWS EOL checker](https://eolkits.com/eol-checker/?utm_source=vscode&utm_medium=marketplace&source=vscode)** — nothing uploaded.
 - **[$299 Audit](https://eolkits.com/audit/?utm_source=vscode&utm_medium=marketplace&source=vscode)** — a hash-anchored report scoring every finding by severity × blast-radius, with a roll-forward roadmap and cost-of-not-fixing estimate. **30-day money-back.**
 - **[$1,499 Migration Pack](https://eolkits.com/pack/?utm_source=vscode&utm_medium=marketplace&source=vscode)** — a real pull request opened on your repo with the codemods, IaC patches, canary plan, and rollback. Refund auto-fires if your CI fails.
 
