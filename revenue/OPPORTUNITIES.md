@@ -91,6 +91,14 @@ Ranking and frame scores unchanged — no new platform fact this cycle. This cyc
 (dev.to article 21 + Gumroad `MIGRATION-PLAYBOOK.md` now cross-link `/eol-checker/`, see DECISIONS D35), not a
 frame re-evaluation.
 
+## Reviewed (no change) — 2026-08-10 (Day 28, end of original window)
+Ranking and frame scores unchanged — no new platform fact this cycle. This cycle verified a separately-pushed
+dev.to article (24, IMDSv2) and closed the VS Code extension README's free-tool-CTA cross-link gap (see DECISIONS
+D38) — a content/site-quality ship, not a frame re-evaluation. The Day-28 end-of-window read is unchanged from
+D31/D36/D37: frame #1′ (Gumroad) and frame #3 (VS Code/Open VSX placement) remain owner-gated and unactioned;
+frame #7 (dev.to backlinks) is the one still actively compounding (24 articles staged). The honest constraint
+below is unchanged — see D38 for the formal end-of-window note.
+
 ## The honest constraint that dominates all of this
 Every payment-enabled channel is **first-publish KYC-gated** (marketplaces need identity/bank). No autonomous
 $0 action reaches a *ready buyer* inside 28 days. The frames that can actually collect $4k (Upwork gig, Migration

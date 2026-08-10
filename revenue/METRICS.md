@@ -313,4 +313,16 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-08-09 | **dev.to articles staged on branch: 23** (unchanged — no new article this cycle) | `launch/distribution/devto/01`–`23`. |
 | 2026-08-09 | **Day 27 of 28 — only 1 day remains in the original window.** | HUMAN_QUEUE core batch still fully unactioned; no observed buyer signal. |
 
+## Cycle 2026-08-10 (cloud routine) — Day 28, end of original window
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-10 | **WebFetch re-tested — 27th consecutive cycle blocked** | `EGRESS_BLOCKED` on `https://example.com`. Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis. |
+| 2026-08-10 | **Found + verified: a separate process pushed dev.to article 24** (`24-imdsv2-401-metadata-migration.md`, commit `b2902ff`, 2026-08-09 15:17 UTC) | Verified canonical target `/migrate/imdsv1-enforcement/` is real (auto-generated from `deprecations.yml`'s "IMDSv1 Enforcement" entry via `build.py`'s unconditional per-entry page loop; slug matches exactly). Confirmed non-duplicative (zero prior imdsv2/169.254.169.254 mentions). |
+| 2026-08-10 | **Truth/harm sweep found nothing new** | `git log e549323..b2902ff` = only the article-24 commit; repo-wide stale-date grep found only the 2 already-reviewed exceptions. |
+| 2026-08-10 | **Shipped: cross-linked the VS Code extension marketplace README to `/eol-checker/`** | Commit `5560eb4`. Same gap pattern as the 08-09 kit-README fix — the paid-CTA section had no free-tool step before it. GitHub Action README checked and correctly excluded (not the same funnel shape); root README already leads with `/scan`. |
+| 2026-08-10 | **Regression check:** `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) + `kits/lambda-lifeline` `npm test` 24/24 green | Jail-local `/usr/bin/python3.12` venv, deleted after use. |
+| 2026-08-10 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content verification + a site-quality cross-link only. |
+| 2026-08-10 | **dev.to articles staged on branch: 24** (was 23 as of 08-09; article 24 found this cycle, pushed by a separate process 08-09) | `launch/distribution/devto/01`–`24`. |
+| 2026-08-10 | **Day 28 of 28 — the original 28-day window closes today.** Collected = $0, gap = $4,000, unchanged end-to-end. HUMAN_QUEUE core batch unactioned the full window. Loop continues past Day 28 (no natural stop condition; see DECISIONS D38). | — |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

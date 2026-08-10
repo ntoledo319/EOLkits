@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 27 (2026-08-09) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 28 (2026-08-10) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -795,3 +795,48 @@ Clicks with no buys ⇒ a conversion/trust problem to fix, not a traffic problem
     surface not yet checked this way — e.g. `launch/gumroad/LISTING-COPY.md` (previously left alone per D35 as a
     sales page, not a discovery surface — worth a second look at whether that reasoning still holds), or the
     GitHub Action's `action.yml`/README `usage` examples.
+
+## Cycle 2026-08-10 (cloud routine) — Day 28, end of original window
+88. **WebFetch re-tested — 27th consecutive cycle blocked** (`EGRESS_BLOCKED` on `https://example.com`). Per D17's
+    root cause (permanent egress-policy denial), no re-diagnosis needed.
+89. **Found + verified (unlogged until now): a separate process pushed dev.to article 24**
+    (`24-imdsv2-401-metadata-migration.md`, commit `b2902ff`, 2026-08-09 15:17 UTC — same git identity as the
+    owner, `ntoledo319 <toledonick98@gmail.com>`, after the 08-09 cycle's own commit) — the IMDSv2 401
+    metadata-service migration guide. **Fully verified this cycle, not just logged:** its canonical target
+    (`https://eolkits.com/migrate/imdsv1-enforcement/`) is real — `rules/public/deprecations.yml` has an
+    "IMDSv1 Enforcement" entry (date `2025-12-31`, `kit: null`) and `build.py`'s page-generation loop (line
+    866-889) builds a `/migrate/<slug>/` page for **every** deprecations.yml entry unconditionally, and
+    `slugify("IMDSv1 Enforcement")` → `imdsv1-enforcement` matches exactly. Confirmed non-duplicative (zero
+    "imdsv2"/"169.254.169.254" hits across articles 01-23 before this one). This closes out the last
+    deprecations.yml entry that lacked dedicated content — all 8 active entries now have either a kit + dedicated
+    articles (7) or a dedicated article alone (IMDSv1, no kit built yet).
+90. **Truth/harm sweep found nothing new** — `git log e549323..b2902ff` showed only the article-24 commit
+    (reviewed above); repo-wide grep for every known superseded-date variant outside `revenue/` found only the 2
+    already-reviewed exceptions (`HANDOFF-2026-07-15.md` narrating the bug's own history, article 07 correctly
+    debunking the myth). No new live falsehood.
+91. **Shipped: the next real, previously-unswept cross-link gap — the VS Code extension marketplace README**
+    (commit `5560eb4`). Its "From flagged to fixed" section jumped straight from the free CLIs to the $299 Audit /
+    $1,499 Migration Pack links with zero free-tool step in between — the exact pattern already fixed in the 3 kit
+    READMEs the prior cycle (`f4a29e9`) and present on every other paid-adjacent site page (`/audit/`, `/migrate/`,
+    `/fix/`, `/vs/`). Added one line reusing the site's existing free-checker phrasing, pointed at
+    `/eol-checker/?utm_source=vscode&utm_medium=marketplace&source=vscode` (matches the file's existing UTM
+    pattern on the audit/pack links). Checked the GitHub Action README for the same gap and correctly declined —
+    its one Migration Pack mention is a single "what it does NOT do" sentence, not a free→paid funnel this pattern
+    applies to (the Action itself already is the free scan step). Also re-checked root `README.md` — it already
+    leads with `/scan` (a different free tool) before every paid CTA, consistent with the 08-09 precedent of not
+    force-adding a redundant CTA to a page that already has one.
+92. **Regression check:** `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) +
+    `kits/lambda-lifeline` `npm test` 24/24 green (jail-local `/usr/bin/python3.12 -m venv` with
+    `pytest`/`jinja2`/`pyyaml` installed, deleted after use).
+93. **Day 28 — the original 28-day window closes today (Day 0 = 2026-07-13).** $0 collected, $4,000 gap,
+    unchanged end-to-end across the full window. The HUMAN_QUEUE core batch (HQ-1′/2′ Gumroad, HQ-4 GitHub App,
+    HQ-7/8/9/10 flywheel publishes, ~35 min total) has sat fully unactioned the entire 28 days — every dollar of
+    the gap is downstream of that batch, not of anything shippable inside the jail. No natural stop condition
+    applies: the loop continues past Day 28 per D36 (the flywheel + the Q1-2027 Lambda block wave are multi-month
+    plays, not tied to the original 28-day boundary) — see DECISIONS D38 for the formal end-of-window note.
+94. **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked, the
+    per-slug/synthesis dev.to backlog and the fix/migrate/vs/kit-README/VS-Code-README cross-link sweep are all
+    now exhausted on every surface checked to date — the next non-padding move (if the truth sweep also comes up
+    clean) would be `build_pack_page`/`build_index_page`'s CTA check (still open from D37), a second look at
+    `launch/gumroad/LISTING-COPY.md`, or waiting for `fixes.yml`/`deprecations.yml` to grow new entries to write
+    from.

@@ -1412,3 +1412,72 @@ optimistic projections.
   yet checked this way — `launch/gumroad/LISTING-COPY.md` (previously left alone by D35 as a sales page, not a
   discovery surface — worth re-examining whether that reasoning still holds now that the kit-README precedent
   shows even paid-adjacent copy benefits from a free-tool mention) or the GitHub Action's `action.yml`/README.
+
+## D38 — 2026-08-10 (cloud routine): Day 28, end of original window — verified article 24, closed the VS Code README cross-link gap, formal end-of-window note
+- **Cycle boundary check:** `git log e549323..HEAD` (before this cycle's own commit) showed exactly one commit,
+  `b2902ff` (dev.to article 24, pushed 2026-08-09 15:17 UTC, after D37's own cycle commit but same day) — verified
+  it, not re-shipped it (same "found unlogged, verify don't redo" pattern as articles 08/16/23).
+- **Article 24 verification, done properly this time (not just a canonical-slug grep):** its claimed canonical
+  target `https://eolkits.com/migrate/imdsv1-enforcement/` traces to a real, unconditionally-generated page —
+  `rules/public/deprecations.yml` has an "IMDSv1 Enforcement" entry (`date: "2025-12-31"`, `kit: null`, i.e. no
+  kit built for it yet but still a tracked deprecation), and `apps/web/build.py`'s migrate-page loop (lines
+  866-889) builds `pages[f"migrate/{dep['slug']}/index.html"]` for **every** entry in `deprecations.yml` with no
+  filter on `kit` being non-null. `slugify("IMDSv1 Enforcement")` (lowercase, spaces→dashes) → `imdsv1-enforcement`
+  — exact match. The article's factual claim (Dec 31 2025 enforcement deadline is past) is sourced from
+  `deprecations.yml`'s own `date` field, already verified data, no new external fetch. Confirmed non-duplicative:
+  zero "imdsv2"/"169.254.169.254" hits anywhere in articles 01-23 before this one. This is the first dev.to piece
+  sourced from `deprecations.yml` directly rather than `fixes.yml`, and it closes the last `deprecations.yml`
+  active entry (8 total) that had zero dedicated article coverage — the other 7 each have a kit + one or more
+  dedicated articles; IMDSv1 now has a dedicated article with no kit (accurately reflected, not overclaimed).
+- **WebFetch re-tested — 27th consecutive cycle blocked** (`EGRESS_BLOCKED` on `https://example.com`). Per D17,
+  no re-diagnosis.
+- **Truth/harm sweep found nothing new** beyond the already-reviewed article-24 commit — repo-wide grep for every
+  known superseded-date variant outside `revenue/` found only the 2 already-reviewed exceptions
+  (`HANDOFF-2026-07-15.md`, article 07).
+- **Found and closed the next real, previously-unswept cross-link gap: the VS Code extension marketplace README**
+  (`apps/vscode-extension/README.md`, commit `5560eb4`). Read the file in full — its "From flagged to fixed"
+  section listed the free CLIs, then jumped straight to "$299 Audit" and "$1,499 Migration Pack" links with no
+  free-tool step between them, the identical shape D37 fixed on the 3 kit READMEs one cycle earlier. This README
+  is the marketplace listing copy a cold VS Code Marketplace visitor reads before installing — arguably a higher-
+  intent surface than the kit READMEs (a marketplace browser vs. a GitHub clone), and previously unswept because
+  D32-era checks of `apps/vscode-extension` were specifically about the stale-date bug, not the eol-checker
+  cross-link pattern. Added one line, reusing the exact phrasing from `f4a29e9`, targeting
+  `/eol-checker/?utm_source=vscode&utm_medium=marketplace&source=vscode` (consistent with the file's existing
+  `utm_source=vscode&utm_medium=marketplace&source=vscode` pattern on its audit/pack links, so it reads as part of
+  the same UTM scheme, not a bolted-on one-off).
+- **Checked the two adjacent candidates D37 flagged and correctly declined both, with reasons (not skipped
+  silently):**
+  1. **GitHub Action README** (`apps/github-action/README.md`) — its only Migration Pack mention is one sentence
+     under "What it does NOT do" ("It does not modify your code. Use the paid Migration Pack... for that"), not a
+     free→paid funnel section. The Action itself already *is* the free scan step (this is a GitHub Action, not a
+     doc reader); adding an `/eol-checker/` link here would be redundant with the tool's own function, the same
+     "already has an equivalent free step" reasoning that correctly excluded `build_audit_page` (D36) and
+     `build_al2_vs_al2023_page` (D37's precursor).
+  2. **Root `README.md`** — re-checked, already leads with `/scan` (the CLI-facing free tool, distinct from
+     `/eol-checker/`) ahead of every paid CTA in its top summary line. Adding a second free-tool CTA here would be
+     the "force it onto a page that doesn't need it" failure mode D36/D37 both explicitly warn against.
+- **Regression check:** `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) +
+  `kits/lambda-lifeline` `npm test` 24/24 green (jail-local venv built via the absolute
+  `/usr/bin/python3.12 -m venv` path per D37's own trap-avoidance note, `pytest`/`jinja2`/`pyyaml` installed,
+  deleted after use). Confirmed `python --version` inside the venv resolved to 3.12 before trusting it.
+- **Ship-law check:** externally visible ✅ — lands on the public `ntoledo319/EOLkits` repo immediately; the
+  README is independently browsable on GitHub and will be live on the VS Code Marketplace once HQ-7 (`vsce
+  publish`, still unactioned) is done.
+- **Formal end-of-original-window note.** Day 28 of 28 (Day 0 = 2026-07-13, today = 2026-08-10 per system date).
+  **$0 collected, $4,000 gap — unchanged across the entire 28-day window.** No portfolio pivot is warranted by
+  this fact alone: per D31's Day-21 gate reasoning (reaffirmed here), the §8 repositioning clause is for
+  underperforming *live* bets, and none of the 3 bets have gone fully live in the distribution sense — every
+  publish/KYC step in HUMAN_QUEUE's core batch (HQ-1′/2′, HQ-4, HQ-6, HQ-7, HQ-10, ~35 owner-minutes total) has
+  sat unactioned the entire window. The honest read (D36, reaffirmed): the agent-side autonomous levers available
+  inside the jail — no-fetch dev.to content, truth/harm fixes, internal cross-linking — are now exhausted or
+  near-exhausted on every surface swept across 28 consecutive daily cycles; the entire remaining gap to $4,000 is
+  downstream of the unactioned owner batch, not of anything shippable in-jail. **No natural stop condition
+  applies at Day 28** — per D36, the flywheel (dev.to backlinks, `/fix/`/`/migrate/` SEO surface, the compounding
+  content asset) and the Q1-2027 Lambda block wave (Feb 1/Mar 3 2027 — still ~5 months out) are multi-month plays
+  the original 28-day window was never sized to capture; the loop continues past today unless the owner stops it
+  or burns down the core batch and a real signal changes the picture.
+- **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked: verify
+  `build_pack_page`/`build_index_page` for the same CTA-redundancy check (still open from D37); a second look at
+  `launch/gumroad/LISTING-COPY.md` per D37's own note; or wait for `fixes.yml`/`deprecations.yml` to grow new
+  entries to write from — the per-slug/synthesis content backlog and the fix/migrate/vs/kit-README/VS-Code-README
+  cross-link sweep are all exhausted on every surface checked across 28 cycles.

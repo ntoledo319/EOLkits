@@ -327,6 +327,18 @@ that is very unlikely to land in time; the loop continues past the window regard
 per D36) since the flywheel and the Q1-2027 Lambda block wave are multi-month plays, not tied to the original
 28-day boundary.
 
+## Cycle 2026-08-10 (cloud routine) — Day 28, end of original window
+No new items added — this cycle's ships (verifying a separate process's dev.to article 24, and cross-linking the
+VS Code extension README to `/eol-checker/`, commit `5560eb4`) were fully autonomous, in-jail, $0, no human
+contact needed. WebFetch outage confirmed persistent a 27th consecutive cycle. **Still the highest-ROI owner
+clicks, unactioned as of this cycle: HQ-1′/2′ (Gumroad, ~10 min), HQ-7 (`vsce publish`), HQ-10 (GitHub Action
+listing), HQ-4 (GitHub App).** 28 days into the 28-day window (Day 0 = 07-13, Day 28 = 08-10) — **the original
+window closes today.** At $0 collected, the gap math is unchanged from Day 0 — none of the core-batch items show
+any observed signal of having been actioned. The core batch (HQ-1′/2′, HQ-4, HQ-6, HQ-7, HQ-10, ~35 min total
+owner time) remains the only lever that can move the $4,000 gap; the agent-side autonomous levers inside the jail
+(content, truth fixes, cross-linking) are now exhausted on every surface swept to date. The loop continues past
+Day 28 with no natural stop condition — see DECISIONS D38.
+
 ## Running total (post-pivot)
 Everything here is now **one-time setup, no ongoing owner time.** Core ≈ **30 min** (HQ-1′+2′,4,5,6). The COMPOUNDING
 batch below is now the **primary growth engine** (outreach is off the table), so those publishes matter more than
