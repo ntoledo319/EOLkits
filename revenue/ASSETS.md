@@ -177,6 +177,13 @@ flagged #1 new-domain-authority asset. See DECISIONS D33. Truth/harm sweep this 
 `docs/deprecations.ics` + the deprecation-schedule page) found nothing new — the superseded-date bug appears
 cleared after 4 straight correction cycles (D29-D32). `fixes.yml` still 27 entries, no new content-source growth.
 
+## 2026-08-11: found + fixed one more instance of the recurring superseded-date bug, in a spot the 08-04 docs/ sweep missed
+`docs/blog/index.html` (the committed blog *index* page's post excerpt — distinct from the individual post file the
+08-04 cycle already fixed) still read "...before the Sep 30 cliff." `build.py`'s `build_blog_index()` source was
+already correct; only the stale committed `docs/` artifact lagged, same cron-never-repushes-docs/ root cause as
+08-04. Patched the one passage to match. Also swept `apps/pre-commit`, the GitHub Action's PR-comment CTA, and 6
+previously-unreviewed `ledger/internal/*.md` files — no gap found in any (see DECISIONS D39). No new codebase or SKU.
+
 ## 2026-08-01: found + fixed a live truth bug in `apps/web/content/fixes.yml`
 `lambda-nodejs-runtime-no-longer-supported`'s cause text claimed "nodejs16.x and earlier are already blocked,"
 contradicting this repo's own already-verified data (`kits/lambda-lifeline/README.md`, dev.to article 07): the

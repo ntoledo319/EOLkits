@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 · Today = Day 28 (2026-08-10) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 29 (2026-08-11) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -528,6 +528,38 @@ no fast-gig shortcut exists. Replaced by:
     Post-fix repo-wide grep confirms zero remaining stale-date hits outside the DECISIONS/ASSETS/METRICS/PLAN
     history logs (which correctly narrate the bug's own history) and article 07/22 (which correctly quote the myth
     as the thing being debunked) and the now-correction-bannered `research/phase1_findings.md`.
+
+## Cycle 2026-08-11 (cloud routine) — Day 29, first cycle past the original window
+73. **WebFetch re-tested — 28th consecutive cycle blocked** — `EGRESS_BLOCKED` on `https://example.com` (neutral
+    control). Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis, went straight to
+    the no-new-fetch path.
+74. **Truth/harm sweep found one real gap D32's sweep missed** — the committed `docs/blog/index.html` static build
+    snapshot (the blog *index* page's post excerpt, distinct from the individual post page D32 already fixed) still
+    read "...before the Sep 30 cliff" — the same superseded-2026-date bug, in a spot D32's sweep didn't check because
+    it only inspected the individual post file, not the index page's separate excerpt text. Confirmed `build.py`'s
+    `build_blog_index()` source was already correct ("Feb 1 / Mar 3, 2027 block cliffs") — only the stale committed
+    `docs/` artifact lagged, same root cause as D32 (the box's daily cron rebuilds `docs/` fresh for the live site but
+    never pushes the rebuild back to git, so the *live* page has been correct all along but the repo snapshot wasn't).
+    **Shipped:** patched the one stale passage to match the corrected source wording exactly — targeted patch, not a
+    full rebuild-and-commit, per D14/D28/D32 precedent. Repo-wide grep confirmed no other stale-date variant (checked
+    ISO `2026-08-31`/`2026-09-30` and slash formats too, in addition to the usual prose forms) — zero new hits beyond
+    the 3 already-reviewed correct exceptions (HANDOFF-2026-07-15.md's landmine-explainer, the correction-bannered
+    `research/phase1_findings.md`, and article 07's myth-debunking framing).
+75. **Also swept `apps/pre-commit`, `apps/github-action`'s PR-comment CTA, and `ledger/`'s 6 unreviewed internal docs
+    for gaps** — no action taken: `apps/pre-commit/hooks.yaml` has no README to cross-link; the GitHub Action's PR
+    comment already leads with direct `/audit`+`/pack` CTAs and the Action itself *is* the free-scan step (unlike the
+    kit-README/VS-Code-README pattern where the gap was "no free-tool step exists before the paid ask" — forcing an
+    `/eol-checker/` link here would be redundant, same reasoning D37 applied to `build_audit_page`); the 6 unreviewed
+    `ledger/internal/*.md` files are internal planning artifacts, not customer-facing pages, and a scan for the
+    superseded-date pattern (see above) found nothing live in them either — no violation to fix.
+76. **Regression check:** `apps/web` `test_determinism.py` (4/4, pytest) + `test_surge.py` (4/4, direct run) green in
+    a fresh jail-local `python3.12` venv (deleted after use); `kits/lambda-lifeline` `npm test` 24/24 green.
+77. **State, Day 29:** collected = $0, gap = $4,000, unchanged. No new commits landed from other routines since the
+    08-10 cycle tip (`2bcf1ea`). HUMAN_QUEUE core batch (HQ-1′/2′, HQ-4, HQ-6, HQ-7, HQ-10, ~30-35 min owner time)
+    remains the only lever that can move the gap — every agent-side autonomous surface swept to date (truth fixes,
+    no-fetch content, site cross-linking) keeps coming back thin, today's single-line find included. The loop
+    continues with no natural stop condition (D38) — next cycle: re-check WebFetch first, then a fresh truth/harm
+    sweep before defaulting to any further padding-risk content.
 73. **No new dev.to article this cycle** — the 13-instance truth-fix sweep (the widest yet, reaching live
     HN/social/outreach copy and a reusable answer template, not just static pages) outranked a 24th content piece,
     consistent with the D29/D30/D14/D11 precedent of truth fixes pre-empting content when a real issue is found.

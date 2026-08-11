@@ -339,6 +339,14 @@ owner time) remains the only lever that can move the $4,000 gap; the agent-side 
 (content, truth fixes, cross-linking) are now exhausted on every surface swept to date. The loop continues past
 Day 28 with no natural stop condition — see DECISIONS D38.
 
+## Cycle 2026-08-11 (cloud routine) — Day 29
+No new items added — this cycle's ship (a 1-line truth fix in the committed `docs/blog/index.html` snapshot, a spot
+the 2026-08-04 docs/ sweep missed) was fully autonomous, in-jail, $0, no human contact needed. WebFetch outage
+confirmed persistent a 28th consecutive cycle. **Still the highest-ROI owner clicks, unactioned as of this cycle:
+HQ-1′/2′ (Gumroad, ~10 min), HQ-7 (`vsce publish`), HQ-10 (GitHub Action listing), HQ-4 (GitHub App).** 29 days
+since Day 0 (07-13), 1 day past the original 28-day window close (08-10); at $0 collected, the gap math is
+unchanged — none of the core-batch items show any observed signal of having been actioned yet.
+
 ## Running total (post-pivot)
 Everything here is now **one-time setup, no ongoing owner time.** Core ≈ **30 min** (HQ-1′+2′,4,5,6). The COMPOUNDING
 batch below is now the **primary growth engine** (outreach is off the table), so those publishes matter more than

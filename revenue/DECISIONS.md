@@ -1481,3 +1481,53 @@ optimistic projections.
   `launch/gumroad/LISTING-COPY.md` per D37's own note; or wait for `fixes.yml`/`deprecations.yml` to grow new
   entries to write from — the per-slug/synthesis content backlog and the fix/migrate/vs/kit-README/VS-Code-README
   cross-link sweep are all exhausted on every surface checked across 28 cycles.
+
+## D39 — 2026-08-11 (cloud routine): Day 29, first cycle past the original window — found one more docs/ snapshot gap D32's sweep missed
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `2bcf1ea` (D38's
+  cycle commit); no conflicts, nothing else had pushed since.
+- **Re-tested WebFetch before picking a task, per the standing rule:** `WebFetch` on `https://example.com` →
+  `EGRESS_BLOCKED` (28th consecutive cycle: 07-15, -16, -18 through 08-11; no 07-17 run recorded). Consistent with
+  D17's root cause (a standing egress-policy denial) — no new diagnosis run, went straight to the no-new-fetch path.
+- **Truth/harm sweep before defaulting to more content, per the standing pattern (D29 onward):** confirmed no new
+  commits had landed from any other routine since D38's tip. Re-ran the repo-wide superseded-date grep D30–D32 used,
+  this time also checking ISO (`2026-08-31`/`2026-09-30`) and slash-format date variants that no prior cycle had
+  explicitly tested — zero new hits on those formats, but the standard prose-format grep turned up a genuine gap in
+  a file class D32 had already partially swept: **`docs/blog/index.html`** — the committed blog *index* page's post
+  excerpt (a separate string from the individual post file D32 fixed on 2026-08-04) still read "...before the Sep 30
+  cliff." Checked the source: `apps/web/build.py`'s `build_blog_index()` function that generates this exact page
+  already has the corrected wording ("Feb 1 / Mar 3, 2027 block cliffs") — so this was not a live source-code bug,
+  just the same D32 root cause (the box's daily cron rebuilds `docs/` fresh and rsyncs it to the live site, but never
+  pushes that rebuild back to git, so the committed snapshot in the public repo drifts stale) recurring in a spot
+  D32's sweep hadn't individually checked (it verified the post page, not the separate index-page excerpt that
+  summarizes it).
+- **Shipped:** a 1-line targeted patch to `docs/blog/index.html`, matching `build_blog_index()`'s already-correct
+  wording exactly — not a full rebuild-and-commit, per the D14/D28/D32 precedent against that. Post-fix repo-wide
+  grep (prose + ISO + slash formats) confirms zero remaining stale-date hits anywhere outside the `revenue/` history
+  logs and the 3 already-reviewed correct exceptions (`HANDOFF-2026-07-15.md`'s landmine-explainer prose,
+  `research/phase1_findings.md`'s correction-bannered historical table, and dev.to article 07's myth-debunking
+  framing).
+- **Also swept three previously-unreviewed surfaces for the same class of gap, found nothing to fix in any:**
+  1. `apps/pre-commit/` — just `hooks.yaml`, no README or customer-facing copy to cross-link or date-check.
+  2. `apps/github-action`'s PR-comment output (`run.sh` line 210) — already carries direct `/audit`+`/pack` paid CTAs,
+     and the Action itself performs the free scan (unlike the kit-README/VS-Code-README gap D36/D37 fixed, where no
+     free-tool step existed before the paid ask) — adding an `/eol-checker/` link here would be the same
+     CTA-redundancy failure mode D37 explicitly avoided for `build_audit_page`/`build_al2_vs_al2023_page`, so
+     correctly left alone.
+  3. 6 previously-unreviewed `ledger/internal/*.md` files (`mission_ledger.md`, `checkpoint2.md`,
+     `IMPLEMENTATION_SUMMARY.md`, `SHOW_HN_TEMPLATE.md`, `MISSION_COMPLETE.md`, `FINAL_STATE.md` — D31 had only
+     checked `thread-answers.md` from this directory) — none carry the superseded-date pattern or any other live
+     §2.5 claim needing correction; internal planning artifacts, not pages a buyer reads.
+- **Regression check:** `apps/web` `test_determinism.py` (4/4, pytest) + `test_surge.py` (4/4, direct run) green in a
+  fresh jail-local `python3.12` venv (`/usr/bin/python3.12 -m venv`, `python --version` confirmed 3.12 before
+  trusting it, per D37's trap-avoidance note; deleted after use); `kits/lambda-lifeline` `npm test` 24/24 green.
+- **Ship-law check:** externally visible ✅ — the moment this pushes, the public repo's committed `docs/blog/index.html`
+  (independently browsable on GitHub regardless of what the live cron-rebuilt site shows) no longer carries a
+  ~5-month-understated urgency claim. A narrow fix, but a real one — this cycle is evidence the "exhausted" surfaces
+  from D33/D36–D38 can still yield a genuine (if small) find on a careful re-check, not proof there's nothing left.
+- **Day-29 state:** $0 collected, $4,000 gap, unchanged since Day 0. First cycle past the original 28-day window
+  (closed 08-10 per D38); no natural stop condition applies (per D38) — the loop continues. The HUMAN_QUEUE core
+  batch (HQ-1′/2′, HQ-4, HQ-6, HQ-7, HQ-10, ~30–35 owner-minutes) remains the only lever that can move the gap
+  materially; every agent-side autonomous surface swept to date stays thin.
+- **Deferred to next cycle:** re-check WebFetch first. If still blocked, D38's own next-candidate list is unchanged
+  and still open: `build_pack_page`/`build_index_page`'s CTA-redundancy check, a second look at
+  `launch/gumroad/LISTING-COPY.md`, or waiting for `fixes.yml`/`deprecations.yml` to grow new entries.

@@ -325,4 +325,16 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-08-10 | **dev.to articles staged on branch: 24** (was 23 as of 08-09; article 24 found this cycle, pushed by a separate process 08-09) | `launch/distribution/devto/01`–`24`. |
 | 2026-08-10 | **Day 28 of 28 — the original 28-day window closes today.** Collected = $0, gap = $4,000, unchanged end-to-end. HUMAN_QUEUE core batch unactioned the full window. Loop continues past Day 28 (no natural stop condition; see DECISIONS D38). | — |
 
+## Cycle 2026-08-11 (cloud routine) — Day 29, first cycle past the original window
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-11 | **WebFetch re-tested — 28th consecutive cycle blocked** | `EGRESS_BLOCKED` on `https://example.com` (neutral control). Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis. |
+| 2026-08-11 | **Truth/harm sweep found one more instance of the recurring superseded-date bug, in a spot D32's sweep missed** | `docs/blog/index.html` (the committed blog *index* snapshot's post excerpt, separate from the individual post page D32 already fixed) still read "...before the Sep 30 cliff." Confirmed `build.py`'s `build_blog_index()` source was already correct — only the stale committed `docs/` artifact lagged (same cron-never-repushes-docs/ root cause as D32). |
+| 2026-08-11 | **Shipped: targeted 1-line patch** to `docs/blog/index.html` matching the already-correct source wording ("Feb 1 / Mar 3, 2027 block cliffs") | Repo-wide grep (incl. ISO/slash date-format variants, checked fresh this cycle) confirms zero remaining stale-date hits beyond the 3 already-reviewed correct exceptions. |
+| 2026-08-11 | **Also swept `apps/pre-commit`, the GitHub Action's PR-comment CTA, and 6 unreviewed `ledger/internal/*.md` files** — no action needed | `apps/pre-commit` has no README to cross-link; the Action's PR comment already leads with direct paid CTAs and the Action itself *is* the free-scan step (an `/eol-checker/` link there would be redundant, per D37's reasoning); the ledger files are internal-only and carry no live superseded-date instance. |
+| 2026-08-11 | **Regression check:** `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) + `kits/lambda-lifeline` `npm test` 24/24 green (jail-local `python3.12` venv, deleted after use) | Ran directly this cycle. |
+| 2026-08-11 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a narrow truth-fix + a negative-result sweep only. |
+| 2026-08-11 | **dev.to articles staged on branch: 24** (unchanged from 08-10) | `launch/distribution/devto/01`–`24`. |
+| 2026-08-11 | **Day 29 — first cycle past the original 28-day window.** HUMAN_QUEUE core batch still fully unactioned; no observed buyer signal. Agent-side autonomous surfaces (truth fixes, no-fetch content, site cross-linking) are thin but not fully dry — today's find shows a careful re-sweep can still surface a real (if narrow) issue. | — |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

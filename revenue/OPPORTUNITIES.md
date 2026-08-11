@@ -99,6 +99,11 @@ D31/D36/D37: frame #1′ (Gumroad) and frame #3 (VS Code/Open VSX placement) rem
 frame #7 (dev.to backlinks) is the one still actively compounding (24 articles staged). The honest constraint
 below is unchanged — see D38 for the formal end-of-window note.
 
+## Reviewed (no change) — 2026-08-11 (Day 29)
+Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship (a 1-line truth fix in a
+stale `docs/` build artifact) was a truth/harm sweep, not a frame re-evaluation. First cycle past the original
+28-day window; the honest constraint below is unchanged.
+
 ## The honest constraint that dominates all of this
 Every payment-enabled channel is **first-publish KYC-gated** (marketplaces need identity/bank). No autonomous
 $0 action reaches a *ready buyer* inside 28 days. The frames that can actually collect $4k (Upwork gig, Migration
