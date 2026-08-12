@@ -177,6 +177,14 @@ flagged #1 new-domain-authority asset. See DECISIONS D33. Truth/harm sweep this 
 `docs/deprecations.ics` + the deprecation-schedule page) found nothing new — the superseded-date bug appears
 cleared after 4 straight correction cycles (D29-D32). `fixes.yml` still 27 entries, no new content-source growth.
 
+## 2026-08-12: found + fixed a stale-urgency (not stale-date) bug on the homepage's own kit card
+`apps/web`'s `build_index_page` badges the `al2023-gate` kit card `class="kit-card urgent"` (red-styled per
+`docs/style.css`) with a hardcoded `Jun 30, 2026` deadline — presented as a live countdown 6.5 weeks after AL2's EOL
+already passed. Different failure mode from the recurring Sep-30/Aug-31-2026 wrong-date bug (D3/D30–D32/D39): the
+date itself is correct, just framed in the wrong tense. Fixed to `AL2 EOL passed Jun 30, 2026 — unpatched now`,
+reusing D8's already-established honest post-EOL phrasing from the kit's own README (see DECISIONS D40). No new
+codebase or SKU.
+
 ## 2026-08-11: found + fixed one more instance of the recurring superseded-date bug, in a spot the 08-04 docs/ sweep missed
 `docs/blog/index.html` (the committed blog *index* page's post excerpt — distinct from the individual post file the
 08-04 cycle already fixed) still read "...before the Sep 30 cliff." `build.py`'s `build_blog_index()` source was

@@ -1531,3 +1531,55 @@ optimistic projections.
 - **Deferred to next cycle:** re-check WebFetch first. If still blocked, D38's own next-candidate list is unchanged
   and still open: `build_pack_page`/`build_index_page`'s CTA-redundancy check, a second look at
   `launch/gumroad/LISTING-COPY.md`, or waiting for `fixes.yml`/`deprecations.yml` to grow new entries.
+
+### D40 — Cloud cycle (2026-08-12, Day 30): checked `build_pack_page`; found + fixed a new stale-urgency bug on the homepage's own kit card
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `6fbbce4` (D39's
+  cycle commit); no conflicts, no other routine had pushed since.
+- **Re-tested WebFetch before picking a task, per the standing rule:** `WebFetch` on `https://example.com` (neutral
+  control) → `EGRESS_BLOCKED`. 29th consecutive cycle blocked (07-15, -16, -18 through 08-12; no 07-17 run recorded).
+  Consistent with D17's root cause (a standing egress-policy denial) — no re-diagnosis, went straight to the
+  no-new-fetch path.
+- **Checked D39's flagged next-candidate — `build_pack_page`'s CTA-redundancy check — and correctly declined to add
+  a cross-link:** read the function directly (`apps/web/build.py:513-632`). It already has a `.downsell` block
+  ("Not ready to grant repo access? Run the free scan or get the $299 audit first...") linking `/scan/` and `/audit/`
+  before the paid ask, the same "already has an equivalent free-tool CTA" exemption D37 established for
+  `build_audit_page`/`build_al2_vs_al2023_page`. Adding `/eol-checker/` too would be the same redundancy D37 avoided.
+  Did not check `build_index_page`'s CTA in the same narrow sense (it already links `/scan/` prominently in its hero)
+  — but reading it top-to-bottom for that check is what surfaced this cycle's actual finding, below.
+- **Found a new bug class, not yet swept for: a hardcoded past-tense date presented as a live countdown, on the
+  homepage itself.** `build_index_page`'s "Live Kits" section (line ~1444) renders the `al2023-gate` card as
+  `<article class="kit-card urgent">` with `<div class="kit-deadline">Jun 30, 2026</div>` — and `docs/style.css`'s
+  `.kit-card.urgent` rule gives it a red border-glow (`box-shadow: 0 0 0 1px var(--urgent), 0 8px 32px rgba(255, 59,
+  59, 0.1)`), visually flagging it as an imminent, ticking-clock deadline. But AL2's EOL **already passed** on
+  2026-06-30 — today is 2026-08-12, ~6.5 weeks later. This is not the recurring Sep-30/Aug-31-2026 Lambda-block-date
+  bug D3/D30/D31/D32/D39 chased down repeatedly (a *wrong* date); it's a *correct* date presented with the *wrong
+  tense/framing* — the same failure mode D8 already fixed once, in `kits/al2023-gate/README.md` and `pyproject.toml`
+  (reframed from "before Jun 30 2026" future-deadline copy to honest post-EOL "support ended... now unpatched"
+  copy) — but that 2026-07-14 fix never propagated to this homepage card, which is a different render path
+  (`build_index_page` vs. the kit's own README) that nobody had checked against this specific pattern until now.
+  **Why this matters more than a README:** the homepage is the single highest-traffic, most-visible page on the
+  entire site — every visitor from every channel (dev.to, re:Post, GitHub, direct) lands here first.
+- **Shipped:** changed the badge text to `AL2 EOL passed Jun 30, 2026 — unpatched now`, reusing D8's exact established
+  phrasing pattern for consistency across the site. Kept the `urgent` red styling — it's still an accurate signal
+  (an unpatched, EOL'd OS running in production is genuinely urgent to fix), just no longer framed as a countdown.
+  Confirmed via grep this was the only hardcoded occurrence of this badge text anywhere in `apps/web/`.
+- **Verified before logging as shipped (§9):** `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run)
+  green in a fresh jail-local `/usr/bin/python3.12` venv (version confirmed before trusting it, per D37's
+  trap-avoidance note; deleted after use); full `python3 apps/web/build.py` rebuild confirmed the corrected text
+  renders on `docs/index.html` with zero `{API_URL}` leaks; `docs/` rebuild output discarded
+  (`git checkout -- docs/ && git clean -fd docs/`) per the D14/D28/D32/D39 precedent (the box cron rebuilds `docs/`
+  fresh from source on every deploy, so committing rebuild output here would be redundant and drift-prone).
+  `kits/lambda-lifeline` `npm test` 24/24 green (unaffected, run for full-regression discipline).
+- **Ship-law check:** externally visible ✅ — the moment this pushes and the box's daily cron rebuilds/deploys, every
+  visitor to eolkits.com sees an honest kit-card badge instead of a 6.5-week-stale countdown on the site's front
+  door. No new dev.to article this cycle — the truth fix outranked a 25th content piece on the already-exhausted
+  per-slug/synthesis backlog, consistent with the D11/D14/D29/D30/D31 precedent.
+- **Day-30 state:** $0 collected, $4,000 gap, unchanged since Day 0. 2 days past the original 28-day window (closed
+  08-10 per D38); loop continues, no natural stop condition. HUMAN_QUEUE core batch (HQ-1′/2′, HQ-4, HQ-6, HQ-7,
+  HQ-10, ~30–35 owner-minutes) remains the only lever that can move the gap materially.
+- **Deferred to next cycle:** re-check WebFetch first. If still blocked, sweep other pages for the same
+  "hardcoded past-tense date styled as urgent/live" pattern this cycle newly identified — `build_scan_page` and the
+  `/vs/` competitor comparison pages' own date-bearing claims haven't been checked against this specific pattern yet
+  (distinct from their already-checked free-tool-CTA gap, D36). If that's clean too, the per-slug/synthesis dev.to
+  backlog and cross-link sweep remain exhausted per D27–D39 — next move is `launch/gumroad/LISTING-COPY.md` (still
+  open from D37) or waiting for `fixes.yml`/`deprecations.yml` to grow new entries.

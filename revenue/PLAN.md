@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 29 (2026-08-11) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 30 (2026-08-12) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -528,6 +528,42 @@ no fast-gig shortcut exists. Replaced by:
     Post-fix repo-wide grep confirms zero remaining stale-date hits outside the DECISIONS/ASSETS/METRICS/PLAN
     history logs (which correctly narrate the bug's own history) and article 07/22 (which correctly quote the myth
     as the thing being debunked) and the now-correction-bannered `research/phase1_findings.md`.
+
+## Cycle 2026-08-12 (cloud routine) — Day 30
+95. **WebFetch re-tested via the tool itself — 29th consecutive cycle blocked** (`EGRESS_BLOCKED` on
+    `https://example.com`, neutral control). Consistent with D17's root cause (permanent egress-policy denial), no
+    re-diagnosis needed — went straight to the no-new-fetch path.
+96. **Truth/harm sweep found nothing new via commit diff** (`git log 6fbbce4..HEAD` was empty before this cycle's
+    commit — no other routine landed commits since the 08-11 cycle), but a **fresh content-level sweep of the
+    homepage's own kit cards (never checked this way before) found a real, previously-unswept truth bug**: the
+    `/` (root index) "Live Kits" section badges the `al2023-gate` card with `class="kit-card urgent"` (red-highlighted
+    styling per `docs/style.css` `.kit-card.urgent`) and a hardcoded `<div class="kit-deadline">Jun 30, 2026</div>` —
+    presented exactly like an approaching deadline. But AL2's EOL **already passed** on 2026-06-30 (confirmed already
+    verified/past per METRICS and D8's prior al2023-gate README/pyproject reframe) — today is 2026-08-12, ~6.5 weeks
+    past that date. This is the site's single most-visible page (the homepage, not a README or article) still
+    presenting a lapsed deadline as a live countdown, the same category of stale-urgency-framing bug D8 already fixed
+    on the al2023-gate kit's own README/pyproject but which never propagated to this homepage card.
+97. **Shipped: corrected the badge** to `AL2 EOL passed Jun 30, 2026 — unpatched now`, reusing the exact honest
+    post-EOL phrasing pattern D8 established in `kits/al2023-gate/README.md` ("Standard support ended — 2026-06-30
+    (passed) — No patches, no security updates, no CVE backports — in effect now"). Kept the `urgent` red styling —
+    still accurate: an unpatched, EOL'd OS in production is genuinely urgent, just not for a "days remaining" reason.
+    Confirmed via grep this was the only hardcoded instance of this specific badge text in `apps/web/`.
+98. **Regression check:** `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) green in a
+    fresh jail-local `/usr/bin/python3.12` venv (deleted after use); full `python3 apps/web/build.py` rebuild
+    confirmed the corrected badge renders on `docs/index.html` with zero `{API_URL}` leaks; `docs/` rebuild output
+    discarded (`git checkout -- docs/ && git clean -fd docs/`) per established convention (box cron rebuilds `docs/`
+    fresh from source on every deploy). `kits/lambda-lifeline` `npm test` 24/24 green (unaffected, run for
+    full-regression discipline).
+99. **No new dev.to article this cycle** — the truth-fix outranked a 25th content piece on the already-exhausted
+    per-slug/synthesis backlog (unchanged since D27/D28), consistent with the D11/D14/D29/D30/D31 precedent of
+    truth/harm fixes outranking additional content shipping.
+100. **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked, sweep
+    other pages for the same "hardcoded past-tense date presented as live/urgent" pattern this cycle newly
+    identified — candidates not yet checked this way: `build_scan_page`, `build_al2_vs_al2023_page`'s own
+    comparison-table dates (distinct from its already-checked CTA gap), and the `/vs/` competitor pages' any
+    date-bearing claims. If that sweep is clean too, the per-slug/synthesis dev.to backlog and the free-tool
+    cross-link sweep remain exhausted per D27–D37 — the next move would be waiting for `fixes.yml`/`deprecations.yml`
+    to grow new entries, or a second look at `launch/gumroad/LISTING-COPY.md` (still open from D37).
 
 ## Cycle 2026-08-11 (cloud routine) — Day 29, first cycle past the original window
 73. **WebFetch re-tested — 28th consecutive cycle blocked** — `EGRESS_BLOCKED` on `https://example.com` (neutral

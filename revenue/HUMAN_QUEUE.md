@@ -347,6 +347,15 @@ HQ-1′/2′ (Gumroad, ~10 min), HQ-7 (`vsce publish`), HQ-10 (GitHub Action lis
 since Day 0 (07-13), 1 day past the original 28-day window close (08-10); at $0 collected, the gap math is
 unchanged — none of the core-batch items show any observed signal of having been actioned yet.
 
+## Cycle 2026-08-12 (cloud routine) — Day 30
+No new items added — this cycle's ship (a homepage stale-urgency truth fix: the `al2023-gate` kit card's "Jun 30,
+2026" deadline badge, now 6.5 weeks past and still shown red/urgent, corrected to honest post-EOL phrasing) was
+fully autonomous, in-jail, $0, no human contact needed. WebFetch outage confirmed persistent a 29th consecutive
+cycle. **Still the highest-ROI owner clicks, unactioned as of this cycle: HQ-1′/2′ (Gumroad, ~10 min), HQ-7 (`vsce
+publish`), HQ-10 (GitHub Action listing), HQ-4 (GitHub App).** 30 days since Day 0 (07-13), 2 days past the
+original 28-day window close (08-10); at $0 collected, the gap math is unchanged — none of the core-batch items
+show any observed signal of having been actioned yet.
+
 ## Running total (post-pivot)
 Everything here is now **one-time setup, no ongoing owner time.** Core ≈ **30 min** (HQ-1′+2′,4,5,6). The COMPOUNDING
 batch below is now the **primary growth engine** (outreach is off the table), so those publishes matter more than

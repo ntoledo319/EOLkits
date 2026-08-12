@@ -1442,7 +1442,7 @@ def build_index_page(pricing):
       <p class="sub">Each kit is standalone, MIT-licensed, and safe by default: scan first, apply only when requested.</p>
       <div class="kit-grid">
         <article class="kit-card urgent">
-          <div class="kit-deadline">Jun 30, 2026</div>
+          <div class="kit-deadline">AL2 EOL passed Jun 30, 2026 — unpatched now</div>
           <h3>al2023-gate</h3>
           <p class="kit-sub">Amazon Linux 2 to AL2023</p>
           <p>Find AL2 AMIs, remap packages, patch cloud-init, Packer, and Ansible, then generate rollout runbooks.</p>

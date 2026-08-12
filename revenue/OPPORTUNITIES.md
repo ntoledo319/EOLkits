@@ -61,6 +61,11 @@ it is not: `launch/distribution/README.md` already documents that Hashnode's pub
 2026-05-13, so it correctly stays unused. No new frame identified this cycle; the deeper-sweep truth fix (D29) was
 higher-leverage than a third content angle.
 
+## Reviewed (no change) — 2026-08-12 (Day 30)
+Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship was a homepage stale-urgency
+truth fix (the `al2023-gate` kit card's "Jun 30, 2026" badge, 6.5 weeks past and still styled urgent/red — see
+DECISIONS D40), not a frame re-evaluation.
+
 ## Reviewed (no change) — 2026-08-04
 Ranking and frame scores unchanged — no new platform fact this cycle. This cycle swept the last two unswept public
 surfaces (VS Code extension, GitHub Action) clean, then found + fixed the recurring superseded-date bug in a new

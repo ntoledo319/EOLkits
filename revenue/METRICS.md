@@ -337,4 +337,14 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-08-11 | **dev.to articles staged on branch: 24** (unchanged from 08-10) | `launch/distribution/devto/01`–`24`. |
 | 2026-08-11 | **Day 29 — first cycle past the original 28-day window.** HUMAN_QUEUE core batch still fully unactioned; no observed buyer signal. Agent-side autonomous surfaces (truth fixes, no-fetch content, site cross-linking) are thin but not fully dry — today's find shows a careful re-sweep can still surface a real (if narrow) issue. | — |
 
+## Cycle 2026-08-12 (cloud routine) — Day 30
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-12 | **WebFetch re-tested — 29th consecutive cycle blocked** | `WebFetch` on `https://example.com` (neutral control) → `EGRESS_BLOCKED`. Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis. |
+| 2026-08-12 | **Truth/harm sweep found nothing new via commit diff** (`git log 6fbbce4..HEAD` empty before this cycle's commit) but a fresh homepage-card sweep found a new stale-urgency bug: the root `/` "Live Kits" section badged `al2023-gate` with `class="kit-card urgent"` + a hardcoded `Jun 30, 2026` deadline — presented as a live countdown 6.5 weeks after that date already passed. | Grepped `apps/web/build.py` + `docs/style.css` (`.kit-card.urgent` = red-highlighted styling) to confirm the framing; the homepage had never been checked for this specific bug pattern before. |
+| 2026-08-12 | **Shipped: corrected badge** to `AL2 EOL passed Jun 30, 2026 — unpatched now`, reusing D8's already-established honest post-EOL phrasing from `kits/al2023-gate/README.md`. Kept the `urgent` red styling (still accurate — unpatched EOL'd OS in prod is genuinely urgent). | 1 file changed: `apps/web/build.py`. Confirmed via grep this was the only hardcoded instance of the stale badge text. |
+| 2026-08-12 | **Regression check:** `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) green (jail-local `/usr/bin/python3.12` venv, deleted after use); full rebuild confirmed the fix renders on `docs/index.html`, zero `{API_URL}` leaks (rebuild output discarded per convention); `kits/lambda-lifeline` `npm test` 24/24 green. | Ran directly this cycle. |
+| 2026-08-12 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a truth fix on the homepage (the most-visible page) only, no new dev.to article this cycle (truth fix outranked a 25th content piece). |
+| 2026-08-12 | **dev.to articles staged on branch: 24** (unchanged from 08-10/08-11 — no new article this cycle) | `launch/distribution/devto/01`–`24`. |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._
