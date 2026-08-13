@@ -347,4 +347,15 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-08-12 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a truth fix on the homepage (the most-visible page) only, no new dev.to article this cycle (truth fix outranked a 25th content piece). |
 | 2026-08-12 | **dev.to articles staged on branch: 24** (unchanged from 08-10/08-11 — no new article this cycle) | `launch/distribution/devto/01`–`24`. |
 
+## Cycle 2026-08-13 (cloud routine) — Day 31
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-13 | **WebFetch re-tested — 30th consecutive cycle blocked** | `WebFetch` on `https://example.com` (neutral control) → `EGRESS_BLOCKED`. Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis. |
+| 2026-08-13 | **Checked `build_scan_page` and the `/vs/` pages for D40's "hardcoded past-tense date styled urgent" pattern — both clean** | `build_scan_page` pulls all runtime dates dynamically from `deprecations.yml`; `/vs/` pages carry no EOL/block-date claims at all. Also checked the sample-audit-report page (which does show hardcoded 2026/2027 dates) — correctly marked "SAMPLE — redacted/fictional" throughout, dates phrased factually, no bug. |
+| 2026-08-13 | **Shipped: closed the 3-cycle-old open item — added a free `/eol-checker/` mention to `launch/gumroad/LISTING-COPY.md`** | Re-examined D35's original "might dilute the $79 offer" concern: the listing already links to two bigger competing asks ($299/$1,499) in the same paragraph, so the concern didn't hold up. One sentence added ahead of those mentions, matching the free-tool-first pattern every other content surface already has. |
+| 2026-08-13 | **Regression check:** `launch/gumroad/build_bundle.sh` re-run clean (164K/137 files, unchanged); `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) + `kits/lambda-lifeline` `npm test` 24/24 green (jail-local `/usr/bin/python3.12` venv, deleted after use) | Ran directly this cycle. |
+| 2026-08-13 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a content polish on an already-built, still-owner-gated SKU (Bet A′). |
+| 2026-08-13 | **dev.to articles staged on branch: 24** (unchanged — `fixes.yml` still 27 entries, no new no-fetch candidate) | `launch/distribution/devto/01`–`24`. |
+| 2026-08-13 | **Day 31 — 3 days past the original 28-day window (closed 08-10).** HUMAN_QUEUE core batch (HQ-1′/2′, HQ-4, HQ-6, HQ-7, HQ-10) still fully unactioned, 31 days running; no observed buyer signal. With the LISTING-COPY.md item now closed, the DECISIONS backlog has no other specifically-named open content item — the next genuinely new agent-side lever most likely needs working WebFetch or new `fixes.yml`/`deprecations.yml` entries. | — |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

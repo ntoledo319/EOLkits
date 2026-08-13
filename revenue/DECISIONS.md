@@ -1583,3 +1583,57 @@ optimistic projections.
   (distinct from their already-checked free-tool-CTA gap, D36). If that's clean too, the per-slug/synthesis dev.to
   backlog and cross-link sweep remain exhausted per D27–D39 — next move is `launch/gumroad/LISTING-COPY.md` (still
   open from D37) or waiting for `fixes.yml`/`deprecations.yml` to grow new entries.
+
+### D41 — Cloud cycle (2026-08-13, Day 31): swept `build_scan_page`/`/vs/` pages clean; closed the 3-cycle-old LISTING-COPY.md open item
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `0aeda1a`
+  (D40's cycle commit); no conflicts, no other routine had pushed since.
+- **Re-tested WebFetch before picking a task, per the standing rule:** `WebFetch` on `https://example.com` →
+  `EGRESS_BLOCKED`. 30th consecutive cycle blocked (07-15, -16, -18 through 08-13; no 07-17 run recorded).
+  Consistent with D17's root cause (a standing egress-policy denial) — no re-diagnosis, went straight to the
+  no-new-fetch path.
+- **Checked D40's flagged next-candidate pattern — a hardcoded past-tense date styled urgent/live — on the two
+  surfaces it hadn't checked yet: `build_scan_page` and the `/vs/` competitor pages. Both clean.**
+  `build_scan_page` (`apps/web/build.py:2243-2320`) has zero hardcoded runtime dates in its HTML — every date
+  the page can show comes from the `DATA` JSON blob built fresh from `deprecations.yml` at build time and rendered
+  client-side by `_SCAN_JS`, so there's no static "Jun 30, 2026"-style badge to go stale. `build_vs_index`/
+  `build_vs_page` (`build.py:1756-1789`) carry no EOL/block-date claims anywhere — only a dynamic `{today}`
+  timestamp and a static license/feature/pricing comparison table (`COMPETITORS` dict) — nothing date-bearing to
+  check. Also, since the sample-audit-report page (`build.py:450-504`) does show hardcoded `2026-06-30`/
+  `2027-03-03` dates and hadn't been checked against this specific pattern before, read it too: it's labeled
+  "SAMPLE — redacted... An illustrative report for a fictional account" in a visible banner, and both dates are
+  phrased factually (past-tense "EOL 2026-06-30", future "update blocked 2027-03-03") rather than as a live
+  countdown — no bug.
+- **With the truth-fix sweep coming up clean, picked the next specifically-named open item: `launch/gumroad/
+  LISTING-COPY.md`'s missing `/eol-checker/` cross-link, open since D35 (2026-08-05), re-flagged by D37, D38, D39
+  as "worth re-examining" each cycle without ever being picked up.** Re-read D35's original reasoning: it declined
+  to add the link because "adding a free-tool CTA to a paid-product sales listing risks diluting the $79 offer's
+  conversion." Re-examined this cycle: the listing's existing copy already links **out** to two strictly bigger
+  competing asks in the same paragraph — the $299 audit and the $1,499 Pack ("Need the actual scan run against
+  your account... Need a real PR opened...") — so a free-tool mention is smaller "competition" for the $79 sale
+  than what the copy already contains voluntarily. D35's dilution concern doesn't survive contact with the copy it
+  was written about. Every other content surface on the site (kit READMEs, VS Code README, `/fix/`, `/migrate/`,
+  `/vs/`, dev.to articles 21/22) already carries this exact cross-link with no reported downside.
+- **Shipped:** added one sentence to `launch/gumroad/LISTING-COPY.md`'s full-description block, ahead of the
+  audit/pack mentions: "Not sure any of this touches your account yet? Paste your config into the free interactive
+  checker at eolkits.com/eol-checker first — nothing uploaded, exact block/EOL dates in 10 seconds, no purchase
+  needed." Matches the established free-tool-first framing pattern verbatim in tone.
+- **Verified before logging as shipped (§9):** re-ran `launch/gumroad/build_bundle.sh` — output unchanged (164K,
+  137 files; `LISTING-COPY.md` is sales-page copy, not bundled zip content, so this confirms the edit didn't touch
+  the buildable artifact). `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) green
+  in a fresh jail-local `/usr/bin/python3.12` venv (version confirmed 3.12.3 before trusting it, per D37's
+  trap-avoidance note; deleted after use); `kits/lambda-lifeline` `npm test` 24/24 green (both unaffected by this
+  edit — run for full-regression discipline). `git status` confirmed only the one intended file modified.
+- **Ship-law check:** externally visible ✅ — the moment this pushes, the public repo's `LISTING-COPY.md` (the
+  exact text the owner is instructed to paste into Gumroad per HQ-1′/2′) carries the free-tool mention. This closes
+  Bet A′'s last open content gap — the SKU itself (zip, playbook, attributions, listing) has been fully built and
+  verified since 2026-07-18 (D15); only the owner's account+publish click (HQ-1′/2′) remains.
+- **Day-31 state:** $0 collected, $4,000 gap, unchanged since Day 0. 3 days past the original 28-day window
+  (closed 08-10); loop continues, no natural stop condition. HUMAN_QUEUE core batch (HQ-1′/2′, HQ-4, HQ-6, HQ-7,
+  HQ-10, ~30-35 owner-minutes) remains the only lever that can move the gap materially.
+- **Deferred to next cycle:** re-check WebFetch first. With LISTING-COPY.md now closed, the DECISIONS backlog has
+  no other specifically-named open content item left — `build_pack_page`/`build_index_page`'s CTA-redundancy check
+  (D37/D38/D39's other deferred candidate) is still nominally open but low-confidence (both pages were already
+  spot-checked and found to have an equivalent free-tool CTA in D37/D40's partial passes — a full re-check would
+  need to verify that holds for every page, not assume). If a fresh truth/harm sweep also comes up clean next
+  cycle, the honest state is that the agent-side autonomous surface is now very thin — the next genuinely new
+  lever most likely needs working WebFetch, new `fixes.yml`/`deprecations.yml` entries, or the owner's core batch.

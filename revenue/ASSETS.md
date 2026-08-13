@@ -177,6 +177,14 @@ flagged #1 new-domain-authority asset. See DECISIONS D33. Truth/harm sweep this 
 `docs/deprecations.ics` + the deprecation-schedule page) found nothing new — the superseded-date bug appears
 cleared after 4 straight correction cycles (D29-D32). `fixes.yml` still 27 entries, no new content-source growth.
 
+## 2026-08-13: closed the last open Gumroad-listing content gap (Bet A′)
+`launch/gumroad/LISTING-COPY.md` (the sales copy for the $79 bundle, unchanged since D15's 2026-07-18 build) now
+mentions the free `/eol-checker/` tool ahead of the $299/$1,499 upsell mentions, closing a gap D35 originally
+declined and D37/D38/D39 kept flagging as worth revisiting. No new codebase or SKU — Bet A′'s SKU has been fully
+built + verified since 2026-07-18; only HQ-1′/2′ (owner account+publish) remains. `build_scan_page` and the `/vs/`
+pages were also checked for D40's "stale-urgency" bug pattern and found clean (no hardcoded dates in either). See
+DECISIONS D41.
+
 ## 2026-08-12: found + fixed a stale-urgency (not stale-date) bug on the homepage's own kit card
 `apps/web`'s `build_index_page` badges the `al2023-gate` kit card `class="kit-card urgent"` (red-styled per
 `docs/style.css`) with a hardcoded `Jun 30, 2026` deadline — presented as a live countdown 6.5 weeks after AL2's EOL

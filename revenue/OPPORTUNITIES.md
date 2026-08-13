@@ -61,6 +61,13 @@ it is not: `launch/distribution/README.md` already documents that Hashnode's pub
 2026-05-13, so it correctly stays unused. No new frame identified this cycle; the deeper-sweep truth fix (D29) was
 higher-leverage than a third content angle.
 
+## Reviewed (no change) — 2026-08-13 (Day 31)
+Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship (a free-tool cross-link
+added to the Gumroad listing copy, closing a 3-cycle-old open item; see DECISIONS D41) is a content/conversion
+polish on frame #1′ (Gumroad bundle), not a frame re-evaluation. Frame #1′ remains fully built (since D15,
+2026-07-18) and owner-gated on HQ-1′/2′; frame #3 (VS Code/Open VSX) remains owner-gated; frame #7 (dev.to
+backlinks) stays at 24 articles with the per-slug/synthesis backlog exhausted.
+
 ## Reviewed (no change) — 2026-08-12 (Day 30)
 Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship was a homepage stale-urgency
 truth fix (the `al2023-gate` kit card's "Jun 30, 2026" badge, 6.5 weeks past and still styled urgent/red — see

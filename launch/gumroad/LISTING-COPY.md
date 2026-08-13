@@ -64,6 +64,9 @@ just want to see the output shape first.
 `ATTRIBUTIONS.md` inside the download for the complete license and provenance disclosure. No fabricated claims, no
 padded feature list — every command listed above is one you can run today.
 
+Not sure any of this touches your account yet? Paste your config into the free interactive checker at
+eolkits.com/eol-checker first — nothing uploaded, exact block/EOL dates in 10 seconds, no purchase needed.
+
 Need the actual scan run against your account, delivered as a report? See eolkits.com/audit ($299). Need a real
 PR opened on your repo with the fixes applied? See eolkits.com/pack ($1,499). Neither is required — this toolkit
 is fully self-serve.

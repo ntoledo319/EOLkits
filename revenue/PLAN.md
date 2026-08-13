@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 30 (2026-08-12) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 31 (2026-08-13) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -908,3 +908,46 @@ Clicks with no buys ⇒ a conversion/trust problem to fix, not a traffic problem
     clean) would be `build_pack_page`/`build_index_page`'s CTA check (still open from D37), a second look at
     `launch/gumroad/LISTING-COPY.md`, or waiting for `fixes.yml`/`deprecations.yml` to grow new entries to write
     from.
+
+## Cycle 2026-08-13 (cloud routine) — Day 31
+101. **WebFetch re-tested via the tool itself — 30th consecutive cycle blocked** (`EGRESS_BLOCKED` on
+    `https://example.com`, neutral control). Consistent with D17's root cause (permanent egress-policy denial), no
+    re-diagnosis needed — went straight to the no-new-fetch path.
+102. **Checked D40's flagged next-candidate pattern — "hardcoded past-tense date styled urgent/live" — on
+    `build_scan_page` and the `/vs/` competitor pages: both clean.** `build_scan_page` has no hardcoded runtime
+    dates at all (pulls entirely from `deprecations.yml` at build time via the client-side `DATA` blob). The `/vs/`
+    index and per-competitor pages carry no EOL/block-date claims (only a dynamic "As of {today}" timestamp and a
+    static feature/pricing comparison table) — nothing to go stale. Also re-checked the sample-audit-report page
+    (`/audit/sample/`, lines 450-504 of `build.py`) for the same pattern since it does show `2026-06-30`/
+    `2027-03-03` dates: correctly marked "SAMPLE — redacted... fictional account" throughout and both dates are
+    phrased factually (past-tense "EOL 2026-06-30", future "blocked 2027-03-03") — not a live countdown, no bug.
+103. **Closed the 3-cycle-old open item from D35/D37/D38/D39: `launch/gumroad/LISTING-COPY.md` free-tool
+    cross-link.** D35 originally declined to add an `/eol-checker/` mention to the Gumroad sales copy, reasoning it
+    might dilute the $79 offer's conversion; D37 flagged that reasoning as worth revisiting once every other
+    content surface (kit READMEs, VS Code README, `/fix/`, `/migrate/`, `/vs/`, dev.to articles 21/22) had gotten
+    the same cross-link with no such tradeoff. Re-examined this cycle: the listing copy already links **out** to
+    two bigger competing asks ($299 audit, $1,499 Pack) inside the same paragraph — a free interactive checker
+    mention is strictly smaller "competition" than what's already there, so the original dilution concern doesn't
+    hold up under its own logic. **Shipped:** added one sentence pointing to `eolkits.com/eol-checker` ("paste
+    your config... nothing uploaded... no purchase needed") ahead of the audit/pack mentions, consistent with the
+    established free-tool-first pattern used everywhere else. This is Bet A′'s last open content gap — the SKU
+    itself has been fully built and verified since 2026-07-18 (D15); only the owner's HQ-1′/2′ account+publish
+    click remains.
+104. **Regression check:** `launch/gumroad/build_bundle.sh` re-run clean (164K / 137 files, unchanged — the edited
+    file is sales copy, not bundled content); `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4
+    (direct run) green in a fresh jail-local `/usr/bin/python3.12` venv (version confirmed, deleted after use);
+    `kits/lambda-lifeline` `npm test` 24/24 green.
+105. **No new dev.to article this cycle** — `fixes.yml` still 27 entries, `deprecations.yml` still unchanged since
+    the last full re-scan (D27-D30); the per-slug/synthesis backlog stays exhausted, confirmed again this cycle
+    before picking the LISTING-COPY task.
+106. **Day-31 state:** $0 collected, $4,000 gap, unchanged since Day 0. 3 days past the original 28-day window
+    (closed 08-10); loop continues, no natural stop condition. HUMAN_QUEUE core batch (HQ-1′/2′, HQ-4, HQ-6, HQ-7,
+    HQ-10, ~30-35 owner-minutes) remains the only lever that can move the gap materially — every agent-side
+    autonomous content/truth-fix/cross-link surface swept to date is now genuinely thin, this cycle's find
+    (a single copy sentence) included.
+107. **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked, the
+    `build_pack_page`/`build_index_page` CTA-redundancy check is still nominally open (D37/D38/D39 kept deferring
+    it in favor of higher-priority finds each time) — do that next if no fresher truth/harm issue turns up in a
+    fresh full-content sweep first. With the LISTING-COPY.md item now closed, there is no other specifically-named
+    open item left in the DECISIONS backlog — the next genuinely new lever most likely requires either working
+    WebFetch, new `fixes.yml`/`deprecations.yml` entries, or the owner's core batch.
