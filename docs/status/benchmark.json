@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-13T04:15:47.253642+00:00",
+  "date": "2026-08-14T04:12:19.465733+00:00",
   "total_repos": 12,
   "kits": {
     "lambda-lifeline": {
@@ -20,52 +20,12 @@
   },
   "findings": [
     {
-      "repo": "examples",
-      "kit": "lambda-lifeline",
-      "findings": 0
-    },
-    {
-      "repo": "aws-cdk-examples",
-      "kit": "python-pivot",
+      "repo": "serverless-patterns",
+      "kit": "al2023-gate",
       "findings": 0
     },
     {
       "repo": "examples",
-      "kit": "al2023-gate",
-      "findings": 0
-    },
-    {
-      "repo": "serverless-patterns",
-      "kit": "python-pivot",
-      "findings": 0
-    },
-    {
-      "repo": "serverless-patterns",
-      "kit": "al2023-gate",
-      "findings": 0
-    },
-    {
-      "repo": "container-images",
-      "kit": "al2023-gate",
-      "findings": 0
-    },
-    {
-      "repo": "container-images",
-      "kit": "lambda-lifeline",
-      "findings": 0
-    },
-    {
-      "repo": "aws-cdk-examples",
-      "kit": "lambda-lifeline",
-      "findings": 0
-    },
-    {
-      "repo": "aws-cdk-examples",
-      "kit": "al2023-gate",
-      "findings": 0
-    },
-    {
-      "repo": "serverless-patterns",
       "kit": "lambda-lifeline",
       "findings": 0
     },
@@ -75,8 +35,48 @@
       "findings": 0
     },
     {
+      "repo": "examples",
+      "kit": "al2023-gate",
+      "findings": 0
+    },
+    {
+      "repo": "aws-cdk-examples",
+      "kit": "al2023-gate",
+      "findings": 0
+    },
+    {
+      "repo": "serverless-patterns",
+      "kit": "python-pivot",
+      "findings": 0
+    },
+    {
+      "repo": "container-images",
+      "kit": "al2023-gate",
+      "findings": 0
+    },
+    {
+      "repo": "aws-cdk-examples",
+      "kit": "lambda-lifeline",
+      "findings": 0
+    },
+    {
+      "repo": "serverless-patterns",
+      "kit": "lambda-lifeline",
+      "findings": 0
+    },
+    {
+      "repo": "aws-cdk-examples",
+      "kit": "python-pivot",
+      "findings": 0
+    },
+    {
       "repo": "container-images",
       "kit": "python-pivot",
+      "findings": 0
+    },
+    {
+      "repo": "container-images",
+      "kit": "lambda-lifeline",
       "findings": 0
     }
   ]
