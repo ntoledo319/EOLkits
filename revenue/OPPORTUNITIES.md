@@ -61,6 +61,12 @@ it is not: `launch/distribution/README.md` already documents that Hashnode's pub
 2026-05-13, so it correctly stays unused. No new frame identified this cycle; the deeper-sweep truth fix (D29) was
 higher-leverage than a third content angle.
 
+## Reviewed (no change) — 2026-08-14 (Day 32)
+Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship (closing the live
+`/api/drift/checkout` financial-harm gap, see DECISIONS D42) is a do-no-harm fix on the dormant Drift Watch frame
+(already noted below as "dormant until someone actually builds IAM-role-based weekly re-scanning"), not a frame
+re-evaluation — it makes that dormancy actually safe (no charge possible) rather than changing its ranking.
+
 ## Reviewed (no change) — 2026-08-13 (Day 31)
 Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship (a free-tool cross-link
 added to the Gumroad listing copy, closing a 3-cycle-old open item; see DECISIONS D41) is a content/conversion

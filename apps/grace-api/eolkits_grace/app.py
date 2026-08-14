@@ -288,33 +288,19 @@ async def pack_checkout(
 
 
 @app.post("/api/drift/checkout")
-async def drift_checkout(
-    request: Request,
-    email: str = Form(...),
-    repo: str | None = Form(None),
-    iam_role: str | None = Form(None),
-    source: str | None = Form(None),
-    utm_source: str | None = Form(None),
-    utm_medium: str | None = Form(None),
-    utm_campaign: str | None = Form(None),
-) -> Response:
-    # Drift Watch is recurring ($19/mo) -> subscription-mode Checkout Session.
-    price_id = pricing.price_id_for_sku("drift_watch")
-    price = int(pricing.expected_amount_cents("drift_watch") or 1900) // 100
-    attribution = _attribution(source, utm_source, utm_medium, utm_campaign, None)
-    session = create_checkout_session(
-        settings,
-        sku="drift_watch",
-        email=email,
-        price_id=price_id,
-        price_usd=price,
-        metadata={"repo": repo or "", "iam_role": iam_role or "", **attribution},
-        success_path="/success/?sku=drift&session_id={CHECKOUT_SESSION_ID}",
-        cancel_path="/drift/?cancelled=1",
-        mode="subscription",
+async def drift_checkout() -> Response:
+    # Drift Watch fulfillment (IAM role validation, weekly re-scan, delta PDF)
+    # is not built — handle_drift_watch_setup is a no-op stub (AGENTS.md §2.5).
+    # The frontend checkout link was pulled 2026-07-16 (commit 2a843b9), but this
+    # endpoint itself stayed live and would still open a real $19/mo Stripe
+    # subscription for anyone who reached it directly (a stale bookmark, an old
+    # shared link, or a stored form). Refuse the charge at the source instead of
+    # only removing the link to it — a subscriber would otherwise be billed
+    # monthly, indefinitely, for a service that never does anything.
+    raise HTTPException(
+        status_code=410,
+        detail="Drift Watch is not available for purchase yet — see https://eolkits.com/drift/ to join the waitlist.",
     )
-    store.record_event("checkout_started", {"sku": "drift_watch", **attribution})
-    return _checkout_response(request, session["url"], price, session["mode"])
 
 
 @app.post("/api/events")

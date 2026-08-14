@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 31 (2026-08-13) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 32 (2026-08-14) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -908,6 +908,48 @@ Clicks with no buys ⇒ a conversion/trust problem to fix, not a traffic problem
     clean) would be `build_pack_page`/`build_index_page`'s CTA check (still open from D37), a second look at
     `launch/gumroad/LISTING-COPY.md`, or waiting for `fixes.yml`/`deprecations.yml` to grow new entries to write
     from.
+
+## Cycle 2026-08-14 (cloud routine) — Day 32
+108. **WebFetch re-tested via the tool itself — 31st consecutive cycle blocked** (`EGRESS_BLOCKED` on
+    `https://example.com`, neutral control). Consistent with D17's root cause (permanent egress-policy denial), no
+    re-diagnosis needed — went straight to the no-new-fetch path.
+109. **Finished the D37–D41 deferred `build_index_page`/`build_pack_page` CTA-redundancy check for real this time**
+    (full read, not a spot-check) — both confirmed clean: each already leads with an equivalent free-tool CTA
+    (`/scan/`) before any paid ask. This closes the last open item from the fix/migrate/vs/kit-README cross-link
+    sweep — there is no remaining page-builder gap for `/eol-checker/`.
+110. **Found and closed a live financial-harm gap that survived 29 days and 27 sweep cycles since D14 first flagged
+    the residual risk:** `apps/grace-api/eolkits_grace/app.py`'s `POST /api/drift/checkout` endpoint still created a
+    real, subscription-mode Stripe Checkout Session for Drift Watch ($19/mo) — a product whose fulfillment
+    (`handle_drift_watch_setup`) is a confirmed no-op stub. D14 (2026-07-16) removed the *frontend* checkout form
+    and the audit-success upsell, but the endpoint that actually calls Stripe was never closed — reachable by
+    anyone with the URL (stale bookmark, old shared link, cached reference). This is more severe than the last
+    ~20 cycles' copy/cross-link fixes: an active mechanism for taking a stranger's recurring money for nothing,
+    not a stale claim someone merely reads. Found via a full call-graph trace prompted by noticing
+    `build_success_page()`'s dead `sku === 'drift'` branch still promised "Subscription active... weekly scans" —
+    tracing *why* that branch could still fire led to the real bug.
+111. **Shipped:** `/api/drift/checkout` now returns `HTTPException(410, ...)` pointing to the honest `/drift/`
+    waitlist instead of opening a Stripe session; `build_success_page()`'s dead branch now tells a stray visitor to
+    request a refund instead of confirming a fake-active subscription. Test rewritten to assert the refusal
+    (`apps/grace-api` suite stays at 38/38). See DECISIONS D42.
+112. **Regression check:** `apps/grace-api` 38/38 (pytest) + `apps/web` `test_determinism.py` 4/4 (pytest) +
+    `test_surge.py` 4/4 (direct run) + `kits/lambda-lifeline` `npm test` 24/24, all green (jail-local
+    `/usr/bin/python3.12` venv, version confirmed 3.12.3, deleted after use). `docs/` rebuild output discarded
+    per convention — only the 3 intended source files committed.
+113. **Production status: code-only until the owner's next `eolkits-api` VPS redeploy** (same constraint D14/D16/D19
+    already established — `apps/grace-api` isn't on the git-push auto-deploy path). Added an immediate,
+    VPS-independent 2-minute interim mitigant to HUMAN_QUEUE (deactivate the `drift_watch` Stripe Price in the
+    dashboard) since the exposure stays live in production until the redeploy happens.
+114. **Day-32 state:** $0 collected, $4,000 gap, unchanged since Day 0. HUMAN_QUEUE core batch (HQ-1′/2′, HQ-4, HQ-6,
+    HQ-7, HQ-10) remains the only lever that can move the gap materially. This cycle is a data point against
+    treating "agent-side levers are thin" (D41) as "exhausted" — a full call-graph trace, a check this loop hadn't
+    named or systematically run before, found a real and more-serious-than-usual gap on the 31st consecutive
+    WebFetch-blocked, largely-copy-fix-pattern cycle.
+115. **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked, run the
+    same class of check this cycle used — trace actual server-side call graphs, not just re-read copy — on the
+    remaining paid endpoints not yet audited this way (`/api/audit/checkout`, `/api/pack/checkout`,
+    `/api/license/inquiry`, webhook handlers) to check for a second instance of "frontend link removed, backend
+    endpoint left live." If that's clean too, the honest state is unchanged from D41: the next genuinely new lever
+    most likely needs working WebFetch, new `fixes.yml`/`deprecations.yml` entries, or the owner's core batch.
 
 ## Cycle 2026-08-13 (cloud routine) — Day 31
 101. **WebFetch re-tested via the tool itself — 30th consecutive cycle blocked** (`EGRESS_BLOCKED` on

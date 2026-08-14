@@ -1655,8 +1655,8 @@ if (sku === 'audit') {{
   title.textContent = 'Migration Pack confirmed';
   h('<div class="card"><p>Payment received. We are opening your migration PR now (within ~5 minutes). Watch the repo you authorized.</p><p>If CI fails on the PR within 7 days and you have not added the <code>override:ci-failure</code> label, you are refunded automatically.</p><p>Track fulfillment on the <a href="/status/">status page</a>.</p></div>');
 }} else if (sku === 'drift') {{
-  title.textContent = 'Drift Watch is on';
-  h('<div class="card"><p>Subscription active. We will scan weekly and email a delta PDF the moment a new AWS deprecation touches your stack.</p></div>');
+  title.textContent = 'Drift Watch isn\\'t available yet';
+  h('<div class="card"><p>Drift Watch isn\\'t open for purchase — if you were charged, email <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> for an immediate refund. Join the <a href="/drift/">waitlist</a> for when it ships.</p></div>');
 }} else {{
   h('<div class="card"><p>Payment received. Check your email for next steps.</p></div>');
 }}

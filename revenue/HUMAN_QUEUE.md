@@ -62,20 +62,27 @@ Remaining gates — **do not sell a Pack until all pass** (a broken PR or broken
    subscribe to `status` events or document it; (b) refund currently fires on **any** red check — a flaky third-party
    check → a full $1,499 refund. Decide the refund policy before selling.
 
-### 🟡 HQ-5b — org_license / drift_watch fulfillment gaps (§2.5) — **drift_watch self-serve checkout pulled 2026-07-16**
-**UPDATE 2026-07-16:** the site-side fix is shipped (commit `2a843b9`, deploys via the daily box cron) — `/drift/`
-no longer offers a live checkout, the homepage card says "coming soon," and the audit-success upsell soliciting it
-is removed. **What's still open, human-only:**
-1. **Deactivate the `drift_watch` Stripe Price/Payment Link** in the Stripe dashboard (or leave it — with the site no
-   longer linking to `/api/drift/checkout`, the residual exposure is only someone hitting a stale/shared URL
-   directly). ~2 min, optional but tidy. Link: https://dashboard.stripe.com/prices → find "Drift Watch."
+### 🔴 HQ-5b — org_license / drift_watch fulfillment gaps (§2.5) — **UPDATE 2026-08-14: drift_watch's backend charge endpoint closed in code, do the Stripe-dashboard step below NOW (2 min, no VPS needed)**
+**UPDATE 2026-08-14 (elevated priority — do item 0 today, it's the fastest close on an active-harm exposure in this
+whole queue):** this cycle found that D14's 2026-07-16 fix only removed the *frontend* `/drift/` checkout form —
+the backend `POST /api/drift/checkout` endpoint itself was still live in `apps/grace-api/eolkits_grace/app.py` and
+would open a real, recurring **$19/mo Stripe subscription** for anyone who reached it directly (a stale bookmark,
+an old shared link, a cached reference), for a product (`drift_watch`) whose fulfillment is a confirmed no-op —
+meaning a real subscriber would be billed monthly, forever, for literally nothing happening. **Fixed in code this
+cycle** (the endpoint now returns `410` instead of charging — see DECISIONS D42) **but this needs the same VPS
+redeploy as item 2 below to take effect in production** — until then the old, harmful behavior is still live.
+0. **DO THIS NOW, doesn't need the VPS or any code deploy — deactivate the `drift_watch` Stripe Price/Payment Link**
+   in the Stripe dashboard. This is the only immediate way to close the live exposure before your next VPS visit.
+   ~2 min. Link: https://dashboard.stripe.com/prices → find "Drift Watch" → deactivate/archive the price.
+1. Once you're on the VPS anyway (see item 2 / HQ-4), redeploy `eolkits-api` so the code-level fix (the endpoint
+   returning 410) actually takes effect — folds into the same trip, no separate action.
 2. **org_license ($14,999/yr) email-delivery gap — FIXED IN CODE 2026-07-19 (commit `edfba40`), NEEDS A VPS REDEPLOY
    TO GO LIVE.** `_store_license` in `grace-api/app.py` used to generate and store a real license key but never
    email it to the buyer; it now sends it via the existing Resend path (same as audit-PDF delivery), tested
    (38/38 green — see DECISIONS D16). **Why this is still a queue item:** `apps/grace-api` is not on the git-push
    auto-deploy path (only `apps/web`/the static site is) — this fix sits in the repo but does nothing in production
    until you next redeploy `eolkits-api` on the VPS. **Action:** next time you SSH in for any reason (e.g. HQ-4's
-   GitHub App creds), redeploy `eolkits-api` too so this lands — no separate trip needed, just don't skip it.
+   GitHub App creds), redeploy `eolkits-api` so this AND the drift-checkout fix both land — one trip, two fixes.
 3. **Once drift_watch fulfillment is actually built** (real IAM-role validation + a scheduled weekly scan + delta
    PDF — a multi-day feature, intentionally not attempted autonomously given the security sensitivity of assuming a
    customer's IAM role), revert the "coming soon" copy and restore the checkout.
@@ -365,6 +372,19 @@ persistent a 30th consecutive cycle. **Still the highest-ROI owner clicks, unact
 of the core-batch items show any observed signal of having been actioned yet. This cycle's content/truth sweeps
 found nothing new beyond the one closed item — the agent-side autonomous levers keep getting thinner; the owner
 batch above remains the only thing that can move the $4,000 gap.
+
+## Cycle 2026-08-14 (cloud routine) — Day 32
+**New, elevated-priority item: HQ-5b item 0 — deactivate the `drift_watch` Stripe Price in the dashboard today
+(~2 min, no VPS needed).** This cycle found the `/api/drift/checkout` backend endpoint (not just the frontend
+form D14 already fixed) was still live and would open a real $19/mo subscription for a product with zero
+fulfillment — closed in code this cycle (see DECISIONS D42), but the fix needs the same VPS redeploy as HQ-5b
+item 2 (org_license) to take effect in production. The Stripe-dashboard deactivation is the only way to close the
+live exposure before that VPS visit happens — do it first, it's faster than everything else in this queue. **Still
+the highest-ROI owner clicks otherwise, unactioned as of this cycle: HQ-1′/2′ (Gumroad, ~10 min), HQ-7 (`vsce
+publish`), HQ-10 (GitHub Action listing), HQ-4 (GitHub App, which also carries the org_license + drift_watch code
+fixes to production on the same VPS trip).** WebFetch outage confirmed persistent a 31st consecutive cycle. 32
+days since Day 0 (07-13), 4 days past the original 28-day window close (08-10); at $0 collected, the gap math is
+unchanged.
 
 ## Running total (post-pivot)
 Everything here is now **one-time setup, no ongoing owner time.** Core ≈ **30 min** (HQ-1′+2′,4,5,6). The COMPOUNDING

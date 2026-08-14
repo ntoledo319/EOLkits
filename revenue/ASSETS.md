@@ -177,6 +177,15 @@ flagged #1 new-domain-authority asset. See DECISIONS D33. Truth/harm sweep this 
 `docs/deprecations.ics` + the deprecation-schedule page) found nothing new — the superseded-date bug appears
 cleared after 4 straight correction cycles (D29-D32). `fixes.yml` still 27 entries, no new content-source growth.
 
+## 2026-08-14: closed a live financial-harm gap in `apps/grace-api` — `/api/drift/checkout` still charged for a stubbed product
+D14 (2026-07-16) pulled `/drift/`'s frontend checkout form and the audit-success upsell soliciting `drift_watch`
+($19/mo, fulfillment confirmed a no-op stub), but never closed the backend endpoint that actually creates the
+Stripe subscription — `POST /api/drift/checkout` in `apps/grace-api/eolkits_grace/app.py` stayed live and
+reachable by direct URL this whole time. Fixed this cycle: the endpoint now returns `410` instead of opening a
+real subscription; `apps/web/build.py`'s dead `sku==='drift'` success-page branch (which falsely read
+"Subscription active... weekly scans") now points a stray visitor to a refund instead. Code-only until the next
+`eolkits-api` VPS redeploy (same constraint as the D16 org_license fix) — see DECISIONS D42, HUMAN_QUEUE HQ-5b.
+
 ## 2026-08-13: closed the last open Gumroad-listing content gap (Bet A′)
 `launch/gumroad/LISTING-COPY.md` (the sales copy for the $79 bundle, unchanged since D15's 2026-07-18 build) now
 mentions the free `/eol-checker/` tool ahead of the $299/$1,499 upsell mentions, closing a gap D35 originally
