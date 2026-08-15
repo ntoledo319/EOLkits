@@ -14,7 +14,7 @@ Verified this cycle by reading manifests + running CLIs/tests directly (not trus
 | CLI (3 kits) | Free (MIT) | `git clone` | — |
 | **Audit PDF** | **$299** (→$399 within 30d / $599 within 7d of a deadline) | Email ≤5 min | Stripe link ✅ live |
 | **Migration Pack** | **$1,499** | Real PR on customer repo; auto-refund if CI fails | Stripe link ✅ live |
-| Drift Watch | $19/mo | Weekly re-scan + delta PDF | Stripe link ✅ live |
+| Drift Watch | $19/mo | Weekly re-scan + delta PDF | ⛔ Checkout closed 2026-08-14 (D42) — waitlist only, no fulfillment built |
 | Org License | $14,999/yr | License key email | Stripe link ✅ live |
 
 ---

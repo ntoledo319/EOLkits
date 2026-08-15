@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 32 (2026-08-14) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 33 (2026-08-15) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -950,6 +950,62 @@ Clicks with no buys ⇒ a conversion/trust problem to fix, not a traffic problem
     `/api/license/inquiry`, webhook handlers) to check for a second instance of "frontend link removed, backend
     endpoint left live." If that's clean too, the honest state is unchanged from D41: the next genuinely new lever
     most likely needs working WebFetch, new `fixes.yml`/`deprecations.yml` entries, or the owner's core batch.
+
+## Cycle 2026-08-15 (cloud routine) — Day 33
+116. **WebFetch re-tested via the tool itself — 32nd consecutive cycle blocked** (`EGRESS_BLOCKED` on
+    `https://example.com`, neutral control). Consistent with D17's root cause (permanent egress-policy denial), no
+    re-diagnosis needed — went straight to the no-new-fetch path.
+117. **Ran the exact next-candidate check D42 queued: traced the remaining paid/webhook endpoints in
+    `apps/grace-api/eolkits_grace/app.py` for a second instance of "frontend link removed, backend endpoint left
+    live" — came up clean.** `/api/audit/checkout` and `/api/pack/checkout` both gate the charge on real
+    pre-conditions (`upload_id` resolves to a stored upload; `_require_repo_installed` confirms the GitHub App is on
+    the target repo) before calling `create_checkout_session` — unlike drift_watch, which had zero such gate.
+    `/api/license/inquiry` is a lead-capture form, not a charge. `/webhook/stripe` and `/webhook/github` both verify
+    signatures before acting. `/partners/{slug}/audit` requires `_verify_partner_session` (a real paid Stripe
+    session) before dispatching. No repeat of the D42 bug class found.
+118. **Truth/harm sweep (repo-wide superseded-date grep) found nothing new** — only the 2 already-reviewed correct
+    exceptions (`research/phase1_findings.md`'s correction banner, dev.to article 07's myth-debunk). `fixes.yml`
+    still 27 entries, `deprecations.yml` still 8 active + 2 historical entries, dev.to still 24 articles — no new
+    no-fetch content candidate on any axis.
+119. **Found and fixed a live, previously-unswept instance of the exact bug class D40 (2026-08-12) fixed on the
+    homepage: present-tense "reaches end of life" framing for the AL2 EOL date, which has been ~7 weeks in the past
+    since 2026-06-30.** Found on two head-term SEO landing pages neither prior cycle's sweep had checked at this
+    level — `build_al2_checklist_page`'s own docstring calls it "the highest-volume query in the current deadline
+    window" — and `build_al2_vs_al2023_page`. 4 instances across the two pages (2 FAQ-schema answers + 2 body-copy
+    sentences) all read "Amazon Linux 2 reaches end of life on {date}," implying an upcoming deadline rather than a
+    fact that already happened, potentially misleading a reader (or an LLM citing the FAQ schema) into thinking AL2
+    is still safely running. Corrected to "reached end of life on {date}" + adjusted trailing clauses to past tense
+    ("since then," "unpatched now," "unpatched right now") — same fix pattern D40 already established for the
+    homepage badge. `apps/web/build.py`, 1 file, 4 edits (2 FAQ JSON-LD answers, 1 note-box `<div>`, 1 intro `<p>`).
+120. **Also fixed a stale internal record `revenue/ASSETS.md`'s own product-ladder table still listed Drift Watch as
+    "Stripe link ✅ live"** — directly contradicted by D42 (2026-08-14), which closed that checkout endpoint the
+    prior cycle. Corrected to reflect the closed state, so a future cycle reading ASSETS.md cold doesn't
+    re-discover or misread the current state of that SKU.
+121. **Regression check:** `apps/grace-api` 38/38 (pytest; needed `pip install httpx` this cycle — a
+    `starlette`/`fastapi` version-resolution quirk in a fresh venv, not a repo issue, noted for the next cycle that
+    hits the same `httpx2` deprecation-warning collection error) + `apps/web` `test_determinism.py` 4/4 (pytest) +
+    `test_surge.py` 4/4 (direct run) + `kits/lambda-lifeline` `npm test` 24/24, all green (jail-local
+    `/usr/bin/python3.12` venv, version confirmed 3.12.3, deleted after use). Full rebuild confirmed the AL2-page
+    fix renders correctly on both pages with zero `{API_URL}` leaks; `docs/` rebuild output discarded
+    (`git checkout -- docs/ && git clean -fd docs/`) per convention — only `apps/web/build.py` committed.
+122. **Day-33 state:** $0 collected, $4,000 gap, unchanged since Day 0. HUMAN_QUEUE core batch (HQ-1′/2′, HQ-4, HQ-5b
+    item 0, HQ-6, HQ-7, HQ-10) remains the only lever that can move the gap materially — 33 days running with zero
+    observed action on any of it. This cycle's endpoint-trace sweep (D42's queued follow-up) came up clean, but a
+    fresh full-content read of two SEO landing pages (not yet checked at this granularity) still found a real,
+    previously-unswept truth bug — consistent with D42's own point that "agent-side levers are thin" is not the
+    same as "exhausted."
+123. **Also checked the per-deprecation `/migrate/<slug>/` pages for the same bug before closing the cycle — clean
+    by design.** These route through `compute_urgency()`, which already branches on `days < 0` and emits genuinely
+    dynamic past-tense copy ("This deadline passed on {date}...") computed fresh from the build date. The bug found
+    this cycle was specific to the two AL2 page functions (and D40's homepage badge) hand-writing their own
+    "reaches end of life" copy instead of routing through `compute_urgency()` — any future page with bespoke
+    deadline prose is the pattern to check; pages already calling `compute_urgency()` are structurally protected.
+124. **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. The stale-date-framing bug
+    class is now checked across every public surface identified so far: homepage (D40), `build_scan_page`/`/vs/`/
+    sample-audit-report (D41), the two AL2 pages (this cycle), and the templated `/migrate/` pages (this cycle,
+    clean by construction). If a fresh truth/harm sweep also comes up clean, the honest state is unchanged from
+    D41/D42: the next genuinely new lever most likely needs working WebFetch, new `fixes.yml`/`deprecations.yml`
+    entries, or the owner's core batch.
 
 ## Cycle 2026-08-13 (cloud routine) — Day 31
 101. **WebFetch re-tested via the tool itself — 30th consecutive cycle blocked** (`EGRESS_BLOCKED` on

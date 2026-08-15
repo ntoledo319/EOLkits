@@ -61,6 +61,12 @@ it is not: `launch/distribution/README.md` already documents that Hashnode's pub
 2026-05-13, so it correctly stays unused. No new frame identified this cycle; the deeper-sweep truth fix (D29) was
 higher-leverage than a third content angle.
 
+## Reviewed (no change) — 2026-08-15 (Day 33)
+Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ships (a stale-EOL-framing truth
+fix on 2 SEO landing pages, and a negative-result endpoint-trace sweep for a repeat of D42's checkout-bug class) are
+truth/harm fixes, not a frame re-evaluation. Frame #1′ (Gumroad) and frame #3 (VS Code/Open VSX placement) remain
+owner-gated; frame #7 (dev.to backlinks) stays at 24 articles with the per-slug/synthesis backlog exhausted.
+
 ## Reviewed (no change) — 2026-08-14 (Day 32)
 Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship (closing the live
 `/api/drift/checkout` financial-harm gap, see DECISIONS D42) is a do-no-harm fix on the dormant Drift Watch frame

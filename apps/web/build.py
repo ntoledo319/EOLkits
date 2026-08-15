@@ -1259,7 +1259,7 @@ def build_al2_checklist_page(deprecations, pricing_view):
     faq = {
         "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
             {"@type": "Question", "name": "When is Amazon Linux 2 end of life?",
-             "acceptedAnswer": {"@type": "Answer", "text": "Amazon Linux 2 reaches end of life on " + date.replace("&amp;", "&") + ". After that there are no more security patches, no new AMIs, and no extras updates — anything still on AL2 runs unpatched."}},
+             "acceptedAnswer": {"@type": "Answer", "text": "Amazon Linux 2 reached end of life on " + date.replace("&amp;", "&") + ". Since then there are no more security patches, no new AMIs, and no extras updates — anything still on AL2 runs unpatched now."}},
             {"@type": "Question", "name": "What breaks moving from Amazon Linux 2 to AL2023?",
              "acceptedAnswer": {"@type": "Answer", "text": "yum is replaced by dnf, amazon-linux-extras is gone, ntpd is replaced by chronyd, iptables is replaced by nftables, and Python 2 is no longer available. Package names also change (version-namespaced or moved to SPAL)."}},
             {"@type": "Question", "name": "Can I keep running Amazon Linux 2 after EOL?",
@@ -1283,7 +1283,7 @@ def build_al2_checklist_page(deprecations, pricing_view):
         '<body class="container article">\n'
         '<nav class="breadcrumb"><a href="/">Home</a> / <a href="/migrate/">Deadlines</a> / <span>Amazon Linux 2 checklist</span></nav>\n'
         "<h1>Amazon Linux 2 end-of-life: migration checklist (AL2 → AL2023)</h1>\n"
-        '<div class="note"><strong>Amazon Linux 2 reaches end of life ' + date + '.</strong> After that: no security patches, no new AMIs, no extras updates. Anything still pinned to AL2 in a launch template, EKS node group, ECS task, Beanstalk env, or container base image runs unpatched. <a href="' + src + '" target="_blank" rel="noopener nofollow">[AWS source]</a></div>\n'
+        '<div class="note"><strong>Amazon Linux 2 reached end of life ' + date + '.</strong> Since then: no security patches, no new AMIs, no extras updates. Anything still pinned to AL2 in a launch template, EKS node group, ECS task, Beanstalk env, or container base image runs unpatched right now. <a href="' + src + '" target="_blank" rel="noopener nofollow">[AWS source]</a></div>\n'
         '<p><a class="cta" href="/scan/">Scan your stack free — find every AL2 reference →</a></p>\n'
         "<h2>What changes on AL2023</h2>\n<ul>" + changes_html + "</ul>\n"
         "<h2>The checklist</h2>\n<ol class=\"chk\">\n"
@@ -1331,7 +1331,7 @@ def build_al2_vs_al2023_page(deprecations, pricing_view):
             {"@type": "Question", "name": "What is the difference between Amazon Linux 2 and Amazon Linux 2023?",
              "acceptedAnswer": {"@type": "Answer", "text": "AL2023 replaces yum with dnf, removes amazon-linux-extras, swaps ntpd for chronyd and iptables for nftables, drops Python 2, ships glibc 2.34, and uses versioned 5-year-supported releases with hardened defaults."}},
             {"@type": "Question", "name": "Do I have to migrate from Amazon Linux 2 to AL2023?",
-             "acceptedAnswer": {"@type": "Answer", "text": "Yes — Amazon Linux 2 reaches end of life on " + date.replace("&amp;", "&") + ", after which there are no security patches or new AMIs. AL2023 is the supported successor."}},
+             "acceptedAnswer": {"@type": "Answer", "text": "Yes — Amazon Linux 2 reached end of life on " + date.replace("&amp;", "&") + "; since then there are no security patches or new AMIs. AL2023 is the supported successor."}},
             {"@type": "Question", "name": "Is yum still available on Amazon Linux 2023?",
              "acceptedAnswer": {"@type": "Answer", "text": "A yum command remains as a symlink to dnf for backward compatibility, but dnf is the real package manager and amazon-linux-extras is gone."}},
         ],
@@ -1352,7 +1352,7 @@ def build_al2_vs_al2023_page(deprecations, pricing_view):
         '<body class="container article">\n'
         '<nav class="breadcrumb"><a href="/">Home</a> / <a href="/migrate/">Deadlines</a> / <span>AL2 vs AL2023</span></nav>\n'
         "<h1>Amazon Linux 2 vs Amazon Linux 2023</h1>\n"
-        "<p>What actually changes between Amazon Linux 2 and Amazon Linux 2023 — and why it matters now: <strong>AL2 reaches end of life " + date + "</strong> (no more patches or AMIs), so AL2023 isn't optional. Facts below are from AWS's own AL2-vs-AL2023 comparison.</p>\n"
+        "<p>What actually changes between Amazon Linux 2 and Amazon Linux 2023 — and why it matters now: <strong>AL2 reached end of life " + date + "</strong> (no more patches or AMIs since), so AL2023 isn't optional. Facts below are from AWS's own AL2-vs-AL2023 comparison.</p>\n"
         '<table class="cmp"><thead><tr><th>Area</th><th>Amazon Linux 2</th><th>Amazon Linux 2023</th></tr></thead><tbody>' + table + "</tbody></table>\n"
         '<p><a href="' + cmp_src + '" target="_blank" rel="noopener nofollow">[AWS source: comparing AL2 and AL2023]</a></p>\n'
         '<p><a class="cta" href="/scan/">Scan your stack free — find your AL2 usage →</a></p>\n'

@@ -1732,3 +1732,99 @@ optimistic projections.
   org_license review were both fulfillment-focused, not link-vs-endpoint-focused). If that sweep is clean too, the
   honest state is what D41 already said: the next genuinely new lever most likely needs working WebFetch, new
   `fixes.yml`/`deprecations.yml` entries, or the owner's core batch.
+
+## D43 — Cloud cycle (2026-08-15, Day 33): ran D42's queued endpoint-trace sweep (clean), then found a second-order instance of D40's stale-EOL-framing bug on two head-term SEO pages
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was already at
+  `1abb8f2` (D42's cycle commit); no conflicts, no other routine had pushed since.
+- **Re-tested WebFetch before picking a task, per the standing rule:** `WebFetch` on `https://example.com` (neutral
+  control) → `EGRESS_BLOCKED`. 32nd consecutive cycle blocked (07-15, -16, -18 through 08-15; no 07-17 run
+  recorded). Consistent with D17's root cause, no re-diagnosis — went straight to the no-new-fetch path.
+- **Ran the exact next-candidate D42 queued: a call-graph trace of the remaining paid/webhook endpoints in
+  `apps/grace-api/eolkits_grace/app.py` for a second instance of "frontend link removed, backend endpoint left
+  live."** Read every `@app.post`/`@app.get` handler between lines 217–830. Findings, endpoint by endpoint:
+  - `/api/audit/checkout` (217): charges only after `_resolve_upload_id` + `store.get_json(f"upload:{resolved_id}")`
+    confirm a real, already-uploaded scan exists. Real pre-charge gate.
+  - `/api/pack/checkout` (258): charges only after `_require_repo_installed(repo, installation_id)` confirms the
+    GitHub App is actually installed on the target repo — the code comment says explicitly "so we never take money
+    for a PR we cannot open." Real pre-charge gate.
+  - `/api/license/inquiry` (657): a lead-capture form (`_enqueue_job`) — never touches Stripe, nothing to charge.
+  - `/webhook/stripe` (539) and `/webhook/github` (574): both verify a cryptographic signature
+    (`verify_stripe_signature` / `verify_github_signature`) before acting on the payload — not charge-creating
+    surfaces themselves, and properly gated.
+  - `/partners/{slug}/audit` (801): requires both a partner secret (`_partner_secret_ok`) and
+    `_verify_partner_session(stripe_session_id)` — a real, already-paid Stripe session — before dispatching a job.
+  - **Conclusion: clean.** Unlike drift_watch (which had literally zero pre-charge validation — the endpoint would
+    open a subscription for anyone who reached the URL, full stop), every other checkout-adjacent endpoint in this
+    file already has a real gate tying the charge to a genuine, checkable precondition. D42's bug was specific to
+    drift_watch's total absence of fulfillment, not a systemic pattern across the API.
+- **Standard truth/harm grep (repo-wide superseded-date search) found nothing new** — only the 2 already-reviewed
+  correct exceptions (`research/phase1_findings.md`'s 2026-08-03 correction banner, dev.to article 07's
+  myth-debunking prose). Also re-confirmed `fixes.yml` (27 entries), `deprecations.yml` (8 active +
+  2 `historical:` entries — the "10 name: lines" grep result from earlier in this cycle was a red herring; the 2
+  extra are Node.js 14/16, both already-EOL and correctly filed under a separate `historical:` key, not new content
+  candidates), and dev.to (24 articles) — no new no-fetch content candidate on any axis, consistent with every
+  cycle since D27.
+- **With both standard checks clean, went one level deeper on the "stale date framing" bug class D40 (2026-08-12)
+  first named** — instead of re-checking pages D41/D13 already swept for this exact pattern (homepage,
+  `build_scan_page`, `/vs/` pages, sample-audit-report — all previously confirmed clean), read the two AL2-specific
+  head-term landing pages that had never been checked at this granularity: `build_al2_checklist_page` (whose own
+  docstring calls it "the highest-volume query in the current deadline window") and `build_al2_vs_al2023_page`.
+- **Found 4 live instances of the same bug D40 fixed on the homepage, on higher-traffic-intent pages than the
+  homepage badge D40 caught:** both functions pull the AL2 EOL date from `deprecations.yml` (currently
+  `2026-06-30`, now ~7 weeks past) and phrase it as **"Amazon Linux 2 reaches end of life on {date}"** — present
+  tense, framing an already-passed deadline as still-upcoming. This appeared in 4 places: 2 FAQ-schema
+  (`application/ld+json`) answers (one per page) and 2 body-copy sentences (a `<div class="note">` on the checklist
+  page, an intro `<p>` on the comparison page). This matters more on these pages than a badge: the FAQ schema is
+  meant to be quoted verbatim by search engines and LLM answer boxes (AEO — the same intent D40's homepage fix and
+  every dev.to canonical link chase), so a present-tense "reaches end of life" answer risks propagating the false
+  impression that AL2 is still safely running well past the point it actually stopped receiving patches.
+- **Shipped:** `apps/web/build.py`, 4 edits — "reaches end of life on {date}" → "reached end of life on {date}",
+  with trailing clauses adjusted to match ("after that" → "since then"; "anything still on AL2 runs unpatched" →
+  "...runs unpatched now"). Exact same fix shape D40 used for the homepage badge, applied here for the first time
+  to the FAQ-schema + body-copy layer of these two specific pages.
+- **Also fixed a stale internal record found in the course of updating state files, not a public-facing bug:**
+  `revenue/ASSETS.md`'s own product-ladder table still listed Drift Watch as "Stripe link ✅ live" — directly
+  contradicted by D42's own fix the prior cycle, which closed that checkout endpoint. Left uncorrected, this table
+  would have misled a future cold-start cycle reading ASSETS.md (per §3's "a brand-new session must be able to
+  resume from files alone" law) into believing Drift Watch was still a live, sellable SKU. Corrected in place.
+- **Verified before shipping (§9):**
+  - `apps/grace-api` full suite: 38/38 green (jail-local `/usr/bin/python3.12 -m venv`, `python --version` confirmed
+    3.12.3 before trusting it per the D37 trap-avoidance note; needed an explicit `pip install httpx` this cycle
+    because a fresh dependency resolution pulled a `starlette` version whose `TestClient` wants `httpx` present even
+    though it also prints a deprecation warning nudging toward a nonexistent `httpx2` package — an environment/
+    dependency-resolution quirk on this specific venv build, not a repo regression; noting it here so a future cycle
+    hitting the same collection error doesn't waste time re-diagnosing it as a real break).
+  - `apps/web`: full rebuild (`python3 apps/web/build.py`) confirmed both corrected pages render with the new
+    past-tense copy and zero `{API_URL}` leaks; `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct
+    run) green in the same venv. `docs/` rebuild output discarded (`git checkout -- docs/ && git clean -fd docs/`)
+    per the D14/D28/D32/D39/D42 precedent — the box cron rebuilds `docs/` fresh from source on every deploy.
+  - `kits/lambda-lifeline` `npm test` — 24/24 green (unaffected, run for full-regression discipline).
+  - `git status` confirmed only `apps/web/build.py` modified (the two `revenue/` files are tracked separately as
+    part of this same cycle's end-of-cycle state update, not counted as an unexpected diff).
+- **Ship-law check:** externally visible ✅ — the moment this pushes, the corrected copy is live on the public repo;
+  reaches production on the next daily box-cron deploy of `apps/web` (the git-push auto-deploy path, unlike
+  `grace-api`).
+- **Day-33 state:** $0 collected, $4,000 gap, unchanged since Day 0. HUMAN_QUEUE core batch (HQ-1′/2′, HQ-4, HQ-5b
+  item 0, HQ-6, HQ-7, HQ-10) remains the only lever that can move the gap materially — 33 days running with zero
+  observed action on any of it. This cycle's endpoint-trace sweep (D42's queued follow-up) found the drift_watch
+  gap was an isolated instance, not a systemic pattern — but a fresh deep read of two specific SEO landing pages
+  still surfaced a real, previously-unswept truth bug, reinforcing D42's point that "agent-side levers are thin" is
+  not the same as "exhausted."
+- **Checked the one obvious remaining candidate for the same bug class before closing the cycle: the per-deprecation
+  `/migrate/<slug>/` pages — clean, and clean for a good reason.** These render via `build_migration_pages()` +
+  `templates/migrate.html.j2`, driven by `compute_urgency()` (line 790), which already branches on `days < 0` and
+  emits genuinely past-tense copy — `"This deadline passed on {deadline_date}. Affected resources are now in the
+  post-deadline window..."` — computed fresh from the build date every time, not hardcoded. The template's other
+  date mentions ("The deadline is {date}", the JS countdown's `'deadline passed'` branch) are tense-neutral or
+  already dynamic. **This is the mechanism working as designed** — the bug this cycle and D40 both found was
+  specific to `build_al2_checklist_page`/`build_al2_vs_al2023_page` (and D40's homepage badge) because those three
+  functions hand-wrote their own copy with a hardcoded "reaches end of life" string instead of routing through
+  `compute_urgency()` like every `/migrate/<slug>/` page does. Worth naming for future cycles: any future page that
+  states a deadline in its own bespoke prose (not via `compute_urgency`) is the pattern to check first for this bug
+  class; pages that already call `compute_urgency()` are structurally protected.
+- **Next candidate for the next cycle:** re-check WebFetch first. With the migrate pages confirmed clean (and clean
+  by design, not by luck), the stale-date-framing bug class has now been checked across every public surface this
+  loop has identified: homepage (D40), `build_scan_page`/`/vs/`/sample-audit-report (D41), the two AL2 pages
+  (this cycle), and the templated `/migrate/` pages (this cycle, clean by construction). If a fresh truth/harm sweep
+  also comes up clean next cycle, the honest state is unchanged from D41/D42: the next genuinely new lever most
+  likely needs working WebFetch, new `fixes.yml`/`deprecations.yml` entries, or the owner's core batch.

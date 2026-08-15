@@ -371,4 +371,17 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-08-14 | **dev.to articles staged on branch: 24** (unchanged — `fixes.yml` still 27 entries, `deprecations.yml` still 8, no new no-fetch candidate) | `launch/distribution/devto/01`–`24`. |
 | 2026-08-14 | **Day 32 — 4 days past the original 28-day window (closed 08-10).** HUMAN_QUEUE core batch (HQ-1′/2′, HQ-4, HQ-6, HQ-7, HQ-10) still fully unactioned, 32 days running; no observed buyer signal. This cycle is evidence a full call-graph trace (not just a copy/cross-link re-read) can still surface a real, higher-severity gap even after 30+ consecutive sweep cycles — "agent-side levers are thin" is not the same as "exhausted." | — |
 
+## Cycle 2026-08-15 (cloud routine) — Day 33
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-15 | **WebFetch re-tested — 32nd consecutive cycle blocked** | `WebFetch` on `https://example.com` (neutral control) → `EGRESS_BLOCKED`. Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis. |
+| 2026-08-15 | **Traced remaining paid/webhook endpoints for a second "frontend removed, backend still live" bug — clean** | `/api/audit/checkout`, `/api/pack/checkout` both gate on real pre-conditions before charging; `/api/license/inquiry` doesn't charge; `/webhook/stripe`, `/webhook/github` verify signatures; `/partners/{slug}/audit` requires a verified paid Stripe session. No repeat of the D42 bug class. |
+| 2026-08-15 | **Truth/harm sweep found nothing new via the usual grep** | Only the 2 already-reviewed correct exceptions. `fixes.yml` still 27 entries, `deprecations.yml` still 8 active + 2 historical, dev.to still 24 articles. |
+| 2026-08-15 | **Found and fixed a live instance of D40's bug class (stale present-tense EOL framing) on two head-term SEO pages not previously checked at this level** | `build_al2_checklist_page` + `build_al2_vs_al2023_page` in `apps/web/build.py` — 4 instances of "Amazon Linux 2 reaches end of life on {date}" for a date ~7 weeks past, corrected to past tense. |
+| 2026-08-15 | **Also corrected `revenue/ASSETS.md`'s own product table, which still showed Drift Watch as "Stripe link ✅ live"** | Contradicted D42 (2026-08-14), which closed that checkout endpoint the prior cycle. |
+| 2026-08-15 | **Regression check:** `apps/grace-api` 38/38 (pytest) + `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) + `kits/lambda-lifeline` `npm test` 24/24, all green | Jail-local `/usr/bin/python3.12` venv, deleted after use. Full rebuild confirmed the fix renders on both pages, zero `{API_URL}` leaks; `docs/` rebuild output discarded per convention. |
+| 2026-08-15 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a truth fix on 2 SEO landing pages + an internal-record correction, plus a negative-result endpoint-trace sweep. |
+| 2026-08-15 | **dev.to articles staged on branch: 24** (unchanged — `fixes.yml` still 27 entries, no new no-fetch candidate) | `launch/distribution/devto/01`–`24`. |
+| 2026-08-15 | **Day 33 — 5 days past the original 28-day window (closed 08-10).** HUMAN_QUEUE core batch still fully unactioned, 33 days running; no observed buyer signal. | — |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._
