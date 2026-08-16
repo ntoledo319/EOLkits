@@ -1,12 +1,12 @@
 # EOLkits — Migration Kits for AWS Platform Deprecations
 
-> CLIs for the AWS deprecation deadlines that break production. Next up: **Amazon Linux 2 (Jun 30, 2026)**. Also: **Lambda Python 3.9/3.10/3.11** waves, and post-deadline cleanup for **Lambda Node.js 20**.
+> CLIs for the AWS deprecation deadlines that break production. Already passed: **Amazon Linux 2 (Jun 30, 2026)** — unpatched now. Next up: the **Lambda Python 3.9/3.10/3.11 and Node.js 18/20** block-create/block-update cliffs (Feb 1 / Mar 3, 2027).
 
 [![landing](https://img.shields.io/badge/landing-live-brightgreen)](https://eolkits.com)
 [![tests](https://img.shields.io/badge/tests-172%20passing-brightgreen)](#tests)
 [![license](https://img.shields.io/badge/license-MIT%20(open%20core)-blue)](#license)
 
-> **Check your own stack in 30 seconds — free, in your browser, nothing uploaded: [eolkits.com/scan](https://eolkits.com/scan).** Amazon Linux 2 reaches end-of-life **Jun 30, 2026**; Lambda Python 3.9–3.11 and Node 18/20 are in their own EOL waves. The CLIs below are free and MIT — clone and run them yourself. Prefer it done for you? A [$299 audit](https://eolkits.com/audit) (hash-anchored, **30-day money-back**) or a [done-for-you migration PR](https://eolkits.com/pack) (auto-refund if your CI fails). Every tracked deadline: [eolkits.com/migrate](https://eolkits.com/migrate). Hit a specific error? [eolkits.com/fix](https://eolkits.com/fix).
+> **Check your own stack in 30 seconds — free, in your browser, nothing uploaded: [eolkits.com/scan](https://eolkits.com/scan).** Amazon Linux 2 reached end-of-life **Jun 30, 2026** (already unpatched); Lambda Python 3.9–3.11 and Node 18/20 are in their own EOL waves. The CLIs below are free and MIT — clone and run them yourself. Prefer it done for you? A [$299 audit](https://eolkits.com/audit) (hash-anchored, **30-day money-back**) or a [done-for-you migration PR](https://eolkits.com/pack) (auto-refund if your CI fails). Every tracked deadline: [eolkits.com/migrate](https://eolkits.com/migrate). Hit a specific error? [eolkits.com/fix](https://eolkits.com/fix).
 
 AWS is killing runtimes on a hard schedule. When a deadline passes, deploys fail, functions get frozen, AMIs stop receiving patches. Most shops find out in production.
 

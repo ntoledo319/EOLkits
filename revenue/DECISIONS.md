@@ -1828,3 +1828,113 @@ optimistic projections.
   (this cycle), and the templated `/migrate/` pages (this cycle, clean by construction). If a fresh truth/harm sweep
   also comes up clean next cycle, the honest state is unchanged from D41/D42: the next genuinely new lever most
   likely needs working WebFetch, new `fixes.yml`/`deprecations.yml` entries, or the owner's core batch.
+
+## D44 — Cloud cycle (2026-08-16, Day 34): found the same stale-EOL-tense bug class one layer deeper — a shared data field, not page-builder prose — plus 6 more copy-paste-outreach/README instances
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was already at
+  `c7069ac` (D43's cycle commit); no conflicts, no other routine had pushed since.
+- **Re-tested WebFetch before picking a task, per the standing rule:** `WebFetch` on `https://example.com` (neutral
+  control) → `EGRESS_BLOCKED`. 33rd consecutive cycle blocked. Consistent with D17's root cause, no re-diagnosis —
+  went straight to the no-new-fetch path.
+- **D43's own queued next-candidate was "if a fresh sweep also comes up clean, the honest state is unchanged" —
+  it wasn't clean.** Instead of re-checking the same pages D40/D41/D43 already swept, went looking for a bug in a
+  *different layer*: the raw `description:` field inside `rules/public/deprecations.yml` itself, reasoning that
+  D43's review of the `/migrate/<slug>/` pages checked only `compute_urgency()`'s dynamic headline logic (correctly
+  found clean, since it branches on `days < 0`) but never checked whether the *same pages* also render the raw,
+  never-recomputed `description` field verbatim elsewhere.
+- **Confirmed via `grep`, then via reading `apps/web/templates/migrate.html.j2` line by line, that
+  `deprecation.description` is interpolated verbatim in 5 separate spots per `/migrate/<slug>/` page** — line 17
+  `og:description`, line 39 the JSON-LD `"description"` field, line 82 the FAQ-schema answer text, line 133 an
+  intro `<p>`, and line 269 the "AWS source" citation paragraph — none of them routed through `compute_urgency()`.
+  Also traced two more consumers of the same raw field: `build_deprecations_rss()` (`apps/web/build.py:2519-2560`,
+  feeds `/feed.xml` and `/blog/feed.xml`) and `build_deprecations_ics()` (line 1832, feeds `/deprecations.ics`).
+- **Read every `description:` value in `rules/public/deprecations.yml` (10 entries) for tense-vs-date mismatches.**
+  Found 2: **"Amazon Linux 2 EOL"** (`date: 2026-06-30`, ~7 weeks past) — description read *"Amazon Linux 2
+  **reaches** end of life. No more security patches, AMI publishing, or extras updates."* — present tense for an
+  already-passed date. **"IMDSv1 Enforcement"** (`date: 2025-12-31`, over 7 months past — never previously flagged
+  by any prior cycle) — description read *"IMDSv1 access **will be** blocked by default on new instance
+  launches."* — future tense for a date long since passed. Every other entry's description was checked too: the 5
+  Q1-2027-cluster entries (Node20 Phase1, Python 3.8/3.9/3.10, Node18) all correctly mix past tense for their
+  already-passed *deprecation* sub-dates with future tense for their still-future *block* dates — no bug there;
+  Python 3.11 (block date 2027-07-31, future) is correctly all-future-tense.
+- **Shipped: fixed both descriptions at the single source (`rules/public/deprecations.yml`), not per-consumer** —
+  this is the highest-leverage fix shape, since it propagates automatically to every template/feed that reads the
+  field instead of requiring 7 separate patches (5 template spots + RSS + ICS):
+  - AL2: `"Amazon Linux 2 reached end of life on 2026-06-30. No more security patches, AMI publishing, or extras
+    updates since then — anything still on AL2 runs unpatched now."`
+  - IMDSv1: `"IMDSv1 access has been blocked by default on new instance launches since 2025-12-31."`
+- **Verified before shipping (§9):** fresh jail-local `/usr/bin/python3.12` venv (version confirmed 3.12.3),
+  `pip install jinja2 pyyaml pytest httpx`, full rebuild (`python3 apps/web/build.py`) succeeded; grepped both
+  corrected strings in the rebuilt `docs/migrate/amazon-linux-2-eol/index.html` and
+  `docs/migrate/imdsv1-enforcement/index.html` and confirmed all 3 renderable forms present (raw HTML `<p>` text,
+  HTML-escaped attribute form, and the `—`-escaped JSON-LD form) plus the RSS `<description>` entries in
+  `docs/feed.xml` — all read correctly; zero `{API_URL}` leaks anywhere in the rebuilt `docs/`.
+  `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) green. `docs/` rebuild output discarded
+  (`git checkout -- docs/ && git clean -fd docs/`) per the D14/D28/D32/D39/D42/D43 convention — only
+  `rules/public/deprecations.yml` committed for this part of the fix.
+- **Checked whether the stale committed `docs/` snapshot itself needed a direct hand-patch (the D11/D32
+  precedent) — concluded no, and root-caused why: `.github/workflows/deploy-pages.yml` triggers on `push` to
+  `main` (not this branch) and always runs `python apps/web/build.py` fresh before uploading the Pages artifact —
+  it never serves the git-committed `docs/` tree as-is.** So unlike the VPS (which the box's own cron rebuilds
+  fresh from source nightly), GitHub Pages *also* always rebuilds from source rather than serving whatever's
+  committed — meaning the committed `docs/` folder is not, on the current repo configuration, a live-served
+  surface through either channel. The D14/D28/D32/D39/D42/D43 "discard the docs/ rebuild output, only commit
+  source" convention is therefore fully correct on its own terms, not merely a shortcut; a future cycle
+  considering a direct `docs/` hand-patch (as D11/D32 did) should check this reasoning first — it's very likely
+  unnecessary effort given neither production path serves the raw committed tree.
+- **With the data-field bug fixed, ran a fresh full-content grep sweep for the same tense pattern across the whole
+  repo (not just the usual commit-diff check) and found 6 more live instances, in files no prior cycle's sweep had
+  caught:**
+  - **`README.md` — the single most-visible file in the whole public repo, already the subject of a 3-instance fix
+    by D30 (2026-08-02) — had a 4th, different instance D30 never touched.** The tagline read *"Next up: **Amazon
+    Linux 2 (Jun 30, 2026)**"* — doubly wrong, since AL2 is both already-passed *and* no longer the nearest
+    upcoming deadline in the tracked dataset (the true nearest future milestone is the Feb 1/Mar 3, 2027 block
+    cluster, over 5 months out — Python 3.10's Oct 31, 2026 deprecation is closer but is a "deprecated," not
+    "blocked," date). Rewrote to lead with the passed AL2 deadline honestly and point "Next up" at the real
+    nearest future dates. Also fixed a second, body-copy instance one line below ("Amazon Linux 2 reaches
+    end-of-life **Jun 30, 2026**").
+  - **`launch/DISTRIBUTION-KIT.md`** — the file's own header explicitly says it "supersedes the stale
+    `show-hn-final.md`/`social.md`/`outreach.md` drafts," i.e. this is the *current*, intended-to-be-accurate,
+    copy-paste-ready outreach kit. 3 instances fixed: the Show-HN submission body, the r/aws Reddit post body, and
+    the X/Twitter thread opener — all read "Amazon Linux 2 {reaches/hits} end-of-life Jun 30" and are corrected to
+    past tense. Left the file's broader "beat the deadline" strategic framing (which the doc's own line 173 already
+    instructs to swap to "still on AL2? you're unpatched" once Jun 30 passes, but the outreach blocks themselves
+    hadn't been swapped) as a flagged observation, not a rewrite — reframing persuasive copy end-to-end is a
+    judgment call better made deliberately by a future cycle or the owner, not folded into a tense-correction pass.
+  - **`launch/distribution/fast-cash/README.md`** — a ready-to-post LinkedIn copy block, same tense bug, fixed.
+  - **`launch/distribution/devto/01-amazon-linux-2-eol.md`** (frontmatter `description:` + intro sentence) and
+    **`21-runtime-upgrade-error-map.md`** (one body sentence) — both **already-published** dev.to articles. Fixed
+    in the repo source for internal accuracy/citation-quality, but **explicitly noting this does not change the
+    live dev.to post**: `launch/distribution/devto/publish_devto.py` only creates new articles, matched and
+    deduplicated purely by exact `title` string against the account's existing posts (`existing = {a.get("title")
+    ...}`, then `if title in existing: skip`) — it has no PATCH/update path for a title that's already live. If the
+    owner wants the already-published version corrected too, that needs a manual dev.to edit (not something this
+    loop can do autonomously, and not currently a queued Human Queue item — it's a minor phrasing/tense nit, not a
+    factual-harm bug, so not elevated to the queue this cycle).
+  - **`launch/show-hn-final.md`** — a file `DISTRIBUTION-KIT.md`'s own header already calls stale/superseded.
+    Fixed the same tense bug in its body copy, then went further: its "Submission timing" section still specified
+    a **Fri Jun 12, 2026** posting window with "18 days of pre-AL2 urgency remain" — both long obsolete (over 2
+    months past). Rather than fabricate a new submission date (would need external verification of current HN
+    timing best-practices, unavailable this cycle — WebFetch blocked), added an explicit inline **"STALE — do not
+    use as-is"** warning directing whoever opens the file next (owner or a future cycle) to re-anchor the urgency
+    framing to a still-future deadline (the Feb 1/Mar 3, 2027 cluster) before ever posting it, and struck through
+    the obsolete window text rather than deleting it outright (preserves the historical record per repo
+    convention, matches how `research/phase1_findings.md`'s correction banner handles a similar case).
+- **Ship-law check:** externally visible ✅ — `rules/public/deprecations.yml` (the fix with actual live
+  consequence — every consumer of the shared field) reaches production on the next daily box-cron deploy of
+  `apps/web`, same as every prior `apps/web`-only truth fix. The README/outreach-kit fixes are visible immediately
+  on GitHub (the repo itself is public) even though they don't have a separate "deploy" step.
+- **Day-34 state:** $0 collected, $4,000 gap, unchanged since Day 0. HUMAN_QUEUE core batch (HQ-1′/2′, HQ-5b item 0,
+  HQ-4, HQ-6, HQ-7, HQ-10) remains the only lever that can move the gap materially — 34 days running with zero
+  observed action on any of it. This cycle is a second data point (after D42's endpoint-trace find) that "agent-side
+  levers are thin" is not "exhausted": the bug found this cycle survived 34 days and every prior sweep, including
+  D43's own explicit review of the exact two pages it lives on, specifically because it lived in a shared data
+  field rather than page-builder prose — a genuinely new layer, not a re-check of an old one.
+- **Next candidate for the next cycle:** re-check WebFetch first. The stale-tense bug class has now been checked at
+  three distinct layers: page-builder hardcoded prose (D40, D43), the shared `deprecations.yml` `description:`
+  field and its downstream consumers — templates, RSS, ICS (this cycle), and copy-paste-ready outreach/playbook
+  drafts across `launch/` (this cycle). If a fresh full-content sweep next cycle also comes up clean, the honest
+  state is unchanged from D41/D42/D43: the next genuinely new lever most likely needs working WebFetch, new
+  `fixes.yml`/`deprecations.yml` entries, or the owner's core batch. One narrow named item still open if nothing
+  fresher turns up: `launch/DISTRIBUTION-KIT.md`'s "beat the deadline" outreach blocks could be more thoroughly
+  reframed around the still-future Q1-2027 cliff now that AL2 itself is no longer the active hook (flagged this
+  cycle, not actioned — a messaging judgment call, not a truth bug).

@@ -50,7 +50,7 @@ If none of the above matches and you're just staring at a bare `Runtime.ImportMo
 
 ## Path 4: Amazon Linux 2 → Amazon Linux 2023
 
-AL2 reaches end of life June 30, 2026. This path isn't a Lambda runtime change at all — it's the base OS on EC2/ECS/EKS nodes — but it produces the same "one version bump, five unrelated-looking failures" shape:
+AL2 reached end of life June 30, 2026. This path isn't a Lambda runtime change at all — it's the base OS on EC2/ECS/EKS nodes — but it produces the same "one version bump, five unrelated-looking failures" shape:
 
 1. **`amazon-linux-extras: command not found`** — the Extras Library mechanism doesn't exist on AL2023 at all. [Fix →](https://eolkits.com/fix/amazon-linux-extras-command-not-found/)
 2. **`Error: Unable to find a match: <package>`** — package renamed, version-namespaced, moved to SPAL, or dropped. [Fix →](https://eolkits.com/fix/amazon-linux-2023-dnf-unable-to-find-a-match/)

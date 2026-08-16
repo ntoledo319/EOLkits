@@ -384,4 +384,15 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-08-15 | **dev.to articles staged on branch: 24** (unchanged — `fixes.yml` still 27 entries, no new no-fetch candidate) | `launch/distribution/devto/01`–`24`. |
 | 2026-08-15 | **Day 33 — 5 days past the original 28-day window (closed 08-10).** HUMAN_QUEUE core batch still fully unactioned, 33 days running; no observed buyer signal. | — |
 
+## Cycle 2026-08-16 (cloud routine) — Day 34
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-16 | **WebFetch re-tested — 33rd consecutive cycle blocked** | `WebFetch` on `https://example.com` (neutral control) → `EGRESS_BLOCKED`. Consistent with D17's root cause — no re-diagnosis. |
+| 2026-08-16 | **Found + fixed a live truth bug one layer deeper than any prior sweep: the shared `description:` field in `rules/public/deprecations.yml`** | 2 entries (Amazon Linux 2 EOL, IMDSv1 Enforcement) had present/future-tense descriptions for already-passed dates, propagating verbatim into 5 spots per `/migrate/` page plus the RSS feed and ICS calendar. See DECISIONS D44. |
+| 2026-08-16 | **Same-cycle sweep found + fixed 6 more instances of the identical bug across `README.md` (the most-visible file in the repo), `launch/DISTRIBUTION-KIT.md` (current send-ready outreach kit), `launch/distribution/fast-cash/README.md`, 2 dev.to article source files, and `launch/show-hn-final.md`** | Commit pending. `README.md`'s "Next up: Amazon Linux 2" tagline was also factually stale on a second axis (no longer the nearest future deadline). |
+| 2026-08-16 | **Regression check:** full rebuild + `apps/web` `test_determinism.py` 4/4 (pytest) + `test_surge.py` 4/4 (direct run) + `kits/lambda-lifeline` `npm test` 24/24, all green (jail-local `/usr/bin/python3.12` venv, deleted after use) | Ran directly this cycle. |
+| 2026-08-16 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a 7-file truth-fix sweep only. |
+| 2026-08-16 | **dev.to articles staged on branch: 24** (unchanged — 2 existing articles corrected in place, no new article; `fixes.yml` backlog still exhausted) | `launch/distribution/devto/01`–`24`. |
+| 2026-08-16 | **Day 34 — 6 days past the original 28-day window (closed 08-10).** HUMAN_QUEUE core batch still fully unactioned, 34 days running; no observed buyer signal. | — |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

@@ -128,6 +128,12 @@ Ranking and frame scores unchanged — no new platform fact this cycle. This cyc
 stale `docs/` build artifact) was a truth/harm sweep, not a frame re-evaluation. First cycle past the original
 28-day window; the honest constraint below is unchanged.
 
+## Reviewed (no change) — 2026-08-16 (Day 34)
+Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ships (a truth fix in the
+shared `deprecations.yml` description field, propagating to `/migrate/` pages + RSS + ICS, and a 6-file sweep of
+the same bug across `README.md`/outreach drafts/2 dev.to sources — see DECISIONS D44) are truth/harm fixes, not a
+frame re-evaluation.
+
 ## The honest constraint that dominates all of this
 Every payment-enabled channel is **first-publish KYC-gated** (marketplaces need identity/bank). No autonomous
 $0 action reaches a *ready buyer* inside 28 days. The frames that can actually collect $4k (Upwork gig, Migration

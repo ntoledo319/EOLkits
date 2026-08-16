@@ -1,11 +1,11 @@
 ---
 title: Amazon Linux 2 is EOL on June 30, 2026 — here's everything that breaks
 canonical_url: https://eolkits.com/amazon-linux-2-eol-checklist/
-description: Amazon Linux 2 reaches end of life June 30, 2026. What changes on AL2023 (dnf, extras, chronyd, nftables, Python), and a step-by-step migration checklist.
+description: Amazon Linux 2 reached end of life June 30, 2026. What changes on AL2023 (dnf, extras, chronyd, nftables, Python), and a step-by-step migration checklist.
 tags: aws, devops, linux, sre
 ---
 
-Amazon Linux 2 reaches **end of life on June 30, 2026**. After that: no security patches, no new AMIs, no extras updates. Anything still pinned to AL2 in a launch template, EKS node group, ECS task, Beanstalk platform, or container base image is running unpatched from that day on.
+Amazon Linux 2 **reached end of life on June 30, 2026**. Since then: no security patches, no new AMIs, no extras updates. Anything still pinned to AL2 in a launch template, EKS node group, ECS task, Beanstalk platform, or container base image is running unpatched right now.
 
 Here's what actually changes when you move to Amazon Linux 2023 — the stuff that breaks boot scripts and CI.
 

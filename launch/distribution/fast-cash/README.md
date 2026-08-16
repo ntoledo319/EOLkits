@@ -71,10 +71,10 @@ Buyers search Fiverr for this. New-seller penalty means it's slower than Upwork,
 
 ## #4 — One LinkedIn / network post (1 action, may surface a warm buyer)
 **You:** post once. **Copy:**
-> Amazon Linux 2 reaches end-of-life June 30. If your team still has AL2 AMIs, EKS node groups, or
-> old Lambda runtimes, here's a free 30-second scanner to see exactly what breaks (nothing uploaded):
-> eolkits.com/scan . I built the open-source CLIs that automate the migration — glad to help anyone
-> up against the deadline.
+> Amazon Linux 2 reached end-of-life June 30 — unpatched now. If your team still has AL2 AMIs, EKS
+> node groups, or old Lambda runtimes, here's a free 30-second scanner to see exactly what breaks
+> (nothing uploaded): eolkits.com/scan . I built the open-source CLIs that automate the migration —
+> glad to help anyone still catching up on it.
 
 ---
 

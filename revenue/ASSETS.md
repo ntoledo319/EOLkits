@@ -216,3 +216,9 @@ runtime is deprecated but not blocked until the same delayed Feb 1/Mar 3 2027 da
 (commit `668f505`). Found via a deeper content-level sweep (reading cause text against verified sources), not the
 usual commit-diff check — see DECISIONS D29 for the process note. Also shipped dev.to article 22 (symptom-first
 "why did my deploy break with no code changes" framing, 22nd `launch/distribution/` article).
+
+## 2026-08-16: no new codebase or SKU — a truth/harm fix in the shared `deprecations.yml` data layer
+D44: fixed 2 stale present/future-tense `description:` fields in `rules/public/deprecations.yml` (consumed by
+`apps/web`'s `/migrate/` pages, RSS feed, and ICS calendar), plus the same tense bug in 6 more files (`README.md`,
+`launch/DISTRIBUTION-KIT.md`, `launch/distribution/fast-cash/README.md`, 2 dev.to article sources,
+`launch/show-hn-final.md`). No asset/SKU/fulfillment-path change — product ladder table above is still current.

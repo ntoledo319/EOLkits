@@ -39,7 +39,7 @@ first to build standing.
 
 **Body**
 ```
-Amazon Linux 2 hits end-of-life on Jun 30, 2026 — after that, no patches and no new AMIs, and
+Amazon Linux 2 hit end-of-life on Jun 30, 2026 — since then, no patches and no new AMIs, and
 anything still pinned to AL2 in a launch template or EKS node group is on borrowed time. Lambda
 Python 3.9–3.11 and Node 18/20 are in their own EOL waves with Q1-2027 update-blocking cliffs.
 
@@ -91,7 +91,7 @@ mention, one reply per thread. Don't seed or pre-stake. After posting, append to
 
 **r/aws** — title: `Amazon Linux 2 is EOL Jun 30 — free browser tool to see what in your stack breaks`
 ```
-AL2 reaches end-of-life Jun 30 (no more patches/AMIs). I got tired of grepping for AL2 AMIs and
+AL2 reached end-of-life Jun 30 (no more patches/AMIs). I got tired of grepping for AL2 AMIs and
 deprecated Lambda runtimes by hand, so I built a scanner that runs entirely in your browser — drop
 your Terraform/SAM/CDK/serverless or package.json/requirements.txt and it flags what breaks, with
 the AWS source for each finding. Nothing is uploaded (Network tab stays empty).
@@ -110,8 +110,8 @@ post the tool as a comment on an existing AL2/EOL thread instead of a new post.
 
 ## 3. X / Twitter thread
 ```
-1/ Amazon Linux 2 is EOL June 30. After that: no patches, no new AMIs, EKS node groups and launch
-templates pinned to AL2 start rotting.
+1/ Amazon Linux 2 has been EOL since June 30, 2026. No patches, no new AMIs — EKS node groups and
+launch templates still pinned to AL2 are rotting right now.
 
 Free 30-second check on your own stack (runs in your browser, nothing uploaded):
 https://eolkits.com/scan

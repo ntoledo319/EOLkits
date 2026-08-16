@@ -25,7 +25,7 @@ deprecations:
     service: "EC2, EKS, ECS, Elastic Beanstalk"
     resource_type: "ami|launch-template|container-image"
     date: "2026-06-30"
-    description: "Amazon Linux 2 reaches end of life. No more security patches, AMI publishing, or extras updates."
+    description: "Amazon Linux 2 reached end of life on 2026-06-30. No more security patches, AMI publishing, or extras updates since then — anything still on AL2 runs unpatched now."
     severity: critical
     kit: al2023-gate
     url: "https://aws.amazon.com/blogs/aws/update-on-amazon-linux-2-end-of-life/"
@@ -117,7 +117,7 @@ deprecations:
     service: "EC2"
     resource_type: "instance|launch-template"
     date: "2025-12-31"
-    description: "IMDSv1 access will be blocked by default on new instance launches."
+    description: "IMDSv1 access has been blocked by default on new instance launches since 2025-12-31."
     severity: high
     kit: null  # Planned: imds-v2-gate
     url: "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html"

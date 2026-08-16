@@ -1049,3 +1049,64 @@ Clicks with no buys ⇒ a conversion/trust problem to fix, not a traffic problem
     fresh full-content sweep first. With the LISTING-COPY.md item now closed, there is no other specifically-named
     open item left in the DECISIONS backlog — the next genuinely new lever most likely requires either working
     WebFetch, new `fixes.yml`/`deprecations.yml` entries, or the owner's core batch.
+
+## Cycle 2026-08-16 (cloud routine) — Day 34
+125. **WebFetch re-tested via the tool itself — 33rd consecutive cycle blocked** (`EGRESS_BLOCKED` on
+    `https://example.com`, neutral control). Consistent with D17's root cause, no re-diagnosis — went straight to
+    the no-new-fetch path.
+126. **Found a genuinely new instance of the D40/D43 stale-EOL-tense bug class, one layer deeper than any prior
+    sweep had checked: the `description:` field baked into `rules/public/deprecations.yml` itself, not a
+    page-builder function.** Two entries had present/future-tense descriptions for dates that have already passed:
+    "Amazon Linux 2 EOL" (date `2026-06-30`) still read "Amazon Linux 2 **reaches** end of life. No more security
+    patches..."; "IMDSv1 Enforcement" (date `2025-12-31`, over 7 months past) still read "IMDSv1 access **will be**
+    blocked by default...". Because this is the shared data field (not page-specific prose), it silently propagates
+    verbatim into **5 places per page** on both `/migrate/amazon-linux-2-eol/` and `/migrate/imdsv1-enforcement/`
+    (og:description, JSON-LD `description`, the FAQ-schema answer, an intro `<p>`, and the "AWS source" paragraph)
+    plus the public RSS feed (`/feed.xml`, `/blog/feed.xml`) and the ICS calendar (`/deprecations.ics`) — meaning
+    the same page simultaneously showed a correct dynamic "This deadline passed on {date}" headline (from
+    `compute_urgency()`, which D43 verified clean) right next to a stale present-tense description contradicting
+    it. D43's review checked only the dynamic headline copy, not this shared static field, so it read the
+    `/migrate/` pages as fully clean — they weren't.
+127. **Shipped: fixed both descriptions at the data source** (`rules/public/deprecations.yml`) so the fix
+    propagates to every consumer in one edit — AL2 → "Amazon Linux 2 reached end of life on 2026-06-30. No more
+    security patches, AMI publishing, or extras updates since then — anything still on AL2 runs unpatched now.";
+    IMDSv1 → "IMDSv1 access has been blocked by default on new instance launches since 2025-12-31." Verified via a
+    full local rebuild that both corrected strings render in all 5 template spots on both `/migrate/` pages, the
+    JSON-LD FAQ text, and the RSS feed; zero `{API_URL}` leaks.
+128. **Same-cycle full-content sweep found the identical present/future-tense bug pattern live in 6 more files
+    across the repo — including the root README, the single most-visible file in the whole public repo** (already
+    fixed for 3 *other* instances by D30 on 2026-08-02; this was a 4th, different instance D30 hadn't touched):
+    `README.md` (2 spots — a "Next up: Amazon Linux 2 (Jun 30, 2026)" tagline that was doubly wrong, since AL2 both
+    already passed *and* is no longer the nearest upcoming deadline in the dataset — the true nearest future
+    milestone is the Feb 1/Mar 3, 2027 block cluster — plus a body sentence); `launch/DISTRIBUTION-KIT.md` (the
+    *current*, explicitly-marked "send-ready," copy-paste outreach kit — 3 spots: the Show-HN body, the r/aws
+    Reddit body, and the X/Twitter thread opener); `launch/distribution/fast-cash/README.md` (a LinkedIn-post
+    draft); two already-published dev.to article source files (`01-amazon-linux-2-eol.md` intro + frontmatter
+    description, `21-runtime-upgrade-error-map.md` body) — fixed in the repo for internal-consistency/citation
+    accuracy, though note (§ DECISIONS) `publish_devto.py` only creates new articles by title match and has no
+    update-in-place path, so this specific edit does not itself change the already-live dev.to post; and
+    `launch/show-hn-final.md`, a doc `DISTRIBUTION-KIT.md`'s own header already calls "stale" and superseded —
+    fixed its tense too and added an explicit "STALE — do not use as-is" flag on its "Submission timing" section,
+    since that section's Jun 12, 2026 window and "18 days of pre-AL2 urgency" framing are themselves long obsolete
+    and could mislead the owner into pasting a nonsensical, already-passed submission plan if they ever open it.
+129. **Regression check:** full rebuild (`python3 apps/web/build.py`) green, `apps/web` `test_determinism.py` 4/4
+    (pytest) + `test_surge.py` 4/4 (direct run) green (jail-local `/usr/bin/python3.12` venv, version confirmed,
+    deleted after use); `kits/lambda-lifeline` `npm test` 24/24 green; `docs/` rebuild output discarded
+    (`git checkout -- docs/ && git clean -fd docs/`) per convention — only source files committed. `apps/grace-api`
+    not run this cycle (confirmed via grep it does not consume `deprecations.yml` at all, so it's unaffected by
+    this change; its own test venv hit an unrelated fresh-venv dependency-resolution gap, `fastapi` not installed
+    by the `httpx`-only install used for the (unaffected) `apps/web` suite — not a regression, not investigated
+    further since no `apps/grace-api` file was touched).
+130. **Day-34 state:** $0 collected, $4,000 gap, unchanged since Day 0. HUMAN_QUEUE core batch (HQ-1′/2′, HQ-5b
+    item 0, HQ-4, HQ-6, HQ-7, HQ-10) remains the only lever that can move the gap materially — 34 days running with
+    zero observed action on any of it. This cycle is another data point against "agent-side levers are thin ==
+    exhausted": a genuinely new, previously-unswept truth bug (this time in a shared *data field*, not page-builder
+    prose) survived 34 days and every prior sweep, including D43's own explicit review of the exact two pages it
+    lives on, because that review checked only the dynamic headline logic and not the static field the same pages
+    also render.
+131. **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. The stale-tense bug class
+    has now been checked at three distinct layers — page-builder hardcoded prose (D40, D43), the shared
+    `deprecations.yml` `description:` field consumed by templates/RSS/ICS (this cycle), and copy-paste-ready
+    outreach/playbook drafts (this cycle) — all now clean as of this sweep. If a fresh full-content sweep next
+    cycle also comes up clean, the honest state is unchanged from D41/D42/D43: the next genuinely new lever most
+    likely needs working WebFetch, new `fixes.yml`/`deprecations.yml` entries, or the owner's core batch.
