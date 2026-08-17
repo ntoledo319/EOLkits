@@ -1938,3 +1938,63 @@ optimistic projections.
   fresher turns up: `launch/DISTRIBUTION-KIT.md`'s "beat the deadline" outreach blocks could be more thoroughly
   reframed around the still-future Q1-2027 cliff now that AL2 itself is no longer the active hook (flagged this
   cycle, not actioned — a messaging judgment call, not a truth bug).
+
+## D45 (2026-08-17, Day 35) — Fixed a self-contradictory "Live deadline" label surviving in the repo's most-visible file
+- **WebFetch re-tested via the tool itself — 34th consecutive cycle blocked**, `EGRESS_BLOCKED` on
+  `https://example.com` (neutral control); `$HTTPS_PROXY/__agentproxy/status` shows an empty
+  `recentRelayFailures` list (cosmetic difference from prior cycles, which sometimes showed a stale failure record)
+  but the tool call itself still fails the same way. Consistent with D17's root cause (permanent egress-policy
+  denial) — no re-diagnosis, went straight to the no-new-fetch path per the standing rule.
+- **Ran a fresh repo-wide grep for the stale-tense EOL bug class** (D40/D43/D44's pattern: a passed deadline still
+  phrased as present/future/"live"), broadened this cycle to also catch the specific phrase `"live deadline"` —
+  a labeling variant of the same bug the prior three sweeps hadn't explicitly searched for.
+- **Found a genuinely new instance in `README.md` — the single most-visible file in the whole public repo, already
+  the subject of 4+ instance fixes across D30 and D44 — a 5th, different instance neither had touched.** The
+  file's own hero line (line 3) correctly reads "Already passed: Amazon Linux 2 (Jun 30, 2026) — unpatched now,"
+  but four other spots in the *same file* still called it the **"Live deadline"**: the deadlines table's Status
+  column, the Roadmap's shipped-item annotation, the Install section's section header, and the 30-second-demo
+  section header. A reader scrolling past line 3 would hit a direct self-contradiction within one file — worse
+  than a single stale mention, because the correct framing is right there in the same document.
+- **Same grep found the identical "Live deadline" label in two `launch/` copy-paste drafts**: `launch/social.md`
+  (the LinkedIn launch-day post, 1 instance) and `launch/outreach.md` (the cold-maintainer email template, which
+  had it in the variant header, the subject line, and the body — 3 instances) plus one related present-tense
+  instance in `launch/outreach.md`'s second variant ("AL2 Jun 30" listed among "deprecations breaking prod this
+  year" without qualifying that AL2's window already closed). `outreach.md` was not on D44's fixed-file list
+  (D44 fixed `show-hn-final.md`, `DISTRIBUTION-KIT.md`, `fast-cash/README.md`, and 2 dev.to sources but missed
+  this one) — a genuinely unswept file, not a re-check.
+- **Deliberately left 3 matches from the same grep untouched, each for a documented reason:**
+  - `HANDOFF.md:96` — a dated historical log entry ("Reframe complete 2026-05-21... now lead with AL2023 (Jun 30,
+    2026 — live deadline)") describing what was accurate *at the time it was written*, before Jun 30 passed. Same
+    convention already established for `research/phase1_findings.md`'s correction banner and dev.to article 07's
+    myth-debunk section — correctly-tensed history isn't rewritten.
+  - `AUTOPSY-AND-14-DAY-REVENUE-PLAN.md:105` — a dated point-in-time strategy snapshot (its own table shows "9
+    days" until the AL2 deadline, i.e. written ~2026-06-21); same historical-record exception.
+  - `launch/gumroad/MIGRATION-PLAYBOOK.md:8` — "the live deadline calendar at eolkits.com/status" uses "live" to
+    mean the calendar is real-time/dynamically updated, not a claim that AL2's deadline itself is still upcoming.
+    Different sense of the word, not the bug pattern — confirmed by reading the surrounding sentence.
+- **Shipped:** `README.md` (4 edits: table Status cell → "Post-deadline cleanup" + "(passed)" on the date,
+  Roadmap entry → "passed; unpatched since", Install section header → "For the passed AL2 deadline... unpatched
+  now", demo section header → "Post-deadline cleanup first"), `launch/social.md` (1 edit, same "passed; unpatched
+  since" phrasing), `launch/outreach.md` (Variant 1 header, subject line, and body rewritten to past tense;
+  Variant 2's "AL2 Jun 30" mention qualified to "AL2, EOL'd Jun 30"). All edits reuse phrasing already established
+  and cross-checked in prior cycles (D8's "unpatched now," D40/D43's "reached/passed" pattern, D44's "passed;
+  unpatched since" from the same README Roadmap section one line below) — no new external fact-checking needed,
+  consistent with the no-fetch-cycle rule.
+- **Regression check:** confirmed via grep that none of the 3 changed files (`README.md`, `launch/social.md`,
+  `launch/outreach.md`) are consumed by `apps/web/build.py` or any build/test step — they are documentation/launch
+  copy only, not site source. Ran `kits/lambda-lifeline` `npm test` anyway per the standing per-cycle regression
+  convention: 24/24 green (jail-local venv/npm, no persistent state left behind).
+- **Ship-law check:** externally visible ✅ — all 3 files are in the public repo; visible on GitHub immediately on
+  push, no separate deploy step required (same as prior README/launch-doc fixes).
+- **Day-35 state:** $0 collected, $4,000 gap, unchanged since Day 0. HUMAN_QUEUE core batch (HQ-1′/2′, HQ-5b item
+  0, HQ-4, HQ-6, HQ-7, HQ-10) remains the only lever that can move the gap materially — 35 days running with zero
+  observed action on any of it. This cycle is a third consecutive data point (after D42's endpoint trace, D44's
+  data-field find) that "agent-side levers are thin" is not "exhausted": broadening the grep pattern by one
+  synonym ("live deadline" alongside "reaches end of life") surfaced a bug that had survived 35 days including in
+  the repo's own README, a file already fixed for this exact bug class twice before (D30, D44).
+- **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked, run
+  another full-content grep sweep — this cycle's method (broadening to phrase variants of the same bug class, not
+  just re-checking known-fixed locations) proved productive twice in a row (D44's data-field layer, this cycle's
+  label-phrase variant) and is worth repeating with yet another phrasing angle (e.g. "upcoming," "coming soon,"
+  "X days away," "counts down to") before concluding the sweep is genuinely dry. `launch/DISTRIBUTION-KIT.md`'s
+  flagged-but-not-actioned "beat the deadline" reframe (D44) remains open if a fresh sweep comes up clean.

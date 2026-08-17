@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 33 (2026-08-15) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 35 (2026-08-17) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -1110,3 +1110,28 @@ Clicks with no buys ⇒ a conversion/trust problem to fix, not a traffic problem
     outreach/playbook drafts (this cycle) — all now clean as of this sweep. If a fresh full-content sweep next
     cycle also comes up clean, the honest state is unchanged from D41/D42/D43: the next genuinely new lever most
     likely needs working WebFetch, new `fixes.yml`/`deprecations.yml` entries, or the owner's core batch.
+
+## Cycle 2026-08-17 (cloud routine) — Day 35
+132. **WebFetch re-tested via the tool itself — 34th consecutive cycle blocked** (`EGRESS_BLOCKED` on
+    `https://example.com`, neutral control). Consistent with D17's root cause, no re-diagnosis — went straight to
+    the no-new-fetch path.
+133. **Broadened the truth/harm grep by one phrase variant — "live deadline" — and found it live in `README.md`
+    (the repo's most-visible file), directly self-contradicting the same file's own correct "already passed" hero
+    line.** 4 instances in `README.md` (deadlines table, Roadmap, Install header, demo header), plus 1 in
+    `launch/social.md` and 4 in `launch/outreach.md` (the latter a file no prior cycle's sweep had fixed). All
+    rewritten to past tense reusing D8/D40/D43/D44's already-established phrasing. See DECISIONS D45.
+134. **Deliberately left 3 same-pattern matches untouched**, each a dated historical record (`HANDOFF.md`,
+    `AUTOPSY-AND-14-DAY-REVENUE-PLAN.md`) or a different sense of "live" (real-time-updating calendar, not a claim
+    about the deadline — `launch/gumroad/MIGRATION-PLAYBOOK.md`), consistent with the established convention of
+    not rewriting correctly-tensed history.
+135. **Regression check:** confirmed via grep the 3 changed files aren't consumed by `apps/web/build.py` (no
+    rebuild needed); `kits/lambda-lifeline` `npm test` 24/24 green (jail-local venv/npm, cleaned up after use).
+136. **Day-35 state:** $0 collected, $4,000 gap, unchanged since Day 0. HUMAN_QUEUE core batch (HQ-1′/2′, HQ-5b
+    item 0, HQ-4, HQ-6, HQ-7, HQ-10) remains the only lever that can move the gap materially — 35 days running with
+    zero observed action on any of it. Third consecutive cycle (after D42, D44) showing the truth-sweep isn't
+    exhausted — this time by widening the search pattern itself, not just re-checking known-fixed locations.
+137. **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked, try
+    another phrase-variant grep sweep (e.g. "upcoming," "coming soon," "days away," "counts down") — this angle
+    (broadening the search terms, not just re-visiting known locations) has now found a real bug two cycles running
+    (D44's data-field layer, D45's label-phrase variant). If that also comes up clean, fall back to the one open
+    named item: `launch/DISTRIBUTION-KIT.md`'s flagged-but-not-actioned "beat the deadline" → Q1-2027 reframe (D44).

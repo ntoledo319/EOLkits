@@ -55,7 +55,7 @@ After 14 months of building, EOLkits is live.
 
 EOLkits is three open-source CLIs that automate AWS runtime migrations off the deprecation deadlines breaking production this year:
 
-– al2023-gate — Amazon Linux 2 → AL2023 (Jun 30, 2026 — live deadline)
+– al2023-gate — Amazon Linux 2 → AL2023 (Jun 30, 2026 — passed; unpatched since)
 – python-pivot — Lambda Python 3.9 / 3.10 / 3.11 → 3.12 (rolling EOL waves)
 – lambda-lifeline — Node.js 16 / 18 / 20 → 22 (Phase 1 passed Apr 30; Phase 3 cliff Mar 3, 2027)
 

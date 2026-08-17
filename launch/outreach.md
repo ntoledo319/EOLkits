@@ -11,16 +11,16 @@ Three variants for three relationships. Pick the one that matches the target. Fi
 
 ---
 
-## Variant 1 — COLD MAINTAINER (AL2023, live deadline)
+## Variant 1 — COLD MAINTAINER (AL2023, passed deadline)
 
 For someone you don't know with a public repo running Amazon Linux 2 in launch templates, AMIs, EKS node groups, or Beanstalk platforms. Do not send if you don't have a specific finding to lead with.
 
 ```
-Subject: Amazon Linux 2 EOL Jun 30 — auto-migration PR for [repo]
+Subject: Amazon Linux 2 has been EOL since Jun 30 — auto-migration PR for [repo]
 
 [name],
 
-Solo dev behind EOLkits here. Running the open scanner against public repos and saw [repo] still pins Amazon Linux 2 in [specific file, e.g. "the EKS node group in eks/cluster.tf" or "the Packer template at packer/api.json"]. Jun 30 is EOL — after that, no patches, no new AMIs, anything depending on AL2 in CI starts breaking when the base images go.
+Solo dev behind EOLkits here. Running the open scanner against public repos and saw [repo] still pins Amazon Linux 2 in [specific file, e.g. "the EKS node group in eks/cluster.tf" or "the Packer template at packer/api.json"]. AL2 has been EOL since Jun 30 — no patches, no new AMIs, anything depending on AL2 in CI is running unpatched right now as the base images go stale.
 
 I built a kit that scans the repo, runs the package-name remap (yum→dnf, deprecated packages, replacements), patches the IaC (Terraform / CloudFormation / Packer / Ansible / cloud-init), and opens a PR with a tested rollback path. MIT, property- and mutation-tested, with deterministic, CI-gated builds.
 
@@ -44,7 +44,7 @@ Subject: EOLkits is live — want me to run it on [repo / your stack]?
 
 [name] —
 
-Soft-launched EOLkits this week. Three CLIs for the AWS runtime deprecations breaking prod this year (AL2 Jun 30, Python 3.x waves, plus Node 20 cleanup before the Feb 1 / Mar 3, 2027 block cliff). I think [repo / your team's stack] would be a clean target — saw [specific thing about their setup, e.g. "the SAM templates in [repo] still pin nodejs20.x" or "your team mentioned Python 3.10 functions back in [context]"].
+Soft-launched EOLkits this week. Three CLIs for the AWS runtime deprecations breaking prod this year (AL2, EOL'd Jun 30; Python 3.x waves; plus Node 20 cleanup before the Feb 1 / Mar 3, 2027 block cliff). I think [repo / your team's stack] would be a clean target — saw [specific thing about their setup, e.g. "the SAM templates in [repo] still pin nodejs20.x" or "your team mentioned Python 3.10 functions back in [context]"].
 
 Looking for two or three real-world end-to-end runs before I post to HN on Tuesday morning. The deal: install the GitHub App at github.com/apps/eolkits-migration-bot, pick the repos you want it to touch, it opens one PR per repo with the migration applied. Free, MIT, dry-run by default, opt-out by dropping a `.no-eolkits` file.
 

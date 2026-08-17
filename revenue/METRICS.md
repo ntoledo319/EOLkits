@@ -395,4 +395,16 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-08-16 | **dev.to articles staged on branch: 24** (unchanged — 2 existing articles corrected in place, no new article; `fixes.yml` backlog still exhausted) | `launch/distribution/devto/01`–`24`. |
 | 2026-08-16 | **Day 34 — 6 days past the original 28-day window (closed 08-10).** HUMAN_QUEUE core batch still fully unactioned, 34 days running; no observed buyer signal. | — |
 
+## Cycle 2026-08-17 (cloud routine) — Day 35
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-17 | **WebFetch re-tested — 34th consecutive cycle blocked** | `EGRESS_BLOCKED` on `https://example.com` (neutral control). Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis. |
+| 2026-08-17 | **Broadened truth/harm grep to catch the "live deadline" label variant of the recurring stale-tense bug — found it live in `README.md` (4 spots), directly contradicting the same file's own correct "already passed" hero line** | `README.md`'s deadlines table, Roadmap entry, Install section header, and demo section header all still called the passed Jun 30, 2026 AL2 deadline "Live deadline." See DECISIONS D45. |
+| 2026-08-17 | **Same grep found the identical bug in `launch/social.md` (1 spot) and `launch/outreach.md` (4 spots) — the latter not on any prior cycle's fixed-file list** | `launch/outreach.md`'s Variant 1 header/subject/body and Variant 2's "AL2 Jun 30" mention all rewritten to past tense. |
+| 2026-08-17 | **Shipped: 3 files corrected** (`README.md`, `launch/social.md`, `launch/outreach.md`) | 9 lines changed total; reused phrasing already established in D8/D40/D43/D44 — no new external fact-checking needed. |
+| 2026-08-17 | **Regression check:** confirmed changed files aren't consumed by `apps/web/build.py`; `kits/lambda-lifeline` `npm test` 24/24 green | Ran directly this cycle. |
+| 2026-08-17 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a truth fix across 3 public-facing docs only. |
+| 2026-08-17 | **dev.to articles staged on branch: 24** (unchanged — no new-fetch content candidate this cycle) | `launch/distribution/devto/01`–`24`. |
+| 2026-08-17 | **Day 35 — 7 days past the original 28-day window (closed 08-10).** HUMAN_QUEUE core batch still fully unactioned, 35 days running; no observed buyer signal. Third consecutive cycle proving the truth-sweep isn't exhausted — this time by widening the grep pattern to a label-phrase variant, not just re-checking known locations. | — |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

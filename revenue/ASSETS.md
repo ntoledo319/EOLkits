@@ -145,6 +145,13 @@ dates D3 already corrected elsewhere. All 8 files were last touched 2026-06-22, 
 never in scope of any prior pass. Fixed all 13 direct instances to Feb 1/Mar 3, 2027 (Q1-2027 cluster); added a
 correction banner (not a rewrite) to the dated historical research snapshot. See DECISIONS D31.
 
+## 2026-08-17: found + fixed a self-contradictory "Live deadline" label in the repo's most-visible file
+`README.md`'s hero line correctly says AL2's Jun 30, 2026 deadline "already passed," but its own deadline table,
+Roadmap entry, install-instructions line, and 30-second-demo line all still called it the "Live deadline" —
+directly contradicting the hero line one page-scroll away. Same bug also found in `launch/social.md` (a launch-day
+LinkedIn draft) and `launch/outreach.md` (a cold-outreach template, 4 instances). All fixed to past-tense phrasing
+consistent with the already-correct `lambda-lifeline` row/entries. See DECISIONS D45.
+
 ## 2026-08-02: found + fixed 4 more instances of the recurring superseded-date bug (+1 self-contradiction)
 Root `README.md` (3 instances — the most-visible file in the whole public repo) and
 `kits/lambda-lifeline/docs/ROLLBACK.md` (1 instance) still claimed Node.js 20 Lambda blocks create/update on

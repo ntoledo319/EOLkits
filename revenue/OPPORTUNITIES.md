@@ -73,6 +73,11 @@ Ranking and frame scores unchanged — no new platform fact this cycle. This cyc
 (already noted below as "dormant until someone actually builds IAM-role-based weekly re-scanning"), not a frame
 re-evaluation — it makes that dormancy actually safe (no charge possible) rather than changing its ranking.
 
+## Reviewed (no change) — 2026-08-17 (Day 35)
+Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship was a truth fix (a
+self-contradictory "Live deadline" label for the passed AL2 date, in `README.md`/`launch/social.md`/
+`launch/outreach.md` — see DECISIONS D45), not a frame re-evaluation.
+
 ## Reviewed (no change) — 2026-08-13 (Day 31)
 Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship (a free-tool cross-link
 added to the Gumroad listing copy, closing a 3-cycle-old open item; see DECISIONS D41) is a content/conversion
