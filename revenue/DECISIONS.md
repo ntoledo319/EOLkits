@@ -1998,3 +1998,67 @@ optimistic projections.
   label-phrase variant) and is worth repeating with yet another phrasing angle (e.g. "upcoming," "coming soon,"
   "X days away," "counts down to") before concluding the sweep is genuinely dry. `launch/DISTRIBUTION-KIT.md`'s
   flagged-but-not-actioned "beat the deadline" reframe (D44) remains open if a fresh sweep comes up clean.
+
+## D46 (2026-08-18, Day 36) — Fixed a fabricated-citation-risk in a separate process's dev.to article 25 (unverifiable GitHub issue numbers + an unverifiable "AWS shipped patches" claim)
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was already at `e3ab736`
+  (D45's cycle commit); no conflicts, nothing else had pushed since.
+- **Re-tested WebFetch via the tool itself — 35th consecutive cycle blocked**: `EGRESS_BLOCKED` on `https://example.com`
+  (neutral control). Consistent with D17's root cause (permanent egress-policy denial) — no re-diagnosis, went
+  straight to the no-new-fetch path per the standing rule.
+- **Found (unlogged until now): a separate process pushed two dev.to articles** — article 24 (`b2902ff`,
+  `24-imdsv2-401-metadata-migration.md`, IMDSv2-enforcement 401 triage) and article 25 (`15dd3c1`,
+  `25-datetime-utcnow-deprecated-lambda.md`, the `datetime.utcnow()` DeprecationWarning on python3.12 Lambda) —
+  neither logged by any prior cycle. **Verified both this cycle rather than assuming clean, per the standing
+  "verify, don't just log" precedent (D17/D19/D31):**
+  - **Article 24 — clean.** Its date claim (IMDSv1 blocked by default on new EC2 launches since 2025-12-31) matches
+    `rules/public/deprecations.yml`'s already-verified "IMDSv1 Enforcement" entry exactly (`date: "2025-12-31"`).
+    Its canonical (`eolkits.com/migrate/imdsv1-enforcement/`) resolves: `slugify("IMDSv1 Enforcement")` in
+    `apps/web/build.py` (`.lower().replace(" ","-")`) produces exactly `imdsv1-enforcement`, and `build_migrate_index`
+    generates a `migrate/{slug}/` page for every `deprecations.yml` entry — not an orphan target. Grepped all 25
+    articles for "IMDSv2"/"169.254.169.254" — article 24 is the only hit, so non-duplicative. No specific
+    unverifiable citations (issue numbers, named-source claims) in this one — only a soft, unattributed "AWS started
+    shipping... by late 2024" trend statement, which doesn't carry the same fabrication risk as a specific citation.
+  - **Article 25 — found a real problem: two sentences made specific, unverifiable factual claims that go beyond
+    what `fixes.yml`'s own `datetime-utcnow-deprecated` entry (source: `docs.python.org/3/whatsnew/3.12.html`)
+    supports.** The article asserted botocore's internal `utcnow()` calls were "tracked across botocore versions
+    (boto/botocore#3038, #3088, #3201, #3374)" — four specific GitHub issue numbers this jail cannot verify exist or
+    say what's claimed, with WebFetch down — and that "AWS has shipped patches for these across botocore releases"
+    and that AWS Lambda Powertools "fixed its own internal `utcnow()` calls," both specific claims about
+    already-completed upstream fixes that no repo-local source confirms. This is exactly the failure mode
+    hard-constraint-5 and §2.5 exist to prevent (a fabricated-or-unverifiable specific citation looks more credible
+    than a vague one, which makes it worse if wrong) — and unlike D31's article-23 case (a padding-adjacent
+    duplicate but factually sourced from already-verified data), this is a genuine unverified-claim risk, not just a
+    non-duplication judgment call.
+- **Shipped: rewrote the two risky passages in article 25** (`launch/distribution/devto/25-datetime-utcnow-deprecated-
+  lambda.md`) to keep the parts that are true and useful — botocore is a common source of the warning even when the
+  caller's own code has no `utcnow()` calls, and upgrading boto3/botocore/Powertools is the right first move — while
+  dropping the specific issue numbers and the "AWS has shipped patches" / "the library fixed its own calls" assertions
+  that this jail cannot verify. The generic upgrade advice and the naive-vs-aware datetime explanation (a
+  well-established, non-date-dependent Python fact) were left untouched — no new external fact-checking needed,
+  consistent with the no-fetch-cycle rule. Did not revert the whole article or the commit — same precedent as D31:
+  the rest of the piece is accurate and useful, and it may already be live via the box's dev.to auto-publish cron
+  (this jail has no dev.to account access to check or edit a published post), so a scoped correction in the repo
+  (visible to any future reader of the source, and picked up if the article is ever re-synced) is the right-sized fix.
+- **Verified before logging as shipped (§9):** ran `publish_devto.py`'s own `_parse()` against all 25 articles (title/
+  canonical_url present, tags ≤4, zero parse errors, zero duplicate titles/canonicals). Ran a fresh grep for the
+  D44/D45 stale-tense bug class using the phrase variants D45 queued for this cycle ("upcoming," "coming soon,"
+  "days away," "counts down") — found only the one already-reviewed, already-correctly-flagged exception in
+  `launch/show-hn-final.md` (its own explicit "STALE — do not use as-is" banner from D44). No new instance — this
+  is the first cycle since D44 that the broadened-grep method has come up clean, suggesting that specific bug class
+  may finally be exhausted (not concluding that for certain — see next-candidate note below).
+- **Regression check:** `kits/lambda-lifeline` `npm test` 24/24 green (jail-local venv/npm, cleaned up after use).
+  Confirmed via grep the changed file (`launch/distribution/devto/25-...md`) isn't consumed by `apps/web/build.py`
+  or any build/test step (source content only) — no rebuild needed.
+- **Ship-law check:** externally visible ✅ — the corrected article lands on the public repo the moment this pushes;
+  visible on GitHub immediately, and closes a live truth-integrity gap in whatever the box's dev.to cron already
+  published (or is about to).
+- **Day-36 state:** $0 collected, $4,000 gap, unchanged since Day 0. HUMAN_QUEUE core batch (HQ-1′/2′, HQ-5b item 0,
+  HQ-4, HQ-6, HQ-7, HQ-10) remains the only lever that can move the gap materially — 36 days running with zero
+  observed action on any of it.
+- **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked: (1) the
+  phrase-variant stale-tense sweep came up clean this cycle for the first time since D44 started that method —
+  worth one more variant pass before treating it as exhausted, and (2) this cycle's real finding (verify *content*
+  claims in any newly-found separate-process article, not just its dates/canonical/duplication) is a checklist gap
+  worth carrying forward explicitly: every future "found unlogged, verify" pass should also scan for specific
+  external citations (issue numbers, named releases, "X has shipped/fixed Y" claims) that no repo-local source
+  supports, not just date accuracy and non-duplication.

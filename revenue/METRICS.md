@@ -407,4 +407,15 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-08-17 | **dev.to articles staged on branch: 24** (unchanged — no new-fetch content candidate this cycle) | `launch/distribution/devto/01`–`24`. |
 | 2026-08-17 | **Day 35 — 7 days past the original 28-day window (closed 08-10).** HUMAN_QUEUE core batch still fully unactioned, 35 days running; no observed buyer signal. Third consecutive cycle proving the truth-sweep isn't exhausted — this time by widening the grep pattern to a label-phrase variant, not just re-checking known locations. | — |
 
+## Cycle 2026-08-18 (cloud routine) — Day 36
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-18 | **WebFetch re-tested — 35th consecutive cycle blocked** | `WebFetch` on `https://example.com` (neutral control) → `EGRESS_BLOCKED`. Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis. |
+| 2026-08-18 | **Found + verified (unlogged until now): a separate process pushed dev.to articles 24 and 25** (`b2902ff` IMDSv2-401 triage, `15dd3c1` datetime.utcnow() deprecation) | Article 24 checked clean (date matches `deprecations.yml`, canonical resolves, non-duplicative). Article 25 had 2 unverifiable specific claims (4 GitHub issue numbers + an "AWS has shipped patches" assertion) not supported by any repo-local source — see DECISIONS D46. |
+| 2026-08-18 | **Shipped: corrected article 25's 2 risky passages** to drop the unverifiable specific citations while keeping the true, useful content (botocore as a common warning source, the upgrade fix, naive-vs-aware datetime explanation) | 1 file changed: `launch/distribution/devto/25-datetime-utcnow-deprecated-lambda.md`. |
+| 2026-08-18 | **Regression check:** `publish_devto.py`'s own `_parse()` clean on all 25 articles (zero dup titles/canonicals, tags ≤4); fresh phrase-variant grep ("upcoming," "coming soon," "days away," "counts down") for D44/D45's stale-tense bug class found nothing new; `kits/lambda-lifeline` `npm test` 24/24 green | Ran directly this cycle, jail-local venv/npm cleaned up after use. |
+| 2026-08-18 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a truth/citation-integrity fix on one dev.to article source only. |
+| 2026-08-18 | **dev.to articles staged on branch: 25** (was 23 as of 08-17's own log; articles 24/25 found + verified this cycle, pushed by a separate process 08-17/08-18) | `launch/distribution/devto/01`–`25`. |
+| 2026-08-18 | **Day 36 — 8 days past the original 28-day window (closed 08-10).** HUMAN_QUEUE core batch still fully unactioned, 36 days running; no observed buyer signal. | — |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

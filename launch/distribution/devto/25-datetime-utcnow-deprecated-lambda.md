@@ -53,9 +53,9 @@ Run from your Lambda project root (or unzipped deployment package) to surface ev
 
 ## Why the warning fires from boto3 even if you didn't write utcnow()
 
-This is the part that surprises most developers. **botocore** — the low-level AWS SDK library that boto3 wraps — called `datetime.utcnow()` internally in several places, most visibly in its request-signing code (`auth.py`). Multiple GitHub issues tracked this across botocore versions (boto/botocore#3038, #3088, #3201, #3374).
+This is the part that surprises most developers. **botocore** — the low-level AWS SDK library that boto3 wraps — has historically called `datetime.utcnow()` internally in places like its request-signing code. If your own code has no `utcnow()` calls at all but the warning still shows up, a bundled dependency (botocore, or another SDK/library in your deployment package) is almost always the source.
 
-AWS has shipped patches for these across botocore releases. The fastest fix is to upgrade:
+The fastest way to rule that out — and to pick up any upstream fix that's already landed — is to upgrade to the latest release:
 
 ```bash
 pip install --upgrade boto3 botocore
@@ -63,7 +63,7 @@ pip install --upgrade boto3 botocore
 
 Lambda's managed runtime bundles a pinned boto3/botocore. To get the newer version, include boto3 in your deployment package or a Lambda layer — it takes precedence over the bundled copy.
 
-**If you use AWS Lambda Powertools**, the library fixed its own internal `utcnow()` calls. Upgrade to get the clean version:
+**If you use AWS Lambda Powertools** or any other SDK-adjacent library, the same logic applies — upgrade it to the latest release before assuming the warning comes from your own code:
 
 ```bash
 pip install --upgrade aws-lambda-powertools

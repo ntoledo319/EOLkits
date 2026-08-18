@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 35 (2026-08-17) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 36 (2026-08-18) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -1135,3 +1135,21 @@ Clicks with no buys ⇒ a conversion/trust problem to fix, not a traffic problem
     (broadening the search terms, not just re-visiting known locations) has now found a real bug two cycles running
     (D44's data-field layer, D45's label-phrase variant). If that also comes up clean, fall back to the one open
     named item: `launch/DISTRIBUTION-KIT.md`'s flagged-but-not-actioned "beat the deadline" → Q1-2027 reframe (D44).
+
+## Cycle 2026-08-18 (cloud routine) — Day 36
+138. **WebFetch re-tested — 35th consecutive cycle blocked** (`EGRESS_BLOCKED` on `https://example.com`, neutral
+    control). Consistent with D17's root cause, no re-diagnosis — went straight to the no-new-fetch path.
+139. **The queued phrase-variant grep ("upcoming," "coming soon," "days away," "counts down") came up clean** —
+    first cycle since D44 that this sweep method found nothing new, after finding a real bug two cycles running.
+140. **Found + verified a real issue instead: a separate process's unlogged dev.to articles 24 and 25 (pushed
+    08-17/08-18) — article 24 checked clean, article 25 had 2 unverifiable specific claims (4 GitHub issue numbers +
+    an "AWS has shipped patches" assertion) with no repo-local source support.** Fixed article 25 in place — kept
+    the true/useful content, dropped the citations this jail can't verify with WebFetch down. See DECISIONS D46.
+141. **Regression check:** `publish_devto.py`'s own `_parse()` clean on all 25 articles; `kits/lambda-lifeline`
+    `npm test` 24/24 green (jail-local venv/npm, cleaned up after use).
+142. **Day-36 state:** $0 collected, $4,000 gap, unchanged since Day 0. HUMAN_QUEUE core batch (HQ-1′/2′, HQ-5b
+    item 0, HQ-4, HQ-6, HQ-7, HQ-10) remains the only lever that can move the gap materially — 36 days running with
+    zero observed action on any of it.
+143. **Next candidate for the next cycle:** re-check WebFetch first. If still blocked and a fresh full-content sweep
+    (dates/tense, and now also unverifiable-citation checks per D46) comes up clean, the one open named item
+    remains `launch/DISTRIBUTION-KIT.md`'s flagged-but-not-actioned "beat the deadline" → Q1-2027 reframe (D44).
