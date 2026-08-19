@@ -13,7 +13,7 @@ Hi {maintainer},
 I was scanning public infra-as-code for AWS end-of-life exposure and {repo} came up:
 
   {finding}            e.g. ".github/workflows/deploy.yml and packer/al2.json still build on
-                       Amazon Linux 2, which is EOL Jun 30, 2026 — no patches/AMIs after."
+                       Amazon Linux 2, which has been EOL since Jun 30, 2026 — no patches/AMIs."
 
 Not selling you anything — just didn't want it to bite you in prod. The specific fix:
 

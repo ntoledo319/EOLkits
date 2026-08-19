@@ -1,8 +1,11 @@
 # EOLkits — Send-Ready Distribution Kit
 
 _Updated 2026-06-22 for the new conversion site (free `/scan`, `/audit` with guarantee + sample,
-`/fix` corpus) and the **Amazon Linux 2 EOL on Jun 30 — 8 days out**. This supersedes the stale
-`show-hn-final.md` / `social.md` / `outreach.md` drafts._
+`/fix` corpus). **Reframed 2026-08-19: AL2's Jun 30, 2026 EOL is now ~7 weeks past — every AL2
+angle below uses the post-deadline "you're unpatched now" framing, not the original pre-deadline
+countdown.** The next real calendar catalyst is the Q1-2027 Lambda update-blocking cluster
+(block-create Feb 1 2027 / block-update Mar 3 2027 — nodejs16/18/20, python3.8/3.9/3.10). This
+supersedes the stale `show-hn-final.md` / `social.md` / `outreach.md` drafts._
 
 > **Division of labor.** Claude built/updated every asset below and can find outreach targets via
 > GitHub code search. **Posting and emailing is the access-gated step — it runs from your accounts.**
@@ -13,7 +16,7 @@ _Updated 2026-06-22 for the new conversion site (free `/scan`, `/audit` with gua
 
 ---
 
-## Sequencing (the next 8 days — AL2 deadline is the catalyst)
+## Sequencing (evergreen — AL2 is already past-deadline; Q1-2027 is the next catalyst)
 
 | Day | Action | Channel |
 |---|---|---|
@@ -21,9 +24,9 @@ _Updated 2026-06-22 for the new conversion site (free `/scan`, `/audit` with gua
 | +0 | Post the free scanner to **r/aws** + **r/devops** (value-first, below) | Reddit |
 | +1 | **Show HN** (morning ET window) | HN |
 | +1 | X thread + LinkedIn (same morning) | Social |
-| +1–7 | 5–10 personalized outreach touches/day to repos still on AL2 | Email/GH |
-| +1–7 | Answer real SO / r/aws / re:Post questions matching the `/fix` corpus | Communities |
-| Jun 30 | Deadline-day push; then flip copy to "still on AL2? you're now unpatched" | All |
+| +1–7 | 5–10 personalized outreach touches/day to repos still on AL2 or facing the Q1-2027 cliff | Email/GH |
+| ongoing | Answer real SO / r/aws / re:Post questions matching the `/fix` corpus | Communities |
+| ongoing | Lead with "still on AL2? you're running unpatched now" — AL2's deadline passed 2026-06-30 | All |
 
 ---
 
@@ -31,7 +34,7 @@ _Updated 2026-06-22 for the new conversion site (free `/scan`, `/audit` with gua
 
 **Title**
 ```
-Show HN: EOLkits – free scanner + CLIs for AWS runtime EOLs (Amazon Linux 2 ends Jun 30)
+Show HN: EOLkits – free scanner + CLIs for AWS runtime EOLs (Amazon Linux 2 is EOL, unpatched now)
 ```
 **URL:** `https://github.com/ntoledo319/EOLkits` (HN prefers source). If Show HN is still
 karma-gated on the account, post as a normal submission with the same body, or lead with Reddit
@@ -89,7 +92,7 @@ mention, one reply per thread. Don't seed or pre-stake. After posting, append to
 
 ## 2. Reddit (value-first — the free scanner is the hook, not the paid tiers)
 
-**r/aws** — title: `Amazon Linux 2 is EOL Jun 30 — free browser tool to see what in your stack breaks`
+**r/aws** — title: `Amazon Linux 2 has been EOL since Jun 30 — free browser tool to see what in your stack breaks`
 ```
 AL2 reached end-of-life Jun 30 (no more patches/AMIs). I got tired of grepping for AL2 AMIs and
 deprecated Lambda runtimes by hand, so I built a scanner that runs entirely in your browser — drop
@@ -151,11 +154,12 @@ ImageId amzn2 path:*.yaml
 ```
 **Template (fill the bracket with something true and specific):**
 ```
-Subject: [repo] still targets [nodejs18.x / AL2] — heads-up before the AWS cutoff
+Subject: [repo] still targets [nodejs18.x / AL2] — heads-up on the AWS runtime EOLs
 
 Hi [name] — noticed [repo]'s [serverless.yml / launch template] still uses [nodejs18.x], which AWS
-blocks updates on at the Q1-2027 cliff (AL2 itself is EOL Jun 30). I ran a free scanner over the
-public config and it flagged [N] spots: [eolkits.com/scan]. The MIT CLI will codemod most of it if
+blocks updates on at the Q1-2027 cliff (Feb 1 2027 create / Mar 3 2027 update), and/or AL2, which
+has been EOL — unpatched, no new AMIs — since Jun 30, 2026. I ran a free scanner over the public
+config and it flagged [N] spots: [eolkits.com/scan]. The MIT CLI will codemod most of it if
 useful. No ask — just didn't want it to bite you in prod. Happy to share the full finding list.
 ```
 
@@ -169,8 +173,10 @@ detail" second reference. Max ~3/day. Value first, every time.
 
 ---
 
-## Post-deadline pivot (Jul 1+)
-The moment Jun 30 passes, swap the AL2 framing from "beat the deadline" to **"still on AL2? you're
-now running unpatched in prod — here's the cleanup path."** Pain *increases* after the deadline;
+## Post-deadline framing (in effect since Jul 1, 2026 — AL2's Jun 30 deadline has passed)
+Every AL2 angle above already uses this framing: not "beat the deadline" but **"still on AL2?
+you're running unpatched in prod — here's the cleanup path."** Pain *increases* after the deadline;
 the demand doesn't vanish, it changes shape. `/migrate/amazon-linux-2-eol/` and the deadline-reminder
-capture keep working.
+capture keep working. The next deadline-driven catalyst to lead with is the Q1-2027 Lambda
+update-blocking cluster (Feb 1 / Mar 3, 2027) — pre-deadline urgency copy is legitimate for that
+one until it, too, passes.

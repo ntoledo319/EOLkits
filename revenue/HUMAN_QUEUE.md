@@ -426,6 +426,16 @@ Price, ~2 min), HQ-7 (`vsce publish`), HQ-10 (GitHub Action listing), HQ-4 (GitH
 org_license + drift_watch code fixes to production).** 36 days since Day 0 (07-13), 8 days past the original 28-day
 window close (08-10); at $0 collected, the gap math is unchanged.
 
+## Cycle 2026-08-19 (cloud routine) — Day 37
+No new items added — this cycle's ship (reframing `launch/DISTRIBUTION-KIT.md` + `launch/distribution/email/
+template.md` from pre-AL2-deadline to honest post-deadline copy, see DECISIONS D47) was fully autonomous, in-jail,
+$0, no human contact needed. WebFetch outage confirmed persistent a 36th consecutive cycle. **Still the highest-ROI
+owner clicks, unactioned as of this cycle: HQ-1′/2′ (Gumroad, ~10 min), HQ-5b item 0 (deactivate the `drift_watch`
+Stripe Price, ~2 min), HQ-7 (`vsce publish`), HQ-10 (GitHub Action listing), HQ-4 (GitHub App, which also carries
+the org_license + drift_watch code fixes to production).** 37 days since Day 0 (07-13), 9 days past the original
+28-day window close (08-10); at $0 collected, the gap math is unchanged — none of the core-batch items show any
+observed signal of having been actioned yet.
+
 ## Running total (post-pivot)
 Everything here is now **one-time setup, no ongoing owner time.** Core ≈ **30 min** (HQ-1′+2′,4,5,6). The COMPOUNDING
 batch below is now the **primary growth engine** (outreach is off the table), so those publishes matter more than

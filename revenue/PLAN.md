@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 36 (2026-08-18) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 37 (2026-08-19) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -1153,3 +1153,35 @@ Clicks with no buys ⇒ a conversion/trust problem to fix, not a traffic problem
 143. **Next candidate for the next cycle:** re-check WebFetch first. If still blocked and a fresh full-content sweep
     (dates/tense, and now also unverifiable-citation checks per D46) comes up clean, the one open named item
     remains `launch/DISTRIBUTION-KIT.md`'s flagged-but-not-actioned "beat the deadline" → Q1-2027 reframe (D44).
+
+## Cycle 2026-08-19 (cloud routine) — Day 37
+144. **WebFetch re-tested via the tool itself — 36th consecutive cycle blocked** (`EGRESS_BLOCKED` on
+    `https://example.com`, neutral control). Consistent with D17's root cause, no re-diagnosis — went straight to
+    the no-new-fetch path.
+145. **Closed the one open named item: `launch/DISTRIBUTION-KIT.md`'s flagged-but-not-actioned "beat the deadline" →
+    Q1-2027 reframe (D44).** The whole doc was still structurally written for the pre-AL2-deadline window (a
+    "next 8 days" sequencing table, a Show HN title reading "Amazon Linux 2 ends Jun 30" as an upcoming date, an
+    r/aws title in present-tense "is EOL Jun 30," a "Post-deadline pivot (Jul 1+)" section describing the pivot as
+    a future action) even though AL2's Jun 30, 2026 deadline is now ~7 weeks past — D44 had already fixed 3
+    body-copy tense instances in this file but left the doc's overall framing (headers, table, titles, the pivot
+    section itself) untouched. Fixed: header note reframed around the post-deadline reality + the real next
+    catalyst (Q1-2027 Lambda block cluster, Feb 1/Mar 3 2027); sequencing table changed from day-countdown to
+    evergreen; Show HN + r/aws titles corrected to past tense; cold-outreach email template's Q1-2027/AL2 line
+    updated to lead with both real catalysts; "Post-deadline pivot (Jul 1+)" renamed "Post-deadline framing (in
+    effect since Jul 1, 2026)" so it reads as the doc's current state, not a future instruction to apply someday.
+146. **Same-cycle broader grep found one more instance of the same bug in a different live template:**
+    `launch/distribution/email/template.md`'s cold-outreach example finding read "...which is EOL Jun 30, 2026 —
+    no patches/AMIs after," present-tense-framing an already-passed date inside reusable example copy. Fixed to
+    "has been EOL since Jun 30, 2026 — no patches/AMIs." Deliberately left `AUTOPSY-AND-14-DAY-REVENUE-PLAN.md`'s
+    "9 days away" untouched — a dated historical planning snapshot, same category D45 already established as
+    correctly left alone.
+147. **Regression check:** confirmed via grep neither edited file (`launch/DISTRIBUTION-KIT.md`,
+    `launch/distribution/email/template.md`) is consumed by `apps/web/build.py` — no site rebuild needed;
+    `kits/lambda-lifeline` `npm test` 24/24 green (no kit files touched, run as the standing regression check).
+148. **Day-37 state:** $0 collected, $4,000 gap, unchanged since Day 0. HUMAN_QUEUE core batch (HQ-1′/2′, HQ-5b
+    item 0, HQ-4, HQ-6, HQ-7, HQ-10) remains the only lever that can move the gap materially — 37 days running with
+    zero observed action on any of it.
+149. **Next candidate for the next cycle:** re-check WebFetch first. With the DISTRIBUTION-KIT.md reframe now
+    closed, there is no other specifically-named open item left in the DECISIONS backlog. If a fresh full-content
+    sweep (dates/tense, unverifiable citations) also comes up clean, the next genuinely new lever most likely
+    needs working WebFetch, new `fixes.yml`/`deprecations.yml` entries, or the owner's core batch.

@@ -61,6 +61,13 @@ it is not: `launch/distribution/README.md` already documents that Hashnode's pub
 2026-05-13, so it correctly stays unused. No new frame identified this cycle; the deeper-sweep truth fix (D29) was
 higher-leverage than a third content angle.
 
+## Reviewed (no change) — 2026-08-19 (Day 37)
+Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship (reframing
+`launch/DISTRIBUTION-KIT.md`'s pre-deadline sequencing/titles + `launch/distribution/email/template.md`'s example
+finding to the honest post-AL2-deadline state, see DECISIONS D47) is a truth/framing fix on owner-facing
+distribution-copy assets, not a frame re-evaluation. Frame #1′ (Gumroad) and frame #3 (VS Code/Open VSX placement)
+remain owner-gated; frame #7 (dev.to backlinks) stays at 25 articles with the per-slug/synthesis backlog exhausted.
+
 ## Reviewed (no change) — 2026-08-15 (Day 33)
 Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ships (a stale-EOL-framing truth
 fix on 2 SEO landing pages, and a negative-result endpoint-trace sweep for a repeat of D42's checkout-bug class) are

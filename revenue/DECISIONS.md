@@ -2062,3 +2062,66 @@ optimistic projections.
   worth carrying forward explicitly: every future "found unlogged, verify" pass should also scan for specific
   external citations (issue numbers, named releases, "X has shipped/fixed Y" claims) that no repo-local source
   supports, not just date accuracy and non-duplication.
+
+## 2026-08-19 · Cycle (Day 37)
+
+### D47 — Closed the one open named item: `launch/DISTRIBUTION-KIT.md`'s pre-deadline framing was never actually
+### flipped to post-deadline, 50 days after the deadline it was framed around
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `0811b06`
+  (D46's article-25-fix commit); no conflicts, nothing else had pushed since 08-18.
+- **Re-tested WebFetch before picking a task, per the standing rule:** `WebFetch` on `https://example.com` →
+  `EGRESS_BLOCKED` (36th consecutive cycle: 07-15, -16, -18 through 08-19; no 07-17 run recorded). Consistent with
+  D17's root cause (a standing egress-policy denial) — no re-diagnosis, went straight to the no-new-fetch path.
+- **Picked up the one specifically-named open item carried forward since D44 (2026-08-16):** `launch/
+  DISTRIBUTION-KIT.md` flagged a "beat the deadline" → Q1-2027 reframe as needed but never actioned. Read the
+  full file this cycle (not just the 3 spots D44 already fixed) and found the doc's *overall structure*, not just
+  scattered sentences, was still written for the pre-deadline window: a header calling AL2 "8 days out" (written
+  2026-06-22, now ~50 days past the deadline it counts toward), a "Sequencing (the next 8 days — AL2 deadline is
+  the catalyst)" table with day-numbered rows culminating in "Jun 30 | Deadline-day push," a Show HN title reading
+  "Amazon Linux 2 ends Jun 30" (future tense for a passed date), an r/aws title "is EOL Jun 30" (present tense,
+  same bug), and — the clearest instance — a section literally titled "Post-deadline pivot (Jul 1+)" describing
+  the pivot to post-deadline framing as something that still needs to happen "the moment Jun 30 passes," when Jun
+  30 passed 50 days ago and D44 had *already* applied the pivot's target phrasing to 3 body-copy spots without
+  ever updating the section that describes the pivot itself, or the doc's framing around it. This is the same bug
+  class D40/D43/D44/D45 kept finding (present/future tense for a passed date) but at the level of document
+  *structure and instructions*, not prose — a genuinely different failure mode from anything a sentence-level grep
+  sweep would catch, which is why it survived 4 prior stale-tense sweeps that all found and fixed the same file's
+  prose without ever reading the doc's own framing top-to-bottom.
+- **Shipped (`launch/DISTRIBUTION-KIT.md`):** header note reframed to state the post-deadline reality plus the
+  real next catalyst (Q1-2027 Lambda block cluster, Feb 1/Mar 3 2027 — sourced from already-verified
+  `deprecations.yml` data, no new fetch); sequencing table's day-countdown framing replaced with an evergreen
+  cadence, the "Jun 30 | Deadline-day push" row replaced with an "ongoing | lead with unpatched-now" row; Show HN
+  title corrected to "Amazon Linux 2 is EOL, unpatched now"; r/aws title corrected to "has been EOL since Jun 30";
+  the cold-outreach email template's inline claim updated to cite both real catalysts (Q1-2027 dates + AL2's
+  actual EOL date) instead of implying AL2's EOL was still upcoming; "Post-deadline pivot (Jul 1+)" renamed
+  "Post-deadline framing (in effect since Jul 1, 2026)" and reworded from an instruction-to-apply-someday into a
+  statement of the doc's current, already-applied state — with a pointer that pre-deadline urgency copy is
+  legitimate again for the Q1-2027 cluster until *that* passes.
+- **Same-cycle broadened grep (phrase variants: "days away," "coming soon," "is EOL Jun 30," "ends Jun 30,"
+  "reaches end of life," "will be blocked," across `.md/.py/.html/.yml/.ts`) found one more live instance in a
+  different file:** `launch/distribution/email/template.md`, a *generic reusable* cold-outreach template (not a
+  one-time campaign draft), had an example `{finding}` reading "...Amazon Linux 2, which is EOL Jun 30, 2026 — no
+  patches/AMIs after" — present-tense framing of a now-passed date inside example copy meant to model what a
+  *current* finding should sound like whenever the owner uses this template. **Shipped:** corrected to "has been
+  EOL since Jun 30, 2026 — no patches/AMIs."
+- **Deliberately left untouched (same convention as D45):** `AUTOPSY-AND-14-DAY-REVENUE-PLAN.md`'s "9 days away" —
+  a dated historical planning snapshot, not live copy; rewriting it would falsify the historical record it's
+  meant to preserve. `README.md`'s Drift Watch "(coming soon)" and `kits/al2023-gate/README.md`'s PyPI "(coming
+  soon)" — both accurately describe current state (checkout closed per D42; PyPI publish still owner-gated per
+  HQ-9), not stale claims.
+- **Regression check:** confirmed via grep that neither edited file (`launch/DISTRIBUTION-KIT.md`,
+  `launch/distribution/email/template.md`) is referenced by `apps/web/build.py` — no site rebuild needed, both are
+  owner-facing copy-paste assets outside the build pipeline. `kits/lambda-lifeline` `npm test` 24/24 green
+  (jail-local venv/npm, cleaned up after use) as the standing regression check since no kit source was touched.
+- **Ship-law check:** externally visible ✅ — both files land on the public `ntoledo319/EOLkits` repo the moment
+  this pushes. Not a new dollar-generating surface, but it closes the last specifically-named open item in the
+  DECISIONS backlog and de-risks the owner's next actual use of this kit (pasting these templates without a
+  silent "still counting down to Jun 30" falsehood baked in, 50 days after the fact).
+- **Day-37 state:** $0 collected, $4,000 gap, unchanged since Day 0. HUMAN_QUEUE core batch (HQ-1′/2′, HQ-5b item
+  0, HQ-4, HQ-6, HQ-7, HQ-10) remains the only lever that can move the gap materially — 37 days running with zero
+  observed action on any of it.
+- **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. With DISTRIBUTION-KIT.md's
+  reframe closed, there is no other specifically-named open item left in the DECISIONS backlog. If a fresh
+  full-content sweep (dates/tense at both the prose *and* document-structure level, per this cycle's finding, plus
+  unverifiable-citation checks per D46) also comes up clean, the next genuinely new lever most likely needs
+  working WebFetch, new `fixes.yml`/`deprecations.yml` entries, or the owner's core batch.

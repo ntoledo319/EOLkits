@@ -418,4 +418,15 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-08-18 | **dev.to articles staged on branch: 25** (was 23 as of 08-17's own log; articles 24/25 found + verified this cycle, pushed by a separate process 08-17/08-18) | `launch/distribution/devto/01`–`25`. |
 | 2026-08-18 | **Day 36 — 8 days past the original 28-day window (closed 08-10).** HUMAN_QUEUE core batch still fully unactioned, 36 days running; no observed buyer signal. | — |
 
+## Cycle 2026-08-19 (cloud routine) — Day 37
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-19 | **WebFetch re-tested — 36th consecutive cycle blocked** | `WebFetch` on `https://example.com` (neutral control) → `EGRESS_BLOCKED`. Consistent with D17's root cause — no re-diagnosis, went straight to the no-new-fetch path. |
+| 2026-08-19 | **Truth/harm sweep found + fixed the one open named item plus one new instance of the same bug class** | `launch/DISTRIBUTION-KIT.md` was still structurally written for the pre-AL2-deadline window (day-countdown sequencing table, future-tense Show HN/r/aws titles, a "Post-deadline pivot (Jul 1+)" section phrased as a not-yet-applied future action) despite AL2's Jun 30 2026 deadline being ~7 weeks past. `launch/distribution/email/template.md`'s cold-outreach example finding had the same present-tense-for-a-past-date bug. See DECISIONS D47. |
+| 2026-08-19 | **Shipped: reframed both files to the honest post-deadline state** | 2 files changed: `launch/DISTRIBUTION-KIT.md` (header, sequencing table, Show HN title, r/aws title, cold-outreach email template, pivot section renamed/reworded), `launch/distribution/email/template.md` (example finding tense). |
+| 2026-08-19 | **Regression check:** confirmed via grep neither file is consumed by `apps/web/build.py`; `kits/lambda-lifeline` `npm test` 24/24 green | Ran directly this cycle. |
+| 2026-08-19 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a truth/framing fix on 2 owner-facing distribution copy files. |
+| 2026-08-19 | **dev.to articles staged on branch: 25** (unchanged from 08-18 — no new article this cycle) | `launch/distribution/devto/01`–`25`. |
+| 2026-08-19 | **Day 37 — 9 days past the original 28-day window (closed 08-10).** HUMAN_QUEUE core batch still fully unactioned, 37 days running; no observed buyer signal. The one specifically-named open item from prior cycles' DECISIONS is now closed — next cycle's truth sweep starts from a clean backlog. | — |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

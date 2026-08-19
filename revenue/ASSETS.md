@@ -224,6 +224,13 @@ runtime is deprecated but not blocked until the same delayed Feb 1/Mar 3 2027 da
 usual commit-diff check — see DECISIONS D29 for the process note. Also shipped dev.to article 22 (symptom-first
 "why did my deploy break with no code changes" framing, 22nd `launch/distribution/` article).
 
+## 2026-08-19: no new codebase or SKU — a truth/framing fix on 2 owner-facing distribution copy files
+`launch/DISTRIBUTION-KIT.md` and `launch/distribution/email/template.md` were still structurally framed for the
+pre-AL2-deadline window (day-countdown sequencing, future-tense titles/examples, a "pivot" section describing
+post-deadline framing as not-yet-applied) despite the Jun 30, 2026 deadline being ~7 weeks past. Reframed to the
+honest current state; the real next calendar catalyst (Q1-2027 Lambda block cluster) is now the lead. See
+DECISIONS D47. No asset/SKU/fulfillment-path change — product ladder table above is still current.
+
 ## 2026-08-16: no new codebase or SKU — a truth/harm fix in the shared `deprecations.yml` data layer
 D44: fixed 2 stale present/future-tense `description:` fields in `rules/public/deprecations.yml` (consumed by
 `apps/web`'s `/migrate/` pages, RSS feed, and ICS calendar), plus the same tense bug in 6 more files (`README.md`,
