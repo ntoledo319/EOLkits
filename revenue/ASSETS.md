@@ -231,6 +231,15 @@ post-deadline framing as not-yet-applied) despite the Jun 30, 2026 deadline bein
 honest current state; the real next calendar catalyst (Q1-2027 Lambda block cluster) is now the lead. See
 DECISIONS D47. No asset/SKU/fulfillment-path change — product ladder table above is still current.
 
+## 2026-08-20: found + fixed 3 fabricated version numbers in `lambda-lifeline`'s native-binary ABI audit data
+`kits/lambda-lifeline/src/deps/index.mjs`'s `NATIVE_PACKAGES` table (last cross-checked 2026-04-28, per its own
+comment) — the data behind the kit's own-described paid capability and a live `audit` CLI command — had 3 of 17
+version pins that don't exist on the npm registry (`libpq: 2.0.0`, `argon2: 0.40.0`, `@napi-rs/snappy: 7.2.0`,
+the last against a package abandoned since 2021, before Node 22 existed). Fixed using the npm registry, which this
+cycle discovered is reachable through the egress proxy even though general WebFetch is not (D17's own root-cause
+note already said package registries are allowlisted — this is the first cycle to test and use that channel). See
+DECISIONS D48. No new codebase or SKU — product ladder table above is still current.
+
 ## 2026-08-16: no new codebase or SKU — a truth/harm fix in the shared `deprecations.yml` data layer
 D44: fixed 2 stale present/future-tense `description:` fields in `rules/public/deprecations.yml` (consumed by
 `apps/web`'s `/migrate/` pages, RSS feed, and ICS calendar), plus the same tense bug in 6 more files (`README.md`,

@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 37 (2026-08-19) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 38 (2026-08-20) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -1185,3 +1185,27 @@ Clicks with no buys ⇒ a conversion/trust problem to fix, not a traffic problem
     closed, there is no other specifically-named open item left in the DECISIONS backlog. If a fresh full-content
     sweep (dates/tense, unverifiable citations) also comes up clean, the next genuinely new lever most likely
     needs working WebFetch, new `fixes.yml`/`deprecations.yml` entries, or the owner's core batch.
+
+## Cycle 2026-08-20 (cloud routine) — Day 38
+150. **WebFetch re-tested — 37th consecutive cycle blocked** (`EGRESS_BLOCKED` on `https://example.com`). Per D17's
+    root cause, no re-diagnosis — but this cycle noticed the same root-cause note says package registries ARE
+    allowlisted, and tested that channel directly rather than assuming it's equally dead. It works: `curl` to
+    `registry.npmjs.org` and `pypi.org` both return real data through this proxy.
+151. **Used the registry channel to re-verify HQ-9's "PyPI/npm names still free" claim (still true, 37 days later)
+    and to audit `kits/lambda-lifeline`'s `NATIVE_PACKAGES` native-binary-ABI table** — the data behind the kit's
+    own "one paid capability" (ASSETS.md) and a live `audit` CLI command. Found 3 of 17 non-null version pins were
+    fabricated or nonexistent (`libpq: 2.0.0` — no 2.x ever published; `argon2: 0.40.0` — that exact string never
+    published; `@napi-rs/snappy: 7.2.0` — real package abandoned since 2021, before Node 22 existed). This is a
+    higher-severity class of bug than the last ~15 cycles' copy/tense fixes — wrong technical guidance in a paid
+    product's own output, not stale marketing prose. See DECISIONS D48.
+152. **Shipped: corrected all 3 entries** in `kits/lambda-lifeline/src/deps/index.mjs` using verified registry data
+    (real latest/nearest-real versions, `@napi-rs/snappy` reclassified DEAD matching the table's existing
+    convention for other abandoned packages). Checked the other 14 non-null entries — all real, no further bugs.
+153. **Regression check:** `kits/lambda-lifeline` `npm test` 24/24 green (jail-local, no persistent state).
+154. **Day-38 state:** $0 collected, $4,000 gap, unchanged since Day 0. HUMAN_QUEUE core batch (HQ-1′/2′, HQ-5b
+    item 0, HQ-4, HQ-6, HQ-7, HQ-10) remains the only lever that can move the gap materially — 38 days running with
+    zero observed action on any of it.
+155. **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked, extend
+    this cycle's newly-opened registry-verification channel to `kits/python-pivot`'s native-wheel compatibility
+    table (30+ packages, PyPI-checkable) and `kits/al2023-gate`'s AL2→AL2023 package-remap data — same bug shape,
+    same channel, not yet applied there.

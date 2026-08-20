@@ -21,11 +21,11 @@ export const NATIVE_PACKAGES = {
   'node-sass':        { minForNode22: null,     note: 'DEAD. Use `sass` (Dart Sass) instead — no native deps.' },
   'bufferutil':       { minForNode22: '4.0.8',  note: 'WebSocket utility native addon.' },
   'utf-8-validate':   { minForNode22: '6.0.4',  note: 'WebSocket utility native addon.' },
-  'libpq':            { minForNode22: '2.0.0',  note: 'PostgreSQL client. Prefer `pg-native` alternatives.' },
+  'libpq':            { minForNode22: '1.11.0', note: 'PostgreSQL client. No published 2.x exists as of this check — verify the latest release supports Node 22 prebuilds before pinning.' },
   'grpc':             { minForNode22: null,     note: 'DEAD. Migrate to `@grpc/grpc-js` (pure JS).' },
   '@grpc/grpc-js':    { minForNode22: '1.10.0', note: 'Pure JS, no native; just keep up to date.' },
   'sqlite3':          { minForNode22: '5.1.7',  note: 'SQLite3 bindings. Prebuilds available.' },
-  'argon2':           { minForNode22: '0.40.0', note: 'argon2 bindings.' },
+  'argon2':           { minForNode22: '0.40.1', note: 'argon2 bindings. "0.40.0" (exact) was never published — nearest real release is 0.40.1; verify the exact Node 22 prebuild floor in the package changelog before relying on this number.' },
   're2':              { minForNode22: '1.21.0', note: 'RE2 regex engine.' },
   'fibers':           { minForNode22: null,     note: 'DEAD since Node 16. Must remove.' },
   '@tensorflow/tfjs-node': { minForNode22: '4.20.0', note: 'TensorFlow native.' },
@@ -33,7 +33,7 @@ export const NATIVE_PACKAGES = {
   'zmq':              { minForNode22: null,     note: 'DEAD. Use `zeromq` instead.' },
   'zeromq':           { minForNode22: '6.1.2',  note: 'ZeroMQ bindings.' },
   'farmhash':         { minForNode22: '4.0.0',  note: 'Native hashing.' },
-  '@napi-rs/snappy':  { minForNode22: '7.2.0',  note: 'Snappy compression.' },
+  '@napi-rs/snappy':  { minForNode22: null,     note: 'DEAD. No release since 2021 (predates Node 22 by 3+ years) — no Node 22 prebuilds exist. Migrate to `snappy` or a pure-JS compressor.' },
   'heapdump':         { minForNode22: null,     note: 'DEAD. Use `node --heapsnapshot-signal` instead.' },
 };
 

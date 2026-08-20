@@ -2125,3 +2125,84 @@ optimistic projections.
   full-content sweep (dates/tense at both the prose *and* document-structure level, per this cycle's finding, plus
   unverifiable-citation checks per D46) also comes up clean, the next genuinely new lever most likely needs
   working WebFetch, new `fixes.yml`/`deprecations.yml` entries, or the owner's core batch.
+
+## 2026-08-20 · Cycle (Day 38)
+
+### D48 — Found + fixed 3 fabricated/wrong version numbers in `lambda-lifeline`'s native-binary ABI audit (a live paid-capability output, not copy) — using the npm registry, which is NOT behind the WebFetch egress block
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `d652007`
+  (D47's cycle commit); no conflicts, nothing else had pushed since 08-19.
+- **Re-tested WebFetch via the tool itself — 37th consecutive cycle blocked**: `EGRESS_BLOCKED` on
+  `https://example.com` (neutral control). Consistent with D17's root cause (a standing egress-policy denial) — no
+  re-diagnosis, went straight to the no-new-fetch path.
+- **New this cycle — realized the egress policy allowlists package registries (per D17's own root-cause finding:
+  "the policy allowlists package registries (npm, PyPI, crates, Go proxy) but denies general web"), and tested
+  whether that channel could verify a claim this jail had never checked before.** `curl` to
+  `registry.npmjs.org`/`pypi.org` succeeded (200s and structured JSON), confirming registry access genuinely works
+  even though `WebFetch`/general web does not — a distinct, previously-unused verification channel.
+- **First used it to re-confirm `launch/PUBLISH-CHECKLIST.md`'s HQ-9 claim ("names free") is still true 37 days
+  later:** `al2023-gate`/`python-pivot` on PyPI and `lambda-lifeline` on npm all still 404 (unclaimed) — no drift,
+  no fix needed, but a genuine re-verification of a specific factual claim in an owner-facing action item.
+- **Then applied the same channel to `kits/lambda-lifeline/src/deps/index.mjs`'s `NATIVE_PACKAGES` table** — the
+  data behind the kit's own-described "one paid capability" (ASSETS.md: "native-binary ABI audit... eliminated" as
+  a Node-22-upgrade failure mode) and a live `lambda-lifeline audit` CLI command a **paying Migration Pack customer
+  could actually run**. The table's own comment says it was "cross-checked 2026-04-28" — never re-verified since.
+  Checked all 17 non-null `minForNode22` version pins against the npm registry's actual version list. **Found 3
+  fabricated/nonexistent version numbers**, i.e. specific, actionable technical guidance the tool would give a
+  paying customer that cannot be satisfied because the target version was never published:
+  - `libpq: '2.0.0'` — the real package has never released a 2.x; latest is `1.11.0` (published 2026-05-07, so
+    actively maintained). A customer told "declared 1.x → need ≥ 2.0.0" would be chasing a version that will
+    likely never exist under current numbering.
+  - `argon2: '0.40.0'` — that **exact** string was never published (only `0.40.0-alpha.1/2/3` and `0.40.1/.2/.3`
+    exist). Almost certainly a rounding/typo of the real `0.40.1` (published 2024-02-22, ~2 months before Node 22's
+    April 2024 release — a plausible real cutoff), not a wildly fabricated number like the other two, but still not
+    a real, comparable version — `cmpVer('0.40.1', '0.40.0')` would report a customer on 0.40.0-alpha.3 as passing
+    a version that was never actually released as final.
+  - `@napi-rs/snappy: '7.2.0'` — the real package's total version history is `1.0.0`/`1.0.1`/`1.0.2`, last published
+    **2021-07-22** (per registry `time` metadata) — over 4 years before this cycle and **before Node 22 existed at
+    all** (released April 2024). The claimed `7.2.0` isn't just wrong, it's ~7 major versions past a package that
+    is almost certainly abandoned. Any customer with this dependency would see a permanent, unsatisfiable
+    "UPGRADE" flag from a tool that's supposed to tell them what to actually do.
+- **Shipped (`kits/lambda-lifeline/src/deps/index.mjs`):**
+  - `libpq` → `1.11.0` (the real latest, actively published), note updated to flag that no 2.x exists and the exact
+    Node-22 floor still needs changelog verification (honest about the limit of registry-only verification — I
+    can confirm *what exists*, not precisely *which version added Node 22 prebuilds*, without release notes, which
+    needs WebFetch, still blocked).
+  - `argon2` → `0.40.1` (the real nearest-existing release to the original claim, plausible timing-wise), same
+    changelog-verification caveat added to the note.
+  - `@napi-rs/snappy` → reclassified `minForNode22: null` (i.e. **DEAD**, the same status this table already uses
+    for `node-sass`/`grpc`/`zmq`/`fibers`/`heapdump`), note explains why (no release since 2021, predates Node 22)
+    and points to the `snappy` package or a pure-JS compressor as the real fix — consistent with how every other
+    `null`-status entry in this same table is worded.
+  - **Deliberately did not invent a new precise SemVer threshold for `libpq`/`argon2` beyond what the registry can
+    support** — per §2.5 ("verify every factual claim... before shipping"), asserting a specific patch version as
+    "exactly where Node 22 support began" would repeat the exact mistake this cycle just found, since the registry
+    JSON doesn't expose per-version prebuild/ABI-target metadata (only version existence + publish dates + engines
+    field) — that needs release notes or GitHub Releases, which WebFetch would reach and is still blocked. Used the
+    honest verifiable ceiling (latest real version) plus an explicit "verify before relying on this" note instead.
+- **Checked the other 14 non-null entries in the same table against the registry — all real, no further bugs
+  found** (sharp 0.33.0, bcrypt 5.1.1, better-sqlite3 11.0.0, canvas 2.11.2, node-gyp 10.0.0, bufferutil 4.0.8,
+  utf-8-validate 6.0.4, @grpc/grpc-js 1.10.0, sqlite3 5.1.7, re2 1.21.0, @tensorflow/tfjs-node 4.20.0,
+  sodium-native 4.3.0, zeromq 6.1.2, farmhash 4.0.0 — every version pin exists in the registry).
+- **Regression check:** `kits/lambda-lifeline` `npm test` 24/24 green (no test asserts on the specific version
+  strings changed, confirmed via grep first). `apps/web`/`apps/grace-api` untouched this cycle (no file in either
+  changed) — not re-run.
+- **Ship-law check:** externally visible ✅ — the corrected `NATIVE_PACKAGES` table ships to anyone who clones the
+  public repo or (once HQ-9 is actioned) installs `lambda-lifeline` from npm and runs `audit`; this is a
+  higher-severity class of fix than the last ~15 cycles' copy/tense corrections, because it's wrong *technical
+  guidance in a paid product's own output*, not a stale marketing sentence.
+- **Why this over another content/tense sweep this cycle:** D47 explicitly closed the last specifically-named open
+  item in the tense-bug backlog, and this cycle's own broadened greps (superseded dates, "will expire"/"scheduled
+  for"/"about to"/"in N days" phrase variants, internal-link integrity across the built `docs/` site — all checked
+  fresh this cycle, all clean) found nothing new in that lane. Recognizing that the npm/PyPI registries are
+  reachable (unlike general WebFetch) opened a genuinely new, previously-untried verification channel — and it
+  immediately surfaced a real, more consequential bug than another tense fix would have, on the first thing
+  checked with it.
+- **Day-38 state:** $0 collected, $4,000 gap, unchanged since Day 0. HUMAN_QUEUE core batch (HQ-1′/2′, HQ-5b item
+  0, HQ-4, HQ-6, HQ-7, HQ-10) remains the only lever that can move the gap materially — 38 days running with zero
+  observed action on any of it.
+- **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked, the
+  registry-verification channel opened this cycle is worth extending to `kits/python-pivot`'s native-wheel
+  compatibility audit (ASSETS.md: "audits native-wheel compatibility (30+ pkgs)") and `kits/al2023-gate`'s package
+  remapping data (AL2→AL2023 dnf package names) — both are the same *shape* of bug (a hardcoded compatibility table
+  that could contain stale/fabricated entries) and both are checkable against PyPI's registry the same way this
+  cycle checked npm's, without needing WebFetch.

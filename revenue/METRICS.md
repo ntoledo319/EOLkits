@@ -429,4 +429,17 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-08-19 | **dev.to articles staged on branch: 25** (unchanged from 08-18 — no new article this cycle) | `launch/distribution/devto/01`–`25`. |
 | 2026-08-19 | **Day 37 — 9 days past the original 28-day window (closed 08-10).** HUMAN_QUEUE core batch still fully unactioned, 37 days running; no observed buyer signal. The one specifically-named open item from prior cycles' DECISIONS is now closed — next cycle's truth sweep starts from a clean backlog. | — |
 
+## Cycle 2026-08-20 (cloud routine) — Day 38
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-20 | **WebFetch re-tested — 37th consecutive cycle blocked** | `WebFetch` on `https://example.com` (neutral control) → `EGRESS_BLOCKED`. Consistent with D17's root cause (standing egress-policy denial) — no re-diagnosis. |
+| 2026-08-20 | **New this cycle: confirmed package registries (npm/PyPI) ARE reachable through this proxy, unlike general WebFetch** | `curl https://registry.npmjs.org/...` and `https://pypi.org/pypi/.../json` both returned real 200/404 responses. Per D17's original root cause note ("policy allowlists package registries... denies general web"), this is a previously-unused-by-this-loop verification channel. |
+| 2026-08-20 | **Re-verified HQ-9's "names still free" claim, 37 days after the original 2026-07-14 check — still true** | `al2023-gate`/`python-pivot` (PyPI) and `lambda-lifeline` (npm) all still 404 (unclaimed). No drift. |
+| 2026-08-20 | **Found + fixed 3 fabricated/nonexistent version numbers in `lambda-lifeline`'s native-binary ABI audit table** — a live paid-capability output (the CLI's `audit` command a Migration Pack customer could run), not marketing copy | `libpq` claimed a nonexistent `2.0.0` (real latest 1.11.0, never released a 2.x); `argon2` claimed a never-published exact `0.40.0` (nearest real release 0.40.1); `@napi-rs/snappy` claimed `7.2.0` against a package whose real total history is 1.0.0–1.0.2, last published 2021 (predates Node 22 entirely) — reclassified DEAD, matching the table's existing treatment of `node-sass`/`grpc`/`zmq`/`fibers`/`heapdump`. See DECISIONS D48. |
+| 2026-08-20 | **Checked the other 14 non-null version pins in the same table — all real, no further bugs** | sharp, bcrypt, better-sqlite3, canvas, node-gyp, bufferutil, utf-8-validate, @grpc/grpc-js, sqlite3, re2, @tensorflow/tfjs-node, sodium-native, zeromq, farmhash — every pinned version exists in the npm registry. |
+| 2026-08-20 | **Regression check:** `kits/lambda-lifeline` `npm test` 24/24 green (no test asserted on the changed version strings, confirmed via grep first) | Ran directly this cycle. |
+| 2026-08-20 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a correctness fix in a live CLI's own audit-output data, using a newly-identified working verification channel (npm/PyPI registries), not general WebFetch. |
+| 2026-08-20 | **dev.to articles staged on branch: 25** (unchanged — `fixes.yml` still 27 entries, no new no-fetch candidate) | `launch/distribution/devto/01`–`25`. |
+| 2026-08-20 | **Day 38 — 10 days past the original 28-day window (closed 08-10).** HUMAN_QUEUE core batch still fully unactioned, 38 days running; no observed buyer signal. | — |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._
