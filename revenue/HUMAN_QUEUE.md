@@ -447,6 +447,19 @@ fixes to production).** 38 days since Day 0 (07-13), 10 days past the original 2
 collected, the gap math is unchanged — none of the core-batch items show any observed signal of having been
 actioned yet.
 
+## Cycle 2026-08-21 (cloud routine) — Day 39
+No new items added — this cycle's ship (correcting a stale `python-snappy` cp312 classification in
+`kits/python-pivot`'s wheel-audit table, plus syncing that fix and D48's prior npm-version fixes into
+`apps/web/build.py`'s hand-kept duplicate that feeds the live `/scan/` page, plus the same fix in
+`ledger/internal/thread-answers.md`, commit `a1d3aa0`) was fully autonomous, in-jail, $0, no human contact needed.
+WebFetch outage confirmed persistent a 38th consecutive cycle; the registry-verification channel (npm/PyPI, opened
+D48) remains usable and found real value a second cycle running. **Still the highest-ROI owner clicks, unactioned
+as of this cycle: HQ-1′/2′ (Gumroad, ~10 min), HQ-5b item 0 (deactivate the `drift_watch` Stripe Price, ~2 min),
+HQ-7 (`vsce publish`), HQ-10 (GitHub Action listing), HQ-4 (GitHub App, which also carries the org_license +
+drift_watch code fixes to production).** 39 days since Day 0 (07-13), 11 days past the original 28-day window
+close (08-10); at $0 collected, the gap math is unchanged — none of the core-batch items show any observed signal
+of having been actioned yet.
+
 ## Running total (post-pivot)
 Everything here is now **one-time setup, no ongoing owner time.** Core ≈ **30 min** (HQ-1′+2′,4,5,6). The COMPOUNDING
 batch below is now the **primary growth engine** (outreach is off the table), so those publishes matter more than

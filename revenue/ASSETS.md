@@ -240,6 +240,16 @@ cycle discovered is reachable through the egress proxy even though general WebFe
 note already said package registries are allowlisted — this is the first cycle to test and use that channel). See
 DECISIONS D48. No new codebase or SKU — product ladder table above is still current.
 
+## 2026-08-21: found + fixed a stale classification in `python-pivot`'s wheel table + an unsynced duplicate of D48's fix on the live `/scan/` page
+Extended D48's registry-verification pattern to `kits/python-pivot`'s `PY312_WHEEL_TABLE`: all 30 non-null version
+pins check out against PyPI, but the one `None`-status entry (`python-snappy`, "no cp312 wheels") was itself stale —
+the package has shipped a pure-Python `cramjam`-backed wheel since 0.7.0 (2024-02-27) and installs fine on cp312.
+Also found `apps/web/build.py`'s `_NATIVE_PACKAGES`/`_PY312_WHEELS` — a hand-kept duplicate of both kit tables that
+feeds the live public `/scan/` page — still carried D48's 3 fabricated npm versions (never propagated there) plus
+this new python-snappy issue; fixed all 4 there too, since `/scan/` is free/live/unauthenticated traffic today, a
+bigger blast radius than either kit source (both still unpublished, HQ-9). See DECISIONS D49. No new codebase or
+SKU — product ladder table above is still current.
+
 ## 2026-08-16: no new codebase or SKU — a truth/harm fix in the shared `deprecations.yml` data layer
 D44: fixed 2 stale present/future-tense `description:` fields in `rules/public/deprecations.yml` (consumed by
 `apps/web`'s `/migrate/` pages, RSS feed, and ICS calendar), plus the same tense bug in 6 more files (`README.md`,

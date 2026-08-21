@@ -442,4 +442,25 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-08-20 | **dev.to articles staged on branch: 25** (unchanged — `fixes.yml` still 27 entries, no new no-fetch candidate) | `launch/distribution/devto/01`–`25`. |
 | 2026-08-20 | **Day 38 — 10 days past the original 28-day window (closed 08-10).** HUMAN_QUEUE core batch still fully unactioned, 38 days running; no observed buyer signal. | — |
 
+## Cycle 2026-08-20 (cloud routine) — Day 38
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-20 | **WebFetch re-tested — 37th consecutive cycle blocked; discovered npm/PyPI registries ARE reachable through this proxy** | `EGRESS_BLOCKED` on `example.com`; `curl` to `registry.npmjs.org`/`pypi.org` both returned real 200/404 responses — a new verification channel opened this cycle. |
+| 2026-08-20 | **Found + fixed 3 fabricated version numbers in `lambda-lifeline`'s native-binary ABI audit table** (`libpq`, `argon2`, `@napi-rs/snappy`) — wrong technical guidance in a live paid-capability's own output, not marketing copy | Commit — see DECISIONS D48. All other 14 non-null entries confirmed real against the npm registry. |
+| 2026-08-20 | **Regression check:** `kits/lambda-lifeline` `npm test` 24/24 green | Ran directly this cycle. |
+| 2026-08-20 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a correctness fix using a newly-identified working verification channel. |
+| 2026-08-20 | **dev.to articles staged on branch: 25** (unchanged) | `launch/distribution/devto/01`–`25`. |
+
+## Cycle 2026-08-21 (cloud routine) — Day 39
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-21 | **WebFetch re-tested — 38th consecutive cycle blocked** | `EGRESS_BLOCKED` on `https://example.com`. Registry channel (opened D48) re-confirmed working (`pypi.org/pypi/numpy/json` → 200). Consistent with D17's root cause — no re-diagnosis. |
+| 2026-08-21 | **Verified all 30 non-null `python-pivot` `PY312_WHEEL_TABLE` version pins against PyPI — all real.** The one `None`/"dead" entry, `python-snappy`, was itself stale: 0.7.0+ (2024-02-27) ships a pure-Python `cramjam`-backed wheel, installs fine on cp312 | Read full PyPI release history + `Requires-Dist` metadata directly this cycle. See DECISIONS D49. |
+| 2026-08-21 | **Found a bigger issue: `apps/web/build.py`'s hand-kept duplicate of both kit tables (feeds the live public `/scan/` page) still had D48's 3 fabricated npm versions — never propagated — plus this cycle's python-snappy finding** | `/scan/` is free, live, unauthenticated traffic today; a bigger blast radius than either unpublished kit source. |
+| 2026-08-21 | **Shipped: reclassified python-snappy in `python-pivot/audit.py` (+test +README); synced all 4 stale entries in `apps/web/build.py`; fixed the same python-snappy claim in `ledger/internal/thread-answers.md`** | Commit `a1d3aa0`. 5 files changed. |
+| 2026-08-21 | **Regression check:** `python-pivot` 44/44 (fresh venv); `apps/web` `test_determinism.py` 4/4 + `test_surge.py` 4/4 green (jail-local `python3.12` venv); full rebuild confirmed corrected values render in `docs/scan/index.html`'s JSON, zero `{API_URL}` leaks, `docs/` reverted (source-only); `lambda-lifeline` `npm test` 24/24 (standing check) | Ran directly this cycle. |
+| 2026-08-21 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a correctness fix (2 kit tables + 1 live-page duplicate + 1 answer template) using the registry-verification channel D48 opened. |
+| 2026-08-21 | **dev.to articles staged on branch: 25** (unchanged — no new-fetch content candidate this cycle) | `launch/distribution/devto/01`–`25`. |
+| 2026-08-21 | **Day 39 — 11 days past the original 28-day window (closed 08-10).** HUMAN_QUEUE core batch still fully unactioned, 39 days running; no observed buyer signal. | — |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

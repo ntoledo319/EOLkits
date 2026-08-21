@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 38 (2026-08-20) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 39 (2026-08-21) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -1209,3 +1209,37 @@ Clicks with no buys ⇒ a conversion/trust problem to fix, not a traffic problem
     this cycle's newly-opened registry-verification channel to `kits/python-pivot`'s native-wheel compatibility
     table (30+ packages, PyPI-checkable) and `kits/al2023-gate`'s AL2→AL2023 package-remap data — same bug shape,
     same channel, not yet applied there.
+
+## Cycle 2026-08-21 (cloud routine) — Day 39
+156. **WebFetch re-tested — 38th consecutive cycle blocked** (`EGRESS_BLOCKED` on `example.com`). Registry channel
+    (opened D48) confirmed still working. Per D17's root cause, no re-diagnosis — went straight to the no-fetch
+    path, picking up D48's own next-candidate note.
+157. **Verified all 30 non-null `PY312_WHEEL_TABLE` version pins in `kits/python-pivot/src/python_pivot/audit.py`
+    against the PyPI registry — all 30 exist, no drift.** But the one `None`/"dead-end" entry, `python-snappy`,
+    was itself wrong: since 0.7.0 (2024-02-27) it ships a pure-Python wheel built on `cramjam` and installs fine
+    on cp312 — the "no cp312 wheels, switch to cramjam" advice has been stale for ~2.5 years. Same bug class as
+    D48, sibling kit. See DECISIONS D49.
+158. **Shipped: reclassified `python-snappy`** from critical/dead to high/upgradeable (`>=0.7.0`) in
+    `audit.py` + updated its test + README example to match.
+159. **Found the bigger issue: `apps/web/build.py`'s `_NATIVE_PACKAGES`/`_PY312_WHEELS` — an explicitly hand-kept
+    duplicate of both kit tables that feeds the live public `/scan/` page — still had D48's 3 fabricated npm
+    versions (never propagated there) plus this cycle's python-snappy finding.** `/scan/` is free, unauthenticated,
+    live traffic today — a materially bigger blast radius than either kit source alone (both still owner-gated on
+    HQ-9, unpublished). Synced all 4 entries; added a code comment flagging it as a hand-kept duplicate so future
+    kit-table fixes remember to re-sync here too.
+160. **Also fixed the identical python-snappy claim in `ledger/internal/thread-answers.md`** (the live reusable
+    re:Post/SO answer-template file D31 flagged as highest-risk). Spot-checked the other 9 version claims in the
+    same block — all real, no other fix needed.
+161. **Did not touch `kits/al2023-gate`'s `REMAP_TABLE`** — its AL2→AL2023 dnf package-name data isn't checkable
+    against the allowlisted registries (npm/PyPI/crates/Go proxy); needs working WebFetch or a confirmed AL2023
+    repo-metadata channel. Left as next cycle's candidate.
+162. **Regression check:** `kits/python-pivot` 44/44 green (fresh venv). `apps/web` `test_determinism.py` 4/4 +
+    `test_surge.py` 4/4 green (jail-local `python3.12` venv); full rebuild confirmed the corrected values render
+    in `docs/scan/index.html`'s JSON blob, zero `{API_URL}` leaks, `docs/` reverted (source-only commit).
+    `kits/lambda-lifeline` `npm test` 24/24 green (standing check, untouched this cycle).
+163. **Day-39 state:** $0 collected, $4,000 gap, unchanged since Day 0. HUMAN_QUEUE core batch (HQ-1′/2′, HQ-5b
+    item 0, HQ-4, HQ-6, HQ-7, HQ-10) remains the only lever that can move the gap materially — 39 days running
+    with zero observed action on any of it.
+164. **Next candidate for the next cycle:** re-check WebFetch first. If still blocked: read `kits/al2023-gate`'s
+    `REMAP_TABLE` (~40 entries) for staleness once a verification channel for AL2023 dnf data is confirmed; failing
+    that, one more full-repo grep for other hand-kept duplicate tables (this cycle found one on the first look).

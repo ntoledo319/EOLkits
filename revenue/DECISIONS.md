@@ -2206,3 +2206,92 @@ optimistic projections.
   remapping data (AL2→AL2023 dnf package names) — both are the same *shape* of bug (a hardcoded compatibility table
   that could contain stale/fabricated entries) and both are checkable against PyPI's registry the same way this
   cycle checked npm's, without needing WebFetch.
+
+## 2026-08-21 · Cycle (Day 39)
+
+### D49 — Extended the registry-verification channel to `python-pivot`'s wheel table; found the SAME D48 bug had a second, higher-traffic copy in `apps/web`'s live `/scan/` page that never got fixed
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `3ee0e04`
+  (D48's cycle commit); no conflicts, nothing else had pushed since 08-20.
+- **Re-tested WebFetch via the tool itself — 38th consecutive cycle blocked**: `EGRESS_BLOCKED` on
+  `https://example.com` (neutral control). Consistent with D17's root cause — no re-diagnosis, went straight to
+  the no-new-fetch path. Confirmed the registry channel (npm/PyPI, opened D48) still works: `curl` to
+  `pypi.org/pypi/numpy/json` returned 200.
+- **Picked up D48's own next-candidate note:** checked all 30 non-null version pins in
+  `kits/python-pivot/src/python_pivot/audit.py`'s `PY312_WHEEL_TABLE` against the PyPI registry JSON API. **All 30
+  exist** (numpy through fastparquet) — no drift there.
+- **But the one `None`-status ("dead-end, no cp312 wheels") entry, `python-snappy`, was itself wrong.** Checked its
+  full PyPI release history: since `0.7.0` (published **2024-02-27**), `python-snappy` ships a pure-Python
+  `py3-none-any` wheel that depends on `cramjam` as its backend (confirmed via `Requires-Dist: ['cramjam']` in the
+  PyPI metadata) — it installs cleanly on any CPython including 3.12, no native compile step, no library swap
+  needed. The table's own advice ("No cp312 wheels. Switch to `cramjam` or `plyvel`") was accurate for ≤0.6.1 but
+  has been stale for the ~2.5 years since the package itself absorbed cramjam as its implementation. This is a
+  live, actionable **wrong technical instruction in the audit tool's own paid-capability output** — the same class
+  of bug D48 found in `lambda-lifeline`'s table the cycle before, just in the sibling kit.
+- **Fixed** (`kits/python-pivot/src/python_pivot/audit.py`): reclassified `python-snappy` from
+  `min_version_for_py312=None` (severity `critical`, "swap required") to `"0.7.0"` (severity `high`, "upgrade
+  required"), with a note explaining the cramjam-backend switch and the exact publish date. Updated the one test
+  that asserted the old behavior (`test_detects_dead_python_snappy` → `test_detects_outdated_python_snappy`,
+  severity `critical` → `high`) and the README's worked example (`[critical]... needs (none)` →
+  `[high]... needs >=0.7.0`) to match.
+- **Then checked whether this same table exists anywhere else in the repo (the lesson from D48 not fully applied
+  last cycle) — found it does:** `apps/web/build.py`'s `_PY312_WHEELS` + `_NATIVE_PACKAGES` dicts are an explicitly
+  hand-kept duplicate (the code comment says so: "Ported faithfully from the paid kits... Tables sourced from:
+  kits/lambda-lifeline/src/deps/index.mjs ... kits/python-pivot/src/python_pivot/audit.py") that feeds the live
+  public `/scan/` page's client-side JS — the **free, zero-signup, higher-traffic** entry point to the funnel
+  (vs. the unpublished-to-npm `lambda-lifeline` kit D48 fixed). **This duplicate still had all 4 stale values**:
+  the same 3 fabricated npm versions D48 fixed in `lambda-lifeline/src/deps/index.mjs` on 2026-08-20
+  (`libpq: '2.0.0'`, `argon2: '0.40.0'`, `@napi-rs/snappy: '7.2.0'`) plus this cycle's own `python-snappy` finding
+  — none of D48's or this cycle's kit-side fixes had propagated here, because it's copy-pasted data, not a shared
+  import. **This is a materially bigger-blast-radius instance than either source fix alone**, since `/scan/` is
+  live on the public site today and free-to-use, while the npm/PyPI publishes both fixes ultimately feed are still
+  owner-gated (HQ-9, unactioned 39 days running).
+- **Fixed** (`apps/web/build.py`): synced all 4 entries to match the now-corrected kit-side values (`libpq` →
+  `1.11.0`, `argon2` → `0.40.1`, `@napi-rs/snappy` → `null`/DEAD, `python-snappy` → `0.7.0`/high), and added an
+  explicit code comment flagging that this is a **hand-kept duplicate, not a shared import** — so a future cycle
+  fixing either kit table remembers to re-sync this one too, instead of rediscovering the same gap a third time.
+  Updated the header's "cross-checked" date stamps to 2026-08-21.
+- **Also found + fixed the identical python-snappy claim in `ledger/internal/thread-answers.md`** (the same live
+  reusable re:Post/SO answer-template file D31 flagged 2026-08-03 as the highest-risk instance of the recurring
+  date-bug class) — "python-snappy has NO cp312 wheels — swap for cramjam or plyvel" corrected to "python-snappy
+  >= 0.7.0 (switched to a pure-Python wheel on cramjam — no swap needed)". Also spot-checked the other 9
+  version-floor claims in that same template block (numpy, pandas, cryptography, pillow, lxml, psycopg2-binary,
+  pyyaml, bcrypt, pyopenssl) against this cycle's PyPI batch check — all 9 confirmed real, no other fix needed.
+- **Did not check `kits/al2023-gate`'s `REMAP_TABLE`** (D48's other flagged candidate) this cycle — its AL2→AL2023
+  dnf package-name claims aren't checkable against the allowlisted npm/PyPI/crates/Go-proxy registries (it's OS
+  package data, not a language package registry); would need either working WebFetch (still blocked) or an
+  AL2023 dnf-repo metadata mirror this jail hasn't confirmed is reachable. Left as a candidate for a cycle that
+  either finds WebFetch restored or confirms that channel separately — not attempted speculatively this cycle.
+- **Verified before shipping (§9):**
+  - `kits/python-pivot`: fresh venv (`python3 -m venv`, default 3.11 — fine here, no 3.12-only syntax in this
+    kit), `pip install -e . pytest`, full suite **44/44 green**. Venv deleted after use.
+  - `apps/web`: fresh jail-local **`python3.12`** venv (per the standing D27 trap — default `python3` resolves to
+    3.11 on this box and `build.py` has a 3.12-only f-string), `pip install pytest jinja2 pyyaml`,
+    `test_determinism.py` **4/4** (pytest) + `test_surge.py` **4/4** (direct run) green. Ran a full
+    `python3 build.py` rebuild and grepped the built `docs/scan/index.html` output directly to confirm the
+    corrected `python-snappy`/`libpq` values actually render in the JSON blob the client-side scanner reads
+    (`"python-snappy":{"min":"0.7.0",...`, `"libpq":{"min":"1.11.0",...`) — not just that the Python source
+    changed. Zero `{API_URL}` leaks. Reverted the `docs/` rebuild (`git checkout -- docs/ && git clean -fd docs/`)
+    before committing — source-only, per the established D14/D28 convention (the box's daily cron rebuilds `docs/`
+    fresh on deploy). Venv deleted after use.
+  - `kits/lambda-lifeline`: `npm test` **24/24 green** (untouched this cycle — standing regression check only,
+    confirms the D48 fix this cycle re-synced elsewhere wasn't itself touched or broken).
+- **Ship-law check:** externally visible ✅ — lands on the public repo the moment this pushes; the `apps/web`
+  fix reaches the **live** `/scan/` page on the next daily box-cron deploy (no owner action needed, unlike D16/D42's
+  `grace-api` fixes which need a manual VPS redeploy — `apps/web` is on the auto-deploy path). This is a
+  higher-reach ship than D48 alone: the free scanner is public and unauthenticated *today*, while the corrected
+  kit source only reaches a real user once HQ-9 (PyPI/npm publish) is actioned.
+- **Why this over new dev.to content or another tense-copy sweep this cycle:** D48 established last cycle that a
+  correctness bug in a live paid/free-tool's own output data outranks copy/tense fixes and outranks the
+  exhausted no-fetch content backlog — this cycle found two more instances of exactly that class (one a stale
+  reclassification, one a wider-blast-radius unsynced duplicate of an already-known bug), which is strictly
+  higher-leverage than either alternative.
+- **Day-39 state:** $0 collected, $4,000 gap, unchanged since Day 0 (2026-07-13). HUMAN_QUEUE core batch (HQ-1′/2′,
+  HQ-5b item 0, HQ-4, HQ-6, HQ-7, HQ-10) remains the only lever that can move the gap materially — 39 days running
+  with zero observed action on any of it.
+- **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked: (1)
+  check whether `kits/al2023-gate`'s `REMAP_TABLE` has a similar unsynced-duplicate or stale-classification issue
+  — it doesn't feed `apps/web`'s scan-page tables (confirmed this cycle: only native/wheel tables are ported
+  there, not the AL2023 remap table), so a fresh read-through of its ~40 entries against general knowledge/the
+  AL2023 compare-with-AL2 doc (still needs WebFetch to verify authoritatively) is the honest next step once fetch
+  clears; (2) absent that, a fresh full-repo grep for any *other* hand-kept duplicate tables (the pattern this
+  cycle found once already) is worth one pass before assuming the correctness-audit lane is exhausted.
