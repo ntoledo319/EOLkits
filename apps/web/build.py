@@ -2061,8 +2061,10 @@ def inject_first_touch(path: str, content: str) -> str:
 # --- M1: the free /scan engine -------------------------------------------- #
 # Ported faithfully from the paid kits so the free scan reports the SAME findings
 # the kits would (honest + citable, not an approximation). Tables sourced from:
-#   kits/lambda-lifeline/src/deps/index.mjs  (NATIVE_PACKAGES, cross-checked 2026-04-28)
-#   kits/python-pivot/src/python_pivot/audit.py  (PY312_WHEEL_TABLE)
+#   kits/lambda-lifeline/src/deps/index.mjs  (NATIVE_PACKAGES, cross-checked 2026-08-21)
+#   kits/python-pivot/src/python_pivot/audit.py  (PY312_WHEEL_TABLE, cross-checked 2026-08-21)
+# NOTE: this is a hand-kept duplicate of the two kit tables above, not a shared
+# import — when one changes, re-sync this one too (see DECISIONS D49).
 # Runtime deadlines are derived from the cited deprecations.yml at build time, so
 # the scanner stays in lockstep with the source of truth (no duplicated dates).
 _NATIVE_PACKAGES = {
@@ -2074,11 +2076,11 @@ _NATIVE_PACKAGES = {
     "node-sass": {"min": None, "note": "DEAD. Use sass (Dart Sass) instead — no native deps."},
     "bufferutil": {"min": "4.0.8", "note": "WebSocket utility native addon."},
     "utf-8-validate": {"min": "6.0.4", "note": "WebSocket utility native addon."},
-    "libpq": {"min": "2.0.0", "note": "PostgreSQL client. Prefer pg-native alternatives."},
+    "libpq": {"min": "1.11.0", "note": "PostgreSQL client. No 2.x exists; verify Node-22 floor in changelog."},
     "grpc": {"min": None, "note": "DEAD. Migrate to @grpc/grpc-js (pure JS)."},
     "@grpc/grpc-js": {"min": "1.10.0", "note": "Pure JS, no native; just keep up to date."},
     "sqlite3": {"min": "5.1.7", "note": "SQLite3 bindings. Prebuilds available."},
-    "argon2": {"min": "0.40.0", "note": "argon2 bindings."},
+    "argon2": {"min": "0.40.1", "note": "argon2 bindings. 0.40.0 exact was never published."},
     "re2": {"min": "1.21.0", "note": "RE2 regex engine."},
     "fibers": {"min": None, "note": "DEAD since Node 16. Must remove."},
     "@tensorflow/tfjs-node": {"min": "4.20.0", "note": "TensorFlow native."},
@@ -2086,7 +2088,7 @@ _NATIVE_PACKAGES = {
     "zmq": {"min": None, "note": "DEAD. Use zeromq instead."},
     "zeromq": {"min": "6.1.2", "note": "ZeroMQ bindings."},
     "farmhash": {"min": "4.0.0", "note": "Native hashing."},
-    "@napi-rs/snappy": {"min": "7.2.0", "note": "Snappy compression."},
+    "@napi-rs/snappy": {"min": None, "note": "DEAD. Last published 2021, predates Node 22. Use snappy or a pure-JS compressor."},
     "heapdump": {"min": None, "note": "DEAD. Use node --heapsnapshot-signal instead."},
 }
 _PY312_WHEELS = {
@@ -2120,7 +2122,7 @@ _PY312_WHEELS = {
     "awscrt": {"min": "0.19.17", "note": "0.19.17+ for cp312."},
     "boto3": {"min": "1.29.0", "note": "1.29+ tested on cp312."},
     "botocore": {"min": "1.32.0", "note": "1.32+ tested on cp312."},
-    "python-snappy": {"min": None, "note": "No cp312 wheels. Switch to cramjam or plyvel."},
+    "python-snappy": {"min": "0.7.0", "note": "0.7.0+ (2024-02-27) ships a pure-Python wheel built on cramjam — installs fine on cp312, no swap needed."},
     "fastparquet": {"min": "2023.10.1", "note": "2023.10.1+ for cp312."},
 }
 

@@ -141,7 +141,7 @@ Native wheels are the silent killer. Minimum versions with cp312 wheels on PyPI 
 - bcrypt >= 4.1.1
 - pyopenssl >= 23.3.0
 
-python-snappy has NO cp312 wheels — swap for cramjam or plyvel.
+python-snappy >= 0.7.0 (switched to a pure-Python wheel on cramjam — no swap needed).
 
 For the canary deploy, same pattern as Node: publish new version, weighted alias routing, 
 CloudWatch alarm as rollback trigger. 

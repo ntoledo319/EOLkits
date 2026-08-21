@@ -119,8 +119,8 @@ $ python-pivot audit requirements.txt
   [high]     cryptography     declared===40.0.0  · needs >=41.0.5
       41.0.5+ for cp312 (libssl3).
   [high]     pillow           declared===9.5.0   · needs >=10.1.0
-  [critical] python-snappy    declared===0.6.1   · needs (none — no cp312 wheels)
-      No cp312 wheels. Switch to `cramjam` or `plyvel`.
+  [high]     python-snappy    declared===0.6.1   · needs >=0.7.0
+      0.7.0+ (2024-02-27) ships a pure-Python py3-none-any wheel built on `cramjam` — installs fine on cp312, no library swap needed.
 
 ⚠ 10 package(s) need attention before Python 3.12.
 ```

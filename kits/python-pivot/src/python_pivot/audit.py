@@ -72,9 +72,11 @@ PY312_WHEEL_TABLE: Dict[str, WheelRequirement] = {
     "awscrt": WheelRequirement("awscrt", "0.19.17", "0.19.17+ for cp312."),
     "boto3": WheelRequirement("boto3", "1.29.0", "1.29+ tested on cp312."),
     "botocore": WheelRequirement("botocore", "1.32.0", "1.32+ tested on cp312."),
-    # Dead-end — these never added cp312 wheels
     "python-snappy": WheelRequirement(
-        "python-snappy", None, "No cp312 wheels. Switch to `cramjam` or `plyvel`."
+        "python-snappy",
+        "0.7.0",
+        "0.7.0+ (2024-02-27) ships a pure-Python py3-none-any wheel built on "
+        "`cramjam` — installs fine on cp312, no library swap needed.",
     ),
     "fastparquet": WheelRequirement(
         "fastparquet", "2023.10.1", "2023.10.1+ for cp312."
