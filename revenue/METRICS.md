@@ -483,3 +483,22 @@ benchmarks, or unverified analytics in this ledger.
   counter. Exact Stripe-retirement runs remain 0; GitHub Marketplace remains
   v1.1.0; `eolkits.com/api/capabilities` remains unavailable. Purchases,
   deliveries, collected revenue, and collected profit remain 0 / 0 / $0 / $0.
+
+## Release-gate repair published — 2026-08-22T23:39:27Z
+
+- Main commit
+  https://github.com/ntoledo319/EOLkits/commit/32d01c2f505b30c8caac856c0f1af0da9ae059c3
+  published exact tree `f2200f3b0bfbf7f43161699b4fc97197c04b38ad`,
+  matching the locally reviewed commit tree. GitHub's workflow API reports
+  `.github/workflows/publish-vscode.yml` active.
+- Test release surfaces run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32605744293 passed all 13
+  jobs, including the fresh VS compile/lint/rule/package job, both containers,
+  dependency audit, every kit, API, Worker, web, Action, and Python quality
+  checks. Determinism run `32605744252`, property run `32605744279`, and built-in
+  Pages run `32605743603` also completed successfully.
+- A fresh live probe still found VS v1.0.0 at 100 installs/162 downloads, zero
+  Stripe-retirement runs, no newer VS publish run, GitHub Marketplace v1.1.0,
+  no public v2.0.0 release, and HTTP 404 at `eolkits.com/api/capabilities`.
+  Therefore public listing updates, paid reports, collected revenue, and profit
+  remain 0 / 0 / $0 / $0; CI and a repository commit are not demand.
