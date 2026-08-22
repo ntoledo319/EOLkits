@@ -142,6 +142,8 @@ removed the speculative Drift pitch and closed the Migration Pack, organization,
 partner, and generic scanner research-list branches. None of those changes is
 demand evidence. Publishing main and obtaining green CI/Pages builds are release
 evidence only. The repaired project-path Pages fallback is publicly reachable,
-and the Action's tested `@v2` ref now resolves publicly. The Marketplace listing
-itself remains on stale v1.1.0 pending the prepared draft's owner publication.
-Collected revenue and delivered paid reports remain zero.
+and the Action's tested `@v2` ref now resolves publicly with its report link
+pointing to that verified funnel. Repository, kit, and future VS acquisition
+links use the same surface. The Marketplace listing itself remains on stale
+v1.1.0 pending the prepared draft's owner publication. Collected revenue and
+delivered paid reports remain zero.

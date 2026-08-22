@@ -1,6 +1,6 @@
 # Batched owner queue — maximum 44 minutes
 
-Last reconciled August 22 after the public `v2` ref and private Marketplace draft.
+Last reconciled August 22 after the verified acquisition-routing release.
 
 Do HQ-6 first because it repairs the existing public distribution listing, then
 complete HQ-1 through HQ-5, HQ-7, and finally HQ-8. Checkout remains closed
@@ -105,7 +105,7 @@ Steps:
 
 1. After final main CI is green, open the private prepared draft directly:
    https://github.com/ntoledo319/EOLkits/releases/tag/untagged-db9a4617f412abd63d2d
-2. Verify it is v2.0.0 targeting commit `9d369ccb`, check “Publish this Action to
+2. Verify it is v2.0.0 targeting commit `8748cf6a`, check “Publish this Action to
    the GitHub Marketplace,” keep the existing Marketplace identity, and publish
    with 2FA. Do not create a second listing or a second release.
 3. Verify

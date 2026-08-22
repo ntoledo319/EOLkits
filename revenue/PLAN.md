@@ -114,8 +114,10 @@ main through the project-path/CI follow-ups. The replacement release workflow,
 determinism and property gates, both container builds, and both GitHub Pages
 deployment mechanisms passed. A public probe verified `/EOLkits` navigation,
 the split API origin, and closed-product tombstones. The tested `v2` Action ref
-is now publicly installable, and an honest private v2.0.0 Marketplace draft was
-created automatically. Highest-leverage next action is the owner's two-minute
-Marketplace agreement/2FA publish step, followed by the live-domain and real
-payment/fulfillment gates. The live `eolkits.com` deployment is not yet repaired.
-No outbound message, bid, post, or customer commitment is authorized.
+is now publicly installable at the final `8748cf6a` acquisition commit; Action,
+repository, kit, and future VS links route to the verified Pages funnel. The
+honest private v2.0.0 Marketplace draft is synchronized to the same commit.
+Highest-leverage next action is the owner's two-minute Marketplace agreement/2FA
+publish step, followed by the live-domain and real payment/fulfillment gates.
+The live `eolkits.com` deployment is not yet repaired. No outbound message, bid,
+post, or customer commitment is authorized.

@@ -37,7 +37,8 @@ All code and evidence below is inside the workspace jail.
 - $0 deploy/distribution: public GitHub repository and the existing GitHub
   Marketplace Action listing.
 - Distribution state: the tested `v2` release branch is public and resolves to
-  commit `3ea1a169`, so `uses: ntoledo319/EOLkits@v2` works now. The Marketplace
+  commit `8748cf6a`, so `uses: ntoledo319/EOLkits@v2` works now and routes report
+  interest to the verified Pages funnel. The Marketplace
   page still exposes the stale v1.1.0 release until the owner publishes the
   prepared private v2.0.0 draft with the Marketplace checkbox.
 - License/provenance: MIT kit licenses; AWS SDK dependencies are Apache-2.0.
