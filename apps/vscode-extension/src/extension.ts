@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { EOLkitsScanner } from './scanner';
 import { EOLkitsDiagnostics } from './diagnostics';
 import { EOLkitsTreeProvider } from './treeProvider';
+import { resolveSetting } from './settings';
 
 let scanner: EOLkitsScanner;
 let diagnostics: EOLkitsDiagnostics;
@@ -31,14 +32,24 @@ export function activate(context: vscode.ExtensionContext) {
         }),
         vscode.commands.registerCommand('eolkits.getAudit', () => {
             vscode.env.openExternal(vscode.Uri.parse('https://ntoledo319.github.io/EOLkits/audit/?utm_source=vscode&utm_medium=extension&source=vscode'));
+        }),
+        vscode.commands.registerCommand('rupture.scanWorkspace', (resource?: vscode.Uri) => {
+            void scanWorkspace(resource);
+        }),
+        vscode.commands.registerCommand('rupture.showReport', () => {
+            showReport();
+        }),
+        vscode.commands.registerCommand('rupture.getAudit', () => {
+            vscode.env.openExternal(vscode.Uri.parse('https://ntoledo319.github.io/EOLkits/audit/?utm_source=vscode&utm_medium=extension&source=vscode'));
         })
     );
 
     // Auto-scan on save
     context.subscriptions.push(
         vscode.workspace.onDidSaveTextDocument((document) => {
-            const config = vscode.workspace.getConfiguration('eolkits');
-            if (config.get<boolean>('autoScan', true)) {
+            const config = vscode.workspace.getConfiguration('eolkits', document.uri);
+            const legacyConfig = vscode.workspace.getConfiguration('rupture', document.uri);
+            if (resolveSetting(config, legacyConfig, 'autoScan', true)) {
                 void scanner.scanDocument(document);
             }
         })
@@ -121,6 +132,11 @@ function generateReportHtml(findings: any[]): string {
             <td>Line ${escapeHtml(String(f.line))}</td>
         </tr>
     `).join('');
+    const interestLink = findings.length > 0
+        ? `<p><strong>Would you consider a one-time $299 repository evidence report?</strong>
+            <a href="https://github.com/ntoledo319/EOLkits/issues/new?template=audit-interest.yml">Record nonbinding Audit interest</a>
+            in a public GitHub form. Do not include project, company, security, or personal data.</p>`
+        : '';
 
     return `<!DOCTYPE html>
     <html>
@@ -150,6 +166,7 @@ function generateReportHtml(findings: any[]): string {
             </tr>
             ${rows}
         </table>
+        ${interestLink}
         <p><a href="https://ntoledo319.github.io/EOLkits/audit/?utm_source=vscode&utm_medium=extension&source=vscode">Get repository evidence report →</a></p>
     </body>
     </html>`;

@@ -1,9 +1,9 @@
 {
-  "name": "eolkits-vscode",
+  "name": "rupture-vscode",
   "displayName": "EOLkits - AWS Deprecation Scanner",
   "description": "Find AWS runtime & OS end-of-life risks (Lambda Node/Python, Amazon Linux 2) in your IaC and code, right in the editor — offline, nothing uploaded.",
-  "version": "1.0.0",
-  "publisher": "eolkits",
+  "version": "1.1.0",
+  "publisher": "rupture",
   "icon": "icon.png",
   "galleryBanner": {
     "color": "#E8801A",
@@ -48,7 +48,10 @@
     "onLanguage:typescript",
     "onLanguage:typescriptreact",
     "onLanguage:terraform",
-    "onLanguage:python"
+    "onLanguage:python",
+    "onCommand:rupture.scanWorkspace",
+    "onCommand:rupture.showReport",
+    "onCommand:rupture.getAudit"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -100,6 +103,29 @@
           "type": "boolean",
           "default": true,
           "description": "Automatically scan on file save"
+        },
+        "rupture.enabledKits": {
+          "type": "array",
+          "default": ["lambda-lifeline", "al2023-gate", "python-pivot"],
+          "description": "Legacy setting retained for the v1.1 transition. Use eolkits.enabledKits.",
+          "deprecationMessage": "Use eolkits.enabledKits instead.",
+          "items": {
+            "type": "string",
+            "enum": ["lambda-lifeline", "al2023-gate", "python-pivot"]
+          }
+        },
+        "rupture.severityThreshold": {
+          "type": "string",
+          "default": "medium",
+          "description": "Legacy setting retained for the v1.1 transition. Use eolkits.severityThreshold.",
+          "deprecationMessage": "Use eolkits.severityThreshold instead.",
+          "enum": ["low", "medium", "high", "critical"]
+        },
+        "rupture.autoScan": {
+          "type": "boolean",
+          "default": true,
+          "description": "Legacy setting retained for the v1.1 transition. Use eolkits.autoScan.",
+          "deprecationMessage": "Use eolkits.autoScan instead."
         }
       }
     },

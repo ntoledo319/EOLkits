@@ -61,8 +61,11 @@ All code and evidence below is inside the workspace jail.
 
 - Buyer sentence: flag bundled AWS deprecation patterns locally on save or on
   demand in YAML, JSON/JSONC, Terraform/HCL, JavaScript/TypeScript, and Python.
-- Completeness: TypeScript compile, current ESLint, scanner behavior suite, and
-  minimal 11-file VSIX package pass. It is not yet observed in the Marketplace.
+- Completeness: the exact public listing `rupture.rupture-vscode` is live at
+  v1.0.0 with 101 cumulative installs and 162 downloads observed on August 22.
+  A tested 12-file EOLkits-branded v1.1.0 in-place update preserves that stable
+  identity, legacy commands/settings, and the installed base; publication is
+  still owner-gated.
 - $0 deploy/distribution: Visual Studio Marketplace.
 - License/provenance: MIT; VSIX contains compiled project code, manifest, README,
   icon, and license, with no node_modules.
@@ -144,9 +147,11 @@ All code and evidence below is inside the workspace jail.
   closed. Historical Worker versions also require account-level key rotation.
 - Distribution: the Action v2 ref and repaired GitHub Pages fallback are public,
   and the 51 canonical Pages URLs have one accepted IndexNow submission, but the
-  Marketplace listing remains stale at v1.1.0; VS is not observed in its
-  marketplace, indexing/traffic remain unobserved, and the repository metadata
-  still points at the stale custom domain with an unsupported “unpatched” claim.
+  GitHub Marketplace listing remains stale at v1.1.0. The VS Marketplace has a
+  real legacy-branded v1.0.0 listing and installed base, but its EOLkits v1.1.0
+  repair is not published; indexing/traffic remain unobserved, and repository
+  metadata still points at the stale custom domain with an unsupported
+  “unpatched” claim.
 - Legal: accurate seller/controller identity, address, governing law, tax
   posture, and $0 incremental hosting confirmation are owner-only gates.
 - Remote history: origin/main accumulated synthetic status/benchmark commits and
@@ -214,3 +219,24 @@ All code and evidence below is inside the workspace jail.
 - The GRACE static feed now has the exact final tree at `0780909c`, but the
   current custom domain still serves obsolete product copy and its capabilities
   endpoint returns 404. Collected revenue remains $0.
+
+## VS Marketplace distribution recovery — August 22
+
+- Exact Marketplace API lookup found the existing public identity
+  `rupture.rupture-vscode`; searching only for the EOLkits rebrand had produced
+  a false negative. The old listing reports v1.0.0, 101 cumulative installs,
+  and 162 downloads. These are historical baseline counters, not current EOLkits
+  demand, attributable traffic, or revenue.
+- The currently published v1.0.0 code links findings to
+  `https://ntoledo319.github.io/Rupture/audit`, which now returns HTTP 404. A
+  repository rebrand had also changed the package identity to the nonexistent
+  `eolkits.eolkits-vscode`, abandoning the only observed extension distribution.
+- The release candidate restores the immutable Marketplace identity while
+  retaining EOLkits display branding, bumps to v1.1.0, routes to the verified
+  Pages Audit, and keeps legacy `rupture.*` commands and explicitly configured
+  settings working through the transition. The package workflow rejects any
+  identity other than `rupture.rupture-vscode`.
+- A findings-only, public, nonbinding `$299 Audit interest` path now provides a
+  privacy-bounded signal. Acquisition evidence separates VS-attributed issues
+  and external authors. Neither the form nor the local package is a sale; the
+  five-day V1 falsifier starts only after the owner publishes v1.1.0.

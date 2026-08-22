@@ -88,7 +88,7 @@ T$ means disqualified within this cycle.
 | K5 | 14 | 10 | P | $290.03 | M | Useful acquisition, no built-in payment |
 | K6 | — | 15 | M | $0 | H | Repackaged free code; archived |
 | K7 | — | 30 | N | $0 | H | Requires contracts and support |
-| V1 | 10 | 7 | M | $580.06 | M | Strong compounding funnel if published |
+| V1 | 10 | 1 | M | $580.06 | M | Existing 101-install listing; in-place update pending |
 | V2 | — | 25 | M | $0 | H | Entitlements/payment/support unbuilt |
 | V3 | 21 | 20 | M | $290.03 | M | Duplicates A1 at lower fidelity |
 | V4 | — | 20 | N | $0 | M | No channel or differentiated buyer |
@@ -207,8 +207,10 @@ pay, so A1's U hypothesis remains $2,320.24 and observed revenue remains $0.
 K1 remains the fastest bet. Public `v2` now points to fully green commit
 `9c231b58`, and its report funnel can show the real artifact. The Marketplace
 listing itself still reports v1.1.0, so the existing built-in distribution is
-not repaired until HQ-5 publishes the prepared draft. V1 remains third because
-the tested VSIX is still absent from Marketplace search. C4 remains fourth;
+not repaired until HQ-5 publishes the prepared draft. V1 remains third, but the
+exact-ID audit corrected the prior search inference: `rupture.rupture-vscode`
+is public at v1.0.0 with 101 cumulative installs and 162 downloads. Its tested
+in-place v1.1.0 update is not public yet. C4 remains fourth;
 another accepted IndexNow notification is release/discovery opportunity, not a
 visit or conversion.
 
@@ -217,3 +219,25 @@ The portfolio falsifiers do not move: K1's first five-full-day checkpoint stays
 paid reports, 1 star, 0 forks, and $0 collected. Do not open another SKU or
 infer demand from sample downloads, CI probes, IndexNow receipt, or internal
 artifact inspection.
+
+## Existing VS distribution recovery — August 22
+
+V1 is stronger than previously recorded but does not move above K1 or A1. The
+project already owns a public `rupture.rupture-vscode` listing with 101
+cumulative installs and 162 downloads; the EOLkits rename changed the technical
+identity and therefore hid, rather than migrated, that channel. The published
+v1.0.0 also sends its Audit link to a current HTTP 404.
+
+Preserve the stable identity and publish an EOLkits-branded v1.1.0 update through
+the existing credential. The candidate preserves legacy commands and settings,
+repairs all paid-funnel links, and exposes a findings-only qualified-interest
+form whose VS source is counted separately. This shrinks estimated owner labor
+from five minutes of publisher/credential setup to one workflow dispatch and
+verification; it does not authorize an autonomous Marketplace post.
+
+The 101 installs and 162 downloads establish a distribution asset only. Set the
+V1 baseline to those counters when v1.1.0 publishes. After five full days, zero
+counter growth and zero external VS-attributed qualified-interest authors kills
+the extension-as-revenue-channel hypothesis; retain the free utility without
+further promotion. Do not count auto-updates, existing installs, or owner probes
+as demand.

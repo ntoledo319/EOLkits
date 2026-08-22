@@ -29,15 +29,21 @@ jobs:
         run: npm test
         working-directory: apps/vscode-extension
 
+      - name: Verify existing Marketplace identity
+        run: |
+          test "$(node -p \"require('./package.json').publisher + '.' + require('./package.json').name\")" = 'rupture.rupture-vscode'
+          test "$(node -p \"require('./package.json').version\")" = '1.1.0'
+        working-directory: apps/vscode-extension
+
       - name: Package extension
         run: npm run package
         working-directory: apps/vscode-extension
 
       - name: Publish extension
         run: |
-          VSIX="$(find . -maxdepth 1 -type f -name 'eolkits-vscode-*.vsix' -print -quit)"
-          test -n "$VSIX"
-          npx vsce publish --packagePath "$VSIX" -p "$VSCE_PAT"
+          mapfile -t VSIX_FILES < <(find . -maxdepth 1 -type f -name '*.vsix' -print)
+          test "${#VSIX_FILES[@]}" -eq 1
+          npx vsce publish --packagePath "${VSIX_FILES[0]}" -p "$VSCE_PAT"
         working-directory: apps/vscode-extension
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}

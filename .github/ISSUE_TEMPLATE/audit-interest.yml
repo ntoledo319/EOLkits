@@ -16,6 +16,7 @@ body:
       options:
         - Browser scanner
         - GitHub Action
+        - VS Code extension
         - Migration or fix guide
         - Local EOLkits CLI
         - Other public EOLkits page

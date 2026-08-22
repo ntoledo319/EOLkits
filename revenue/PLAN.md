@@ -73,10 +73,12 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
   relevant users to the same Audit page.
 - Funnel: VS Marketplace/editor search and organic error searches → local
   finding or answer page → Audit sample/availability.
-- Owner work: one publisher authentication and publish action.
+- Owner work: one dispatch and verification against the already-public
+  `rupture.rupture-vscode` listing; no new publisher or listing.
 - 28-day planning hypothesis: two Audit sales = $580.06 net. This is unobserved.
-- Falsifier: after nine live days, zero extension installs and zero attributable
-  Audit views; stop extension promotion and retain it only as a free utility.
+- Falsifier: after five full v1.1.0 days, zero install/download growth and zero
+  external VS-attributed qualified-interest authors triggers one repositioning;
+  four more zero-signal days stop promotion and leave only the free utility.
 
 ## Sequence
 
@@ -93,7 +95,8 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
    verified live `rupture-worker` itself is already a tested HTTP 410 tombstone.
 4. Deploy Audit v2 with checkout disabled and complete the full Stripe test-mode
    operational gate.
-5. Update the existing GitHub Marketplace listing and publish the tested VSIX.
+5. Update the existing GitHub Marketplace listing and publish VS v1.1.0 in place
+   over `rupture.rupture-vscode`; do not create a rebranded second listing.
 6. Supply the truthful legal/controller values, then enable Audit checkout only
    if every gate is green and incremental hosting cost is $0.
 7. Measure dollars, purchases, checkout starts, qualified Audit views, Action
@@ -145,8 +148,16 @@ Observed demand remains zero: 0 qualified issues, 0 paid reports, 1 repository
 star, 0 forks, and $0 collected. Bet A's first five-full-day falsifier remains
 2026-08-27 20:29 UTC; internal downloads and release probes do not move it.
 
+The strongest recovered distribution asset is the existing
+`rupture.rupture-vscode` listing: its public baseline is v1.0.0, 101 cumulative
+installs, and 162 downloads. The published version sends users to a dead
+`/Rupture/audit` URL. The tested v1.1.0 candidate now preserves that identity and
+legacy user settings/commands, repairs the verified Audit route, and measures
+only user-submitted, findings-qualified VS interest. It is not public yet, and
+the baseline counters are not demand or revenue.
+
 Highest-leverage next action remains the five-minute owner HQ-2 exact Stripe
-closure/key rotation, followed immediately by the two-minute HQ-5 Marketplace
-publish. Then complete the closed GRACE fulfillment proof before enabling the
-single $299 Price. Do not add a product, lower the price, or call the live sample
-demand evidence.
+closure/key rotation, followed by the two-minute HQ-5 GitHub Marketplace publish
+and one-minute HQ-6 in-place VS update. Then complete the closed GRACE fulfillment
+proof before enabling the single $299 Price. Do not create another VS publisher,
+add a product, lower the price, or call installs/auto-updates demand evidence.
