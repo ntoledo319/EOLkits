@@ -9,7 +9,7 @@ All code and evidence below is inside the workspace jail.
   cited migration/error guidance without uploading code.
 - Stack: deterministic Python/Jinja/PyYAML generator producing docs/ for GitHub
   Pages; client-side scanner and first-party event beacon.
-- Completeness: 24 generated-site tests pass; the 84-file output is
+- Completeness: 32 generated-site tests pass; the 87-file public tree is
   byte-deterministic across consecutive builds, link/source checked, and free of
   trailing whitespace. The GitHub Pages project-path build keeps static links
   under `/EOLkits` and API calls on `eolkits.com`. Both GitHub Pages deployment
@@ -47,7 +47,7 @@ All code and evidence below is inside the workspace jail.
 - $0 deploy/distribution: public GitHub repository and the existing GitHub
   Marketplace Action listing.
 - Distribution state: the tested `v2` release branch is public and resolves to
-  commit `db32bdfb`, so `uses: ntoledo319/EOLkits@v2` works now and routes report
+  green commit `9c231b58`, so `uses: ntoledo319/EOLkits@v2` works now and routes report
   interest to the verified Pages funnel. The Marketplace
   page still exposes the stale v1.1.0 release until the owner publishes the
   prepared private v2.0.0 draft with the Marketplace checkbox.
@@ -76,8 +76,10 @@ All code and evidence below is inside the workspace jail.
   evidence PDF with exact locations, cited rules, hashes, and explicit limits.
 - Stack: FastAPI, SQLite FULL WAL, immutable bounded uploads, Stripe webhooks,
   durable jobs/refunds, Resend, WeasyPrint, signed report URLs.
-- Completeness: 74 API cases and 14 report-runner cases pass; production
-  operation is unproved. Checkout
+- Completeness: 74 API cases and 33 report-runner cases pass. A genuine
+  four-page fictional PDF, its five-file ZIP input, and an exact hash/evidence
+  manifest are public and generated through the same report engine. Production
+  operation remains unproved. Checkout
   defaults off and readiness also fails closed on missing runner, email, Stripe,
   storage, pending refunds, or at-risk fulfillment.
 - $0 deploy: existing GRACE capacity only if the owner confirms $0 incremental
@@ -117,10 +119,11 @@ All code and evidence below is inside the workspace jail.
   questions and lead to the free scanner.
 - Completeness: generated on-site pages separate provider-sourced dates from
   workload-specific checks and are link-checked. A false universal IMDSv1
-  deadline now has a noindex correction route. Twenty-five
-  DEV posts were observed, with zero comments on the profile; their old paid
-  claims require manual review. Outreach, social, HN, Gumroad, and repost
-  material is archived and marked do-not-publish.
+  deadline now has a noindex correction route. All 25 local DEV source copies
+  carry an explicit do-not-publish guard. The 25 already-live DEV posts were
+  observed with zero comments and still require owner unpublication because
+  their scope/privacy/product claims are stale. Outreach, social, HN, Gumroad,
+  and repost material is archived and marked do-not-publish.
 - $0 deploy/distribution: GitHub Pages; external platforms require owner review
   and manual approval under their current terms.
 - License/provenance: owned drafts, but technical facts and platform policy must
@@ -165,7 +168,7 @@ All code and evidence below is inside the workspace jail.
   issue authors and public `@v2` code references. It writes only a run summary
   and 14-day artifact; it never comments, posts, commits metrics, or calls an
   external person. Interest remains a signal, never revenue.
-- The generated site has 24 passing cases, including JavaScript parsing of the
+- The generated site has 32 passing cases, including JavaScript parsing of the
   Audit, scanner, and status pages. It stores no visitor ID, cookie, referrer,
   or local-storage attribution. Telemetry stays dormant until the v2 capability
   handshake succeeds, then sends only canonical first-party fields.
@@ -183,3 +186,31 @@ All code and evidence below is inside the workspace jail.
   `acquisition-evidence-32597777625` still observed zero qualified authors and
   zero external public `@v2` references. Search-engine receipt and those zero
   lower bounds do not establish demand.
+
+## Engine-generated proof release — August 22
+
+- Main and public `v2` now resolve to `9c231b58`; the remote tree
+  `8a25da73a1dc8c3c9107c76e7a20d87cc620cd98` exactly matches the final locally
+  verified tree.
+- Pages serves the real four-page Audit PDF at
+  https://ntoledo319.github.io/EOLkits/audit/sample/eolkits-sample-report.pdf,
+  the complete fictional input at
+  https://ntoledo319.github.io/EOLkits/audit/sample/fictional-repository.zip,
+  and its manifest at
+  https://ntoledo319.github.io/EOLkits/audit/sample/eolkits-sample-report.json.
+- The PDF/ZIP/manifest SHA-256 values are respectively `855c793c8b2735f54fad08465f05c50943cb7908fd194b43dacf0eca9c423d9a`,
+  `3fd7c4f6cfdb27d436399a0a639d4990303030839a0a338bb343a1ef12031b67`,
+  and `8ad77bb90851ec9ec1ae893118bb3efca69d4545e72ee179915b957222396a58`.
+- The report engine now binds Lambda-runtime findings to supported Lambda
+  configuration contexts, bounds archive/line/config/resource/evidence and
+  dependency complexity, records skipped files and page count, and labels
+  future AWS dates as projected. These are product-quality facts, not proof of
+  buyer demand.
+- The first remote sample gate exposed platform-specific native PDF
+  serialization. The replacement keeps the published PDF's exact manifest hash
+  while requiring identical fixture, page count, rule pack, findings, evidence,
+  and every other renderer-independent engine field. All replacement release,
+  determinism, property, and Pages gates passed.
+- The GRACE static feed now has the exact final tree at `0780909c`, but the
+  current custom domain still serves obsolete product copy and its capabilities
+  endpoint returns 404. Collected revenue remains $0.

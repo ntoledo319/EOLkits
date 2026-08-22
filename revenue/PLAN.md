@@ -114,54 +114,39 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
 
 ## Current gap and next action
 
-Collected profit: $0. Gap: $4,000. Checkout: closed. The repaired release is on
-main through the project-path/CI follow-ups. The replacement release workflow,
-determinism and property gates, both container builds, and both GitHub Pages
-deployment mechanisms passed. A public probe verified `/EOLkits` navigation,
-the split API origin, and closed-product tombstones. The tested `v2` Action ref
-is now publicly installable at the final `db32bdfb` acquisition commit; Action,
-repository, kit, and future VS links route to the verified Pages funnel. The
-honest private v2.0.0 Marketplace draft is synchronized to the same commit.
-Highest-leverage next action is the owner's five-minute exact Stripe workflow/
-key-rotation task because the stale GRACE API still exposes charge-capable POST
-routes. The two-minute Marketplace agreement/2FA publish step follows immediately
-to start measuring external distribution while the live-domain and real
-payment/fulfillment gates are completed.
-The exposed pre-rename Cloudflare Worker is no longer a payment bypass: public
-health reports `retired: true`, its commercial and webhook paths return HTTP
-410, and retirement workflow run `32591848083` passed. The old-account token
-could not see a unique `eolkits.com` zone, but public DNS resolves directly to
-GRACE; the Worker tombstone remains safe even if a route is reintroduced.
-The active GRACE static deploy feed was safely converged on the verified main
-tree at commit `c3112151`; its next observed run is expected near 07:17 UTC and
-a repository workflow will verify the public domain at 07:35 UTC. Until that
-probe passes, `eolkits.com` is still not counted as repaired. The API/payment
-deployment remains owner-authenticated and checkout remains closed. Repository
-automation also proved it has neither a known GRACE deploy transport nor the
-complete runtime-secret bundle, so that identity boundary cannot be hidden in a
-push. Main commit `e4109e3e` contains the reviewed Stripe closure; its Worker,
-release, determinism, property, Pages, and tombstone workflows passed. The
-owner-only production Stripe workflow itself has not run. No outbound message,
-bid, post, or customer commitment is authorized.
+Collected profit: **$0**. Gap: **$4,000**. Checkout: **closed**.
 
-Main commit `db32bdfb` now exposes a backend-independent price-qualified signal:
-only a real browser/Action finding exposes a public GitHub issue form that
-requires the exact $299 scope and purchase consideration. Read-only run
-`32596830945` preserved the first observation; Pages, release, determinism,
-property, Marketplace-draft, and public `v2` verification are green. Baseline
-observed values remain zero qualified issues, zero external public `@v2` code
-references, zero paid reports, and $0 collected. Bet A's five-day gate begins at
-2026-08-22 20:29 UTC while checkout telemetry remains dormant behind the v2
-capability handshake. The owner priority stays HQ-2 → HQ-5 → closed v2
-deployment; demand instrumentation does not make the stale API safe to charge.
+The strongest autonomous conversion repair is now public. Main and the
+installable `v2` ref both resolve to green commit `9c231b58`; the verified Pages
+funnel exposes an actual four-page report created by the paid report engine,
+its entirely fictional ZIP input, and a hash/evidence manifest:
 
-Main commit `951fd4b6` adds the strongest remaining autonomous discovery action:
-an official-protocol IndexNow workflow for the verified Pages corpus. It checks
-the already-public ownership key, confines submissions to the `/EOLkits/`
-prefix, caps the batch, maps ordinary pushes to changed/deleted HTML, and treats
-HTTP 200/202 only as receipt. Bootstrap run `32597777674` accepted the 51-URL
-sitemap batch; every release/Pages/property/determinism gate also passed. Fresh
-acquisition run `32597777625` still observed 0 qualified issues, 0 external
-public `@v2` references, no v2.0.0 public release, 1 star, and 0 forks. Therefore
-the next leverage remains owner HQ-2 then HQ-5; do not build another SKU or move
-the August 27 falsifier forward because of an indexing notification.
+- https://ntoledo319.github.io/EOLkits/audit/
+- https://ntoledo319.github.io/EOLkits/audit/sample/eolkits-sample-report.pdf
+- https://ntoledo319.github.io/EOLkits/audit/sample/fictional-repository.zip
+- https://ntoledo319.github.io/EOLkits/audit/sample/eolkits-sample-report.json
+
+The public PDF is 29,392 bytes with SHA-256
+`855c793c8b2735f54fad08465f05c50943cb7908fd194b43dacf0eca9c423d9a`.
+The replacement release, determinism, property, custom Pages, and built-in Pages
+workflows passed. The first Pages attempt failed because native WeasyPrint/font
+stacks can serialize an equivalent PDF differently; the corrected gate preserves
+the published artifact's exact hash and compares every renderer-independent
+engine field. That failure is recorded, not hidden.
+
+The private v2.0.0 Marketplace draft was synchronized to feature commit
+`bffb335a`; final `9c231b58` changes only the cross-renderer sample test, so its
+Action files are identical. The Marketplace itself still advertises v1.1.0.
+The GRACE static feed now points at two-parent commit `0780909c` with the exact
+final tree, but `eolkits.com` still serves Migration Pack/Drift Watch copy and
+`/api/capabilities` returns 404 until the next observed deploy or owner rollout.
+
+Observed demand remains zero: 0 qualified issues, 0 paid reports, 1 repository
+star, 0 forks, and $0 collected. Bet A's first five-full-day falsifier remains
+2026-08-27 20:29 UTC; internal downloads and release probes do not move it.
+
+Highest-leverage next action remains the five-minute owner HQ-2 exact Stripe
+closure/key rotation, followed immediately by the two-minute HQ-5 Marketplace
+publish. Then complete the closed GRACE fulfillment proof before enabling the
+single $299 Price. Do not add a product, lower the price, or call the live sample
+demand evidence.
