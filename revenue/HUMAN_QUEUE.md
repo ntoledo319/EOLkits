@@ -10,6 +10,12 @@ package run `32604619029` are green; the publication workflow now requires exact
 owner identity and typed confirmation. Guard commit `32d01c2f` and its complete
 release run `32605744293` are also green.
 
+The autonomous goal is blocked after three consecutive live-state audits found
+the same owner identity/credential boundary. This is not a request for new
+planning. Any completed item below is a resume trigger; send its run URL or
+result back to Codex. The smallest useful batch remains HQ-2, HQ-5, and HQ-6:
+eight minutes total.
+
 Do HQ-2 first because the stale GRACE API can still mint live Checkout Sessions
 and the exact audit may stop on anomalous commerce state. Then do HQ-5 and HQ-6
 in the same sitting so the repaired, fail-closed Pages funnel starts receiving
