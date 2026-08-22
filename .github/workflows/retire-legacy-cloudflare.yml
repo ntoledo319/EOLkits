@@ -81,9 +81,18 @@ jobs:
             <<<"$health" >/dev/null
 
           for path in checkout api/checkout pack/install webhook/stripe; do
-            status="$(curl --silent --show-error --max-time 20 \
-              --output /dev/null --write-out '%{http_code}' \
-              "$LEGACY_WORKER_URL/$path")"
+            status=''
+            attempt=0
+            while (( attempt < 12 )); do
+              attempt=$((attempt + 1))
+              status="$(curl --silent --show-error --max-time 20 \
+                --output /dev/null --write-out '%{http_code}' \
+                "$LEGACY_WORKER_URL/$path")"
+              if [[ "$status" == '410' ]]; then
+                break
+              fi
+              sleep 5
+            done
             if [[ "$status" != '410' ]]; then
               echo "::error::Legacy /$path returned HTTP $status instead of 410"
               exit 1
