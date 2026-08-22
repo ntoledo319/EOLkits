@@ -23,7 +23,6 @@ jobs:
   retire:
     runs-on: ubuntu-latest
     env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       WRANGLER_SEND_METRICS: 'false'
     steps:
       - uses: actions/checkout@v6
@@ -44,6 +43,8 @@ jobs:
 
       - name: Replace the exact legacy Worker with the tombstone
         working-directory: apps/worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           set -euo pipefail
           if [[ -z "$CLOUDFLARE_API_TOKEN" ]]; then
@@ -111,6 +112,8 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Remove only exact retired EOLkits routes when permitted
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           set -euo pipefail
           api='https://api.cloudflare.com/client/v4'
