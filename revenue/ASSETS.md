@@ -117,7 +117,8 @@ All code and evidence below is inside the workspace jail.
 - Legal: accurate seller/controller identity, address, governing law, tax
   posture, and $0 incremental hosting confirmation are owner-only gates.
 - Remote history: origin/main accumulated synthetic status/benchmark commits and
-  low-information weekly pages; those generators are removed.
+  low-information weekly pages; the repaired tree is now on main and those
+  generators are removed.
 - Funnel sprawl: closed Migration Pack, organization, partner, and scanner
   research-list forms were removed. Those pages no longer collect speculative
   leads or promise future features.

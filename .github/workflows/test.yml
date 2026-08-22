@@ -93,6 +93,10 @@ jobs:
 
   web:
     runs-on: ubuntu-latest
+    env:
+      EOLKITS_BASE_PATH: /EOLkits
+      EOLKITS_SITE_URL: https://ntoledo319.github.io/EOLkits
+      EOLKITS_API_URL: https://eolkits.com
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6

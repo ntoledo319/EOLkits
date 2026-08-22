@@ -26,6 +26,9 @@ jobs:
     env:
       TMPDIR: ${{ github.workspace }}/tmp/runtime-tmp
       PIP_CACHE_DIR: ${{ github.workspace }}/tmp/pip-cache
+      EOLKITS_BASE_PATH: /EOLkits
+      EOLKITS_SITE_URL: https://ntoledo319.github.io/EOLkits
+      EOLKITS_API_URL: https://eolkits.com
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
@@ -38,12 +41,6 @@ jobs:
           "$GITHUB_WORKSPACE/tmp/web-venv/bin/pip" install -r apps/web/requirements-dev.txt
           "$GITHUB_WORKSPACE/tmp/web-venv/bin/python" apps/web/build.py
           git diff --exit-code -- docs
-      - name: Build the GitHub Pages project-path artifact
-        env:
-          EOLKITS_BASE_PATH: /EOLkits
-          EOLKITS_SITE_URL: https://ntoledo319.github.io/EOLkits
-          EOLKITS_API_URL: https://eolkits.com
-        run: "$GITHUB_WORKSPACE/tmp/web-venv/bin/python apps/web/build.py"
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:

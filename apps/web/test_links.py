@@ -27,11 +27,15 @@ def _target(link: str) -> Path | None:
     parsed = urlsplit(link)
     if parsed.scheme or parsed.netloc or not parsed.path.startswith("/"):
         return None
-    if parsed.path.startswith(("/api/", "/upload/")):
+    path = parsed.path
+    project_base = build.PROJECT_BASE_PATH.rstrip("/")
+    if project_base and (path == project_base or path.startswith(project_base + "/")):
+        path = path[len(project_base) :] or "/"
+    if path.startswith(("/api/", "/upload/")):
         return None
-    relative = unquote(parsed.path).lstrip("/")
+    relative = unquote(path).lstrip("/")
     candidate = DOCS / relative
-    return candidate / "index.html" if parsed.path.endswith("/") else candidate
+    return candidate / "index.html" if path.endswith("/") else candidate
 
 
 def test_generated_internal_links_resolve() -> None:
