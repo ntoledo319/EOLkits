@@ -1,0 +1,54 @@
+name: Prepare Marketplace v2 draft
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/prepare-marketplace-v2.yml'
+      - '.github/release-notes/marketplace-v2.md'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: prepare-marketplace-v2
+  cancel-in-progress: false
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Validate the release surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f action.yml
+          test -f apps/github-action/run.sh
+          grep -Fq 'uses: ntoledo319/EOLkits@v2' README.md
+          grep -Fq 'The only paid product EOLkits is prepared to offer' README.md
+          if grep -Eiq 'surge to|Migration Pack.*\$|Org License.*\$|Drift Watch.*\$' README.md; then
+            echo "::error::Retired commercial claim found in the release README"
+            exit 1
+          fi
+
+      - name: Create the private release draft once
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          release_id="$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases" \
+            --jq '.[] | select(.tag_name == "v2.0.0") | .id' | head -n 1)"
+          if [[ -n "$release_id" ]]; then
+            echo "Release v2.0.0 already exists as id $release_id; leaving it unchanged."
+            exit 0
+          fi
+          gh release create v2.0.0 \
+            --draft \
+            --target "$GITHUB_SHA" \
+            --title 'Rupture AWS Deprecation Check v2.0.0' \
+            --notes-file .github/release-notes/marketplace-v2.md
+          echo "Created private v2.0.0 draft at commit $GITHUB_SHA."
