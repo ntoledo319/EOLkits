@@ -263,3 +263,26 @@ obsolete custom-domain acquisition paths across distribution sources. Commit
 8748cf6a passed the full remote release, determinism, property, Pages, and draft
 workflows. Only after those gates passed did the `v2` branch fast-forward without
 force to that commit; the private v2.0.0 draft was synchronized to the same tree.
+
+## D20 — recover the observed GRACE static feed without smuggling an API deploy
+
+The production home page reported a 07:17 UTC modification time. The source
+branch used by the historically installed GRACE cron had advanced at 06:14 UTC
+the same day, proving that the static auto-deploy remained active even though
+the repository copy of the cron was retired. That branch still contained the
+unsafe multi-product site and was one commit ahead of the history already joined
+into repaired main.
+
+Do not force the branch and do not hide infrastructure mutation inside the
+static builder. Instead create a two-parent commit whose first parent is the
+live branch tip, whose second parent is verified main, and whose tree exactly
+matches main. Advancing `marketing-machine-v2` without force to `c3112151`
+preserves the remote date correction while giving the next daily static build
+the truthful, fail-closed site.
+
+Add a read-only scheduled workflow after the observed deployment window. It
+must reject retired prices/products, Pages-only paths on the root domain, and an
+Audit form that is not initially gated. This can remove the manual static rsync
+from owner labor only after the public probe passes. It cannot deploy or validate
+the paid API, reuse secret material, accept Marketplace terms, or establish
+demand; those gates remain separate.

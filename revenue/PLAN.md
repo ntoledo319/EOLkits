@@ -119,5 +119,9 @@ repository, kit, and future VS links route to the verified Pages funnel. The
 honest private v2.0.0 Marketplace draft is synchronized to the same commit.
 Highest-leverage next action is the owner's two-minute Marketplace agreement/2FA
 publish step, followed by the live-domain and real payment/fulfillment gates.
-The live `eolkits.com` deployment is not yet repaired. No outbound message, bid,
-post, or customer commitment is authorized.
+The active GRACE static deploy feed was safely converged on the verified main
+tree at commit `c3112151`; its next observed run is expected near 07:17 UTC and
+a repository workflow will verify the public domain at 07:35 UTC. Until that
+probe passes, `eolkits.com` is still not counted as repaired. The API/payment
+deployment remains owner-authenticated and checkout remains closed. No outbound
+message, bid, post, or customer commitment is authorized.

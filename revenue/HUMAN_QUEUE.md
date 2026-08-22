@@ -1,6 +1,6 @@
 # Batched owner queue — maximum 44 minutes
 
-Last reconciled August 22 after the verified acquisition-routing release.
+Last reconciled August 22 after recovering the observed GRACE static deploy feed.
 
 Do HQ-6 first because it repairs the existing public distribution listing, then
 complete HQ-1 through HQ-5, HQ-7, and finally HQ-8. Checkout remains closed
@@ -63,10 +63,13 @@ Steps:
 
 1. Open deploy/grace/README.md in this repository and follow “Deploy checkout
    closed” exactly with EOLKITS_AUDIT_CHECKOUT_ENABLED=0.
-2. From the reviewed repository root, run `deploy/grace/ship-web.sh` with the
-   documented `GRACE_HOST` and `GRACE_WEBROOT`, inspect its dry-run, then rerun
-   it with `--apply`. Verify https://eolkits.com no longer advertises Migration
-   Pack, Organization License, Drift Watch, automatic PRs, or estimated impact.
+2. First inspect the scheduled “Verify GRACE static release” run after 07:35 UTC.
+   The still-active box-side deploy now follows the verified truthful tree. If
+   that run passes, do not run a redundant static rsync. If it fails, use
+   `deploy/grace/ship-web.sh` with the documented `GRACE_HOST` and
+   `GRACE_WEBROOT`, inspect its dry-run, then rerun it with `--apply`. Verify
+   https://eolkits.com no longer advertises Migration Pack, Organization
+   License, Drift Watch, automatic PRs, or estimated impact.
 3. Confirm the deployed commit SHA and that public /api/capabilities reports
    report_version 2.0 with checkout_enabled false.
 4. Follow “Test-mode E2E deployment” using the separate test Compose project,

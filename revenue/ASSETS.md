@@ -15,7 +15,11 @@ All code and evidence below is inside the workspace jail.
   under `/EOLkits` and API calls on `eolkits.com`. Both GitHub Pages deployment
   paths now publish that same artifact, and a public probe passed at
   https://ntoledo319.github.io/EOLkits/. The observed `eolkits.com` deployment
-  is still obsolete until the owner runs the reviewed GRACE ship path.
+  is still obsolete. An active box-side daily deploy was proved from its
+  07:17 UTC `Last-Modified` time and the immediately preceding source-branch
+  commit. Its source feed now points, without force, at the verified truthful
+  tree; the next observed run and an independent scheduled verifier must pass
+  before the custom domain is counted as repaired.
 - $0 deploy: GitHub Pages.
 - License/provenance: repository MIT; factual AWS claims require primary-source
   review. No buyer code leaves the browser scanner.
