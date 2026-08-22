@@ -312,3 +312,42 @@ the domain resolves directly to GRACE, that route cannot execute today; keeping
 the exact Worker as an explicit tombstone is also safer than deletion if routing
 is changed later. Remove the three-minute Cloudflare task from the owner queue.
 This is risk retirement, not demand or revenue; collected revenue remains zero.
+
+## D22 — retire the exact Stripe catalog before reopening one verified SKU
+
+The GRACE production API still exposes charge-capable checkout handlers for the
+retired Audit, Migration Pack, and Drift products. Closing only public links or
+the old Cloudflare Worker is insufficient: a stale server can create new
+Checkout Sessions directly from an active Price ID. Treat this as the primary
+commercial blocker, ahead of additional acquisition work.
+
+Publish a manual, owner-gated Stripe retirement workflow rather than asking the
+owner to make a long sequence of error-prone dashboard edits. It accepts only
+the exact repository, `main` ref, repository owner as both actor identities, and
+the confirmation phrase `RETIRE_EXACT_EOLKITS_STRIPE_2026_08_22`. Its temporary
+admin Worker remains fail-closed on public routes and uses a short-lived bearer
+token. The audit validates the six known live Prices, their four Products,
+amounts, currencies, billing types, and the six historical Payment Link URLs;
+it refuses to silently absorb unexpected catalog state.
+
+Before mutation, enumerate open Checkout Sessions, recent completed live
+Sessions, subscriptions in every status, and subscription schedules including
+phase items and add-invoice items. Apply catalog mutations sequentially, then
+repeat an independent audit. Any observed open, paid, subscribed, scheduled, or
+unexpected object leaves `containment_complete` false and requires review even
+if an object transitions during the run. This favors evidence preservation over
+a misleading green result.
+
+Archive all six historical Prices, including the canonical $299 Price. The
+$299 Price is the only SKU eligible for later reactivation, but only after the
+closed Audit v2 deployment completes a real Stripe test-mode upload-to-PDF,
+delivery, verification, retention, and refund exercise. At launch, reactivate
+that Price alone; do not revive a historical Payment Link or any other SKU.
+
+Removing the Worker's `STRIPE_KEY` binding prevents the current service from
+using the credential, but Cloudflare version history can retain earlier secret
+snapshots. Therefore account-level Stripe key rotation/revocation remains an
+owner-only step in the same batch. The source, 39 focused Worker tests, dry-run
+bundle, YAML, ShellCheck, and public tombstone reassertion passed at main commit
+`e4109e3e`. The production workflow has not run, so no Stripe state changed and
+collected revenue remains $0.

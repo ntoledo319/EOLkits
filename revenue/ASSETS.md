@@ -92,7 +92,11 @@ All code and evidence below is inside the workspace jail.
   tested tombstone: health reports retirement and checkout, App-install, and
   webhook paths return 410. Its retained Queue consumer acknowledges stale
   events without fulfillment. Dormant PR-runner/JWT code and autonomous
-  publisher scripts were removed.
+  publisher scripts were removed. A separate owner-gated workflow now validates
+  the exact six live Price/Product/amount/currency/interval tuples, active
+  Product Prices, six historical Payment Link URLs, open and recent-completed
+  Checkout Sessions, subscriptions, and schedules before making only reversible
+  Price/Link changes. It is published and tested but has not been dispatched.
 - $0 deploy: the closure workflow uses the existing Cloudflare account and
   preserves only the explicit tombstone. Do not restore commerce bindings or
   deploy a new Worker product.
@@ -126,7 +130,9 @@ All code and evidence below is inside the workspace jail.
   willingness to pay.
 - Operations: no real Stripe test-mode end-to-end evidence has been recorded for
   Audit v2. The formerly live Stripe-capable Cloudflare Worker is now closed;
-  legacy Stripe Payment Links still require dashboard archival.
+  the exact Stripe retirement is owner-gated and has not run, so known catalog
+  Prices/Payment Links and the stale GRACE Checkout POSTs are not yet counted as
+  closed. Historical Worker versions also require account-level key rotation.
 - Distribution: the Action v2 ref and repaired GitHub Pages fallback are public,
   but the Marketplace listing remains stale at v1.1.0; VS is not observed in
   its marketplace, and owned-site traffic is unknown.

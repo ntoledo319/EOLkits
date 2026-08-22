@@ -155,3 +155,12 @@ Stripe-capable `rupture-worker` was subsequently replaced with the tested
 fail-closed tombstone and its public commerce/webhook paths now return 410.
 That removes a dangerous bypass and three owner minutes; it does not improve a
 frame's demand score or make A1 purchasable.
+
+The subsequent Stripe-account pass also leaves the ranking unchanged. Main now
+contains a manual, repository-owner-only workflow that can archive the six exact
+historical Prices and only the six approved Payment Link URLs after auditing
+unexpected Product Prices, open/recent-completed Checkout Sessions, recurring
+subscriptions, and schedules. Transition-race regressions and 39 Worker cases
+pass, but the production workflow has not run. This is prerequisite containment,
+not distribution, purchasability, or demand. K1 remains the fastest external
+signal, while A1 remains the only paid unit after its deployment/E2E gate.

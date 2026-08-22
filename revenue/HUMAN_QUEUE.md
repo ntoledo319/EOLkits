@@ -1,11 +1,12 @@
 # Batched owner queue — maximum 41 minutes
 
-Last reconciled August 22 after autonomously closing the legacy Cloudflare
-commerce Worker.
+Last reconciled August 22 after publishing and verifying the exact legacy
+Stripe-retirement workflow. The workflow has not been owner-dispatched.
 
-Do HQ-5 first because it repairs the existing public distribution listing, then
-complete HQ-1 through HQ-4, HQ-6, and finally HQ-7. Checkout remains closed
-until HQ-7. No old handoff or launch file is authoritative.
+Do HQ-2 first because the stale GRACE API can still mint live Checkout Sessions,
+then HQ-5 because it repairs existing distribution. Complete HQ-1, HQ-3, HQ-4,
+HQ-6, and finally HQ-7. Checkout remains closed until HQ-7. No old handoff or
+launch file is authoritative.
 
 ## HQ-1 — supply truthful seller/legal and cost facts (3 minutes)
 
@@ -23,23 +24,30 @@ Steps:
 
 Direct files: legal/terms.md and legal/privacy.md.
 
-## HQ-2 — close every legacy Stripe bypass (5 minutes)
+## HQ-2 — authorize exact Stripe closure and rotate the legacy key (5 minutes)
 
-Why human-only: Stripe account/KYC access and irreversible payment controls.
+Why human-only: the workflow requires the repository owner's identity and exact
+confirmation; account-level Stripe-key rotation is an owner credential action.
 
 Steps:
 
-1. Open https://dashboard.stripe.com/payment-links.
-2. Archive every active EOLkits direct Payment Link, including links associated
-   with Audit, Migration Pack, Organization License, and Drift Watch. The v2
-   report creates input-bound Checkout Sessions and must not use direct links.
-3. Open https://dashboard.stripe.com/products and archive the legacy prices for
-   product IDs prod_UQfbuGhdZM8Qt0, prod_UQfbikYoNBAPIJ, and
-   prod_UQfcRdVw0BeJCK. Also archive former Audit surge prices
-   price_1TRoEZDL3cQl851o9DFh1DIz and price_1TRoGiDL3cQl851ouqnljzMx.
-4. Keep transaction history. Keep the single $299 Audit Price
-   price_1TRoGjDL3cQl851oiIWR5JIa, but do not attach a public Payment Link.
-5. In https://dashboard.stripe.com/webhooks, remove only the endpoint pointing
+1. Open
+   https://github.com/ntoledo319/EOLkits/actions/workflows/retire-legacy-stripe.yml,
+   choose **Run workflow** on `main`, enter
+   `RETIRE_EXACT_EOLKITS_STRIPE_2026_08_22`, and run it. Do not select another
+   branch.
+2. Require a green run whose summary reports all six exact live Prices inactive,
+   zero approved active Payment Links, zero matching open/recent-completed
+   Checkout Sessions, zero future subscriptions/schedules, and zero unexpected
+   EOLkits Product prices/links. A red run intentionally preserves the Stripe
+   binding for review: stop and give the run URL to Codex; do not cancel a
+   subscription, expire a Session, or refund a charge from guesswork.
+3. After a green run, open https://dashboard.stripe.com/apikeys and rotate/revoke
+   the legacy live key used by the old Worker/GRACE deployment. Historical
+   Cloudflare versions retain old secret snapshots, so deleting the current
+   Worker binding is not account-level revocation. Keep transaction history.
+   Create/configure a distinct least-privilege production key only during HQ-3.
+4. In https://dashboard.stripe.com/webhooks, remove only the endpoint pointing
    to the retired Cloudflare Worker after HQ-3 proves the replacement test
    webhook. Do not remove unrelated endpoints.
 
@@ -130,14 +138,18 @@ Steps:
 Why human-only: this begins accepting real customer money.
 
 Prerequisites: HQ-1 through HQ-6 complete, zero unresolved refund/fulfillment
-alerts, and the exact production commit is verified.
+alerts, and the exact production commit is verified. HQ-2 intentionally leaves
+all six historical Prices inactive.
 
 Steps:
 
-1. Set EOLKITS_AUDIT_CHECKOUT_ENABLED=1 in the reviewed production environment.
-2. Redeploy only the Audit service and set repository variable
+1. Reactivate only the canonical $299 Audit Price
+   `price_1TRoGjDL3cQl851oiIWR5JIa`; do not reactivate any other Price and do not
+   create a public Payment Link.
+2. Set EOLKITS_AUDIT_CHECKOUT_ENABLED=1 in the reviewed production environment.
+3. Redeploy only the Audit service and set repository variable
    AUDIT_CHECKOUT_EXPECTED=true.
-3. Verify /api/capabilities reports Audit 2.0 ready, then confirm the static form
+4. Verify /api/capabilities reports Audit 2.0 ready, then confirm the static form
    appears and creates one $299 input-bound Checkout Session.
 
 Estimated current owner total: 41 minutes. This leaves a 19-minute reserve for

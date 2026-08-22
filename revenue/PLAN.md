@@ -85,11 +85,12 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
 2. Keep the honest GitHub Pages fallback and tested `v2` Action branch green;
    the owner publishes the prepared v2.0.0 draft into the existing Marketplace
    listing.
-3. Archive legacy Stripe links. The verified live `rupture-worker` was replaced
-   automatically with a tested HTTP 410 tombstone on August 22; its direct
-   checkout, App-install, and Stripe-webhook bypasses are closed. Public DNS
-   sends `eolkits.com` directly to GRACE, so any unobserved legacy Worker route
-   is inert and no longer an owner launch task.
+3. Run the owner-gated exact Stripe retirement. It validates and deactivates all
+   six historical catalog Prices—including $299 while fulfillment is closed—and
+   only the six approved Payment Link URLs; any charge/session/subscription/
+   schedule anomaly stops the containment claim. Rotate/revoke the account key
+   afterward because old Cloudflare versions retain secret snapshots. The
+   verified live `rupture-worker` itself is already a tested HTTP 410 tombstone.
 4. Deploy Audit v2 with checkout disabled and complete the full Stripe test-mode
    operational gate.
 5. Update the existing GitHub Marketplace listing and publish the tested VSIX.
@@ -121,8 +122,11 @@ the split API origin, and closed-product tombstones. The tested `v2` Action ref
 is now publicly installable at the final `8748cf6a` acquisition commit; Action,
 repository, kit, and future VS links route to the verified Pages funnel. The
 honest private v2.0.0 Marketplace draft is synchronized to the same commit.
-Highest-leverage next action is the owner's two-minute Marketplace agreement/2FA
-publish step, followed by the live-domain and real payment/fulfillment gates.
+Highest-leverage next action is the owner's five-minute exact Stripe workflow/
+key-rotation task because the stale GRACE API still exposes charge-capable POST
+routes. The two-minute Marketplace agreement/2FA publish step follows immediately
+to start measuring external distribution while the live-domain and real
+payment/fulfillment gates are completed.
 The exposed pre-rename Cloudflare Worker is no longer a payment bypass: public
 health reports `retired: true`, its commercial and webhook paths return HTTP
 410, and retirement workflow run `32591848083` passed. The old-account token
@@ -132,5 +136,10 @@ The active GRACE static deploy feed was safely converged on the verified main
 tree at commit `c3112151`; its next observed run is expected near 07:17 UTC and
 a repository workflow will verify the public domain at 07:35 UTC. Until that
 probe passes, `eolkits.com` is still not counted as repaired. The API/payment
-deployment remains owner-authenticated and checkout remains closed. No outbound
-message, bid, post, or customer commitment is authorized.
+deployment remains owner-authenticated and checkout remains closed. Repository
+automation also proved it has neither a known GRACE deploy transport nor the
+complete runtime-secret bundle, so that identity boundary cannot be hidden in a
+push. Main commit `e4109e3e` contains the reviewed Stripe closure; its Worker,
+release, determinism, property, Pages, and tombstone workflows passed. The
+owner-only production Stripe workflow itself has not run. No outbound message,
+bid, post, or customer commitment is authorized.

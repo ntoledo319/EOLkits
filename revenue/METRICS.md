@@ -225,3 +225,37 @@ benchmarks, or unverified analytics in this ledger.
   also fails closed if routing changes later.
 - No checkout, purchase, report delivery, qualified visit, or revenue was
   observed. Collected revenue remains $0.
+
+## GRACE capability and exact Stripe-retirement release — August 22, 2026
+
+- The read-only repository capability audit
+  https://github.com/ntoledo319/EOLkits/actions/runs/32592156556 reported
+  `deploy_transport=false` and `runtime_bundle=false`. No host, account, token,
+  key, or secret value was printed. This proves the known GitHub configuration
+  cannot authenticate to GRACE; it does not prove no owner credential exists.
+- Main commits
+  https://github.com/ntoledo319/EOLkits/commit/ca9d41f313879ca1cd15488de12a6f673aac33e3,
+  https://github.com/ntoledo319/EOLkits/commit/fdbea72db89a8a7fc519d066aea828e316863198,
+  and
+  https://github.com/ntoledo319/EOLkits/commit/e4109e3ebdb4623ba4e7cbced01c3fab364dc17f
+  added and hardened the owner-gated exact Stripe retirement. Its Worker build,
+  39 focused cases, Wrangler dry-run, YAML parse, ShellCheck, diff check, and
+  independent security review passed. Race tests cover open-to-complete Checkout
+  transitions and schedule-to-subscription transitions.
+- The final commit's release, determinism, property, Pages, and tombstone runs
+  passed:
+  https://github.com/ntoledo319/EOLkits/actions/runs/32594198744,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32594198725,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32594198691,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32594197817, and
+  https://github.com/ntoledo319/EOLkits/actions/runs/32594198743.
+- An independent public probe after those runs observed the exact normal
+  tombstone JSON at `rupture-worker.rupture-kits.workers.dev/health`, HTTP 410
+  on checkout, App-install, and webhook paths, and HTTP 410 for an unauthenticated
+  POST to the temporary retirement-admin path.
+- The production Stripe workflow is manual, requires the repository owner's
+  actor identity plus an exact confirmation, and has not run. Therefore no
+  Price, Payment Link, Checkout Session, subscription, schedule, charge, refund,
+  or Stripe-key state is recorded as changed or reconciled by this release.
+  Public rendering of the historical `buy.stripe.com` links also remains
+  unverified. Collected revenue remains $0 and delivered paid reports remain 0.
