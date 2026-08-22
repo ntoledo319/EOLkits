@@ -146,4 +146,8 @@ and the Action's tested `@v2` ref now resolves publicly with its report link
 pointing to that verified funnel. Repository, kit, and future VS acquisition
 links use the same surface. The Marketplace listing itself remains on stale
 v1.1.0 pending the prepared draft's owner publication. Collected revenue and
-delivered paid reports remain zero.
+delivered paid reports remain zero. The previously overlooked GRACE static
+auto-deploy was observed running daily from `marketing-machine-v2`; that feed is
+now converged on the verified main tree and has a scheduled post-run truth gate.
+This reduces launch labor if the next public probe passes, but is not traffic,
+demand, payment, or proof that the API can fulfill an order.

@@ -174,3 +174,31 @@ Record timestamp, source, and observed value for:
 
 Do not put projections, synthetic status values, commit counts, generated
 benchmarks, or unverified analytics in this ledger.
+
+## GRACE static-feed recovery — August 22, 2026
+
+- Public DNS resolved `eolkits.com` directly to `15.204.209.97`, the documented
+  GRACE host. Caddy served the home page with `Last-Modified: Sat, 22 Aug 2026
+  07:17:02 GMT`.
+- The remote `marketing-machine-v2` branch advanced at 06:14:56 UTC to commit
+  `8fbbbf654cafccfbe2f7415d6be0b3c57179c634`; its public content was still the
+  retired multi-product tree. The one-hour sequence plus the installed cron's
+  documented branch and webroot is evidence that the daily static deploy remains
+  active. It is not evidence that the API redeploys from Git pushes.
+- The remote branch was not an ancestor of repaired main because it contained
+  one additional date-fix commit. Commit
+  `c311215121fe3a76241632500154ac457d964eab` merged that tip and main without
+  force while selecting the exact verified main tree
+  `0ceb6ec8d4576d4dad568765a8cd251f2cb5f1b5`.
+- The GRACE root-domain build completed locally and all 18 generated-site tests
+  passed with `EOLKITS_BASE_PATH` empty and both site/API origins set to
+  `https://eolkits.com`. The committed Pages variant was regenerated afterward
+  and matched Git with no diff.
+- `.github/workflows/verify-grace-static.yml` now checks the custom domain after
+  the observed daily deploy window for the single $299 offer, unavailable
+  product tombstones, fail-closed Audit form, root-domain links/canonicals, and
+  absence of retired $1,499/$14,999 prices.
+- At the time of this branch repair, the public custom domain still served the
+  obsolete products and `/api/capabilities` still returned 404. No checkout,
+  purchase, delivery, qualified visit, or revenue was observed. Collected
+  revenue remains $0.

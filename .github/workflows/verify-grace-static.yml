@@ -1,0 +1,56 @@
+name: Verify GRACE static release
+
+on:
+  workflow_dispatch:
+  schedule:
+    # The observed box-side static deploy runs at approximately 07:17 UTC.
+    - cron: '35 7 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify the truthful custom-domain funnel
+        env:
+          SITE_URL: https://eolkits.com
+        shell: bash
+        run: |
+          # Dollar signs below are literal price markers, not shell expansion.
+          # shellcheck disable=SC2016
+          set -euo pipefail
+
+          home="$(curl --fail --silent --show-error --max-time 20 "$SITE_URL/")"
+          audit="$(curl --fail --silent --show-error --max-time 20 "$SITE_URL/audit/")"
+          pack="$(curl --fail --silent --show-error --max-time 20 "$SITE_URL/pack/")"
+          drift="$(curl --fail --silent --show-error --max-time 20 "$SITE_URL/drift/")"
+          robots="$(curl --fail --silent --show-error --max-time 20 "$SITE_URL/robots.txt")"
+          sitemap="$(curl --fail --silent --show-error --max-time 20 "$SITE_URL/sitemap.xml")"
+
+          grep -Fq 'repository evidence report is the only paid product' <<<"$home"
+          grep -Fq '<div class="price">$299</div>' <<<"$home"
+          grep -Fq 'Migration Pack is unavailable' <<<"$pack"
+          grep -Fq 'No checkout · no account · no waitlist' <<<"$pack"
+          grep -Fq 'Drift Watch is unavailable' <<<"$drift"
+          grep -Fq 'No checkout · no subscription · no waitlist' <<<"$drift"
+          grep -Fq '<form id="auditForm" hidden>' <<<"$audit"
+          grep -Fq 'Checkout stays closed unless the live API confirms report engine 2.0.' <<<"$audit"
+          grep -Fq 'Sitemap: https://eolkits.com/sitemap.xml' <<<"$robots"
+          grep -Fq '<loc>https://eolkits.com/' <<<"$sitemap"
+
+          if grep -Eq '(href|src|action)="/EOLkits/' <<<"$home$audit$pack$drift"; then
+            echo '::error::The root-domain build contains GitHub Pages project paths'
+            exit 1
+          fi
+          if grep -Fq 'ntoledo319.github.io' <<<"$home$audit$pack$drift$robots$sitemap"; then
+            echo '::error::The root-domain build points search or navigation at the Pages mirror'
+            exit 1
+          fi
+          if grep -Eq '\$1,499|\$14,999' <<<"$home$audit$pack$drift"; then
+            echo '::error::A retired commercial price is still public on the custom domain'
+            exit 1
+          fi
+
+          echo 'The custom domain serves the truthful, fail-closed Audit v2 static funnel.'
