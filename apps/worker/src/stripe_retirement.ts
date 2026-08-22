@@ -659,12 +659,12 @@ async function audit(env: Env): Promise<AuditState> {
   // are inactive, an in-flight Session must appear in the first snapshot or,
   // if it transitions, the later completed snapshot.
   const checkout = await openTargetCheckoutSessions(env);
-  const [recentCompletedCheckoutSessions, futureSubscriptions, futureSchedules] =
-    await Promise.all([
-      countRecentCompletedTargetCheckoutSessions(env),
-      countFutureSubscriptions(env),
-      countFutureSchedules(env),
-    ]);
+  const recentCompletedCheckoutSessions =
+    await countRecentCompletedTargetCheckoutSessions(env);
+  // A schedule can execute into a subscription. Snapshot schedules first so a
+  // transition is visible either there or in the later subscription queries.
+  const futureSchedules = await countFutureSchedules(env);
+  const futureSubscriptions = await countFutureSubscriptions(env);
   return {
     activePaymentLinks: paymentLinks.known,
     futureSchedules,
@@ -793,7 +793,10 @@ async function handleAdmin(request: Request, env: Env): Promise<Response> {
       );
     }
     const preflightSettlementRequired =
-      before.openCheckoutSessions > 0 || before.recentCompletedCheckoutSessions > 0;
+      before.openCheckoutSessions > 0 ||
+      before.recentCompletedCheckoutSessions > 0 ||
+      before.futureSchedules > 0 ||
+      before.futureSubscriptions > 0;
     return json({
       ok: true,
       mode: 'deactivate',
@@ -803,6 +806,8 @@ async function handleAdmin(request: Request, env: Env): Promise<Response> {
       preflight_open_checkout_sessions: before.openCheckoutSessions,
       preflight_open_checkout_hold_until: before.openCheckoutHoldUntil,
       preflight_recent_completed_checkout_sessions: before.recentCompletedCheckoutSessions,
+      preflight_future_subscription_schedules: before.futureSchedules,
+      preflight_future_subscriptions: before.futureSubscriptions,
       containment_complete: containmentComplete(after) && !preflightSettlementRequired,
     });
   } catch (error) {
