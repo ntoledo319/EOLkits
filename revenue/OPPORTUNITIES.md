@@ -126,7 +126,9 @@ T$ means disqualified within this cycle.
 2. A1 — the sole paid fulfillment unit. It is not live until the operational
    gate passes.
 3. V1 — publish the tested free VSIX as a second contextual distribution surface.
-4. C4 — preserve only cited, useful search pages and measure them.
+4. C4 — preserve only cited, useful search pages and measure them. The repaired
+   51-URL Pages corpus now has a protocol-valid IndexNow submission path, but no
+   crawl, rank, visit, or conversion signal has been observed.
 5. K5 — registry packaging only after the first four show external signal.
 
 No current frame combines strong built-in distribution and built-in payment.
@@ -146,4 +148,48 @@ and the Action's tested `@v2` ref now resolves publicly with its report link
 pointing to that verified funnel. Repository, kit, and future VS acquisition
 links use the same surface. The Marketplace listing itself remains on stale
 v1.1.0 pending the prepared draft's owner publication. Collected revenue and
-delivered paid reports remain zero.
+delivered paid reports remain zero. The previously overlooked GRACE static
+auto-deploy was observed running daily from `marketing-machine-v2`; that feed is
+now converged on the verified main tree and has a scheduled post-run truth gate.
+This reduces launch labor if the next public probe passes, but is not traffic,
+demand, payment, or proof that the API can fulfill an order. The live
+Stripe-capable `rupture-worker` was subsequently replaced with the tested
+fail-closed tombstone and its public commerce/webhook paths now return 410.
+That removes a dangerous bypass and three owner minutes; it does not improve a
+frame's demand score or make A1 purchasable.
+
+The subsequent Stripe-account pass also leaves the ranking unchanged. Main now
+contains a manual, repository-owner-only workflow that can archive the six exact
+historical Prices and only the six approved Payment Link URLs after auditing
+unexpected Product Prices, open/recent-completed Checkout Sessions, recurring
+subscriptions, and schedules. Transition-race regressions and 39 Worker cases
+pass, but the production workflow has not run. This is prerequisite containment,
+not distribution, purchasability, or demand. K1 remains the fastest external
+signal, while A1 remains the only paid unit after its deployment/E2E gate.
+
+## Qualified-signal refinement — August 22
+
+K1 remains first, but its falsifier is now observable without trusting the stale
+backend. A scanner finding or Action finding can open a GitHub-authenticated,
+price-qualified public issue; a daily read-only workflow counts only external
+human authors and separately measures public `ntoledo319/EOLkits@v2` references.
+The baseline is zero. This does not increase K1's U hypothesis and does not count
+interest as a sale. It shortens the time needed to distinguish “nobody reached a
+finding” from “a finding occurred but $299 is not compelling.” A1 remains gated
+until real fulfillment and payment operations pass; no substitute SKU is opened.
+
+The K1 price-qualified surface became public at 2026-08-22 20:29 UTC. Its first
+five-full-day gate is therefore 2026-08-27 20:29 UTC; the broader Day-7 gate
+remains August 29. Do not move either gate earlier based on internal probes.
+
+## Search-distribution activation — August 22
+
+C4 gained one bounded autonomous distribution mechanism without becoming a new
+bet or paid SKU. Official IndexNow documentation permits up to 10,000 same-host
+URLs per batch, supports a non-root ownership key via `keyLocation`, and defines
+HTTP 200/202 as receipt. The shipped workflow validates the public key, exact
+Pages prefix, URL count, and malformed input; normal pushes map only changed or
+deleted HTML paths, while the bootstrap run used the current 51-URL sitemap.
+Run `32597777674` succeeded. This improves discovery opportunity but does not
+change the revenue hypothesis or falsifier: acceptance is not indexing, and
+the simultaneous acquisition observation remained zero-signal.

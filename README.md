@@ -6,7 +6,7 @@ a repository ZIP or source file into a shareable evidence report.
 
 ## Use it free
 
-Run the verified [browser scanner](https://ntoledo319.github.io/EOLkits/scan/)
+Run the verified [browser scanner](https://ntoledo319.github.io/EOLkits/scan/?source=github_readme&utm_source=github&utm_medium=readme)
 or use one of the MIT-licensed kits in this repository:
 
 - [`lambda-lifeline`](./kits/lambda-lifeline) checks Lambda Node.js runtime,
@@ -52,7 +52,8 @@ purchasable.
 The report includes:
 
 - exact observed file and line locations, capped per finding type;
-- severity, remediation notes, and primary-source links;
+- severity, remediation notes, and a configured rule or package reference for
+  each matched finding;
 - the uploaded input SHA-256, rule-pack version, and deterministic evidence
   fingerprint;
 - explicit scope and limitations.
@@ -63,7 +64,9 @@ to be deleted immediately; checkout-bound source uploads expire within 48 hours 
 reports within 30 days. See the [terms](./legal/terms.md),
 [privacy notice](./legal/privacy.md), and [security model](./SECURITY.md).
 
-[Check whether Audit checkout is live](https://ntoledo319.github.io/EOLkits/audit/)
+[See the $299 report scope and availability](https://ntoledo319.github.io/EOLkits/audit/?source=github_readme&utm_source=github&utm_medium=readme)
+or inspect the [engine-generated fictional sample PDF](https://ntoledo319.github.io/EOLkits/audit/sample/eolkits-sample-report.pdf)
+and its [input/hash manifest](https://ntoledo319.github.io/EOLkits/audit/sample/eolkits-sample-report.json).
 
 ## Not for sale
 

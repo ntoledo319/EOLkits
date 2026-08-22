@@ -244,7 +244,7 @@ Prepare, but do not publicly publish, an honest v2.0.0 release draft using a
 path-triggered GitHub workflow and the repository-scoped `GITHUB_TOKEN`. The
 draft targets commit `9d369ccb`; its workflow passed and printed the private
 draft URL. The automation is idempotent and refuses README copy containing the
-retired price claims. Publication remains in HQ-6 because accepting Marketplace
+retired price claims. Publication remains in HQ-5 because accepting Marketplace
 terms and using the owner's 2FA cannot be delegated, and the public v1.1.0
 listing remains stale until that action occurs.
 
@@ -263,3 +263,153 @@ obsolete custom-domain acquisition paths across distribution sources. Commit
 8748cf6a passed the full remote release, determinism, property, Pages, and draft
 workflows. Only after those gates passed did the `v2` branch fast-forward without
 force to that commit; the private v2.0.0 draft was synchronized to the same tree.
+
+## D20 — recover the observed GRACE static feed without smuggling an API deploy
+
+The production home page reported a 07:17 UTC modification time. The source
+branch used by the historically installed GRACE cron had advanced at 06:14 UTC
+the same day, proving that the static auto-deploy remained active even though
+the repository copy of the cron was retired. That branch still contained the
+unsafe multi-product site and was one commit ahead of the history already joined
+into repaired main.
+
+Do not force the branch and do not hide infrastructure mutation inside the
+static builder. Instead create a two-parent commit whose first parent is the
+live branch tip, whose second parent is verified main, and whose tree exactly
+matches main. Advancing `marketing-machine-v2` without force to `c3112151`
+preserves the remote date correction while giving the next daily static build
+the truthful, fail-closed site.
+
+Add a read-only scheduled workflow after the observed deployment window. It
+must reject retired prices/products, Pages-only paths on the root domain, and an
+Audit form that is not initially gated. This can remove the manual static rsync
+from owner labor only after the public probe passes. It cannot deploy or validate
+the paid API, reuse secret material, accept Marketplace terms, or establish
+demand; those gates remain separate.
+
+## D21 — close the proven Cloudflare bypass before chasing new distribution
+
+The directly reachable pre-rename `rupture-worker` still reported a healthy
+production environment with Stripe in live mode. Public DNS sent
+`eolkits.com` straight to GRACE, so a route audit alone could not retire that
+separate `workers.dev` bypass.
+
+Use the existing repository Cloudflare token only through a narrow workflow.
+Test the tombstone first, target the exact historical account and Worker from
+repository history, verify public health and commerce paths, and delete a route
+only if both its script name and `eolkits.com` pattern match. Early runs exposed
+three real deployment facts without changing the public Worker: Wrangler now
+requires Node 22+, the token belongs to the pre-migration account rather than
+the current TOML account, and the old service retains a Queue consumer. The
+final replacement therefore uses Node 24, a dedicated retirement-only config,
+and a tested handler that acknowledges stale queue events without invoking any
+former fulfillment code.
+
+Run `32591848083` passed. Independent probes confirmed `retired: true` and HTTP
+410 for direct checkout, App-install, and Stripe-webhook paths. The old-account
+token could not see a unique `eolkits.com` zone and changed no route. Because
+the domain resolves directly to GRACE, that route cannot execute today; keeping
+the exact Worker as an explicit tombstone is also safer than deletion if routing
+is changed later. Remove the three-minute Cloudflare task from the owner queue.
+This is risk retirement, not demand or revenue; collected revenue remains zero.
+
+## D22 — retire the exact Stripe catalog before reopening one verified SKU
+
+The GRACE production API still exposes charge-capable checkout handlers for the
+retired Audit, Migration Pack, and Drift products. Closing only public links or
+the old Cloudflare Worker is insufficient: a stale server can create new
+Checkout Sessions directly from an active Price ID. Treat this as the primary
+commercial blocker, ahead of additional acquisition work.
+
+Publish a manual, owner-gated Stripe retirement workflow rather than asking the
+owner to make a long sequence of error-prone dashboard edits. It accepts only
+the exact repository, `main` ref, repository owner as both actor identities, and
+the confirmation phrase `RETIRE_EXACT_EOLKITS_STRIPE_2026_08_22`. Its temporary
+admin Worker remains fail-closed on public routes and uses a short-lived bearer
+token. The audit validates the six known live Prices, their four Products,
+amounts, currencies, billing types, and the six historical Payment Link URLs;
+it refuses to silently absorb unexpected catalog state.
+
+Before mutation, enumerate open Checkout Sessions, recent completed live
+Sessions, subscriptions in every status, and subscription schedules including
+phase items and add-invoice items. Apply catalog mutations sequentially, then
+repeat an independent audit. Any observed open, paid, subscribed, scheduled, or
+unexpected object leaves `containment_complete` false and requires review even
+if an object transitions during the run. This favors evidence preservation over
+a misleading green result.
+
+Archive all six historical Prices, including the canonical $299 Price. The
+$299 Price is the only SKU eligible for later reactivation, but only after the
+closed Audit v2 deployment completes a real Stripe test-mode upload-to-PDF,
+delivery, verification, retention, and refund exercise. At launch, reactivate
+that Price alone; do not revive a historical Payment Link or any other SKU.
+
+Removing the Worker's `STRIPE_KEY` binding prevents the current service from
+using the credential, but Cloudflare version history can retain earlier secret
+snapshots. Therefore account-level Stripe key rotation/revocation remains an
+owner-only step in the same batch. The source, 39 focused Worker tests, dry-run
+bundle, YAML, ShellCheck, and public tombstone reassertion passed at main commit
+`e4109e3e`. The production workflow has not run, so no Stripe state changed and
+collected revenue remains $0.
+
+## D23 — measure price-qualified demand without reviving unsafe commerce
+
+Anonymous page beacons against the stale custom-domain backend cannot answer the
+commercial question: GitHub Pages CORS rejected them, the old store retained
+them indefinitely, public low-volume counts leaked activity, and raw URL
+attribution could carry sensitive values. Do not send more acquisition traffic
+into that system or treat repaired tracking code as demand.
+
+Use a GitHub-native signal that works before deployment. Show a structured
+`$299 Audit interest` issue form only after an actual browser or Action finding,
+and on the explicitly closed Audit gate. Require acknowledgement of a real
+finding, one static $299 report, purchase consideration, public visibility, and
+the prohibition on project/company/security/personal data. State that it is
+nonbinding and not an order, reservation, waitlist, support request, or promise
+of follow-up. This is inbound research, not autonomous human contact.
+
+Measure only public lower bounds in a scheduled read-only workflow: distinct
+external human issue authors, near-term purchase windows, and public exact
+`@v2` code references. Never commit synthetic counters, comment on issues, or
+call interest revenue. Baseline every count at zero and apply Bet A's five-day
+falsifier after the surface is live.
+
+Prepare future first-party telemetry safely: no cookies, local storage,
+referrer, visitor ID, repository name, or secret-bearing field; exact Pages CORS;
+v2 capability gating; canonical path/token schemas; 2 KiB bodies, 60/hour per
+source, 2,000/day global, 128 MiB shared-database guard; 30-day event and two-day
+rate-key retention; public readiness only, with detailed funnel/commerce/jobs
+admin-only and `no-store`. This hardening permits later directional measurement
+after the real v2 deploy, but it does not authorize deployment or checkout.
+
+Release evidence: acquisition workflow `32596830945` and every product/Pages
+gate passed. The first Marketplace-draft synchronizer failed because its source
+assertion did not account for Bash's required `\$299` escape; the generated
+Action report had already passed with the correct visible `$299`. Correct only
+that assertion, reproduce it locally, and require the complete follow-up gate.
+Commit `db32bdfb` then passed draft, release, determinism, property, and built-in
+Pages runs. Advance `v2` without force only after those results and a raw-file
+probe. This failure is recorded as release evidence, not hidden or counted as a
+commercial signal.
+
+## D24 — notify search engines without manufacturing traffic evidence
+
+The verified Pages artifact already contained a stable IndexNow key file and a
+51-URL sitemap, but nothing submitted changed URLs. With Stripe, Marketplace,
+GRACE, and VS publication still owner-gated, activating this existing search
+distribution primitive is higher leverage than adding another product or more
+speculative funnel code.
+
+Follow the current official IndexNow protocol and terms: use one global endpoint,
+one same-host key location, no more than 10,000 URLs, and only content owned by
+this repository. On ordinary pushes, derive added/modified/deleted HTML URLs
+from the trusted main diff. Use the sitemap only when a manual/bootstrap event
+has no HTML diff. Verify the live key before sending, reject every URL outside
+the exact Pages project prefix, grant the workflow contents-read only, and make
+no scheduled repeat submissions.
+
+Run `32597777674` passed on exact main commit `951fd4b6`; the bootstrap path sent
+the 51 canonical sitemap URLs and could only pass on HTTP 200/202. Record that as
+receipt, never as crawling, indexing, rank, traffic, or demand. The simultaneous
+acquisition artifact remained at zero qualified issues and zero external `@v2`
+references, so the August 27 falsifier and portfolio ranking do not move.

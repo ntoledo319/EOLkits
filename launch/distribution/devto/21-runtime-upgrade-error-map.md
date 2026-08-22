@@ -5,6 +5,13 @@ description: A single map from "which deprecated AWS runtime am I leaving" to "w
 tags: aws, lambda, devops, python
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 Every deprecated-runtime migration produces the same shape of pain: you bump one version number, redeploy, and get hit with errors that look unrelated to each other but are all downstream of the same jump. The errors aren't random — for a given upgrade path, they show up in a fairly predictable order.
 
 This is a map, not a new deep dive. Each line below is a real, verbatim error with its own fix already written up — this just sequences them by *which upgrade produces them*, so you know what's coming before you hit it instead of debugging one surprise at a time.

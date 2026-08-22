@@ -1,0 +1,335 @@
+name: Retire exact legacy Stripe surfaces
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: Type RETIRE_EXACT_EOLKITS_STRIPE_2026_08_22
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: retire-legacy-cloudflare-commerce
+  cancel-in-progress: false
+
+env:
+  TMPDIR: ${{ github.workspace }}/tmp/runtime-tmp
+  npm_config_cache: ${{ github.workspace }}/tmp/npm-cache
+
+jobs:
+  retire:
+    if: >-
+      github.repository == 'ntoledo319/EOLkits' &&
+      github.ref == 'refs/heads/main' &&
+      github.actor == github.repository_owner &&
+      github.triggering_actor == github.repository_owner &&
+      inputs.confirm == 'RETIRE_EXACT_EOLKITS_STRIPE_2026_08_22'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Reconfirm the production authorization
+        shell: bash
+        env:
+          RETIREMENT_CONFIRMATION: ${{ inputs.confirm }}
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_REPOSITORY" != 'ntoledo319/EOLkits' ||
+                "$GITHUB_REF" != 'refs/heads/main' ||
+                "$GITHUB_ACTOR" != "$GITHUB_REPOSITORY_OWNER" ||
+                "$GITHUB_TRIGGERING_ACTOR" != "$GITHUB_REPOSITORY_OWNER" ||
+                "$RETIREMENT_CONFIRMATION" != 'RETIRE_EXACT_EOLKITS_STRIPE_2026_08_22' ]]; then
+            echo '::error::Exact owner authorization on ntoledo319/EOLkits main is required'
+            exit 1
+          fi
+
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Verify the bounded retirement artifact
+        working-directory: apps/worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Assigned by the workflow-level environment.
+          # shellcheck disable=SC2154
+          mkdir -p "$TMPDIR" "$npm_config_cache" "$TMPDIR/stripe-retirement-dry-run"
+          npm ci
+          npm run build
+          npm test -- --run test/stripe_retirement.test.ts test/tombstone.test.ts
+          npm exec -- wrangler deploy \
+            --config wrangler.stripe-retire.toml \
+            --dry-run \
+            --outdir "$TMPDIR/stripe-retirement-dry-run"
+
+      - name: Close and verify only approved Stripe surfaces
+        id: retire
+        working-directory: apps/worker
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          LEGACY_WORKER_URL: https://rupture-worker.rupture-kits.workers.dev
+          WRANGLER_SEND_METRICS: 'false'
+        run: |
+          set -euo pipefail
+          echo 'containment_complete=false' >> "$GITHUB_OUTPUT"
+          if [[ -z "$CLOUDFLARE_API_TOKEN" ]]; then
+            echo '::error::CLOUDFLARE_API_TOKEN is not available to the retirement workflow'
+            exit 1
+          fi
+
+          retirement_complete='false'
+          token_installed='false'
+          cleanup() {
+            original_status=$?
+            trap - EXIT INT TERM
+            set +e
+
+            npm exec -- wrangler deploy --config wrangler.retire.toml
+            cleanup_status=$?
+
+            if [[ "$token_installed" == 'true' ]]; then
+              if [[ "$retirement_complete" == 'true' ]]; then
+                printf '{"RETIRE_TOKEN":null,"STRIPE_KEY":null}\n' | \
+                  npm exec -- wrangler secret bulk --config wrangler.retire.toml
+              else
+                printf '{"RETIRE_TOKEN":null}\n' | \
+                  npm exec -- wrangler secret bulk --config wrangler.retire.toml
+              fi
+              secret_status=$?
+              if (( secret_status != 0 && cleanup_status == 0 )); then
+                cleanup_status=$secret_status
+              fi
+            fi
+
+            npm exec -- wrangler deploy --config wrangler.retire.toml
+            deploy_status=$?
+            if (( deploy_status != 0 && cleanup_status == 0 )); then
+              cleanup_status=$deploy_status
+            fi
+
+            if (( original_status != 0 )); then
+              exit "$original_status"
+            fi
+            exit "$cleanup_status"
+          }
+          trap cleanup EXIT INT TERM
+
+          expires_at=$(( $(date +%s) + 900 ))
+          retire_token="${expires_at}.$(openssl rand -hex 32)"
+          echo "::add-mask::$retire_token"
+          printf '%s' "$retire_token" | \
+            npm exec -- wrangler secret put RETIRE_TOKEN --config wrangler.stripe-retire.toml
+          token_installed='true'
+
+          npm exec -- wrangler deploy --config wrangler.stripe-retire.toml
+
+          audit_file="$TMPDIR/stripe-retirement-audit.json"
+          audit_status='000'
+          for _attempt in $(seq 1 18); do
+            audit_status="$(curl --silent --show-error --max-time 20 \
+              --output "$audit_file" --write-out '%{http_code}' \
+              --request POST "$LEGACY_WORKER_URL/internal/retire-exact-eolkits-prices" \
+              --header "Authorization: Bearer $retire_token" \
+              --header 'Content-Type: application/json' \
+              --data '{"mode":"audit"}' || true)"
+            if [[ "$audit_status" == '200' ]] && jq -e '
+              .ok == true and .mode == "audit" and
+              (.prices | type == "array" and length == 6) and
+              all(.prices[]; .matched == true and .livemode == true and (.active | type == "boolean")) and
+              (.active_payment_links | type == "number") and
+              (.unexpected_active_payment_links | type == "number") and
+              (.unexpected_active_prices | type == "number") and
+              (.future_subscriptions | type == "number") and
+              (.future_subscription_schedules | type == "number") and
+              (.open_checkout_sessions | type == "number") and
+              (.recent_completed_checkout_sessions | type == "number")
+            ' "$audit_file" >/dev/null 2>&1; then
+              break
+            fi
+            sleep 5
+          done
+          if [[ "$audit_status" != '200' ]] || ! jq -e '.ok == true and .mode == "audit"' \
+            "$audit_file" >/dev/null 2>&1; then
+            echo '::error::The authenticated live-mode Stripe preflight did not pass'
+            exit 1
+          fi
+
+          result_file="$TMPDIR/stripe-retirement-result.json"
+          result_status="$(curl --silent --show-error --max-time 90 \
+            --output "$result_file" --write-out '%{http_code}' \
+            --request POST "$LEGACY_WORKER_URL/internal/retire-exact-eolkits-prices" \
+            --header "Authorization: Bearer $retire_token" \
+            --header 'Content-Type: application/json' \
+            --data '{"mode":"deactivate","confirm":"deactivate_exact_eolkits_prices_2026_08_22"}' || true)"
+          if [[ "$result_status" != '200' ]] || ! jq -e '
+            .ok == true and .mode == "deactivate" and
+            (.prices | type == "array" and length == 6) and
+            all(.prices[]; .matched == true and .livemode == true and .active == false) and
+            .active_payment_links == 0 and
+            (.open_checkout_sessions | type == "number") and
+            (.recent_completed_checkout_sessions | type == "number") and
+            (.preflight_open_checkout_sessions | type == "number") and
+            (.preflight_recent_completed_checkout_sessions | type == "number") and
+            (.preflight_future_subscriptions | type == "number") and
+            (.preflight_future_subscription_schedules | type == "number")
+          ' "$result_file" >/dev/null 2>&1; then
+            echo '::error::The exact reversible Stripe closure did not verify'
+            exit 1
+          fi
+
+          if ! jq -e '.containment_complete == true' "$result_file" >/dev/null; then
+            open_sessions="$(jq -r '.open_checkout_sessions' "$result_file")"
+            recent_completed="$(jq -r '.recent_completed_checkout_sessions' "$result_file")"
+            preflight_open="$(jq -r '.preflight_open_checkout_sessions' "$result_file")"
+            preflight_completed="$(jq -r '.preflight_recent_completed_checkout_sessions' "$result_file")"
+            preflight_subscriptions="$(jq -r '.preflight_future_subscriptions' "$result_file")"
+            preflight_schedules="$(jq -r '.preflight_future_subscription_schedules' "$result_file")"
+            future_subscriptions="$(jq -r '.future_subscriptions' "$result_file")"
+            future_schedules="$(jq -r '.future_subscription_schedules' "$result_file")"
+            unexpected_prices="$(jq -r '.unexpected_active_prices' "$result_file")"
+            unexpected_links="$(jq -r '.unexpected_active_payment_links' "$result_file")"
+            {
+              echo '## Legacy Stripe closure needs a follow-up'
+              echo
+              echo '- The six exact known Prices and approved historical Payment Links were closed.'
+              echo "- Open matching Checkout Sessions: $open_sessions"
+              echo "- Recent completed matching Checkout Sessions: $recent_completed"
+              echo "- Matching Sessions at preflight (open/completed): $preflight_open/$preflight_completed"
+              echo "- Recurring objects at preflight (subscriptions/schedules): $preflight_subscriptions/$preflight_schedules"
+              echo "- Future subscriptions: $future_subscriptions"
+              echo "- Future subscription schedules: $future_schedules"
+              echo "- Unexpected active Product Prices: $unexpected_prices"
+              echo "- Unexpected active Payment Links: $unexpected_links"
+              echo '- The preserved Stripe binding was retained for a safe audited rerun.'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo '::error::Known new-sale paths closed, but the account still needs reviewed follow-up'
+            exit 1
+          fi
+
+          verify_file="$TMPDIR/stripe-retirement-verify.json"
+          verify_status="$(curl --silent --show-error --max-time 90 \
+            --output "$verify_file" --write-out '%{http_code}' \
+            --request POST "$LEGACY_WORKER_URL/internal/retire-exact-eolkits-prices" \
+            --header "Authorization: Bearer $retire_token" \
+            --header 'Content-Type: application/json' \
+            --data '{"mode":"audit"}' || true)"
+          if [[ "$verify_status" != '200' ]] || ! jq -e '
+            .ok == true and .mode == "audit" and .containment_complete == true and
+            (.prices | length == 6) and all(.prices[]; .active == false and .livemode == true) and
+            .active_payment_links == 0 and .unexpected_active_payment_links == 0 and
+            .unexpected_active_prices == 0 and .future_subscriptions == 0 and
+            .future_subscription_schedules == 0 and .open_checkout_sessions == 0 and
+            .recent_completed_checkout_sessions == 0
+          ' "$verify_file" >/dev/null 2>&1; then
+            echo '::error::The independent final Stripe audit did not verify containment'
+            exit 1
+          fi
+
+          retirement_complete='true'
+          echo 'containment_complete=true' >> "$GITHUB_OUTPUT"
+          changed_prices="$(jq -r '.changed_prices | length' "$result_file")"
+          changed_links="$(jq -r '.changed_payment_links' "$result_file")"
+          {
+            echo '## Exact legacy Stripe retirement'
+            echo
+            echo "- Exact Prices newly deactivated: $changed_prices"
+            echo "- Approved historical Payment Links newly deactivated: $changed_links"
+            echo '- All six exact live-mode Prices are inactive.'
+            echo '- Zero matching open or recent completed Checkout Sessions, future subscriptions, or schedules were observed.'
+            echo '- Zero unexpected active Prices or Payment Links were observed on the audited EOLkits surfaces.'
+            echo '- The current legacy Worker Stripe binding is being removed; account-level key rotation remains owner-only.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Reassert tombstone and remove temporary bindings
+        if: always()
+        working-directory: apps/worker
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CONTAINMENT_COMPLETE: ${{ steps.retire.outputs.containment_complete }}
+          WRANGLER_SEND_METRICS: 'false'
+        run: |
+          set -euo pipefail
+          if [[ -z "$CLOUDFLARE_API_TOKEN" ]]; then
+            echo '::error::CLOUDFLARE_API_TOKEN is unavailable for fail-safe cleanup'
+            exit 1
+          fi
+          npm exec -- wrangler deploy --config wrangler.retire.toml
+          secrets_before="$(npm exec -- wrangler secret list --format json \
+            --config wrangler.retire.toml)"
+          has_retire_token="$(jq -r \
+            'any(.[]; .name == "RETIRE_TOKEN")' <<<"$secrets_before")"
+          has_stripe_key="$(jq -r \
+            'any(.[]; .name == "STRIPE_KEY")' <<<"$secrets_before")"
+          if [[ "$CONTAINMENT_COMPLETE" == 'true' && \
+                ( "$has_retire_token" == 'true' || "$has_stripe_key" == 'true' ) ]]; then
+            printf '{"RETIRE_TOKEN":null,"STRIPE_KEY":null}\n' | \
+              npm exec -- wrangler secret bulk --config wrangler.retire.toml
+          elif [[ "$has_retire_token" == 'true' ]]; then
+            printf '{"RETIRE_TOKEN":null}\n' | \
+              npm exec -- wrangler secret bulk --config wrangler.retire.toml
+          fi
+          npm exec -- wrangler deploy --config wrangler.retire.toml
+
+          secrets_json="$(npm exec -- wrangler secret list --format json \
+            --config wrangler.retire.toml)"
+          jq -e '[.[] | select(.name == "RETIRE_TOKEN")] | length == 0' \
+            <<<"$secrets_json" >/dev/null
+          if [[ "$CONTAINMENT_COMPLETE" == 'true' ]]; then
+            jq -e '[.[] | select(.name == "STRIPE_KEY")] | length == 0' \
+              <<<"$secrets_json" >/dev/null
+          fi
+
+      - name: Prove the legacy Worker is fail-closed
+        if: always()
+        shell: bash
+        env:
+          LEGACY_WORKER_URL: https://rupture-worker.rupture-kits.workers.dev
+        run: |
+          set -euo pipefail
+          health=''
+          for _attempt in $(seq 1 18); do
+            health="$(curl --fail --silent --show-error --max-time 20 \
+              "$LEGACY_WORKER_URL/health" || true)"
+            if jq -e '
+              . == {
+                "ok": false,
+                "retired": true,
+                "replacement": "https://eolkits.com/api/capabilities"
+              }
+            ' <<<"$health" >/dev/null 2>&1; then
+              break
+            fi
+            sleep 5
+          done
+          jq -e '
+            . == {
+              "ok": false,
+              "retired": true,
+              "replacement": "https://eolkits.com/api/capabilities"
+            }
+          ' <<<"$health" >/dev/null
+
+          for path in checkout api/checkout pack/install webhook/stripe; do
+            status="$(curl --silent --show-error --max-time 20 \
+              --output /dev/null --write-out '%{http_code}' \
+              "$LEGACY_WORKER_URL/$path")"
+            if [[ "$status" != '410' ]]; then
+              echo "::error::Legacy /$path returned HTTP $status instead of 410"
+              exit 1
+            fi
+          done
+
+          admin_status="$(curl --silent --show-error --max-time 20 \
+            --output /dev/null --write-out '%{http_code}' \
+            --request POST "$LEGACY_WORKER_URL/internal/retire-exact-eolkits-prices" \
+            --header 'Content-Type: application/json' --data '{"mode":"audit"}')"
+          if [[ "$admin_status" != '410' ]]; then
+            echo "::error::Legacy admin POST returned HTTP $admin_status instead of 410"
+            exit 1
+          fi

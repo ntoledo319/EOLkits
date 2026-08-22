@@ -35,5 +35,5 @@ absolute paths fail closed.
 - Setup actions and package installation use the network. Repository contents are
   not sent to EOLkits.
 
-The action is free. The only paid EOLkits product currently offered is the
-server-gated [$299 repository evidence report](https://ntoledo319.github.io/EOLkits/audit/?utm_source=github_action&utm_medium=readme).
+The action is free. EOLkits is prepared to offer one paid product: the
+server-gated [$299 repository evidence report](https://ntoledo319.github.io/EOLkits/audit/?source=github_action&utm_source=github_action&utm_medium=readme).

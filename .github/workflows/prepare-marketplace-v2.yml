@@ -7,6 +7,12 @@ on:
     paths:
       - '.github/workflows/prepare-marketplace-v2.yml'
       - '.github/release-notes/marketplace-v2.md'
+      - '.github/ISSUE_TEMPLATE/audit-interest.yml'
+      - 'README.md'
+      - 'action.yml'
+      - 'apps/github-action/**'
+      - 'kits/**'
+      - 'rules/public/**'
 
 permissions:
   contents: write
@@ -30,6 +36,8 @@ jobs:
           grep -Fq 'uses: ntoledo319/EOLkits@v2' README.md
           grep -Fq 'The only paid product EOLkits is prepared to offer' README.md
           grep -Fq 'https://ntoledo319.github.io/EOLkits/audit/' README.md
+          grep -Fq 'audit-interest.yml' apps/github-action/run.sh
+          grep -Fq 'one-repository evidence report (\$299)' apps/github-action/run.sh
           if grep -Eiq 'surge to|Migration Pack.*\$|Org License.*\$|Drift Watch.*\$' README.md; then
             echo "::error::Retired commercial claim found in the release README"
             exit 1

@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+<meta name="referrer" content="origin">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>EOLkits - AWS deprecation migration tools</title>
@@ -8,30 +9,6 @@
 <link rel="canonical" href="https://ntoledo319.github.io/EOLkits/">
 <link rel="stylesheet" href="/EOLkits/style.css">
 <script defer src="/EOLkits/track.js"></script>
-<script>
-(function(){
-  try{
-    var KEY='eolkits_ft';
-    if(localStorage.getItem(KEY))return;
-    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='', refHost='';
-    try{refHost=(new URL(ref)).hostname.toLowerCase().slice(0,100);}catch(e){}
-    if(refHost===location.hostname.toLowerCase())refHost='';
-    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
-    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
-    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
-    else if(/claude\.ai/i.test(ref))aeo='claude';
-    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
-    if(!hasUtm && !refHost)return;
-    localStorage.setItem(KEY, JSON.stringify({
-      source: q.get('source')||(aeo?('aeo_'+aeo):'referral'),
-      utm_source: q.get('utm_source')||aeo||refHost,
-      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':'referral'),
-      utm_campaign: q.get('utm_campaign')||'',
-      kit: q.get('kit')||''
-    }));
-  }catch(e){}
-})();
-</script>
 </head>
 <body>
 <header class="nav">
@@ -51,7 +28,7 @@
     <div class="container">
       <div class="eyebrow">AWS runtime &amp; OS EOLs that break production</div>
       <h1>Find high-impact AWS deprecation risks in your source — free.</h1>
-      <p class="lede">The browser scanner checks configured Lambda runtime and Node/Python dependency patterns without uploading file contents. Repository CLIs add their documented operating-system checks. The $299 evidence report adds repository-wide file/line evidence, remediation order, sources, and explicit scope limitations.</p>
+      <p class="lede">The browser scanner checks configured Lambda runtime and Node/Python dependency patterns without uploading file contents. Repository CLIs add their documented operating-system checks. When its readiness gate is open, the $299 evidence report adds file/line evidence across supported files in the uploaded archive, remediation order, configured references, and explicit scope limitations.</p>
       <div class="cta-row">
         <a class="btn-primary" href="/EOLkits/scan/">Run the free scan</a>
         <a class="btn-secondary" href="https://github.com/ntoledo319/EOLkits">Clone the CLIs</a>
@@ -110,7 +87,7 @@
         <article class="pricing-card featured">
           <h3>Audit PDF</h3>
           <div class="price">$299</div>
-          <p>One repository ZIP or source file: exact file/line evidence, observed reach, remediation order, official sources, and an evidence fingerprint. 30-day money-back.</p>
+          <p>One repository ZIP or source file: exact file/line evidence, observed reach, remediation order, configured references, and an evidence fingerprint. 30-day money-back.</p>
           <a class="btn-primary" href="/EOLkits/audit/">Check availability</a>
           <p class="small"><a href="/EOLkits/audit/sample/">See a sample report →</a></p>
         </article>

@@ -5,6 +5,13 @@ description: Amazon Linux 2 reached end of life June 30, 2026. What changes on A
 tags: aws, devops, linux, sre
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 Amazon Linux 2 **reached end of life on June 30, 2026**. Since then: no security patches, no new AMIs, no extras updates. Anything still pinned to AL2 in a launch template, EKS node group, ECS task, Beanstalk platform, or container base image is running unpatched right now.
 
 Here's what actually changes when you move to Amazon Linux 2023 — the stuff that breaks boot scripts and CI.

@@ -40,7 +40,8 @@ Only observed evidence belongs here. Forecasts are in OPPORTUNITIES.md and PLAN.
   and GitHub Pages/API-origin regressions.
 - lambda-lifeline on Node.js 24: 28 passed, including nodejs22.x-to-nodejs24.x
   planning and multiline stream-constructor coverage.
-- Retired Worker tombstone: TypeScript build plus 9 passed.
+- Retired Worker tombstone: TypeScript build plus 10 passed, including inert
+  acknowledgement of the retained legacy Queue consumer.
 - lambda-lifeline randomized properties: 3 passed across 60 generated examples;
   this gate found and drove the Node.js 14 IaC regression repair.
 - VS extension: TypeScript compile, ESLint 10, scanner behavior suite, minimal
@@ -111,7 +112,7 @@ Tests and commits are release evidence, not market signal.
   API calls use `https://eolkits.com`; and the retired Pack page has no checkout,
   account, or waitlist. This is release evidence, not a visit or demand event.
 - A separate public probe of `https://eolkits.com/` still found the old Migration
-  Pack and Drift Watch claims. HQ-4 remains mandatory; the custom domain is not
+  Pack and Drift Watch claims. HQ-3 remains mandatory; the custom domain is not
   counted as repaired or ready for checkout.
 
 ## Distribution release evidence — August 22, 2026
@@ -174,3 +175,172 @@ Record timestamp, source, and observed value for:
 
 Do not put projections, synthetic status values, commit counts, generated
 benchmarks, or unverified analytics in this ledger.
+
+## GRACE static-feed recovery — August 22, 2026
+
+- Public DNS resolved `eolkits.com` directly to `15.204.209.97`, the documented
+  GRACE host. Caddy served the home page with `Last-Modified: Sat, 22 Aug 2026
+  07:17:02 GMT`.
+- The remote `marketing-machine-v2` branch advanced at 06:14:56 UTC to commit
+  `8fbbbf654cafccfbe2f7415d6be0b3c57179c634`; its public content was still the
+  retired multi-product tree. The one-hour sequence plus the installed cron's
+  documented branch and webroot is evidence that the daily static deploy remains
+  active. It is not evidence that the API redeploys from Git pushes.
+- The remote branch was not an ancestor of repaired main because it contained
+  one additional date-fix commit. Commit
+  `c311215121fe3a76241632500154ac457d964eab` merged that tip and main without
+  force while selecting the exact verified main tree
+  `0ceb6ec8d4576d4dad568765a8cd251f2cb5f1b5`.
+- The GRACE root-domain build completed locally and all 18 generated-site tests
+  passed with `EOLKITS_BASE_PATH` empty and both site/API origins set to
+  `https://eolkits.com`. The committed Pages variant was regenerated afterward
+  and matched Git with no diff.
+- `.github/workflows/verify-grace-static.yml` now checks the custom domain after
+  the observed daily deploy window for the single $299 offer, unavailable
+  product tombstones, fail-closed Audit form, root-domain links/canonicals, and
+  absence of retired $1,499/$14,999 prices.
+- At the time of this branch repair, the public custom domain still served the
+  obsolete products and `/api/capabilities` still returned 404. No checkout,
+  purchase, delivery, qualified visit, or revenue was observed. Collected
+  revenue remains $0.
+
+## Legacy Cloudflare commerce retirement — August 22, 2026
+
+- Before repair, the public pre-rename Worker at
+  `https://rupture-worker.rupture-kits.workers.dev/status.json` returned a
+  healthy production status with Stripe in live mode. This was an unsafe bypass,
+  not revenue evidence.
+- Main commit `90c7b147851db7b3c9945f0c7080a164930c8f7b` contains the bounded
+  retirement workflow and dedicated old-account target. Successful run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32591848083 tested the
+  replacement, deployed it to the exact historical `rupture-worker`, and proved
+  the public closure after edge propagation.
+- Independent public probes observed `{"ok":false,"retired":true}` at `/health`
+  and HTTP 410 at `/checkout`, `/api/checkout`, `/pack/install`, and
+  `/webhook/stripe`. The old direct payment, App-install, and webhook surface is
+  closed.
+- The old-account token could not see a unique `eolkits.com` zone, so it changed
+  no Worker route. Public DNS resolves `eolkits.com` directly to the GRACE IP,
+  making a Cloudflare Worker route non-invocable today; the deployed tombstone
+  also fails closed if routing changes later.
+- No checkout, purchase, report delivery, qualified visit, or revenue was
+  observed. Collected revenue remains $0.
+
+## GRACE capability and exact Stripe-retirement release — August 22, 2026
+
+- The read-only repository capability audit
+  https://github.com/ntoledo319/EOLkits/actions/runs/32592156556 reported
+  `deploy_transport=false` and `runtime_bundle=false`. No host, account, token,
+  key, or secret value was printed. This proves the known GitHub configuration
+  cannot authenticate to GRACE; it does not prove no owner credential exists.
+- Main commits
+  https://github.com/ntoledo319/EOLkits/commit/ca9d41f313879ca1cd15488de12a6f673aac33e3,
+  https://github.com/ntoledo319/EOLkits/commit/fdbea72db89a8a7fc519d066aea828e316863198,
+  and
+  https://github.com/ntoledo319/EOLkits/commit/e4109e3ebdb4623ba4e7cbced01c3fab364dc17f
+  added and hardened the owner-gated exact Stripe retirement. Its Worker build,
+  39 focused cases, Wrangler dry-run, YAML parse, ShellCheck, diff check, and
+  independent security review passed. Race tests cover open-to-complete Checkout
+  transitions and schedule-to-subscription transitions.
+- The final commit's release, determinism, property, Pages, and tombstone runs
+  passed:
+  https://github.com/ntoledo319/EOLkits/actions/runs/32594198744,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32594198725,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32594198691,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32594197817, and
+  https://github.com/ntoledo319/EOLkits/actions/runs/32594198743.
+- An independent public probe after those runs observed the exact normal
+  tombstone JSON at `rupture-worker.rupture-kits.workers.dev/health`, HTTP 410
+  on checkout, App-install, and webhook paths, and HTTP 410 for an unauthenticated
+  POST to the temporary retirement-admin path.
+- The production Stripe workflow is manual, requires the repository owner's
+  actor identity plus an exact confirmation, and has not run. Therefore no
+  Price, Payment Link, Checkout Session, subscription, schedule, charge, refund,
+  or Stripe-key state is recorded as changed or reconciled by this release.
+  Public rendering of the historical `buy.stripe.com` links also remains
+  unverified. Collected revenue remains $0 and delivered paid reports remain 0.
+
+## Qualified-demand baseline — 2026-08-22T20:21:59Z
+
+- GitHub Issues API observation: 0 actual issues in the repository (pull
+  requests excluded), therefore 0 `$299 Audit interest` submissions and 0
+  distinct external qualified authors.
+- GitHub public code-search observation for the exact install string
+  `ntoledo319/EOLkits@v2`, excluding this repository: 0 observed external public
+  references. Private repositories and indexing delay are invisible, so this is
+  a lower bound, not a claim of zero use.
+- Exact Stripe retirement workflow runs: 0. Public v2.0.0 releases: 0. The
+  Marketplace remains v1.1.0. These are availability facts, not demand.
+- Paid reports delivered: 0. Collected revenue: $0. Collected profit: $0.
+- The structured issue form and read-only acquisition-evidence workflow are
+  locally verified but not yet public at this ledger point; they become a live
+  measurement surface only after publication and a green remote run.
+
+## Qualified-demand surface published — 2026-08-22T20:34:10Z
+
+- Main commit
+  https://github.com/ntoledo319/EOLkits/commit/5305f1fef6641659811ccc2133ddf1dde53c8a43
+  published the exact locally verified tree. Acquisition-evidence run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596830945 passed and
+  retained artifact `acquisition-evidence-32596830945` for 14 days. The artifact
+  is a public-lower-bound observation; it is not a purchase record.
+- The same commit's release, determinism, property, custom Pages, and built-in
+  Pages runs passed:
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596830957,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596830966,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596830946,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596830950, and
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596830480.
+- Marketplace-draft run `32596830981` failed at its local release-copy assertion:
+  Bash source correctly escaped `$299`, while the validation searched for the
+  rendered text. Commit
+  https://github.com/ntoledo319/EOLkits/commit/db32bdfb99b0837bb4975a5cebb9caaf633f3c34
+  corrected the assertion. Its draft, release, determinism, property, and
+  built-in Pages runs all passed:
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596973048,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596973045,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596973044,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596973051, and
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596972524.
+- Public probes returned HTTP 200 for the Audit, scanner, and tracking assets;
+  observed the `$299` issue CTA and nonbinding warning; observed capability-gated
+  fetch telemetry with no local storage or referrer collection; and confirmed
+  the GitHub issue form requires authentication. The public `v2` ref advanced
+  without force to `db32bdfb`, and its raw Action contains the findings-only
+  qualified-interest link.
+- No external qualified issue, public external `@v2` code reference, checkout,
+  purchase, delivery, or collected dollar was observed. Revenue and profit
+  remain $0.
+
+## Bounded search notification — 2026-08-22T20:49:09Z
+
+- Main commit
+  https://github.com/ntoledo319/EOLkits/commit/951fd4b64d1119d0a427c9986d6d1692818aa4be
+  has exact tree `b21d1e82468040bbbdf8d55d2bc1c911849a5ee9` and adds the
+  changed-URL IndexNow workflow plus a permanent generated-site ownership/scope
+  regression. The generated-site suite now reports 24 passing cases.
+- IndexNow run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32597777674 passed. Its
+  executable contract requires a live matching ownership key, 1–10,000 unique
+  URLs under `https://ntoledo319.github.io/EOLkits/`, and an IndexNow HTTP 200 or
+  202 response. Because the publishing diff changed no generated HTML, this
+  bootstrap run selected all 51 canonical sitemap URLs. This proves protocol
+  receipt only—not crawling, indexing, ranking, visits, leads, or revenue.
+- The same commit's release, property, determinism, custom Pages, and built-in
+  Pages runs all passed:
+  https://github.com/ntoledo319/EOLkits/actions/runs/32597777615,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32597777613,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32597777612,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32597777622, and
+  https://github.com/ntoledo319/EOLkits/actions/runs/32597777192.
+- Acquisition run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32597777625 retained artifact
+  `acquisition-evidence-32597777625` (ID `9482023122`, SHA-256 digest
+  `c7dd09d326a184669da72935350ad0f5467b033e8b36a457c654c65467aa6b77`). At
+  20:49:07 UTC it observed 0 qualified-interest issues, 0 distinct external
+  authors, 0 within-30-day windows, 0 external public `@v2` code references with
+  search available, no public v2.0.0 release, 1 star, and 0 forks.
+- Exact Stripe-retirement runs remain 0; scheduled GRACE-verifier runs remain 0;
+  the Marketplace remains v1.1.0; `eolkits.com` still serves the obsolete site
+  with `/api/capabilities` returning 404. Paid deliveries, collected revenue,
+  and collected profit remain 0 / $0 / $0.

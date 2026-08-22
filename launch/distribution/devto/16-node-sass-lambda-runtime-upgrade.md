@@ -5,6 +5,13 @@ description: Upgrading a Lambda function or container to Node.js 18 or 22 and hi
 tags: aws, lambda, node, javascript
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 You upgrade a Lambda function, a Docker base image, or your CI pipeline to Node.js 18 or 22 — and the next `npm install` or Docker build dies like this:
 
 ```

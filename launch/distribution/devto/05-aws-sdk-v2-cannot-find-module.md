@@ -5,6 +5,13 @@ description: Upgrading Lambda to nodejs18.x or later? AWS SDK v2 is no longer bu
 tags: aws, lambda, node, javascript
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 If you upgraded a Lambda function from `nodejs16.x` to `nodejs18.x` (or `nodejs20.x` / `nodejs22.x`) and your logs now show:
 
 ```

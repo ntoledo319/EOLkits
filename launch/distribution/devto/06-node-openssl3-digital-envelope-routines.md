@@ -5,6 +5,13 @@ description: Upgrading to nodejs18.x or nodejs22.x on AWS Lambda? This OpenSSL 3
 tags: aws, lambda, node, javascript
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 If you just bumped your CI pipeline — or your Lambda runtime — to Node.js 18 or 22 and your build step died, this is the wall:
 
 ```

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta name="referrer" content="origin">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Terms of Service — EOLkits</title>
@@ -18,11 +19,11 @@
 <h3>Free tools</h3>
 <p>The local CLI tools, browser scanner, documentation, and GitHub Action are provided under their applicable open-source licenses. The free scanners detect configured patterns in the files or inventory you supply; they do not guarantee a complete AWS account inventory.</p>
 <h3>Paid repository evidence report</h3>
-<p>The only self-serve paid product is a static evidence report for one uploaded repository ZIP or supported source file. The report includes:</p>
+<p>When its readiness gate is open, the only self-serve paid product is a static evidence report for one uploaded repository ZIP or supported source file. The report includes:</p>
 <ul>
 <li>exact observed file/line evidence for matched rules;</li>
 <li>observed match/file counts and a severity-based remediation order;</li>
-<li>an official or primary project source for each configured rule;</li>
+<li>a configured rule or package reference for each matched finding (dependency floors are conservative triage baselines and require target-specific verification);</li>
 <li>the input SHA-256, rule-pack/report-engine versions, and a deterministic evidence fingerprint; and</li>
 <li>explicit scope and limitations.</li>
 </ul>
@@ -39,6 +40,7 @@
 </ul>
 <h2>4. Customer Responsibilities</h2>
 <p>You confirm that you have authority to upload and analyze the submitted files. Do not upload credentials, secrets, private keys, regulated personal data, or unrelated confidential material. Review every finding and test every change in a non-production environment before deployment.</p>
+<p>Uploads are subject to the limits shown before checkout, including compressed and expanded size, archive-entry, decoded-line, mapping-record, resource, and dependency-manifest complexity limits. Inputs outside those bounds are rejected before payment.</p>
 <h2>5. Intellectual Property</h2>
 <ul>
 <li>Open-source code remains governed by its repository license.</li>

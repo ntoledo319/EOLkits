@@ -5,6 +5,13 @@ description: Python 3.12 removed smtpd, asyncore, and asynchat from the standard
 tags: python, aws, lambda, migration
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 You moved a Lambda function (or any service) to the python3.12 runtime and something that worked fine on 3.11 now dies at import time with one of:
 
 ```

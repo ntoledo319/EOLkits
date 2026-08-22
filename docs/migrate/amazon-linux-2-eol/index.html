@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta name="referrer" content="origin">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amazon Linux 2 EOL migration guide — milestone 2026-06-30 | EOLkits</title>
@@ -99,30 +100,6 @@
         ]
     }
     </script>
-<script>
-(function(){
-  try{
-    var KEY='eolkits_ft';
-    if(localStorage.getItem(KEY))return;
-    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='', refHost='';
-    try{refHost=(new URL(ref)).hostname.toLowerCase().slice(0,100);}catch(e){}
-    if(refHost===location.hostname.toLowerCase())refHost='';
-    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
-    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
-    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
-    else if(/claude\.ai/i.test(ref))aeo='claude';
-    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
-    if(!hasUtm && !refHost)return;
-    localStorage.setItem(KEY, JSON.stringify({
-      source: q.get('source')||(aeo?('aeo_'+aeo):'referral'),
-      utm_source: q.get('utm_source')||aeo||refHost,
-      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':'referral'),
-      utm_campaign: q.get('utm_campaign')||'',
-      kit: q.get('kit')||''
-    }));
-  }catch(e){}
-})();
-</script>
 </head>
 <body class="migrate-page">
 
@@ -220,10 +197,10 @@
                 <div class="pricing-card featured">
                     <h3>Audit PDF</h3>
                     <div class="price">$299</div>
-                    <p>Static scan of one repository ZIP or source file with exact file/line evidence, observed reach, remediation order, source links, and explicit limitations. <strong>30-day money-back guarantee.</strong></p>
+                    <p>Static scan of one repository ZIP or source file with exact file/line evidence, observed reach, remediation order, configured references, and explicit limitations. <strong>30-day money-back guarantee.</strong></p>
                     <a href="/EOLkits/audit/?deadline=2026-06-30&utm_source=migrate&utm_medium=cta&utm_campaign=amazon-linux-2-eol&kit=al2023-gate" class="btn-primary">Check Audit v2 availability</a>
                     <p class="small"><a href="/EOLkits/scan/">Run the free scan first</a> · <a href="/EOLkits/audit/sample/">see a sample →</a></p>
-                    <p class="small">Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
+                    <p class="small">Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
                 </div>
             </div>
         </section>

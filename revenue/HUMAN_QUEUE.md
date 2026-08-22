@@ -1,10 +1,14 @@
-# Batched owner queue — maximum 44 minutes
+# Batched owner queue — maximum 41 minutes
 
-Last reconciled August 22 after the verified acquisition-routing release.
+Last reconciled August 22 after publishing the price-qualified demand probe,
+privacy-safe telemetry release, and bounded IndexNow submission. The Stripe
+workflow has not been owner-dispatched; v2.0.0 is not public; no new owner task
+or owner minute was added.
 
-Do HQ-6 first because it repairs the existing public distribution listing, then
-complete HQ-1 through HQ-5, HQ-7, and finally HQ-8. Checkout remains closed
-until HQ-8. No old handoff or launch file is authoritative.
+Do HQ-2 first because the stale GRACE API can still mint live Checkout Sessions,
+then HQ-5 because it repairs existing distribution. Complete HQ-1, HQ-3, HQ-4,
+HQ-6, and finally HQ-7. Checkout remains closed until HQ-7. No old handoff or
+launch file is authoritative.
 
 ## HQ-1 — supply truthful seller/legal and cost facts (3 minutes)
 
@@ -22,40 +26,34 @@ Steps:
 
 Direct files: legal/terms.md and legal/privacy.md.
 
-## HQ-2 — close every legacy Stripe bypass (5 minutes)
+## HQ-2 — authorize exact Stripe closure and rotate the legacy key (5 minutes)
 
-Why human-only: Stripe account/KYC access and irreversible payment controls.
+Why human-only: the workflow requires the repository owner's identity and exact
+confirmation; account-level Stripe-key rotation is an owner credential action.
 
 Steps:
 
-1. Open https://dashboard.stripe.com/payment-links.
-2. Archive every active EOLkits direct Payment Link, including links associated
-   with Audit, Migration Pack, Organization License, and Drift Watch. The v2
-   report creates input-bound Checkout Sessions and must not use direct links.
-3. Open https://dashboard.stripe.com/products and archive the legacy prices for
-   product IDs prod_UQfbuGhdZM8Qt0, prod_UQfbikYoNBAPIJ, and
-   prod_UQfcRdVw0BeJCK. Also archive former Audit surge prices
-   price_1TRoEZDL3cQl851o9DFh1DIz and price_1TRoGiDL3cQl851ouqnljzMx.
-4. Keep transaction history. Keep the single $299 Audit Price
-   price_1TRoGjDL3cQl851oiIWR5JIa, but do not attach a public Payment Link.
-5. In https://dashboard.stripe.com/webhooks, remove only the endpoint pointing
-   to the retired Cloudflare Worker after HQ-4 proves the replacement test
+1. Open
+   https://github.com/ntoledo319/EOLkits/actions/workflows/retire-legacy-stripe.yml,
+   choose **Run workflow** on `main`, enter
+   `RETIRE_EXACT_EOLKITS_STRIPE_2026_08_22`, and run it. Do not select another
+   branch.
+2. Require a green run whose summary reports all six exact live Prices inactive,
+   zero approved active Payment Links, zero matching open/recent-completed
+   Checkout Sessions, zero future subscriptions/schedules, and zero unexpected
+   EOLkits Product prices/links. A red run intentionally preserves the Stripe
+   binding for review: stop and give the run URL to Codex; do not cancel a
+   subscription, expire a Session, or refund a charge from guesswork.
+3. After a green run, open https://dashboard.stripe.com/apikeys and rotate/revoke
+   the legacy live key used by the old Worker/GRACE deployment. Historical
+   Cloudflare versions retain old secret snapshots, so deleting the current
+   Worker binding is not account-level revocation. Keep transaction history.
+   Create/configure a distinct least-privilege production key only during HQ-3.
+4. In https://dashboard.stripe.com/webhooks, remove only the endpoint pointing
+   to the retired Cloudflare Worker after HQ-3 proves the replacement test
    webhook. Do not remove unrelated endpoints.
 
-## HQ-3 — remove the legacy Cloudflare commerce route (3 minutes)
-
-Why human-only: Cloudflare account access and destructive remote deletion.
-
-Steps:
-
-1. Open https://dash.cloudflare.com and select the eolkits.com zone.
-2. In Workers routes, remove only the route that sends EOLkits commerce/API
-   paths to the legacy Worker.
-3. After HQ-4 verifies the GRACE route, delete only the retired Worker named
-   rupture-worker or eolkits-worker. Verify the exact name and route first.
-4. Leave DNS, Pages, and unrelated Workers untouched.
-
-## HQ-4 — deploy Audit v2 closed and prove test fulfillment (15 minutes)
+## HQ-3 — deploy Audit v2 closed and prove test fulfillment (15 minutes)
 
 Why human-only: GRACE SSH access plus Stripe/Resend secrets and test Checkout UI.
 
@@ -63,10 +61,13 @@ Steps:
 
 1. Open deploy/grace/README.md in this repository and follow “Deploy checkout
    closed” exactly with EOLKITS_AUDIT_CHECKOUT_ENABLED=0.
-2. From the reviewed repository root, run `deploy/grace/ship-web.sh` with the
-   documented `GRACE_HOST` and `GRACE_WEBROOT`, inspect its dry-run, then rerun
-   it with `--apply`. Verify https://eolkits.com no longer advertises Migration
-   Pack, Organization License, Drift Watch, automatic PRs, or estimated impact.
+2. First inspect the scheduled “Verify GRACE static release” run after 07:35 UTC.
+   The still-active box-side deploy now follows the verified truthful tree. If
+   that run passes, do not run a redundant static rsync. If it fails, use
+   `deploy/grace/ship-web.sh` with the documented `GRACE_HOST` and
+   `GRACE_WEBROOT`, inspect its dry-run, then rerun it with `--apply`. Verify
+   https://eolkits.com no longer advertises Migration Pack, Organization
+   License, Drift Watch, automatic PRs, or estimated impact.
 3. Confirm the deployed commit SHA and that public /api/capabilities reports
    report_version 2.0 with checkout_enabled false.
 4. Follow “Test-mode E2E deployment” using the separate test Compose project,
@@ -79,7 +80,7 @@ Steps:
    visibly pending for reconciliation.
 7. Tear down only the separate test project. Leave production checkout off.
 
-## HQ-5 — remove false DEV promotion (10 minutes)
+## HQ-4 — remove false DEV promotion (10 minutes)
 
 Why human-only: platform posting/editing is a communication as the owner.
 
@@ -97,7 +98,7 @@ Steps:
    current primary sources and paid-product links point to the gated Audit page.
 5. Do not add new promotional posts in this batch.
 
-## HQ-6 — publish the prepared GitHub Marketplace draft (2 minutes)
+## HQ-5 — publish the prepared GitHub Marketplace draft (2 minutes)
 
 Why human-only: Marketplace developer agreement, 2FA, and release checkbox.
 
@@ -105,9 +106,11 @@ Steps:
 
 1. After final main CI is green, open the private prepared draft directly:
    https://github.com/ntoledo319/EOLkits/releases/tag/untagged-db9a4617f412abd63d2d
-2. Verify it is v2.0.0 targeting commit `8748cf6a`, check “Publish this Action to
-   the GitHub Marketplace,” keep the existing Marketplace identity, and publish
-   with 2FA. Do not create a second listing or a second release.
+2. Verify it is v2.0.0 targeting the green Action release commit `db32bdfb`
+   (later documentation-only main commits do not invalidate that target), check
+   “Publish this Action to the GitHub Marketplace,” keep the existing
+   Marketplace identity, and publish with 2FA. Do not create a second listing
+   or a second release. Stop if its Action files differ from public `v2`.
 3. Verify
    https://github.com/marketplace/actions/rupture-aws-deprecation-check shows
    v2.0.0 and the bounded release copy.
@@ -117,7 +120,7 @@ Steps:
 Official instructions:
 https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace
 
-## HQ-7 — publish the verified VSIX (5 minutes)
+## HQ-6 — publish the verified VSIX (5 minutes)
 
 Why human-only: publisher identity and Marketplace authentication.
 
@@ -134,21 +137,25 @@ Steps:
 4. Verify the listing installs version 1.0.0 and links only to the free tools and
    capability-gated Audit.
 
-## HQ-8 — enable the only checkout (1 minute)
+## HQ-7 — enable the only checkout (1 minute)
 
 Why human-only: this begins accepting real customer money.
 
-Prerequisites: HQ-1 through HQ-7 complete, zero unresolved refund/fulfillment
-alerts, and the exact production commit is verified.
+Prerequisites: HQ-1 through HQ-6 complete, zero unresolved refund/fulfillment
+alerts, and the exact production commit is verified. HQ-2 intentionally leaves
+all six historical Prices inactive.
 
 Steps:
 
-1. Set EOLKITS_AUDIT_CHECKOUT_ENABLED=1 in the reviewed production environment.
-2. Redeploy only the Audit service and set repository variable
+1. Reactivate only the canonical $299 Audit Price
+   `price_1TRoGjDL3cQl851oiIWR5JIa`; do not reactivate any other Price and do not
+   create a public Payment Link.
+2. Set EOLKITS_AUDIT_CHECKOUT_ENABLED=1 in the reviewed production environment.
+3. Redeploy only the Audit service and set repository variable
    AUDIT_CHECKOUT_EXPECTED=true.
-3. Verify /api/capabilities reports Audit 2.0 ready, then confirm the static form
+4. Verify /api/capabilities reports Audit 2.0 ready, then confirm the static form
    appears and creates one $299 input-bound Checkout Session.
 
-Estimated current owner total: 44 minutes. This leaves a 16-minute reserve for
+Estimated current owner total: 41 minutes. This leaves a 19-minute reserve for
 unrecorded prior owner work or one failed authentication attempt; do not exceed
 60 minutes without changing the plan.

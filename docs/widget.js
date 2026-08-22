@@ -23,13 +23,11 @@
   const container = document.createElement('div');
   container.className = 'eolkits-widget';
   container.innerHTML = `
-    <h3>${repo}</h3>
+    <h3 class="eolkits-repo"></h3>
     <p>Check this repository for AWS runtime and platform deprecation risks.</p>
     <a href="https://ntoledo319.github.io/EOLkits/audit/?repo=${encodeURIComponent(repo)}&utm_source=widget&utm_medium=embed&source=widget" target="_blank" rel="noopener">Run EOLkits audit</a>
     <div class="powered">Powered by EOLkits</div>
   `;
+  container.querySelector('.eolkits-repo').textContent = repo;
   script.parentNode.insertBefore(container, script.nextSibling);
-  try {
-    navigator.sendBeacon('https://eolkits.com/api/events', new Blob([JSON.stringify({ event: 'widget_view', source: 'widget', sku: 'audit', meta: { repo: repo } })], { type: 'application/json' }));
-  } catch (e) {}
 })();

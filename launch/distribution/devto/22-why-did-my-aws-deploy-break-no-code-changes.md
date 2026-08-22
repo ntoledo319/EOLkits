@@ -5,6 +5,13 @@ description: A CI run that was green last week is red today and nobody touched m
 tags: aws, lambda, devops, serverless
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 Every other class of "it broke" starts with a diff. This one doesn't. `git log` shows nothing since last week, CI was green then, it's red now, and the error doesn't look like anything your team wrote.
 
 That's the tell. A deploy that breaks with zero code changes is almost always one of two things: a fixed AWS calendar cutoff you crossed passively, or a dependency/base-image that moved out from under you without a corresponding commit in your repo. Neither shows up in `git blame`. Here's how to tell them apart.

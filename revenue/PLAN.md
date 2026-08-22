@@ -85,7 +85,12 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
 2. Keep the honest GitHub Pages fallback and tested `v2` Action branch green;
    the owner publishes the prepared v2.0.0 draft into the existing Marketplace
    listing.
-3. Archive legacy Stripe links and remove the legacy Cloudflare commerce route.
+3. Run the owner-gated exact Stripe retirement. It validates and deactivates all
+   six historical catalog Prices—including $299 while fulfillment is closed—and
+   only the six approved Payment Link URLs; any charge/session/subscription/
+   schedule anomaly stops the containment claim. Rotate/revoke the account key
+   afterward because old Cloudflare versions retain secret snapshots. The
+   verified live `rupture-worker` itself is already a tested HTTP 410 tombstone.
 4. Deploy Audit v2 with checkout disabled and complete the full Stripe test-mode
    operational gate.
 5. Update the existing GitHub Marketplace listing and publish the tested VSIX.
@@ -114,10 +119,49 @@ main through the project-path/CI follow-ups. The replacement release workflow,
 determinism and property gates, both container builds, and both GitHub Pages
 deployment mechanisms passed. A public probe verified `/EOLkits` navigation,
 the split API origin, and closed-product tombstones. The tested `v2` Action ref
-is now publicly installable at the final `8748cf6a` acquisition commit; Action,
+is now publicly installable at the final `db32bdfb` acquisition commit; Action,
 repository, kit, and future VS links route to the verified Pages funnel. The
 honest private v2.0.0 Marketplace draft is synchronized to the same commit.
-Highest-leverage next action is the owner's two-minute Marketplace agreement/2FA
-publish step, followed by the live-domain and real payment/fulfillment gates.
-The live `eolkits.com` deployment is not yet repaired. No outbound message, bid,
-post, or customer commitment is authorized.
+Highest-leverage next action is the owner's five-minute exact Stripe workflow/
+key-rotation task because the stale GRACE API still exposes charge-capable POST
+routes. The two-minute Marketplace agreement/2FA publish step follows immediately
+to start measuring external distribution while the live-domain and real
+payment/fulfillment gates are completed.
+The exposed pre-rename Cloudflare Worker is no longer a payment bypass: public
+health reports `retired: true`, its commercial and webhook paths return HTTP
+410, and retirement workflow run `32591848083` passed. The old-account token
+could not see a unique `eolkits.com` zone, but public DNS resolves directly to
+GRACE; the Worker tombstone remains safe even if a route is reintroduced.
+The active GRACE static deploy feed was safely converged on the verified main
+tree at commit `c3112151`; its next observed run is expected near 07:17 UTC and
+a repository workflow will verify the public domain at 07:35 UTC. Until that
+probe passes, `eolkits.com` is still not counted as repaired. The API/payment
+deployment remains owner-authenticated and checkout remains closed. Repository
+automation also proved it has neither a known GRACE deploy transport nor the
+complete runtime-secret bundle, so that identity boundary cannot be hidden in a
+push. Main commit `e4109e3e` contains the reviewed Stripe closure; its Worker,
+release, determinism, property, Pages, and tombstone workflows passed. The
+owner-only production Stripe workflow itself has not run. No outbound message,
+bid, post, or customer commitment is authorized.
+
+Main commit `db32bdfb` now exposes a backend-independent price-qualified signal:
+only a real browser/Action finding exposes a public GitHub issue form that
+requires the exact $299 scope and purchase consideration. Read-only run
+`32596830945` preserved the first observation; Pages, release, determinism,
+property, Marketplace-draft, and public `v2` verification are green. Baseline
+observed values remain zero qualified issues, zero external public `@v2` code
+references, zero paid reports, and $0 collected. Bet A's five-day gate begins at
+2026-08-22 20:29 UTC while checkout telemetry remains dormant behind the v2
+capability handshake. The owner priority stays HQ-2 → HQ-5 → closed v2
+deployment; demand instrumentation does not make the stale API safe to charge.
+
+Main commit `951fd4b6` adds the strongest remaining autonomous discovery action:
+an official-protocol IndexNow workflow for the verified Pages corpus. It checks
+the already-public ownership key, confines submissions to the `/EOLkits/`
+prefix, caps the batch, maps ordinary pushes to changed/deleted HTML, and treats
+HTTP 200/202 only as receipt. Bootstrap run `32597777674` accepted the 51-URL
+sitemap batch; every release/Pages/property/determinism gate also passed. Fresh
+acquisition run `32597777625` still observed 0 qualified issues, 0 external
+public `@v2` references, no v2.0.0 public release, 1 star, and 0 forks. Therefore
+the next leverage remains owner HQ-2 then HQ-5; do not build another SKU or move
+the August 27 falsifier forward because of an indexing notification.

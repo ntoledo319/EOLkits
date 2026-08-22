@@ -5,6 +5,13 @@ description: User-data, cloud-init, or Ansible that enables iptables.service fai
 tags: aws, linux, devops, security
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 You moved an AMI, launch template, or Ansible playbook from Amazon Linux 2 to Amazon Linux 2023, and a step that used to just work now fails:
 
 ```

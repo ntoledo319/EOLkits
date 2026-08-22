@@ -6,15 +6,15 @@ on:
     paths:
       - 'docs/**'
       - 'apps/web/**'
+      - 'apps/runner/audit_pdf.py'
+      - 'apps/runner/build_sample_report.py'
+      - 'apps/runner/requirements.lock'
       - 'pricing.yml'
       - 'rules/**'
       - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+permissions: {}
 
 concurrency:
   group: pages
@@ -23,6 +23,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     env:
       TMPDIR: ${{ github.workspace }}/tmp/runtime-tmp
       PIP_CACHE_DIR: ${{ github.workspace }}/tmp/pip-cache
@@ -37,9 +39,13 @@ jobs:
       - name: Build the committed static output
         run: |
           mkdir -p "$TMPDIR" "$PIP_CACHE_DIR"
+          python -m venv "$GITHUB_WORKSPACE/tmp/sample-venv"
+          "$GITHUB_WORKSPACE/tmp/sample-venv/bin/pip" install --require-hashes -r apps/runner/requirements.lock
+          "$GITHUB_WORKSPACE/tmp/sample-venv/bin/python" apps/runner/build_sample_report.py --check
           python -m venv "$GITHUB_WORKSPACE/tmp/web-venv"
-          "$GITHUB_WORKSPACE/tmp/web-venv/bin/pip" install -r apps/web/requirements-dev.txt
+          "$GITHUB_WORKSPACE/tmp/web-venv/bin/pip" install --require-hashes -r apps/web/requirements-dev.lock
           "$GITHUB_WORKSPACE/tmp/web-venv/bin/python" apps/web/build.py
+          "$GITHUB_WORKSPACE/tmp/web-venv/bin/pytest" -q apps/web
           git diff --exit-code -- docs
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
@@ -49,6 +55,9 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

@@ -1,0 +1,53 @@
+name: Audit hands-off GRACE deploy capability
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/audit-grace-capabilities.yml
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    env:
+      HAS_SSH_TARGET: ${{ (secrets.GRACE_HOST != '' || vars.GRACE_HOST != '') && 'true' || 'false' }}
+      HAS_SSH_CREDENTIAL: ${{ (secrets.GRACE_SSH_KEY != '' || secrets.GRACE_SSH_PRIVATE_KEY != '' || secrets.GRACE_DEPLOY_KEY != '') && 'true' || 'false' }}
+      HAS_CONTROL_TOKEN: ${{ (secrets.GRACE_API_TOKEN != '' || secrets.GRACE_CONTROL_TOKEN != '') && 'true' || 'false' }}
+      HAS_RUNTIME_BUNDLE: ${{ (secrets.STRIPE_KEY != '' && secrets.STRIPE_WEBHOOK_SECRET != '' && secrets.RESEND_API_KEY != '' && secrets.EOLKITS_INTERNAL_URL_SECRET != '') && 'true' || 'false' }}
+    steps:
+      - name: Report capability categories without secret values
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh_ready='false'
+          if [[ "$HAS_SSH_TARGET" == 'true' && "$HAS_SSH_CREDENTIAL" == 'true' ]]; then
+            ssh_ready='true'
+          fi
+
+          deploy_transport='false'
+          if [[ "$ssh_ready" == 'true' || "$HAS_CONTROL_TOKEN" == 'true' ]]; then
+            deploy_transport='true'
+          fi
+
+          {
+            echo '## Hands-off GRACE capability audit'
+            echo
+            echo "- Deploy transport available: $deploy_transport"
+            echo "- Complete runtime-secret bundle in GitHub: $HAS_RUNTIME_BUNDLE"
+            echo
+            echo 'Only booleans are reported. No host, account, token, key, or secret value is printed.'
+            if [[ "$deploy_transport" != 'true' ]]; then
+              echo 'Result: repository automation cannot authenticate to GRACE with the known credential names.'
+            elif [[ "$HAS_RUNTIME_BUNDLE" == 'true' ]]; then
+              echo 'Result: a closed deployment and isolated test-mode exercise may be automatable after a read-only transport probe.'
+            else
+              echo 'Result: transport may be automatable; production runtime secrets must remain on the reviewed GRACE host.'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          printf 'deploy_transport=%s\nruntime_bundle=%s\n' \
+            "$deploy_transport" "$HAS_RUNTIME_BUNDLE"
