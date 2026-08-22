@@ -1,7 +1,8 @@
 # Verbatim-error /fix corpus — drives /fix/<slug> AEO pages (M2).
 #
 # Each entry is keyed on a REAL error string a developer pastes into search or an
-# LLM. Every fix is hand-verified against a primary source (cited in source_url).
+# LLM. Every entry carries a primary or official-project source for its core
+# runtime/API/removal claim. Remediation steps still require workload validation.
 # Dates come ONLY from the AWS Lambda runtime deprecation table — secondary blogs
 # carry stale pre-delay dates and must not be used. Fabricating error strings to
 # rank would be scaled-content-abuse; these are sourced, not generated.
@@ -9,7 +10,7 @@
 # Schema per entry:
 #   slug            URL slug (/fix/<slug>/)
 #   error           the verbatim error string (the <h1> + code block + search key)
-#   context         short label, e.g. "Python 3.12", "AWS Lambda", "Amazon Linux 2023", "Node.js 22"
+#   context         short label, e.g. "Python 3.12", "AWS Lambda", "Amazon Linux 2023", "Node.js 24"
 #   summary         one-sentence plain-English meaning
 #   cause           why it happens (the real root cause)
 #   fix_steps       ordered, correct remediation steps
@@ -22,12 +23,11 @@ fixes:
     error: "amazon-linux-extras: command not found"
     context: "Amazon Linux 2023"
     summary: "The amazon-linux-extras mechanism was removed in Amazon Linux 2023; it only exists on Amazon Linux 2."
-    cause: "Amazon Linux 2023 dropped the Extras Library. Packages that used to live behind amazon-linux-extras are now either default dnf packages, version-namespaced packages (e.g. python3.11, nginx1.24), or available through SPAL (Supplementary Packages for Amazon Linux)."
+    cause: "Amazon Linux 2023 dropped the Extras Library. Packages that used to live behind amazon-linux-extras may now be in the core repositories under a different name or in SPAL (Supplementary Packages for Amazon Linux)."
     fix_steps:
       - "Stop calling amazon-linux-extras — it does not exist on AL2023."
-      - "Install the package directly with dnf, e.g. `sudo dnf install -y python3.11`."
-      - "For a specific minor version, use the version-namespaced package name (python3.11, nginx1.24, postgresql15, etc.)."
-      - "For packages that were EPEL-backed, enable SPAL instead of the old extras topics."
+      - "Search the current repositories first with `dnf search <name>` and `dnf provides '*/<binary>'`; package names vary by AL2023 release."
+      - "If the package is absent from core, check the documented SPAL repository and its support limitations."
       - "Update Dockerfiles and user-data scripts that still run `amazon-linux-extras enable ...` / `install`."
     source_url: "https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html"
     related_migrate: amazon-linux-2-eol
@@ -39,7 +39,7 @@ fixes:
     summary: "Python 3.12 removed the standard-library distutils module (PEP 632)."
     cause: "distutils was deprecated in Python 3.10 and fully removed in 3.12. Code (or a dependency) still imports it. This commonly surfaces after moving a Lambda function or container to a Python 3.12 runtime."
     fix_steps:
-      - "Interim: install setuptools, which still vendors a distutils shim — `pip install 'setuptools<81'` — and ensure it is in your deployment package."
+      - "Interim only: if the current setuptools documentation still provides a compatible distutils shim, bundle a tested setuptools version with the deployment package."
       - "Durable: replace `distutils` usage with `setuptools` and the `packaging` library (e.g. `packaging.version.Version` instead of `distutils.version.LooseVersion`)."
       - "Upgrade dependencies that import distutils to versions that no longer do."
       - "Re-test on Python 3.12 locally before redeploying."
@@ -79,7 +79,7 @@ fixes:
     summary: "AWS Lambda is blocking create/update operations on a deprecated Python runtime."
     cause: "Per the AWS Lambda runtime deprecation table, python3.9 was deprecated on 2025-12-15; AWS blocks creating new python3.9 functions on 2027-02-01 and updating existing ones on 2027-03-03 (AWS delayed these beyond the usual 30/60 days). Earlier runtimes such as python3.7 are already blocked for create. The error fires when a deploy targets a runtime past its block date."
     fix_steps:
-      - "Change the runtime to a supported version — AWS recommends python3.12 (python3.13 is also available)."
+      - "Change the runtime to a currently supported version. EOLkits' bounded rewrite examples use python3.12; recheck AWS's current table and choose the target your dependencies support."
       - "SAM/CloudFormation: `Runtime: python3.12`. CDK: `runtime: lambda.Runtime.PYTHON_3_12`. Terraform: `runtime = \"python3.12\"`. Serverless: `runtime: python3.12`."
       - "Re-test: Python 3.12 removed distutils and imp and moved the collections ABCs — see the related /fix pages."
       - "Redeploy and confirm with `aws lambda get-function-configuration --function-name <name> --query Runtime`."
@@ -89,13 +89,13 @@ fixes:
 
   - slug: node-module-version-mismatch
     error: "Error: The module was compiled against a different Node.js version using NODE_MODULE_VERSION"
-    context: "Node.js 22"
+    context: "Node.js 24"
     summary: "A precompiled native addon was built for a different Node.js ABI than the one now running."
-    cause: "Native Node addons (sharp, bcrypt, better-sqlite3, canvas, …) are tied to the Node major version's ABI (NODE_MODULE_VERSION). Upgrading the Lambda/container runtime to Node 22 without rebuilding or bumping these packages triggers the mismatch."
+    cause: "Native Node addons (sharp, bcrypt, better-sqlite3, canvas, …) are tied to the Node major version's ABI (NODE_MODULE_VERSION). Upgrading the Lambda/container runtime to Node.js 24 without rebuilding or updating these packages can trigger the mismatch."
     fix_steps:
       - "Rebuild native modules against the new Node version: `rm -rf node_modules && npm install` (or `npm rebuild`)."
-      - "If the package has no Node 22 prebuild, upgrade it to a version that does (e.g. sharp >= 0.33.0, bcrypt >= 5.1.1, better-sqlite3 >= 11.0.0)."
-      - "For dead packages with no Node 22 build (node-sass, fibers, grpc), replace them (sass, native timers, @grpc/grpc-js)."
+      - "Check the package's current support matrix and upgrade to a release that explicitly supports Node.js 24; rebuild on the target OS and architecture."
+      - "Replace unmaintained native packages such as node-sass, fibers, and grpc with maintained alternatives (sass, native timers, @grpc/grpc-js)."
       - "Build the deployment package on the same Node major version Lambda will run."
     source_url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
     related_migrate: lambda-node.js-20-phase-1
@@ -103,9 +103,9 @@ fixes:
 
   - slug: node-sass-deprecated-unsupported
     error: "Node Sass does not yet support your current environment"
-    context: "Node.js 22"
+    context: "Node.js 24"
     summary: "node-sass (LibSass) is deprecated and has no prebuilt binary for current Node versions."
-    cause: "node-sass wraps LibSass, which is end-of-life. It ships no Node 22 prebuild, so installs fail to find a compatible binary on new runtimes."
+    cause: "node-sass wraps end-of-life LibSass and is archived. It does not support current Node.js runtimes such as Node.js 24."
     fix_steps:
       - "Replace node-sass with Dart Sass: `npm uninstall node-sass && npm install -D sass`."
       - "The `sass` package is pure JS (no native build) and is a near drop-in for most build pipelines."
@@ -118,7 +118,7 @@ fixes:
     error: "DeprecationWarning: datetime.datetime.utcnow() is deprecated"
     context: "Python 3.12"
     summary: "datetime.utcnow() is deprecated in Python 3.12 because it returns a naive (timezone-unaware) datetime."
-    cause: "Python 3.12 deprecated utcnow() and utcfromtimestamp() to push code toward timezone-aware datetimes. The warning becomes noise in logs and is scheduled for eventual removal."
+    cause: "Python 3.12 deprecated utcnow() and utcfromtimestamp() to push code toward timezone-aware datetimes. Python has not committed to a removal release in the cited change note."
     fix_steps:
       - "Replace `datetime.datetime.utcnow()` with `datetime.datetime.now(datetime.timezone.utc)`."
       - "Replace `datetime.datetime.utcfromtimestamp(t)` with `datetime.datetime.fromtimestamp(t, datetime.timezone.utc)`."
@@ -147,9 +147,9 @@ fixes:
     summary: "AWS Lambda is blocking create/update operations on a deprecated Node.js runtime."
     cause: "Per the AWS Lambda runtime deprecation table, nodejs16.x and nodejs18.x are both deprecated (patches stopped) and share the same block dates: AWS blocks creating new functions on 2027-02-01 and updating existing ones on 2027-03-03 (AWS delayed both beyond the usual 30/60 days, in a cluster with nodejs20.x and several Python runtimes). The error fires once a deploy targets a runtime past its block date."
     fix_steps:
-      - "Move to a supported runtime — AWS recommends nodejs22.x."
-      - "SAM/CloudFormation: `Runtime: nodejs22.x`. CDK: `runtime: lambda.Runtime.NODEJS_22_X`. Terraform: `runtime = \"nodejs22.x\"`. Serverless: `runtime: nodejs22.x`."
-      - "Rebuild native addons for the Node 22 ABI and switch the bundled aws-sdk v2 to @aws-sdk v3 — see the related /fix pages."
+      - "Move to a currently supported runtime with adequate runway; EOLkits' current examples target nodejs24.x. Recheck AWS's table before scheduling."
+      - "SAM/CloudFormation: `Runtime: nodejs24.x`. CDK: `runtime: lambda.Runtime.NODEJS_24_X`. Terraform: `runtime = \"nodejs24.x\"`. Serverless: `runtime: nodejs24.x`."
+      - "Rebuild native addons for the Node.js 24 ABI and switch the bundled aws-sdk v2 to @aws-sdk v3 — see the related /fix pages."
       - "Redeploy and confirm with `aws lambda get-function-configuration --function-name <name> --query Runtime`."
     source_url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
     related_migrate: lambda-node.js-18-eol
@@ -226,9 +226,9 @@ fixes:
 
   - slug: node-punycode-module-deprecated
     error: "[DEP0040] DeprecationWarning: The `punycode` module is deprecated"
-    context: "Node.js 22"
+    context: "Node.js 24"
     summary: "The built-in punycode module is deprecated (DEP0040) and is slated for removal."
-    cause: "Node deprecated the built-in punycode module in favor of the userland package. The warning appears on Node 18+ and is loudest on Node 22, often emitted by a transitive dependency."
+    cause: "Node deprecated the built-in punycode module in favor of the userland package. DEP0040 became a runtime deprecation in Node.js 21, so current runtimes can emit it when code or a transitive dependency imports the built-in module."
     fix_steps:
       - "In your own code, depend on the userland package: `npm install punycode` then `require('punycode/')` (note the trailing slash)."
       - "If it comes from a dependency, upgrade it — many libraries have dropped the built-in punycode."
@@ -240,7 +240,7 @@ fixes:
 
   - slug: node-crypto-createcipher-is-not-a-function
     error: "TypeError: crypto.createCipher is not a function"
-    context: "Node.js 22"
+    context: "Node.js 24"
     summary: "crypto.createCipher and crypto.createDecipher were removed in Node.js 22."
     cause: "Deprecated since Node 10 (DEP0106) for using a weak, salt-less MD5 key derivation and a static IV, createCipher/createDecipher were removed in Node.js 22. Code (or a dependency) still calls them and now throws after the runtime upgrade."
     fix_steps:
@@ -260,7 +260,7 @@ fixes:
     fix_steps:
       - "Switch to a maintained library such as `telnetlib3` (asyncio-based) or `Exscript`."
       - "Where the device supports it, prefer SSH (`paramiko` / `netmiko`) over Telnet."
-      - "Pinning to python3.12 still ships telnetlib, but 3.12 is itself on the Lambda deprecation track — treat it as a stopgap only."
+      - "Pinning to python3.12 still ships telnetlib, but it postpones rather than removes the dependency; use it only as a tested transition."
       - "Re-test on Python 3.13 after swapping the import."
     source_url: "https://docs.python.org/3/whatsnew/3.13.html"
     related_migrate: lambda-python-3.11-eol
@@ -298,9 +298,9 @@ fixes:
     error: "/lib64/libc.so.6: version `GLIBC_2.28' not found"
     context: "AWS Lambda (native dependency)"
     summary: "A native binary in your package needs a newer glibc than the Lambda runtime's base OS provides."
-    cause: "Native extensions (cryptography, numpy, pydantic-core, grpcio, psycopg2, plus Go/Rust binaries) link against the glibc of the machine that built them. Lambda's glibc is fixed by the runtime's base OS: Amazon Linux 2 runtimes (python3.9 and earlier, nodejs16 and earlier) ship glibc 2.26; Amazon Linux 2023 runtimes (python3.12+, nodejs18+) ship glibc 2.34. A wheel built on a newer box fails to import on an older AL2 runtime."
+    cause: "Native extensions (cryptography, numpy, pydantic-core, grpcio, psycopg2, plus Go/Rust binaries) link against the glibc of the machine that built them. Lambda's base OS controls the available glibc: AL2-based runtimes, including Python 3.11 and Node.js 18, use glibc 2.26; AL2023-based runtimes, including Python 3.12+ and Node.js 20+, use glibc 2.34. A binary built against a newer glibc cannot load on an older base."
     fix_steps:
-      - "Best fix: move the function to an AL2023-based runtime (python3.12 / nodejs20+ / nodejs22) whose glibc 2.34 satisfies modern wheels — this also gets you off the deprecated runtime."
+      - "When feasible, move to a supported AL2023-based runtime such as python3.12+ or nodejs24.x, then rebuild and test every native dependency on that exact base and architecture."
       - "Build the dependency for the exact target: `pip install --platform manylinux2014_x86_64 --only-binary=:all: --target ./package <pkg>` (manylinux2014 = glibc 2.17, safe on both AL2 and AL2023)."
       - "Or build inside the matching base image (`public.ecr.aws/lambda/python:3.12`) so the binary links the runtime's glibc."
       - "Match the architecture too — x86_64 vs arm64/Graviton wheels are not interchangeable."
@@ -312,10 +312,10 @@ fixes:
     error: "Runtime.ImportModuleError: Error: Cannot find module"
     context: "AWS Lambda"
     summary: "Lambda can't load a dependency your handler imports — most often after a runtime upgrade changed what's bundled."
-    cause: "Common right after changing the runtime: (1) on nodejs18+ the AWS SDK v2 ('aws-sdk') is no longer preinstalled — only @aws-sdk v3 is; (2) a bundler (esbuild >= 0.22) now omits node_modules from the bundle by default; (3) a Lambda layer was built on a different OS/arch than the runtime; (4) a native binary needs a different glibc. The handler then throws ImportModuleError at cold start."
+    cause: "Common right after changing the runtime: (1) on nodejs18+ the AWS SDK v2 ('aws-sdk') is no longer preinstalled — only @aws-sdk v3 is; (2) the deployment bundle omitted a dependency; (3) a Lambda layer was built on a different OS/architecture; or (4) a native binary needs a different glibc. The handler then throws ImportModuleError at cold start."
     fix_steps:
       - "If it names `aws-sdk` on nodejs18+: migrate to @aws-sdk v3 modular clients, or bundle aws-sdk v2 explicitly (see the dedicated /fix page)."
-      - "esbuild >= 0.22: set `packages: 'bundle'` (or `--packages=bundle`) so dependencies are included again."
+      - "Inspect the built ZIP or image and the bundler's current configuration to confirm the named dependency is actually included."
       - "Build layers/packages on the runtime's base image (e.g. `public.ecr.aws/lambda/nodejs:22`) and match the architecture (x86_64 vs arm64)."
       - "Confirm the module is where Lambda expects it (`nodejs/node_modules/...` for a layer; top level for a function package) and that the handler string matches the file path."
     source_url: "https://repost.aws/knowledge-center/lambda-import-module-error-nodejs"
@@ -331,7 +331,7 @@ fixes:
       - "Find the real name: `dnf search <keyword>` and `dnf provides '*/<binary>'`."
       - "Use the version-namespaced package where AL2023 splits versions, e.g. `dnf install -y python3.11` / `nginx1.24` / `postgresql15`."
       - "If it lived behind amazon-linux-extras on AL2, it's now a default dnf package, version-namespaced, or in SPAL — enable SPAL instead of the old extras topic."
-      - "For EPEL-only packages, enable EPEL for AL2023; for genuinely dropped packages, vendor a binary or build from source."
+      - "Do not add a repository built for another distribution. Check SPAL, which is built for AL2023 but has separate support limitations; if the package is absent, vendor or build it deliberately."
       - "Check support status/dates with the `dnf-plugin-support-info` plugin before standardizing on a package."
     source_url: "https://docs.aws.amazon.com/linux/al2023/ug/package-management.html"
     related_migrate: amazon-linux-2-eol
@@ -373,7 +373,7 @@ fixes:
     fix_steps:
       - "Port the code to `asyncio` — its protocols and transports are the supported replacement for `asyncore`/`asynchat`."
       - "If a third-party dependency imports `asyncore`, upgrade it to an asyncio-based release; many have shipped one."
-      - "For an unavoidable legacy import, vendor the pure-Python `asyncore.py` / `asynchat.py` from a Python 3.11 source tree into your package."
+      - "If the dependency has no maintained release, replace it; copying removed standard-library modules forward creates an unsupported fork and should not be presented as a durable fix."
       - "Re-test on python3.12 to surface other PEP 594 removals (`smtpd`, `imp`, `distutils`)."
     source_url: "https://docs.python.org/3/whatsnew/3.12.html"
     related_migrate: lambda-python-3.9-eol
@@ -382,13 +382,13 @@ fixes:
   - slug: node-error-decoder-routines-unsupported
     error: "error:1E08010C:DECODER routines::unsupported"
     context: "AWS Lambda / Node.js 18+ (OpenSSL 3)"
-    summary: "OpenSSL 3, bundled with Node.js 17+, refuses to load a private key stored in a legacy format."
-    cause: "Node.js 18/20/22 ship OpenSSL 3, which disables some legacy algorithms and key encodings by default. Loading an old-format key (e.g. a traditional PKCS#1 PEM or one encrypted with a weak cipher) via `crypto.createPrivateKey`, `https`, JWT signing, or a TLS client then throws `DECODER routines::unsupported` after a runtime upgrade."
+    summary: "OpenSSL 3 can reject malformed key data or material that depends on an unavailable legacy decoder, encryption algorithm, or provider."
+    cause: "Node.js 18 and later Lambda runtimes use OpenSSL 3. This error can mean that the input is not the expected key, its PEM/DER encoding is malformed, it is encrypted with an unsupported legacy algorithm, or the required provider is unavailable. The error alone does not prove that every PKCS#1 key is incompatible."
     fix_steps:
-      - "Re-encode the key to PKCS#8: `openssl pkcs8 -topk8 -in old.pem -out new.pem` (add `-nocrypt` for an unencrypted key)."
-      - "If the key uses a legacy cipher, re-write it with a modern one: `openssl rsa -in old.pem -out new.pem`."
-      - "For unavoidable legacy material, start Node with `--openssl-legacy-provider` — a stopgap, not a fix."
-      - "Rotate any weak keys and store the PKCS#8 version in your Lambda config or secret."
+      - "Confirm that the secret contains the expected complete PEM, including newlines and matching BEGIN/END labels; do not print private material to logs."
+      - "Validate it locally with `openssl pkey -in old.pem -check -noout` using an OpenSSL 3 environment."
+      - "If validation identifies a legacy encrypted encoding, convert it to a currently supported encoding such as PKCS#8, then verify the converted key before deployment."
+      - "Prefer rotating weak or ambiguously sourced key material and storing the replacement in a secret manager. Treat `--openssl-legacy-provider` only as a short-lived diagnostic workaround."
     source_url: "https://nodejs.org/api/crypto.html"
     related_migrate: lambda-node.js-20-phase-1
     kit: lambda-lifeline

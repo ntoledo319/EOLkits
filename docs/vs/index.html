@@ -5,27 +5,27 @@
   try{
     var KEY='eolkits_ft';
     if(localStorage.getItem(KEY))return;
-    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='', refHost='';
+    try{refHost=(new URL(ref)).hostname.toLowerCase().slice(0,100);}catch(e){}
+    if(refHost===location.hostname.toLowerCase())refHost='';
     if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
     else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
     else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
     else if(/claude\.ai/i.test(ref))aeo='claude';
-    var ext = ref && ref.indexOf(location.host)===-1;
     var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
-    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    if(!hasUtm && !refHost)return;
     localStorage.setItem(KEY, JSON.stringify({
-      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
-      utm_source: q.get('utm_source')||aeo||'',
-      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      source: q.get('source')||(aeo?('aeo_'+aeo):'referral'),
+      utm_source: q.get('utm_source')||aeo||refHost,
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':'referral'),
       utm_campaign: q.get('utm_campaign')||'',
-      kit: q.get('kit')||'',
-      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+      kit: q.get('kit')||''
     }));
   }catch(e){}
 })();
 </script>
-</head><body><a href="/" class="brand">← EOLkits</a><h1>EOLkits vs alternatives</h1>
-<p>Factual comparisons updated nightly from public sources. No logos used. Plain-text product names under nominative fair use.</p>
-<ul><li><a href="/vs/cloudquery/">EOLkits vs CloudQuery</a> <span style="color:#6b7280">— Cloud asset inventory</span></li><li><a href="/vs/herodevs/">EOLkits vs HeroDevs</a> <span style="color:#6b7280">— Post-EOL support subscription</span></li><li><a href="/vs/aws-samples-runtime-update-helper/">EOLkits vs aws-samples runtime-update-helper</a> <span style="color:#6b7280">— AWS sample script</span></li></ul>
-<p style="color:#6b7280;font-size:.85rem">Pages reflect public data as of the timestamp shown on each page. If a fact is wrong or outdated, open an issue.</p>
-<footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a></footer></body></html>
+</head><body><a href="/EOLkits/" class="brand">← EOLkits</a><h1>Evaluate EOLkits</h1>
+<p>The previous side-by-side pages contained product and pricing claims that were not continuously verified, so they have been retired.</p>
+<p>Evaluate EOLkits against the tool you already use by running the <a href="/EOLkits/scan/">free local browser scanner</a>, reviewing the <a href="https://github.com/ntoledo319/EOLkits">MIT source and tests</a>, and checking the other vendor's current official documentation directly.</p>
+<p>EOLkits currently offers local source/IaC checks and, when the fulfillment service is healthy, a $299 static repository evidence report. It is not an AWS account inventory or managed migration service.</p>
+<footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/EOLkits/">Home</a></footer></body></html>

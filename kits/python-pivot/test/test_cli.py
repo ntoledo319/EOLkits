@@ -5,7 +5,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 KIT_ROOT = Path(__file__).parent.parent
 
 
@@ -34,9 +33,7 @@ def test_version():
 
 
 def test_scan_cli():
-    r = _run(
-        "scan", "--fixture", "test/fixtures/lambda-inventory.json", "--format", "json"
-    )
+    r = _run("scan", "--fixture", "test/fixtures/lambda-inventory.json", "--format", "json")
     assert r.returncode == 0
     assert "payment-webhook" in r.stdout
 

@@ -15,6 +15,7 @@ Categories:
 """
 
 from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
@@ -116,9 +117,7 @@ REMAP_TABLE: Dict[str, RemapEntry] = {
         "replaced_by",
         note="AL2023 default is 3.2. Ruby 3.0 upstream EOL.",
     ),
-    "ruby2.7": RemapEntry(
-        "ruby2.7", "ruby3.2", "replaced_by", note="EOL. Migrate code."
-    ),
+    "ruby2.7": RemapEntry("ruby2.7", "ruby3.2", "replaced_by", note="EOL. Migrate code."),
     "nodejs14": RemapEntry(
         "nodejs14", "nodejs20", "replaced_by", note="Node 14 EOL. AL2023 ships 20 LTS."
     ),
@@ -154,9 +153,7 @@ REMAP_TABLE: Dict[str, RemapEntry] = {
         "renamed",
         note="Python 2 is gone. Use the Python 3 pip.",
     ),
-    "python-virtualenv": RemapEntry(
-        "python-virtualenv", "python3-virtualenv", "renamed"
-    ),
+    "python-virtualenv": RemapEntry("python-virtualenv", "python3-virtualenv", "renamed"),
     "yum-utils": RemapEntry(
         "yum-utils",
         "dnf-utils",
@@ -187,9 +184,7 @@ REMAP_TABLE: Dict[str, RemapEntry] = {
     "vsftpd": RemapEntry("vsftpd", "vsftpd", "same"),
     "sendmail": RemapEntry("sendmail", "sendmail", "same"),
     "postfix": RemapEntry("postfix", "postfix", "same"),
-    "gcc72": RemapEntry(
-        "gcc72", "gcc", "replaced_by", note="AL2023 ships gcc 11 by default."
-    ),
+    "gcc72": RemapEntry("gcc72", "gcc", "replaced_by", note="AL2023 ships gcc 11 by default."),
     "gcc64": RemapEntry("gcc64", "gcc", "replaced_by", ""),
     "vim-minimal": RemapEntry("vim-minimal", "vim-minimal", "same"),
     "bind-utils": RemapEntry("bind-utils", "bind-utils", "same"),
@@ -298,9 +293,7 @@ def _render_table(entries: List[RemapEntry]) -> str:
         max((len(e.al2023_name or "—") for e in entries), default=0),
     )
     c3 = max(len("CATEGORY"), max((len(e.category) for e in entries), default=0))
-    header = (
-        f"{'AL2 PACKAGE':<{c1}}  {'AL2023 EQUIVALENT':<{c2}}  {'CATEGORY':<{c3}}  NOTE"
-    )
+    header = f"{'AL2 PACKAGE':<{c1}}  {'AL2023 EQUIVALENT':<{c2}}  {'CATEGORY':<{c3}}  NOTE"
     sep = "-" * len(header)
     lines = [header, sep]
     for e in entries:

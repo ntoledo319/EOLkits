@@ -6,13 +6,15 @@ services:
     container_name: eolkits-api
     restart: unless-stopped
     env_file:
-      - .env.production
+      - ${EOLKITS_ENV_FILE:-.env.production}
     environment:
       ENVIRONMENT: production
       PUBLIC_SITE_URL: https://eolkits.com
       PUBLIC_API_URL: https://eolkits.com
       EOLKITS_DATA_DIR: /data/eolkits
       EOLKITS_INLINE_RUNNER: "1"
+      EOLKITS_AUDIT_CHECKOUT_ENABLED: "${EOLKITS_AUDIT_CHECKOUT_ENABLED:-0}"
+      EOLKITS_BUILD_SHA: "${EOLKITS_BUILD_SHA:-unknown}"
     ports:
       - "127.0.0.1:${EOLKITS_API_PORT:-8120}:8080"
     volumes:

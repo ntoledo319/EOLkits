@@ -1,6 +1,6 @@
 # lambda-lifeline
 
-> Scan, upgrade, test, and safely deploy your AWS Lambda Node.js functions off the **`nodejs20.x`** runtime before the deprecation deadline.
+> Check, preview, and execute guarded AWS Lambda Node.js runtime migration steps. Review every proposed change and use your own production release controls.
 
 **Official AWS source:** [Lambda runtimes docs](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html)
 
@@ -9,35 +9,28 @@
 | `nodejs16.x` | Jun 12, 2024 ✗ past | Feb 1, 2027 | **Mar 3, 2027** |
 | `nodejs18.x` | Sep 1, 2025 ✗ past  | Feb 1, 2027 | **Mar 3, 2027** |
 | `nodejs20.x` | **Apr 30, 2026**    | Feb 1, 2027 | **Mar 3, 2027** |
+| `nodejs22.x` | Apr 30, 2027 (projected) | Jun 1, 2027 | **Jul 1, 2027** |
 
-If you run Node on Lambda, you are on the clock.
-
----
-
-## Demo
-
-![lambda-lifeline demo](docs/demos/demo.svg)
-
-*Live recording — scan → codemod → audit → iac → plan. Real output, no animation tricks. 8 commands, all work offline via fixture mode.*
+AWS marks future runtime dates as subject to change. Recheck the linked table before scheduling a production migration.
 
 ---
 
 ## What this kit does
 
-Eight integrated tools that take you from "I have no idea how many Node 20 functions we have" to "deployed to Node 22 on a staged canary with auto-rollback":
+Eight commands cover specific parts of a Node.js Lambda migration:
 
 | Step | Command | What it does |
 |---|---|---|
-| 1 | `scan` | Enumerates Lambda functions across every account + region and flags EOL runtimes |
+| 1 | `scan` | Lists Lambda functions visible to the active credentials in the selected regions and flags configured runtimes |
 | 2 | `codemod` | Rewrites `import … assert` → `with`, flags `Buffer` negative-index & stream HWM risks |
-| 3 | `audit` | Scans `package.json` for native-binary packages (`sharp`, `bcrypt`, `better-sqlite3`, `canvas`, `node-sass`, `grpc`, `fibers`, …) and reports the exact version each needs for Node 22 |
+| 3 | `audit` | Scans `package.json` for configured native-binary packages, reports a conservative version baseline, and calls out the required Node.js 24 upstream/target-runtime verification |
 | 4 | `certs` | Sets `NODE_EXTRA_CA_CERTS=/var/runtime/ca-cert.pem` on functions that connect to RDS or other Amazon-managed TLS endpoints |
-| 5 | `iac` | Patches SAM, CloudFormation, CDK (TS/JS), Terraform, and Serverless Framework files — `nodejs20.x` → `nodejs22.x` |
+| 5 | `iac` | Patches supported old Node runtime references in SAM, CloudFormation, CDK (TS/JS), Terraform, and Serverless Framework files to `nodejs24.x` |
 | 6 | `plan` | Prints a staged canary deploy plan (5 → 25 → 50 → 100% over weighted alias routing) |
 | 7 | `deploy` | Executes the plan with a CloudWatch alarm guard. If the alarm trips at any stage, it auto-rollbacks to the last stable version |
 | 8 | `rollback` | Manual rollback of a function alias to the previous version |
 
-Everything is **dry-run by default**. You pass `--apply` to make changes. Every rewrite is idempotent. Every AWS mutation has a guard.
+File and AWS mutations require `--apply`. The tested rewrite rules are idempotent. Validate the generated plan, alarms, permissions, and rollback behavior in a non-production environment first.
 
 ---
 
@@ -45,7 +38,12 @@ Everything is **dry-run by default**. You pass `--apply` to make changes. Every 
 
 On **April 30, 2026** AWS stops applying security patches to `nodejs20.x` Lambda functions. AWS delayed the hard block dates into the synchronized Q1-2027 cluster: on **February 1, 2027** you can't create new `nodejs20.x` functions, and on **March 3, 2027** you can't even update code or config on the existing ones — they become frozen until you migrate.
 
-The official AWS Health emails tell you *that* it's happening. They don't tell you *which* of your 300 functions across 5 accounts and 3 regions are affected, *which* of your `package.json` deps will `NODE_MODULE_VERSION`-mismatch, *which* of your Terraform files has `runtime = "nodejs20.x"` buried in it, or how to ship the upgrade without a 3 AM pager.
+The official AWS Health emails tell you *that* it's happening. This kit helps you
+identify which functions visible to a selected credential profile are affected,
+which configured `package.json` dependencies may have Node 24 compatibility risk,
+and which supported IaC files contain old runtime references. Run `scan` once per
+account/profile and every relevant region; it does not enumerate an AWS
+Organization automatically.
 
 That's this kit.
 
@@ -57,7 +55,7 @@ That's this kit.
 # 1. Clone & install (zero deps for offline use; AWS SDK only for live scan/deploy)
 git clone https://github.com/ntoledo319/EOLkits.git
 cd EOLkits/kits/lambda-lifeline
-npm install   # only needed for scan (live mode), certs, deploy, rollback
+npm ci        # only needed for scan (live mode), certs, deploy, rollback
 
 # 2. Inventory your fleet
 ./bin/cli.mjs scan --regions us-east-1,us-west-2,eu-west-1 --out scan.json
@@ -80,33 +78,31 @@ npm install   # only needed for scan (live mode), certs, deploy, rollback
     --alarm arn:aws:cloudwatch:us-east-1:123456789012:alarm:orders-5xx
 ```
 
-Setup to production deploy: **under 30 minutes** on a repo of typical size.
-
----
-
 ## Sample output
 
-Run against the included `examples/sample-app/`:
+Run against the included fixture. The `Days` value is computed from the run date,
+so it is shown as `…` below:
 
 ```
 $ lambda-lifeline scan --fixture test/fixtures/lambda-inventory.json
-ℹ Scanned 6 functions · 1 healthy · 5 at risk
+ℹ Scanned 7 functions · 1 healthy · 6 at risk
 
 Function                             Runtime        Region         Severity           Days   Target
 ---------------------------------------------------------------------------------------------------
-api-orders-ingest                    nodejs20.x     us-east-1      high               154    nodejs22.x
-billing-webhook-processor            nodejs18.x     us-east-1      high               154    nodejs22.x
-legacy-cron-cleanup                  nodejs16.x     us-west-2      high               154    nodejs22.x
-report-generator                     python3.10     us-east-1      medium             261    python3.12
-ruby-legacy-processor                ruby3.2        us-east-1      high               154    ruby3.4
+api-orders-ingest                    nodejs20.x     us-east-1      high               …      nodejs24.x
+billing-webhook-processor            nodejs18.x     us-east-1      high               …      nodejs24.x
+legacy-cron-cleanup                  nodejs16.x     us-west-2      high               …      nodejs24.x
+events-api-current                   nodejs22.x     us-east-1      medium             …      nodejs24.x
+report-generator                     python3.10     us-east-1      medium             …      python3.12
+ruby-legacy-processor                ruby3.2        us-east-1      high               …      ruby3.4
 ```
 
 ```
 $ lambda-lifeline codemod --path examples/sample-app
-ℹ [rewrite] examples/sample-app/src/handler.mjs · assert-to-with · 2 hit(s)
-ℹ [rewrite] examples/sample-app/src/handler.mjs · dynamic-import-assert · 1 hit(s)
 ℹ [lint]    examples/sample-app/src/handler.mjs · buffer-negative-index · 1 hit(s)
-✓ 1 file(s) with 4 edit(s). Preview only.
+ℹ [lint]    examples/sample-app/src/handler.mjs · streams-hwm · 1 hit(s)
+✓ 1 file(s) with 2 edit(s). Preview only.
+⚠ 2 lint finding(s) need human review (cannot auto-fix safely).
 ```
 
 ```
@@ -114,9 +110,9 @@ $ lambda-lifeline audit --path examples/sample-app
   ⚠ sharp                        UPGRADE    declared 0.32.6  →  need ≥ 0.33.0
   ⚠ bcrypt                       UPGRADE    declared 5.0.1   →  need ≥ 5.1.1
   ⚠ better-sqlite3               UPGRADE    declared 10.0.0  →  need ≥ 11.0.0
-  ✗ node-sass                    DEAD       drop this dep
-  ✗ grpc                         DEAD       drop this dep
-⚠ 5 native dep(s) need action before Node 22.
+  ✗ node-sass                    REPLACE    replace this dep
+  ✗ grpc                         REPLACE    replace this dep
+⚠ 5 native dep(s) need action before Node 24.
 ```
 
 ```
@@ -127,21 +123,18 @@ $ lambda-lifeline iac --path examples/sample-app --apply
 ✓ 3 file(s) · 7 runtime ref(s) updated.
 ```
 
-See [`docs/DEMO.md`](docs/DEMO.md) for the full transcript.
-
----
-
 ## Safety
 
 - **Dry-run is the default.** Every command that mutates anything requires `--apply`.
 - **Deploys require a CloudWatch alarm ARN.** The kit will refuse to run a live deploy without one, because we want auto-rollback to actually work.
 - **Rewrites are minimal and version-control-friendly.** Codemods touch only the bytes they need to. Diffs are readable.
 - **Idempotent.** Run `iac --apply` twice and the second run is a no-op.
-- **Tested.** `npm test` runs a 24-case suite covering every command.
+- **Tested.** `npm test` runs the checked-in 28-case behavioral suite. Live AWS
+  mutation still requires your own non-production validation and release review.
 
 ```bash
 npm test
-# tests 24  pass 24  fail 0
+# tests 28  pass 28  fail 0
 ```
 
 ---
@@ -154,49 +147,36 @@ npm test
 - GitHub Actions CI template
 - MIT license — use it however you want
 
-## If you'd rather not run it yourself
+## Hosted option
 
-This repo is free and unlimited — no trial, no locked commands. If you want EOLkits to run the scan and do the
-migration for you, these are the two things actually for sale (live Stripe checkout, no account required):
-
-| | This repo (free) | **Audit PDF · $299** | **Migration Pack · $1,499** |
-|---|---|---|---|
-| Scanner + full CLI, MIT | ✓ | — | — |
-| Hash-anchored, severity-scored PDF report of your account | — | ✓ (email ≤5 min) | ✓ |
-| Real PR opened on your repo — codemods + IaC patches + canary plan | — | — | ✓ |
-| Guarantee | — | — | Auto-refund if CI fails |
-
-Prefer a 10-second check first? Paste your config into the [free AWS EOL checker](https://eolkits.com/eol-checker/) — nothing uploaded.
-
-Buy at [eolkits.com/audit](https://eolkits.com/audit) or [eolkits.com/pack](https://eolkits.com/pack).
+This CLI is free and MIT-licensed. The only paid product currently offered is a
+server-gated [$299 repository evidence report](https://ntoledo319.github.io/EOLkits/audit/): static
+source/IaC findings with exact observed file/line locations, limitations, and cited
+sources. It does not inspect an AWS account. Migration Pack and the previously
+described hosted products are not for sale.
 
 ---
 
 ## Roadmap
 
-- [ ] `al2023-gate` — Amazon Linux 2 → AL2023 migration kit (June 30, 2026 deadline)
-- [ ] `python-pivot` — Lambda Python 3.9/3.10 → 3.12 kit (October 31, 2026 deadline)
-- [ ] Node 22 → 24 migration pack (April 30, 2027 deadline)
-- [ ] Ruby 3.2 → 3.4 kit (Mar 3, 2027 block-update deadline)
-
-Sign up for notifications at [eolkits.com](https://eolkits.com).
+Future runtime rules are added only after their source dates and behavior have
+tests. Proposed Node and Ruby expansions are not committed products.
 
 ---
 
-## Prior art & comparison
+## Evaluate alternatives
 
-| Tool | Scope | What it does | What it misses |
-|---|---|---|---|
-| [`aws-samples/lambda-runtime-update-helper`](https://github.com/aws-samples/lambda-runtime-update-helper) | AWS sample | Flips the runtime string in-place | No code audit, no deps, no tests, no IaC, no rollback |
-| [CloudQuery](https://www.cloudquery.io/) | Enterprise SaaS | Multi-account SQL detection | Detection only; no migration |
-| [HeroDevs NES](https://www.herodevs.com/) | Enterprise SaaS | Post-EOL security patches | Patches old code; doesn't upgrade |
-| **lambda-lifeline** | Free + paid | End-to-end scan → code → deps → IaC → staged deploy → rollback | |
+Tool capabilities and pricing change. Compare this repository's source and tests
+with each alternative's current official documentation instead of relying on a
+stale feature matrix.
 
 ---
 
 ## License
 
-MIT. Use it commercially, fork it, rewrite it. If it saves your weekend, an [eolkits.com/audit](https://eolkits.com/audit) purchase funds the next kit.
+MIT. Use it commercially, fork it, rewrite it. If it saves your weekend, a
+[repository evidence report](https://ntoledo319.github.io/EOLkits/audit/)
+purchase funds the next kit.
 
 ## Support
 

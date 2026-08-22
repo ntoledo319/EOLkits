@@ -9,6 +9,10 @@ on:
 jobs:
   python-properties:
     runs-on: ubuntu-latest
+    env:
+      TMPDIR: ${{ github.workspace }}/tmp/runtime-tmp
+      PIP_CACHE_DIR: ${{ github.workspace }}/tmp/pip-cache
+      npm_config_cache: ${{ github.workspace }}/tmp/npm-cache
     strategy:
       matrix:
         kit: [al2023-gate, python-pivot, lambda-lifeline]
@@ -20,22 +24,24 @@ jobs:
       - uses: actions/setup-node@v6
         if: matrix.kit == 'lambda-lifeline'
         with:
-          node-version: '20'
+          node-version: '24'
       - name: Install kit
         run: |
+          mkdir -p "$TMPDIR" "$PIP_CACHE_DIR" "$npm_config_cache"
+          python -m venv "$GITHUB_WORKSPACE/tmp/property-venv"
+          venv="$GITHUB_WORKSPACE/tmp/property-venv"
           if [ "${{ matrix.kit }}" = "lambda-lifeline" ]; then
             cd kits/lambda-lifeline
             npm ci
-            npm link
           elif [ -f kits/${{ matrix.kit }}/pyproject.toml ] || [ -f kits/${{ matrix.kit }}/setup.py ]; then
-            pip install -e "kits/${{ matrix.kit }}[dev]"
+            "$venv/bin/pip" install -e "kits/${{ matrix.kit }}[dev]"
           fi
-          pip install hypothesis pytest
+          "$venv/bin/pip" install 'hypothesis>=6,<7' 'pytest>=8,<9'
       - name: Run property tests
         run: |
           mapfile -t property_tests < <(find kits/${{ matrix.kit }} -path '*test_propert*' -type f)
           if [ "${#property_tests[@]}" -gt 0 ]; then
-            pytest "${property_tests[@]}" -q
+            "$GITHUB_WORKSPACE/tmp/property-venv/bin/pytest" "${property_tests[@]}" -q
           else
             echo "no property tests yet for ${{ matrix.kit }} — skipping"
           fi

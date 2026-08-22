@@ -16,6 +16,7 @@ Rules target the actual breakage points, not the entire pyupgrade surface:
 """
 
 from __future__ import annotations
+
 import argparse
 import re
 from dataclasses import dataclass
@@ -86,9 +87,7 @@ LINT_RULES: List[Rule] = [
     Rule(
         name="typing-io-submodule",
         kind="lint",
-        pattern=re.compile(
-            r"from\s+typing\.(io|re)\s+import|import\s+typing\.(io|re)\b"
-        ),
+        pattern=re.compile(r"from\s+typing\.(io|re)\s+import|import\s+typing\.(io|re)\b"),
         reason="`typing.io` and `typing.re` submodules removed in 3.12. Import from `typing` directly.",
     ),
     Rule(
@@ -100,9 +99,7 @@ LINT_RULES: List[Rule] = [
     Rule(
         name="unittest-makesuite",
         kind="lint",
-        pattern=re.compile(
-            r"\bunittest\.(makeSuite|findTestCases|getTestCaseNames)\s*\("
-        ),
+        pattern=re.compile(r"\bunittest\.(makeSuite|findTestCases|getTestCaseNames)\s*\("),
         reason="`unittest.makeSuite`/`findTestCases`/`getTestCaseNames` removed in 3.12.",
     ),
     Rule(
@@ -130,9 +127,7 @@ def apply_rewrites(text: str) -> Tuple[str, List[dict]]:
     for r in REWRITE_RULES:
         new_text, n = r.pattern.subn(r.replacement, new_text)
         if n > 0:
-            edits.append(
-                {"rule": r.name, "count": n, "kind": "rewrite", "reason": r.reason}
-            )
+            edits.append({"rule": r.name, "count": n, "kind": "rewrite", "reason": r.reason})
     return new_text, edits
 
 
@@ -164,8 +159,7 @@ def _walk_python_files(root: Path) -> List[Path]:
     out = []
     for p in root.rglob("*.py"):
         if any(
-            part in {".venv", "venv", "__pycache__", ".git", "node_modules"}
-            for part in p.parts
+            part in {".venv", "venv", "__pycache__", ".git", "node_modules"} for part in p.parts
         ):
             continue
         out.append(p)

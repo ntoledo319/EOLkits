@@ -1,4 +1,8 @@
-# Buyer burst — batch 2 (7 more help-first answers, vetted)
+# ARCHIVED — DO NOT POST
+
+Targets and answers are stale and require fresh manual policy and fact review.
+
+# Historical answer research — batch 2
 
 Drafted + accuracy/uniqueness/TOS-vetted 2026-07-15. Same rules as batch 1: post from your own re:Post account, one
 unique answer per thread, help-first (the eolkits link is a single disclosed footnote). All dates match the AWS

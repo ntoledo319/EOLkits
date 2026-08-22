@@ -3,7 +3,6 @@
 from argparse import Namespace
 from pathlib import Path
 
-
 from python_pivot import codemod
 
 FIXTURE = Path(__file__).parent / "fixtures" / "sample_source.py"

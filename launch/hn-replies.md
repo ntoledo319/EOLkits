@@ -1,4 +1,9 @@
-# HN reply playbook
+# ARCHIVED — DO NOT POST
+
+These replies describe closed or unproved capabilities and are retained only as
+historical research.
+
+# HN reply playbook (historical)
 
 Pre-written answers to the questions HN will absolutely ask. Lead with the answer, no preamble. Reply once per top-level comment. Stop unless someone asks.
 

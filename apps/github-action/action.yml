@@ -1,6 +1,6 @@
 # Subpath copy of the root action.yml. The repo-root action.yml is the
-# canonical Marketplace listing (uses: ntoledo319/EOLkits@v1). This copy keeps
-# `uses: ntoledo319/EOLkits/apps/github-action@v1` working and MUST have a
+# canonical Marketplace listing (uses: ntoledo319/EOLkits@v2). This copy keeps
+# `uses: ntoledo319/EOLkits/apps/github-action@v2` working and MUST have a
 # distinct `name:` — GitHub Marketplace requires globally-unique action names,
 # and a duplicate name in the same repo blocks the listing from publishing.
 name: "EOLkits AWS Deprecation Check (subpath)"
@@ -19,18 +19,25 @@ inputs:
     description: "Repository path to scan"
     required: false
     default: "."
-  format:
-    description: "Reserved for CLI-compatible output formatting"
-    required: false
-    default: "markdown"
   fail-on:
-    description: "Minimum threshold to fail on: low, medium, high, critical, or none"
+    description: "Failure mode: any (fail on any finding) or none (report findings only). Tool/configuration errors always fail."
     required: false
-    default: "high"
+    default: "any"
   comment-pr:
     description: "Post a PR comment with the scan summary"
     required: false
-    default: "true"
+    default: "false"
+
+outputs:
+  report_path:
+    description: "Absolute path to the generated Markdown report"
+    value: ${{ steps.scan.outputs.report_path }}
+  should_fail:
+    description: "true when configured findings or a tool/configuration error should fail the check"
+    value: ${{ steps.scan.outputs.should_fail }}
+  has_findings:
+    description: "true when one or more configured checks found a migration risk"
+    value: ${{ steps.scan.outputs.has_findings }}
 
 runs:
   using: "composite"
@@ -43,7 +50,7 @@ runs:
     - name: Setup Node
       uses: actions/setup-node@v6
       with:
-        node-version: "22"
+        node-version: "24"
 
     - name: Run EOLkits check
       id: scan
@@ -51,7 +58,6 @@ runs:
       env:
         INPUT_KIT: ${{ inputs.kit }}
         INPUT_PATH: ${{ inputs.path }}
-        INPUT_FORMAT: ${{ inputs.format }}
         INPUT_FAIL_ON: ${{ inputs.fail-on }}
       run: |
         bash "$GITHUB_ACTION_PATH/run.sh"
@@ -72,9 +78,9 @@ runs:
             body
           });
 
-    - name: Enforce threshold
+    - name: Enforce result
       if: steps.scan.outputs.should_fail == 'true'
       shell: bash
       run: |
-        echo "::error::EOLkits found deprecation risks at or above the configured threshold."
+        echo "::error::EOLkits found risks or could not complete a configured check."
         exit 1

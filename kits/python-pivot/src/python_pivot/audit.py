@@ -10,6 +10,7 @@ pass silently (they're usually pure-Python).
 """
 
 from __future__ import annotations
+
 import argparse
 import json
 import re
@@ -40,16 +41,12 @@ PY312_WHEEL_TABLE: Dict[str, WheelRequirement] = {
     "pillow": WheelRequirement("pillow", "10.1.0", "10.1.0+ for cp312."),
     "lxml": WheelRequirement("lxml", "4.9.4", "4.9.4+ for cp312."),
     # Cryptography / auth
-    "cryptography": WheelRequirement(
-        "cryptography", "41.0.5", "41.0.5+ for cp312 (libssl3)."
-    ),
+    "cryptography": WheelRequirement("cryptography", "41.0.5", "41.0.5+ for cp312 (libssl3)."),
     "pycryptodome": WheelRequirement("pycryptodome", "3.19.0", "3.19.0+ for cp312."),
     "bcrypt": WheelRequirement("bcrypt", "4.1.1", "4.1.1+ for cp312."),
     "pyopenssl": WheelRequirement("pyopenssl", "23.3.0", "23.3.0+ for cp312."),
     # DB drivers
-    "psycopg2-binary": WheelRequirement(
-        "psycopg2-binary", "2.9.9", "2.9.9+ for cp312."
-    ),
+    "psycopg2-binary": WheelRequirement("psycopg2-binary", "2.9.9", "2.9.9+ for cp312."),
     "psycopg": WheelRequirement("psycopg", "3.1.13", "3.1.13+ for cp312."),
     "mysqlclient": WheelRequirement("mysqlclient", "2.2.0", "2.2.0+ for cp312."),
     "pymssql": WheelRequirement("pymssql", "2.2.11", "2.2.11+ for cp312."),
@@ -78,15 +75,11 @@ PY312_WHEEL_TABLE: Dict[str, WheelRequirement] = {
         "0.7.0+ (2024-02-27) ships a pure-Python py3-none-any wheel built on "
         "`cramjam` — installs fine on cp312, no library swap needed.",
     ),
-    "fastparquet": WheelRequirement(
-        "fastparquet", "2023.10.1", "2023.10.1+ for cp312."
-    ),
+    "fastparquet": WheelRequirement("fastparquet", "2023.10.1", "2023.10.1+ for cp312."),
 }
 
 
-_REQ_LINE = re.compile(
-    r"^\s*([A-Za-z0-9_.\-]+)\s*(?:\[[^\]]*\])?\s*([<>=!~]+.+)?\s*(?:#.*)?$"
-)
+_REQ_LINE = re.compile(r"^\s*([A-Za-z0-9_.\-]+)\s*(?:\[[^\]]*\])?\s*([<>=!~]+.+)?\s*(?:#.*)?$")
 
 
 def parse_requirements(path: Path) -> List[Tuple[str, Optional[str]]]:
@@ -110,9 +103,7 @@ def parse_pyproject(path: Path) -> List[Tuple[str, Optional[str]]]:
     text = path.read_text()
     pkgs: List[Tuple[str, Optional[str]]] = []
     # Look for dependencies = ["pkg==1.2", ...] and optional-dependencies blocks
-    for dep_list in re.findall(
-        r"dependencies\s*=\s*\[([^\]]*)\]", text, flags=re.DOTALL
-    ):
+    for dep_list in re.findall(r"dependencies\s*=\s*\[([^\]]*)\]", text, flags=re.DOTALL):
         for m in re.finditer(
             r'"\s*([A-Za-z0-9_.\-]+)\s*(?:\[[^\]]*\])?\s*([<>=!~][^"]*)?\s*"', dep_list
         ):

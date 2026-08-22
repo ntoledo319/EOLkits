@@ -1,14 +1,14 @@
-// Example Lambda handler that shows every Node 20→22 compatibility hazard we test for.
+// Example Lambda handler with selected Node.js migration checks.
 import config from './config.json' with { type: 'json' };
 import settings from './settings.json' with { type: 'json' };
 
-// dynamic import with assert — also flagged
+// Modern dynamic import attribute — this one should not be flagged.
 async function loadFeatureFlags() {
   const flags = await import('./flags.json', { with: { type: 'json' } });
   return flags.default;
 }
 
-// Buffer.toString with a negative end index — throws RangeError on Node 22
+// Buffer.toString with a negative end index — throws RangeError on Node.js 22+
 export function decodeLastByte(buf) {
   return buf.toString('utf8', 0, -1);
 }

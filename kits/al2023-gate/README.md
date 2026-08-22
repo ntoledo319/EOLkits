@@ -1,13 +1,13 @@
 # al2023-gate
 ### Amazon Linux 2 → AL2023 migration kit — scan, remap, patch, ship, rollback
 
-> **Amazon Linux 2 reached end of standard support on 2026-06-30 — that date has now passed.** AL2 is unpatched: no new updates, no security patches, no CVE backports. Every AL2 box you still run is accumulating unfixed vulnerabilities. Migrating to AL2023 is the fix.
+> **Amazon Linux 2 passed its published 2026-06-30 support milestone.** AWS has published AL2 material after that date, so do not infer the patch state of an instance from the date alone. Check the current AWS notice and the packages installed on the host, then plan the AL2023 migration.
 
-`al2023-gate` is a single-binary, dependency-light Python tool that finds every AL2-based compute resource in your AWS account, generates the Packer template + Ansible patches + cloud-init diffs to rebuild them on AL2023, and produces resource-type-specific migration runbooks you can actually execute.
+`al2023-gate` is a dependency-light Python tool that checks supported AL2 resource patterns in selected AWS regions or fixtures, generates Packer scaffolding, previews Ansible and cloud-init changes, and produces resource-type-specific migration runbooks.
 
 Works offline (fixture mode) for demos, audits, or air-gapped reviews. Works live against AWS with standard boto3 credentials.
 
-[![Tests](https://img.shields.io/badge/tests-48%20passing-green)](test/)
+[![Tests](https://img.shields.io/badge/tests-CI%20verified-green)](test/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![AL2 EOL](https://img.shields.io/badge/AL2%20EOL-2026--06--30-red)](https://aws.amazon.com/amazon-linux-2/faqs/)
 
@@ -15,34 +15,20 @@ Works offline (fixture mode) for demos, audits, or air-gapped reviews. Works liv
 
 ## The deadline
 
-| Milestone | Date | What breaks |
-|---|---|---|
-| **Standard support ended** | **2026-06-30** (passed) | No patches, no security updates, no CVE backports — in effect now |
-| Maintenance support ends | 2027-06-30 | Full EOL. Instance launches from AL2 AMIs start failing. |
-| New AL2 AMI publications | Stopped | Already happening for most AWS-official AL2 AMIs |
-
-**The standard-support date has passed.** If you still run production EC2, EKS, ECS, or Elastic Beanstalk on AL2, every day is unpatched exposure — you need a migration plan now, not a deadline countdown.
+The published 2026-06-30 milestone has passed. AWS can revise support behavior and publish exceptional updates, so the linked AWS notice is authoritative. The CLI identifies migration candidates; it does not determine whether a particular host is patched.
 
 Primary source: <https://aws.amazon.com/amazon-linux-2/faqs/>
-
----
-
-## Demo
-
-![al2023-gate demo](docs/demos/demo.svg)
-
-*Live recording — scan → remap → cloudinit diff. Real terminal output, real fixture data. All commands work offline.*
 
 ---
 
 ## Install
 
 ```bash
-pip install al2023-gate               # from PyPI (coming soon)
-# or run from source:
 git clone https://github.com/ntoledo319/EOLkits.git
 cd EOLkits/kits/al2023-gate
-pip install -e .
+python3 -m venv .venv
+.venv/bin/pip install -e .
+. .venv/bin/activate
 ```
 
 No external runtime deps. `boto3` is optional — only required for `scan` against live AWS. All other commands work offline.
@@ -52,7 +38,7 @@ No external runtime deps. `boto3` is optional — only required for `scan` again
 ## The 6 commands
 
 ```
-al2023-gate scan        # find all AL2 resources across EC2, LT, EKS, ECS, EB
+al2023-gate scan        # classify visible EC2, launch-template, EKS, and EB patterns
 al2023-gate remap       # translate yum packages → dnf equivalents (curated table of ~50)
 al2023-gate packer      # generate ready-to-build Packer HCL for your AL2023 AMI
 al2023-gate cloudinit   # diff user-data / cloud-init scripts for known AL2023 breakage
@@ -76,14 +62,14 @@ $ al2023-gate scan --fixture test/fixtures/inventory.json
 
 Type                    Id                                    Region      Platform  Severity
 --------------------------------------------------------------------------------------------
-ec2_instance            i-0a1b2c3d4e5f60718                   us-east-1   al2       high
-launch_template         lt-0f1e2d3c4b5a60978                  us-east-1   al2       high
-eks_nodegroup           prod-cluster/ng-web-2a                us-east-2   al2       high
+ec2_instance            i-0a1b2c3d4e5f60718                   us-east-1   al2       critical-eol
+launch_template         lt-0f1e2d3c4b5a60978                  us-east-1   al2       critical-eol
+eks_nodegroup           prod-cluster/ng-web-2a                us-east-2   al2       critical-eol
 ecs_task_definition     payment-worker:47                     us-east-1   other     ok
-beanstalk_environment   analytics-prod-env                    eu-west-1   al2       high
+beanstalk_environment   analytics-prod-env                    eu-west-1   al2       critical-eol
 ec2_instance            i-0ffffeeeeddddccbb                   us-east-1   al2023    ok
 
-⚠ AL2 EOL in 63 day(s). Next: `al2023-gate packer` to scaffold an AL2023 AMI build.
+⚠ AL2 EOL: 53 day(s) ago. Next: `al2023-gate packer` to scaffold an AL2023 AMI build.
 ```
 
 Add `--strict` for CI (exits 1 if any AL2 resources are found). Add `--format json|csv|md` for machine output. Live AWS: drop `--fixture` and add `--regions us-east-1,eu-west-1`.
@@ -172,13 +158,13 @@ Same command supports `--kind eks|ecs|beanstalk` — each with resource-appropri
 
 | Component | Purpose |
 |---|---|
-| **Scanner** | Multi-region, multi-resource discovery. Classifies AMIs via AL2 vs AL2023 vs AL1 pattern matching. |
+| **Scanner** | Selected-region discovery for running/stopped EC2 instances, default/latest launch-template versions, EKS managed node groups, and Elastic Beanstalk platform descriptors. It classifies only patterns visible to the selected credential profile. |
 | **Remap table** | ~50 curated AL2→AL2023 package entries (docker, nginx, php, postgresql, python, openssl ABI, curl→curl-minimal, ntp→chrony, yum→dnf, …). Handles `extras_to_dnf`, `renamed`, `replaced_by`, `removed`. |
 | **Packer generator** | Full AWS amazon-ebs builder template with chrony, SSH hardening, cloud-init reset, dnf update, and your curated package list. |
 | **cloud-init differ** | 11 rules for the highest-frequency AL2 user-data patterns that break on AL2023. |
 | **Ansible patcher** | yum→dnf (module & top-level), `amazon-linux-extras` task removal, python2→3 path rewrites, SELinux/ntp/iptables lint. |
 | **Runbook generator** | ASG (instance refresh + rollback), EKS (blue/green node group), ECS (task def base image swap), Beanstalk (CNAME swap). |
-| **48-test suite** | Every command, every format, every exit-code path. All offline. |
+| **49-case test suite** | Offline behavioral coverage across commands, formats, and exit-code paths. |
 
 ---
 
@@ -186,26 +172,18 @@ Same command supports `--kind eks|ecs|beanstalk` — each with resource-appropri
 
 - Every write operation defaults to **dry-run**. `--apply` is required to touch a file.
 - `scan` is strictly read-only (boto3 `Describe*` / `List*` only).
-- Rollback is built into every runbook and tested.
+- Runbook templates include rollback steps; validate them against your own release process.
 - No telemetry. No network calls outside AWS. No LLM.
 
 ---
 
-## Free vs paid
+## Free and hosted options
 
-This repo is free and unlimited — every command above, no trial. If you'd rather EOLkits run the scan and do the
-migration for you, these are the two things actually for sale (live Stripe checkout, no account required):
-
-| | This repo (free) | **Audit PDF · $299** | **Migration Pack · $1,499** |
-|---|---|---|---|
-| Scanner + full CLI, MIT | ✓ | — | — |
-| Hash-anchored, severity-scored PDF report of your account | — | ✓ (email ≤5 min) | ✓ |
-| Real PR / migration work on your repo | — | — | ✓ |
-| Guarantee | — | — | Auto-refund if CI fails |
-
-Prefer a 10-second check first? Paste your config into the [free AWS EOL checker](https://eolkits.com/eol-checker/) — nothing uploaded.
-
-Buy at [eolkits.com/audit](https://eolkits.com/audit) or [eolkits.com/pack](https://eolkits.com/pack).
+The CLI is free and MIT-licensed. The only paid product currently offered is a
+server-gated [$299 repository evidence report](https://ntoledo319.github.io/EOLkits/audit/): static
+source/IaC findings with exact observed file/line locations, limitations, and cited
+sources. It does not inspect an AWS account. Migration Pack and the previously
+described hosted products are not for sale.
 
 ---
 
@@ -232,4 +210,4 @@ MIT. See [LICENSE](LICENSE).
 - [EKS AMI types & release lifecycle](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-amis.html)
 - [Elastic Beanstalk platform deprecation schedule](https://docs.aws.amazon.com/elasticbeanstalk/latest/platforms/platforms-supported.html)
 
-*Built by [EOLkits Kits](https://github.com/ntoledo319/EOLkits). Every AWS deprecation deadline deserves a kit.*
+*Built by [EOLkits Kits](https://github.com/ntoledo319/EOLkits). Tracked AWS deprecations deserve tested migration paths.*

@@ -1,166 +1,149 @@
-# OPPORTUNITIES — Ranked monetization frames (Cycle 0, 2026-07-13)
+# Monetization divergence and ranking — August 22, 2026
 
-Method (§5 divergence): enumerated ≥7 frames per asset cluster **before** judging, scored each on
-**T** (days→first $), **H** (owner-minutes), **D** (distribution: marketplace-included ≫ platform-listed ≫ owned-audience),
-**U** (realistic 4-wk revenue after fees), **R** (risk). Ranking law: built-in-distribution **and** built-in-payments
-frames win; owned-audience organic loses **unless the audience already exists — it does not here.**
+No frame below is treated as demand evidence. U is an explicit 28-day planning
+hypothesis after estimated Stripe fees, not observed revenue. The enumeration
+comes before evaluation as required.
 
-## Verified platform facts (July 2026 — the fee/latency reality that sets T/H/U/R)
-| Platform | Fee | Built-in payments? | Owner unlock (KYC/publish) | Live latency | Scriptable |
-|---|---|---|---|---|---|
-| ~~Upwork / Fiverr~~ **RULED OUT** | — | — | Owner won't do Upwork (ongoing time) / can't verify on Fiverr (2026-07-14) | — | — |
-| **VS Code Marketplace** | $0 | ❌ (Free/Free-Trial only) | MS acct + Azure DevOps PAT → `vsce publish` | minutes–hours | yes (token) |
-| **Open VSX** | $0 | ❌ | Eclipse acct + Publisher Agreement → `ovsx publish` | ~instant | yes (token) |
-| **GitHub Marketplace — Action** | $0 | ❌ (Actions can't charge) | Web-UI publish **from the existing repo** (root action.yml present; monorepo OK — verified) w/ release | instant | web-UI only |
-| **GitHub Marketplace — App** | GitHub 5% / dev 95% | ✅ | Org/publisher **verification** + bank/tax | days–weeks | — |
-| **Gumroad** | 10% + $0.50 (Merchant of Record) | ✅ | Acct + payout; MoR handles sales tax | instant | API |
-| **Lemon Squeezy** | 5% + $0.50 (+surcharges), MoR | ✅ | Acct + KYC + payout; MoR handles tax | short | API |
-| **PyPI / npm** | $0 | ❌ | Acct + 2FA + API token (or Trusted Publishing) | 1–5 min | twine/CI |
-| **RapidAPI** | **25%** + PayPal fees | ✅ | PayPal-only payout; W-9 on request | ~immediate | API |
+## Frame enumeration
 
-**RapidAPI = DEAD** (suit 2/5): Nokia-acquired, user base collapsed 4M→"thousands," and EOLkits is a
-scan/PR service, not a per-call REST API (would need a new hosted endpoint). Skip.
+### W — static site/browser scanner
 
-## Ranked opportunities (across all assets)
-| # | Frame | Asset | T | H | D | U (4wk, after fees) | Why / risk |
-|---|---|---|---|---|---|---|---|
-| ~~1~~ | ~~Upwork/Fiverr productized gig~~ **KILLED 2026-07-14** | — | — | — | — | — | Owner: no Upwork (ongoing time), no Fiverr (KYC won't clear). See DECISIONS D7. |
-| **1′** | **Gumroad "AWS EOL Migration Toolkit" bundle** | kits + playbook + templates | ~7 | 10 | platform-listed (MoR payments) | ~$70/sale | One-time setup, no per-job time (fits owner). Volume/first-dollar play. **→ Bet A′ — bundle built + verified 2026-07-18, owner-minutes now ~10 (down from 15).** |
-| **2** | **$1,499 Migration Pack** (real PR, CI-fail auto-refund) | kits + grace-api + runner + github-app | 10 | 40 | owned-audience (today) | **$1,455 / sale** | 3 sales clear $4k. Fulfillment path UNVERIFIED. **→ Bet B** |
-| 3 | **Sell placement:** VS Code + Open VSX extension → $299 audit | apps/vscode-extension | 10 | 45 | platform-listed | ~$290 | 30M VS Code + 300M/mo Open VSX (Cursor/VSCodium). Cold-install→buy is slow. **→ Bet C** |
-| 4 | **Sell output:** $299 Audit via the live surge-priced site | apps/web + grace-api | 5 | 5 | owned-audience | $0–290 | Already live; gated purely on qualified traffic. |
-| 5 | **Sell placement:** GitHub Action on Marketplace | apps/github-action | 14 | 5 | platform-listed | ~$300 | Peak-intent (CI failure). Lists directly from the existing repo (no dedicated repo — verified); can't charge. |
-| 6 | **Sell the code:** CLIs on PyPI + npm w/ in-CLI CTA | 3 kits | 15 | 20 | platform-listed | ~$150 | Makes README `pip install` real; embeds CTA at max-urgency. New pkgs rank low. |
-| 7 | **Sell placement:** dev.to canonical backlinks | launch/distribution | 4 | 5 | platform-listed | ~$150 | Already wired; converts dev.to authority into eolkits.com backlinks. Gated on DEVTO key on box. |
-| 8 | **White-label:** grace-api `/partners/*` Stripe-Connect reseller (70/30) | apps/grace-api | 21 | 45 | owned-audience | ~$250 | Fully coded, unmarketed. One AWS MSP brings its own client book. Medium-term. |
+1. W1 sell access to a hosted scanner workspace.
+2. W2 sell a monitored SaaS dashboard around repeated scans.
+3. W3 sell the scanner's one-time evidence output.
+4. W4 sell the deterministic site/scanner code as a template.
+5. W5 sell/embed the browser scanner component.
+6. W6 bundle scanner, kits, calendar, and guide.
+7. W7 white-label the scanner and content for consultancies.
 
-## Other frames enumerated (scored, not selected)
-- **Sell a bundle:** all 3 kits + audit templates as one Gumroad/Lemon Squeezy "AWS EOL Migration Toolkit" download ($49–99). Built-in payments, weak built-in distribution. U low; a fast *first-dollar* fallback if Upwork stalls.
-- **Sell a component:** extract the canary-deploy-with-alarm-rollback engine as a standalone library. High build cost, unclear buyer. Deferred.
-- **Sell access (SaaS):** hosted multi-account scanner. Requires the API productized + hosting; grace-api is fulfillment-shaped, not per-call. Deferred.
-- **Sell a service artifact (Org License $14,999/yr):** enterprise; long cycle, needs sales motion. Not a 28-day driver.
-- **Sell output (Drift Watch $19/mo):** recurring; needs an install base first. Compounding, post-day-28. **UPDATE
-  2026-07-16:** its live self-serve checkout was pulled (DECISIONS D14) — fulfillment is a no-op stub, so this frame
-  is now dormant until someone actually builds IAM-role-based weekly re-scanning; not an active near-term opportunity.
+### K — local kits and GitHub Action
 
-## Reviewed (no change) — cycles 2026-07-19 through 2026-07-30
-Ranking and frame scores unchanged: no new platform fact, fee change, or bet re-scoring this window. Frame #7
-(dev.to canonical backlinks) is the one actively compounding — 20 articles staged as of 2026-07-30, still gated
-on `DEVTO_API_KEY` confirmation (HQ-11) for the auto-publish cron to actually post them. **2026-07-30 (D27):** the
-no-fetch `fixes.yml` backlog that fed this frame's cadence is now exhausted — 9 of the 10 "remaining" entries
-tracked since D26 turned out to already be covered inside existing articles (content-level check, not just
-canonical-link grep); only the punycode entry was a genuine gap and it shipped this cycle. Sustaining this frame's
-cadence past article 20 needs either working WebFetch (still blocked) or new `fixes.yml` entries.
+1. K1 use the free existing Marketplace Action as the Audit funnel.
+2. K2 sell premium CLI access or private rules.
+3. K3 sell a shareable report generated from CI findings.
+4. K4 sell the cited rules/scanner component.
+5. K5 publish free per-kit registry packages as acquisition surfaces.
+6. K6 sell a kit/playbook bundle through a digital marketplace.
+7. K7 white-label the checks for an engineering platform.
 
-## Reviewed (no change) — 2026-08-01
-Ranking and frame scores unchanged — no new platform fact this cycle. Frame #7 (dev.to canonical backlinks) is now
-at 22 articles (21: migration-path synthesis, 22: symptom-first synthesis — both non-padding angles on the same
-exhausted per-slug backlog, D28/D29). Considered checking whether Hashnode (`launch/distribution/publish_hashnode.py`,
-built but never wired into the box cron or logged in this file) was an unexploited second free backlink channel —
-it is not: `launch/distribution/README.md` already documents that Hashnode's publishing API went paid on
-2026-05-13, so it correctly stays unused. No new frame identified this cycle; the deeper-sweep truth fix (D29) was
-higher-leverage than a third content angle.
+### V — VS Code extension
 
-## Reviewed (no change) — 2026-08-21 (Day 39)
-Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship (correcting a stale
-`python-snappy` cp312 classification in frame #2's own kit output, plus syncing that and D48's prior fix into the
-`apps/web` `/scan/` page's duplicate table and a re:Post answer template — see DECISIONS D49) is a correctness
-fix on already-active bets' own product output, not a frame re-evaluation. Frame #1′ (Gumroad) and frame #3
-(VS Code/Open VSX placement) remain owner-gated; frame #7 (dev.to backlinks) stays at 25 articles with the
-per-slug/synthesis backlog exhausted.
+1. V1 publish a free extension that routes relevant findings to Audit.
+2. V2 sell a paid/premium extension tier.
+3. V3 sell exportable workspace evidence output.
+4. V4 sell the extension code as a scanner template.
+5. V5 sell its rule/evaluator component.
+6. V6 bundle extension, Action, and CLIs.
+7. V7 white-label the extension for a consultancy or platform.
 
-## Reviewed (no change) — 2026-08-19 (Day 37)
-Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship (reframing
-`launch/DISTRIBUTION-KIT.md`'s pre-deadline sequencing/titles + `launch/distribution/email/template.md`'s example
-finding to the honest post-AL2-deadline state, see DECISIONS D47) is a truth/framing fix on owner-facing
-distribution-copy assets, not a frame re-evaluation. Frame #1′ (Gumroad) and frame #3 (VS Code/Open VSX placement)
-remain owner-gated; frame #7 (dev.to backlinks) stays at 25 articles with the per-slug/synthesis backlog exhausted.
+### A — Audit v2 engine/report
 
-## Reviewed (no change) — 2026-08-15 (Day 33)
-Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ships (a stale-EOL-framing truth
-fix on 2 SEO landing pages, and a negative-result endpoint-trace sweep for a repeat of D42's checkout-bug class) are
-truth/harm fixes, not a frame re-evaluation. Frame #1′ (Gumroad) and frame #3 (VS Code/Open VSX placement) remain
-owner-gated; frame #7 (dev.to backlinks) stays at 24 articles with the per-slug/synthesis backlog exhausted.
+1. A1 sell one $299 static repository evidence report.
+2. A2 sell subscription access to report history/dashboard.
+3. A3 sell a hosted scanning API.
+4. A4 sell a self-hosted commercial code license.
+5. A5 sell the bounded PDF/evidence engine as a component.
+6. A6 sell a human-reviewed productized migration audit.
+7. A7 white-label report fulfillment.
 
-## Reviewed (no change) — 2026-08-14 (Day 32)
-Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship (closing the live
-`/api/drift/checkout` financial-harm gap, see DECISIONS D42) is a do-no-harm fix on the dormant Drift Watch frame
-(already noted below as "dormant until someone actually builds IAM-role-based weekly re-scanning"), not a frame
-re-evaluation — it makes that dormancy actually safe (no charge possible) rather than changing its ranking.
+### L — legacy App and multi-SKU concepts
 
-## Reviewed (no change) — 2026-08-17 (Day 35)
-Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship was a truth fix (a
-self-contradictory "Live deadline" label for the passed AL2 date, in `README.md`/`launch/social.md`/
-`launch/outreach.md` — see DECISIONS D45), not a frame re-evaluation.
+1. L1 sell the $1,499 Migration Pack.
+2. L2 sell GitHub App access.
+3. L3 sell Drift Watch as a subscription.
+4. L4 sell an Organization License/private feed.
+5. L5 sell the PR-generation engine as a component.
+6. L6 sell a managed migration service.
+7. L7 white-label the complete migration platform.
 
-## Reviewed (no change) — 2026-08-13 (Day 31)
-Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship (a free-tool cross-link
-added to the Gumroad listing copy, closing a 3-cycle-old open item; see DECISIONS D41) is a content/conversion
-polish on frame #1′ (Gumroad bundle), not a frame re-evaluation. Frame #1′ remains fully built (since D15,
-2026-07-18) and owner-gated on HQ-1′/2′; frame #3 (VS Code/Open VSX) remains owner-gated; frame #7 (dev.to
-backlinks) stays at 24 articles with the per-slug/synthesis backlog exhausted.
+### C — content and launch corpus
 
-## Reviewed (no change) — 2026-08-12 (Day 30)
-Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship was a homepage stale-urgency
-truth fix (the `al2023-gate` kit card's "Jun 30, 2026" badge, 6.5 weeks past and still styled urgent/red — see
-DECISIONS D40), not a frame re-evaluation.
+1. C1 sell an ebook/playbook.
+2. C2 sell a paid deadline newsletter.
+3. C3 sell sponsorship/placement.
+4. C4 use cited search pages as the Audit funnel.
+5. C5 syndicate reviewed articles on a developer platform.
+6. C6 sell checklists/templates as a digital bundle.
+7. C7 white-label migration documentation.
 
-## Reviewed (no change) — 2026-08-04
-Ranking and frame scores unchanged — no new platform fact this cycle. This cycle swept the last two unswept public
-surfaces (VS Code extension, GitHub Action) clean, then found + fixed the recurring superseded-date bug in a new
-layer (the committed `docs/` build snapshot, see DECISIONS D32) — a truth/harm fix, not a frame re-evaluation.
+## Scoring
 
-## Reviewed (no change) — 2026-08-03 (Day-21 §8 gate)
-Ranking and frame scores unchanged. This was the formal Day-21 gate (§8: Day 7/14/21) — recomputed the gap
-($0 collected, $4,000 gap, unchanged) and evaluated repositioning per the "≥5 live days with zero signal" rule.
-Conclusion: no pivot warranted, since none of the 3 bets have actually gone live in the distribution sense yet
-(every publish step remains owner-gated and unactioned 21 days running) — the gate clause is for underperforming
-live bets, not un-launched ones. See DECISIONS D31 for the full reasoning. This cycle's ship was a 13-instance
-truth-fix sweep (8 files), not a frame re-evaluation.
+T$ = plausible days to first dollar. H = owner minutes. D = distribution:
+M marketplace, P platform/search, O owned audience, N none. R = risk. A dash in
+T$ means disqualified within this cycle.
 
-## Reviewed (no change) — 2026-08-02
-Ranking and frame scores unchanged — no new platform fact this cycle. This cycle was a truth/harm sweep (5 more
-instances of the recurring superseded-2026-date bug found and fixed in `README.md`/`lambda-lifeline`, see DECISIONS
-D30), not a frame re-evaluation.
+| Frame | T$ | H | D | U hypothesis | R | Evaluation |
+|---|---:|---:|:---:|---:|:---:|---|
+| W1 | 21 | 20 | O | $0 | H | Rebuilds access control with no demand proof |
+| W2 | — | 30 | O | $0 | H | New SaaS and recurring obligations |
+| W3 | 7 | 0 | O | $290.03 | M | Converges on A1; do not duplicate |
+| W4 | 21 | 20 | N | $0 | M | No suitable built-in channel observed |
+| W5 | 14 | 10 | O | $290.03 | M | Widget exists, distribution does not |
+| W6 | 14 | 15 | P | $0 | H | Old Gumroad bundle lacked differentiation |
+| W7 | — | 30 | N | $0 | H | Requires sales/contract work |
+| K1 | 7 | 3 | M | $870.09 | M | Existing listing; strongest fast funnel |
+| K2 | — | 30 | N | $0 | H | Private-rule product does not exist |
+| K3 | 10 | 0 | M | $290.03 | M | Route to A1 instead of another SKU |
+| K4 | 21 | 20 | N | $0 | M | No buyer/distribution evidence |
+| K5 | 14 | 10 | P | $290.03 | M | Useful acquisition, no built-in payment |
+| K6 | — | 15 | M | $0 | H | Repackaged free code; archived |
+| K7 | — | 30 | N | $0 | H | Requires contracts and support |
+| V1 | 10 | 7 | M | $580.06 | M | Strong compounding funnel if published |
+| V2 | — | 25 | M | $0 | H | Entitlements/payment/support unbuilt |
+| V3 | 21 | 20 | M | $290.03 | M | Duplicates A1 at lower fidelity |
+| V4 | — | 20 | N | $0 | M | No channel or differentiated buyer |
+| V5 | — | 20 | N | $0 | M | No channel or API contract |
+| V6 | 14 | 10 | M | $290.03 | M | Keep all tools free; monetize report |
+| V7 | — | 30 | N | $0 | H | Contract/support burden |
+| A1 | 7 | 2 | P | $2,320.24 | M | Only truthful paid offer; gated |
+| A2 | — | 30 | O | $0 | H | History/accounts/retention not built |
+| A3 | 21 | 20 | N | $580.06 | H | No API marketplace or tenant controls |
+| A4 | — | 30 | N | $0 | H | Support/security/license burden |
+| A5 | — | 25 | N | $0 | M | No component buyer evidence |
+| A6 | — | 60+ | P | $0 | H | Violates owner-labor constraint |
+| A7 | — | 30 | N | $0 | H | Partner settlement/branding unbuilt |
+| L1 | — | 60+ | O | $0 | H | App, preflight, PR, CI/refund proof absent |
+| L2 | — | 45 | M | $0 | H | Public App and operating proof absent |
+| L3 | — | 45 | O | $0 | H | Recurring scanner/role flow absent |
+| L4 | — | 45 | O | $0 | H | Feed, entitlements, controls absent |
+| L5 | — | 30 | N | $0 | H | Dormant engine removed from runtime |
+| L6 | — | 60+ | P | $0 | H | Labor/commitment violates constraints |
+| L7 | — | 60+ | N | $0 | H | Entire platform unproved |
+| C1 | — | 20 | M | $0 | H | Old bundle archived; no paid differentiation |
+| C2 | — | 30 | O | $0 | H | Audience and recurring value absent |
+| C3 | — | 30 | O | $0 | H | No audience metrics |
+| C4 | 14 | 0 | P | $580.06 | M | Keep cited pages; measure qualified visits |
+| C5 | 14 | 14 | P | $0 | M | Manual review only; prior signal weak |
+| C6 | — | 20 | M | $0 | H | Same weak repackaging problem |
+| C7 | — | 30 | N | $0 | H | Requires customer acquisition/contracts |
 
-## Reviewed (no change) — 2026-08-05
-Ranking and frame scores unchanged — no new platform fact this cycle. Both standing fallback categories (truth-fix
-sweep, no-fetch dev.to content) came up exhausted on the same cycle for the first time; shipped a third,
-still-legitimate category instead (internal cross-linking / conversion, `/fix/` pages → `/eol-checker/`, see
-DECISIONS D33) rather than force either. Not a frame re-evaluation — frame #3 (VS Code/Open VSX placement) and
-frame #7 (dev.to backlinks) are unchanged and still owner-gated/exhausted respectively.
+## Rank
 
-## Reviewed (no change) — 2026-08-07
-Ranking and frame scores unchanged — no new platform fact this cycle. This cycle closed the exact gap D34 flagged
-(dev.to article 21 + Gumroad `MIGRATION-PLAYBOOK.md` now cross-link `/eol-checker/`, see DECISIONS D35), not a
-frame re-evaluation.
+1. K1 — repair/update the already-listed GitHub Action; fastest built-in
+   distribution and lowest owner time. Its tested v2 branch is installable and
+   its private v2.0.0 Marketplace draft is prepared; publication is the remaining
+   owner-controlled step.
+2. A1 — the sole paid fulfillment unit. It is not live until the operational
+   gate passes.
+3. V1 — publish the tested free VSIX as a second contextual distribution surface.
+4. C4 — preserve only cited, useful search pages and measure them.
+5. K5 — registry packaging only after the first four show external signal.
 
-## Reviewed (no change) — 2026-08-10 (Day 28, end of original window)
-Ranking and frame scores unchanged — no new platform fact this cycle. This cycle verified a separately-pushed
-dev.to article (24, IMDSv2) and closed the VS Code extension README's free-tool-CTA cross-link gap (see DECISIONS
-D38) — a content/site-quality ship, not a frame re-evaluation. The Day-28 end-of-window read is unchanged from
-D31/D36/D37: frame #1′ (Gumroad) and frame #3 (VS Code/Open VSX placement) remain owner-gated and unactioned;
-frame #7 (dev.to backlinks) is the one still actively compounding (24 articles staged). The honest constraint
-below is unchanged — see D38 for the formal end-of-window note.
+No current frame combines strong built-in distribution and built-in payment.
+That absence is the main commercial weakness. Opening more SKUs would increase
+risk without fixing it.
 
-## Reviewed (no change) — 2026-08-11 (Day 29)
-Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship (a 1-line truth fix in a
-stale `docs/` build artifact) was a truth/harm sweep, not a frame re-evaluation. First cycle past the original
-28-day window; the honest constraint below is unchanged.
+## Cycle outcome — August 22
 
-## Reviewed (no change) — 2026-08-16 (Day 34)
-Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ships (a truth fix in the
-shared `deprecations.yml` description field, propagating to `/migrate/` pages + RSS + ICS, and a 6-file sweep of
-the same bug across `README.md`/outreach drafts/2 dev.to sources — see DECISIONS D44) are truth/harm fixes, not a
-frame re-evaluation.
-
-## Reviewed (no change) — 2026-08-22 (Day 40)
-Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship (fixing wrong block-create/
-block-update dates in `python-pivot`'s `RUNTIME_TABLE` and its README's headline deadline table — the largest
-single-instance urgency overstatement found in the 39-cycle date-bug history, see DECISIONS D50) is a truth/harm
-fix, not a frame re-evaluation.
-
-## The honest constraint that dominates all of this
-Every payment-enabled channel is **first-publish KYC-gated** (marketplaces need identity/bank). No autonomous
-$0 action reaches a *ready buyer* inside 28 days. The frames that can actually collect $4k (Upwork gig, Migration
-Pack) both require the owner to open one account and/or click publish. That is the entire ballgame — see HUMAN_QUEUE.
+The technical truth pass did not change the rank. It strengthened K1/A1/V1 by
+moving the Node path to nodejs24.x, tracking nodejs22.x without calling it
+deprecated today, and retiring a false universal IMDSv1 deadline. It also
+removed the speculative Drift pitch and closed the Migration Pack, organization,
+partner, and generic scanner research-list branches. None of those changes is
+demand evidence. Publishing main and obtaining green CI/Pages builds are release
+evidence only. The repaired project-path Pages fallback is publicly reachable,
+and the Action's tested `@v2` ref now resolves publicly with its report link
+pointing to that verified funnel. Repository, kit, and future VS acquisition
+links use the same surface. The Marketplace listing itself remains on stale
+v1.1.0 pending the prepared draft's owner publication. Collected revenue and
+delivered paid reports remain zero.

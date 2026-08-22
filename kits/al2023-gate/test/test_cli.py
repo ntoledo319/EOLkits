@@ -4,7 +4,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 KIT_ROOT = Path(__file__).parent.parent
 
 

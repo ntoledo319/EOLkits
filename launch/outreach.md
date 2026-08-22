@@ -1,4 +1,9 @@
-# Partner outreach
+# ARCHIVED — DO NOT SEND
+
+Autonomous outreach is prohibited, and this copy describes closed or unproved
+capabilities. Current human-only work is in `revenue/HUMAN_QUEUE.md`.
+
+# Partner outreach (historical)
 
 Three variants for three relationships. Pick the one that matches the target. Fill the bracketed fields and send.
 

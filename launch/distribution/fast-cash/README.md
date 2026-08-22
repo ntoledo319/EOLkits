@@ -1,4 +1,9 @@
-# Fast-Cash: a paying customer in ≤3 weeks, $0 spend
+# ARCHIVED — CLAIMS UNPROVED, DO NOT POST OR BID
+
+This plan contains stale demand claims, closed offers, and outbound actions that
+require fresh platform-policy review and explicit owner approval.
+
+# Fast-cash research (historical)
 
 The organic engine is the *durable* business but it's too slow for 3 weeks. To get the first
 dollar fast and free, we **go to where buyers already are — hiring and asking — during the AL2

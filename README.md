@@ -1,192 +1,114 @@
-# EOLkits — Migration Kits for AWS Platform Deprecations
+# EOLkits
 
-> CLIs for the AWS deprecation deadlines that break production. Already passed: **Amazon Linux 2 (Jun 30, 2026)** — unpatched now. Next up: the **Lambda Python 3.9/3.10/3.11 and Node.js 18/20** block-create/block-update cliffs (Feb 1 / Mar 3, 2027).
+EOLkits finds AWS runtime and Amazon Linux migration risks in source code and
+infrastructure-as-code. The scanners run locally; the optional paid product turns
+a repository ZIP or source file into a shareable evidence report.
 
-[![landing](https://img.shields.io/badge/landing-live-brightgreen)](https://eolkits.com)
-[![tests](https://img.shields.io/badge/tests-172%20passing-brightgreen)](#tests)
-[![license](https://img.shields.io/badge/license-MIT%20(open%20core)-blue)](#license)
+## Use it free
 
-> **Check your own stack in 30 seconds — free, in your browser, nothing uploaded: [eolkits.com/scan](https://eolkits.com/scan).** Amazon Linux 2 reached end-of-life **Jun 30, 2026** (already unpatched); Lambda Python 3.9–3.11 and Node 18/20 are in their own EOL waves. The CLIs below are free and MIT — clone and run them yourself. Prefer it done for you? A [$299 audit](https://eolkits.com/audit) (hash-anchored, **30-day money-back**) or a [done-for-you migration PR](https://eolkits.com/pack) (auto-refund if your CI fails). Every tracked deadline: [eolkits.com/migrate](https://eolkits.com/migrate). Hit a specific error? [eolkits.com/fix](https://eolkits.com/fix).
+Run the verified [browser scanner](https://ntoledo319.github.io/EOLkits/scan/)
+or use one of the MIT-licensed kits in this repository:
 
-AWS is killing runtimes on a hard schedule. When a deadline passes, deploys fail, functions get frozen, AMIs stop receiving patches. Most shops find out in production.
+- [`lambda-lifeline`](./kits/lambda-lifeline) checks Lambda Node.js runtime,
+  dependency, source, and IaC compatibility.
+- [`python-pivot`](./kits/python-pivot) checks Lambda Python runtime, removed
+  standard-library APIs, dependency, and IaC compatibility.
+- [`al2023-gate`](./kits/al2023-gate) checks Amazon Linux 2 to Amazon Linux 2023
+  package, cloud-init, Ansible, and rollout concerns.
 
-**EOLkits ships one CLI per deadline.** Each kit scans your accounts, rewrites the broken code, patches the IaC, generates a safe canary plan, and produces a rollback script. All kits work offline via fixtures so you can evaluate before you run them against AWS.
-
----
-
-## The deadlines
-
-| Kit | Deadline | What breaks | Status |
-|---|---|---|---|
-| [**al2023-gate**](./kits/al2023-gate) | **Jun 30, 2026** — Amazon Linux 2 EOL (**passed**) | `yum`, `amazon-linux-extras`, `ntpd`, `iptables`, Python 2 | Post-deadline cleanup |
-| [**python-pivot**](./kits/python-pivot) | **Lambda Python 3.9/3.10/3.11** EOL waves | `distutils`, `imp`, `collections.Mapping`, native wheels | Active |
-| [**lambda-lifeline**](./kits/lambda-lifeline) | Apr 30, 2026 — Lambda Node.js 20 EOL (Phase 1, **passed**) | `require()`, `aws-sdk` v2, `URL` globals, OpenSSL 3 hashes | Post-deadline cleanup |
-
-> Node.js 20 Lambda: security patches stopped Apr 30, 2026. AWS delayed the hard block dates into the synchronized Q1-2027 cluster — creating new `nodejs20.x` functions is blocked **Feb 1, 2027**; updating existing ones is blocked **Mar 3, 2027**. If you're still on `nodejs20.x`, `lambda-lifeline` is the cleanup path before the Mar 3, 2027 cliff.
-
-Every kit ships the same 6 pillars:
-
-1. **scan** — enumerate affected resources across regions (fixture or live via boto3)
-2. **codemod / remap** — rewrite source and config to the new runtime
-3. **audit** — find the dependency landmines (native wheels, deprecated modules)
-4. **iac** — patch SAM / CDK (Python+TS) / Terraform / Serverless / Packer / Ansible
-5. **deploy** — staged canary (5 → 25 → 50 → 100) with CloudWatch alarm rollback
-6. **rollback** — one command back to the previous version
-
----
-
-## Install
-
-Each kit is standalone. `al2023-gate` and `python-pivot` are Python CLIs; `lambda-lifeline` is a Node CLI. Clone and install the one you need.
-
-For the passed AL2 deadline (AL2 → AL2023, Jun 30 — unpatched now):
-
-```bash
-git clone https://github.com/ntoledo319/EOLkits.git
-cd EOLkits/kits/al2023-gate   # or kits/python-pivot
-pip install -e .
-al2023-gate --help
-```
-
-For Node 20 cleanup (before the Mar 3, 2027 Phase 3 cliff):
-
-```bash
-cd EOLkits/kits/lambda-lifeline
-npm install
-npm link
-lambda-lifeline --help
-```
-
-The Python kits require Python 3.10+. Live mode uses `boto3`; fixture mode requires nothing.
-
----
-
-## Hosted fulfillment on GRACE
-
-The hosted EOLkits site now targets the GRACE deployment shape:
-
-- `eolkits.com` is the existing static GRACE satellite.
-- selected API paths on `eolkits.com` are reverse-proxied to the paid fulfillment API satellite.
-- Uploads, report PDFs, idempotency, verification records, and jobs use the GRACE VPS filesystem + local SQLite state instead of Cloudflare KV/R2/Queues.
-
-See [`deploy/grace/README.md`](./deploy/grace/README.md) for the exact no-duplicate wiring. Keep the existing `eolkits` static satellite; add only `eolkits-api` for paid API/webhook fulfillment.
-
----
+Each kit has its own installation and command reference. Fixture and dry-run modes
+let you inspect proposed work before using cloud credentials or changing files.
 
 ## GitHub Action
 
-Run the free PR check from GitHub Actions:
+Add the free repository check to a workflow:
 
 ```yaml
-- uses: ntoledo319/EOLkits@v1
-  with:
-    kit: auto
-    path: .
-    fail-on: high
-    comment-pr: true
+permissions:
+  contents: read
+  pull-requests: write # only needed when comment-pr is true
+
+steps:
+  - uses: actions/checkout@v6
+  - uses: ntoledo319/EOLkits@v2
+    with:
+      kit: auto
+      path: .
+      fail-on: any
+      comment-pr: true
 ```
 
-The action runs dry-run, path-safe checks from all three kits and can comment findings on pull requests.
+The action installs the three local kits, scans only the selected workspace path,
+and writes a job summary. Pull-request comments are off by default; enable
+`comment-pr: true` only when the caller deliberately grants write permission.
 
----
+## Paid repository evidence report
 
-## 30-second demo
+The only paid product EOLkits is prepared to offer is a **$299 static repository
+evidence report**. Checkout is shown only when the v2 fulfillment backend reports
+itself ready; while that operational gate is closed, the report is not
+purchasable.
 
-Post-deadline cleanup first — Amazon Linux 2 → AL2023:
+The report includes:
+
+- exact observed file and line locations, capped per finding type;
+- severity, remediation notes, and primary-source links;
+- the uploaded input SHA-256, rule-pack version, and deterministic evidence
+  fingerprint;
+- explicit scope and limitations.
+
+It does **not** inspect an AWS account, predict downtime or cost, prove exploitability,
+or digitally sign the PDF. A successfully delivered report causes its source upload
+to be deleted immediately; checkout-bound source uploads expire within 48 hours and
+reports within 30 days. See the [terms](./legal/terms.md),
+[privacy notice](./legal/privacy.md), and [security model](./SECURITY.md).
+
+[Check whether Audit checkout is live](https://ntoledo319.github.io/EOLkits/audit/)
+
+## Not for sale
+
+Migration Pack, Drift Watch, Organization License, partner white-labeling, and the
+public GitHub App are closed research or private-beta concepts. Their API checkout
+and fulfillment paths reject requests. They should not be represented as available
+products.
+
+## Local verification
 
 ```bash
-# Scan what's about to break (offline, no AWS creds needed)
-al2023-gate scan --fixture test/fixtures/inventory.json --format table
+# Use project-local environments; CI carries the complete matrix.
+python3 -m venv tmp/verify-venv
+tmp/verify-venv/bin/pip install -r apps/grace-api/requirements-dev.txt
+tmp/verify-venv/bin/pip install -r apps/runner/requirements-dev.txt
+tmp/verify-venv/bin/pip install -r apps/web/requirements-dev.txt
+TMPDIR="$PWD/tmp/runtime-tmp" tmp/verify-venv/bin/pytest -q apps/grace-api
+TMPDIR="$PWD/tmp/runtime-tmp" tmp/verify-venv/bin/pytest -q apps/runner
+TMPDIR="$PWD/tmp/runtime-tmp" tmp/verify-venv/bin/pytest -q apps/web
 
-# Remap package names (yum → dnf, retired packages → replacements)
-al2023-gate remap --packages packages.txt
+# Node kit
+(cd kits/lambda-lifeline && npm test)
 
-# Patch cloud-init / launch-template / Packer / Ansible
-al2023-gate cloudinit --path user-data.yaml --apply
+# Worker
+(cd apps/worker && npm test)
 
-# Generate the rollout runbook for EKS / ECS / Beanstalk / ASG
-al2023-gate runbook --target eks
+# Static site
+tmp/verify-venv/bin/python apps/web/build.py
 ```
 
-Same shape for `python-pivot` and `lambda-lifeline` — see each kit's README for the full walkthrough with captured output.
+Use each component's lockfile or requirements file when constructing an isolated
+environment. The CI workflows are the canonical full matrix.
 
----
+## Architecture
 
-## Pricing
-
-| SKU | Price | What you get | Delivery |
-|---|---|---|---|
-| **CLI (free)** | $0 | All three kits, MIT, no limits | `git clone` |
-| **Audit PDF** | $299 (surge to $399 inside 30 days, $599 inside 7 days) | A hash-anchored, deterministic report scoring every finding by severity × blast-radius, with a roll-forward roadmap and cost-of-not-fixing estimate | Email within 5 minutes |
-| **Migration Pack** | $1,499 | A real PR opened on your repo with codemods + IaC patches + canary plan + rollback. Refund auto-fires if CI fails | GitHub App opens PR within 5 minutes |
-| **Org License** | $14,999 / yr | Live rule-pack feed, private rule extensions, unlimited runs, one-year validity | License key emailed |
-| **Drift Watch** *(coming soon)* | $19 / mo | Weekly re-scan of a read-only IAM role; delta PDF on change; auto-PR on new deprecation | Not yet available — in development |
-
-**[→ Pricing page](https://eolkits.com#pricing)**
-
----
-
-## Why this exists
-
-AWS publishes deprecation notices on a blog. Your deploys will fail on a Tuesday. The fix is usually not one-line — it's native wheels that don't exist for the new runtime, OpenSSL 3 hashes your code depended on, an IMDSv1 call that's now blocked, an `iptables` rule that no longer works on nftables.
-
-EOLkits automates AWS migrations off deprecated runtimes — deterministically, safely, and before the deadline. It's opinionated, well-tested (149 tests across kits + apps), and safe — everything is dry-run by default, everything has a rollback path.
-
----
-
-## Tests
-
-```bash
-# lambda-lifeline: 24 tests (Node, node --test)
-cd kits/lambda-lifeline && npm test
-
-# al2023-gate: 48 tests
-cd kits/al2023-gate && pytest -q
-
-# python-pivot: 44 tests
-cd kits/python-pivot && pytest -q
-
-# apps/runner: 7 tests
-cd apps/runner && pytest -q
-
-# apps/worker: 3 tests (vitest)
-cd apps/worker && npm test
-```
-
-172 passing across kits + apps (al2023-gate 48, python-pivot 44, lambda-lifeline 29, runner 8, worker 8, grace-api 35 — counted 2026-06-21).
-
----
-
-## Roadmap
-
-Shipped:
-- [x] al2023-gate — Amazon Linux 2 → AL2023 *(Jun 30, 2026 — passed; unpatched since)*
-- [x] python-pivot — Lambda Python 3.9/3.10/3.11 → 3.12 *(rolling EOL waves)*
-- [x] lambda-lifeline — Lambda Node.js 20 → 22 *(Phase 1 passed Apr 30, 2026; Phase 3 cliff Mar 3, 2027)*
-
-Queued:
-- [ ] imds-v2-gate — IMDSv1 → IMDSv2 enforcement
-- [ ] rds-pg-gate — RDS for PostgreSQL major version EOLs
-- [ ] eks-version-gate — EKS control-plane version migrations
-
-Each new kit is free forever for bundle customers.
-
----
+- `kits/` — local migration scanners and codemods
+- `apps/github-action/` + `action.yml` — free CI distribution surface
+- `apps/vscode-extension/` — local editor scanner
+- `apps/web/` — deterministic static-site generator
+- `apps/grace-api/` — upload, checkout, webhook, job, refund, and delivery service
+- `apps/runner/` — evidence extraction and PDF rendering
+- `rules/public/` — cited deprecation dates used by public surfaces
+- `revenue/` — current commercial plan, evidence, decisions, and owner queue
 
 ## License
 
-Open-core: the CLI code in this repo is MIT-licensed. The paid tiers include hash-anchored audit reports, automated PR bots, and rule-pack feeds.
-
----
-
-## Links
-
-- 🌐 [Landing page](https://eolkits.com)
-- 🚀 [Show HN post](./launch/show-hn-final.md)
-- 📝 [Blog post: Migrating Lambda Node.js 20 → 22](./launch/blog-post.md)
-- 💬 [Direct support reply templates](./launch/thread-answers.md)
-- 💬 Issues: use the repo tracker
-
----
-
-*EOLkits migrates AWS workloads off deprecated runtimes — automatically, deterministically, and before the deadline.*
+The repository code is MIT-licensed unless a file says otherwise. Third-party
+licenses are recorded in [`ATTRIBUTIONS.md`](./ATTRIBUTIONS.md).

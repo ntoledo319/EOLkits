@@ -1,4 +1,9 @@
-# The AWS Runtime & OS End-of-Life Migration Playbook
+# ARCHIVED — NOT A SALEABLE ARTIFACT
+
+This playbook has not passed the current technical, claim, and license release
+gates. Do not distribute it as a paid product.
+
+# The AWS Runtime & OS End-of-Life Migration Playbook (historical)
 
 *A single, opinionated guide to every active AWS EOL deadline that hits Lambda and EC2/EKS/ECS/Beanstalk workloads,
 paired with three free command-line tools that do the mechanical parts of the migration for you.*

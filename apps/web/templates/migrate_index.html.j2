@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AWS deprecation deadlines — migration guides | EOLkits</title>
-    <meta name="description" content="Every AWS platform deprecation deadline we track, ordered by date: Lambda runtimes, Amazon Linux 2, IMDSv1, and more. Each has a cited deadline, breaking changes, and a free migration CLI.">
+    <meta name="description" content="Tracked AWS platform deprecation milestones, ordered by date: Lambda runtimes and Amazon Linux 2. Each links a provider source and bounded migration checks.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ site_url }}/migrate/">
     <link rel="stylesheet" href="/style.css">
     <link rel="alternate" type="text/calendar" title="AWS Deprecation Deadlines (EOLkits)" href="/deprecations.ics">
     <meta property="og:title" content="AWS deprecation deadlines — migration guides | EOLkits">
-    <meta property="og:description" content="Every tracked AWS deprecation deadline, with cited facts and free migration tools.">
+    <meta property="og:description" content="Provider-linked AWS deprecation milestones with bounded free migration tools.">
     <meta property="og:url" content="{{ site_url }}/migrate/">
     <meta property="og:type" content="website">
 
@@ -52,7 +52,7 @@
     </nav>
 
     <h1>AWS deprecation deadlines</h1>
-    <p class="sub">Every AWS platform deprecation EOLkits tracks, ordered by deadline. Each page carries the exact deadline, breaking changes, and migration facts — taken from a cited primary source. <a href="/deprecations.ics">Subscribe to the calendar (.ics)</a>.</p>
+    <p class="sub">AWS platform deprecations EOLkits tracks, ordered by published deadline. Each page carries sourced dates and bounded migration notes; future schedules can change. <a href="/deprecations.ics">Subscribe to the calendar (.ics)</a>.</p>
     <p class="sub">Prefer a 10-second check instead of browsing the list? Paste your config into the <a href="/eol-checker/">free AWS EOL checker</a> — nothing uploaded. Hitting a specific error message? See the <a href="/fix/">AWS migration error fixes</a> hub.</p>
 
     <div class="deadline-list">
@@ -71,7 +71,7 @@
         {% endfor %}
     </div>
 
-    <p class="cite-note" style="margin-top:2rem">Dates and breaking changes are sourced from AWS and upstream documentation. EOLkits ships no claim without a primary source.</p>
+    <p class="cite-note" style="margin-top:2rem">Each date links its provider source. Migration checks are bounded static guidance to validate against the workload and current upstream documentation.</p>
 </main>
 
 <footer class="footer">
@@ -79,11 +79,11 @@
     <div class="footer-grid">
       <div>
         <div class="brand"><span class="brand-mark">▸</span> EOLkits</div>
-        <p class="muted">Every AWS deprecation deadline deserves a kit.</p>
+        <p class="muted">Tracked AWS deprecations deserve tested migration paths.</p>
       </div>
       <div>
         <h5>Deadlines</h5>
-        <a href="/migrate/">All AWS deprecations</a><br>
+        <a href="/migrate/">Tracked AWS deprecations</a><br>
         <a href="/deprecations.ics">Deadline calendar (.ics)</a>
       </div>
       <div>

@@ -1,4 +1,8 @@
-# Social — launch amplification
+# ARCHIVED — DO NOT POST
+
+This social copy predates the current product and claim audit.
+
+# Social copy (historical)
 
 Post these the same morning the Show HN goes up. Thread the X post; LinkedIn stands alone.
 

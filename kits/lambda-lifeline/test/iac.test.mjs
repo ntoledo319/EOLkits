@@ -51,9 +51,31 @@ Resources:
     const r = run(['iac', '--path', dir, '--apply']);
     assert.equal(r.status, 0, r.stderr);
     const result = readFileSync(tmpl, 'utf8');
-    assert.match(result, /Runtime: nodejs22\.x/);
+    assert.match(result, /Runtime: nodejs24\.x/);
     assert.doesNotMatch(result, /nodejs20\.x/);
   } finally { cleanup(); }
+});
+
+test('iac --apply rewrites legacy Node.js 14 runtime', () => {
+  const { dir, cleanup } = scratch();
+  try {
+    const file = join(dir, 'template.yaml');
+    writeFileSync(file, `Transform: AWS::Serverless-2016-10-31
+Resources:
+  Fn:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: nodejs14.x
+      Handler: index.handler
+`);
+    const r = run(['iac', '--path', file, '--apply']);
+    assert.equal(r.status, 0, r.stderr);
+    const result = readFileSync(file, 'utf8');
+    assert.match(result, /Runtime: nodejs24\.x/);
+    assert.doesNotMatch(result, /nodejs14\.x/);
+  } finally {
+    cleanup();
+  }
 });
 
 test('iac --apply rewrites Terraform runtime', () => {
@@ -70,7 +92,7 @@ resource "aws_lambda_function" "b" {
     const r = run(['iac', '--path', dir, '--apply']);
     assert.equal(r.status, 0, r.stderr);
     const result = readFileSync(tf, 'utf8');
-    assert.match(result, /runtime = "nodejs22\.x"/);
+    assert.match(result, /runtime = "nodejs24\.x"/);
     assert.doesNotMatch(result, /nodejs20\.x/);
     assert.doesNotMatch(result, /nodejs18\.x/);
   } finally { cleanup(); }
@@ -81,13 +103,13 @@ test('iac --apply rewrites CDK runtime enum', () => {
   try {
     const stack = join(dir, 'stack.ts');
     writeFileSync(stack, `import * as lambda from 'aws-cdk-lib/aws-lambda';
-new lambda.Function(this, 'A', { runtime: lambda.Runtime.NODEJS_22_X });
-new lambda.Function(this, 'B', { runtime: lambda.Runtime.NODEJS_22_X });
+new lambda.Function(this, 'A', { runtime: lambda.Runtime.NODEJS_24_X });
+new lambda.Function(this, 'B', { runtime: lambda.Runtime.NODEJS_24_X });
 `);
     const r = run(['iac', '--path', dir, '--apply']);
     assert.equal(r.status, 0, r.stderr);
     const result = readFileSync(stack, 'utf8');
-    assert.match(result, /NODEJS_22_X/);
+    assert.match(result, /NODEJS_24_X/);
     assert.doesNotMatch(result, /NODEJS_20_X/);
     assert.doesNotMatch(result, /NODEJS_18_X/);
   } finally { cleanup(); }
@@ -99,7 +121,7 @@ test('iac is idempotent', () => {
     const tmpl = join(dir, 'template.yaml');
     writeFileSync(tmpl, `Transform: AWS::Serverless-2016-10-31
 Resources:
-  Fn: { Type: AWS::Serverless::Function, Properties: { Runtime: nodejs22.x } }
+  Fn: { Type: AWS::Serverless::Function, Properties: { Runtime: nodejs24.x } }
 `);
     const r1 = run(['iac', '--path', dir, '--apply']);
     const r2 = run(['iac', '--path', dir, '--apply']);

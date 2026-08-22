@@ -1,46 +1,47 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Status — EOLkits</title>
-<style>body{font-family:system-ui,sans-serif;max-width:900px;margin:0 auto;padding:2rem;line-height:1.6}.brand{color:#2563eb;font-weight:600}.svc{display:flex;justify-content:space-between;align-items:center;border:1px solid #e5e7eb;border-radius:8px;padding:1rem;margin:.5rem 0}.dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:8px;background:#9ca3af}.dot.green{background:#10b981}.dot.red{background:#ef4444}.muted{color:#6b7280;font-size:.85rem}</style>
+<style>body{font-family:system-ui,sans-serif;max-width:900px;margin:0 auto;padding:2rem;line-height:1.6}.brand{color:#2563eb;font-weight:600}.svc{display:flex;justify-content:space-between;align-items:center;border:1px solid #e5e7eb;border-radius:8px;padding:1rem;margin:.5rem 0}.dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:8px;background:#9ca3af}.dot.green{background:#10b981}.dot.red{background:#ef4444}.muted{color:#6b7280;font-size:.85rem}.notice{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}.card{border:1px solid #e5e7eb;border-radius:8px;padding:1rem}</style>
 <script>
 (function(){
   try{
     var KEY='eolkits_ft';
     if(localStorage.getItem(KEY))return;
-    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='', refHost='';
+    try{refHost=(new URL(ref)).hostname.toLowerCase().slice(0,100);}catch(e){}
+    if(refHost===location.hostname.toLowerCase())refHost='';
     if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
     else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
     else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
     else if(/claude\.ai/i.test(ref))aeo='claude';
-    var ext = ref && ref.indexOf(location.host)===-1;
     var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
-    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    if(!hasUtm && !refHost)return;
     localStorage.setItem(KEY, JSON.stringify({
-      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
-      utm_source: q.get('utm_source')||aeo||'',
-      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      source: q.get('source')||(aeo?('aeo_'+aeo):'referral'),
+      utm_source: q.get('utm_source')||aeo||refHost,
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':'referral'),
       utm_campaign: q.get('utm_campaign')||'',
-      kit: q.get('kit')||'',
-      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+      kit: q.get('kit')||''
     }));
   }catch(e){}
 })();
 </script>
-</head><body><a href="/" class="brand">← EOLkits</a><h1>System Status</h1>
-<p class="muted">Synthetic checks every 5 minutes. Data pulled from <a href="/status/data.json">/status/data.json</a>.</p>
-<div id="services"><div class="svc"><span><span class="dot" id="dot-stripe"></span>Stripe checkout</span><span id="t-stripe">—</span></div>
-<div class="svc"><span><span class="dot" id="dot-worker"></span>Worker API</span><span id="t-worker">—</span></div>
+</head><body><a href="/EOLkits/" class="brand">← EOLkits</a><h1>System Status</h1>
+<p class="muted">Live backend readiness and anonymous seven-day funnel/commerce aggregates. This is not an end-to-end synthetic purchase test.</p>
+<p id="feedState" class="notice">Loading the live API status…</p>
+<div id="services"><div class="svc"><span><span class="dot" id="dot-storage"></span>Upload/report storage</span><span id="t-storage">unknown</span></div>
+<div class="svc"><span><span class="dot" id="dot-stripe"></span>Stripe configuration</span><span id="t-stripe">unknown</span></div>
 <div class="svc"><span><span class="dot" id="dot-runner"></span>Job runner</span><span id="t-runner">—</span></div>
-<div class="svc"><span><span class="dot" id="dot-email"></span>Email delivery</span><span id="t-email">—</span></div>
-<div class="svc"><span><span class="dot" id="dot-github"></span>GitHub App</span><span id="t-github">—</span></div></div>
-<h2>Throughput (last 7 days)</h2>
-<ul id="metrics"><li>Loading…</li></ul>
+<div class="svc"><span><span class="dot" id="dot-email"></span>Email configuration</span><span id="t-email">unknown</span></div></div>
+<h2>Product availability</h2><ul id="capabilities"><li>Loading…</li></ul>
+<div class="grid"><div class="card"><h2>Funnel (7 days)</h2><ul id="funnel"><li>Loading…</li></ul></div><div class="card"><h2>Commerce (7 days)</h2><ul id="commerce"><li>Loading…</li></ul></div></div>
 <script>
-fetch('/status/data.json').then(r=>r.json()).then(d=>{
-  for(const s of ['stripe','worker','runner','email','github']){
-    const v=(d.checks||{})[s];
-    if(v){document.getElementById('dot-'+s).className='dot '+(v.ok?'green':'red');document.getElementById('t-'+s).textContent=v.last_checked||'';}
+function list(id,data){const el=document.getElementById(id);el.innerHTML='';const entries=Object.entries(data||{});if(!entries.length){el.innerHTML='<li>No events observed</li>';return;}for(const [k,v] of entries){const li=document.createElement('li');li.textContent=k+': '+v;el.appendChild(li);}
+fetch('https://eolkits.com/api/status',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject(new Error('HTTP '+r.status))).then(d=>{
+  document.getElementById('feedState').textContent='Live API reported '+(d.overall||'unknown')+' at '+(d.timestamp||'unknown time')+'.';
+  for(const s of ['storage','stripe','runner','email']){
+    const v=(d.components||{})[s];
+    if(v){document.getElementById('dot-'+s).className='dot '+(v.ok?'green':'red');document.getElementById('t-'+s).textContent=v.ok?'ready':'not ready';}
   }
-  const m=document.getElementById('metrics');m.innerHTML='';
-  for(const [k,v] of Object.entries(d.metrics||{})){const li=document.createElement('li');li.textContent=k+': '+v;m.appendChild(li);}
-}).catch(()=>{document.getElementById('metrics').innerHTML='<li>status feed unavailable</li>';});
+  list('capabilities',d.capabilities);list('funnel',d.funnel_7d);list('commerce',d.commerce_7d);
+}).catch(e=>{document.getElementById('feedState').textContent='Live status unavailable; all component states remain unknown. '+e.message;list('capabilities',{});list('funnel',{});list('commerce',{});});
 </script>
-<footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a></footer></body></html>
+<footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/EOLkits/">Home</a></footer></body></html>

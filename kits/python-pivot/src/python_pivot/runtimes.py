@@ -4,6 +4,7 @@ Dates reflect published AWS Lambda runtime deprecation schedule.
 """
 
 from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import date
 from typing import Dict, Optional

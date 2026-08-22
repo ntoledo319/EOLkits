@@ -1,4 +1,9 @@
-# PUBLISH CHECKLIST — one-time flywheel activation
+# ARCHIVED — DO NOT USE AS A PUBLISH CHECKLIST
+
+This checklist promotes closed products and obsolete claims. Current owner-only
+release work is in `revenue/HUMAN_QUEUE.md`.
+
+# PUBLISH CHECKLIST (historical)
 
 Every step here is **one-time setup, no ongoing time** (fits the owner constraint). Each command below was
 **verified to work on 2026-07-14** (packages build, pass `twine check`, install clean, console scripts run; all

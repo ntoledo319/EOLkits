@@ -9,14 +9,14 @@
     "color": "#E8801A",
     "theme": "dark"
   },
-  "homepage": "https://eolkits.com",
+  "homepage": "https://ntoledo319.github.io/EOLkits/",
   "bugs": {
     "url": "https://github.com/ntoledo319/EOLkits/issues"
   },
   "qna": "marketplace",
   "pricing": "Free",
   "sponsor": {
-    "url": "https://eolkits.com/audit/?utm_source=vscode&utm_medium=marketplace&source=vscode"
+    "url": "https://ntoledo319.github.io/EOLkits/audit/?utm_source=vscode&utm_medium=marketplace&source=vscode"
   },
   "engines": {
     "vscode": "^1.85.0"
@@ -45,6 +45,9 @@
     "onLanguage:yaml",
     "onLanguage:json",
     "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact",
+    "onLanguage:terraform",
     "onLanguage:python"
   ],
   "main": "./out/extension.js",
@@ -62,7 +65,7 @@
       },
       {
         "command": "eolkits.getAudit",
-        "title": "EOLkits: Get Full Audit Report",
+        "title": "EOLkits: Get Repository Evidence Report",
         "icon": "$(link-external)"
       }
     ],
@@ -104,8 +107,7 @@
       "explorer": [
         {
           "id": "eolkits.deprecations",
-          "name": "AWS Deprecations",
-          "when": "eolkits.hasDeprecations"
+          "name": "AWS Deprecations"
         }
       ]
     }
@@ -114,19 +116,18 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js",
+    "test": "npm run compile && npm run lint && node test/rules.test.cjs",
     "package": "vsce package"
   },
   "devDependencies": {
-    "@types/vscode": "^1.85.0",
-    "@types/node": "20.x",
-    "@typescript-eslint/eslint-plugin": "^6.15.0",
-    "@typescript-eslint/parser": "^6.15.0",
-    "eslint": "^8.56.0",
-    "typescript": "^5.3.3",
-    "@vscode/vsce": "^2.22.0"
+    "@types/vscode": "1.85.0",
+    "@types/node": "20.19.43",
+    "@typescript-eslint/eslint-plugin": "8.67.0",
+    "@typescript-eslint/parser": "8.67.0",
+    "eslint": "10.9.0",
+    "typescript": "5.9.3",
+    "@vscode/vsce": "3.9.2"
   },
   "repository": {
     "type": "git",

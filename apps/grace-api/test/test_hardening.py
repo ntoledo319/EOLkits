@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import hashlib
+import hmac
 import importlib
 import sys
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+from starlette.requests import Request
 
 
 def _load_app(tmp_path, monkeypatch, **env_overrides):
@@ -19,7 +22,10 @@ def _load_app(tmp_path, monkeypatch, **env_overrides):
         "STRIPE_WEBHOOK_SECRET": "whsec_test",
         "PUBLIC_SITE_URL": "https://eolkits.com",
         "PUBLIC_API_URL": "https://eolkits.com",
-        "EOLKITS_INLINE_RUNNER": "0",
+        "EOLKITS_INLINE_RUNNER": "1",
+        "EOLKITS_AUDIT_CHECKOUT_ENABLED": "1",
+        "RESEND_API_KEY": "re_test",
+        "LEAD_NOTIFY_TO": "",
     }
     env.update(env_overrides)
     for key, value in env.items():
@@ -48,8 +54,8 @@ def test_reaper_recovers_job_orphaned_in_running(tmp_path, monkeypatch):
     reclaimed = mod.store.reclaim_stale_running_jobs(60)
     assert reclaimed == 1
     job = next(j for j in mod.store.recent_jobs() if j["id"] == job_id)
-    assert job["status"] == "pending"      # back on the queue for the drainer
-    assert job["attempts"] == 1            # counted, so it can't loop forever
+    assert job["status"] == "pending"  # back on the queue for the drainer
+    assert job["attempts"] == 1  # counted, so it can't loop forever
 
 
 def test_reaper_deadletters_a_poison_pill(tmp_path, monkeypatch):
@@ -58,8 +64,9 @@ def test_reaper_deadletters_a_poison_pill(tmp_path, monkeypatch):
     _force_running(mod.store, job_id, attempts=1)
 
     mod.store.reclaim_stale_running_jobs(60)
+    mod._run_job(job_id, {"type": "audit_pdf", "sessionId": "cs_2"})
     job = next(j for j in mod.store.recent_jobs() if j["id"] == job_id)
-    assert job["status"] == "dead_letter"  # exhausted attempts -> stops, not infinite loop
+    assert job["status"] == "compensated"  # terminal state cannot starve newer failures
 
 
 def test_reaper_leaves_a_fresh_running_job_alone(tmp_path, monkeypatch):
@@ -81,6 +88,20 @@ def test_lead_endpoint_rate_limited_after_burst(tmp_path, monkeypatch):
     assert blocked.status_code == 429
 
 
+def test_rate_window_is_anchored_to_first_request(tmp_path, monkeypatch):
+    mod, _ = _load_app(tmp_path, monkeypatch)
+    store_module = sys.modules["eolkits_grace.store"]
+    now = [59]
+    monkeypatch.setattr(store_module.time, "time", lambda: now[0])
+
+    assert mod.store.allow_rate("boundary", limit=2, window_seconds=60)
+    assert mod.store.allow_rate("boundary", limit=2, window_seconds=60)
+    now[0] = 60
+    assert not mod.store.allow_rate("boundary", limit=2, window_seconds=60)
+    now[0] = 119
+    assert mod.store.allow_rate("boundary", limit=2, window_seconds=60)
+
+
 def test_lead_endpoint_rejects_malformed_email(tmp_path, monkeypatch):
     mod, client = _load_app(tmp_path, monkeypatch)
     r = client.post("/api/v1/lead", json={"email": "not-an-email"})
@@ -88,13 +109,55 @@ def test_lead_endpoint_rejects_malformed_email(tmp_path, monkeypatch):
     assert mod.store.recent_leads() == []
 
 
+def test_request_source_key_is_secret_keyed_and_referrer_query_is_dropped(tmp_path, monkeypatch):
+    secret = "s" * 32
+    mod, _ = _load_app(tmp_path, monkeypatch, EOLKITS_INTERNAL_URL_SECRET=secret)
+    request = Request(
+        {
+            "type": "http",
+            "method": "GET",
+            "path": "/",
+            "headers": [(b"referer", b"https://example.com/landing?token=secret#frag")],
+            "client": ("203.0.113.8", 1234),
+        }
+    )
+    expected = hmac.new(secret.encode(), b"203.0.113.8", hashlib.sha256).hexdigest()[:24]
+    assert mod._request_source_key(request) == expected
+    assert mod._safe_referrer_source(request) == "https://example.com/landing"
+
+
+def test_public_bodies_and_event_names_are_bounded(tmp_path, monkeypatch):
+    mod, client = _load_app(
+        tmp_path,
+        monkeypatch,
+        EOLKITS_MAX_EVENT_BYTES="256",
+        EOLKITS_MAX_FORM_BYTES="64",
+    )
+    assert client.post("/api/events", content=b"x" * 257).status_code == 413
+    assert client.post("/api/v1/lead", content=b"x" * 65).status_code == 413
+    unsupported = client.post("/api/events", json={"event": "purchase_success"})
+    assert unsupported.status_code == 400
+
+    recorded = client.post(
+        "/api/events",
+        json={
+            "event": "scan_completed",
+            "meta": {"finding_count": 2, "file_count": 3, "session_id": "must-not-store"},
+        },
+    )
+    assert recorded.status_code == 200
+    with mod.store.connect() as conn:
+        meta = conn.execute("SELECT meta FROM events").fetchone()["meta"]
+    assert "session_id" not in meta
+
+
 def test_status_hides_recent_jobs_without_admin_token(tmp_path, monkeypatch):
     mod, client = _load_app(tmp_path, monkeypatch, EOLKITS_ADMIN_TOKEN="s3cret")
     mod.store.enqueue("audit_pdf", {"sessionId": "cs_4"})
 
     anon = client.get("/status").json()
-    assert "recent_jobs" not in anon          # per-order payloads not leaked
-    assert "funnel_7d" in anon                # aggregate metrics stay public
+    assert "recent_jobs" not in anon  # per-order payloads not leaked
+    assert "funnel_7d" in anon  # aggregate metrics stay public
 
     authed = client.get("/status", headers={"X-Admin-Token": "s3cret"}).json()
     assert "recent_jobs" in authed

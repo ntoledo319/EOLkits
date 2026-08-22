@@ -1,72 +1,39 @@
-name: Status synthetic check
+name: Status smoke check
 
+# Scheduled, read-only alert. Runtime status lives in the API/SQLite; it must
+# never be represented by timestamp commits or hard-coded revenue counters.
 on:
-  schedule:
-    - cron: '*/5 * * * *'  # Every 5 minutes
   workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
 
 permissions:
-  contents: write
-
-# Never let two synthetic-check runs race to commit/push the status file.
-concurrency:
-  group: status-synth
-  cancel-in-progress: false
+  contents: read
 
 jobs:
-  synth:
+  smoke:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - name: Probe endpoints
-        id: probe
+      - name: Probe live static and API surfaces
+        env:
+          SITE_URL: ${{ vars.PAGES_URL || 'https://ntoledo319.github.io/EOLkits' }}
+          API_URL: ${{ vars.API_URL || 'https://eolkits.com' }}
+          API_MONITOR_ENABLED: ${{ vars.API_MONITOR_ENABLED || 'false' }}
+          EXPECTED_CHECKOUT: ${{ vars.AUDIT_CHECKOUT_EXPECTED || 'false' }}
+          EXPECTED_BUILD_SHA: ${{ vars.EOLKITS_BUILD_SHA || '' }}
         run: |
-          set +e
-          PAGES_URL="${{ vars.PAGES_URL || 'https://eolkits.com' }}"
-          WORKER_URL="${{ vars.WORKER_URL || 'https://eolkits.com' }}"
-          NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          status() { curl -s -o /dev/null -w '%{http_code}' --max-time 8 "$1"; }
-          PAGES_CODE=$(status "$PAGES_URL/status/")
-          PACK_CODE=$(status "$PAGES_URL/pack/")
-          AUDIT_CODE=$(status "$PAGES_URL/audit/")
-          ICS_CODE=$(status "$PAGES_URL/deprecations.ics")
-          WORKER_CODE=000
-          if [ -n "$WORKER_URL" ]; then WORKER_CODE=$(status "$WORKER_URL/health"); fi
-          WORKER_STATUS_JSON=""
-          if [ -n "$WORKER_URL" ]; then WORKER_STATUS_JSON=$(curl -fsS --max-time 8 "$WORKER_URL/status" || true); fi
-          component_ok() {
-            printf '%s' "$WORKER_STATUS_JSON" | jq -r "$1" 2>/dev/null | grep -qx true && echo true || echo false
-          }
-          ok() { [ "$1" = "200" ] && echo true || echo false; }
-          mkdir -p docs/status
-          cat > docs/status/data.json <<JSON
-          {
-            "generated_at": "$NOW",
-            "checks": {
-              "stripe": {"ok": $(component_ok '.components.stripe.ok == true'), "last_checked": "$NOW"},
-              "worker": {"ok": $(component_ok '.overall == "healthy"'), "code": $WORKER_CODE, "last_checked": "$NOW"},
-              "runner": {"ok": $(component_ok '.components.runner.ok == true'), "last_checked": "$NOW"},
-              "email": {"ok": $(component_ok '.components.email.ok == true'), "last_checked": "$NOW"},
-              "github": {"ok": $(component_ok '.components.github.ok == true'), "last_checked": "$NOW"},
-              "pages": {"ok": $(ok $PAGES_CODE), "code": $PAGES_CODE, "last_checked": "$NOW"},
-              "audit_page": {"ok": $(ok $AUDIT_CODE), "code": $AUDIT_CODE, "last_checked": "$NOW"},
-              "pack_page": {"ok": $(ok $PACK_CODE), "code": $PACK_CODE, "last_checked": "$NOW"},
-              "ics_feed": {"ok": $(ok $ICS_CODE), "code": $ICS_CODE, "last_checked": "$NOW"}
-            },
-            "metrics": {
-              "audits_delivered_7d": 0,
-              "prs_opened_7d": 0,
-              "drift_watch_subscribers": 0
-            }
-          }
-          JSON
-      - name: Commit if changed
-        run: |
-          git config user.name "rupture-bot"
-          git config user.email "rupture-bot@users.noreply.github.com"
-          git add docs/status/data.json
-          if ! git diff --cached --quiet; then
-            git commit -m "chore(status): synthetic check $(date -u +%FT%TZ)"
-            git pull --rebase origin main
-            git push
+          set -euo pipefail
+          curl --fail --silent --show-error --max-time 12 --output /dev/null "$SITE_URL/"
+          curl --fail --silent --show-error --max-time 12 --output /dev/null "$SITE_URL/audit/"
+          curl --fail --silent --show-error --max-time 12 --output /dev/null "$SITE_URL/status/"
+          if [[ "$API_MONITOR_ENABLED" == "true" ]]; then
+            health="$(curl --fail --silent --show-error --max-time 12 "$API_URL/health")"
+            status="$(curl --fail --silent --show-error --max-time 12 "$API_URL/api/status")"
+            capabilities="$(curl --fail --silent --show-error --max-time 12 "$API_URL/api/capabilities")"
+            jq -e '.ok == true' <<<"$health"
+            jq -e '.overall == "healthy"' <<<"$status"
+            jq -e --argjson expected "$EXPECTED_CHECKOUT" '.audit.report_version == "2.0" and .audit.checkout_enabled == $expected' <<<"$capabilities"
+            if [[ -n "$EXPECTED_BUILD_SHA" ]]; then
+              jq -e --arg sha "$EXPECTED_BUILD_SHA" '.build_sha == $sha' <<<"$health"
+            fi
           fi

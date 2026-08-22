@@ -3,7 +3,6 @@
 from argparse import Namespace
 from pathlib import Path
 
-
 from python_pivot import iac
 
 FIX = Path(__file__).parent / "fixtures"

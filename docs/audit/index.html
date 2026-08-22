@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Audit — see what AWS breaks, then fix it | EOLkits</title>
-<meta name="description" content="A free scan shows every AWS deprecation in your stack. The $299 audit is the done-for-you fix report — severity scoring, roll-forward roadmap, every fact cited to its AWS source. 30-day money-back.">
+<title>AWS deprecation evidence report | EOLkits</title>
+<meta name="description" content="A static repository evidence report for AWS runtime and Amazon Linux migration risks: exact file/line evidence, remediation, and official source links.">
 <style>
 body{font-family:system-ui,-apple-system,sans-serif;max-width:820px;margin:0 auto;padding:2rem;line-height:1.6;color:#111827}
 .brand{color:#2563eb;font-weight:600}
@@ -42,84 +42,68 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
   try{
     var KEY='eolkits_ft';
     if(localStorage.getItem(KEY))return;
-    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='', refHost='';
+    try{refHost=(new URL(ref)).hostname.toLowerCase().slice(0,100);}catch(e){}
+    if(refHost===location.hostname.toLowerCase())refHost='';
     if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
     else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
     else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
     else if(/claude\.ai/i.test(ref))aeo='claude';
-    var ext = ref && ref.indexOf(location.host)===-1;
     var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
-    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    if(!hasUtm && !refHost)return;
     localStorage.setItem(KEY, JSON.stringify({
-      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
-      utm_source: q.get('utm_source')||aeo||'',
-      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      source: q.get('source')||(aeo?('aeo_'+aeo):'referral'),
+      utm_source: q.get('utm_source')||aeo||refHost,
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':'referral'),
       utm_campaign: q.get('utm_campaign')||'',
-      kit: q.get('kit')||'',
-      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+      kit: q.get('kit')||''
     }));
   }catch(e){}
 })();
 </script>
 </head>
 <body>
-<a href="/" class="brand">← EOLkits</a>
-<h1>See exactly what AWS is about to break — then fix it in one report</h1>
-<p class="lede">Run the free scanner on your own files first — ~30 seconds, no signup. The <strong>$299 audit</strong> is the done-for-you fix report for everything it finds: scored, sequenced, and cited. Money back if it isn't useful.</p>
+<a href="/EOLkits/" class="brand">← EOLkits</a>
+<h1>Turn a repository into reviewable AWS migration evidence</h1>
+<p class="lede">Upload one repository ZIP or supported source file. The <strong>$299 evidence report</strong> returns the exact files and lines that matched, a prioritized remediation order, and a source link for every rule. It is a static source scan—not a live AWS inventory.</p>
 
 <div class="callout">
-  <strong>Don't take our word for it.</strong> &nbsp;<a class="cta secondary" href="/scan/">▶ Run the free scan</a><br>
-  See every deprecation in your stack, on your own machine, <em>before</em> you pay a cent. The audit picks up where the scan ends — scoring, a roll-forward plan, and a verifiable report.
+  <strong>Don't take our word for it.</strong> &nbsp;<a class="cta secondary" href="/EOLkits/scan/">▶ Run the free scan</a><br>
+  Check representative files locally before paying. The paid report adds repository-wide ZIP scanning, exact line evidence, a sequenced remediation plan, and an evidence fingerprint.
 </div>
 
 <h2>What you get</h2>
 <ul>
-  <li>Every finding scored by <strong>severity × blast-radius</strong> — what breaks first vs. what's cosmetic</li>
-  <li>A <strong>roll-forward roadmap</strong>: the exact order to migrate, with each breaking change called out</li>
-  <li>A <strong>cost-of-not-fixing</strong> estimate you can forward to your manager</li>
-  <li>Every fact <strong>cited to its AWS primary source</strong> — check our work</li>
-  <li>A <strong>hash-anchored PDF</strong>, verifiable at <code>/verify/&lt;sha&gt;</code></li>
+  <li>Exact <strong>file:line evidence</strong> and observed match counts—no invented resource counts</li>
+  <li>A <strong>roll-forward order</strong> based on finding severity and observed reach</li>
+  <li>Official AWS, Python, Node.js, or project source link for every configured rule</li>
+  <li>Explicit scope and limitations: what was scanned, skipped, and not inferred</li>
+  <li>Input SHA-256 plus a deterministic <strong>evidence fingerprint</strong> verifiable at <code>/verify/</code></li>
 </ul>
-<p><a class="cta secondary" href="/audit/sample/">▶ See a real (redacted) sample report →</a></p>
+<p><a class="cta secondary" href="/EOLkits/audit/sample/">▶ See an illustrative fictional sample →</a></p>
 
 <div class="pricing">
   <h2>Pricing</h2>
-  <div class="tiers">
-    <div class="tier">
-      <strong>Standard</strong>
-      <div class="price">$299</div>
-      <p>More than 30 days until deadline</p>
-    </div>
-    <div class="tier soon">
-      <strong>Surge (30d)</strong>
-      <div class="price">$399</div>
-      <p>Within 30 days of deadline</p>
-    </div>
-    <div class="tier urgent">
-      <strong>Urgent (7d)</strong>
-      <div class="price">$599</div>
-      <p>Within 7 days of deadline</p>
-    </div>
-  </div>
-  <p class="reassure">Price rises as the deadline nears — acting sooner costs you less. No discounts; the guarantee is your protection instead.</p>
+  <div class="tiers"><div class="tier"><strong>One repository</strong><div class="price">$299</div><p>ZIP archive or one supported source file · one fixed price</p></div></div>
+  <p class="reassure">A target date may be included as planning context. It never changes the price or scan results.</p>
 </div>
 
 <div class="valuebox">
-  <strong>What does <em>not</em> fixing it cost?</strong> One failed production deploy, an unpatched box running past the deadline, or a frozen Lambda burns hours of engineer time and real downtime — usually far more than the audit. $299 to know precisely what's coming and how to clear it.
+  <strong>What this buys:</strong> a reviewable change-approval artifact your team can check against the uploaded repository and the linked official sources. No speculative downtime-dollar estimate is included.
 </div>
 
 <div class="guarantee">
-  <h3>Your risk: zero</h3>
-  <p><strong>100% money-back, 30 days, no questions.</strong> If the report isn't useful, email us — we refund, no argument.</p>
-  <p><strong>Beat the deadline or it's free.</strong> Order inside a deadline window and if we can't hand you a clear roll-forward path before it hits, you pay nothing.</p>
+  <h3>30-day refund policy</h3>
+  <p><strong>Request a full refund within 30 days.</strong> Email from the purchase address with the Stripe receipt or Checkout Session identifier; no explanation is required.</p>
+  <p>If fulfillment permanently fails after retries, the system queues a full refund. Any refund that cannot be confirmed is surfaced for operator review.</p>
 </div>
 
 <h2>Why you can trust the report (without trusting the brand)</h2>
 <div class="grid">
-  <div class="cell"><h4>Cited to source</h4>Every finding links AWS's own documentation. You verify the claim, not our reputation.</div>
-  <div class="cell"><h4>Hash-anchored</h4>Each report carries a SHA-256 of your inputs, verifiable at <code>/verify</code>. We can't quietly change it.</div>
-  <div class="cell"><h4>Deterministic &amp; open</h4>Same input → same report. The rule-pack is public — inspect exactly what we check for.</div>
-  <div class="cell"><h4>Instant &amp; automated</h4>Delivered in ~5 minutes by machine. No waiting on a person, no back-and-forth.</div>
+  <div class="cell"><h4>Evidence, not estimates</h4>Each match includes the observed file, line, and text.</div>
+  <div class="cell"><h4>Checkable sources</h4>Each configured rule links the official documentation used for the claim.</div>
+  <div class="cell"><h4>Repeatable findings</h4>The evidence fingerprint covers the input hash, rule-pack version, and canonical findings.</div>
+  <div class="cell"><h4>Bounded scope</h4>The report says plainly that it does not query AWS or prove a complete inventory.</div>
 </div>
 
 <div class="logos">
@@ -128,20 +112,23 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 
 <h2>How it works</h2>
 <ol>
-  <li>Upload your SAM / CDK / Terraform / Serverless / cloud-init files</li>
-  <li>We scan for deprecated runtimes and breaking changes — deterministically</li>
-  <li>Get your PDF by email in ~5 minutes — fully automated</li>
-  <li>Verify authenticity at <code>/verify/&lt;sha&gt;</code></li>
+  <li>Upload a repository ZIP or a supported SAM / CDK / Terraform / Serverless / cloud-init source file (10 MiB compressed maximum)</li>
+  <li>We safely inspect supported text files without extracting the archive to disk</li>
+  <li>Get a PDF by email after automated processing; delays and retries are possible</li>
+  <li>Verify the evidence metadata at <code>/verify/</code></li>
 </ol>
 
-<p class="reassure">🔒 Secure checkout via Stripe · delivered in ~5 minutes · 30-day money-back guarantee</p>
+<p class="reassure">🔒 Secure checkout via Stripe · automated delivery with durable retries · 30-day money-back guarantee</p>
 
-<form id="auditForm">
+<div id="auditGate" class="callout"><strong>Checkout safety check:</strong> waiting for the v2 fulfillment backend. Checkout stays closed unless the live API confirms report engine 2.0.</div>
+<form id="auditForm" hidden>
   <h3>Start Audit</h3>
   <p><input type="email" id="auditEmail" name="email" placeholder="your@email.com" required style="padding:0.5rem;width:300px"></p>
   <p><input type="date" id="auditDeadline" name="deadline" style="padding:0.5rem;width:300px" aria-label="Deadline date"></p>
-  <p><input type="file" id="auditFile" name="file" required accept=".yaml,.yml,.json,.tf,.tfvars,.js,.ts,.py,.txt"></p>
+  <p><input type="file" id="auditFile" name="file" required accept=".zip,.yaml,.yml,.json,.tf,.tfvars,.js,.ts,.tsx,.py,.toml,.lock,.sh,.txt"></p>
+  <p class="reassure">Upload limits: 10 MiB input; ZIPs may contain at most 2,000 files and 25 MiB expanded text. Encrypted, path-traversing, binary, and suspiciously compressed archives are rejected before checkout. Do not upload secrets or unrelated personal data.</p>
   <button id="auditSubmit" type="submit">Upload and Proceed to Checkout</button>
+  <p class="reassure">By continuing, you authorize this upload to be scanned and agree to the <a href="/EOLkits/legal/terms.html">Terms</a> and <a href="/EOLkits/legal/privacy.html">Privacy Policy</a>. Stripe Checkout shows the final $299 price before payment.</p>
   <p id="auditStatus" style="color:#6b7280;font-size:.875rem"></p>
 </form>
 
@@ -165,21 +152,41 @@ function track(eventName, extra) {
     navigator.sendBeacon(API + '/api/events', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
   } catch (e) {}
 }
+function apiMessage(data, fallback) {
+  if (data && typeof data.detail === 'string') return data.detail;
+  if (data && data.detail && typeof data.detail.error === 'string') return data.detail.error;
+  if (data && typeof data.error === 'string') return data.error;
+  return fallback;
+}
 const auditForm = document.getElementById('auditForm');
 const auditStatus = document.getElementById('auditStatus');
 const auditSubmit = document.getElementById('auditSubmit');
 const deadlineInput = document.getElementById('auditDeadline');
-// Prefill the deadline from a deadline-tagged migrate-page link so surge pricing
-// is consistent between the page the buyer came from and what we charge.
+const auditGate = document.getElementById('auditGate');
+// Prefill report context from a deadline-tagged migration page. The deadline does
+// not alter price.
 if (qp.get('deadline') && deadlineInput) deadlineInput.value = qp.get('deadline');
 if (qp.get('cancelled')) auditStatus.textContent = 'Checkout cancelled — finish whenever you are ready.';
 track('view');
+fetch(API + '/api/capabilities').then(r => r.ok ? r.json() : Promise.reject()).then(c => {
+  const a = c && c.audit;
+  if (a && a.checkout_enabled === true && String(a.report_version) === '2.0') {
+    auditForm.hidden = false;
+    auditGate.hidden = true;
+  } else {
+    auditGate.textContent = 'Audit checkout is temporarily paused while fulfillment is verified.';
+  }
+}).catch(() => { auditGate.textContent = 'Audit checkout is temporarily paused while fulfillment is verified.'; });
 auditForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const file = document.getElementById('auditFile').files[0];
   const email = document.getElementById('auditEmail').value;
   const deadline = deadlineInput ? deadlineInput.value : '';
   if (!file || !email) return;
+  if (file.size > 10 * 1024 * 1024) {
+    auditStatus.textContent = 'Upload must be 10 MiB or smaller.';
+    return;
+  }
 
   auditSubmit.disabled = true;
   auditStatus.textContent = 'Requesting upload URL...';
@@ -195,7 +202,7 @@ auditForm.addEventListener('submit', async (event) => {
       })
     });
     const presignData = await presign.json();
-    if (!presign.ok) throw new Error(presignData.error || 'Upload storage is unavailable');
+    if (!presign.ok) throw new Error(apiMessage(presignData, 'Upload storage is unavailable'));
 
     auditStatus.textContent = 'Uploading audit input...';
     const upload = await fetch(presignData.uploadUrl, {
@@ -219,7 +226,7 @@ auditForm.addEventListener('submit', async (event) => {
       body: checkoutBody
     });
     const checkoutData = await checkout.json();
-    if (!checkout.ok || !checkoutData.url) throw new Error(checkoutData.error || 'Checkout failed');
+    if (!checkout.ok || !checkoutData.url) throw new Error(apiMessage(checkoutData, 'Checkout failed'));
     window.location.href = checkoutData.url;
   } catch (error) {
     auditSubmit.disabled = false;
@@ -230,16 +237,16 @@ auditForm.addEventListener('submit', async (event) => {
 
 <div class="faq">
 <h2>Questions</h2>
-<details><summary>Why pay when the CLI is free?</summary><p>The free CLI and scanner show you <em>what</em> breaks. The audit does the work <em>for</em> you — severity × blast-radius scoring, a roll-forward roadmap, a cost-of-not-fixing estimate, and a verifiable report you can hand to your team, in ~5 minutes.</p></details>
-<details><summary>Is my code safe?</summary><p>Your files travel over TLS and are used only to generate your report — never shared. Prefer to keep everything local? Run the free CLI offline.</p></details>
-<details><summary>How can I trust the results if I've never heard of you?</summary><p>You don't have to. Every finding cites AWS's own docs, the report is hash-anchored and deterministic, and the rule-pack is public — run the free scan and compare. And you're covered by a 30-day no-questions refund.</p></details>
-<details><summary>How fast is it?</summary><p>About 5 minutes, fully automated. No waiting on a human.</p></details>
+<details><summary>Why pay when the CLI is free?</summary><p>The CLI is the right choice for hands-on engineers. The paid product packages repository-wide evidence, line locations, prioritization, limitations, and sources into a shareable PDF.</p></details>
+<details><summary>Is my code safe?</summary><p>Uploads travel over TLS, are used only for report generation, and are deleted after successful delivery. Unchecked uploads normally expire within 24 hours; checkout-bound uploads are retained for no more than 48 hours so retries can finish. Generated reports expire within 30 days. Prefer no upload? Use the free local tools.</p></details>
+<details><summary>How can I trust the results?</summary><p>Check the exact file/line evidence and official source for each rule. The report carries an input hash and evidence fingerprint. It does not claim to be a digitally signed PDF.</p></details>
+<details><summary>How fast is it?</summary><p>Processing is automated, but delivery time depends on queue, runner, and email-provider availability. Failed jobs retry and unresolved failures surface for refund review.</p></details>
 <details><summary>What if it's wrong, or I'm just not happy?</summary><p>Email us within 30 days for a full refund. No questions asked.</p></details>
 </div>
 
 <footer>
-  <p>Delivered in ~5 minutes · every report carries a SHA-256 of your inputs for verification · 30-day money-back guarantee.</p>
-  <p><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/scan/">Free scan</a> · <a href="/audit/sample/">Sample report</a></p>
+  <p>Automated delivery · file/line evidence · official sources · input hash + evidence fingerprint · 30-day money-back guarantee.</p>
+  <p><a href="/EOLkits/legal/terms.html">Terms</a> · <a href="/EOLkits/legal/privacy.html">Privacy</a> · <a href="/EOLkits/scan/">Free scan</a> · <a href="/EOLkits/audit/sample/">Sample report</a></p>
 </footer>
 </body>
 </html>

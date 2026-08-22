@@ -2,10 +2,11 @@
 # This file is the source of truth for:
 # - The public ICS calendar feed
 # - SEO /migrate/<deprecation> page generation
-# - Deadline calculations for surge pricing
+# - Deadline calculations and migration guidance
 
 deprecations:
-  - name: "Lambda Node.js 20 Phase 1"
+  - name: "Lambda Node.js 20 create/update restrictions"
+    slug: "lambda-node.js-20-phase-1"
     service: "AWS Lambda"
     resource_type: "function"
     date: "2027-02-01"
@@ -21,17 +22,32 @@ deprecations:
       - "OpenSSL 3 hash changes"
       - "URL vs require() for imports"
 
+  - name: "Lambda Node.js 22 projected restrictions"
+    slug: "lambda-node.js-22-phase-1"
+    service: "AWS Lambda"
+    resource_type: "function"
+    date: "2027-06-01"
+    block_update_date: "2027-07-01"
+    description: "Node.js 22 Lambda runtime (Amazon Linux 2023) has a projected deprecation date of 2027-04-30. AWS currently projects blocking new nodejs22.x functions on 2027-06-01 and updates on 2027-07-01; AWS marks runtime dates as subject to change."
+    severity: medium
+    kit: lambda-lifeline
+    url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
+    tags: [lambda, nodejs, runtime]
+    breaking_changes:
+      - "Upgrade target is nodejs24.x"
+      - "Native addons must be rebuilt and tested on the Node.js 24 ABI"
+
   - name: "Amazon Linux 2 EOL"
     service: "EC2, EKS, ECS, Elastic Beanstalk"
     resource_type: "ami|launch-template|container-image"
     date: "2026-06-30"
-    description: "Amazon Linux 2 reached end of life on 2026-06-30. No more security patches, AMI publishing, or extras updates since then — anything still on AL2 runs unpatched now."
+    description: "Amazon Linux 2 reached end of life on 2026-06-30 and should be migrated to Amazon Linux 2023. AWS has published post-EOL AL2 releases, so EOLkits does not equate the date with proof that a specific instance has received no later update; verify the installed release and current AWS support terms."
     severity: critical
     kit: al2023-gate
     url: "https://aws.amazon.com/blogs/aws/update-on-amazon-linux-2-end-of-life/"
     tags: [ec2, eks, ecs, beanstalk, os, al2]
     breaking_changes:
-      - "No security patches after EOL"
+      - "Standard support ended; remaining update/support behavior must be verified with AWS"
       - "yum replaced with dnf"
       - "amazon-linux-extras not available"
       - "ntpd replaced with chronyd"
@@ -79,22 +95,23 @@ deprecations:
     url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
     tags: [lambda, python, runtime]
     breaking_changes:
-      - "TOML parsing changes"
+      - "distutils is removed in Python 3.12"
+      - "Native dependencies may need Python 3.12-compatible wheels"
 
   - name: "Lambda Node.js 18 EOL"
     service: "AWS Lambda"
     resource_type: "function"
     date: "2027-02-01"
     block_update_date: "2027-03-03"
-    description: "Node.js 18 Lambda runtime (Amazon Linux 2) deprecated 2025-09-01. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs18.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — part of the synchronized Q1-2027 runtime-block cluster. nodejs18.x is one of the most common runtimes still in production."
+    description: "Node.js 18 Lambda runtime (Amazon Linux 2) deprecated 2025-09-01. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs18.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — part of the synchronized Q1-2027 runtime-block cluster."
     severity: high
     kit: lambda-lifeline
     url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
     tags: [lambda, nodejs, runtime]
     breaking_changes:
-      - "Upgrade target is nodejs22.x"
+      - "Upgrade target is nodejs24.x"
       - "aws-sdk v2 not bundled (use @aws-sdk v3 modular clients)"
-      - "Native addons must be rebuilt for the Node 22 ABI"
+      - "Native addons must be rebuilt and tested on the Node.js 24 ABI"
       - "OpenSSL 3 behavior changes"
 
   - name: "Lambda Python 3.8 EOL"
@@ -112,20 +129,6 @@ deprecations:
       - "distutils and imp removed in 3.12 (fix on upgrade)"
       - "collections ABCs moved to collections.abc (3.10+)"
       - "Native wheels may need version bumps for cp312"
-
-  - name: "IMDSv1 Enforcement"
-    service: "EC2"
-    resource_type: "instance|launch-template"
-    date: "2025-12-31"
-    description: "IMDSv1 access has been blocked by default on new instance launches since 2025-12-31."
-    severity: high
-    kit: null  # Planned: imds-v2-gate
-    url: "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html"
-    tags: [ec2, imds, security]
-    breaking_changes:
-      - "IMDSv1 requests fail"
-      - "Must use IMDSv2 with session tokens"
-      - "SSM agent must be updated"
 
 # Historical deprecations (for reference)
 historical:

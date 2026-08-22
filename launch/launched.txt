@@ -1,9 +1,4 @@
-status: not yet submitted
-submission_url: https://github.com/ntoledo319/EOLkits
-draft: launch/show-hn-final.md
-amplification: launch/social.md
-outreach: launch/outreach.md
-reply_playbook: launch/hn-replies.md
-
-When the operator submits Show HN, append a line below in the format:
-  YYYY-MM-DDTHH:MM:SSZ submitted by <user> link=<hn-url>
+status: archived
+reason: launch copy predates Audit v2 and is not approved for publication
+current_state: revenue/METRICS.md
+owner_actions: revenue/HUMAN_QUEUE.md

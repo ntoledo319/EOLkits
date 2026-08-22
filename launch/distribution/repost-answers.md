@@ -1,4 +1,8 @@
-# Turnkey "buyer burst" — helpful answers to real, live high-intent questions
+# ARCHIVED — DO NOT POST
+
+Targets and answers are stale and require fresh manual policy and fact review.
+
+# Historical answer research
 
 Each item below is a **real person asking about this exact EOL right now**. Posting a genuinely useful answer
 (with the tool mentioned once, disclosed) is the closest-to-a-buyer, $0, TOS-clean move that exists — and it's a

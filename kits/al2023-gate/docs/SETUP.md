@@ -121,28 +121,31 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: '3.11' }
-      - run: pip install al2023-gate
-      - run: al2023-gate cloudinit user-data.sh --strict
-      - run: al2023-gate ansible roles/ --strict
+      - uses: actions/checkout@v6
+      - uses: ntoledo319/EOLkits@v2
+        with:
+          kit: al2023-gate
+          path: .
+          fail-on: any
+          comment-pr: false
       - name: Live account scan
         env:
           AWS_REGION: us-east-1
           AWS_ACCESS_KEY_ID: ${{ secrets.READONLY_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.READONLY_SECRET }}
-        run: al2023-gate scan --regions us-east-1 --strict
+        run: echo "Run the live account scan only from a separately reviewed, read-only credential workflow."
 ```
 
 ---
 
 ## Troubleshooting
 
-**`boto3 not found`** — `pip install 'al2023-gate[aws]'`.
+**`boto3 not found`** — from the kit checkout, run `.venv/bin/pip install -e '.[aws]'`.
 
 **Scanner finds nothing but I know I have AL2 instances** — your IAM role needs `ec2:DescribeInstances`, `ec2:DescribeImages`, `ec2:DescribeLaunchTemplateVersions`, `eks:ListClusters`, `eks:ListNodegroups`, `ecs:ListTaskDefinitions`, `ecs:DescribeTaskDefinition`, `elasticbeanstalk:DescribeEnvironments`.
 
 **Packer build fails with "source AMI not found"** — AL2023 AMIs are owned by account `137112412989`. If you have an SCP blocking cross-account AMIs, whitelist that owner.
 
-**Ansible patcher rewrote too much** — it defaults to dry-run. If you already ran with `--apply`, `git reset --hard` and re-run `--apply` with `--strict` which fails on ambiguous cases.
+**Ansible patcher rewrote too much** — it defaults to dry-run. Restore the reviewed
+files from your own version-control workflow, inspect the diff, and re-run with
+`--strict`, which fails on ambiguous cases.

@@ -9,6 +9,10 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    env:
+      TMPDIR: ${{ github.workspace }}/tmp/runtime-tmp
+      npm_config_cache: ${{ github.workspace }}/tmp/npm-cache
     steps:
       - uses: actions/checkout@v6
 
@@ -18,7 +22,11 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm ci
+        run: mkdir -p "$TMPDIR" "$npm_config_cache" && npm ci
+        working-directory: apps/vscode-extension
+
+      - name: Test extension
+        run: npm test
         working-directory: apps/vscode-extension
 
       - name: Package extension
@@ -26,7 +34,10 @@ jobs:
         working-directory: apps/vscode-extension
 
       - name: Publish extension
-        run: npx vsce publish --packagePath rupture-vscode-1.0.0.vsix -p "$VSCE_PAT"
+        run: |
+          VSIX="$(find . -maxdepth 1 -type f -name 'eolkits-vscode-*.vsix' -print -quit)"
+          test -n "$VSIX"
+          npx vsce publish --packagePath "$VSIX" -p "$VSCE_PAT"
         working-directory: apps/vscode-extension
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}

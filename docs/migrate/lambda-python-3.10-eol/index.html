@@ -3,57 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lambda Python 3.10 EOL migration guide — deadline 2027-02-01 | EOLkits</title>
-    <meta name="description" content="Lambda Python 3.10 EOL ends 2027-02-01 (more than 30 days out). AWS Lambda. 2 breaking changes, exact migration facts, and a free CLI (python-pivot) to scan…">
+    <title>Lambda Python 3.10 EOL migration guide — milestone 2027-02-01 | EOLkits</title>
+    <meta name="description" content="Lambda Python 3.10 EOL: tracked milestone 2027-02-01 (more than 30 days out). AWS Lambda. 2 migration checks to verify, plus a free bounded CLI…">
     <meta name="keywords" content="Lambda Python 3.10 EOL, AWS deprecation, AWS Lambda, lambda, python, runtime, migration, end of life, 2027-02-01">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://eolkits.com/migrate/lambda-python-3.10-eol/">
-    <link rel="stylesheet" href="/style.css">
-    <script defer src="/track.js"></script>
-    <link rel="alternate" type="text/calendar" title="AWS Deprecation Deadlines (EOLkits)" href="/deprecations.ics">
+    <link rel="canonical" href="https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.10-eol/">
+    <link rel="stylesheet" href="/EOLkits/style.css">
+    <script defer src="/EOLkits/track.js"></script>
+    <link rel="alternate" type="text/calendar" title="AWS Deprecation Deadlines (EOLkits)" href="/EOLkits/deprecations.ics">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Lambda Python 3.10 EOL — AWS deprecation migration guide (deadline 2027-02-01)">
+    <meta property="og:title" content="Lambda Python 3.10 EOL — AWS deprecation migration guide (milestone 2027-02-01)">
     <meta property="og:description" content="Python 3.10 Lambda runtime deprecated 2026-10-31. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-02-01 and updating existing ones on 2027-03-03 — the same synchronized Q1-2027 block cluster as python3.8/3.9.">
-    <meta property="og:url" content="https://eolkits.com/migrate/lambda-python-3.10-eol/">
+    <meta property="og:url" content="https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.10-eol/">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="EOLkits">
-    <meta property="og:image" content="https://eolkits.com/og-default.png">
+    <meta property="og:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="article:published_time" content="2026-06-22">
-    <meta property="article:modified_time" content="2026-06-22">
+    <meta property="article:published_time" content="2026-08-22">
+    <meta property="article:modified_time" content="2026-08-22">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Lambda Python 3.10 EOL — Migration Guide">
-    <meta name="twitter:description" content="Deadline 2027-02-01 (224 days). 2 breaking changes, cited from AWS docs.">
-    <meta name="twitter:image" content="https://eolkits.com/og-default.png">
+    <meta name="twitter:description" content="Tracked milestone 2027-02-01 (163 days from the build date). 2 bounded migration checks to verify.">
+    <meta name="twitter:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
 
-    <!-- Schema.org: TechArticle (every fact cited to deprecation.url) -->
+    <!-- Schema.org TechArticle; the provider status source is included below. -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "TechArticle",
         "headline": "Lambda Python 3.10 EOL \u2014 AWS Deprecation Migration Guide",
         "description": "Python 3.10 Lambda runtime deprecated 2026-10-31. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-02-01 and updating existing ones on 2027-03-03 \u2014 the same synchronized Q1-2027 block cluster as python3.8/3.9.",
-        "datePublished": "2026-06-22",
-        "dateModified": "2026-06-22",
+        "datePublished": "2026-08-22",
+        "dateModified": "2026-08-22",
         "proficiencyLevel": "Expert",
         "keywords": "lambda, python, runtime",
         "citation": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html",
-        "author": { "@type": "Organization", "name": "EOLkits", "url": "https://eolkits.com" },
+        "author": { "@type": "Organization", "name": "EOLkits", "url": "https://ntoledo319.github.io/EOLkits" },
         "publisher": {
             "@type": "Organization",
             "name": "EOLkits",
-            "url": "https://eolkits.com"
+            "url": "https://ntoledo319.github.io/EOLkits"
         },
         "about": {
             "@type": "SoftwareApplication",
             "name": "AWS Lambda",
             "applicationCategory": "CloudComputing"
         },
-        "mainEntityOfPage": "https://eolkits.com/migrate/lambda-python-3.10-eol/"
+        "mainEntityOfPage": "https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.10-eol/"
     }
     </script>
 
@@ -63,9 +63,9 @@
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
         "itemListElement": [
-            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://eolkits.com/" },
-            { "@type": "ListItem", "position": 2, "name": "AWS deprecations", "item": "https://eolkits.com/migrate/" },
-            { "@type": "ListItem", "position": 3, "name": "Lambda Python 3.10 EOL", "item": "https://eolkits.com/migrate/lambda-python-3.10-eol/" }
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://ntoledo319.github.io/EOLkits/" },
+            { "@type": "ListItem", "position": 2, "name": "AWS deprecations", "item": "https://ntoledo319.github.io/EOLkits/migrate/" },
+            { "@type": "ListItem", "position": 3, "name": "Lambda Python 3.10 EOL", "item": "https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.10-eol/" }
         ]
     }
     </script>
@@ -78,13 +78,13 @@
         "mainEntity": [
             {
                 "@type": "Question",
-                "name": "When is the Lambda Python 3.10 EOL deadline?",
-                "acceptedAnswer": { "@type": "Answer", "text": "The deadline is 2027-02-01. Python 3.10 Lambda runtime deprecated 2026-10-31. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-02-01 and updating existing ones on 2027-03-03 \u2014 the same synchronized Q1-2027 block cluster as python3.8/3.9. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
+                "name": "What is the next tracked milestone for Lambda Python 3.10 EOL?",
+                "acceptedAnswer": { "@type": "Answer", "text": "EOLkits tracks 2027-02-01 as the next published milestone. Python 3.10 Lambda runtime deprecated 2026-10-31. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-02-01 and updating existing ones on 2027-03-03 \u2014 the same synchronized Q1-2027 block cluster as python3.8/3.9. Provider status source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html. Future dates can change." }
             },
             {
                 "@type": "Question",
-                "name": "What breaks when Lambda Python 3.10 EOL reaches end of life?",
-                "acceptedAnswer": { "@type": "Answer", "text": "datetime.utcnow() deprecated; Various typing changes. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
+                "name": "What should I verify when moving away from Lambda Python 3.10 EOL?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Configured migration checks to validate in your workload: datetime.utcnow() deprecated; Various typing changes. A listed check is not proof of impact. Provider status source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
             },
             {
                 "@type": "Question",
@@ -94,7 +94,7 @@
             {
                 "@type": "Question",
                 "name": "Is there a free tool to migrate off Lambda Python 3.10 EOL?",
-                "acceptedAnswer": { "@type": "Answer", "text": "Yes. python-pivot is an MIT-licensed CLI that scans, codemods, and patches IaC for this deprecation. Paid Audit ($299) and Migration Pack ($1499) tiers add automated reports and PRs." }
+                "acceptedAnswer": { "@type": "Answer", "text": "Yes. python-pivot is an MIT-licensed CLI with bounded static checks and targeted local change previews. The optional $299 static repository evidence report adds file-and-line evidence when its fulfillment backend is ready; EOLkits does not currently sell automated pull requests." }
             }
         ]
     }
@@ -104,21 +104,21 @@
   try{
     var KEY='eolkits_ft';
     if(localStorage.getItem(KEY))return;
-    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='', refHost='';
+    try{refHost=(new URL(ref)).hostname.toLowerCase().slice(0,100);}catch(e){}
+    if(refHost===location.hostname.toLowerCase())refHost='';
     if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
     else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
     else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
     else if(/claude\.ai/i.test(ref))aeo='claude';
-    var ext = ref && ref.indexOf(location.host)===-1;
     var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
-    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    if(!hasUtm && !refHost)return;
     localStorage.setItem(KEY, JSON.stringify({
-      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
-      utm_source: q.get('utm_source')||aeo||'',
-      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      source: q.get('source')||(aeo?('aeo_'+aeo):'referral'),
+      utm_source: q.get('utm_source')||aeo||refHost,
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':'referral'),
       utm_campaign: q.get('utm_campaign')||'',
-      kit: q.get('kit')||'',
-      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+      kit: q.get('kit')||''
     }));
   }catch(e){}
 })();
@@ -128,11 +128,11 @@
 
 <header class="nav">
   <div class="container nav-inner">
-    <a href="/" class="brand"><span class="brand-mark">▸</span> EOLkits</a>
+    <a href="/EOLkits/" class="brand"><span class="brand-mark">▸</span> EOLkits</a>
     <nav>
-      <a href="/migrate/">Deadlines</a>
-      <a href="/#pricing">Pricing</a>
-      <a href="/deprecations.ics">Calendar</a>
+      <a href="/EOLkits/migrate/">Deadlines</a>
+      <a href="/EOLkits/#pricing">Pricing</a>
+      <a href="/EOLkits/deprecations.ics">Calendar</a>
       <a href="https://github.com/ntoledo319/EOLkits" class="btn-ghost">GitHub</a>
     </nav>
   </div>
@@ -140,187 +140,144 @@
 
 <main class="container article">
     <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a href="/">Home</a> / <a href="/migrate/">AWS deprecations</a> / <span>Lambda Python 3.10 EOL</span>
+        <a href="/EOLkits/">Home</a> / <a href="/EOLkits/migrate/">AWS deprecations</a> / <span>Lambda Python 3.10 EOL</span>
     </nav>
 
     <article>
         <div class="deadline-banner ahead">
             <span class="severity-badge severity-high">high</span>
             <h1>Lambda Python 3.10 EOL</h1>
-            <p class="banner-sub">AWS Lambda — end-of-life deadline</p>
+            <p class="banner-sub">AWS Lambda — published migration milestone</p>
             <div class="countdown" data-deadline="2027-02-01">2027-02-01</div>
-            <p class="urgency">224 days until the 2027-02-01 deadline — enough runway to migrate safely.</p>
+            <p class="urgency">163 days until the 2027-02-01 deadline — enough runway to migrate safely.</p>
         </div>
 
         <section>
             <h2>What is being deprecated?</h2>
             <p>Python 3.10 Lambda runtime deprecated 2026-10-31. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-02-01 and updating existing ones on 2027-03-03 — the same synchronized Q1-2027 block cluster as python3.8/3.9.</p>
             <table class="facts">
-                <tr><th>Deadline</th><td><strong>2027-02-01</strong> (224 days from build date 2026-06-22)</td></tr>
+                <tr><th>Next tracked milestone</th><td><strong>2027-02-01</strong> (163 days from build date 2026-08-22)</td></tr>
                 <tr><th>Service</th><td>AWS Lambda</td></tr>
                 <tr><th>Affected resources</th><td><code>function</code></td></tr>
                 <tr><th>Severity</th><td><span class="severity-badge severity-high">high</span></td></tr>
                 <tr><th>Migration kit</th><td><code>python-pivot</code> (free, MIT)</td></tr>
                 <tr><th>Primary source</th><td><a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html</a></td></tr>
             </table>
-            <p class="cite-note">Every fact on this page is taken from the cited AWS / upstream source above. EOLkits ships no claim without a primary source.</p>
+            <p class="cite-note">The published service dates and status above use the cited provider source. Recheck it before production planning because future dates can change.</p>
         </section>
 
         <section class="breaking-changes">
-            <h2>Breaking changes</h2>
-            <p>The following changes take effect at or before the 2027-02-01 deadline. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[source]</a></p>
+            <h2>Migration checks</h2>
+            <p>When moving away from this runtime or operating-system release, verify these configured concerns in your own workload. A listed concern is not proof that every workload is affected. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[provider status source]</a></p>
             <ul>
-                
+
                 <li>datetime.utcnow() deprecated</li>
-                
+
                 <li>Various typing changes</li>
-                
+
             </ul>
         </section>
 
-        
+
         <section>
-            <h2>Migrate with the free <code>python-pivot</code> CLI</h2>
-            <p>The MIT-licensed CLI runs the same five-step migration on every deprecation: scan, fix, test, deploy canary, rollback. No AWS credentials needed for the offline fixture run.</p>
+            <h2>Investigate with the free <code>python-pivot</code> CLI</h2>
+            <p>The MIT-licensed kits have different commands and coverage. Start with local help and the kit README; use fixture or dry-run modes before any command that accepts credentials or an apply flag.</p>
             <div class="migration-steps">
                 <div class="step">
-                    <h4>Scan your infrastructure</h4>
-                    <p>Enumerate every resource still on the deprecated runtime.</p>
-                    <pre class="code-block"><code>pip install python-pivot
-python-pivot scan --region us-east-1</code></pre>
+                    <h4>Install from this repository</h4>
+                    <p>Keep dependencies isolated and inspect the available commands before running a scan.</p>
+                    <pre class="code-block"><code>python3 -m venv .venv
+.venv/bin/pip install -e kits/python-pivot
+.venv/bin/python-pivot --help</code></pre>
                 </div>
                 <div class="step">
-                    <h4>Review findings by severity × blast radius</h4>
-                    <p>The scan prints a table ordered by how much breaks and how soon.</p>
+                    <h4>Review exact matches</h4>
+                    <p>Treat matches as migration evidence to verify. A static scanner cannot infer live resource counts, traffic, exploitability, or business impact.</p>
                 </div>
                 <div class="step">
-                    <h4>Apply codemods (dry-run first)</h4>
-                    <p>Mechanically-safe rewrites for the breaking changes above. Everything ambiguous is flagged, not auto-changed.</p>
-                    <pre class="code-block"><code>python-pivot apply --dry-run
-python-pivot apply</code></pre>
+                    <h4>Preview a specific migration command</h4>
+                    <p>Follow the selected kit's README. Review the diff and run the application's own tests before using an apply or deploy option.</p>
                 </div>
                 <div class="step">
-                    <h4>Deploy with a staged canary + auto-rollback</h4>
-                    <p>5% → 25% → 50% → 100%, with a CloudWatch-alarm trip reverting instantly.</p>
+                    <h4>Use your existing release controls</h4>
+                    <p>Deploy through your tested CI, canary, monitoring, and rollback process. The scanner does not certify a production rollout.</p>
                 </div>
             </div>
         </section>
-        
+
 
         <section class="conversion">
-            <h2>Want it done for you before 2027-02-01?</h2>
+            <h2>Need repository evidence for this migration?</h2>
             <div class="pricing-grid-2">
                 <div class="pricing-card featured">
                     <h3>Audit PDF</h3>
                     <div class="price">$299</div>
-                    <p>Hash-anchored deterministic report scoring every Lambda Python 3.10 EOL finding by severity × blast-radius, with a roll-forward roadmap and cost-of-not-fixing estimate. Delivered by email in 5 minutes. <strong>30-day money-back guarantee.</strong></p>
-                    <a href="/audit/?deadline=2027-02-01&utm_source=migrate&utm_medium=cta&utm_campaign=lambda-python-3.10-eol&kit=python-pivot" class="btn-primary">Order Audit — $299</a>
-                    <p class="small"><a href="/scan/">Run the free scan first</a> · <a href="/audit/sample/">see a sample →</a></p>
-                </div>
-                <div class="pricing-card">
-                    <h3>Migration Pack</h3>
-                    <div class="price">$1,499</div>
-                    <p>A real PR opened on your repo: python-pivot codemods + IaC patches + canary plan + rollback. <strong>Auto-refund if your CI fails within 7 days.</strong></p>
-                    <a href="/pack/?utm_source=migrate&utm_medium=cta&utm_campaign=lambda-python-3.10-eol&kit=python-pivot" class="btn-primary">Get Migration Pack — $1,499</a>
-                    <a href="/pack/" class="btn-outline">How it works</a>
+                    <p>Static scan of one repository ZIP or source file with exact file/line evidence, observed reach, remediation order, source links, and explicit limitations. <strong>30-day money-back guarantee.</strong></p>
+                    <a href="/EOLkits/audit/?deadline=2027-02-01&utm_source=migrate&utm_medium=cta&utm_campaign=lambda-python-3.10-eol&kit=python-pivot" class="btn-primary">Check Audit v2 availability</a>
+                    <p class="small"><a href="/EOLkits/scan/">Run the free scan first</a> · <a href="/EOLkits/audit/sample/">see a sample →</a></p>
+                    <p class="small">Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
                 </div>
             </div>
         </section>
 
-        <section class="leadcap-migrate" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:1.25rem;margin:1.5rem 0">
-            <h2 style="margin-top:0">Not ready to migrate yet?</h2>
-            <p>Get a reminder before the 2027-02-01 Lambda Python 3.10 EOL deadline — plus a heads-up on the next AWS EOL that hits your stack. No spam, one email per relevant deadline.</p>
-            <form id="leadForm" autocomplete="on" style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center">
-                <input type="email" name="email" placeholder="you@company.com" required style="padding:.6rem;border:1px solid #cbd5e1;border-radius:6px;min-width:240px">
-                <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px" value="">
-                <input type="hidden" name="product" value="eolkits">
-                <input type="hidden" name="source" value="migrate-lambda-python-3.10-eol">
-                <input type="hidden" name="deadline" value="2027-02-01">
-                <input type="hidden" name="deprecation" value="Lambda Python 3.10 EOL">
-                <button type="submit" class="btn-primary">Remind me before 2027-02-01</button>
-                <span id="leadMsg" style="font-size:.9rem;color:#16a34a"></span>
-            </form>
-            <p class="muted small" style="margin:.5rem 0 0">Free. Unsubscribe anytime.</p>
-        </section>
-
-        <script>
-        (function () {
-            var lf = document.getElementById('leadForm');
-            if (!lf) return;
-            lf.addEventListener('submit', function (e) {
-                e.preventDefault();
-                var msg = document.getElementById('leadMsg');
-                var data = {};
-                Array.prototype.forEach.call(lf.elements, function (el) { if (el.name && el.type !== 'submit') data[el.name] = el.value; });
-                if (data._honey) { if (msg) msg.textContent = 'Thanks!'; lf.reset(); return; }
-                if (msg) msg.textContent = 'Saving...';
-                fetch('/api/v1/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
-                    .then(function (r) { return r.ok ? r.json().catch(function () { return {}; }) : Promise.reject(); })
-                    .then(function () { if (msg) msg.textContent = '✓ You will get a reminder.'; lf.reset(); })
-                    .catch(function () { if (msg) msg.textContent = 'Could not save — email hello@toledotechnologies.com'; });
-            });
-        })();
-        </script>
-
-
         <section class="embed-badge">
-            <h2>Embed this deadline in your README</h2>
-            <p>Drop a deadline badge into any repo still affected. It links back to this page, so your team — and anyone reading the repo — stays aware of the 2027-02-01 cutoff.</p>
-            <p><img src="https://eolkits.com/badge/lambda-python-3.10-eol.svg" alt="Lambda Python 3.10 EOL deadline badge"></p>
-            <pre class="code-block"><code>[![Lambda Python 3.10 EOL deadline](https://eolkits.com/badge/lambda-python-3.10-eol.svg)](https://eolkits.com/migrate/lambda-python-3.10-eol/)</code></pre>
+            <h2>Embed this milestone in your README</h2>
+            <p>Drop a milestone badge into a repo that needs this migration review. It links back to the provider-sourced date and bounded checks on this page.</p>
+            <p><img src="https://ntoledo319.github.io/EOLkits/badge/lambda-python-3.10-eol.svg" alt="Lambda Python 3.10 EOL milestone badge"></p>
+            <pre class="code-block"><code>[![Lambda Python 3.10 EOL milestone](https://ntoledo319.github.io/EOLkits/badge/lambda-python-3.10-eol.svg)](https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.10-eol/)</code></pre>
         </section>
 
-        
+
         <section class="related">
             <h2>Related AWS deprecations</h2>
-            <p>Same service family or migration kit — each with cited deadlines and breaking changes.</p>
+            <p>Same service family or migration kit — each with a provider-linked milestone and checks to validate.</p>
             <ul class="related-list">
-                
+
                 <li>
-                    <a href="/migrate/lambda-node.js-20-phase-1/">Lambda Node.js 20 Phase 1</a>
-                    <span class="rel-meta">— deadline <strong>2027-02-01</strong> · high · <code>lambda-lifeline</code></span>
+                    <a href="/EOLkits/migrate/lambda-node.js-20-phase-1/">Lambda Node.js 20 create/update restrictions</a>
+                    <span class="rel-meta">— milestone <strong>2027-02-01</strong> · high · <code>lambda-lifeline</code></span>
                 </li>
-                
+
                 <li>
-                    <a href="/migrate/lambda-python-3.9-eol/">Lambda Python 3.9 EOL</a>
-                    <span class="rel-meta">— deadline <strong>2027-02-01</strong> · high · <code>python-pivot</code></span>
+                    <a href="/EOLkits/migrate/lambda-python-3.9-eol/">Lambda Python 3.9 EOL</a>
+                    <span class="rel-meta">— milestone <strong>2027-02-01</strong> · high · <code>python-pivot</code></span>
                 </li>
-                
+
                 <li>
-                    <a href="/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 EOL</a>
-                    <span class="rel-meta">— deadline <strong>2027-02-01</strong> · high · <code>lambda-lifeline</code></span>
+                    <a href="/EOLkits/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 EOL</a>
+                    <span class="rel-meta">— milestone <strong>2027-02-01</strong> · high · <code>lambda-lifeline</code></span>
                 </li>
-                
+
                 <li>
-                    <a href="/migrate/lambda-python-3.8-eol/">Lambda Python 3.8 EOL</a>
-                    <span class="rel-meta">— deadline <strong>2027-02-01</strong> · high · <code>python-pivot</code></span>
+                    <a href="/EOLkits/migrate/lambda-python-3.8-eol/">Lambda Python 3.8 EOL</a>
+                    <span class="rel-meta">— milestone <strong>2027-02-01</strong> · high · <code>python-pivot</code></span>
                 </li>
-                
+
             </ul>
-            <p><a href="/migrate/" class="kit-link">See all tracked AWS deadlines →</a> · <a href="/deprecations.ics" class="kit-link">Subscribe to the deadline calendar (.ics) →</a></p>
+            <p><a href="/EOLkits/migrate/" class="kit-link">See all tracked AWS deadlines →</a> · <a href="/EOLkits/deprecations.ics" class="kit-link">Subscribe to the deadline calendar (.ics) →</a></p>
         </section>
-        
+
 
         <section class="faq" id="faq">
             <h2>Frequently asked questions</h2>
             <details open>
-                <summary>When is the Lambda Python 3.10 EOL deadline?</summary>
-                <p>2027-02-01. Python 3.10 Lambda runtime deprecated 2026-10-31. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-02-01 and updating existing ones on 2027-03-03 — the same synchronized Q1-2027 block cluster as python3.8/3.9. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[AWS source]</a></p>
+                <summary>What is the next tracked milestone?</summary>
+                <p>2027-02-01. Python 3.10 Lambda runtime deprecated 2026-10-31. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-02-01 and updating existing ones on 2027-03-03 — the same synchronized Q1-2027 block cluster as python3.8/3.9. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[provider status source]</a></p>
             </details>
             <details>
-                <summary>What happens if I don't migrate by 2027-02-01?</summary>
-                <p>The breaking changes listed above take effect: datetime.utcnow() deprecated; Various typing changes. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[source]</a></p>
+                <summary>What should I verify before changing the workload?</summary>
+                <p>Validate these configured checks against your code and current upstream documentation: datetime.utcnow() deprecated; Various typing changes. A listed check is not proof that the workload is affected.</p>
             </details>
             <details>
                 <summary>Which AWS services does this affect?</summary>
                 <p>AWS Lambda — specifically <code>function</code> resources.</p>
             </details>
-            
+
             <details>
                 <summary>Is there a free way to migrate?</summary>
-                <p>Yes — the <code>python-pivot</code> CLI is MIT-licensed and free for unlimited runs. The paid Audit ($299) and Migration Pack ($1,499) tiers add a hash-anchored report and an automated PR with a CI-failure refund guarantee.</p>
+                <p>Yes — the <code>python-pivot</code> CLI is MIT-licensed and free for local use. Audit v2 is an optional paid repository evidence artifact when its live safety gate is open. EOLkits does not currently sell managed migrations or automated pull requests.</p>
             </details>
-            
+
         </section>
     </article>
 </main>
@@ -330,26 +287,26 @@ python-pivot apply</code></pre>
     <div class="footer-grid">
       <div>
         <div class="brand"><span class="brand-mark">▸</span> EOLkits</div>
-        <p class="muted">Every AWS deprecation deadline deserves a kit.</p>
+        <p class="muted">Tracked AWS deprecations deserve tested migration paths.</p>
       </div>
       <div>
         <h5>Deadlines</h5>
-        <a href="/migrate/">All AWS deprecations</a><br>
-        <a href="/deprecations.ics">Deadline calendar (.ics)</a>
+        <a href="/EOLkits/migrate/">Tracked AWS deprecations</a><br>
+        <a href="/EOLkits/deprecations.ics">Deadline calendar (.ics)</a>
       </div>
       <div>
         <h5>Resources</h5>
         <a href="https://github.com/ntoledo319/EOLkits">GitHub</a><br>
-        <a href="/#pricing">Pricing</a><br>
-        <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a>
+        <a href="/EOLkits/#pricing">Pricing</a><br>
+        <a href="/EOLkits/legal/terms.html">Terms</a> · <a href="/EOLkits/legal/privacy.html">Privacy</a>
       </div>
     </div>
-    <div class="muted small">© 2026 EOLkits · MIT-licensed kits · facts cited from primary sources</div>
+    <div class="muted small">© 2026 EOLkits · MIT-licensed kits · provider dates carry source links</div>
   </div>
 </footer>
 
 <script>
-    // Live countdown from the cited deadline date (display-only; the canonical
+    // Live countdown from the cited milestone date (display-only; the canonical
     // fact is the server-rendered date above).
     (function () {
         var el = document.querySelector('.countdown');
@@ -358,9 +315,9 @@ python-pivot apply</code></pre>
         var diff = deadline - new Date();
         if (diff > 0) {
             var days = Math.floor(diff / 86400000);
-            el.textContent = el.dataset.deadline + ' · ' + days + ' days left';
+            el.textContent = el.dataset.deadline + ' · ' + days + ' days to milestone';
         } else {
-            el.textContent = el.dataset.deadline + ' · deadline passed';
+            el.textContent = el.dataset.deadline + ' · milestone passed';
         }
     })();
 </script>

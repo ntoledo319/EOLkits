@@ -32,6 +32,11 @@ def test_build_date_is_date_only():
     assert len(build._build_date()) == 10 and build._build_date().count("-") == 2
 
 
+def test_build_date_can_be_reproducibly_overridden(monkeypatch):
+    monkeypatch.setenv("EOLKITS_BUILD_DATE", "2031-04-05")
+    assert build._build_date() == "2031-04-05"
+
+
 def test_og_image_is_deterministic_and_valid_png(tmp_path):
     a, b = tmp_path / "a.png", tmp_path / "b.png"
     build.write_og_image(a)

@@ -4,31 +4,32 @@ EOLkits Static Site Generator
 Builds docs/ from templates and rule-pack data.
 """
 
-import os
-import sys
 import json
+import os
 import re
-import yaml
-from pathlib import Path
+import sys
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
-# Jinja2 is the only external dependency
+import yaml
+
+# Dependencies are installed explicitly from requirements-dev.txt; the builder
+# never mutates its Python environment.
 try:
     from jinja2 import Environment, FileSystemLoader, select_autoescape
-except ImportError:
-    print("Installing jinja2...")
-    import subprocess
-
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "jinja2"])
-    from jinja2 import Environment, FileSystemLoader, select_autoescape
+except ImportError as exc:
+    raise SystemExit(
+        "Jinja2 is required; install apps/web/requirements-dev.txt in a project-local venv"
+    ) from exc
 
 
 BASE_DIR = Path(__file__).parent
 TEMPLATE_DIR = BASE_DIR / "templates"
 DOCS_DIR = BASE_DIR.parent.parent / "docs"
 PRICING_FILE = BASE_DIR.parent.parent / "pricing.yml"
-# Production = GRACE, serving eolkits.com at the domain ROOT. Both values are
-# env-overridable so a GitHub Pages project build is still possible, e.g.:
+BUILD_DATE_FILE = BASE_DIR / "BUILD_DATE"
+# GRACE serves eolkits.com at the domain root, while the committed fallback
+# artifact is built for GitHub Pages at /EOLkits. Both values are env-overridable:
 #   EOLKITS_BASE_PATH=/EOLkits EOLKITS_SITE_URL=https://ntoledo319.github.io/EOLkits
 PROJECT_BASE_PATH = os.environ.get("EOLKITS_BASE_PATH", "")
 SITE_URL = os.environ.get("EOLKITS_SITE_URL", "https://eolkits.com")
@@ -50,18 +51,18 @@ def _interpolate_api(html):
     result has zero ``{API_URL}`` / ``{{`` / ``}}`` left — which the CI gate and
     the deploy gate both enforce.
     """
-    return (
-        html.replace("{API_URL}", API_URL)
-        .replace("{{", "{")
-        .replace("}}", "}")
-    )
+    return html.replace("{API_URL}", API_URL).replace("{{", "{").replace("}}", "}")
 
 
 ROOT_RELATIVE_ATTR_RE = re.compile(
     r'(?P<prefix>\b(?:href|src|action)=["\'])(?P<path>/(?!/|EOLkits(?:/|["\'])))'
 )
-ROOT_RELATIVE_FETCH_RE = re.compile(
-    r"(?P<prefix>fetch\([\"'])(?P<path>/(?!/|EOLkits(?:/|[\"'])))"
+ROOT_RELATIVE_FETCH_RE = re.compile(r"(?P<prefix>fetch\([\"'])(?P<path>/(?!/|EOLkits(?:/|[\"'])))")
+API_RELATIVE_ATTR_RE = re.compile(
+    r'(?P<prefix>\b(?:href|src|action)=["\'])(?P<path>/(?:api|upload|webhook)(?:/|["\']))'
+)
+API_RELATIVE_CALL_RE = re.compile(
+    r"(?P<prefix>\b(?:fetch|navigator\.sendBeacon)\([\"'])(?P<path>/(?:api|upload|webhook)(?:/|[\"']))"
 )
 
 
@@ -73,44 +74,40 @@ def load_pricing():
 
 def normalize_project_links(html):
     """Make root-relative links work on a project sub-path (e.g. the /EOLkits
-    GitHub Pages path). No-op when EOLKITS_BASE_PATH is empty — GRACE serves
-    eolkits.com at the domain root, so root-relative links must stay as-is."""
+    GitHub Pages path) while keeping API routes on their separate live origin.
+    No-op when EOLKITS_BASE_PATH is empty — the GRACE deployment script builds
+    eolkits.com at the domain root immediately before rsync."""
     if not PROJECT_BASE_PATH:
         return html
+
+    def replace_api(match):
+        return f"{match.group('prefix')}{API_URL.rstrip('/')}{match.group('path')}"
 
     def replace(match):
         return f"{match.group('prefix')}{PROJECT_BASE_PATH}{match.group('path')}"
 
+    html = API_RELATIVE_ATTR_RE.sub(replace_api, html)
+    html = API_RELATIVE_CALL_RE.sub(replace_api, html)
     html = ROOT_RELATIVE_ATTR_RE.sub(replace, html)
     return ROOT_RELATIVE_FETCH_RE.sub(replace, html)
 
 
-def get_days_until_deadline(deadline_str):
-    """Calculate days until a deadline."""
-    try:
-        deadline = datetime.strptime(deadline_str, "%Y-%m-%d").replace(tzinfo=UTC)
-        return (deadline - datetime.now(UTC)).days
-    except Exception:
-        return 999
+def normalize_generated_text(content: str) -> str:
+    """Remove template-only indentation left behind by Jinja control lines."""
+    return "\n".join(line.rstrip(" \t") for line in content.split("\n"))
 
 
 def nearest_enforcement(dep, today=None):
     """(days_until, date_str) for the NEAREST FUTURE enforcement date a deprecation
     carries ('date' = block-create, 'block_update_date' = block-update).
 
-    Fixes the surge-collapse bug (LB-3): pricing keyed off a single 'date'
-    (block-create) dropped to the standard tier the moment it passed — even while
-    the harder block-update enforcement was still weeks ahead (the exact Feb->Mar
-    2027 demand peak where the procrastinator mass sits). We now consider every
-    enforcement date and return the smallest non-negative days-until.
-
-    Returning the DATE alongside the count also keeps copy honest: the block-create
+    Returning the date alongside the count keeps copy honest: the block-create
     date is often already past while the real countdown runs to block-update, so a
     "N days until <dep.date>" headline showed a date that disagreed with N (and with
     the front-end JS countdown). Callers interpolate THIS date, not the raw entry.
     """
     if today is None:
-        today = datetime.now(UTC).date()
+        today = datetime.strptime(_build_date(), "%Y-%m-%d").date()
     candidates = []
     for key in ("date", "block_update_date"):
         val = dep.get(key)
@@ -133,11 +130,20 @@ def days_until_nearest_enforcement(dep, today=None):
 
 
 def _build_date():
-    """The single, date-granular build timestamp. Using date precision (not the
-    wall-clock instant) is what keeps the emitted site byte-for-byte identical across
-    any two rebuilds on the same UTC day — the determinism guarantee EOLkits sells.
-    The previous microsecond/second timestamps changed on every rebuild."""
-    return datetime.now(UTC).strftime("%Y-%m-%d")
+    """Return the explicit source date used by every generated artifact.
+
+    A committed date makes rebuilds reproducible on every day, not merely within
+    one UTC day. Update BUILD_DATE when public source content changes; release
+    automation may override it with EOLKITS_BUILD_DATE.
+    """
+    value = os.environ.get("EOLKITS_BUILD_DATE")
+    if value is None:
+        value = BUILD_DATE_FILE.read_text(encoding="utf-8").strip()
+    try:
+        datetime.strptime(value, "%Y-%m-%d")
+    except ValueError as exc:
+        raise ValueError("EOLKITS build date must use YYYY-MM-DD") from exc
+    return value
 
 
 def _truncate_meta(text, limit=158):
@@ -176,7 +182,9 @@ def write_og_image(path):
 
     def _chunk(tag, data):
         body = tag + data
-        return struct.pack(">I", len(data)) + body + struct.pack(">I", zlib.crc32(body) & 0xFFFFFFFF)
+        return (
+            struct.pack(">I", len(data)) + body + struct.pack(">I", zlib.crc32(body) & 0xFFFFFFFF)
+        )
 
     raw = (b"\x00" + pixel * width) * height  # per row: filter byte 0 + RGB pixels
     png = (
@@ -190,25 +198,7 @@ def write_og_image(path):
 
 
 def get_surge_price(base_price, days_until):
-    """Surge price for a deadline proximity, read from pricing.yml tiers so the
-    DISPLAYED price always equals the price the API charges at checkout.
-
-    The previous multiplier form (base*2, int(base*1.33)) produced 598/397 for a
-    $299 base, which did not match the canonical Stripe tier prices ($599/$399).
-    We now resolve the same tiers the server uses; base_price is only a fallback.
-    """
-    try:
-        tiers = sorted(
-            load_pricing().get("skus", {}).get("audit", {}).get("tiers", []),
-            key=lambda t: t.get("max_days", 9999),
-        )
-    except Exception:
-        tiers = []
-    if days_until < 0:
-        days_until = 9999  # passed deadline -> standard tier (mirrors compute_urgency)
-    for tier in tiers:
-        if days_until <= int(tier.get("max_days", 9999)):
-            return int(tier.get("price_usd", base_price))
+    """Audit has one price; deadlines are report context, not a price lever."""
     return base_price
 
 
@@ -219,8 +209,8 @@ def build_audit_page(pricing):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Audit — see what AWS breaks, then fix it | EOLkits</title>
-<meta name="description" content="A free scan shows every AWS deprecation in your stack. The $299 audit is the done-for-you fix report — severity scoring, roll-forward roadmap, every fact cited to its AWS source. 30-day money-back.">
+<title>AWS deprecation evidence report | EOLkits</title>
+<meta name="description" content="A static repository evidence report for AWS runtime and Amazon Linux migration risks: exact file/line evidence, remediation, and official source links.">
 <style>
 body{font-family:system-ui,-apple-system,sans-serif;max-width:820px;margin:0 auto;padding:2rem;line-height:1.6;color:#111827}
 .brand{color:#2563eb;font-weight:600}
@@ -256,62 +246,46 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 </head>
 <body>
 <a href="/" class="brand">← EOLkits</a>
-<h1>See exactly what AWS is about to break — then fix it in one report</h1>
-<p class="lede">Run the free scanner on your own files first — ~30 seconds, no signup. The <strong>$299 audit</strong> is the done-for-you fix report for everything it finds: scored, sequenced, and cited. Money back if it isn't useful.</p>
+<h1>Turn a repository into reviewable AWS migration evidence</h1>
+<p class="lede">Upload one repository ZIP or supported source file. The <strong>$299 evidence report</strong> returns the exact files and lines that matched, a prioritized remediation order, and a source link for every rule. It is a static source scan—not a live AWS inventory.</p>
 
 <div class="callout">
   <strong>Don't take our word for it.</strong> &nbsp;<a class="cta secondary" href="/scan/">▶ Run the free scan</a><br>
-  See every deprecation in your stack, on your own machine, <em>before</em> you pay a cent. The audit picks up where the scan ends — scoring, a roll-forward plan, and a verifiable report.
+  Check representative files locally before paying. The paid report adds repository-wide ZIP scanning, exact line evidence, a sequenced remediation plan, and an evidence fingerprint.
 </div>
 
 <h2>What you get</h2>
 <ul>
-  <li>Every finding scored by <strong>severity × blast-radius</strong> — what breaks first vs. what's cosmetic</li>
-  <li>A <strong>roll-forward roadmap</strong>: the exact order to migrate, with each breaking change called out</li>
-  <li>A <strong>cost-of-not-fixing</strong> estimate you can forward to your manager</li>
-  <li>Every fact <strong>cited to its AWS primary source</strong> — check our work</li>
-  <li>A <strong>hash-anchored PDF</strong>, verifiable at <code>/verify/&lt;sha&gt;</code></li>
+  <li>Exact <strong>file:line evidence</strong> and observed match counts—no invented resource counts</li>
+  <li>A <strong>roll-forward order</strong> based on finding severity and observed reach</li>
+  <li>Official AWS, Python, Node.js, or project source link for every configured rule</li>
+  <li>Explicit scope and limitations: what was scanned, skipped, and not inferred</li>
+  <li>Input SHA-256 plus a deterministic <strong>evidence fingerprint</strong> verifiable at <code>/verify/</code></li>
 </ul>
-<p><a class="cta secondary" href="/audit/sample/">▶ See a real (redacted) sample report →</a></p>
+<p><a class="cta secondary" href="/audit/sample/">▶ See an illustrative fictional sample →</a></p>
 
 <div class="pricing">
   <h2>Pricing</h2>
-  <div class="tiers">
-    <div class="tier">
-      <strong>Standard</strong>
-      <div class="price">$299</div>
-      <p>More than 30 days until deadline</p>
-    </div>
-    <div class="tier soon">
-      <strong>Surge (30d)</strong>
-      <div class="price">$399</div>
-      <p>Within 30 days of deadline</p>
-    </div>
-    <div class="tier urgent">
-      <strong>Urgent (7d)</strong>
-      <div class="price">$599</div>
-      <p>Within 7 days of deadline</p>
-    </div>
-  </div>
-  <p class="reassure">Price rises as the deadline nears — acting sooner costs you less. No discounts; the guarantee is your protection instead.</p>
+  <div class="tiers"><div class="tier"><strong>One repository</strong><div class="price">$299</div><p>ZIP archive or one supported source file · one fixed price</p></div></div>
+  <p class="reassure">A target date may be included as planning context. It never changes the price or scan results.</p>
 </div>
 
 <div class="valuebox">
-  <strong>What does <em>not</em> fixing it cost?</strong> One failed production deploy, an unpatched box running past the deadline, or a frozen Lambda burns hours of engineer time and real downtime — usually far more than the audit. $299 to know precisely what's coming and how to clear it.
+  <strong>What this buys:</strong> a reviewable change-approval artifact your team can check against the uploaded repository and the linked official sources. No speculative downtime-dollar estimate is included.
 </div>
 
 <div class="guarantee">
-  <h3>Your risk: zero</h3>
-  <p><strong>100% money-back, 30 days, no questions.</strong> If the report isn't useful, email us — we refund, no argument.</p>
-  <p><strong>Beat the deadline or it's free.</strong> Order inside a deadline window and if we can't hand you a clear roll-forward path before it hits, you pay nothing.</p>
+  <h3>30-day refund policy</h3>
+  <p><strong>Request a full refund within 30 days.</strong> Email from the purchase address with the Stripe receipt or Checkout Session identifier; no explanation is required.</p>
+  <p>If fulfillment permanently fails after retries, the system queues a full refund. Any refund that cannot be confirmed is surfaced for operator review.</p>
 </div>
 
 <h2>Why you can trust the report (without trusting the brand)</h2>
 <div class="grid">
-  <div class="cell"><h4>Cited to source</h4>Every finding links AWS's own documentation. You verify the claim, not our reputation.</div>
-  <div class="cell"><h4>Hash-anchored</h4>Each report carries a SHA-256 of your inputs, verifiable at <code>/verify</code>. We can't quietly change it.</div>
-  <div class="cell"><h4>Deterministic &amp; open</h4>Same input → same report. The rule-pack is public — inspect exactly what we check for.</div>
-  <div class="cell"><h4>Instant &amp; automated</h4>Delivered in ~5 minutes by machine. No waiting on a person, no back-and-forth.</div>
+  <div class="cell"><h4>Evidence, not estimates</h4>Each match includes the observed file, line, and text.</div>
+  <div class="cell"><h4>Checkable sources</h4>Each configured rule links the official documentation used for the claim.</div>
+  <div class="cell"><h4>Repeatable findings</h4>The evidence fingerprint covers the input hash, rule-pack version, and canonical findings.</div>
+  <div class="cell"><h4>Bounded scope</h4>The report says plainly that it does not query AWS or prove a complete inventory.</div>
 </div>
 
 <div class="logos">
@@ -320,20 +294,23 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 
 <h2>How it works</h2>
 <ol>
-  <li>Upload your SAM / CDK / Terraform / Serverless / cloud-init files</li>
-  <li>We scan for deprecated runtimes and breaking changes — deterministically</li>
-  <li>Get your PDF by email in ~5 minutes — fully automated</li>
-  <li>Verify authenticity at <code>/verify/&lt;sha&gt;</code></li>
+  <li>Upload a repository ZIP or a supported SAM / CDK / Terraform / Serverless / cloud-init source file (10 MiB compressed maximum)</li>
+  <li>We safely inspect supported text files without extracting the archive to disk</li>
+  <li>Get a PDF by email after automated processing; delays and retries are possible</li>
+  <li>Verify the evidence metadata at <code>/verify/</code></li>
 </ol>
 
-<p class="reassure">🔒 Secure checkout via Stripe · delivered in ~5 minutes · 30-day money-back guarantee</p>
+<p class="reassure">🔒 Secure checkout via Stripe · automated delivery with durable retries · 30-day money-back guarantee</p>
 
-<form id="auditForm">
+<div id="auditGate" class="callout"><strong>Checkout safety check:</strong> waiting for the v2 fulfillment backend. Checkout stays closed unless the live API confirms report engine 2.0.</div>
+<form id="auditForm" hidden>
   <h3>Start Audit</h3>
   <p><input type="email" id="auditEmail" name="email" placeholder="your@email.com" required style="padding:0.5rem;width:300px"></p>
   <p><input type="date" id="auditDeadline" name="deadline" style="padding:0.5rem;width:300px" aria-label="Deadline date"></p>
-  <p><input type="file" id="auditFile" name="file" required accept=".yaml,.yml,.json,.tf,.tfvars,.js,.ts,.py,.txt"></p>
+  <p><input type="file" id="auditFile" name="file" required accept=".zip,.yaml,.yml,.json,.tf,.tfvars,.js,.ts,.tsx,.py,.toml,.lock,.sh,.txt"></p>
+  <p class="reassure">Upload limits: 10 MiB input; ZIPs may contain at most 2,000 files and 25 MiB expanded text. Encrypted, path-traversing, binary, and suspiciously compressed archives are rejected before checkout. Do not upload secrets or unrelated personal data.</p>
   <button id="auditSubmit" type="submit">Upload and Proceed to Checkout</button>
+  <p class="reassure">By continuing, you authorize this upload to be scanned and agree to the <a href="/legal/terms.html">Terms</a> and <a href="/legal/privacy.html">Privacy Policy</a>. Stripe Checkout shows the final $299 price before payment.</p>
   <p id="auditStatus" style="color:#6b7280;font-size:.875rem"></p>
 </form>
 
@@ -357,21 +334,41 @@ function track(eventName, extra) {{
     navigator.sendBeacon(API + '/api/events', new Blob([JSON.stringify(payload)], {{ type: 'application/json' }}));
   }} catch (e) {{}}
 }}
+function apiMessage(data, fallback) {{
+  if (data && typeof data.detail === 'string') return data.detail;
+  if (data && data.detail && typeof data.detail.error === 'string') return data.detail.error;
+  if (data && typeof data.error === 'string') return data.error;
+  return fallback;
+}}
 const auditForm = document.getElementById('auditForm');
 const auditStatus = document.getElementById('auditStatus');
 const auditSubmit = document.getElementById('auditSubmit');
 const deadlineInput = document.getElementById('auditDeadline');
-// Prefill the deadline from a deadline-tagged migrate-page link so surge pricing
-// is consistent between the page the buyer came from and what we charge.
+const auditGate = document.getElementById('auditGate');
+// Prefill report context from a deadline-tagged migration page. The deadline does
+// not alter price.
 if (qp.get('deadline') && deadlineInput) deadlineInput.value = qp.get('deadline');
 if (qp.get('cancelled')) auditStatus.textContent = 'Checkout cancelled — finish whenever you are ready.';
 track('view');
+fetch(API + '/api/capabilities').then(r => r.ok ? r.json() : Promise.reject()).then(c => {{
+  const a = c && c.audit;
+  if (a && a.checkout_enabled === true && String(a.report_version) === '2.0') {{
+    auditForm.hidden = false;
+    auditGate.hidden = true;
+  }} else {{
+    auditGate.textContent = 'Audit checkout is temporarily paused while fulfillment is verified.';
+  }}
+}}).catch(() => {{ auditGate.textContent = 'Audit checkout is temporarily paused while fulfillment is verified.'; }});
 auditForm.addEventListener('submit', async (event) => {{
   event.preventDefault();
   const file = document.getElementById('auditFile').files[0];
   const email = document.getElementById('auditEmail').value;
   const deadline = deadlineInput ? deadlineInput.value : '';
   if (!file || !email) return;
+  if (file.size > 10 * 1024 * 1024) {{
+    auditStatus.textContent = 'Upload must be 10 MiB or smaller.';
+    return;
+  }}
 
   auditSubmit.disabled = true;
   auditStatus.textContent = 'Requesting upload URL...';
@@ -387,7 +384,7 @@ auditForm.addEventListener('submit', async (event) => {{
       }})
     }});
     const presignData = await presign.json();
-    if (!presign.ok) throw new Error(presignData.error || 'Upload storage is unavailable');
+    if (!presign.ok) throw new Error(apiMessage(presignData, 'Upload storage is unavailable'));
 
     auditStatus.textContent = 'Uploading audit input...';
     const upload = await fetch(presignData.uploadUrl, {{
@@ -411,7 +408,7 @@ auditForm.addEventListener('submit', async (event) => {{
       body: checkoutBody
     }});
     const checkoutData = await checkout.json();
-    if (!checkout.ok || !checkoutData.url) throw new Error(checkoutData.error || 'Checkout failed');
+    if (!checkout.ok || !checkoutData.url) throw new Error(apiMessage(checkoutData, 'Checkout failed'));
     window.location.href = checkoutData.url;
   }} catch (error) {{
     auditSubmit.disabled = false;
@@ -422,15 +419,15 @@ auditForm.addEventListener('submit', async (event) => {{
 
 <div class="faq">
 <h2>Questions</h2>
-<details><summary>Why pay when the CLI is free?</summary><p>The free CLI and scanner show you <em>what</em> breaks. The audit does the work <em>for</em> you — severity × blast-radius scoring, a roll-forward roadmap, a cost-of-not-fixing estimate, and a verifiable report you can hand to your team, in ~5 minutes.</p></details>
-<details><summary>Is my code safe?</summary><p>Your files travel over TLS and are used only to generate your report — never shared. Prefer to keep everything local? Run the free CLI offline.</p></details>
-<details><summary>How can I trust the results if I've never heard of you?</summary><p>You don't have to. Every finding cites AWS's own docs, the report is hash-anchored and deterministic, and the rule-pack is public — run the free scan and compare. And you're covered by a 30-day no-questions refund.</p></details>
-<details><summary>How fast is it?</summary><p>About 5 minutes, fully automated. No waiting on a human.</p></details>
+<details><summary>Why pay when the CLI is free?</summary><p>The CLI is the right choice for hands-on engineers. The paid product packages repository-wide evidence, line locations, prioritization, limitations, and sources into a shareable PDF.</p></details>
+<details><summary>Is my code safe?</summary><p>Uploads travel over TLS, are used only for report generation, and are deleted after successful delivery. Unchecked uploads normally expire within 24 hours; checkout-bound uploads are retained for no more than 48 hours so retries can finish. Generated reports expire within 30 days. Prefer no upload? Use the free local tools.</p></details>
+<details><summary>How can I trust the results?</summary><p>Check the exact file/line evidence and official source for each rule. The report carries an input hash and evidence fingerprint. It does not claim to be a digitally signed PDF.</p></details>
+<details><summary>How fast is it?</summary><p>Processing is automated, but delivery time depends on queue, runner, and email-provider availability. Failed jobs retry and unresolved failures surface for refund review.</p></details>
 <details><summary>What if it's wrong, or I'm just not happy?</summary><p>Email us within 30 days for a full refund. No questions asked.</p></details>
 </div>
 
 <footer>
-  <p>Delivered in ~5 minutes · every report carries a SHA-256 of your inputs for verification · 30-day money-back guarantee.</p>
+  <p>Automated delivery · file/line evidence · official sources · input hash + evidence fingerprint · 30-day money-back guarantee.</p>
   <p><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/scan/">Free scan</a> · <a href="/audit/sample/">Sample report</a></p>
 </footer>
 </body>
@@ -448,7 +445,7 @@ def build_audit_sample_page(pricing):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sample audit report — EOLkits</title>
-<meta name="description" content="A real, redacted EOLkits audit report: findings scored by severity and blast-radius, each cited to its AWS source, with a roll-forward roadmap and cost-of-not-fixing estimate.">
+<meta name="description" content="Illustrative EOLkits evidence report format: exact file/line matches, observed reach, remediation order, limitations, and official source links.">
 <style>
 body{font-family:system-ui,-apple-system,sans-serif;max-width:820px;margin:0 auto;padding:2rem;line-height:1.6;color:#111827}
 .brand{color:#2563eb;font-weight:600}
@@ -468,41 +465,42 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 </head>
 <body>
 <a href="/audit/" class="brand">← Back to Audit</a>
-<div class="banner"><strong>SAMPLE — redacted.</strong> An illustrative report for a fictional account, to show exactly what you receive. Your report covers your own stack.</div>
-<h1>EOLkits audit report</h1>
+<div class="banner"><strong>ILLUSTRATIVE SAMPLE.</strong> This fictional repository shows the v2 report format. It is not a customer report or evidence of a live AWS account scan.</div>
+<h1>AWS deprecation evidence report</h1>
 <div class="meta">
-  <div><strong>Account:</strong> acme-prod (redacted)</div>
-  <div><strong>Inputs:</strong> 3 Terraform files, 1 SAM template, 2 Dockerfiles</div>
-  <div><strong>Report SHA-256:</strong> <code>3f9a…c1e2</code> — verifiable at <code>/verify/&lt;sha&gt;</code></div>
-  <div><strong>Findings:</strong> 2 critical · 3 high · 1 medium</div>
+  <div><strong>Uploaded artifact:</strong> <code>fictional-repository.zip</code></div>
+  <div><strong>Observed scope:</strong> 6 supported text files; 1 unsupported binary skipped</div>
+  <div><strong>Input SHA-256:</strong> <code>3f9a…c1e2</code></div>
+  <div><strong>Evidence fingerprint:</strong> <code>8b74…91aa</code> — metadata lookup at <code>/verify/</code></div>
+  <div><strong>Findings:</strong> 4 distinct risk types · 6 file/line evidence records</div>
 </div>
 
-<h2>Findings — scored by severity × blast-radius</h2>
+<div class="banner"><strong>Scope limitation:</strong> static uploaded-source scan only. No AWS account was queried; resource inventory and runtime behavior are not inferred.</div>
+
+<h2>Prioritized findings</h2>
 <table>
-<tr><th>Finding</th><th class="sev">Severity</th><th>Blast radius</th><th>Cited source</th></tr>
-<tr><td>EC2 launch template pinned to an <strong>Amazon Linux 2</strong> AMI (EOL 2026-06-30)</td><td class="sev crit">Critical</td><td>14 instances across 2 ASGs</td><td>AWS AL2 EOL notice</td></tr>
-<tr><td><code>yum</code> / <code>amazon-linux-extras</code> in user-data — removed on AL2023</td><td class="sev crit">Critical</td><td>Boot-time failure on every new instance</td><td>AL2023 release notes</td></tr>
-<tr><td>Lambda <code>python3.9</code> runtime — update blocked 2027-03-03</td><td class="sev high">High</td><td>6 functions</td><td>Lambda runtime table</td></tr>
-<tr><td><code>import distutils</code> — removed in Python 3.12</td><td class="sev high">High</td><td>2 functions</td><td>Python 3.12 what's-new</td></tr>
-<tr><td><code>iptables</code> rules in cloud-init — nftables on AL2023</td><td class="sev high">High</td><td>Network setup on 14 instances</td><td>AL2023 release notes</td></tr>
-<tr><td><code>ntpd</code> — replaced by chronyd on AL2023</td><td class="sev med">Medium</td><td>Time sync on 14 instances</td><td>AL2023 release notes</td></tr>
+<tr><th>Severity</th><th>Finding</th><th>Observed location</th><th>Official source</th></tr>
+<tr><td class="sev crit">Critical</td><td>Amazon Linux 2 dependency</td><td><code>infra/main.tf:12</code><br><code>images/Dockerfile:1</code></td><td><a href="https://aws.amazon.com/amazon-linux-2/faqs/">Amazon Linux 2 FAQ</a></td></tr>
+<tr><td class="sev crit">Critical</td><td><code>distutils</code> removed in Python 3.12</td><td><code>src/compat.py:2</code></td><td><a href="https://docs.python.org/3/whatsnew/3.12.html#distutils">Python 3.12 changes</a></td></tr>
+<tr><td class="sev high">High</td><td><code>amazon-linux-extras</code> removed in AL2023</td><td><code>scripts/bootstrap.sh:4</code></td><td><a href="https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html">AWS AL2/AL2023 comparison</a></td></tr>
+<tr><td class="sev high">High</td><td>Lambda Python 3.9 runtime reference</td><td><code>template.yaml:18</code><br><code>serverless.yml:9</code></td><td><a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html">Lambda runtime table</a></td></tr>
 </table>
 
 <h2>Roll-forward roadmap</h2>
 <ol>
-  <li><strong>Now → deadline:</strong> rebuild the base AMI on AL2023; swap <code>yum</code>→<code>dnf</code> and drop <code>amazon-linux-extras</code> in user-data.</li>
-  <li><strong>Same change:</strong> migrate <code>iptables</code>→nftables and <code>ntpd</code>→chronyd (bundle with the AMI rebuild).</li>
-  <li><strong>Next:</strong> fix the two <code>distutils</code> imports and move the 6 Lambdas to <code>python3.12</code> before the 2027 block dates.</li>
+  <li>Replace the two observed AL2 image references and remove the incompatible Extras command; validate a rebuilt image in staging.</li>
+  <li>Replace the observed <code>distutils</code> import and run the Python test suite on the target runtime.</li>
+  <li>Update the two observed Lambda runtime fields, rebuild dependencies, and deploy through the repository's normal canary/rollback controls.</li>
 </ol>
 
-<h2>Cost of not fixing</h2>
-<p>Leave the AL2 instances past 2026-06-30 and they stop receiving security patches while new launches fail at boot. Exposure for this account: <strong>~14 production instances unpatched</strong> plus blocked autoscaling — hours of incident time at the worst possible moment.</p>
+<h2>What the report does not claim</h2>
+<p>It does not estimate downtime dollars, count deployed instances/functions, inspect omitted files, or guarantee that a match is reachable at runtime. Those facts require environment-specific validation.</p>
 
 <a class="cta" href="/audit/">Get this report for your own stack — from $299 →</a>
 <p><a href="/scan/">Or run the free scan first →</a></p>
 
 <footer>
-  <p>In a real report, every finding links its AWS primary source. Reports are hash-anchored and deterministic.</p>
+  <p>Production reports include exact observed evidence, rule sources, input SHA-256, and a deterministic evidence fingerprint. The PDF itself is not digitally signed.</p>
   <p><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></p>
 </footer>
 </body>
@@ -510,260 +508,112 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
     return html
 
 
-def build_pack_page(pricing):
-    """Build the Migration Pack checkout page."""
-    html = """<!DOCTYPE html>
+def _build_unavailable_product_page(name: str, explanation: str) -> str:
+    """Render a noindex tombstone for a retired or unproved product route."""
+    import html
+
+    safe_name = html.escape(name)
+    safe_explanation = html.escape(explanation)
+    return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Migration Pack — EOLkits</title>
+<meta name="robots" content="noindex,follow">
+<title>{safe_name} is unavailable — EOLkits</title>
 <style>
-body{font-family:system-ui,-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:2rem;line-height:1.6}
-.brand{color:#2563eb;font-weight:600}
-h1{margin-top:0}
-.lede{font-size:1.15rem;color:#374151}
-.price{font-size:3rem;font-weight:700;color:#059669}
-.callout{background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #2563eb;border-radius:8px;padding:1.25rem;margin:1.5rem 0}
-.guarantee{background:#ecfdf5;border:2px solid #059669;border-radius:8px;padding:1.5rem;margin:1.5rem 0}
-.guarantee h3{margin-top:0;color:#059669}
-button{background:#2563eb;color:white;border:none;padding:0.75rem 1.5rem;border-radius:6px;font-size:1rem;cursor:pointer}
-button:hover{background:#1d4ed8}
-.steps{background:#f9fafb;border-radius:8px;padding:1.5rem;margin:1.5rem 0}
-.steps ol{margin:0;padding-left:1.5rem}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0}
-.cell{border:1px solid #e5e7eb;border-radius:8px;padding:1rem;font-size:.92rem}
-.cell h4{margin:.2rem 0}
-.logos{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0}
-.logos span{border:1px solid #d1d5db;border-radius:999px;padding:.3rem .8rem;font-size:.85rem;color:#374151;background:#f9fafb}
-.faq{margin:2rem 0}
-.faq details{border-bottom:1px solid #e5e7eb;padding:.75rem 0}
-.faq summary{font-weight:600;cursor:pointer}
-.reassure{color:#6b7280;font-size:.9rem;margin:.5rem 0}
-.downsell{background:#f9fafb;border:1px dashed #d1d5db;border-radius:8px;padding:1rem;margin:1.5rem 0}
-footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
+body{{font-family:system-ui,-apple-system,sans-serif;max-width:760px;margin:0 auto;padding:2rem;line-height:1.6}}
+.brand{{color:#2563eb;font-weight:600}}
+.badge{{display:inline-block;background:#fef3c7;color:#92400e;border-radius:999px;padding:.25rem .75rem;font-size:.82rem;font-weight:700}}
+.box{{background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:1.25rem;margin:1.5rem 0}}
+footer{{margin-top:3rem;border-top:1px solid #e5e7eb;padding-top:1rem;color:#6b7280;font-size:.875rem}}
 </style>
 </head>
 <body>
 <a href="/" class="brand">← EOLkits</a>
-<h1>Migration Pack — we do the migration for you</h1>
-<p class="price">$1,499</p>
-<p class="lede">The audit tells you what's broken. The Pack fixes it: a real pull request on your repo with codemods, IaC patches, a canary rollout plan, and a rollback script — opened within 5 minutes.</p>
-
-<div class="callout">
-  <strong>It opens a PR — nothing merges without you.</strong> You review every line and merge only if you're happy. The bot never pushes to your default branch. And if your CI fails on the PR, you're <strong>automatically refunded</strong> — worst case costs you nothing but a code review.
-</div>
-
-<div class="guarantee">
-  <h3>How the auto-refund works</h3>
-  <p><strong>If your CI fails on the migration PR within 7 days, Stripe refunds you automatically</strong> — no email, no argument, no human in the loop. We only get paid when your own tests pass on our changes.</p>
-  <p class="reassure">"CI fail" = a GitHub <code>check_run</code> / <code>check_suite</code> conclusion of failure on the PR. Choosing to accept the PR anyway (the <code>override:ci-failure</code> label) waives the refund.</p>
-</div>
-
-<div class="steps">
-  <h3>What you get</h3>
-  <ol>
-    <li><strong>GitHub App Install</strong> — Grant read/write access to your repo</li>
-    <li><strong>Automated Analysis</strong> — We scan for deprecated patterns</li>
-    <li><strong>PR Created</strong> — Real PR with codemods and IaC patches within 5 minutes</li>
-    <li><strong>CI Check</strong> — Run your existing tests</li>
-    <li><strong>Auto-Refund</strong> — If CI fails and no override label added</li>
-  </ol>
-</div>
-
-<h3>Install GitHub App</h3>
-<p>First, install the EOLkits Migration Bot on your repository:</p>
-<p><a href="{API_URL}/pack/install" style="display:inline-block;background:#24292f;color:white;padding:0.75rem 1.5rem;border-radius:6px;text-decoration:none;font-weight:600">Install GitHub App</a></p>
-
-<h3>Or Purchase Now</h3>
-<form action="{API_URL}/api/pack/checkout" method="POST">
-  <p><input type="email" name="email" placeholder="your@email.com" required style="padding:0.5rem;width:300px"></p>
-  <p><input type="text" name="repo" placeholder="owner/repo" required style="padding:0.5rem;width:300px"></p>
-  <button type="submit">Purchase Migration Pack — $1,499</button>
-</form>
-<p class="reassure">🔒 Secure checkout via Stripe · PR opened in ~5 minutes · auto-refund if CI fails</p>
-
-<h2>Why pay $1,499 instead of running the free CLI?</h2>
-<div class="grid">
-  <div class="cell"><h4>Done for you</h4>You review a PR instead of writing codemods — minutes of review vs. days of migration work.</div>
-  <div class="cell"><h4>You stay in control</h4>It's a PR on a branch. Merge only if you're happy; nothing touches your default branch.</div>
-  <div class="cell"><h4>Risk reversed</h4>If your CI fails you're auto-refunded. We're paid only when your tests pass.</div>
-  <div class="cell"><h4>Cited &amp; verifiable</h4>Every change traces to an AWS source; the rule-pack is public. Check our work.</div>
-</div>
-
-<div class="logos">
-  <span>AWS</span><span>CloudFormation / SAM</span><span>CDK</span><span>Terraform</span><span>Serverless</span><span>Ansible</span><span>Packer</span><span>GitHub Actions</span>
-</div>
-
-<div class="faq">
-<h2>Questions</h2>
-<details><summary>Does the bot push to my repo?</summary><p>No. It opens a pull request on a new branch. You review and merge — or not. It never commits to your default branch.</p></details>
-<details><summary>What access does the GitHub App need?</summary><p>Contents and pull-requests on the repo you name — enough to open a PR. You can uninstall it the moment the PR lands.</p></details>
-<details><summary>What if the PR is wrong?</summary><p>Don't merge it. And if CI fails, you're auto-refunded within 7 days — you risk a code review, nothing more.</p></details>
-<details><summary>Not ready for a PR?</summary><p>Start with the free scan or the $299 audit — see exactly what's broken first, then upgrade.</p></details>
-</div>
-
-<div class="downsell">
-  Not ready to grant repo access? <a href="/scan/">Run the free scan</a> or <a href="/audit/">get the $299 audit</a> first — see the findings, then upgrade to the done-for-you Pack.
-</div>
-
-<footer>
-  <p>Refund auto-fires if CI fails within 7 days. <a href="/legal/terms.html">Terms</a> apply.</p>
-  <p><a href="/">Home</a> · <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></p>
-</footer>
-<script>
-(function () {{
-  var qp = new URLSearchParams(location.search);
-  var form = document.querySelector('form[action$="/api/pack/checkout"]');
-  if (form) {{
-    ['source', 'utm_source', 'utm_medium', 'utm_campaign', 'kit'].forEach(function (k) {{
-      var v = qp.get(k);
-      if (v) {{ var i = document.createElement('input'); i.type = 'hidden'; i.name = k; i.value = v; form.appendChild(i); }}
-    }});
-    if (!qp.get('source')) {{ var s = document.createElement('input'); s.type = 'hidden'; s.name = 'source'; s.value = 'pack_page'; form.appendChild(s); }}
-  }}
-  try {{
-    navigator.sendBeacon('{API_URL}/api/events', new Blob([JSON.stringify({{ event: 'view', sku: 'migration_pack', path: location.pathname, utm_source: qp.get('utm_source') || '', utm_campaign: qp.get('utm_campaign') || '', kit: qp.get('kit') || '' }})], {{ type: 'application/json' }}));
-  }} catch (e) {{}}
-}})();
-</script>
+<h1>{safe_name} is unavailable</h1>
+<p class="badge">No checkout · no account · no waitlist</p>
+<p>{safe_explanation}</p>
+<div class="box"><strong>Available now:</strong> use the <a href="/scan/">free local browser scanner</a>, or check whether the server-gated <a href="/audit/">$299 repository evidence report</a> is open.</div>
+<footer><a href="/">Home</a> · <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></footer>
 </body>
 </html>"""
-    return _interpolate_api(html)
+
+
+def build_pack_page(pricing):
+    """Keep the legacy Migration Pack route safe without advertising a beta."""
+    del pricing
+    return _build_unavailable_product_page(
+        "Migration Pack",
+        "The former automated pull-request offer was never proved through a public "
+        "GitHub App and paid end-to-end fulfillment. It is not offered for sale.",
+    )
 
 
 def build_license_page(pricing):
-    """Build the Org License page."""
-    html = """<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Org License — EOLkits</title>
-<style>
-body{font-family:system-ui,-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:2rem;line-height:1.6}
-.brand{color:#2563eb;font-weight:600}
-h1{margin-top:0}
-.price{font-size:3rem;font-weight:700;color:#7c3aed}
-button{background:#2563eb;color:white;border:none;padding:0.75rem 1.5rem;border-radius:6px;font-size:1rem;cursor:pointer}
-button:hover{background:#1d4ed8}
-.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin:1.5rem 0}
-.feature{background:#f9fafb;border-radius:8px;padding:1rem}
-footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
-</style>
-</head>
-<body>
-<a href="/" class="brand">← EOLkits</a>
-<h1>Organization License</h1>
-<p class="price">$14,999<span style="font-size:1rem;font-weight:normal;color:#6b7280">/year</span></p>
-<p>Unlimited runs, live rule-pack feed, and private rule extensions for your entire organization.</p>
-
-<div class="features">
-  <div class="feature">
-    <h3>Live Rule Feed</h3>
-    <p>Get new deprecation rules the moment they're published — no 7-day delay.</p>
-  </div>
-  <div class="feature">
-    <h3>Private Rules</h3>
-    <p>Define custom rules specific to your organization's infrastructure patterns.</p>
-  </div>
-  <div class="feature">
-    <h3>Unlimited Runs</h3>
-    <p>No caps on scans, audits, or PRs across all your repositories.</p>
-  </div>
-  <div class="feature">
-    <h3>License Key</h3>
-    <p>One key activates all features across your CI/CD pipelines.</p>
-  </div>
-</div>
-
-<h3>Request License</h3>
-<p>Organization licenses are provisioned manually after verification:</p>
-<form action="{API_URL}/api/license/inquiry" method="POST">
-  <p><input type="email" name="email" placeholder="your@company.com" required style="padding:0.5rem;width:300px"></p>
-  <p><input type="text" name="company" placeholder="Company name" required style="padding:0.5rem;width:300px"></p>
-  <p><input type="number" name="repos" placeholder="Estimated repositories" style="padding:0.5rem;width:300px"></p>
-  <button type="submit">Request License</button>
-</form>
-
-<footer>
-  <p>License valid for one year from purchase. Auto-renewal optional.</p>
-  <p><a href="/">Home</a> · <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></p>
-</footer>
-</body>
-</html>"""
-    return _interpolate_api(html)
+    """Keep the legacy organization-license route safe."""
+    del pricing
+    return _build_unavailable_product_page(
+        "Organization License",
+        "The former private-rule feed and organization controls were not built or "
+        "operationally verified. No organization product or license is offered.",
+    )
 
 
 def load_deprecations():
-    """Load deprecation data from rules."""
+    """Load cited deprecation data from the public rules file."""
     deprecations_file = BASE_DIR.parent.parent / "rules" / "public" / "deprecations.yml"
     if deprecations_file.exists():
         with open(deprecations_file) as f:
-            return yaml.safe_load(f)
+            data = yaml.safe_load(f) or {}
+        entries = data.get("deprecations", [])
+        if not isinstance(entries, list):
+            raise ValueError("rules/public/deprecations.yml: deprecations must be a list")
+        for index, entry in enumerate(entries):
+            if not isinstance(entry, dict) or not str(entry.get("url") or "").startswith(
+                "https://"
+            ):
+                raise ValueError(
+                    f"rules/public/deprecations.yml: deprecations[{index}] needs an HTTPS primary-source url"
+                )
+        return data
     return {"deprecations": []}
 
 
 def slugify(name):
     """Convert name to URL slug."""
-    return (
-        name.lower()
-        .replace(" ", "-")
-        .replace("(", "")
-        .replace(")", "")
-        .replace("/", "-")
-    )
+    return name.lower().replace(" ", "-").replace("(", "").replace(")", "").replace("/", "-")
+
+
+def deprecation_slug(dep):
+    """Use an explicit stable route when a corrected display name replaces old copy."""
+    return str(dep.get("slug") or slugify(str(dep.get("name", ""))))
 
 
 def build_pricing_view(full_pricing):
-    """Extract the canonical Audit/Migration-Pack facts (price + Stripe link)
-    from pricing.yml so every page stays correct as pricing.yml updates."""
+    """Extract canonical Audit price/link facts for public pages."""
     skus = full_pricing.get("skus", full_pricing)
 
     audit = skus.get("audit", {})
     audit_tiers = {t.get("name"): t for t in audit.get("tiers", [])}
     standard = audit_tiers.get("standard", {})
-    surge_30 = audit_tiers.get("surge_30d", {})
-    surge_7 = audit_tiers.get("surge_7d", {})
     audit_base = standard.get("price_usd", 299)
 
-    pack = skus.get("migration_pack", {})
-    pack_base = pack.get("price_usd", 1499)
-    drift = skus.get("drift_watch", {})
-
-    # Always route to the on-site pages, which open server-side Checkout
-    # Sessions. Direct Stripe Payment Links are intentionally NOT used on
-    # customer-facing surfaces: they strip our fulfillment metadata (upload_id,
-    # repo, deadline) and attribution (source/utm/kit), and bypass the
-    # repo-installed gate for the Migration Pack.
+    # Always route to the on-site page, which opens a server-side Checkout
+    # Session. Direct Stripe Payment Links are intentionally not used because
+    # they bypass the input-bound fulfillment gate.
     return {
         "audit_pdf": {
             "base": audit_base,
             "link": "/audit/",
-            "surge_30d_price": surge_30.get("price_usd", 399),
-            "surge_30d_link": "/audit/",
-            "surge_7d_price": surge_7.get("price_usd", 599),
-            "surge_7d_link": "/audit/",
-        },
-        "migration_pack": {
-            "base": pack_base,
-            "link": "/pack/",
-        },
-        "drift_watch": {
-            "base": drift.get("price_usd", 19),
-            "link": "/drift/",
         },
     }
 
 
 def _audit_checkout_link(dep):
     """Deadline- and kit-tagged link to the on-site audit page, which carries
-    the deadline into the server Checkout Session (so surge pricing + attribution
-    survive). Replaces per-tier direct Stripe Payment Links.
-
-    The deadline carried is the NEAREST enforcement date — the same date the page's
-    displayed surge price is computed from — so the server recomputes the identical
-    tier and the charged price matches what the buyer saw."""
+    report context and attribution into the server Checkout Session. Replaces raw
+    Stripe Payment Links and keeps price enforcement server-side."""
     from urllib.parse import urlencode
 
     _, deadline_date = nearest_enforcement(dep)
@@ -778,18 +628,8 @@ def _audit_checkout_link(dep):
     return "/audit/?" + urlencode(q)
 
 
-def _pack_checkout_link(dep):
-    from urllib.parse import urlencode
-
-    q = {"utm_source": "migrate", "utm_medium": "cta", "utm_campaign": dep.get("slug", "")}
-    if dep.get("kit"):
-        q["kit"] = dep["kit"]
-    return "/pack/?" + urlencode(q)
-
-
 def compute_urgency(dep, pricing_view):
-    """Deterministic urgency + surge pricing derived ONLY from the cited
-    deadline date in deprecations.yml and the tiers in pricing.yml."""
+    """Deterministic urgency and flat Audit pricing from canonical data."""
     days, deadline_date = nearest_enforcement(dep)
     audit = pricing_view["audit_pdf"]
 
@@ -799,19 +639,17 @@ def compute_urgency(dep, pricing_view):
             f"This deadline passed on {deadline_date}. "
             "Affected resources are now in the post-deadline window — clean up before the next enforcement phase."
         )
-        audit_price = audit["base"]
     elif days <= 7:
         tier, label = "urgent", "less than 7 days"
         headline = f"Only {days} days until the {deadline_date} deadline. This is the final week."
-        audit_price = audit["surge_7d_price"]
     elif days <= 30:
         tier, label = "soon", "within 30 days"
         headline = f"{days} days until the {deadline_date} deadline."
-        audit_price = audit["surge_30d_price"]
     else:
         tier, label = "ahead", "more than 30 days out"
-        headline = f"{days} days until the {deadline_date} deadline — enough runway to migrate safely."
-        audit_price = audit["base"]
+        headline = (
+            f"{days} days until the {deadline_date} deadline — enough runway to migrate safely."
+        )
 
     return {
         "tier": tier,
@@ -821,11 +659,10 @@ def compute_urgency(dep, pricing_view):
         # The date the day count actually runs to — interpolated wherever a date is
         # shown next to days_until, so copy and the JS countdown never disagree.
         "deadline_date": deadline_date,
-        "audit_price": audit_price,
-        # Server-routed, deadline+kit+utm tagged (price is recomputed server-side
-        # from the deadline, so the charged price matches audit_price shown here).
+        "audit_price": audit["base"],
+        # Server-routed, deadline+kit+UTM tagged. The server enforces one flat
+        # Audit price; the deadline is report context only.
         "audit_link": _audit_checkout_link(dep),
-        "pack_link": _pack_checkout_link(dep),
     }
 
 
@@ -846,9 +683,7 @@ def find_related(dep, all_deps, limit=4):
 
 
 def build_migration_pages(deprecations, full_pricing):
-    """Build SEO pages for each deprecation. Every fact is sourced from
-    deprecations.yml (and carries its source_url), satisfying RULES.md by
-    construction — zero LLM, deterministic."""
+    """Build deterministic pages from reviewed rule data and provider links."""
     env = Environment(
         loader=FileSystemLoader(TEMPLATE_DIR),
         autoescape=select_autoescape(["html", "xml"]),
@@ -864,7 +699,7 @@ def build_migration_pages(deprecations, full_pricing):
 
     all_deps = deprecations.get("deprecations", [])
     for dep in all_deps:
-        dep["slug"] = slugify(dep["name"])
+        dep["slug"] = deprecation_slug(dep)
 
     build_date = _build_date()
     pages = {}
@@ -872,10 +707,10 @@ def build_migration_pages(deprecations, full_pricing):
         urgency = compute_urgency(dep, pricing_view)
         related = find_related(dep, all_deps)
         meta_description = _truncate_meta(
-            f"{dep['name']} ends {urgency['deadline_date']} ({urgency['label']}). "
-            f"{dep.get('service', '')}. {len(dep.get('breaking_changes', []))} breaking changes, "
-            f"exact migration facts, and a free CLI ({dep.get('kit') or 'EOLkits'}) to scan, "
-            "codemod, and ship before the deadline."
+            f"{dep['name']}: tracked milestone {urgency['deadline_date']} "
+            f"({urgency['label']}). {dep.get('service', '')}. "
+            f"{len(dep.get('breaking_changes', []))} migration checks to verify, "
+            f"plus a free bounded CLI ({dep.get('kit') or 'EOLkits'})."
         )
         html = template.render(
             deprecation=dep,
@@ -917,9 +752,7 @@ def build_migrate_index(all_deps, pricing_view, now_iso):
         template = env.get_template("migrate_index.html.j2")
     except Exception:
         return ""
-    return template.render(
-        deprecations=rows, site_url=SITE_URL, now=now_iso
-    )
+    return template.render(deprecations=rows, site_url=SITE_URL, now=now_iso)
 
 
 def build_sitemap(deprecations):
@@ -936,32 +769,29 @@ def build_sitemap(deprecations):
 
     # Add slugs to deprecations
     for dep in deprecations.get("deprecations", []):
-        dep["slug"] = slugify(dep["name"])
+        dep["slug"] = deprecation_slug(dep)
 
     return template.render(
         deprecations=deprecations.get("deprecations", []),
-        competitors=[{"slug": slugify(c["name"])} for c in COMPETITORS],
         fixes=[f["slug"] for f in load_fixes()],
-        now=datetime.now(UTC).strftime("%Y-%m-%d"),
+        now=_build_date(),
         site_url=SITE_URL,
     )
 
 
 def build_llms_txt(deprecations, pricing_view):
-    """Deterministic llms.txt (llmstxt.org) so AI search engines can cite
-    EOLkits' deprecation facts. Every line is sourced from deprecations.yml
-    and carries the primary source_url — no model output, cannot hallucinate."""
+    """Build deterministic discovery text from reviewed rule data."""
     all_deps = deprecations.get("deprecations", [])
     for dep in all_deps:
-        dep["slug"] = slugify(dep["name"])
+        dep["slug"] = deprecation_slug(dep)
     ordered = sorted(all_deps, key=lambda d: d.get("date", "9999-99-99"))
 
     lines = [
         "# EOLkits",
         "",
-        "> Deterministic, CI-citation-gated CLIs and migration services for AWS "
-        "platform deprecation deadlines (Lambda runtimes, Amazon Linux 2, IMDSv1). "
-        "Every fact below is sourced from a primary AWS or upstream document.",
+        "> Deterministic, source-linked CLIs and migration guidance for AWS "
+        "platform deprecation milestones (Lambda runtimes and Amazon Linux 2). "
+        "Provider dates link their primary source; severity is EOLkits triage.",
         "",
         "## AWS deprecation deadlines",
         "",
@@ -991,15 +821,12 @@ def build_llms_txt(deprecations, pricing_view):
         "",
         "## Pricing",
         "",
-        f"- Free CLI: MIT-licensed kits (al2023-gate, python-pivot, lambda-lifeline). "
-        f"git clone https://github.com/ntoledo319/EOLkits",
+        "- Free CLI: MIT-licensed kits (al2023-gate, python-pivot, lambda-lifeline). "
+        "git clone https://github.com/ntoledo319/EOLkits",
         f"- [Audit PDF]({SITE_URL}/audit/): ${pricing_view['audit_pdf']['base']} "
-        f"(surges to ${pricing_view['audit_pdf']['surge_30d_price']} within 30 days, "
-        f"${pricing_view['audit_pdf']['surge_7d_price']} within 7 days) — "
-        f"hash-anchored deterministic finding report.",
-        f"- [Migration Pack]({SITE_URL}/pack/): "
-        f"${pricing_view['migration_pack']['base']:,} — automated PR with codemods + "
-        f"IaC patches + canary plan + rollback; auto-refund if CI fails within 7 days.",
+        f"— one repository ZIP or supported source file; exact file/line evidence, "
+        f"remediation order, source links, and a deterministic evidence fingerprint.",
+        "- No subscription, AWS-account inventory, or automated pull-request product is for sale.",
         "",
         "## Calendar",
         "",
@@ -1012,12 +839,7 @@ def build_llms_txt(deprecations, pricing_view):
 
 def build_robots_txt():
     """robots.txt pointing crawlers at the sitemap and llms.txt."""
-    return (
-        "User-agent: *\n"
-        "Allow: /\n"
-        "\n"
-        f"Sitemap: {SITE_URL}/sitemap.xml\n"
-    )
+    return "User-agent: *\n" "Allow: /\n" "\n" f"Sitemap: {SITE_URL}/sitemap.xml\n"
 
 
 def build_verify_page():
@@ -1040,23 +862,25 @@ def build_lambda_schedule_page(deprecations, pricing_view):
     schedule / dates / end of life' queries; each row links its /migrate guide + the
     AWS source. Static & deterministic (not passed through _interpolate_api)."""
     import html as _h
+
     ap = pricing_view.get("audit_pdf", {}) if isinstance(pricing_view, dict) else {}
     audit_base = ap.get("base", 299) if isinstance(ap, dict) else 299
     lam = [
-        d for d in deprecations.get("deprecations", [])
+        d
+        for d in deprecations.get("deprecations", [])
         if "lambda" in (str(d.get("service", "")) + " " + " ".join(d.get("tags", []))).lower()
     ]
     lam.sort(key=lambda d: str(d.get("block_update_date") or d.get("date") or "9999-12-31"))
     rows = ""
     for d in lam:
         name = _h.escape(str(d.get("name", "")))
-        slug = slugify(str(d.get("name", "")))
+        slug = deprecation_slug(d)
         rt = _h.escape(_runtime_id_from_name(str(d.get("name", ""))) or name)
         create = _h.escape(str(d.get("date") or "—"))
         update = _h.escape(str(d.get("block_update_date") or "—"))
         sev = _h.escape(str(d.get("severity", "")))
         tags = " ".join(d.get("tags", [])).lower()
-        target = "python3.12" if "python" in tags else ("nodejs22" if "nodejs" in tags else "—")
+        target = "python3.12" if "python" in tags else ("nodejs24.x" if "nodejs" in tags else "—")
         src = _h.escape(str(d.get("url", "")))
         rows += (
             '<tr><td><a href="/migrate/' + slug + '/"><code>' + rt + "</code></a></td>"
@@ -1066,20 +890,40 @@ def build_lambda_schedule_page(deprecations, pricing_view):
             '<td><a href="' + src + '" target="_blank" rel="noopener nofollow">AWS</a></td></tr>'
         )
     faq = {
-        "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
-            {"@type": "Question", "name": "What happens when an AWS Lambda runtime is deprecated?",
-             "acceptedAnswer": {"@type": "Answer", "text": "Existing functions keep running, but stop receiving security patches. AWS then blocks creating new functions on the runtime, and about 30 days later blocks updating existing ones — after that the function is frozen until you move it to a supported runtime."}},
-            {"@type": "Question", "name": "How do I find which Lambda runtimes I'm using?",
-             "acceptedAnswer": {"@type": "Answer", "text": "Run the free scanner at eolkits.com/scan over your SAM/CDK/Terraform/Serverless config (nothing is uploaded), or run: aws lambda list-functions --query 'Functions[].Runtime'."}},
-            {"@type": "Question", "name": "What should I upgrade Lambda Python and Node runtimes to?",
-             "acceptedAnswer": {"@type": "Answer", "text": "AWS recommends python3.12 for Python and nodejs22.x for Node. Both run on Amazon Linux 2023; expect to fix removed stdlib modules (distutils, cgi), the unbundled AWS SDK v2 on Node 18+, and native-wheel/ABI changes."}},
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What happens when an AWS Lambda runtime is deprecated?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Existing functions keep running after deprecation, but AWS no longer applies runtime updates or security patches. AWS publishes separate dates for blocking creation and updates; those intervals vary, so use the current per-runtime table rather than assuming a fixed delay.",
+                },
+            },
+            {
+                "@type": "Question",
+                "name": "How do I find which Lambda runtimes I'm using?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Run the free scanner at eolkits.com/scan over your SAM/CDK/Terraform/Serverless config (nothing is uploaded), or run: aws lambda list-functions --query 'Functions[].Runtime'.",
+                },
+            },
+            {
+                "@type": "Question",
+                "name": "What should I upgrade Lambda Python and Node runtimes to?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "EOLkits' bounded rewrite paths currently target python3.12 and nodejs24.x; that is a tool choice, not an AWS recommendation. Recheck AWS's current support table, then test removed standard-library modules, SDK packaging, and native-wheel or ABI changes on the chosen target.",
+                },
+            },
         ],
     }
     return (
         '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
         "<title>AWS Lambda runtime deprecation schedule (2026–2027) | EOLkits</title>\n"
-        '<meta name="description" content="Every AWS Lambda runtime deprecation date — when AWS blocks creating and updating functions on python3.9-3.11 and nodejs18/20, the recommended upgrade target, and the AWS source. Plus a free scanner to find yours.">\n'
+        '<meta name="description" content="Tracked AWS Lambda runtime deprecation dates for python3.9-3.11 and nodejs18/20/22, including published create/update block dates, EOLkits bounded targets, and AWS source links.">\n'
         '<link rel="canonical" href="' + SITE_URL + '/lambda-runtime-deprecation-schedule/">\n'
         '<link rel="stylesheet" href="/style.css">\n'
         '<script defer src="/track.js"></script>\n'
@@ -1093,17 +937,17 @@ def build_lambda_schedule_page(deprecations, pricing_view):
         '<body class="container article">\n'
         '<nav class="breadcrumb"><a href="/">Home</a> / <a href="/migrate/">Deadlines</a> / <span>Lambda runtime schedule</span></nav>\n'
         "<h1>AWS Lambda runtime deprecation schedule (2026–2027)</h1>\n"
-        "<p>When each AWS Lambda runtime stops getting patches, when AWS blocks <strong>creating</strong> new functions on it, when AWS blocks <strong>updating</strong> existing ones, and what to move to. Every date comes from the AWS Lambda runtime deprecation table — each row links the source.</p>\n"
+        "<p>For the runtimes EOLkits tracks: when patches stop, when AWS says it will block <strong>creating</strong> new functions, when it will block <strong>updating</strong> existing ones, and the target currently supported by these bounded tools. Each row links the AWS source; future dates can change.</p>\n"
         '<p><a class="cta" href="/scan/">Scan your stack free — find your deprecated runtimes →</a></p>\n'
         '<p>Prefer a 10-second check? Paste your config into the <a href="/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>\n'
-        '<table class="sched"><thead><tr><th>Runtime</th><th>Blocks create</th><th>Blocks update</th><th>Severity</th><th>Upgrade to</th><th>Source</th></tr></thead><tbody>\n'
+        '<table class="sched"><thead><tr><th>Runtime</th><th>Blocks create</th><th>Blocks update</th><th>Severity</th><th>EOLkits target</th><th>Source</th></tr></thead><tbody>\n'
         + rows
         + "\n</tbody></table>\n"
         '<p class="muted">Functions keep running after deprecation, but become unpatched and — after the block-update date — unmodifiable. Dates reflect the AWS-published schedule and can shift; the linked AWS page is authoritative.</p>\n'
         "<h2>Fixing the upgrade</h2>\n"
-        '<p>The upgrade usually surfaces specific errors — removed stdlib modules, the unbundled AWS SDK v2 on Node 18+, native-wheel/ABI breaks. See <a href="/fix/">common migration error fixes</a>, or get a <a href="/audit/">hash-anchored audit ($'
+        '<p>The upgrade can surface specific errors — removed stdlib modules, the unbundled AWS SDK v2 on Node 18+, native-wheel/ABI breaks. See <a href="/fix/">common migration error fixes</a>, or check the <a href="/audit/">repository evidence report ($'
         + str(audit_base)
-        + ', 30-day money-back)</a> that scores every finding and hands back a roll-forward plan.</p>\n'
+        + ", 30-day money-back)</a> for exact file/line matches, source links, and a remediation order.</p>\n"
         '<p><a href="/migrate/">See all tracked AWS deadlines →</a></p>\n'
         "</body>\n</html>\n"
     )
@@ -1115,7 +959,6 @@ def build_eol_checker_page(deprecations, pricing_view):
     nothing is uploaded. The dataset is baked from the cited deprecations.yml, so the built
     HTML is static & deterministic (the day-countdown is computed in the browser). A linkable,
     shareable top-of-funnel asset that routes to the free /scan and the paid /audit."""
-    import html as _h
     ap = pricing_view.get("audit_pdf", {}) if isinstance(pricing_view, dict) else {}
     audit_base = ap.get("base", 299) if isinstance(ap, dict) else 299
 
@@ -1126,11 +969,11 @@ def build_eol_checker_page(deprecations, pricing_view):
         block_create = str(d.get("date") or "")
         block_update = str(d.get("block_update_date") or d.get("date") or "")
         sev = str(d.get("severity", "medium"))
-        slug = slugify(name)
+        slug = deprecation_slug(d)
         if "nodejs" in tags:
             rid = _runtime_id_from_name(name) or name
             matches = [rid.lower(), rid.replace(".x", "").lower()]
-            target, kind = "nodejs22.x", "runtime"
+            target, kind = "nodejs24.x", "runtime"
         elif "python" in tags:
             rid = _runtime_id_from_name(name) or name
             matches = [rid.lower()]
@@ -1144,21 +987,47 @@ def build_eol_checker_page(deprecations, pricing_view):
             # enforcements (e.g. IMDSv1) so the block/EOL messaging stays accurate.
             continue
         rows[rid] = {
-            "id": rid, "label": rid, "matches": sorted({m for m in matches if m}),
-            "blockCreate": block_create, "blockUpdate": block_update,
-            "sev": sev, "target": target, "slug": slug, "kind": kind,
+            "id": rid,
+            "label": rid,
+            "matches": sorted({m for m in matches if m}),
+            "blockCreate": block_create,
+            "blockUpdate": block_update,
+            "sev": sev,
+            "target": target,
+            "slug": slug,
+            "kind": kind,
         }
     data = sorted(rows.values(), key=lambda r: (r["blockUpdate"] or "9999-99-99", r["id"]))
     data_json = json.dumps(data, sort_keys=True)
 
     faq = {
-        "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
-            {"@type": "Question", "name": "How do I know if my AWS Lambda runtime is deprecated?",
-             "acceptedAnswer": {"@type": "Answer", "text": "Paste your SAM/CloudFormation/Terraform/Serverless config or a list of runtimes into this checker, or click the runtime you use. It matches against the AWS Lambda runtime deprecation table and shows the block-create and block-update dates. For a full account scan across all regions, use the free scanner at eolkits.com/scan."}},
-            {"@type": "Question", "name": "Is Amazon Linux 2 end of life?",
-             "acceptedAnswer": {"@type": "Answer", "text": "Yes. Amazon Linux 2 reached end of standard support on 2026-06-30. It no longer receives security patches; migrate to Amazon Linux 2023."}},
-            {"@type": "Question", "name": "Does this tool upload my configuration?",
-             "acceptedAnswer": {"@type": "Answer", "text": "No. The check runs entirely in your browser; nothing is sent to a server."}},
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "How do I know if my AWS Lambda runtime is deprecated?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Paste SAM/CloudFormation/Terraform/Serverless source or a runtime list, or click a runtime. The browser checker matches configured text patterns against the cited AWS Lambda deprecation table; it does not query an AWS account.",
+                },
+            },
+            {
+                "@type": "Question",
+                "name": "Is Amazon Linux 2 end of life?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Amazon Linux 2 reached its published end-of-life date on 2026-06-30. Verify the installed release and current AWS support terms; Amazon Linux 2023 is the durable migration path.",
+                },
+            },
+            {
+                "@type": "Question",
+                "name": "Does this tool upload my configuration?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Configuration contents stay in the browser. The site sends a count-only usage event; it does not send file names or contents.",
+                },
+            },
         ],
     }
 
@@ -1169,7 +1038,7 @@ def build_eol_checker_page(deprecations, pricing_view):
         "function statusFor(r){\n"
         "  var now=new Date();var bc=r.blockCreate?new Date(r.blockCreate+'T00:00:00Z'):null;var bu=r.blockUpdate?new Date(r.blockUpdate+'T00:00:00Z'):null;\n"
         "  if(r.kind==='os'){\n"
-        "    if(bc&&now>bc)return{cls:'crit',txt:'Reached end of life '+r.blockCreate+' — no security patches. Migrate to '+r.target+'.'};\n"
+        "    if(bc&&now>bc)return{cls:'crit',txt:'Published end-of-life date passed '+r.blockCreate+' — verify the installed release and current support terms; migrate to '+r.target+'.'};\n"
         "    if(bc){var d=daysBetween(bc,now);return{cls:d<60?'crit':(d<180?'high':'med'),txt:d+' days until end of life ('+r.blockCreate+'). Migrate to '+r.target+'.'};}\n"
         "    return{cls:'high',txt:'End of life — migrate to '+r.target+'.'};\n"
         "  }\n"
@@ -1188,8 +1057,9 @@ def build_eol_checker_page(deprecations, pricing_view):
         "    html+='<tr class=\"'+s.cls+'\"><td><code>'+r.label+'</code></td><td>'+s.txt+'</td><td>'+(r.target?'<code>'+r.target+'</code>':'\\u2014')+'</td><td><a href=\"/migrate/'+r.slug+'/\">fix &rarr;</a></td></tr>';});\n"
         "  html+='</tbody></table>';\n"
         "  html+='<div class=\"ctaway\"><strong>This is a quick check of what you pasted.</strong> A real migration also needs every region, your IaC, and native-dependency landmines. '+\n"
-        "    '<a class=\"cta\" href=\"/scan/\">Run the full free scan &rarr;</a> or <a href=\"/audit/\">get a $"
-        + str(audit_base) + " hash-anchored audit</a> (30-day money-back).</div>';\n"
+        '    \'<a class="cta" href="/scan/">Run the full free scan &rarr;</a> or <a href="/audit/">get a $'
+        + str(audit_base)
+        + " repository evidence report</a> (30-day money-back).</div>';\n"
         "  out.innerHTML=html;\n"
         "}\n"
         "function check(){\n"
@@ -1229,16 +1099,16 @@ def build_eol_checker_page(deprecations, pricing_view):
         '<body class="container article">\n'
         '<nav class="breadcrumb"><a href="/">Home</a> / <a href="/migrate/">Deadlines</a> / <span>EOL checker</span></nav>\n'
         "<h1>Is your AWS runtime past end-of-life?</h1>\n"
-        "<p>Paste your SAM / CloudFormation / Terraform / Serverless config (or a list of runtimes), or click the runtimes you use. This checks them against the <a href=\"/lambda-runtime-deprecation-schedule/\">AWS runtime deprecation schedule</a> and shows exactly when AWS blocks creating and updating functions. <strong>Runs in your browser — nothing is uploaded.</strong></p>\n"
+        '<p>Paste your SAM / CloudFormation / Terraform / Serverless config (or a list of runtimes), or click the runtimes you use. This checks them against EOLkits\' cited snapshot of the <a href="/lambda-runtime-deprecation-schedule/">AWS runtime deprecation schedule</a> and shows the tracked create/update block dates. <strong>Runs in your browser — nothing is uploaded.</strong></p>\n'
         '<div id="chips"></div>\n'
         '<textarea id="inp" placeholder="Paste template.yaml / serverless.yml / *.tf here — e.g. Runtime: nodejs20.x, python3.9, FROM amazonlinux:2 ..."></textarea>\n'
         '<p><button id="go">Check my runtimes</button></p>\n'
         '<div id="results"></div>\n'
-        '<p class="muted">Dates come from the AWS Lambda runtime deprecation table and can shift; the per-runtime <a href="/migrate/">migration guides</a> link the AWS source. Functions keep running after deprecation, but become unpatched and — after the block-update date — frozen.</p>\n'
+        '<p class="muted">Dates come from the AWS Lambda runtime deprecation table and can shift; the per-runtime <a href="/migrate/">migration guides</a> link the AWS source. AWS documents phased create/update restrictions; verify the current runtime status before planning.</p>\n'
         "<h2>Once you know what's exposed</h2>\n"
-        '<p>Each deprecated runtime fails in specific ways — removed stdlib modules, the unbundled AWS SDK v2 on Node 18+, native-wheel/ABI breaks, Amazon Linux 2 &rarr; 2023 package renames. See the <a href="/fix/">common error fixes</a>, run the <a href="/scan/">free full scanner</a>, or get a <a href="/audit/">hash-anchored audit ($'
+        '<p>Each deprecated runtime fails in specific ways — removed stdlib modules, the unbundled AWS SDK v2 on Node 18+, native-wheel/ABI breaks, Amazon Linux 2 &rarr; 2023 package renames. See the <a href="/fix/">common error fixes</a>, run the <a href="/scan/">free scanner</a>, or check the <a href="/audit/">repository evidence report ($'
         + str(audit_base)
-        + ", 30-day money-back)</a> that scores every finding and hands back a roll-forward plan.</p>\n"
+        + ", 30-day money-back)</a> for exact matches and a remediation order.</p>\n"
         + js
         + "</body>\n</html>\n"
     )
@@ -1249,30 +1119,71 @@ def build_al2_checklist_page(deprecations, pricing_view):
     volume query in the current deadline window. Built from the cited deprecations.yml
     AL2 entry; cross-links the matching /fix pages. Static & deterministic."""
     import html as _h
+
     ap = pricing_view.get("audit_pdf", {}) if isinstance(pricing_view, dict) else {}
     audit_base = ap.get("base", 299) if isinstance(ap, dict) else 299
-    al2 = next((d for d in deprecations.get("deprecations", [])
-                if "amazon linux 2" in str(d.get("name", "")).lower()), {})
+    al2 = next(
+        (
+            d
+            for d in deprecations.get("deprecations", [])
+            if "amazon linux 2" in str(d.get("name", "")).lower()
+        ),
+        {},
+    )
     date = _h.escape(str(al2.get("date", "2026-06-30")))
-    src = _h.escape(str(al2.get("url", "https://aws.amazon.com/blogs/aws/update-on-amazon-linux-2-end-of-life/")))
+    src = _h.escape(
+        str(
+            al2.get("url", "https://aws.amazon.com/blogs/aws/update-on-amazon-linux-2-end-of-life/")
+        )
+    )
     changes_html = "".join("<li>" + _h.escape(c) + "</li>" for c in al2.get("breaking_changes", []))
     faq = {
-        "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
-            {"@type": "Question", "name": "When is Amazon Linux 2 end of life?",
-             "acceptedAnswer": {"@type": "Answer", "text": "Amazon Linux 2 reached end of life on " + date.replace("&amp;", "&") + ". Since then there are no more security patches, no new AMIs, and no extras updates — anything still on AL2 runs unpatched now."}},
-            {"@type": "Question", "name": "What breaks moving from Amazon Linux 2 to AL2023?",
-             "acceptedAnswer": {"@type": "Answer", "text": "yum is replaced by dnf, amazon-linux-extras is gone, ntpd is replaced by chronyd, iptables is replaced by nftables, and Python 2 is no longer available. Package names also change (version-namespaced or moved to SPAL)."}},
-            {"@type": "Question", "name": "Can I keep running Amazon Linux 2 after EOL?",
-             "acceptedAnswer": {"@type": "Answer", "text": "The instances keep running, but receive no security patches and no new AMIs, and new launches of the AL2 AMI stop. Running unpatched in production is the risk — migrate to Amazon Linux 2023."}},
-            {"@type": "Question", "name": "How do I find Amazon Linux 2 usage in my account?",
-             "acceptedAnswer": {"@type": "Answer", "text": "Run the free scanner at eolkits.com/scan over your Terraform/CloudFormation/Packer/Ansible (nothing is uploaded), or use the al2023-gate CLI to enumerate AL2 AMIs, launch templates, and node groups across regions."}},
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "When is Amazon Linux 2 end of life?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Amazon Linux 2 reached end of life on "
+                    + date.replace("&amp;", "&")
+                    + ". AWS has published post-EOL AL2 releases, so verify your installed release and current support terms; the durable path is migration to AL2023.",
+                },
+            },
+            {
+                "@type": "Question",
+                "name": "What breaks moving from Amazon Linux 2 to AL2023?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "yum is replaced by dnf, amazon-linux-extras is gone, ntpd is replaced by chronyd, iptables is replaced by nftables, and Python 2 is no longer available. Package names also change (version-namespaced or moved to SPAL).",
+                },
+            },
+            {
+                "@type": "Question",
+                "name": "Can I keep running Amazon Linux 2 after EOL?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Existing instances can keep running, but standard support has ended. Do not infer an individual host's patch state from the date alone; verify its installed release and migrate to Amazon Linux 2023.",
+                },
+            },
+            {
+                "@type": "Question",
+                "name": "How do I find Amazon Linux 2 usage in my account?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Use the al2023-gate CLI from the repository to inspect its documented local or AWS inventory modes. The browser scanner covers only configured source patterns and does not enumerate an account.",
+                },
+            },
         ],
     }
     return (
         '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
         "<title>Amazon Linux 2 end-of-life: migration checklist (AL2 → AL2023) | EOLkits</title>\n"
-        '<meta name="description" content="Amazon Linux 2 is EOL ' + date + '. A step-by-step AL2 to AL2023 migration checklist: yum to dnf, amazon-linux-extras, ntpd to chronyd, iptables to nftables, Python 2 removal — with the fix for each error. Free scanner to find your AL2 usage.">\n'
+        '<meta name="description" content="Amazon Linux 2 is EOL '
+        + date
+        + '. A step-by-step AL2 to AL2023 migration checklist: yum to dnf, amazon-linux-extras, ntpd to chronyd, iptables to nftables, Python 2 removal — with the fix for each error. Free scanner to find your AL2 usage.">\n'
         '<link rel="canonical" href="' + SITE_URL + '/amazon-linux-2-eol-checklist/">\n'
         '<link rel="stylesheet" href="/style.css">\n'
         '<script defer src="/track.js"></script>\n'
@@ -1283,23 +1194,27 @@ def build_al2_checklist_page(deprecations, pricing_view):
         '<body class="container article">\n'
         '<nav class="breadcrumb"><a href="/">Home</a> / <a href="/migrate/">Deadlines</a> / <span>Amazon Linux 2 checklist</span></nav>\n'
         "<h1>Amazon Linux 2 end-of-life: migration checklist (AL2 → AL2023)</h1>\n"
-        '<div class="note"><strong>Amazon Linux 2 reached end of life ' + date + '.</strong> Since then: no security patches, no new AMIs, no extras updates. Anything still pinned to AL2 in a launch template, EKS node group, ECS task, Beanstalk env, or container base image runs unpatched right now. <a href="' + src + '" target="_blank" rel="noopener nofollow">[AWS source]</a></div>\n'
-        '<p><a class="cta" href="/scan/">Scan your stack free — find every AL2 reference →</a></p>\n'
+        '<div class="note"><strong>Amazon Linux 2 reached end of life '
+        + date
+        + '.</strong> Standard support ended and migration is due. AWS has published post-EOL AL2 releases, so verify the installed release and current support terms instead of assuming a host patch state from the calendar alone. <a href="'
+        + src
+        + '" target="_blank" rel="noopener nofollow">[AWS source]</a></div>\n'
+        '<p><a class="cta" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/al2023-gate">Inspect the al2023-gate CLI coverage →</a></p>\n'
         "<h2>What changes on AL2023</h2>\n<ul>" + changes_html + "</ul>\n"
-        "<h2>The checklist</h2>\n<ol class=\"chk\">\n"
-        "<li><strong>Inventory.</strong> Find every AL2 AMI, launch template, EKS node group, ECS task definition, Beanstalk platform, and container base image. (<a href=\"/scan/\">free scan</a> or the <code>al2023-gate</code> CLI.)</li>\n"
+        '<h2>The checklist</h2>\n<ol class="chk">\n'
+        "<li><strong>Inventory.</strong> Find AL2 AMIs, launch templates, EKS node groups, ECS task definitions, Beanstalk platforms, and container base images. Use the documented <code>al2023-gate</code> modes and verify the result against AWS inventory.</li>\n"
         "<li><strong>Rebuild the base AMI on AL2023</strong> (Packer/EC2 Image Builder), then bake your app layers on top.</li>\n"
-        "<li><strong>Package manager.</strong> Move <code>yum</code> usage to <code>dnf</code> and drop <code>amazon-linux-extras</code> — install packages directly, version-namespaced, or via SPAL. (<a href=\"/fix/amazon-linux-extras-command-not-found/\">extras fix</a> · <a href=\"/fix/amazon-linux-2023-dnf-unable-to-find-a-match/\">missing-package fix</a>)</li>\n"
-        "<li><strong>Time sync.</strong> Replace <code>ntpd</code> with <code>chronyd</code>. (<a href=\"/fix/amazon-linux-2023-ntpd-service-not-found/\">ntpd fix</a>)</li>\n"
+        '<li><strong>Package manager.</strong> Move <code>yum</code> usage to <code>dnf</code> and drop <code>amazon-linux-extras</code> — install packages directly, version-namespaced, or via SPAL. (<a href="/fix/amazon-linux-extras-command-not-found/">extras fix</a> · <a href="/fix/amazon-linux-2023-dnf-unable-to-find-a-match/">missing-package fix</a>)</li>\n'
+        '<li><strong>Time sync.</strong> Replace <code>ntpd</code> with <code>chronyd</code>. (<a href="/fix/amazon-linux-2023-ntpd-service-not-found/">ntpd fix</a>)</li>\n'
         "<li><strong>Firewall.</strong> Move <code>iptables</code> rules to <code>nftables</code>.</li>\n"
-        "<li><strong>Python.</strong> AL2023 ships no Python 2 — port <code>python2</code> scripts/shebangs to <code>python3</code>. (<a href=\"/fix/amazon-linux-2023-python2-command-not-found/\">python2 fix</a>)</li>\n"
+        '<li><strong>Python.</strong> AL2023 ships no Python 2 — port <code>python2</code> scripts/shebangs to <code>python3</code>. (<a href="/fix/amazon-linux-2023-python2-command-not-found/">python2 fix</a>)</li>\n'
         "<li><strong>Test</strong> boot, app start, networking, and time sync on a canary instance.</li>\n"
         "<li><strong>Roll out</strong> with a staged canary (5 → 25 → 50 → 100%) and a tested rollback to the previous AMI.</li>\n"
         "</ol>\n"
         "<h2>Do it faster</h2>\n"
-        '<p>The free <a href="/scan/">scanner</a> and the MIT <code>al2023-gate</code> CLI find and patch most of this. Want it done for you? A <a href="/audit/">hash-anchored audit ($'
+        '<p>The free <a href="/scan/">scanner</a> and the MIT <code>al2023-gate</code> CLI detect and patch configured source patterns. Need a review artifact? The <a href="/audit/">repository evidence report ($'
         + str(audit_base)
-        + ', 30-day money-back)</a> scores every finding by blast-radius and hands back a roll-forward plan; the <a href="/pack/">Migration Pack</a> opens the PR. See the full <a href="/migrate/amazon-linux-2-eol/">Amazon Linux 2 migration guide</a>.</p>\n'
+        + ', 30-day money-back)</a> returns exact observed file/line matches and a remediation order. See the full <a href="/migrate/amazon-linux-2-eol/">Amazon Linux 2 migration guide</a>.</p>\n'
         "</body>\n</html>\n"
     )
 
@@ -1309,38 +1224,84 @@ def build_al2_vs_al2023_page(deprecations, pricing_view):
     comparison query, distinct intent from the guide/checklist. Facts from the AL2023
     'compare with AL2' doc. Static & deterministic."""
     import html as _h
+
     ap = pricing_view.get("audit_pdf", {}) if isinstance(pricing_view, dict) else {}
     audit_base = ap.get("base", 299) if isinstance(ap, dict) else 299
-    al2 = next((d for d in deprecations.get("deprecations", [])
-                if "amazon linux 2" in str(d.get("name", "")).lower()), {})
+    al2 = next(
+        (
+            d
+            for d in deprecations.get("deprecations", [])
+            if "amazon linux 2" in str(d.get("name", "")).lower()
+        ),
+        {},
+    )
     date = _h.escape(str(al2.get("date", "2026-06-30")))
     cmp_src = "https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html"
     rows = [
         ("Package manager", "yum", "dnf (a <code>yum</code> symlink remains for compatibility)"),
-        ("Extras library", "amazon-linux-extras", "Removed — packages are default, version-namespaced (python3.11, nginx1.24), or in SPAL"),
+        (
+            "Extras library",
+            "amazon-linux-extras",
+            "Removed — packages are default, version-namespaced (python3.11, nginx1.24), or in SPAL",
+        ),
         ("Time sync", "ntpd", "chronyd"),
         ("Firewall backend", "iptables", "nftables"),
         ("Python", "2.7 and 3.x", "3.x only — no Python 2"),
         ("glibc", "2.26", "2.34"),
-        ("Releases &amp; support", "Single rolling release", "Versioned releases, 5-year support, quarterly updates, deterministic upgrades"),
-        ("Security defaults", "Looser", "Hardened — SELinux on, IMDSv2-friendly, locked-down by default"),
+        (
+            "Releases &amp; support",
+            "Single rolling release",
+            "Versioned releases, 5-year support, quarterly updates, deterministic upgrades",
+        ),
+        (
+            "Security defaults",
+            "Looser",
+            "Hardened — SELinux on, IMDSv2-friendly, locked-down by default",
+        ),
     ]
-    table = "".join("<tr><td><strong>" + a + "</strong></td><td>" + b + "</td><td>" + c + "</td></tr>" for a, b, c in rows)
+    table = "".join(
+        "<tr><td><strong>" + a + "</strong></td><td>" + b + "</td><td>" + c + "</td></tr>"
+        for a, b, c in rows
+    )
     faq = {
-        "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
-            {"@type": "Question", "name": "What is the difference between Amazon Linux 2 and Amazon Linux 2023?",
-             "acceptedAnswer": {"@type": "Answer", "text": "AL2023 replaces yum with dnf, removes amazon-linux-extras, swaps ntpd for chronyd and iptables for nftables, drops Python 2, ships glibc 2.34, and uses versioned 5-year-supported releases with hardened defaults."}},
-            {"@type": "Question", "name": "Do I have to migrate from Amazon Linux 2 to AL2023?",
-             "acceptedAnswer": {"@type": "Answer", "text": "Yes — Amazon Linux 2 reached end of life on " + date.replace("&amp;", "&") + "; since then there are no security patches or new AMIs. AL2023 is the supported successor."}},
-            {"@type": "Question", "name": "Is yum still available on Amazon Linux 2023?",
-             "acceptedAnswer": {"@type": "Answer", "text": "A yum command remains as a symlink to dnf for backward compatibility, but dnf is the real package manager and amazon-linux-extras is gone."}},
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What is the difference between Amazon Linux 2 and Amazon Linux 2023?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "AL2023 replaces yum with dnf, removes amazon-linux-extras, swaps ntpd for chronyd and iptables for nftables, drops Python 2, ships glibc 2.34, and uses versioned 5-year-supported releases with hardened defaults.",
+                },
+            },
+            {
+                "@type": "Question",
+                "name": "Do I have to migrate from Amazon Linux 2 to AL2023?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Amazon Linux 2 reached its published end-of-life date on "
+                    + date.replace("&amp;", "&")
+                    + ". Verify the installed release and current AWS support terms; AL2023 is the durable successor.",
+                },
+            },
+            {
+                "@type": "Question",
+                "name": "Is yum still available on Amazon Linux 2023?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "A yum command remains as a symlink to dnf for backward compatibility, but dnf is the real package manager and amazon-linux-extras is gone.",
+                },
+            },
         ],
     }
     return (
         '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
         "<title>Amazon Linux 2 vs Amazon Linux 2023: what changes | EOLkits</title>\n"
-        '<meta name="description" content="Amazon Linux 2 vs AL2023, side by side: dnf vs yum, amazon-linux-extras, chronyd, nftables, Python, glibc, support windows — and why AL2 (EOL ' + date + ') must move to AL2023. Free scanner to find your AL2 usage.">\n'
+        '<meta name="description" content="Amazon Linux 2 vs AL2023, side by side: dnf vs yum, amazon-linux-extras, chronyd, nftables, Python, glibc, support windows — and why AL2 (EOL '
+        + date
+        + ') must move to AL2023. Free scanner to find your AL2 usage.">\n'
         '<link rel="canonical" href="' + SITE_URL + '/amazon-linux-2-vs-amazon-linux-2023/">\n'
         '<link rel="stylesheet" href="/style.css">\n'
         '<script defer src="/track.js"></script>\n'
@@ -1352,14 +1313,20 @@ def build_al2_vs_al2023_page(deprecations, pricing_view):
         '<body class="container article">\n'
         '<nav class="breadcrumb"><a href="/">Home</a> / <a href="/migrate/">Deadlines</a> / <span>AL2 vs AL2023</span></nav>\n'
         "<h1>Amazon Linux 2 vs Amazon Linux 2023</h1>\n"
-        "<p>What actually changes between Amazon Linux 2 and Amazon Linux 2023 — and why it matters now: <strong>AL2 reached end of life " + date + "</strong> (no more patches or AMIs since), so AL2023 isn't optional. Facts below are from AWS's own AL2-vs-AL2023 comparison.</p>\n"
-        '<table class="cmp"><thead><tr><th>Area</th><th>Amazon Linux 2</th><th>Amazon Linux 2023</th></tr></thead><tbody>' + table + "</tbody></table>\n"
-        '<p><a href="' + cmp_src + '" target="_blank" rel="noopener nofollow">[AWS source: comparing AL2 and AL2023]</a></p>\n'
-        '<p><a class="cta" href="/scan/">Scan your stack free — find your AL2 usage →</a></p>\n'
+        "<p>What actually changes between Amazon Linux 2 and Amazon Linux 2023 — and why it matters now: <strong>AL2 reached end of life "
+        + date
+        + "</strong>. AWS has published post-EOL AL2 releases, but standard support ended and AL2023 is the durable migration path. Facts below are from AWS's own AL2-vs-AL2023 comparison.</p>\n"
+        '<table class="cmp"><thead><tr><th>Area</th><th>Amazon Linux 2</th><th>Amazon Linux 2023</th></tr></thead><tbody>'
+        + table
+        + "</tbody></table>\n"
+        '<p><a href="'
+        + cmp_src
+        + '" target="_blank" rel="noopener nofollow">[AWS source: comparing AL2 and AL2023]</a></p>\n'
+        '<p><a class="cta" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/al2023-gate">Inspect the al2023-gate CLI coverage →</a></p>\n'
         "<h2>Migrating off AL2</h2>\n"
-        '<p>The breaking changes above each have a known fix. See the step-by-step <a href="/amazon-linux-2-eol-checklist/">AL2 → AL2023 checklist</a> and the <a href="/migrate/amazon-linux-2-eol/">migration guide</a>, or get a <a href="/audit/">hash-anchored audit ($'
+        '<p>The differences above require workload-specific validation. Use the <a href="/amazon-linux-2-eol-checklist/">AL2 → AL2023 checklist</a> and the <a href="/migrate/amazon-linux-2-eol/">migration guide</a>, or check the <a href="/audit/">repository evidence report ($'
         + str(audit_base)
-        + ', 30-day money-back)</a> that finds every AL2 reference and scores it.</p>\n'
+        + ", 30-day money-back)</a> for exact observed AL2 source references and a remediation order.</p>\n"
         "</body>\n</html>\n"
     )
 
@@ -1377,9 +1344,10 @@ def build_track_js():
         "source:ft.source||qp.get('source')||'organic',"
         "utm_source:ft.utm_source||qp.get('utm_source')||'',"
         "utm_medium:ft.utm_medium||qp.get('utm_medium')||'',"
-        "utm_campaign:ft.utm_campaign||qp.get('utm_campaign')||'',"
-        "ref:document.referrer||''};"
-        "navigator.sendBeacon('" + API_URL + "/api/events',new Blob([JSON.stringify(p)],{type:'application/json'}));"
+        "utm_campaign:ft.utm_campaign||qp.get('utm_campaign')||''};"
+        "navigator.sendBeacon('"
+        + API_URL
+        + "/api/events',new Blob([JSON.stringify(p)],{type:'application/json'}));"
         "}catch(e){}})();"
     )
 
@@ -1388,17 +1356,13 @@ def build_index_page(pricing):
     """Build the canonical landing page from source data, not stale docs output."""
     pricing_view = build_pricing_view(pricing)
     audit = pricing_view["audit_pdf"]
-    pack = pricing_view["migration_pack"]
-    skus = pricing.get("skus", pricing)
-    drift_base = skus.get("drift_watch", {}).get("price_usd", 19)
-    org_base = skus.get("org_license", {}).get("price_usd", 14999)
     return f"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>EOLkits - AWS deprecation migration tools</title>
-<meta name="description" content="MIT-licensed CLIs and paid automation for AWS runtime and platform deprecation migrations.">
+<meta name="description" content="MIT-licensed AWS deprecation scanners and an optional paid repository evidence report with exact file and line matches.">
 <link rel="canonical" href="{SITE_URL}/">
 <link rel="stylesheet" href="/style.css">
 <script defer src="/track.js"></script>
@@ -1409,8 +1373,8 @@ def build_index_page(pricing):
     <a href="/" class="brand"><span class="brand-mark">></span> EOLkits</a>
     <nav>
       <a href="/migrate/">Deadlines</a>
+      <a href="/scan/">Free scan</a>
       <a href="/audit/">Audit</a>
-      <a href="/pack/">Migration Pack</a>
       <a href="https://github.com/ntoledo319/EOLkits" class="btn-ghost">GitHub</a>
     </nav>
   </div>
@@ -1420,8 +1384,8 @@ def build_index_page(pricing):
   <section class="hero">
     <div class="container">
       <div class="eyebrow">AWS runtime &amp; OS EOLs that break production</div>
-      <h1>Find what AWS is about to break in your stack — free.</h1>
-      <p class="lede">Run the open-source scanner on your own files and see every deprecation, scored, in ~30 seconds — no signup. Then fix it yourself with the MIT CLIs, or let us do it: a $299 audit report or a done-for-you migration PR. Every finding cited to AWS's own docs.</p>
+      <h1>Find high-impact AWS deprecation risks in your source — free.</h1>
+      <p class="lede">The browser scanner checks configured Lambda runtime and Node/Python dependency patterns without uploading file contents. Repository CLIs add their documented operating-system checks. The $299 evidence report adds repository-wide file/line evidence, remediation order, sources, and explicit scope limitations.</p>
       <div class="cta-row">
         <a class="btn-primary" href="/scan/">Run the free scan</a>
         <a class="btn-secondary" href="https://github.com/ntoledo319/EOLkits">Clone the CLIs</a>
@@ -1432,7 +1396,7 @@ def build_index_page(pricing):
 
   <section class="section">
     <div class="container">
-      <p class="sub">Free &amp; open-source (MIT) · every finding cited to an AWS primary source · hash-anchored, verifiable reports · 30-day money-back on paid tiers</p>
+      <p class="sub">Free &amp; open-source (MIT) · official source links · local browser scan available · one server-gated paid product · 30-day audit refund policy</p>
     </div>
   </section>
 
@@ -1442,7 +1406,7 @@ def build_index_page(pricing):
       <p class="sub">Each kit is standalone, MIT-licensed, and safe by default: scan first, apply only when requested.</p>
       <div class="kit-grid">
         <article class="kit-card urgent">
-          <div class="kit-deadline">AL2 EOL passed Jun 30, 2026 — unpatched now</div>
+          <div class="kit-deadline">AL2 standard support ended Jun 30, 2026 — plan migration</div>
           <h3>al2023-gate</h3>
           <p class="kit-sub">Amazon Linux 2 to AL2023</p>
           <p>Find AL2 AMIs, remap packages, patch cloud-init, Packer, and Ansible, then generate rollout runbooks.</p>
@@ -1456,9 +1420,9 @@ def build_index_page(pricing):
           <a class="kit-link" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/python-pivot">Read docs</a>
         </article>
         <article class="kit-card">
-          <div class="kit-deadline">Post-deadline cleanup</div>
+          <div class="kit-deadline">Lambda Node.js migration readiness</div>
           <h3>lambda-lifeline</h3>
-          <p class="kit-sub">Lambda Node.js 20 to 22</p>
+          <p class="kit-sub">Lambda Node.js 16–22 to 24</p>
           <p>Patch Lambda runtime fields, source syntax, aws-sdk v2 usage, and staged deploy/rollback plans.</p>
           <a class="kit-link" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/lambda-lifeline">Read docs</a>
         </article>
@@ -1469,7 +1433,7 @@ def build_index_page(pricing):
   <section class="section dark" id="pricing">
     <div class="container">
       <h2>Pricing</h2>
-      <p class="sub">Try before you buy: the CLIs and the <a href="/scan/">browser scanner</a> are free — see exactly what breaks first. Paid tiers do the work for you, with a 30-day money-back guarantee.</p>
+      <p class="sub">Try before you buy: the CLIs and browser scanner are free. The repository evidence report is the only paid product.</p>
       <div class="pricing-grid">
         <article class="pricing-card">
           <h3>CLI</h3>
@@ -1479,25 +1443,13 @@ def build_index_page(pricing):
         </article>
         <article class="pricing-card featured">
           <h3>Audit PDF</h3>
-          <div class="price">from ${audit["base"]}</div>
-          <p>Hash-anchored, cited report: severity × blast-radius scoring, roll-forward roadmap, cost-of-not-fixing estimate. Delivered in ~5 min. 30-day money-back.</p>
-          <a class="btn-primary" href="/audit/">Order audit</a>
+          <div class="price">${audit["base"]}</div>
+          <p>One repository ZIP or source file: exact file/line evidence, observed reach, remediation order, official sources, and an evidence fingerprint. 30-day money-back.</p>
+          <a class="btn-primary" href="/audit/">Check availability</a>
           <p class="small"><a href="/audit/sample/">See a sample report →</a></p>
         </article>
-        <article class="pricing-card">
-          <h3>Migration Pack</h3>
-          <div class="price">${pack["base"]:,}</div>
-          <p>GitHub App PR with codemods, IaC patches, canary plan, rollback, and CI-failure refund policy.</p>
-          <a class="btn-outline" href="/pack/">Get pack</a>
-        </article>
-        <article class="pricing-card">
-          <h3>Drift Watch <span class="small">(coming soon)</span></h3>
-          <div class="price">${drift_base}<span class="per">/mo</span></div>
-          <p>Weekly re-scan of a read-only IAM role, delta PDF on change, and an auto-PR on each new deprecation. In development — not yet purchasable.</p>
-          <a class="btn-outline" href="/drift/">Join the waitlist</a>
-        </article>
       </div>
-      <p class="sub">Running this org-wide? An annual <a href="/license/">Org License</a> (${org_base:,}/yr) covers unlimited runs, private rule extensions, and a live rule-pack feed.</p>
+      <p class="sub">There is no subscription, managed migration, AWS-account inventory, or automated pull-request product for sale.</p>
     </div>
   </section>
 </main>
@@ -1505,6 +1457,7 @@ def build_index_page(pricing):
 <footer class="footer">
   <div class="container">
     <div class="muted small">© 2026 EOLkits. MIT-licensed kits for AWS deprecation migrations.</div>
+    <div class="muted small"><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/legal/SECURITY.html">Security</a> · <a href="mailto:hello@toledotechnologies.com">Support</a></div>
   </div>
 </footer>
 </body>
@@ -1544,80 +1497,58 @@ def build_widget_js():
   `;
   script.parentNode.insertBefore(container, script.nextSibling);
   try {{
-    navigator.sendBeacon('{SITE_URL}/api/events', new Blob([JSON.stringify({{ event: 'widget_view', source: 'widget', sku: 'audit', meta: {{ repo: repo }} }})], {{ type: 'application/json' }}));
+    navigator.sendBeacon('{API_URL}/api/events', new Blob([JSON.stringify({{ event: 'widget_view', source: 'widget', sku: 'audit', meta: {{ repo: repo }} }})], {{ type: 'application/json' }}));
   }} catch (e) {{}}
 }})();
 """
 
 
 def build_partners_page():
-    return _interpolate_api("""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Partners — EOLkits</title>
-<style>body{font-family:system-ui,sans-serif;max-width:780px;margin:0 auto;padding:2rem;line-height:1.6}.brand{color:#2563eb;font-weight:600}.box{border:1px solid #e5e7eb;border-radius:8px;padding:1.5rem;margin:1.25rem 0;background:#f9fafb}button{background:#2563eb;color:#fff;border:0;padding:.7rem 1.4rem;border-radius:6px;cursor:pointer}</style>
-</head><body><a href="/" class="brand">← EOLkits</a><h1>White-label Partners</h1>
-<p>Run EOLkits audits under your brand. 70% revenue share. Stripe Connect handles the split automatically — no invoicing, no reconciliation.</p>
-<div class="box"><h3>How it works</h3>
-<ol><li>Sign up with your business email and domain.</li>
-<li>Add a DNS TXT record we provide to verify domain ownership (anti-impersonation).</li>
-<li>Stripe Connect Express onboarding (one-time, ~3 minutes, handled by Stripe).</li>
-<li>Call <code>POST /partners/&lt;your-slug&gt;/audit</code> from your tooling. We deliver a co-branded PDF and split the payment 70/30.</li></ol></div>
-<form action="{API_URL}/partners/signup" method="POST">
-<p><input type="email" name="email" placeholder="contact@yourcompany.com" required style="padding:.5rem;width:300px"></p>
-<p><input type="text" name="display_name" placeholder="Display name" required style="padding:.5rem;width:300px"></p>
-<p><input type="text" name="domain" placeholder="yourcompany.com" required style="padding:.5rem;width:300px"></p>
-<button type="submit">Start partner signup</button></form>
-<footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a> · <a href="/legal/terms.html">Terms</a></footer></body></html>""")
+    """Keep the legacy partner route safe without collecting speculative leads."""
+    return _build_unavailable_product_page(
+        "Partner Program",
+        "The former white-label, co-branding, and revenue-share offer was not "
+        "operationally verified. No partner account or fulfillment program is offered.",
+    )
 
 
 def build_drift_page(pricing):
-    """Drift Watch waitlist page. NOT a checkout: fulfillment (weekly re-scan,
-    IAM role validation, delta PDF, auto-PR) is not built yet, so this must
-    never take a payment (AGENTS.md §2.5 truth-only / do-no-harm)."""
-    skus = pricing.get("skus", pricing)
-    price = skus.get("drift_watch", {}).get("price_usd", 19)
+    """Keep the legacy route safe without advertising an unbuilt product."""
+    del pricing
     html = """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Drift Watch (coming soon) — EOLkits</title>
-<meta name="description" content="Planned $PRICE/mo: weekly re-scan of a read-only IAM role, a delta PDF when a new AWS deprecation touches your stack, and an auto-opened migration PR. In development — join the waitlist.">
+<meta name="robots" content="noindex,follow">
+<title>Drift Watch is unavailable — EOLkits</title>
+<meta name="description" content="Drift Watch is not available for purchase. Use the free local scanner or check the repository evidence report status.">
 <link rel="canonical" href="https://eolkits.com/drift/">
 <style>
 body{font-family:system-ui,-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:2rem;line-height:1.6}
 .brand{color:#2563eb;font-weight:600}
 h1{margin-top:0}
 .badge{display:inline-block;background:#fef3c7;color:#92400e;border-radius:999px;padding:.2rem .75rem;font-size:.8rem;font-weight:600;margin-bottom:.5rem}
-.price{font-size:3rem;font-weight:700;color:#0ea5e9}
 .feature{background:#f9fafb;border-radius:8px;padding:1rem;margin:.75rem 0}
-.btn{display:inline-block;background:#2563eb;color:#fff;padding:.6rem 1.2rem;border-radius:6px;text-decoration:none;font-weight:600}
 footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
 </style>
 </head>
 <body>
 <a href="/" class="brand">← EOLkits</a>
-<h1>Drift Watch</h1>
-<p class="badge">Coming soon — not yet available to buy</p>
-<p class="price">$PRICE<span style="font-size:1rem;font-weight:normal;color:#6b7280">/month (planned)</span></p>
-<p>The plan: weekly re-scan of a <strong>read-only</strong> IAM role — you'd grant read-only access, nothing more — with a delta PDF the moment a new deprecation touches your stack, plus an auto-opened migration PR. <strong>This isn't built yet</strong>, so there's nothing to subscribe to today — no charge, no signup, just an honest heads-up so you can plan around it.</p>
-<div class="feature"><strong>Weekly scan</strong> — cron-driven, zero effort after setup.</div>
-<div class="feature"><strong>Delta PDF on change</strong> — only when something actually shifts, so it stays signal, not noise.</div>
-<div class="feature"><strong>Auto-PR on new deprecation</strong> — the migration is opened for you, with the same CI-failure refund stance as the Migration Pack.</div>
-<h3>Want a heads-up when it ships?</h3>
-<p>Email <a href="mailto:hello@toledotechnologies.com?subject=Drift%20Watch%20waitlist">hello@toledotechnologies.com</a> with subject "Drift Watch waitlist" and we'll let you know.</p>
-<p style="color:#6b7280;font-size:.9rem">In the meantime, the one-time <a href="/audit/">Audit PDF</a> and <a href="/pack/">Migration Pack</a> are live today, or run the <a href="/scan/">free scanner</a> yourself any time.</p>
-<script>
-try {{ navigator.sendBeacon('{API_URL}/api/events', new Blob([JSON.stringify({{ event: 'view', sku: 'drift_watch_waitlist', path: location.pathname }})], {{ type: 'application/json' }})); }} catch (e) {{}}
-</script>
+<h1>Drift Watch is unavailable</h1>
+<p class="badge">No checkout · no subscription · no waitlist</p>
+<p>The former page described a hosted monitoring product before its account inventory, scheduling, change detection, and delivery path existed. It is not offered for sale.</p>
+<div class="feature"><strong>Available now:</strong> use the <a href="/scan/">free local browser scanner</a>, or check whether the server-gated <a href="/audit/">repository evidence report</a> is open.</div>
 <footer>
   <p><a href="/">Home</a> · <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></p>
 </footer>
 </body>
-</html>""".replace("$PRICE", str(price))
+</html>"""
     return _interpolate_api(html)
 
 
 def build_success_page():
-    """Post-checkout success + per-SKU onboarding, with the audit->pack upsell."""
+    """Post-checkout status for the only active paid SKU (Audit v2)."""
     html = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1649,18 +1580,16 @@ const body = document.getElementById('body');
 function h(html) {{ body.innerHTML = html; }}
 if (sku === 'audit') {{
   title.textContent = 'Your audit is on the way';
-  h('<div class="card"><p>Payment received. Your hash-anchored audit PDF is generating now and lands in your inbox within ~5 minutes.</p><p>Verify authenticity any time at <a href="/verify/">/verify/</a>.</p></div>'
-    + '<div class="card upsell"><h3>Want it fixed, not just found?</h3><p>Upgrade to a <strong>Migration Pack</strong> within 48 hours and we credit your $299 audit toward the $1,499 — a real PR with codemods, IaC patches, canary plan, and a CI-failure refund guarantee.</p><p><a class="btn" href="/pack/?utm_source=audit_upsell&utm_medium=success&utm_campaign=audit48h">Apply my $299 credit →</a></p></div>');
+  h('<div class="card"><p>Payment received. Your repository evidence PDF is queued for automated generation and email delivery. Delays are possible.</p><p>Its evidence lookup records the input hash, rule-pack version, evidence fingerprint, and observed counts. The PDF itself is not digitally signed.</p><p>If fulfillment cannot complete after retries, the system attempts an automatic refund and surfaces any unresolved refund for operator review.</p></div>');
 }} else if (sku === 'pack') {{
-  title.textContent = 'Migration Pack confirmed';
-  h('<div class="card"><p>Payment received. We are opening your migration PR now (within ~5 minutes). Watch the repo you authorized.</p><p>If CI fails on the PR within 7 days and you have not added the <code>override:ci-failure</code> label, you are refunded automatically.</p><p>Track fulfillment on the <a href="/status/">status page</a>.</p></div>');
+  title.textContent = 'Migration Pack is closed';
+  h('<div class="card"><p>Migration Pack is not available for purchase. If a legacy payment link charged you, email <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> with the Stripe receipt so the payment can be reviewed and refunded.</p></div>');
 }} else if (sku === 'drift') {{
-  title.textContent = 'Drift Watch isn\\'t available yet';
-  h('<div class="card"><p>Drift Watch isn\\'t open for purchase — if you were charged, email <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> for an immediate refund. Join the <a href="/drift/">waitlist</a> for when it ships.</p></div>');
+  title.textContent = 'Drift Watch is unavailable';
+  h('<div class="card"><p>Drift Watch is not open for purchase. If a legacy payment link charged you, email <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> with the Stripe receipt so the payment can be reviewed and refunded.</p></div>');
 }} else {{
   h('<div class="card"><p>Payment received. Check your email for next steps.</p></div>');
 }}
-try {{ navigator.sendBeacon('{API_URL}/api/events', new Blob([JSON.stringify({{ event: 'purchase_success', sku: sku, path: location.pathname, meta: {{ session_id: sid }} }})], {{ type: 'application/json' }})); }} catch (e) {{}}
 </script>
 </body>
 </html>"""
@@ -1668,50 +1597,47 @@ try {{ navigator.sendBeacon('{API_URL}/api/events', new Blob([JSON.stringify({{ 
 
 
 def build_status_page():
-    return """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Status — EOLkits</title>
-<style>body{font-family:system-ui,sans-serif;max-width:900px;margin:0 auto;padding:2rem;line-height:1.6}.brand{color:#2563eb;font-weight:600}.svc{display:flex;justify-content:space-between;align-items:center;border:1px solid #e5e7eb;border-radius:8px;padding:1rem;margin:.5rem 0}.dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:8px;background:#9ca3af}.dot.green{background:#10b981}.dot.red{background:#ef4444}.muted{color:#6b7280;font-size:.85rem}</style>
+    html = """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Status — EOLkits</title>
+<style>body{font-family:system-ui,sans-serif;max-width:900px;margin:0 auto;padding:2rem;line-height:1.6}.brand{color:#2563eb;font-weight:600}.svc{display:flex;justify-content:space-between;align-items:center;border:1px solid #e5e7eb;border-radius:8px;padding:1rem;margin:.5rem 0}.dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:8px;background:#9ca3af}.dot.green{background:#10b981}.dot.red{background:#ef4444}.muted{color:#6b7280;font-size:.85rem}.notice{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}.card{border:1px solid #e5e7eb;border-radius:8px;padding:1rem}</style>
 </head><body><a href="/" class="brand">← EOLkits</a><h1>System Status</h1>
-<p class="muted">Synthetic checks every 5 minutes. Data pulled from <a href="/status/data.json">/status/data.json</a>.</p>
-<div id="services"><div class="svc"><span><span class="dot" id="dot-stripe"></span>Stripe checkout</span><span id="t-stripe">—</span></div>
-<div class="svc"><span><span class="dot" id="dot-worker"></span>Worker API</span><span id="t-worker">—</span></div>
+<p class="muted">Live backend readiness and anonymous seven-day funnel/commerce aggregates. This is not an end-to-end synthetic purchase test.</p>
+<p id="feedState" class="notice">Loading the live API status…</p>
+<div id="services"><div class="svc"><span><span class="dot" id="dot-storage"></span>Upload/report storage</span><span id="t-storage">unknown</span></div>
+<div class="svc"><span><span class="dot" id="dot-stripe"></span>Stripe configuration</span><span id="t-stripe">unknown</span></div>
 <div class="svc"><span><span class="dot" id="dot-runner"></span>Job runner</span><span id="t-runner">—</span></div>
-<div class="svc"><span><span class="dot" id="dot-email"></span>Email delivery</span><span id="t-email">—</span></div>
-<div class="svc"><span><span class="dot" id="dot-github"></span>GitHub App</span><span id="t-github">—</span></div></div>
-<h2>Throughput (last 7 days)</h2>
-<ul id="metrics"><li>Loading…</li></ul>
+<div class="svc"><span><span class="dot" id="dot-email"></span>Email configuration</span><span id="t-email">unknown</span></div></div>
+<h2>Product availability</h2><ul id="capabilities"><li>Loading…</li></ul>
+<div class="grid"><div class="card"><h2>Funnel (7 days)</h2><ul id="funnel"><li>Loading…</li></ul></div><div class="card"><h2>Commerce (7 days)</h2><ul id="commerce"><li>Loading…</li></ul></div></div>
 <script>
-fetch('/status/data.json').then(r=>r.json()).then(d=>{
-  for(const s of ['stripe','worker','runner','email','github']){
-    const v=(d.checks||{})[s];
-    if(v){document.getElementById('dot-'+s).className='dot '+(v.ok?'green':'red');document.getElementById('t-'+s).textContent=v.last_checked||'';}
+function list(id,data){const el=document.getElementById(id);el.innerHTML='';const entries=Object.entries(data||{});if(!entries.length){el.innerHTML='<li>No events observed</li>';return;}for(const [k,v] of entries){const li=document.createElement('li');li.textContent=k+': '+v;el.appendChild(li);}}
+fetch('{API_URL}/api/status',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject(new Error('HTTP '+r.status))).then(d=>{
+  document.getElementById('feedState').textContent='Live API reported '+(d.overall||'unknown')+' at '+(d.timestamp||'unknown time')+'.';
+  for(const s of ['storage','stripe','runner','email']){
+    const v=(d.components||{})[s];
+    if(v){document.getElementById('dot-'+s).className='dot '+(v.ok?'green':'red');document.getElementById('t-'+s).textContent=v.ok?'ready':'not ready';}
   }
-  const m=document.getElementById('metrics');m.innerHTML='';
-  for(const [k,v] of Object.entries(d.metrics||{})){const li=document.createElement('li');li.textContent=k+': '+v;m.appendChild(li);}
-}).catch(()=>{document.getElementById('metrics').innerHTML='<li>status feed unavailable</li>';});
+  list('capabilities',d.capabilities);list('funnel',d.funnel_7d);list('commerce',d.commerce_7d);
+}).catch(e=>{document.getElementById('feedState').textContent='Live status unavailable; all component states remain unknown. '+e.message;list('capabilities',{});list('funnel',{});list('commerce',{});});
 </script>
 <footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a></footer></body></html>"""
+    return _interpolate_api(html)
 
 
 def build_status_data_seed():
-    # Date-stable so the committed seed doesn't churn on every rebuild; the live
-    # status feed is refreshed at runtime by status-synth.yml.
+    # Fail-closed static fallback. The page reads /api/status from the real API;
+    # a build can never manufacture green checks or zero-valued business data.
     now = _build_date() + "T00:00:00Z"
     return json.dumps(
         {
             "generated_at": now,
+            "source": "static-fallback-only",
             "checks": {
-                "stripe": {"ok": True, "last_checked": now},
-                "worker": {"ok": True, "last_checked": now},
-                "runner": {"ok": True, "last_checked": now},
-                "email": {"ok": True, "last_checked": now},
-                "github": {"ok": True, "last_checked": now},
+                "storage": {"ok": None, "status": "unknown"},
+                "stripe": {"ok": None, "status": "unknown"},
+                "runner": {"ok": None, "status": "unknown"},
+                "email": {"ok": None, "status": "unknown"},
             },
-            "metrics": {
-                "audits_delivered_7d": 0,
-                "prs_opened_7d": 0,
-                "drift_watch_subscribers": 0,
-                "rules_in_public_pack": 0,
-            },
+            "metrics": None,
         },
         indent=2,
     )
@@ -1724,109 +1650,37 @@ def build_blog_index():
 <link rel="stylesheet" href="/style.css">
 <script defer src="/track.js"></script>
 </head><body class="container article"><a href="/" class="brand">← EOLkits</a><h1>AWS migration guides</h1>
-<p>Long-form, sourced guides for getting off deprecated AWS runtimes. <a href="/blog/feed.xml">RSS</a> · <a href="/migrate/">all deadlines</a> · <a href="/fix/">error fixes</a></p>
-<article style="border-bottom:1px solid #e5e7eb;padding:1.25rem 0">
-<h2 style="margin-bottom:.25rem"><a href="/blog/migrating-lambda-nodejs-20-to-22/">Migrating AWS Lambda Node.js 20 to Node.js 22: a complete guide</a></h2>
-<p>Every breaking change between <code>nodejs20.x</code> and <code>nodejs22.x</code> — import assertions, the unbundled AWS SDK v2, native-addon ABI, OpenSSL 3 — and how to automate the migration before the Feb 1 / Mar 3, 2027 block cliffs.</p>
-</article>
-<footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a></footer></body></html>""".replace("{SITE}", SITE_URL)
-
-
-def build_blog_post():
-    """Render the long-form migration guide (launch/blog-post.md) into a real /blog
-    article — written but never published (the autopsy's unpublished-content gap).
-    Appends a funnel CTA; rendered deterministically via the md_to_html mini-markdown."""
-    p = BASE_DIR.parent.parent / "launch" / "blog-post.md"
-    if not p.exists():
-        return None
-    md = p.read_text(encoding="utf-8")
-    m = re.search(r"^#\s+(.*)$", md, re.M)
-    title = (m.group(1).strip() if m else "Migrating AWS Lambda Node.js 20 to Node.js 22") + " | EOLkits"
-    md += (
-        "\n\n---\n\n## Do it automatically\n\n"
-        "Don't migrate by hand. The free [EOLkits scanner](https://eolkits.com/scan) finds every "
-        "deprecated Lambda runtime and the dependency breaks above in your own config — in your "
-        "browser, nothing uploaded. Then fix it with the MIT CLIs, or get a "
-        "[hash-anchored audit](https://eolkits.com/audit) (30-day money-back) or a "
-        "[done-for-you migration PR](https://eolkits.com/pack).\n"
+<p>The former long-form post mixed verified facts with unsupported completeness and performance claims, so it has been retired pending a primary-source rewrite.</p>
+<p>Use the cited <a href="/migrate/">deadline pages</a>, the <a href="/fix/">specific error references</a>, or the <a href="/scan/">free local scanner</a>.</p>
+<footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a></footer></body></html>""".replace(
+        "{SITE}", SITE_URL
     )
-    return md_to_html(md, title, "/blog/migrating-lambda-nodejs-20-to-22/")
 
 
-def build_vs_index(competitors):
-    items = "".join(
-        f'<li><a href="/vs/{slugify(c["name"])}/">EOLkits vs {c["name"]}</a> <span style="color:#6b7280">— {c["category"]}</span></li>'
-        for c in competitors
-    )
-    return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Comparisons — EOLkits</title>
-<style>body{{font-family:system-ui,sans-serif;max-width:780px;margin:0 auto;padding:2rem;line-height:1.6}}.brand{{color:#2563eb;font-weight:600}}</style>
-</head><body><a href="/" class="brand">← EOLkits</a><h1>EOLkits vs alternatives</h1>
-<p>Factual comparisons updated nightly from public sources. No logos used. Plain-text product names under nominative fair use.</p>
-<ul>{items}</ul>
-<p style="color:#6b7280;font-size:.85rem">Pages reflect public data as of the timestamp shown on each page. If a fact is wrong or outdated, open an issue.</p>
-<p>Skip the reading — paste your config into the <a href="/eol-checker/">free AWS EOL checker</a> instead.</p>
+def build_vs_index():
+    return """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Comparisons — EOLkits</title>
+<style>body{font-family:system-ui,sans-serif;max-width:780px;margin:0 auto;padding:2rem;line-height:1.6}.brand{color:#2563eb;font-weight:600}</style>
+</head><body><a href="/" class="brand">← EOLkits</a><h1>Evaluate EOLkits</h1>
+<p>The previous side-by-side pages contained product and pricing claims that were not continuously verified, so they have been retired.</p>
+<p>Evaluate EOLkits against the tool you already use by running the <a href="/scan/">free local browser scanner</a>, reviewing the <a href="https://github.com/ntoledo319/EOLkits">MIT source and tests</a>, and checking the other vendor's current official documentation directly.</p>
+<p>EOLkits currently offers local source/IaC checks and, when the fulfillment service is healthy, a $299 static repository evidence report. It is not an AWS account inventory or managed migration service.</p>
 <footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a></footer></body></html>"""
 
 
-def build_vs_page(competitor):
-    today = datetime.now(UTC).strftime("%Y-%m-%d")
-    return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EOLkits vs {competitor["name"]} — comparison</title>
-<meta name="description" content="Factual comparison of EOLkits and {competitor["name"]} for AWS deprecation migrations. As of {today}.">
-<link rel="canonical" href="{SITE_URL}/vs/{slugify(competitor["name"])}/">
-<style>body{{font-family:system-ui,sans-serif;max-width:900px;margin:0 auto;padding:2rem;line-height:1.6}}.brand{{color:#2563eb;font-weight:600}}table{{width:100%;border-collapse:collapse;margin:1rem 0}}th,td{{border:1px solid #e5e7eb;padding:.6rem;text-align:left}}th{{background:#f9fafb}}.muted{{color:#6b7280;font-size:.85rem}}</style>
-</head><body><a href="/" class="brand">← EOLkits</a><h1>EOLkits vs {competitor["name"]}</h1>
-<p class="muted">Category: {competitor["category"]}. Source: <a href="{competitor["url"]}" rel="nofollow">{competitor["url"]}</a>. As of {today}.</p>
-<table><tr><th>Capability</th><th>EOLkits</th><th>{competitor["name"]}</th></tr>
-<tr><td>License</td><td>MIT (open core)</td><td>{competitor.get("license", "—")}</td></tr>
-<tr><td>Codemod / source rewriting</td><td>Yes</td><td>{competitor.get("codemod", "—")}</td></tr>
-<tr><td>IaC patching (SAM/CDK/TF)</td><td>Yes</td><td>{competitor.get("iac", "—")}</td></tr>
-<tr><td>Canary deploy + rollback</td><td>Yes</td><td>{competitor.get("canary", "—")}</td></tr>
-<tr><td>Determinism (CI-gated)</td><td>Yes</td><td>{competitor.get("deterministic", "—")}</td></tr>
-<tr><td>Hash-anchored audit reports</td><td>Yes</td><td>{competitor.get("hash_anchored", "—")}</td></tr>
-<tr><td>Pricing</td><td>Free CLI; Audit $299; Pack $1,499</td><td>{competitor.get("pricing", "—")}</td></tr></table>
-<p class="muted">Trademark notice: "{competitor["name"]}" is referenced in plain text under nominative fair use. No logos are used. If you operate this product and a fact above is wrong, please open an issue at <a href="https://github.com/ntoledo319/EOLkits/issues">github.com/ntoledo319/EOLkits/issues</a> and we will correct within 24h of confirmation.</p>
-<p>Deciding between tools? Paste your config into the <a href="/eol-checker/">free AWS EOL checker</a> — nothing uploaded, see your actual block/EOL dates in 10 seconds.</p>
-<footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a> · <a href="/vs/">All comparisons</a></footer></body></html>"""
+def build_retired_path_page(title, destination, explanation):
+    """Keep historical inbound links useful without preserving unsupported copy."""
+    import html as _html
 
-
-COMPETITORS = [
-    {
-        "name": "CloudQuery",
-        "category": "Cloud asset inventory",
-        "url": "https://www.cloudquery.io/",
-        "license": "Apache-2.0",
-        "codemod": "No",
-        "iac": "No (read-only)",
-        "canary": "No",
-        "deterministic": "n/a",
-        "hash_anchored": "No",
-        "pricing": "Free + paid SaaS",
-    },
-    {
-        "name": "HeroDevs",
-        "category": "Post-EOL support subscription",
-        "url": "https://www.herodevs.com/",
-        "license": "Proprietary",
-        "codemod": "No",
-        "iac": "No",
-        "canary": "No",
-        "deterministic": "n/a",
-        "hash_anchored": "No",
-        "pricing": "Enterprise quote",
-    },
-    {
-        "name": "aws-samples runtime-update-helper",
-        "category": "AWS sample script",
-        "url": "https://github.com/aws-samples/aws-lambda-runtime-update-helper",
-        "license": "MIT-0",
-        "codemod": "No",
-        "iac": "No (runtime field flip only)",
-        "canary": "No",
-        "deterministic": "Unspecified",
-        "hash_anchored": "No",
-        "pricing": "Free",
-    },
-]
+    safe_title = _html.escape(title)
+    safe_destination = _html.escape(destination, quote=True)
+    safe_explanation = _html.escape(explanation)
+    return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,follow"><link rel="canonical" href="{SITE_URL}{safe_destination}">
+<title>{safe_title} — moved | EOLkits</title>
+<style>body{{font-family:system-ui,sans-serif;max-width:720px;margin:0 auto;padding:2rem;line-height:1.6}}.brand{{color:#2563eb;font-weight:600}}</style>
+</head><body><a href="/" class="brand">← EOLkits</a><h1>{safe_title} moved</h1>
+<p>{safe_explanation}</p><p><a href="{safe_destination}">Continue to the current page →</a></p></body></html>"""
 
 
 def build_deprecations_ics(deprecations):
@@ -1847,7 +1701,7 @@ def build_deprecations_ics(deprecations):
             continue
         dtstart = d.strftime("%Y%m%d")
         dtend = (d + timedelta(days=1)).strftime("%Y%m%d")
-        uid = f"{slugify(dep['name'])}@eolkits"
+        uid = f"{deprecation_slug(dep)}@eolkits"
         summary = dep["name"].replace(",", "\\,")
         desc_raw = dep.get("description", "") + f" Source: {dep.get('url','')}"
         desc = desc_raw.replace("\\", "\\\\").replace(",", "\\,").replace("\n", "\\n")
@@ -1878,11 +1732,18 @@ def md_to_html(md_text, title, canonical_path):
         # inline `code` first so its contents aren't bold/link-processed
         s = re.sub(r"`([^`]+)`", lambda m: "<code>" + m.group(1) + "</code>", s)
         s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
-        s = re.sub(
-            r"\[([^\]]+)\]\((https?://[^)]+)\)",
-            r'<a href="\2" rel="noopener">\1</a>',
-            s,
-        )
+
+        def link(match):
+            label, target = match.group(1), match.group(2)
+            lower = target.lower()
+            if lower.startswith(("javascript:", "data:", "//")):
+                return label
+            if ":" in target and not lower.startswith(("http://", "https://", "mailto:")):
+                return label
+            rel = ' rel="noopener"' if lower.startswith(("http://", "https://")) else ""
+            return f'<a href="{target}"{rel}>{label}</a>'
+
+        s = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", link, s)
         return s
 
     lines = md_text.splitlines()
@@ -1956,7 +1817,13 @@ def md_to_html(md_text, title, canonical_path):
             out.append("<blockquote>" + inline(" ".join(buf)) + "</blockquote>")
             continue
         # pipe table: a row with | followed by a |---|--- separator row
-        if "|" in s and i + 1 < n and "|" in lines[i + 1] and re.match(r"^[\s|:-]+$", lines[i + 1].strip()) and "-" in lines[i + 1]:
+        if (
+            "|" in s
+            and i + 1 < n
+            and "|" in lines[i + 1]
+            and re.match(r"^[\s|:-]+$", lines[i + 1].strip())
+            and "-" in lines[i + 1]
+        ):
             flush_para()
             close_lists()
             header = _cells(lines[i])
@@ -1964,9 +1831,15 @@ def md_to_html(md_text, title, canonical_path):
             thead = "".join("<th>" + inline(c) + "</th>" for c in header)
             body = ""
             while i < n and "|" in lines[i] and lines[i].strip():
-                body += "<tr>" + "".join("<td>" + inline(c) + "</td>" for c in _cells(lines[i])) + "</tr>"
+                body += (
+                    "<tr>"
+                    + "".join("<td>" + inline(c) + "</td>" for c in _cells(lines[i]))
+                    + "</tr>"
+                )
                 i += 1
-            out.append("<table><thead><tr>" + thead + "</tr></thead><tbody>" + body + "</tbody></table>")
+            out.append(
+                "<table><thead><tr>" + thead + "</tr></thead><tbody>" + body + "</tbody></table>"
+            )
             continue
         if re.match(r"^[-*]\s+", s):
             flush_para()
@@ -1976,8 +1849,17 @@ def md_to_html(md_text, title, canonical_path):
             if not state["ul"]:
                 out.append("<ul>")
                 state["ul"] = True
-            out.append(f"<li>{inline(re.sub(r'^[-*]\s+', '', s))}</li>")
+            item = [re.sub(r"^[-*]\s+", "", s)]
             i += 1
+            while i < n:
+                continuation = lines[i].strip()
+                if not continuation or re.match(r"^(?:[-*]|\d+\.)\s+", continuation):
+                    break
+                if continuation.startswith(("#", ">", "```")):
+                    break
+                item.append(continuation)
+                i += 1
+            out.append(f"<li>{inline(' '.join(item))}</li>")
             continue
         if re.match(r"^\d+\.\s+", s):
             flush_para()
@@ -1987,8 +1869,17 @@ def md_to_html(md_text, title, canonical_path):
             if not state["ol"]:
                 out.append("<ol>")
                 state["ol"] = True
-            out.append(f"<li>{inline(re.sub(r'^\d+\.\s+', '', s))}</li>")
+            item = [re.sub(r"^\d+\.\s+", "", s)]
             i += 1
+            while i < n:
+                continuation = lines[i].strip()
+                if not continuation or re.match(r"^(?:[-*]|\d+\.)\s+", continuation):
+                    break
+                if continuation.startswith(("#", ">", "```")):
+                    break
+                item.append(continuation)
+                i += 1
+            out.append(f"<li>{inline(' '.join(item))}</li>")
             continue
         para.append(s)
         i += 1
@@ -2017,8 +1908,8 @@ def md_to_html(md_text, title, canonical_path):
     )
 
 
-# First-touch attribution shim (M4a): persists the first MEANINGFUL referral
-# (utm params, or an AI answer-engine referrer like chatgpt.com / perplexity.ai)
+# First-touch attribution shim (M4a): persists the first meaningful referral
+# (UTM parameters or an external referrer hostname, never its path/query)
 # into localStorage on the page where a cold visitor LANDS, so it survives the
 # internal navigation to /audit/ where conversion happens. Without it,
 # attribution() reads only the current URL, so a buyer who lands on a /migrate/
@@ -2029,21 +1920,21 @@ FIRST_TOUCH_JS = """<script>
   try{
     var KEY='eolkits_ft';
     if(localStorage.getItem(KEY))return;
-    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='', refHost='';
+    try{refHost=(new URL(ref)).hostname.toLowerCase().slice(0,100);}catch(e){}
+    if(refHost===location.hostname.toLowerCase())refHost='';
     if(/chatgpt\\.com|chat\\.openai\\.com/i.test(ref))aeo='chatgpt';
     else if(/perplexity\\.ai/i.test(ref))aeo='perplexity';
     else if(/gemini\\.google\\.com/i.test(ref))aeo='gemini';
     else if(/claude\\.ai/i.test(ref))aeo='claude';
-    var ext = ref && ref.indexOf(location.host)===-1;
     var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
-    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    if(!hasUtm && !refHost)return;
     localStorage.setItem(KEY, JSON.stringify({
-      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
-      utm_source: q.get('utm_source')||aeo||'',
-      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      source: q.get('source')||(aeo?('aeo_'+aeo):'referral'),
+      utm_source: q.get('utm_source')||aeo||refHost,
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':'referral'),
       utm_campaign: q.get('utm_campaign')||'',
-      kit: q.get('kit')||'',
-      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+      kit: q.get('kit')||''
     }));
   }catch(e){}
 })();
@@ -2059,39 +1950,45 @@ def inject_first_touch(path: str, content: str) -> str:
 
 
 # --- M1: the free /scan engine -------------------------------------------- #
-# Ported faithfully from the paid kits so the free scan reports the SAME findings
-# the kits would (honest + citable, not an approximation). Tables sourced from:
+# The checked snapshot below is compared with the shared machine-readable rules at
+# build time. Both the browser scanner and paid report consume the shared file, so
+# a future one-sided rule change fails loudly instead of weakening the paid result.
+# Tables were originally sourced from:
 #   kits/lambda-lifeline/src/deps/index.mjs  (NATIVE_PACKAGES, cross-checked 2026-08-21)
 #   kits/python-pivot/src/python_pivot/audit.py  (PY312_WHEEL_TABLE, cross-checked 2026-08-21)
-# NOTE: this is a hand-kept duplicate of the two kit tables above, not a shared
-# import — when one changes, re-sync this one too (see DECISIONS D49).
 # Runtime deadlines are derived from the cited deprecations.yml at build time, so
 # the scanner stays in lockstep with the source of truth (no duplicated dates).
-_NATIVE_PACKAGES = {
-    "sharp": {"min": "0.33.0", "note": "libvips native binding. v0.33+ ships Node 22 prebuilds."},
+_NATIVE_PACKAGES_SNAPSHOT = {
+    "sharp": {"min": "0.33.0", "note": "Conservative baseline; verify Node.js 24 support."},
     "bcrypt": {"min": "5.1.1", "note": "Native bcrypt. Consider bcryptjs for a pure-JS drop-in."},
     "better-sqlite3": {"min": "11.0.0", "note": "SQLite native binding."},
-    "canvas": {"min": "2.11.2", "note": "node-canvas. Needs rebuilt prebuilds for Node 22."},
+    "canvas": {"min": "2.11.2", "note": "Conservative baseline; verify target prebuilds."},
     "node-gyp": {"min": "10.0.0", "note": "Build system. Upgrade before rebuilding natives."},
-    "node-sass": {"min": None, "note": "DEAD. Use sass (Dart Sass) instead — no native deps."},
+    "node-sass": {"min": None, "note": "Unmaintained. Use sass (Dart Sass)."},
     "bufferutil": {"min": "4.0.8", "note": "WebSocket utility native addon."},
     "utf-8-validate": {"min": "6.0.4", "note": "WebSocket utility native addon."},
-    "libpq": {"min": "1.11.0", "note": "PostgreSQL client. No 2.x exists; verify Node-22 floor in changelog."},
-    "grpc": {"min": None, "note": "DEAD. Migrate to @grpc/grpc-js (pure JS)."},
+    "libpq": {
+        "min": "1.11.0",
+        "note": "PostgreSQL client; verify the current release and target prebuild.",
+    },
+    "grpc": {"min": None, "note": "Unmaintained. Migrate to @grpc/grpc-js."},
     "@grpc/grpc-js": {"min": "1.10.0", "note": "Pure JS, no native; just keep up to date."},
     "sqlite3": {"min": "5.1.7", "note": "SQLite3 bindings. Prebuilds available."},
     "argon2": {"min": "0.40.1", "note": "argon2 bindings. 0.40.0 exact was never published."},
     "re2": {"min": "1.21.0", "note": "RE2 regex engine."},
-    "fibers": {"min": None, "note": "DEAD since Node 16. Must remove."},
+    "fibers": {"min": None, "note": "Unmaintained since the Node.js 16 era; remove it."},
     "@tensorflow/tfjs-node": {"min": "4.20.0", "note": "TensorFlow native."},
     "sodium-native": {"min": "4.3.0", "note": "libsodium bindings."},
-    "zmq": {"min": None, "note": "DEAD. Use zeromq instead."},
+    "zmq": {"min": None, "note": "Unmaintained. Use zeromq instead."},
     "zeromq": {"min": "6.1.2", "note": "ZeroMQ bindings."},
     "farmhash": {"min": "4.0.0", "note": "Native hashing."},
-    "@napi-rs/snappy": {"min": None, "note": "DEAD. Last published 2021, predates Node 22. Use snappy or a pure-JS compressor."},
-    "heapdump": {"min": None, "note": "DEAD. Use node --heapsnapshot-signal instead."},
+    "@napi-rs/snappy": {
+        "min": None,
+        "note": "Stale package; use a maintained compressor.",
+    },
+    "heapdump": {"min": None, "note": "Unmaintained. Use node --heapsnapshot-signal instead."},
 }
-_PY312_WHEELS = {
+_PY312_WHEELS_SNAPSHOT = {
     "numpy": {"min": "1.26.0", "note": "1.26+ ships cp312 wheels."},
     "scipy": {"min": "1.11.4", "note": "1.11.4+ for cp312."},
     "pandas": {"min": "2.1.1", "note": "2.1.1+ for cp312."},
@@ -2122,9 +2019,27 @@ _PY312_WHEELS = {
     "awscrt": {"min": "0.19.17", "note": "0.19.17+ for cp312."},
     "boto3": {"min": "1.29.0", "note": "1.29+ tested on cp312."},
     "botocore": {"min": "1.32.0", "note": "1.32+ tested on cp312."},
-    "python-snappy": {"min": "0.7.0", "note": "0.7.0+ (2024-02-27) ships a pure-Python wheel built on cramjam — installs fine on cp312, no swap needed."},
+    "python-snappy": {
+        "min": "0.7.0",
+        "note": "0.7.0+ (2024-02-27) ships a pure-Python wheel built on cramjam — installs fine on cp312, no swap needed.",
+    },
     "fastparquet": {"min": "2023.10.1", "note": "2023.10.1+ for cp312."},
 }
+
+_DEPENDENCY_RULES_FILE = (
+    BASE_DIR.parent.parent / "rules" / "public" / "dependency-compatibility.json"
+)
+_DEPENDENCY_RULES = json.loads(_DEPENDENCY_RULES_FILE.read_text(encoding="utf-8"))
+_NATIVE_PACKAGES = _DEPENDENCY_RULES["node_native"]
+_PY312_WHEELS = _DEPENDENCY_RULES["python_312_wheels"]
+if {name: rule.get("min") for name, rule in _NATIVE_PACKAGES_SNAPSHOT.items()} != {
+    name: rule.get("min") for name, rule in _NATIVE_PACKAGES.items()
+}:
+    raise RuntimeError("browser Node compatibility snapshot drifted from shared rules")
+if {name: rule.get("min") for name, rule in _PY312_WHEELS_SNAPSHOT.items()} != {
+    name: rule.get("min") for name, rule in _PY312_WHEELS.items()
+}:
+    raise RuntimeError("browser Python compatibility snapshot drifted from shared rules")
 
 
 def _runtime_id_from_name(name: str):
@@ -2166,7 +2081,7 @@ function scanIaC(file, c) {
   CDK_RE.lastIndex = 0; while ((m = CDK_RE.exec(c))) { const id = cdkId(m[1], m[2], m[3]); if (id) f.add(id); }
   f.forEach((rt) => {
     const d = DATA.runtimes[rt];
-    if (d) out.push({ kind: 'runtime', file, name: rt, severity: d.historical ? 'critical' : (d.severity || 'high'), date: d.date, kit: d.kit, historical: d.historical, note: d.historical ? 'Already past deprecation — unpatched and increasingly unblockable.' : 'Deprecated Lambda runtime; AWS blocks function create/update after this date.' });
+    if (d) out.push({ kind: 'runtime', file, name: rt, severity: d.historical ? 'critical' : (d.severity || 'high'), date: d.date, kit: d.kit, historical: d.historical, note: d.historical ? 'Past a published milestone; recheck the linked provider status and enforcement dates.' : 'Runtime with an AWS-published deprecation and create/update restriction timeline.' });
   });
   return out;
 }
@@ -2176,8 +2091,8 @@ function scanPkg(file, c) {
   for (const name in deps) {
     const info = DATA.native[name]; if (!info) continue;
     const declared = cleanV(deps[name]);
-    if (info.min === null) { out.push({ kind: 'native', file, name, severity: 'critical', declared: declared || '(unpinned)', required: '(no Node 22 build — remove)', note: info.note }); continue; }
-    if (declared && !vlt(declared, info.min)) continue;
+    if (info.min === null) { out.push({ kind: 'native', file, name, severity: 'critical', declared: declared || '(unpinned)', required: '(unmaintained — replace)', note: info.note }); continue; }
+    if (declared && !vlt(declared, info.min)) { out.push({ kind: 'native', file, name, severity: 'low', declared, required: 'verify Node.js 24 support', note: 'Meets the configured older baseline; confirm the package release and rebuild/test on Node.js 24.' }); continue; }
     out.push({ kind: 'native', file, name, severity: 'high', declared: declared || '(unpinned)', required: '>= ' + info.min, note: info.note });
   }
   return out;
@@ -2202,11 +2117,11 @@ function scanFile(name, content) {
   if (k === 'pyproject') return pyFindings(parsePyproject(content), name);
   return scanIaC(name, content);
 }
-function auditLink(deadline, kit) { const p = new URLSearchParams({ source: 'scan', utm_source: 'scan', utm_medium: 'tool', utm_campaign: 'free-scan' }); if (deadline) p.set('deadline', deadline); if (kit) p.set('kit', kit); return '/audit/?' + p.toString(); }
-const SEV_RANK = { critical: 0, high: 1, low: 2 };
+function auditLink(deadline, kit) { const p = new URLSearchParams({ source: 'scan', utm_source: 'scan', utm_medium: 'tool', utm_campaign: 'free-scan' }); if (deadline) p.set('deadline', deadline); if (kit) p.set('kit', kit); return SITE_BASE + '/audit/?' + p.toString(); }
+const SEV_RANK = { critical: 0, high: 1, medium: 2, low: 3 };
 function render(all) {
   const box = $('#results');
-  if (!all.length) { box.innerHTML = '<div class="scan-ok">No deprecated runtimes or incompatible dependencies in the files you dropped. This free scan covers the high-blast-radius cases; a full audit checks every function, AMI and launch template.</div>'; return; }
+  if (!all.length) { box.innerHTML = '<div class="scan-ok">No configured browser-scan pattern matched the files you dropped. That is not proof that the repository or AWS account is free of deprecation risk.</div>'; return; }
   all.sort((a, b) => (SEV_RANK[a.severity] - SEV_RANK[b.severity]));
   let deadline = null, kit = '', today = new Date().toISOString().slice(0, 10);
   for (const f of all) { if (f.kind === 'runtime' && f.date && f.date >= today) { if (!deadline || f.date < deadline) { deadline = f.date; kit = f.kit || kit; } } }
@@ -2218,27 +2133,16 @@ function render(all) {
   const n = all.length;
   box.innerHTML = '<p class="scan-count">' + n + ' finding' + (n === 1 ? '' : 's') + ' — all detected locally in your browser.</p>' +
     '<table class="scan-tbl"><thead><tr><th>Severity</th><th>What</th><th>File</th><th>Deadline / fix</th><th>Detail</th></tr></thead><tbody>' + rows + '</tbody></table>' +
-    '<a class="scan-cta" href="' + auditLink(deadline, kit) + '">Fix all of this — full audit of every function, AMI &amp; dependency, hash-anchored PDF, 30-day money-back &rarr;</a>';
+    '<a class="scan-cta" href="' + auditLink(deadline, kit) + '">Get repository-wide file/line evidence, sources &amp; remediation order — check Audit v2 availability &rarr;</a>';
 }
 const dz = $('#dz'), fi = $('#fi'); let acc = [];
-function handle(files) { acc = []; const arr = [...files]; let pending = arr.length; if (!pending) return; arr.forEach((file) => { const r = new FileReader(); r.onload = () => { try { acc = acc.concat(scanFile(file.name, r.result)); } catch (e) {} if (--pending === 0) render(acc); }; r.onerror = () => { if (--pending === 0) render(acc); }; r.readAsText(file); }); }
+function scanDone(fileCount) { try { navigator.sendBeacon(API_BASE + '/api/events', new Blob([JSON.stringify({ event: 'scan_completed', sku: 'audit', path: location.pathname, meta: { finding_count: acc.length, file_count: fileCount } })], { type: 'application/json' })); } catch (e) {} }
+function handle(files) { acc = []; const arr = [...files]; let pending = arr.length; if (!pending) return; arr.forEach((file) => { const r = new FileReader(); r.onload = () => { try { acc = acc.concat(scanFile(file.name, r.result)); } catch (e) {} if (--pending === 0) { render(acc); scanDone(arr.length); } }; r.onerror = () => { if (--pending === 0) { render(acc); scanDone(arr.length); } }; r.readAsText(file); }); }
 dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('over'); });
 dz.addEventListener('dragleave', () => dz.classList.remove('over'));
 dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('over'); handle(e.dataTransfer.files); });
 dz.addEventListener('click', () => fi.click());
 fi.addEventListener('change', () => handle(fi.files));
-var lf = document.getElementById('leadForm');
-if (lf) lf.addEventListener('submit', function (e) {
-  e.preventDefault();
-  var msg = document.getElementById('leadMsg');
-  if (document.getElementById('leadHoney').value) { if (msg) msg.textContent = 'Thanks!'; lf.reset(); return; }
-  var email = document.getElementById('leadEmail').value;
-  if (msg) msg.textContent = 'Saving...';
-  fetch('/api/v1/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, product: 'eolkits', source: 'scan' }) })
-    .then(function (r) { return r.ok ? (r.json().catch(function () { return {}; })) : Promise.reject(); })
-    .then(function () { if (msg) msg.textContent = '✓ You are on the list.'; lf.reset(); })
-    .catch(function () { if (msg) msg.textContent = 'Could not save — email hello@toledotechnologies.com'; });
-});
 """
 
 
@@ -2255,7 +2159,7 @@ def build_scan_page(deprecations):
                 continue
             runtimes[rt] = {
                 "date": dep.get("date"),
-                "slug": slugify(dep.get("name", "")),
+                "slug": deprecation_slug(dep),
                 "severity": dep.get("severity", "high"),
                 "kit": dep.get("kit") or "",
                 "historical": group == "historical",
@@ -2269,18 +2173,17 @@ def build_scan_page(deprecations):
         '<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
         "<title>Free AWS Lambda Runtime &amp; Dependency EOL Scanner — EOLkits</title>\n"
-        '<meta name="description" content="Drop your SAM/CDK/Terraform/Serverless, package.json or requirements.txt to instantly find deprecated AWS Lambda runtimes and the Node 22 / Python 3.12 dependency breakages that block a migration. Runs entirely in your browser — nothing is uploaded.">\n'
+        '<meta name="description" content="Drop SAM/CDK/Terraform/Serverless, package.json, or requirements files to find tracked AWS Lambda runtime and native-dependency migration risks. Runs entirely in your browser — nothing is uploaded.">\n'
         f'<link rel="canonical" href="{SITE_URL}/scan/">\n'
         '<link rel="stylesheet" href="/style.css">\n'
-        '<script defer src="/track.js"></script>\n'
-        + _og_image_meta()
-        + "<style>"
+        '<script defer src="/track.js"></script>\n' + _og_image_meta() + "<style>"
         "#dz{border:2px dashed #94a3b8;border-radius:10px;padding:2.5rem 1rem;text-align:center;cursor:pointer;background:#f8fafc}"
         "#dz.over{border-color:#2563eb;background:#eff6ff}"
         ".scan-tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.88rem}"
         ".scan-tbl th,.scan-tbl td{border-bottom:1px solid #eee;padding:.5rem;text-align:left;vertical-align:top}"
         ".sev-critical td:first-child{color:#b91c1c;font-weight:700}"
         ".sev-high td:first-child{color:#b45309;font-weight:700}"
+        ".sev-medium td:first-child{color:#a16207;font-weight:700}"
         ".sev-low td:first-child{color:#2563eb}"
         ".scan-cta{display:inline-block;margin-top:1rem;padding:.75rem 1.25rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}"
         ".scan-ok{padding:1rem;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px}"
@@ -2292,50 +2195,61 @@ def build_scan_page(deprecations):
         '<a href="/" class="brand">&larr; EOLkits</a>\n'
         "<h1>Free AWS runtime &amp; dependency EOL scanner</h1>\n"
         "<p>Drop your infrastructure and dependency files below to find deprecated AWS Lambda runtimes and the "
-        "Node&nbsp;22 / Python&nbsp;3.12 dependency breakages that block a migration. "
-        '<span class="privacy">Everything runs in your browser — nothing is uploaded.</span> '
-        "Open your browser&rsquo;s Network tab and watch: this page makes zero requests while it scans.</p>\n"
+        "native Node.js&nbsp;24 / Python&nbsp;3.12 dependency risks that can block a migration. "
+        '<span class="privacy">File names and contents stay in your browser.</span> '
+        "After a scan, the page sends only file and finding counts for funnel measurement.</p>\n"
         '<div id="dz"><strong>Drop files here</strong><br><small>or click to choose — template.yaml, serverless.yml, *.tf, CDK *.ts, package.json, requirements.txt, pyproject.toml</small>'
         '<input id="fi" type="file" multiple accept=".yaml,.yml,.json,.tf,.ts,.js,.mjs,.txt,.toml" style="display:none"></div>\n'
         '<div id="results"></div>\n'
         "<h2>What it checks</h2>\n<ul>"
         "<li><strong>Lambda runtimes</strong> in SAM, CloudFormation, CDK, Terraform and Serverless Framework — flagged against AWS&rsquo;s published deprecation dates.</li>"
-        "<li><strong>Node native dependencies</strong> (sharp, bcrypt, better-sqlite3&hellip;) that need a version bump or removal for Node&nbsp;22.</li>"
+        "<li><strong>Node native dependencies</strong> (sharp, bcrypt, better-sqlite3&hellip;) that need a version bump, rebuild, or replacement before a Node&nbsp;24 migration.</li>"
         "<li><strong>Python wheels</strong> (numpy, pandas, cryptography&hellip;) that need a bump for a Python&nbsp;3.12 runtime.</li>"
         "</ul>\n"
         '<p>Hit a specific error message? See <a href="/fix/">common AWS migration error fixes &rarr;</a></p>\n'
-        "<p><small>This free scan covers the high-blast-radius cases. The paid audit checks every function, AMI and launch "
-        "template in your account, produces a hash-anchored PDF and a roll-forward roadmap, and is priced by how close your deadline is.</small></p>\n"
-        '<section class="leadcap" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:1.25rem;margin:2rem 0">\n'
-        "<h2 style=\"margin-top:0\">Not migrating today? Don't get caught by the next deadline.</h2>\n"
-        "<p>AWS retires runtimes on a schedule. Drop your email and we'll warn you before each deadline that affects your stack &mdash; no spam, one heads-up per deadline.</p>\n"
-        '<form id="leadForm" autocomplete="on" style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center">\n'
-        '<input type="email" id="leadEmail" name="email" placeholder="you@company.com" required style="padding:.6rem;border:1px solid #cbd5e1;border-radius:6px;min-width:260px">\n'
-        '<input type="text" name="_honey" id="leadHoney" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px" value="">\n'
-        '<button type="submit" style="background:#2563eb;color:#fff;border:0;padding:.65rem 1.2rem;border-radius:6px;font-weight:600;cursor:pointer">Email me deadline alerts</button>\n'
-        '<span id="leadMsg" style="font-size:.9rem;color:#16a34a"></span>\n'
-        "</form>\n"
-        '<p style="font-size:.8rem;color:#6b7280;margin:.5rem 0 0">Free. Unsubscribe anytime. We email you only about AWS deadlines that hit your stack.</p>\n'
-        "</section>\n"
+        "<p><small>This free scan covers configured high-impact source patterns. The paid report accepts one repository ZIP or source file and adds exact line evidence, sources, a remediation order, and explicit limitations. It does not query your AWS account.</small></p>\n"
     )
     tail = "</body>\n</html>\n"
-    return head + body + "<script>\nconst DATA = " + data + ";\n" + _SCAN_JS + "\n</script>\n" + tail
+    return (
+        head
+        + body
+        + "<script>\nconst SITE_BASE = "
+        + json.dumps(SITE_URL.rstrip("/"))
+        + ";\nconst API_BASE = "
+        + json.dumps(API_URL.rstrip("/"))
+        + ";\nconst DATA = "
+        + data
+        + ";\n"
+        + _SCAN_JS
+        + "\n</script>\n"
+        + tail
+    )
 
 
 # --- M2: the /fix/<error> verbatim-error corpus --------------------------- #
 def load_fixes():
-    """Load the hand-verified verbatim-error corpus that drives /fix pages.
-    Tolerant: returns [] if the file is absent."""
+    """Load and validate the cited verbatim-error corpus for /fix pages."""
     p = BASE_DIR / "content" / "fixes.yml"
     if not p.exists():
         return []
     with open(p) as f:
         data = yaml.safe_load(f) or {}
-    return data.get("fixes", [])
+    fixes = data.get("fixes", [])
+    if not isinstance(fixes, list):
+        raise ValueError("apps/web/content/fixes.yml: fixes must be a list")
+    for index, entry in enumerate(fixes):
+        if not isinstance(entry, dict) or not str(entry.get("source_url") or "").startswith(
+            "https://"
+        ):
+            raise ValueError(
+                f"apps/web/content/fixes.yml: fixes[{index}] needs an HTTPS primary-source source_url"
+            )
+    return fixes
 
 
 def _fix_audit_link(slug, kit, deadline):
     from urllib.parse import urlencode
+
     q = {"source": "fix", "utm_source": "fix", "utm_medium": "content", "utm_campaign": slug}
     if deadline:
         q["deadline"] = deadline
@@ -2346,10 +2260,10 @@ def _fix_audit_link(slug, kit, deadline):
 
 def build_error_pages(fixes, deprecations, full_pricing):
     """M2: deterministic /fix/<slug> pages keyed on REAL, paste-able error strings.
-    Every fix is sourced; FAQPage + HowTo JSON-LD make them answer-engine-citable;
-    each cross-links /scan, the related /migrate deadline, and the audit CTA. The
-    CTA points at the on-site /audit/ Checkout path (not a raw Stripe link)."""
+    Each entry carries a source for its core claim and cross-links the bounded
+    scanner, related milestone, and capability-gated Audit path."""
     import html as _h
+
     if not fixes:
         return {}
     pricing_view = build_pricing_view(full_pricing)
@@ -2358,7 +2272,7 @@ def build_error_pages(fixes, deprecations, full_pricing):
         audit_base = ap["base"] if isinstance(ap, dict) else getattr(ap, "base", None)
     except Exception:
         audit_base = None
-    dep_by_slug = {slugify(d["name"]): d for d in deprecations.get("deprecations", [])}
+    dep_by_slug = {deprecation_slug(d): d for d in deprecations.get("deprecations", [])}
 
     pages = {}
     cards = []
@@ -2376,17 +2290,33 @@ def build_error_pages(fixes, deprecations, full_pricing):
         rel_date = rel_dep.get("date") if rel_dep else None
 
         faq = {
-            "@context": "https://schema.org", "@type": "FAQPage",
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
             "mainEntity": [
-                {"@type": "Question", "name": 'What does "' + error + '" mean?',
-                 "acceptedAnswer": {"@type": "Answer", "text": (summary + " " + cause).strip()}},
-                {"@type": "Question", "name": 'How do I fix "' + error + '"?',
-                 "acceptedAnswer": {"@type": "Answer", "text": (" ".join(steps) + (" Source: " + source if source else "")).strip()}},
+                {
+                    "@type": "Question",
+                    "name": 'What does "' + error + '" mean?',
+                    "acceptedAnswer": {"@type": "Answer", "text": (summary + " " + cause).strip()},
+                },
+                {
+                    "@type": "Question",
+                    "name": 'How do I fix "' + error + '"?',
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": (
+                            " ".join(steps) + (" Source: " + source if source else "")
+                        ).strip(),
+                    },
+                },
             ],
         }
         howto = {
-            "@context": "https://schema.org", "@type": "HowTo", "name": "Fix: " + error,
-            "step": [{"@type": "HowToStep", "position": i + 1, "text": s} for i, s in enumerate(steps)],
+            "@context": "https://schema.org",
+            "@type": "HowTo",
+            "name": "Fix: " + error,
+            "step": [
+                {"@type": "HowToStep", "position": i + 1, "text": s} for i, s in enumerate(steps)
+            ],
         }
         if source:
             howto["citation"] = source
@@ -2395,16 +2325,26 @@ def build_error_pages(fixes, deprecations, full_pricing):
         steps_html = "".join("<li>" + _h.escape(s) + "</li>" for s in steps)
         rel_html = ""
         if rel and rel_dep:
-            rel_html = ('<p class="fix-rel">Related deadline: <a href="/migrate/' + rel + '/">'
-                        + _h.escape(rel_dep.get("name", "")) + "</a> — <strong>"
-                        + _h.escape(str(rel_date)) + "</strong>.</p>\n")
+            rel_html = (
+                '<p class="fix-rel">Related deadline: <a href="/migrate/'
+                + rel
+                + '/">'
+                + _h.escape(rel_dep.get("name", ""))
+                + "</a> — <strong>"
+                + _h.escape(str(rel_date))
+                + "</strong>.</p>\n"
+            )
         audit_link = _fix_audit_link(slug, kit, rel_date)
         cta_price = ("$" + str(audit_base)) if audit_base else "the audit"
 
         head = (
             '<!DOCTYPE html>\n<html lang="en">\n<head>\n'
             '<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n'
-            "<title>" + _h.escape(error) + " — cause &amp; fix (" + _h.escape(context) + ") | EOLkits</title>\n"
+            "<title>"
+            + _h.escape(error)
+            + " — cause &amp; fix ("
+            + _h.escape(context)
+            + ") | EOLkits</title>\n"
             '<meta name="description" content="' + desc + '">\n'
             '<link rel="canonical" href="' + SITE_URL + "/fix/" + slug + '/">\n'
             '<link rel="stylesheet" href="/style.css">\n'
@@ -2420,19 +2360,36 @@ def build_error_pages(fixes, deprecations, full_pricing):
         body = (
             '<body class="container article">\n'
             '<nav class="breadcrumb"><a href="/">Home</a> / <a href="/fix/">Fixes</a> / <span>'
-            + _h.escape(context) + "</span></nav>\n"
+            + _h.escape(context)
+            + "</span></nav>\n"
             '<p class="muted">' + _h.escape(context) + "</p>\n"
             "<h1>" + _h.escape(error) + "</h1>\n"
             '<pre class="fix-err"><code>' + _h.escape(error) + "</code></pre>\n"
             "<h2>What it means</h2>\n<p>" + _h.escape(summary) + "</p>\n"
             "<h2>Why it happens</h2>\n<p>" + _h.escape(cause) + "</p>\n"
-            '<h2>How to fix it</h2>\n<ol class="fix-steps">' + steps_html + "</ol>\n"
+            '<h2>How to fix it</h2>\n<ol class="fix-steps">'
+            + steps_html
+            + "</ol>\n"
             + rel_html
-            + "<h2>Find every instance in your project</h2>\n"
-            + '<p>The free <a href="/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>\n'
+            + "<h2>Check configured patterns in your project</h2>\n"
+            + '<p>The free <a href="/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags selected related patterns in supported IaC and dependency files. It is not a complete source or AWS-account scan.</p>\n'
             + '<p>Prefer a 10-second check? Paste your config into the <a href="/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>\n'
-            + (('<p>Primary source: <a href="' + _h.escape(source) + '" target="_blank" rel="noopener nofollow">' + _h.escape(source) + "</a></p>\n") if source else "")
-            + '<p><a class="fix-cta" href="' + audit_link + '">Get the full migration audit — ' + cta_price + ", hash-anchored PDF &rarr;</a></p>\n"
+            + (
+                (
+                    '<p>Primary source: <a href="'
+                    + _h.escape(source)
+                    + '" target="_blank" rel="noopener nofollow">'
+                    + _h.escape(source)
+                    + "</a></p>\n"
+                )
+                if source
+                else ""
+            )
+            + '<p><a class="fix-cta" href="'
+            + audit_link
+            + '">Get repository evidence — '
+            + cta_price
+            + ", exact file/line matches &rarr;</a></p>\n"
             "</body>\n</html>\n"
         )
         pages["fix/" + slug + "/index.html"] = head + body
@@ -2448,13 +2405,15 @@ def build_error_pages(fixes, deprecations, full_pricing):
         '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
         "<title>AWS migration error fixes — Lambda, Amazon Linux, Python &amp; Node | EOLkits</title>\n"
-        '<meta name="description" content="Plain-English causes and verified fixes for the exact errors you hit migrating off deprecated AWS Lambda runtimes, Amazon Linux 2, Python 3.9 and Node native dependencies.">\n'
-        '<link rel="canonical" href="' + SITE_URL + '/fix/">\n<link rel="stylesheet" href="/style.css">\n<script defer src="/track.js"></script>\n</head>\n'
+        '<meta name="description" content="Source-linked causes and remediation checks for specific AWS Lambda, Amazon Linux, Python, and Node migration errors.">\n'
+        '<link rel="canonical" href="'
+        + SITE_URL
+        + '/fix/">\n<link rel="stylesheet" href="/style.css">\n<script defer src="/track.js"></script>\n</head>\n'
         '<body class="container article">\n'
         '<nav class="breadcrumb"><a href="/">Home</a> / <span>Fixes</span></nav>\n'
         "<h1>AWS migration error fixes</h1>\n"
-        "<p>Exact-match causes and verified fixes for the errors developers hit migrating off deprecated AWS runtimes and Amazon Linux 2. "
-        'Every fix cites a primary source. Not sure which apply to you? <a href="/scan/">Scan your project free</a> — it runs entirely in your browser.</p>\n'
+        "<p>Source-linked causes and remediation checks for specific errors seen during AWS runtime and Amazon Linux migrations. "
+        'Each entry links a primary or official-project source for its core claim; validate the steps in your workload. Not sure which apply? <a href="/scan/">Run the bounded browser scan</a>.</p>\n'
         '<ul class="fix-list">' + items + "</ul>\n"
         '<p><a href="/migrate/">See all tracked AWS deadlines &rarr;</a></p>\n'
         "</body>\n</html>\n"
@@ -2477,6 +2436,7 @@ def _badge_color(days):
 def _badge_svg(label, message, color):
     """Self-contained shields-style flat SVG badge — no external service, no JS."""
     import html as _h
+
     label = _h.escape(label)
     message = _h.escape(message)
     lw = int(len(label) * 6.5) + 12
@@ -2497,15 +2457,13 @@ def _badge_svg(label, message, color):
 
 
 def build_badges(deprecations):
-    """M5: a deterministic deadline badge per deprecation. Repos embed them and each
-    embed is a crawlable backlink to the /migrate deadline page (the embed loop).
-    Rebuilt daily by the GRACE cron, so the date/colour stay current."""
+    """Build one deterministic published-milestone badge per tracked entry."""
     from datetime import date as _date
 
-    today = datetime.now(UTC).date()
+    today = datetime.strptime(_build_date(), "%Y-%m-%d").date()
     pages = {}
     for dep in deprecations.get("deprecations", []):
-        slug = slugify(dep["name"])
+        slug = deprecation_slug(dep)
         d = str(dep.get("date", ""))
         days = None
         try:
@@ -2513,36 +2471,36 @@ def build_badges(deprecations):
             days = (_date(y, m, dd) - today).days
         except Exception:
             pass
-        msg = ("deadline " + d) if (days is None or days >= 0) else ("EOL passed " + d)
+        msg = ("milestone " + d) if (days is None or days >= 0) else ("milestone passed " + d)
         pages["badge/" + slug + ".svg"] = _badge_svg("EOLkits", msg, _badge_color(days))
     return pages
 
 
 def build_deprecations_rss(deprecations):
-    """M3: the Cloud Deprecation Radar as an RSS 2.0 feed (deterministic, from the
-    cited YAML). Fixes the live /blog/feed.xml 404 and gives answer-engines and
-    feed readers a citable, auto-updating list of every tracked AWS deadline."""
+    """Build a deterministic RSS list of tracked provider milestones."""
     import html as _h
 
-    # Pin to midnight UTC of the build day so two same-day rebuilds are byte-identical.
-    now = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
+    # Pin to the explicit source date so rebuilds are byte-identical on every day.
+    now = datetime.strptime(_build_date(), "%Y-%m-%d").replace(tzinfo=UTC)
     pub = now.strftime("%a, %d %b %Y %H:%M:%S GMT")
-    ordered = sorted(deprecations.get("deprecations", []), key=lambda d: d.get("date", "9999-99-99"))
+    ordered = sorted(
+        deprecations.get("deprecations", []), key=lambda d: d.get("date", "9999-99-99")
+    )
     items = []
     for dep in ordered:
-        slug = slugify(dep["name"])
+        slug = deprecation_slug(dep)
         link = f"{SITE_URL}/migrate/{slug}/"
         bc = "; ".join(dep.get("breaking_changes", []))
         desc = (
             f"Deadline {dep.get('date', '')} ({dep.get('severity', 'n/a')}). "
-            f"{dep.get('description', '')} Breaking changes: {bc}. "
-            f"Source: {dep.get('url', '')}"
+            f"{dep.get('description', '')} Migration checks to validate: {bc}. "
+            f"Provider status source: {dep.get('url', '')}"
         )
         items.append(
             "<item>"
-            f"<title>{_h.escape(dep['name'])} — deadline {_h.escape(str(dep.get('date', '')))}</title>"
+            f"<title>{_h.escape(dep['name'])} — milestone {_h.escape(str(dep.get('date', '')))}</title>"
             f"<link>{_h.escape(link)}</link>"
-            f"<guid isPermaLink=\"true\">{_h.escape(link)}</guid>"
+            f'<guid isPermaLink="true">{_h.escape(link)}</guid>'
             f"<pubDate>{pub}</pubDate>"
             f"<description>{_h.escape(desc)}</description>"
             "</item>"
@@ -2553,12 +2511,10 @@ def build_deprecations_rss(deprecations):
         "<title>EOLkits — AWS Deprecation Radar</title>\n"
         f"<link>{SITE_URL}/migrate/</link>\n"
         f'<atom:link href="{SITE_URL}/feed.xml" rel="self" type="application/rss+xml"/>\n'
-        "<description>Every tracked AWS deprecation deadline — Lambda runtimes, Amazon Linux 2, IMDSv1 — "
-        "with cited breaking changes and migration guides. Deterministic, sourced from primary AWS docs.</description>\n"
+        "<description>Tracked AWS deprecation milestones for Lambda runtimes and Amazon Linux 2, "
+        "with provider source links and bounded migration checks to validate.</description>\n"
         "<language>en-us</language>\n"
-        f"<lastBuildDate>{pub}</lastBuildDate>\n"
-        + "\n".join(items)
-        + "\n</channel></rss>\n"
+        f"<lastBuildDate>{pub}</lastBuildDate>\n" + "\n".join(items) + "\n</channel></rss>\n"
     )
 
 
@@ -2594,17 +2550,50 @@ def main():
         "status/index.html": build_status_page(),
         "status/data.json": build_status_data_seed(),
         "blog/index.html": build_blog_index(),
-        "vs/index.html": build_vs_index(COMPETITORS),
+        "vs/index.html": build_vs_index(),
+        "blog/migrating-lambda-nodejs-20-to-22/index.html": build_retired_path_page(
+            "Lambda Node.js 20 migration guide",
+            "/migrate/lambda-node.js-20-phase-1/",
+            "The old article was retired because its claims were not all continuously verified. The current deadline page uses the cited rule data.",
+        ),
+        "migrate/imdsv1-enforcement/index.html": build_retired_path_page(
+            "IMDSv1 deadline correction",
+            "/migrate/",
+            "The former page asserted a universal December 31, 2025 enforcement date that AWS does not document. IMDS behavior depends on account policy, AMI settings, launch options, and instance type; use current AWS guidance before changing a workload.",
+        ),
+        "vs/cloudquery/index.html": build_retired_path_page(
+            "CloudQuery comparison",
+            "/vs/",
+            "The unverified comparison was retired. Use the current evaluation guidance instead.",
+        ),
+        "vs/herodevs/index.html": build_retired_path_page(
+            "HeroDevs comparison",
+            "/vs/",
+            "The unverified comparison was retired. Use the current evaluation guidance instead.",
+        ),
+        "vs/aws-samples-runtime-update-helper/index.html": build_retired_path_page(
+            "AWS runtime helper comparison",
+            "/vs/",
+            "The unverified comparison was retired. Use the current evaluation guidance instead.",
+        ),
+        "fix/amazon-linux-2-eol/index.html": build_retired_path_page(
+            "Amazon Linux 2 EOL reference",
+            "/amazon-linux-2-eol-checklist/",
+            "This historical route now points to the maintained, source-linked checklist.",
+        ),
         "eol-checker/index.html": build_eol_checker_page(deprecations, build_pricing_view(pricing)),
-        "lambda-runtime-deprecation-schedule/index.html": build_lambda_schedule_page(deprecations, build_pricing_view(pricing)),
-        "amazon-linux-2-eol-checklist/index.html": build_al2_checklist_page(deprecations, build_pricing_view(pricing)),
-        "amazon-linux-2-vs-amazon-linux-2023/index.html": build_al2_vs_al2023_page(deprecations, build_pricing_view(pricing)),
+        "lambda-runtime-deprecation-schedule/index.html": build_lambda_schedule_page(
+            deprecations, build_pricing_view(pricing)
+        ),
+        "amazon-linux-2-eol-checklist/index.html": build_al2_checklist_page(
+            deprecations, build_pricing_view(pricing)
+        ),
+        "amazon-linux-2-vs-amazon-linux-2023/index.html": build_al2_vs_al2023_page(
+            deprecations, build_pricing_view(pricing)
+        ),
         "deprecations.ics": build_deprecations_ics(deprecations),
     }
     pages["widget.js"] = build_widget_js()
-
-    for c in COMPETITORS:
-        pages[f"vs/{slugify(c['name'])}/index.html"] = build_vs_page(c)
 
     # Build migration pages
     migration_pages = build_migration_pages(deprecations, pricing)
@@ -2635,11 +2624,6 @@ def main():
     if verify_page:
         pages["verify/index.html"] = verify_page
 
-    # Publish the long-form migration guide (was written but never published)
-    blog_post = build_blog_post()
-    if blog_post:
-        pages["blog/migrating-lambda-nodejs-20-to-22/index.html"] = blog_post
-
     # AI-search + crawler discovery, deterministic from the cited YAML
     pricing_view = build_pricing_view(pricing)
     pages["llms.txt"] = build_llms_txt(deprecations, pricing_view)
@@ -2648,8 +2632,8 @@ def main():
     for path, content in pages.items():
         full_path = DOCS_DIR / path
         full_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(full_path, "w") as f:
-            f.write(inject_first_touch(path, normalize_project_links(content)))
+        rendered = inject_first_touch(path, normalize_project_links(content))
+        full_path.write_text(normalize_generated_text(rendered), encoding="utf-8")
         print(f"Built: docs/{path}")
 
     # Binary social card (written outside the text loop) so every page's
@@ -2672,16 +2656,14 @@ def main():
             name = legal_file.stem
             md_text = legal_file.read_text()
             title = next(
-                (
-                    line[2:].strip()
-                    for line in md_text.splitlines()
-                    if line.startswith("# ")
-                ),
+                (line[2:].strip() for line in md_text.splitlines() if line.startswith("# ")),
                 f"{name.title()} — EOLkits",
             )
             html_doc = md_to_html(md_text, title, f"/legal/{name}.html")
             output = legal_output / f"{name}.html"
-            output.write_text(normalize_project_links(html_doc))
+            output.write_text(
+                normalize_generated_text(normalize_project_links(html_doc)), encoding="utf-8"
+            )
             print(f"Rendered: legal/{name}.html")
 
     print("=" * 40)
