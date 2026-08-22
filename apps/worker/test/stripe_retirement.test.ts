@@ -289,6 +289,10 @@ describe('exact Stripe retirement tool', () => {
       .filter((call) => requestDetails(call[0]).path === '/checkout/sessions')
       .map((call) => requestDetails(call[0]).url.searchParams.get('status'));
     expect(checkoutStatuses).toEqual(['open', 'complete']);
+    const auditedPaths = fetchMock.mock.calls.map((call) => requestDetails(call[0]).path);
+    expect(auditedPaths.indexOf('/subscription_schedules')).toBeLessThan(
+      auditedPaths.indexOf('/subscriptions')
+    );
     expectSanitized(raw);
   });
 
@@ -403,6 +407,41 @@ describe('exact Stripe retirement tool', () => {
     expect(result.status).toBe(200);
     expect(fetchMock.mock.calls.filter((call) => call[1]?.method === 'POST')).toHaveLength(6);
     expect(raw).toContain('"future_subscription_schedules":1');
+    expect(raw).toContain('"preflight_future_subscription_schedules":1');
+    expect(raw).toContain('"containment_complete":false');
+    expectSanitized(raw);
+  });
+
+  it('carries a preflight schedule through execution with delayed subscription visibility', async () => {
+    const base = stripeMock();
+    let scheduleReads = 0;
+    const schedule = {
+      id: 'sub_sched_transition_private',
+      livemode: true,
+      object: 'subscription_schedule',
+      phases: [{ items: [{ price: 'price_1TRoGmDL3cQl851ofGZyxs6q' }] }],
+      status: 'active',
+    };
+    const transitionFetch = vi.fn(
+      async (input: string | URL | Request, init?: RequestInit): Promise<Response> => {
+        if (requestDetails(input).path === '/subscription_schedules') {
+          scheduleReads += 1;
+          return list(scheduleReads === 1 ? [schedule] : []);
+        }
+        return base.fetchMock(input, init);
+      }
+    );
+    vi.stubGlobal('fetch', transitionFetch);
+
+    const result = await worker.fetch(
+      adminRequest({ confirm: CONFIRMATION, mode: 'deactivate' }),
+      ENV
+    );
+    const raw = await result.text();
+
+    expect(result.status).toBe(200);
+    expect(raw).toContain('"future_subscription_schedules":0');
+    expect(raw).toContain('"preflight_future_subscription_schedules":1');
     expect(raw).toContain('"containment_complete":false');
     expectSanitized(raw);
   });
@@ -551,6 +590,56 @@ describe('exact Stripe retirement tool', () => {
     expect(result.status).toBe(200);
     expect(raw).toContain('"recent_completed_checkout_sessions":1');
     expect(raw).toContain('"preflight_recent_completed_checkout_sessions":1');
+    expect(raw).toContain('"containment_complete":false');
+    expectSanitized(raw);
+  });
+
+  it('cannot miss an open-to-complete transition through response reordering', async () => {
+    const base = stripeMock();
+    const targetPrice = priceObject('price_1TRoGjDL3cQl851oiIWR5JIa', true);
+    let sessionState: 'complete' | 'open' = 'open';
+    const common = {
+      cancel_url: null,
+      expires_at: Math.floor(Date.now() / 1000) + 3_600,
+      id: 'cs_transition_private',
+      line_items: lineItems(targetPrice),
+      livemode: true,
+      metadata: {},
+      object: 'checkout.session',
+      success_url: null,
+    };
+    const raceFetch = vi.fn(
+      async (input: string | URL | Request, init?: RequestInit): Promise<Response> => {
+        const { path, url } = requestDetails(input);
+        if (path !== '/checkout/sessions') return base.fetchMock(input, init);
+        const status = url.searchParams.get('status');
+        if (status === 'open') {
+          if (sessionState === 'complete') return list([]);
+          // If completed were queried concurrently, it would flip the state
+          // during this delay and both endpoint snapshots would return empty.
+          await new Promise((resolve) => setTimeout(resolve, 10));
+          if (sessionState === 'complete') return list([]);
+          sessionState = 'complete';
+          return list([{ ...common, payment_status: 'unpaid', status: 'open' }]);
+        }
+        if (sessionState === 'open') {
+          sessionState = 'complete';
+          return list([]);
+        }
+        return list([{ ...common, payment_status: 'paid', status: 'complete' }]);
+      }
+    );
+    vi.stubGlobal('fetch', raceFetch);
+
+    const result = await worker.fetch(
+      adminRequest({ confirm: CONFIRMATION, mode: 'deactivate' }),
+      ENV
+    );
+    const raw = await result.text();
+
+    expect(result.status).toBe(200);
+    expect(raw).toContain('"preflight_open_checkout_sessions":1');
+    expect(raw).toContain('"recent_completed_checkout_sessions":1');
     expect(raw).toContain('"containment_complete":false');
     expectSanitized(raw);
   });
