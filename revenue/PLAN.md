@@ -144,13 +144,13 @@ release, determinism, property, Pages, and tombstone workflows passed. The
 owner-only production Stripe workflow itself has not run. No outbound message,
 bid, post, or customer commitment is authorized.
 
-The next release adds a backend-independent price-qualified signal: only a real
-browser/Action finding exposes a public GitHub issue form that requires the
-exact $299 scope and purchase consideration. A scheduled read-only workflow
-measures external human submissions and public `@v2` references without
-contacting anyone or committing vanity counters. Baseline observed values are
-zero qualified issues, zero external public `@v2` code references, zero paid
-reports, and $0 collected. Bet A's five-day gate now uses those public lower
-bounds while checkout telemetry remains dormant behind the v2 capability
-handshake. The owner priority stays HQ-2 → HQ-5 → closed v2 deployment; demand
-instrumentation does not make the stale API safe to charge.
+Main commit `db32bdfb` now exposes a backend-independent price-qualified signal:
+only a real browser/Action finding exposes a public GitHub issue form that
+requires the exact $299 scope and purchase consideration. Read-only run
+`32596830945` preserved the first observation; Pages, release, determinism,
+property, Marketplace-draft, and public `v2` verification are green. Baseline
+observed values remain zero qualified issues, zero external public `@v2` code
+references, zero paid reports, and $0 collected. Bet A's five-day gate begins at
+2026-08-22 20:29 UTC while checkout telemetry remains dormant behind the v2
+capability handshake. The owner priority stays HQ-2 → HQ-5 → closed v2
+deployment; demand instrumentation does not make the stale API safe to charge.

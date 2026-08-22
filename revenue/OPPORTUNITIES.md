@@ -175,3 +175,7 @@ The baseline is zero. This does not increase K1's U hypothesis and does not coun
 interest as a sale. It shortens the time needed to distinguish “nobody reached a
 finding” from “a finding occurred but $299 is not compelling.” A1 remains gated
 until real fulfillment and payment operations pass; no substitute SKU is opened.
+
+The K1 price-qualified surface became public at 2026-08-22 20:29 UTC. Its first
+five-full-day gate is therefore 2026-08-27 20:29 UTC; the broader Day-7 gate
+remains August 29. Do not move either gate earlier based on internal probes.

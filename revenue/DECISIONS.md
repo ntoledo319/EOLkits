@@ -381,3 +381,13 @@ source, 2,000/day global, 128 MiB shared-database guard; 30-day event and two-da
 rate-key retention; public readiness only, with detailed funnel/commerce/jobs
 admin-only and `no-store`. This hardening permits later directional measurement
 after the real v2 deploy, but it does not authorize deployment or checkout.
+
+Release evidence: acquisition workflow `32596830945` and every product/Pages
+gate passed. The first Marketplace-draft synchronizer failed because its source
+assertion did not account for Bash's required `\$299` escape; the generated
+Action report had already passed with the correct visible `$299`. Correct only
+that assertion, reproduce it locally, and require the complete follow-up gate.
+Commit `db32bdfb` then passed draft, release, determinism, property, and built-in
+Pages runs. Advance `v2` without force only after those results and a raw-file
+probe. This failure is recorded as release evidence, not hidden or counted as a
+commercial signal.

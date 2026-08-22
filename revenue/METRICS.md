@@ -275,3 +275,39 @@ benchmarks, or unverified analytics in this ledger.
 - The structured issue form and read-only acquisition-evidence workflow are
   locally verified but not yet public at this ledger point; they become a live
   measurement surface only after publication and a green remote run.
+
+## Qualified-demand surface published — 2026-08-22T20:34:10Z
+
+- Main commit
+  https://github.com/ntoledo319/EOLkits/commit/5305f1fef6641659811ccc2133ddf1dde53c8a43
+  published the exact locally verified tree. Acquisition-evidence run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596830945 passed and
+  retained artifact `acquisition-evidence-32596830945` for 14 days. The artifact
+  is a public-lower-bound observation; it is not a purchase record.
+- The same commit's release, determinism, property, custom Pages, and built-in
+  Pages runs passed:
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596830957,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596830966,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596830946,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596830950, and
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596830480.
+- Marketplace-draft run `32596830981` failed at its local release-copy assertion:
+  Bash source correctly escaped `$299`, while the validation searched for the
+  rendered text. Commit
+  https://github.com/ntoledo319/EOLkits/commit/db32bdfb99b0837bb4975a5cebb9caaf633f3c34
+  corrected the assertion. Its draft, release, determinism, property, and
+  built-in Pages runs all passed:
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596973048,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596973045,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596973044,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596973051, and
+  https://github.com/ntoledo319/EOLkits/actions/runs/32596972524.
+- Public probes returned HTTP 200 for the Audit, scanner, and tracking assets;
+  observed the `$299` issue CTA and nonbinding warning; observed capability-gated
+  fetch telemetry with no local storage or referrer collection; and confirmed
+  the GitHub issue form requires authentication. The public `v2` ref advanced
+  without force to `db32bdfb`, and its raw Action contains the findings-only
+  qualified-interest link.
+- No external qualified issue, public external `@v2` code reference, checkout,
+  purchase, delivery, or collected dollar was observed. Revenue and profit
+  remain $0.

@@ -166,3 +166,7 @@ All code and evidence below is inside the workspace jail.
   after two days, ingestion is body/rate/database bounded, PII-like attribution
   is discarded, and funnel/commerce/order detail is admin-only with no-store
   caching.
+- The signal is now public: Pages serves the qualified CTA, the authenticated
+  GitHub form is installed, `v2` carries the findings-only Action link, and
+  acquisition-evidence run `32596830945` completed successfully with a preserved
+  observation artifact. This is measurement availability, not customer demand.
