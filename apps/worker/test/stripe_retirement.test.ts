@@ -10,6 +10,7 @@ interface Target {
 
 interface MockOptions {
   checkoutSessions?: Array<Record<string, unknown>>;
+  completedCheckoutSessions?: Array<Record<string, unknown>>;
   corruptPrice?: { id: string; patch: Record<string, unknown> };
   failPricePost?: string;
   links?: Array<{
@@ -180,7 +181,13 @@ function stripeMock(options: MockOptions = {}) {
         return response(paymentLink(link));
       }
 
-      if (path === '/checkout/sessions') return list(options.checkoutSessions ?? []);
+      if (path === '/checkout/sessions') {
+        return list(
+          url.searchParams.get('status') === 'complete'
+            ? options.completedCheckoutSessions ?? []
+            : options.checkoutSessions ?? []
+        );
+      }
       if (path === '/subscriptions') {
         const price = url.searchParams.get('price') ?? '';
         return list(options.subscriptions?.[price] ?? []);
@@ -273,10 +280,15 @@ describe('exact Stripe retirement tool', () => {
       mode: 'audit',
       ok: true,
       open_checkout_sessions: 0,
+      recent_completed_checkout_sessions: 0,
       unexpected_active_prices: 0,
     });
     expect(body.prices).toHaveLength(6);
-    expect(fetchMock).toHaveBeenCalledTimes(15);
+    expect(fetchMock).toHaveBeenCalledTimes(16);
+    const checkoutStatuses = fetchMock.mock.calls
+      .filter((call) => requestDetails(call[0]).path === '/checkout/sessions')
+      .map((call) => requestDetails(call[0]).url.searchParams.get('status'));
+    expect(checkoutStatuses).toEqual(['open', 'complete']);
     expectSanitized(raw);
   });
 
@@ -437,7 +449,9 @@ describe('exact Stripe retirement tool', () => {
     expect([...activePrices.values()].every((active) => !active)).toBe(true);
     expect(links.find((link) => link.id === 'plink_target')?.active).toBe(false);
     expect(links.find((link) => link.id === 'plink_unrelated')?.active).toBe(true);
-    expect(fetchMock.mock.calls.filter((call) => call[1]?.method === 'POST')).toHaveLength(7);
+    const posts = fetchMock.mock.calls.filter((call) => call[1]?.method === 'POST');
+    expect(posts).toHaveLength(7);
+    expect(requestDetails(posts[0][0]).path).toBe('/prices/price_1TRoGjDL3cQl851oiIWR5JIa');
     expectSanitized(raw);
   });
 
@@ -481,6 +495,7 @@ describe('exact Stripe retirement tool', () => {
           livemode: true,
           metadata: {},
           object: 'checkout.session',
+          payment_status: 'unpaid',
           status: 'open',
           success_url: null,
           cancel_url: null,
@@ -501,7 +516,42 @@ describe('exact Stripe retirement tool', () => {
       containment_complete: false,
       open_checkout_hold_until: expiresAt,
       open_checkout_sessions: 1,
+      preflight_open_checkout_hold_until: expiresAt,
+      preflight_open_checkout_sessions: 1,
     });
+    expectSanitized(raw);
+  });
+
+  it('flags a recent completed live Session and refuses a containment claim', async () => {
+    const targetPrice = priceObject('price_1TRoGjDL3cQl851oiIWR5JIa', true);
+    const { fetchMock } = stripeMock({
+      completedCheckoutSessions: [
+        {
+          cancel_url: null,
+          expires_at: Math.floor(Date.now() / 1000),
+          id: 'cs_completed_private',
+          line_items: lineItems(targetPrice),
+          livemode: true,
+          metadata: {},
+          object: 'checkout.session',
+          payment_status: 'paid',
+          status: 'complete',
+          success_url: null,
+        },
+      ],
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await worker.fetch(
+      adminRequest({ confirm: CONFIRMATION, mode: 'deactivate' }),
+      ENV
+    );
+    const raw = await result.text();
+
+    expect(result.status).toBe(200);
+    expect(raw).toContain('"recent_completed_checkout_sessions":1');
+    expect(raw).toContain('"preflight_recent_completed_checkout_sessions":1');
+    expect(raw).toContain('"containment_complete":false');
     expectSanitized(raw);
   });
 
@@ -517,6 +567,7 @@ describe('exact Stripe retirement tool', () => {
           livemode: true,
           metadata: { sku: 'audit' },
           object: 'checkout.session',
+          payment_status: 'unpaid',
           status: 'open',
           success_url:
             'https://ntoledo319.github.io/Rupture/verify?session_id={CHECKOUT_SESSION_ID}',

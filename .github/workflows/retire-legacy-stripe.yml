@@ -146,7 +146,8 @@ jobs:
               (.unexpected_active_prices | type == "number") and
               (.future_subscriptions | type == "number") and
               (.future_subscription_schedules | type == "number") and
-              (.open_checkout_sessions | type == "number")
+              (.open_checkout_sessions | type == "number") and
+              (.recent_completed_checkout_sessions | type == "number")
             ' "$audit_file" >/dev/null 2>&1; then
               break
             fi
@@ -169,7 +170,11 @@ jobs:
             .ok == true and .mode == "deactivate" and
             (.prices | type == "array" and length == 6) and
             all(.prices[]; .matched == true and .livemode == true and .active == false) and
-            .active_payment_links == 0
+            .active_payment_links == 0 and
+            (.open_checkout_sessions | type == "number") and
+            (.recent_completed_checkout_sessions | type == "number") and
+            (.preflight_open_checkout_sessions | type == "number") and
+            (.preflight_recent_completed_checkout_sessions | type == "number")
           ' "$result_file" >/dev/null 2>&1; then
             echo '::error::The exact reversible Stripe closure did not verify'
             exit 1
@@ -177,6 +182,9 @@ jobs:
 
           if ! jq -e '.containment_complete == true' "$result_file" >/dev/null; then
             open_sessions="$(jq -r '.open_checkout_sessions' "$result_file")"
+            recent_completed="$(jq -r '.recent_completed_checkout_sessions' "$result_file")"
+            preflight_open="$(jq -r '.preflight_open_checkout_sessions' "$result_file")"
+            preflight_completed="$(jq -r '.preflight_recent_completed_checkout_sessions' "$result_file")"
             future_subscriptions="$(jq -r '.future_subscriptions' "$result_file")"
             future_schedules="$(jq -r '.future_subscription_schedules' "$result_file")"
             unexpected_prices="$(jq -r '.unexpected_active_prices' "$result_file")"
@@ -186,6 +194,8 @@ jobs:
               echo
               echo '- The six exact known Prices and approved historical Payment Links were closed.'
               echo "- Open matching Checkout Sessions: $open_sessions"
+              echo "- Recent completed matching Checkout Sessions: $recent_completed"
+              echo "- Matching Sessions at preflight (open/completed): $preflight_open/$preflight_completed"
               echo "- Future subscriptions: $future_subscriptions"
               echo "- Future subscription schedules: $future_schedules"
               echo "- Unexpected active Product Prices: $unexpected_prices"
@@ -208,7 +218,8 @@ jobs:
             (.prices | length == 6) and all(.prices[]; .active == false and .livemode == true) and
             .active_payment_links == 0 and .unexpected_active_payment_links == 0 and
             .unexpected_active_prices == 0 and .future_subscriptions == 0 and
-            .future_subscription_schedules == 0 and .open_checkout_sessions == 0
+            .future_subscription_schedules == 0 and .open_checkout_sessions == 0 and
+            .recent_completed_checkout_sessions == 0
           ' "$verify_file" >/dev/null 2>&1; then
             echo '::error::The independent final Stripe audit did not verify containment'
             exit 1
@@ -224,7 +235,7 @@ jobs:
             echo "- Exact Prices newly deactivated: $changed_prices"
             echo "- Approved historical Payment Links newly deactivated: $changed_links"
             echo '- All six exact live-mode Prices are inactive.'
-            echo '- Zero matching open Checkout Sessions, future subscriptions, or schedules were observed.'
+            echo '- Zero matching open or recent completed Checkout Sessions, future subscriptions, or schedules were observed.'
             echo '- Zero unexpected active Prices or Payment Links were observed on the audited EOLkits surfaces.'
             echo '- The current legacy Worker Stripe binding is being removed; account-level key rotation remains owner-only.'
           } >> "$GITHUB_STEP_SUMMARY"
