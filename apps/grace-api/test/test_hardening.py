@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import importlib
 import sys
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -147,8 +148,27 @@ def test_public_bodies_and_event_names_are_bounded(tmp_path, monkeypatch):
     )
     assert recorded.status_code == 200
     with mod.store.connect() as conn:
-        meta = conn.execute("SELECT meta FROM events").fetchone()["meta"]
+        row = conn.execute("SELECT meta, source, path FROM events").fetchone()
+        meta = row["meta"]
     assert "session_id" not in meta
+
+    sanitized = client.post(
+        "/api/events",
+        json={
+            "event": "view",
+            "source": "person@example.com",
+            "utm_campaign": "https://example.com/?secret=x",
+            "path": "/EOLkits/audit/?email=person@example.com",
+        },
+    )
+    assert sanitized.status_code == 200
+    with mod.store.connect() as conn:
+        row = conn.execute(
+            "SELECT source, utm_campaign, path FROM events ORDER BY id DESC"
+        ).fetchone()
+    assert row["source"] is None
+    assert row["utm_campaign"] is None
+    assert row["path"] == "/other/"
 
 
 def test_status_hides_recent_jobs_without_admin_token(tmp_path, monkeypatch):
@@ -157,11 +177,71 @@ def test_status_hides_recent_jobs_without_admin_token(tmp_path, monkeypatch):
 
     anon = client.get("/status").json()
     assert "recent_jobs" not in anon  # per-order payloads not leaked
-    assert "funnel_7d" in anon  # aggregate metrics stay public
+    assert "funnel_7d" not in anon
+    assert "commerce_7d" not in anon
 
-    authed = client.get("/status", headers={"X-Admin-Token": "s3cret"}).json()
+    authed_response = client.get("/status", headers={"X-Admin-Token": "s3cret"})
+    authed = authed_response.json()
     assert "recent_jobs" in authed
+    assert "funnel_7d" in authed
+    assert "commerce_7d" in authed
     assert any(j["type"] == "audit_pdf" for j in authed["recent_jobs"])
+    assert authed_response.headers["cache-control"] == "private, no-store"
+
+
+def test_pages_cors_is_exact_and_rejected_preflight_writes_nothing(tmp_path, monkeypatch):
+    mod, client = _load_app(tmp_path, monkeypatch)
+    allowed = client.options(
+        "/api/events",
+        headers={
+            "Origin": "https://ntoledo319.github.io",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+    assert allowed.status_code == 200
+    assert allowed.headers["access-control-allow-origin"] == "https://ntoledo319.github.io"
+
+    rejected = client.options(
+        "/api/events",
+        headers={
+            "Origin": "https://ntoledo319.github.io.evil.example",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+    assert rejected.status_code == 400
+    assert "access-control-allow-origin" not in rejected.headers
+    assert mod.store.event_counts(7) == {}
+
+
+def test_telemetry_capacity_and_retention_are_enforced(tmp_path, monkeypatch):
+    mod, client = _load_app(
+        tmp_path,
+        monkeypatch,
+        EOLKITS_MAX_EVENT_DB_BYTES="1",
+    )
+    blocked = client.post("/api/events", json={"event": "view"})
+    assert blocked.status_code == 503
+    assert mod.store.event_counts(7) == {}
+
+    now = datetime.now(UTC)
+    with mod.store.connect() as conn:
+        conn.execute(
+            "INSERT INTO events(ts, name) VALUES (?, 'view'), (?, 'view')",
+            ((now - timedelta(days=31)).isoformat(), now.isoformat()),
+        )
+        conn.execute(
+            "INSERT INTO rate_limits(key, window_start, count) VALUES (?, ?, 1), (?, ?, 1)",
+            ("expired", int(now.timestamp()) - 3 * 86400, "active", int(now.timestamp())),
+        )
+
+    result = mod.cleanup_expired_artifacts(event_retention_days=30)
+    assert result["events"] == 1
+    assert result["rate_limits"] == 1
+    with mod.store.connect() as conn:
+        assert conn.execute("SELECT COUNT(*) FROM events").fetchone()[0] == 1
+        assert conn.execute("SELECT key FROM rate_limits").fetchone()[0] == "active"
 
 
 def test_lead_notify_survives_real_http_failure(tmp_path, monkeypatch):

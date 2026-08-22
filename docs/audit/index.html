@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta name="referrer" content="origin">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AWS deprecation evidence report | EOLkits</title>
@@ -37,30 +38,6 @@ button:hover{background:#1d4ed8}
 form#auditForm{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:1.5rem;margin:1rem 0}
 footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
 </style>
-<script>
-(function(){
-  try{
-    var KEY='eolkits_ft';
-    if(localStorage.getItem(KEY))return;
-    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='', refHost='';
-    try{refHost=(new URL(ref)).hostname.toLowerCase().slice(0,100);}catch(e){}
-    if(refHost===location.hostname.toLowerCase())refHost='';
-    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
-    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
-    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
-    else if(/claude\.ai/i.test(ref))aeo='claude';
-    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
-    if(!hasUtm && !refHost)return;
-    localStorage.setItem(KEY, JSON.stringify({
-      source: q.get('source')||(aeo?('aeo_'+aeo):'referral'),
-      utm_source: q.get('utm_source')||aeo||refHost,
-      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':'referral'),
-      utm_campaign: q.get('utm_campaign')||'',
-      kit: q.get('kit')||''
-    }));
-  }catch(e){}
-})();
-</script>
 </head>
 <body>
 <a href="/EOLkits/" class="brand">← EOLkits</a>
@@ -121,6 +98,14 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 <p class="reassure">🔒 Secure checkout via Stripe · automated delivery with durable retries · 30-day money-back guarantee</p>
 
 <div id="auditGate" class="callout"><strong>Checkout safety check:</strong> waiting for the v2 fulfillment backend. Checkout stays closed unless the live API confirms report engine 2.0.</div>
+<div id="auditInterest" class="callout">
+  <strong>Found a relevant issue in a real project?</strong>
+  Checkout is paused while fulfillment is verified. If this exact one-repository
+  report would be worth $299 to you, record a public, no-obligation demand signal.
+  It is not an order, reservation, waitlist, or promise of a reply.
+  <p><a class="cta secondary" href="https://github.com/ntoledo319/EOLkits/issues/new?template=audit-interest.yml" target="_blank" rel="noopener">Record qualified $299 interest on GitHub</a></p>
+  <p class="reassure">GitHub publishes your username and submission. Do not include repository names, filenames, code, secrets, security details, company information, or personal data.</p>
+</div>
 <form id="auditForm" hidden>
   <h3>Start Audit</h3>
   <p><input type="email" id="auditEmail" name="email" placeholder="your@email.com" required style="padding:0.5rem;width:300px"></p>
@@ -135,22 +120,18 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 <script>
 const API = 'https://eolkits.com';
 const qp = new URLSearchParams(location.search);
-function attribution() {
-  var ft = {};
-  try { ft = JSON.parse(localStorage.getItem('eolkits_ft') || '{}'); } catch (e) {}
-  return {
-    source: ft.source || qp.get('source') || 'audit_page',
-    utm_source: ft.utm_source || qp.get('utm_source') || '',
-    utm_medium: ft.utm_medium || qp.get('utm_medium') || '',
-    utm_campaign: ft.utm_campaign || qp.get('utm_campaign') || '',
-    kit: ft.kit || qp.get('kit') || ''
-  };
+function attributionToken(value) {
+  value = String(value || '').toLowerCase();
+  return /^[a-z0-9._-]{1,64}$/.test(value) ? value : '';
 }
-function track(eventName, extra) {
-  try {
-    const payload = Object.assign({ event: eventName, sku: 'audit', path: location.pathname }, attribution(), extra || {});
-    navigator.sendBeacon(API + '/api/events', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
-  } catch (e) {}
+function attribution() {
+  return {
+    source: attributionToken(qp.get('source')) || 'audit_page',
+    utm_source: attributionToken(qp.get('utm_source')),
+    utm_medium: attributionToken(qp.get('utm_medium')),
+    utm_campaign: attributionToken(qp.get('utm_campaign')),
+    kit: attributionToken(qp.get('kit'))
+  };
 }
 function apiMessage(data, fallback) {
   if (data && typeof data.detail === 'string') return data.detail;
@@ -163,16 +144,17 @@ const auditStatus = document.getElementById('auditStatus');
 const auditSubmit = document.getElementById('auditSubmit');
 const deadlineInput = document.getElementById('auditDeadline');
 const auditGate = document.getElementById('auditGate');
+const auditInterest = document.getElementById('auditInterest');
 // Prefill report context from a deadline-tagged migration page. The deadline does
 // not alter price.
 if (qp.get('deadline') && deadlineInput) deadlineInput.value = qp.get('deadline');
 if (qp.get('cancelled')) auditStatus.textContent = 'Checkout cancelled — finish whenever you are ready.';
-track('view');
-fetch(API + '/api/capabilities').then(r => r.ok ? r.json() : Promise.reject()).then(c => {
+fetch(API + '/api/capabilities', { cache: 'no-store', credentials: 'omit' }).then(r => r.ok ? r.json() : Promise.reject()).then(c => {
   const a = c && c.audit;
   if (a && a.checkout_enabled === true && String(a.report_version) === '2.0') {
     auditForm.hidden = false;
     auditGate.hidden = true;
+    auditInterest.hidden = true;
   } else {
     auditGate.textContent = 'Audit checkout is temporarily paused while fulfillment is verified.';
   }
@@ -213,7 +195,9 @@ auditForm.addEventListener('submit', async (event) => {
     if (!upload.ok) throw new Error('Upload failed');
 
     auditStatus.textContent = 'Opening secure checkout...';
-    track('checkout_click', { deadline: deadline });
+    if (typeof window.eolkitsTrack === 'function') {
+      window.eolkitsTrack('checkout_click', { sku: 'audit', deadline: deadline });
+    }
     const a = attribution();
     const checkoutBody = new URLSearchParams({ email: email, upload_id: presignData.uploadId });
     if (deadline) checkoutBody.set('deadline', deadline);

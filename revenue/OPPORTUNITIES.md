@@ -164,3 +164,14 @@ subscriptions, and schedules. Transition-race regressions and 39 Worker cases
 pass, but the production workflow has not run. This is prerequisite containment,
 not distribution, purchasability, or demand. K1 remains the fastest external
 signal, while A1 remains the only paid unit after its deployment/E2E gate.
+
+## Qualified-signal refinement — August 22
+
+K1 remains first, but its falsifier is now observable without trusting the stale
+backend. A scanner finding or Action finding can open a GitHub-authenticated,
+price-qualified public issue; a daily read-only workflow counts only external
+human authors and separately measures public `ntoledo319/EOLkits@v2` references.
+The baseline is zero. This does not increase K1's U hypothesis and does not count
+interest as a sale. It shortens the time needed to distinguish “nobody reached a
+finding” from “a finding occurred but $299 is not compelling.” A1 remains gated
+until real fulfillment and payment operations pass; no substitute SKU is opened.

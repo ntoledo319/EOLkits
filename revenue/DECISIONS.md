@@ -351,3 +351,33 @@ owner-only step in the same batch. The source, 39 focused Worker tests, dry-run
 bundle, YAML, ShellCheck, and public tombstone reassertion passed at main commit
 `e4109e3e`. The production workflow has not run, so no Stripe state changed and
 collected revenue remains $0.
+
+## D23 — measure price-qualified demand without reviving unsafe commerce
+
+Anonymous page beacons against the stale custom-domain backend cannot answer the
+commercial question: GitHub Pages CORS rejected them, the old store retained
+them indefinitely, public low-volume counts leaked activity, and raw URL
+attribution could carry sensitive values. Do not send more acquisition traffic
+into that system or treat repaired tracking code as demand.
+
+Use a GitHub-native signal that works before deployment. Show a structured
+`$299 Audit interest` issue form only after an actual browser or Action finding,
+and on the explicitly closed Audit gate. Require acknowledgement of a real
+finding, one static $299 report, purchase consideration, public visibility, and
+the prohibition on project/company/security/personal data. State that it is
+nonbinding and not an order, reservation, waitlist, support request, or promise
+of follow-up. This is inbound research, not autonomous human contact.
+
+Measure only public lower bounds in a scheduled read-only workflow: distinct
+external human issue authors, near-term purchase windows, and public exact
+`@v2` code references. Never commit synthetic counters, comment on issues, or
+call interest revenue. Baseline every count at zero and apply Bet A's five-day
+falsifier after the surface is live.
+
+Prepare future first-party telemetry safely: no cookies, local storage,
+referrer, visitor ID, repository name, or secret-bearing field; exact Pages CORS;
+v2 capability gating; canonical path/token schemas; 2 KiB bodies, 60/hour per
+source, 2,000/day global, 128 MiB shared-database guard; 30-day event and two-day
+rate-key retention; public readiness only, with detailed funnel/commerce/jobs
+admin-only and `no-store`. This hardening permits later directional measurement
+after the real v2 deploy, but it does not authorize deployment or checkout.

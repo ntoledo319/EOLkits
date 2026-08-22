@@ -15,8 +15,8 @@ the test-mode operational gate in `deploy/grace/README.md`.
 
 | Method | Path | Purpose |
 |---|---|---|
-| GET | `/health`, `/status` | liveness + component health |
-| POST | `/api/events` | first-party funnel beacon (no third-party tracker) |
+| GET | `/health`, `/status` | public liveness + component readiness; detailed counts require `X-Admin-Token` |
+| POST | `/api/events` | bounded first-party aggregate events (no visitor ID or third-party tracker) |
 | GET | `/api/capabilities` | fail-closed storefront readiness handshake |
 | POST | `/upload/presign`, `PUT /upload/{id}` | bounded, immutable Audit input |
 | POST | `/api/audit/checkout` | Stripe checkout, when explicitly enabled and ready |
@@ -27,6 +27,12 @@ the test-mode operational gate in `deploy/grace/README.md`.
 Migration Pack, Drift Watch, organization-license, GitHub App, and partner
 commerce routes are closed. Legacy events are retained only so stale payments
 can enter the refund/reconciliation path.
+
+Browser telemetry stays dormant until `/api/capabilities` proves report version
+2.0. The API accepts only an exact CORS origin, allowlisted event names, canonical
+page categories, and compact non-PII attribution tokens. Raw events expire after
+30 days, abuse-rate keys after two days, and event ingestion stops at a bounded
+SQLite/WAL size. Public status never exposes funnel, commerce, or per-order data.
 
 ## `POST /api/v1/lead` — the studio lead bus
 

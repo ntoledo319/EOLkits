@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta name="referrer" content="origin">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Amazon Linux 2 vs Amazon Linux 2023: what changes | EOLkits</title>
@@ -10,30 +11,6 @@
 <script defer src="/EOLkits/track.js"></script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the difference between Amazon Linux 2 and Amazon Linux 2023?", "acceptedAnswer": {"@type": "Answer", "text": "AL2023 replaces yum with dnf, removes amazon-linux-extras, swaps ntpd for chronyd and iptables for nftables, drops Python 2, ships glibc 2.34, and uses versioned 5-year-supported releases with hardened defaults."}}, {"@type": "Question", "name": "Do I have to migrate from Amazon Linux 2 to AL2023?", "acceptedAnswer": {"@type": "Answer", "text": "Amazon Linux 2 reached its published end-of-life date on 2026-06-30. Verify the installed release and current AWS support terms; AL2023 is the durable successor."}}, {"@type": "Question", "name": "Is yum still available on Amazon Linux 2023?", "acceptedAnswer": {"@type": "Answer", "text": "A yum command remains as a symlink to dnf for backward compatibility, but dnf is the real package manager and amazon-linux-extras is gone."}}]}</script>
 <style>.cmp{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.92rem}.cmp th,.cmp td{border:1px solid #e5e7eb;padding:.5rem .6rem;text-align:left;vertical-align:top}.cmp th{background:#f3f4f6}.cta{display:inline-block;margin:1rem 0;padding:.7rem 1.2rem;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600}</style>
-<script>
-(function(){
-  try{
-    var KEY='eolkits_ft';
-    if(localStorage.getItem(KEY))return;
-    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='', refHost='';
-    try{refHost=(new URL(ref)).hostname.toLowerCase().slice(0,100);}catch(e){}
-    if(refHost===location.hostname.toLowerCase())refHost='';
-    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
-    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
-    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
-    else if(/claude\.ai/i.test(ref))aeo='claude';
-    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
-    if(!hasUtm && !refHost)return;
-    localStorage.setItem(KEY, JSON.stringify({
-      source: q.get('source')||(aeo?('aeo_'+aeo):'referral'),
-      utm_source: q.get('utm_source')||aeo||refHost,
-      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':'referral'),
-      utm_campaign: q.get('utm_campaign')||'',
-      kit: q.get('kit')||''
-    }));
-  }catch(e){}
-})();
-</script>
 </head>
 <body class="container article">
 <nav class="breadcrumb"><a href="/EOLkits/">Home</a> / <a href="/EOLkits/migrate/">Deadlines</a> / <span>AL2 vs AL2023</span></nav>

@@ -36,4 +36,4 @@ absolute paths fail closed.
   not sent to EOLkits.
 
 The action is free. The only paid EOLkits product currently offered is the
-server-gated [$299 repository evidence report](https://ntoledo319.github.io/EOLkits/audit/?utm_source=github_action&utm_medium=readme).
+server-gated [$299 repository evidence report](https://ntoledo319.github.io/EOLkits/audit/?source=github_action&utm_source=github_action&utm_medium=readme).

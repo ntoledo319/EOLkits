@@ -1,7 +1,8 @@
 # Batched owner queue — maximum 41 minutes
 
-Last reconciled August 22 after publishing and verifying the exact legacy
-Stripe-retirement workflow. The workflow has not been owner-dispatched.
+Last reconciled August 22 after preparing the price-qualified demand probe and
+privacy-safe telemetry release. The Stripe workflow has not been
+owner-dispatched; no new owner task or owner minute was added.
 
 Do HQ-2 first because the stale GRACE API can still mint live Checkout Sessions,
 then HQ-5 because it repairs existing distribution. Complete HQ-1, HQ-3, HQ-4,
@@ -104,9 +105,11 @@ Steps:
 
 1. After final main CI is green, open the private prepared draft directly:
    https://github.com/ntoledo319/EOLkits/releases/tag/untagged-db9a4617f412abd63d2d
-2. Verify it is v2.0.0 targeting commit `8748cf6a`, check “Publish this Action to
-   the GitHub Marketplace,” keep the existing Marketplace identity, and publish
-   with 2FA. Do not create a second listing or a second release.
+2. Verify it is v2.0.0 targeting the latest green `main` commit (the draft
+   synchronizer updates the target whenever the Action surface changes), check
+   “Publish this Action to the GitHub Marketplace,” keep the existing
+   Marketplace identity, and publish with 2FA. Do not create a second listing
+   or a second release. Stop if the draft target differs from green `main`.
 3. Verify
    https://github.com/marketplace/actions/rupture-aws-deprecation-check shows
    v2.0.0 and the bounded release copy.

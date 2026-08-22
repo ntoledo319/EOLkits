@@ -102,6 +102,9 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
       - name: Build and test generated site
         run: |
           mkdir -p "$TMPDIR" "$PIP_CACHE_DIR"
@@ -163,6 +166,12 @@ jobs:
             INPUT_FAIL_ON=any bash apps/github-action/run.sh
           grep -qx 'has_findings=false' "$clean_output"
           grep -qx 'should_fail=false' "$clean_output"
+          clean_report="$(sed -n 's/^report_path=//p' "$clean_output")"
+          test -f "$clean_report"
+          if grep -Fq 'audit-interest.yml' "$clean_report"; then
+            echo "::error::Clean scan must not request qualified finding-based interest"
+            exit 1
+          fi
           GITHUB_ACTION_PATH="$GITHUB_WORKSPACE" GITHUB_OUTPUT="$findings_output" \
             INPUT_KIT=lambda-lifeline INPUT_PATH=apps/github-action/test/fixtures/findings \
             INPUT_FAIL_ON=any bash apps/github-action/run.sh
@@ -171,6 +180,8 @@ jobs:
           findings_report="$(sed -n 's/^report_path=//p' "$findings_output")"
           test -f "$findings_report"
           grep -Fq 'https://ntoledo319.github.io/EOLkits/audit/' "$findings_report"
+          grep -Fq 'one-repository evidence report ($299)' "$findings_report"
+          grep -Fq 'audit-interest.yml' "$findings_report"
           if grep -Fq 'https://eolkits.com/audit' "$findings_report"; then
             echo "::error::Action report points at the obsolete custom-domain funnel"
             exit 1
