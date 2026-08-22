@@ -461,3 +461,25 @@ benchmarks, or unverified analytics in this ledger.
   No publish workflow was dispatched in this cycle.
 - Marketplace v1.1.0, paid reports, collected revenue, and profit remain
   not published / 0 / $0 / $0.
+
+## Release-gate reconciliation — 2026-08-22T23:28:01Z
+
+- Green Marketplace-draft run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32604619021 logged creation
+  of the canonical private v2.0.0 draft at
+  https://github.com/ntoledo319/EOLkits/releases/tag/untagged-0866963caf3f06db98a1,
+  targeting commit `a9cdcaeb40637d1f58f7539e80a16ec569be6704`. The
+  owner queue's prior `untagged-db9a...` URL was stale. A local exact diff found
+  no differences between that target and public `v2` commit `9c231b58` under
+  `action.yml` or `apps/github-action/`.
+- The VS publication workflow had only a branch check around use of `VSCE_PAT`.
+  The reviewed candidate now requires repository owner `ntoledo319` as dispatch
+  and triggering actor, exact repository/main ref, and typed version-specific
+  confirmation before source checkout or publisher-secret use. It checks out
+  exact green release commit `a9cdcaeb` with persisted Git credentials disabled
+  and re-verifies HEAD before packaging. This is release authorization
+  hardening, not a Marketplace publication or demand event.
+- Public VS remains v1.0.0 with 162 downloads and an approximately 100-install
+  counter. Exact Stripe-retirement runs remain 0; GitHub Marketplace remains
+  v1.1.0; `eolkits.com/api/capabilities` remains unavailable. Purchases,
+  deliveries, collected revenue, and collected profit remain 0 / 0 / $0 / $0.

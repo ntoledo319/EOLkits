@@ -2,19 +2,57 @@ name: Publish VS Code Extension
 
 on:
   workflow_dispatch:
+    inputs:
+      confirm:
+        description: Type PUBLISH_RUPTURE_VSCODE_1_1_0
+        required: true
+        type: string
 
 permissions:
   contents: read
 
+concurrency:
+  group: publish-rupture-vscode
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: >-
+      github.repository == 'ntoledo319/EOLkits' &&
+      github.ref == 'refs/heads/main' &&
+      github.actor == github.repository_owner &&
+      github.triggering_actor == github.repository_owner &&
+      inputs.confirm == 'PUBLISH_RUPTURE_VSCODE_1_1_0'
+    timeout-minutes: 15
     env:
+      RELEASE_COMMIT: a9cdcaeb40637d1f58f7539e80a16ec569be6704
       TMPDIR: ${{ github.workspace }}/tmp/runtime-tmp
       npm_config_cache: ${{ github.workspace }}/tmp/npm-cache
     steps:
+      - name: Reconfirm the publication authorization
+        shell: bash
+        env:
+          PUBLICATION_CONFIRMATION: ${{ inputs.confirm }}
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_REPOSITORY" != 'ntoledo319/EOLkits' ||
+                "$GITHUB_REF" != 'refs/heads/main' ||
+                "$GITHUB_ACTOR" != "$GITHUB_REPOSITORY_OWNER" ||
+                "$GITHUB_TRIGGERING_ACTOR" != "$GITHUB_REPOSITORY_OWNER" ||
+                "$PUBLICATION_CONFIRMATION" != 'PUBLISH_RUPTURE_VSCODE_1_1_0' ]]; then
+            echo '::error::Exact repository-owner authorization on ntoledo319/EOLkits main is required'
+            exit 1
+          fi
+
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.RELEASE_COMMIT }}
+          persist-credentials: false
+
+      - name: Verify exact release commit
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "$RELEASE_COMMIT"
 
       - name: Set up Node.js
         uses: actions/setup-node@v6

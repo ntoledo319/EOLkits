@@ -121,11 +121,12 @@ T$ means disqualified within this cycle.
 
 1. K1 — repair/update the already-listed GitHub Action; fastest built-in
    distribution and lowest owner time. Its tested v2 branch is installable and
-   its private v2.0.0 Marketplace draft is prepared; publication is the remaining
-   owner-controlled step.
+   its canonical private v2.0.0 Marketplace draft is prepared at a verified
+   Action-equivalent target; publication is the remaining owner-controlled step.
 2. A1 — the sole paid fulfillment unit. It is not live until the operational
    gate passes.
-3. V1 — publish the tested free VSIX as a second contextual distribution surface.
+3. V1 — publish the tested free VSIX as a second contextual distribution surface;
+   exact-owner/confirmation guards now protect the existing publisher credential.
 4. C4 — preserve only cited, useful search pages and measure them. The repaired
    51-URL Pages corpus now has a protocol-valid IndexNow submission path, but no
    crawl, rank, visit, or conversion signal has been observed.
@@ -247,3 +248,22 @@ candidate, and its full release/VS package, determinism, property, Pages,
 Marketplace-draft, and acquisition workflows passed. This removes the technical
 release risk but does not start V1's clock: the public listing still serves
 v1.0.0 until HQ-6.
+
+## Owner-gate reconciliation — August 22
+
+The ranking remains K1, A1, V1, C4. A prebuilt GHCR image does not outrank any
+of them. GitHub supports anonymous pulls for public containers and repository
+permission inheritance when a package is linked correctly before publication,
+but this repository has neither the OCI source link nor a package workflow.
+Creating that new public package is also a new owner-authorized external release.
+It would not remove the SSH, secrets, Caddy, Stripe test UI, delivery, or refund
+proof that dominate HQ-3. Do not spend the launch window on container-registry
+hardening. Source checked August 22:
+https://docs.github.com/en/packages/learn-github-packages/about-permissions-for-github-packages
+
+K1 and V1 can safely publish while checkout is closed because every repaired
+link ends at the capability-gated Pages funnel. Still, the five-minute Stripe
+audit comes first because it may expose anomalous commerce state; their
+three-minute owner batch follows immediately. The GRACE operational gate remains
+before the $299 checkout. This ordering does not alter revenue estimates or
+count an unpublished artifact as signal.

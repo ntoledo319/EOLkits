@@ -1,17 +1,20 @@
 # Batched owner queue — maximum 37 minutes
 
-Last reconciled August 22 after publishing the engine-generated sample report
-on `main`, advancing public `v2` to green product commit `9c231b58`, and
-recovering the existing VS Marketplace identity. The Stripe workflow has not
-been owner-dispatched; neither Marketplace update is public. HQ-6 no longer
-requires a new publisher or credential, reducing its estimate by four minutes.
-Repository commit `a9cdcaeb` and its full release/VS package run `32604619029`
-are green, so HQ-6 has no remaining repository-side preparation.
+Last reconciled August 22 after publishing the engine-generated sample report,
+advancing public `v2` to green product commit `9c231b58`, recovering the existing
+VS Marketplace identity, and correcting the canonical private GitHub draft.
+The Stripe workflow has not been owner-dispatched; neither Marketplace update
+is public. HQ-6 no longer requires a new publisher or credential, reducing its
+estimate by four minutes. Repository commit `a9cdcaeb` and its full release/VS
+package run `32604619029` are green; the publication workflow now requires exact
+owner identity and typed confirmation.
 
-Do HQ-2 first because the stale GRACE API can still mint live Checkout Sessions,
-then HQ-5 and HQ-6 because they repair existing distribution. Complete HQ-1,
-HQ-3, HQ-4, and finally HQ-7. Checkout remains closed until HQ-7. No old handoff or
-launch file is authoritative.
+Do HQ-2 first because the stale GRACE API can still mint live Checkout Sessions
+and the exact audit may stop on anomalous commerce state. Then do HQ-5 and HQ-6
+in the same sitting so the repaired, fail-closed Pages funnel starts receiving
+Marketplace distribution. Complete HQ-1, HQ-3, HQ-4, and finally HQ-7. HQ-5 and
+HQ-6 are acquisition releases, not checkout-safety gates; checkout remains
+closed until HQ-7. No old handoff or launch file is authoritative.
 
 ## HQ-1 — supply truthful seller/legal and cost facts (3 minutes)
 
@@ -108,10 +111,12 @@ Why human-only: Marketplace developer agreement, 2FA, and release checkbox.
 Steps:
 
 1. After final main CI is green, open the private prepared draft directly:
-   https://github.com/ntoledo319/EOLkits/releases/tag/untagged-db9a4617f412abd63d2d
-2. Verify it is v2.0.0 targeting feature commit `bffb335a`. Final green commit
-   `9c231b58` differs only in renderer-portability tests, and public `v2` points
-   there with identical Action files. Check
+   https://github.com/ntoledo319/EOLkits/releases/tag/untagged-0866963caf3f06db98a1
+   This is the canonical draft created by green run `32604619021`; do not publish
+   either older untagged draft.
+2. Verify it is v2.0.0 targeting green commit `a9cdcaeb`. Public `v2` points to
+   green commit `9c231b58`, whose `action.yml` and `apps/github-action/` files are
+   byte-identical to the draft target. Check
    “Publish this Action to the GitHub Marketplace,” keep the existing
    Marketplace identity, and publish with 2FA. Do not create a second listing
    or a second release. Stop if its Action files differ from public `v2`.
@@ -134,8 +139,13 @@ Steps:
 
 1. Open
    https://github.com/ntoledo319/EOLkits/actions/workflows/publish-vscode.yml,
-   choose **Run workflow** on `main`, and run it. Do not change the package
-   publisher/name or create `eolkits.eolkits-vscode`.
+   choose **Run workflow** on `main`, type
+   `PUBLISH_RUPTURE_VSCODE_1_1_0` into the confirmation field, and run it while
+   signed in as repository owner `ntoledo319`. Do not change the package
+   publisher/name or create `eolkits.eolkits-vscode`. The workflow rejects a
+   collaborator dispatch, a collaborator rerun, another branch, or another
+   confirmation value, and packages only the already-green release commit
+   `a9cdcaeb` even if later ledger commits exist on `main`.
 2. Require a green run, then verify
    https://marketplace.visualstudio.com/items?itemName=rupture.rupture-vscode
    shows v1.1.0 with EOLkits display branding and links to the verified Pages
@@ -148,9 +158,10 @@ Steps:
 
 Why human-only: this begins accepting real customer money.
 
-Prerequisites: HQ-1 through HQ-6 complete, zero unresolved refund/fulfillment
+Prerequisites: HQ-1 through HQ-4 complete, zero unresolved refund/fulfillment
 alerts, and the exact production commit is verified. HQ-2 intentionally leaves
-all six historical Prices inactive.
+all six historical Prices inactive. HQ-5 and HQ-6 should happen immediately for
+distribution, but their public listing state does not affect checkout safety.
 
 Steps:
 
