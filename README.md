@@ -6,7 +6,8 @@ a repository ZIP or source file into a shareable evidence report.
 
 ## Use it free
 
-Run the verified [browser scanner](https://ntoledo319.github.io/EOLkits/scan/?source=github_readme&utm_source=github&utm_medium=readme)
+Install the free [EOLkits scanner for VS Code](https://marketplace.visualstudio.com/items?itemName=rupture.rupture-vscode),
+run the verified [browser scanner](https://ntoledo319.github.io/EOLkits/scan/?source=github_readme&utm_source=github&utm_medium=readme),
 or use one of the MIT-licensed kits in this repository:
 
 - [`lambda-lifeline`](./kits/lambda-lifeline) checks Lambda Node.js runtime,

@@ -477,3 +477,37 @@ queues the real sample and truthful copy for the observed daily deploy but does
 not claim the custom domain is repaired before a public probe passes. At cycle
 end it still served retired product copy and `/api/capabilities` returned 404.
 Collected revenue remains $0.
+
+## D28 — recover the installed VS channel instead of creating a second listing
+
+The earlier “not published” conclusion came from searching the new EOLkits name.
+Exact Marketplace API lookup proves that `rupture.rupture-vscode` remains public
+at v1.0.0 with 101 cumulative installs and 162 downloads, while
+`eolkits.eolkits-vscode` does not exist. Historical workflow run `25262940459`
+also proves the repository previously published the stable identity through its
+existing `VSCE_PAT` binding. These counters establish an existing distribution
+asset only; they are not current users, qualified intent, or revenue.
+
+Do not create a new EOLkits publisher or listing. Restore `publisher=rupture` and
+`name=rupture-vscode`, retain EOLkits as the display brand, bump to v1.1.0, and
+make the publish workflow fail if that identity drifts. This preserves upgrade
+delivery to the installed base and reduces HQ-6 to the public workflow dispatch
+and verification. That final public post remains owner-only.
+
+An in-place minor update must not silently break the old namespace. Keep
+`rupture.*` command activation/aliases and deprecated configuration properties
+for this transition. Resolve an explicitly configured `eolkits.*` value first,
+then an explicit `rupture.*` value, then the current default; this prevents a
+legacy `rupture.autoScan=false` from turning back on merely because the new
+manifest contributes a default. Regression-test both precedence directions and
+package contents before publication.
+
+The current v1.0.0 links to a dead `https://ntoledo319.github.io/Rupture/audit`
+route. Repair it to the verified Pages funnel and show a `$299` nonbinding public
+interest link only when the extension has actual findings. Add “VS Code
+extension” to the privacy-bounded issue form and count that source separately in
+the read-only acquisition artifact. Users must choose to open and submit it; the
+extension sends no code, telemetry, or messages. Start V1's five-full-day
+falsifier only after v1.1.0 is public, using the 101-install/162-download baseline
+plus external VS-attributed qualified authors. Zero growth and zero authors kill
+the channel hypothesis; packaging, auto-updates, and internal probes do not pass.

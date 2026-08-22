@@ -7,6 +7,7 @@ import {
     scanStructuredText,
     scanTerraformText
 } from './rules';
+import { resolveSetting } from './settings';
 
 export class EOLkitsScanner {
     constructor(private diagnostics: EOLkitsDiagnostics) {}
@@ -32,13 +33,19 @@ export class EOLkitsScanner {
             findings.push(...this.toFindings(scanTerraformText(text), document));
         }
 
-        const config = vscode.workspace.getConfiguration('eolkits');
-        const enabled = new Set(config.get<string[]>('enabledKits', [
+        const config = vscode.workspace.getConfiguration('eolkits', document.uri);
+        const legacyConfig = vscode.workspace.getConfiguration('rupture', document.uri);
+        const enabled = new Set(resolveSetting(config, legacyConfig, 'enabledKits', [
             'lambda-lifeline',
             'al2023-gate',
             'python-pivot'
         ]));
-        const threshold = config.get<Finding['severity']>('severityThreshold', 'medium');
+        const threshold = resolveSetting<Finding['severity']>(
+            config,
+            legacyConfig,
+            'severityThreshold',
+            'medium'
+        );
         findings = findings.filter(finding =>
             enabled.has(this.kitForFinding(finding)) &&
             this.severityRank(finding.severity) >= this.severityRank(threshold)

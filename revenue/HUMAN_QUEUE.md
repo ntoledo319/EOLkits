@@ -1,13 +1,14 @@
-# Batched owner queue — maximum 41 minutes
+# Batched owner queue — maximum 37 minutes
 
 Last reconciled August 22 after publishing the engine-generated sample report
-on `main` and advancing public `v2` to green product commit `9c231b58`. The Stripe workflow
-has not been owner-dispatched; v2.0.0 is not public; no new owner task or owner
-minute was added.
+on `main`, advancing public `v2` to green product commit `9c231b58`, and
+recovering the existing VS Marketplace identity. The Stripe workflow has not
+been owner-dispatched; neither Marketplace update is public. HQ-6 no longer
+requires a new publisher or credential, reducing its estimate by four minutes.
 
 Do HQ-2 first because the stale GRACE API can still mint live Checkout Sessions,
-then HQ-5 because it repairs existing distribution. Complete HQ-1, HQ-3, HQ-4,
-HQ-6, and finally HQ-7. Checkout remains closed until HQ-7. No old handoff or
+then HQ-5 and HQ-6 because they repair existing distribution. Complete HQ-1,
+HQ-3, HQ-4, and finally HQ-7. Checkout remains closed until HQ-7. No old handoff or
 launch file is authoritative.
 
 ## HQ-1 — supply truthful seller/legal and cost facts (3 minutes)
@@ -121,22 +122,25 @@ Steps:
 Official instructions:
 https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace
 
-## HQ-6 — publish the verified VSIX (5 minutes)
+## HQ-6 — update the existing VS listing in place (1 minute)
 
-Why human-only: publisher identity and Marketplace authentication.
+Why human-only: starting the workflow changes a public Marketplace listing under
+the owner's publisher identity. The existing listing and repository credential
+have already published successfully; no new publisher or listing is needed.
 
 Steps:
 
-1. Open https://marketplace.visualstudio.com/manage/publishers/ and create or
-   verify the eolkits publisher.
-2. Follow https://code.visualstudio.com/api/working-with-extensions/publishing-extension
-   to create the currently supported Marketplace credential. Microsoft says
-   global PATs retire December 1, 2026, so prefer the documented Entra path where
-   available.
-3. Add the credential as repository secret VSCE_PAT, then run the “Publish VS
-   Code Extension” workflow from main.
-4. Verify the listing installs version 1.0.0 and links only to the free tools and
-   capability-gated Audit.
+1. Open
+   https://github.com/ntoledo319/EOLkits/actions/workflows/publish-vscode.yml,
+   choose **Run workflow** on `main`, and run it. Do not change the package
+   publisher/name or create `eolkits.eolkits-vscode`.
+2. Require a green run, then verify
+   https://marketplace.visualstudio.com/items?itemName=rupture.rupture-vscode
+   shows v1.1.0 with EOLkits display branding and links to the verified Pages
+   Audit. The workflow refuses a different technical identity.
+3. If publication fails for an expired or missing credential, stop and give the
+   run URL to Codex. Only that evidence reopens credential renewal; do not create
+   a second publisher or listing.
 
 ## HQ-7 — enable the only checkout (1 minute)
 
@@ -157,6 +161,6 @@ Steps:
 4. Verify /api/capabilities reports Audit 2.0 ready, then confirm the static form
    appears and creates one $299 input-bound Checkout Session.
 
-Estimated current owner total: 41 minutes. This leaves a 19-minute reserve for
+Estimated current owner total: 37 minutes. This leaves a 23-minute reserve for
 unrecorded prior owner work or one failed authentication attempt; do not exceed
 60 minutes without changing the plan.

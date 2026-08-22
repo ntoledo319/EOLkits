@@ -16,8 +16,9 @@ Only observed evidence belongs here. Forecasts are in OPPORTUNITIES.md and PLAN.
   https://github.com/marketplace/actions/rupture-aws-deprecation-check
 - DEV profile observed with 25 posts and 0 comments:
   https://dev.to/ntoledo319
-- No EOLkits result was observed in Visual Studio Marketplace search. This is an
-  inference that the extension is not published, not a marketplace account audit.
+- The initial EOLkits-name search missed the stable technical identity. Exact
+  Marketplace API lookup later found public `rupture.rupture-vscode` v1.0.0;
+  the recovered baseline is recorded below and supersedes that inference.
 
 ## Live-surface baseline — August 21–22, 2026
 
@@ -403,3 +404,34 @@ benchmarks, or unverified analytics in this ledger.
 - GitHub exposed 0 actual issues (pull requests excluded), 1 star, and 0 forks.
   No qualified issue, checkout, purchase, report delivery, refund, or collected
   dollar was observed. Revenue / profit / target gap remain $0 / $0 / $4,000.
+
+## Existing VS distribution recovered — 2026-08-22T23:02:30Z
+
+- An exact public Visual Studio Marketplace gallery query returned
+  `rupture.rupture-vscode`, display name “Rupture - AWS Deprecation Scanner,”
+  version 1.0.0, published `2026-05-02T22:02:07.783Z`, last updated
+  `2026-05-02T22:06:15.09Z`, with 101 cumulative installs and 162 downloads.
+  The same query returned zero extensions for `eolkits.eolkits-vscode`.
+- Historical GitHub Actions run
+  https://github.com/ntoledo319/EOLkits/actions/runs/25262940459 completed its
+  package and publish steps successfully against commit `8e6e3ad3`, whose
+  manifest identity was `rupture.rupture-vscode`. Its expired logs returned HTTP
+  410, so no secret value or unsupported log detail is claimed.
+- The code at that published commit routes both Audit actions to
+  `https://ntoledo319.github.io/Rupture/audit`; a live probe returned HTTP 404.
+  This establishes a broken handoff in the existing release, not a visit count
+  or proof that an installed user clicked it.
+- The local v1.1.0 candidate preserves the stable listing identity and EOLkits
+  display branding; retains legacy `rupture.*` command activation/registration;
+  gives explicitly configured legacy settings fallback priority only when no
+  explicit `eolkits.*` value exists; and routes findings to the verified Pages
+  Audit plus a public, nonbinding qualified-interest form. The measurement job
+  now reports VS-attributed issues and distinct external authors separately.
+- TypeScript, ESLint 10, scanner behavior, identity/legacy-setting regressions,
+  and packaging passed. The inspected 12-file local VSIX is 21,356 bytes with
+  SHA-256 `73cad6c4d50876a679ec6c8e46cdd96c34f8d2a571269d8c647c6011e91270b1`.
+  This is a local build artifact; Marketplace publication and remote CI remain
+  pending at this ledger point.
+- The 101 installs and 162 downloads are the historical V1 baseline, not new
+  EOLkits conversions. Observed VS-attributed qualified issues, paid reports,
+  collected revenue, and profit remain 0 / 0 / $0 / $0.
