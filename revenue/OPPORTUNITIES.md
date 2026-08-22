@@ -126,7 +126,9 @@ T$ means disqualified within this cycle.
 2. A1 — the sole paid fulfillment unit. It is not live until the operational
    gate passes.
 3. V1 — publish the tested free VSIX as a second contextual distribution surface.
-4. C4 — preserve only cited, useful search pages and measure them.
+4. C4 — preserve only cited, useful search pages and measure them. The repaired
+   51-URL Pages corpus now has a protocol-valid IndexNow submission path, but no
+   crawl, rank, visit, or conversion signal has been observed.
 5. K5 — registry packaging only after the first four show external signal.
 
 No current frame combines strong built-in distribution and built-in payment.
@@ -179,3 +181,15 @@ until real fulfillment and payment operations pass; no substitute SKU is opened.
 The K1 price-qualified surface became public at 2026-08-22 20:29 UTC. Its first
 five-full-day gate is therefore 2026-08-27 20:29 UTC; the broader Day-7 gate
 remains August 29. Do not move either gate earlier based on internal probes.
+
+## Search-distribution activation — August 22
+
+C4 gained one bounded autonomous distribution mechanism without becoming a new
+bet or paid SKU. Official IndexNow documentation permits up to 10,000 same-host
+URLs per batch, supports a non-root ownership key via `keyLocation`, and defines
+HTTP 200/202 as receipt. The shipped workflow validates the public key, exact
+Pages prefix, URL count, and malformed input; normal pushes map only changed or
+deleted HTML paths, while the bootstrap run used the current 51-URL sitemap.
+Run `32597777674` succeeded. This improves discovery opportunity but does not
+change the revenue hypothesis or falsifier: acceptance is not indexing, and
+the simultaneous acquisition observation remained zero-signal.

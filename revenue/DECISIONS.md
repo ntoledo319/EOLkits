@@ -391,3 +391,25 @@ Commit `db32bdfb` then passed draft, release, determinism, property, and built-i
 Pages runs. Advance `v2` without force only after those results and a raw-file
 probe. This failure is recorded as release evidence, not hidden or counted as a
 commercial signal.
+
+## D24 — notify search engines without manufacturing traffic evidence
+
+The verified Pages artifact already contained a stable IndexNow key file and a
+51-URL sitemap, but nothing submitted changed URLs. With Stripe, Marketplace,
+GRACE, and VS publication still owner-gated, activating this existing search
+distribution primitive is higher leverage than adding another product or more
+speculative funnel code.
+
+Follow the current official IndexNow protocol and terms: use one global endpoint,
+one same-host key location, no more than 10,000 URLs, and only content owned by
+this repository. On ordinary pushes, derive added/modified/deleted HTML URLs
+from the trusted main diff. Use the sitemap only when a manual/bootstrap event
+has no HTML diff. Verify the live key before sending, reject every URL outside
+the exact Pages project prefix, grant the workflow contents-read only, and make
+no scheduled repeat submissions.
+
+Run `32597777674` passed on exact main commit `951fd4b6`; the bootstrap path sent
+the 51 canonical sitemap URLs and could only pass on HTTP 200/202. Record that as
+receipt, never as crawling, indexing, rank, traffic, or demand. The simultaneous
+acquisition artifact remained at zero qualified issues and zero external `@v2`
+references, so the August 27 falsifier and portfolio ranking do not move.
