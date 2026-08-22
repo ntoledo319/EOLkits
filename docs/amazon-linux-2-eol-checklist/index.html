@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Amazon Linux 2 end-of-life: migration checklist (AL2 → AL2023) | EOLkits</title>
 <meta name="description" content="Amazon Linux 2 is EOL 2026-06-30. A step-by-step AL2 to AL2023 migration checklist: yum to dnf, amazon-linux-extras, ntpd to chronyd, iptables to nftables, Python 2 removal — with the fix for each error. Free scanner to find your AL2 usage.">
-<link rel="canonical" href="https://eolkits.com/amazon-linux-2-eol-checklist/">
-<link rel="stylesheet" href="/style.css">
-<script defer src="/track.js"></script>
+<link rel="canonical" href="https://ntoledo319.github.io/EOLkits/amazon-linux-2-eol-checklist/">
+<link rel="stylesheet" href="/EOLkits/style.css">
+<script defer src="/EOLkits/track.js"></script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When is Amazon Linux 2 end of life?", "acceptedAnswer": {"@type": "Answer", "text": "Amazon Linux 2 reached end of life on 2026-06-30. AWS has published post-EOL AL2 releases, so verify your installed release and current support terms; the durable path is migration to AL2023."}}, {"@type": "Question", "name": "What breaks moving from Amazon Linux 2 to AL2023?", "acceptedAnswer": {"@type": "Answer", "text": "yum is replaced by dnf, amazon-linux-extras is gone, ntpd is replaced by chronyd, iptables is replaced by nftables, and Python 2 is no longer available. Package names also change (version-namespaced or moved to SPAL)."}}, {"@type": "Question", "name": "Can I keep running Amazon Linux 2 after EOL?", "acceptedAnswer": {"@type": "Answer", "text": "Existing instances can keep running, but standard support has ended. Do not infer an individual host's patch state from the date alone; verify its installed release and migrate to Amazon Linux 2023."}}, {"@type": "Question", "name": "How do I find Amazon Linux 2 usage in my account?", "acceptedAnswer": {"@type": "Answer", "text": "Use the al2023-gate CLI from the repository to inspect its documented local or AWS inventory modes. The browser scanner covers only configured source patterns and does not enumerate an account."}}]}</script>
 <style>.chk li{margin:.4rem 0}.cta{display:inline-block;margin:1rem 0;padding:.7rem 1.2rem;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600}.note{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:1rem;margin:1rem 0}</style>
 <script>
@@ -36,7 +36,7 @@
 </script>
 </head>
 <body class="container article">
-<nav class="breadcrumb"><a href="/">Home</a> / <a href="/migrate/">Deadlines</a> / <span>Amazon Linux 2 checklist</span></nav>
+<nav class="breadcrumb"><a href="/EOLkits/">Home</a> / <a href="/EOLkits/migrate/">Deadlines</a> / <span>Amazon Linux 2 checklist</span></nav>
 <h1>Amazon Linux 2 end-of-life: migration checklist (AL2 → AL2023)</h1>
 <div class="note"><strong>Amazon Linux 2 reached end of life 2026-06-30.</strong> Standard support ended and migration is due. AWS has published post-EOL AL2 releases, so verify the installed release and current support terms instead of assuming a host patch state from the calendar alone. <a href="https://aws.amazon.com/blogs/aws/update-on-amazon-linux-2-end-of-life/" target="_blank" rel="noopener nofollow">[AWS source]</a></div>
 <p><a class="cta" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/al2023-gate">Inspect the al2023-gate CLI coverage →</a></p>
@@ -46,14 +46,14 @@
 <ol class="chk">
 <li><strong>Inventory.</strong> Find AL2 AMIs, launch templates, EKS node groups, ECS task definitions, Beanstalk platforms, and container base images. Use the documented <code>al2023-gate</code> modes and verify the result against AWS inventory.</li>
 <li><strong>Rebuild the base AMI on AL2023</strong> (Packer/EC2 Image Builder), then bake your app layers on top.</li>
-<li><strong>Package manager.</strong> Move <code>yum</code> usage to <code>dnf</code> and drop <code>amazon-linux-extras</code> — install packages directly, version-namespaced, or via SPAL. (<a href="/fix/amazon-linux-extras-command-not-found/">extras fix</a> · <a href="/fix/amazon-linux-2023-dnf-unable-to-find-a-match/">missing-package fix</a>)</li>
-<li><strong>Time sync.</strong> Replace <code>ntpd</code> with <code>chronyd</code>. (<a href="/fix/amazon-linux-2023-ntpd-service-not-found/">ntpd fix</a>)</li>
+<li><strong>Package manager.</strong> Move <code>yum</code> usage to <code>dnf</code> and drop <code>amazon-linux-extras</code> — install packages directly, version-namespaced, or via SPAL. (<a href="/EOLkits/fix/amazon-linux-extras-command-not-found/">extras fix</a> · <a href="/EOLkits/fix/amazon-linux-2023-dnf-unable-to-find-a-match/">missing-package fix</a>)</li>
+<li><strong>Time sync.</strong> Replace <code>ntpd</code> with <code>chronyd</code>. (<a href="/EOLkits/fix/amazon-linux-2023-ntpd-service-not-found/">ntpd fix</a>)</li>
 <li><strong>Firewall.</strong> Move <code>iptables</code> rules to <code>nftables</code>.</li>
-<li><strong>Python.</strong> AL2023 ships no Python 2 — port <code>python2</code> scripts/shebangs to <code>python3</code>. (<a href="/fix/amazon-linux-2023-python2-command-not-found/">python2 fix</a>)</li>
+<li><strong>Python.</strong> AL2023 ships no Python 2 — port <code>python2</code> scripts/shebangs to <code>python3</code>. (<a href="/EOLkits/fix/amazon-linux-2023-python2-command-not-found/">python2 fix</a>)</li>
 <li><strong>Test</strong> boot, app start, networking, and time sync on a canary instance.</li>
 <li><strong>Roll out</strong> with a staged canary (5 → 25 → 50 → 100%) and a tested rollback to the previous AMI.</li>
 </ol>
 <h2>Do it faster</h2>
-<p>The free <a href="/scan/">scanner</a> and the MIT <code>al2023-gate</code> CLI detect and patch configured source patterns. Need a review artifact? The <a href="/audit/">repository evidence report ($299, 30-day money-back)</a> returns exact observed file/line matches and a remediation order. See the full <a href="/migrate/amazon-linux-2-eol/">Amazon Linux 2 migration guide</a>.</p>
+<p>The free <a href="/EOLkits/scan/">scanner</a> and the MIT <code>al2023-gate</code> CLI detect and patch configured source patterns. Need a review artifact? The <a href="/EOLkits/audit/">repository evidence report ($299, 30-day money-back)</a> returns exact observed file/line matches and a remediation order. See the full <a href="/EOLkits/migrate/amazon-linux-2-eol/">Amazon Linux 2 migration guide</a>.</p>
 </body>
 </html>

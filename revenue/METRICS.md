@@ -74,6 +74,24 @@ Only observed evidence belongs here. Forecasts are in OPPORTUNITIES.md and PLAN.
 
 Tests and commits are release evidence, not market signal.
 
+## Remote publication evidence — August 22, 2026
+
+- Repaired main commit: https://github.com/ntoledo319/EOLkits/commit/85c9f43e330a668779e1de60c80ed5023a90129d
+- The remote tree SHA exactly matched the verified local tree SHA
+  `cdd26962ff0e7c93cffcd7c2772b43bf2422c3a5`; main advanced without force and
+  retains both prior main and the prior working branch as parents.
+- Initial push workflows all completed successfully: release surfaces
+  https://github.com/ntoledo319/EOLkits/actions/runs/32556971966, Pages
+  https://github.com/ntoledo319/EOLkits/actions/runs/32556971977, determinism
+  https://github.com/ntoledo319/EOLkits/actions/runs/32556971979, properties
+  https://github.com/ntoledo319/EOLkits/actions/runs/32556971965, and GitHub's
+  Pages build https://github.com/ntoledo319/EOLkits/actions/runs/32556970104.
+- The first public Pages probe returned 200 but exposed a race: the legacy
+  branch-source deployment overwrote the custom artifact with root-domain links.
+  The committed `docs/` contract and both CI paths are being aligned to the
+  `/EOLkits` artifact before this cycle closes; do not count this item as fixed
+  until a second public probe passes.
+
 ## Events that count after launch
 
 Record timestamp, source, and observed value for:

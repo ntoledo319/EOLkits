@@ -1,6 +1,6 @@
 /**
  * EOLkits embeddable widget.
- * Usage: <script src="https://eolkits.com/widget.js" data-repo="owner/repo"></script>
+ * Usage: <script src="https://ntoledo319.github.io/EOLkits/widget.js" data-repo="owner/repo"></script>
  */
 (function() {
   'use strict';
@@ -25,7 +25,7 @@
   container.innerHTML = `
     <h3>${repo}</h3>
     <p>Check this repository for AWS runtime and platform deprecation risks.</p>
-    <a href="https://eolkits.com/audit/?repo=${encodeURIComponent(repo)}&utm_source=widget&utm_medium=embed&source=widget" target="_blank" rel="noopener">Run EOLkits audit</a>
+    <a href="https://ntoledo319.github.io/EOLkits/audit/?repo=${encodeURIComponent(repo)}&utm_source=widget&utm_medium=embed&source=widget" target="_blank" rel="noopener">Run EOLkits audit</a>
     <div class="powered">Powered by EOLkits</div>
   `;
   script.parentNode.insertBefore(container, script.nextSibling);

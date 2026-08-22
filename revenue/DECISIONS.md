@@ -203,3 +203,19 @@ helpers were deleted. This keeps acquisition pointed at one paid artifact.
 The durable rate limiter now anchors each window to a key's first request instead
 of an epoch boundary. That closes the boundary double-burst found by the final
 API run and preserves the configured eight-per-minute lead limit.
+
+## D17 — publish through the connected GitHub object API
+
+The jailed terminal had no GitHub HTTPS credential, and reading machine Git/SSH
+credentials outside WORKSPACE_ROOT is forbidden. Use the already-connected,
+repository-scoped GitHub app instead: create changed blobs/trees in bounded
+batches, require the final remote tree SHA to equal the local Git tree SHA, make
+a two-parent commit on current main, and advance `main` with `force=false`.
+
+This published commit 85c9f43e while retaining both prior histories. The first
+five workflows passed. A public probe then showed that GitHub's legacy
+branch-source Pages deployment could race and overwrite the custom Actions
+artifact. Therefore the committed `docs/` tree itself becomes the `/EOLkits`
+project-path artifact, and GRACE's manual ship script builds the root-domain
+variant immediately before rsync. Both GitHub deployment mechanisms will now
+publish identical bytes.

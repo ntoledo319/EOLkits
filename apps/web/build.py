@@ -28,8 +28,8 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 DOCS_DIR = BASE_DIR.parent.parent / "docs"
 PRICING_FILE = BASE_DIR.parent.parent / "pricing.yml"
 BUILD_DATE_FILE = BASE_DIR / "BUILD_DATE"
-# Production = GRACE, serving eolkits.com at the domain ROOT. Both values are
-# env-overridable so a GitHub Pages project build is still possible, e.g.:
+# GRACE serves eolkits.com at the domain root, while the committed fallback
+# artifact is built for GitHub Pages at /EOLkits. Both values are env-overridable:
 #   EOLKITS_BASE_PATH=/EOLkits EOLKITS_SITE_URL=https://ntoledo319.github.io/EOLkits
 PROJECT_BASE_PATH = os.environ.get("EOLKITS_BASE_PATH", "")
 SITE_URL = os.environ.get("EOLKITS_SITE_URL", "https://eolkits.com")
@@ -75,8 +75,8 @@ def load_pricing():
 def normalize_project_links(html):
     """Make root-relative links work on a project sub-path (e.g. the /EOLkits
     GitHub Pages path) while keeping API routes on their separate live origin.
-    No-op when EOLKITS_BASE_PATH is empty — GRACE serves eolkits.com at the
-    domain root, so root-relative links must stay as-is."""
+    No-op when EOLKITS_BASE_PATH is empty — the GRACE deployment script builds
+    eolkits.com at the domain root immediately before rsync."""
     if not PROJECT_BASE_PATH:
         return html
 

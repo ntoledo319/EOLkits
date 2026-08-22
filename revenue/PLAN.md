@@ -78,9 +78,10 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
 
 ## Sequence
 
-1. Ship the reviewed static site and repository repair to main without rewriting
-   remote history; stop synthetic commits and obsolete publishing automation.
-2. Publish the v2 tag and let GitHub Pages deploy the honest static surface.
+1. Keep the reviewed repository repair on main without rewriting remote history;
+   synthetic commits and obsolete publishing automation are stopped.
+2. Keep the honest GitHub Pages fallback green; the owner creates the `v2` tag
+   from final main while publishing the existing Marketplace Action release.
 3. Archive legacy Stripe links and remove the legacy Cloudflare commerce route.
 4. Deploy Audit v2 with checkout disabled and complete the full Stripe test-mode
    operational gate.
@@ -105,10 +106,9 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
 
 ## Current gap and next action
 
-Collected profit: $0. Gap: $4,000. Checkout: closed. Highest-leverage current
-action: join the repaired release tree to current origin/main without force,
-publish the truthful free distribution surfaces, then complete the real
-payment/fulfillment gate. The local release matrix is green, including the
-GitHub Pages `/EOLkits` build shape; remote container builds and the live-domain
-deployment are not yet evidence. No outbound message, bid, post, or customer
-commitment is authorized.
+Collected profit: $0. Gap: $4,000. Checkout: closed. The repaired release is on
+main and its five initial GitHub workflows passed, including container and Pages
+jobs. Highest-leverage next action: complete the owner queue's live-domain and
+real payment/fulfillment gates, then publish the `v2` Marketplace release. The
+live `eolkits.com` deployment is not yet repaired. No outbound message, bid,
+post, or customer commitment is authorized.

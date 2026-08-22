@@ -102,10 +102,12 @@ Why human-only: Marketplace developer agreement, 2FA, and release checkbox.
 
 Steps:
 
-1. After the agent has pushed the v2 tag, open
+1. After final main CI is green, open
    https://github.com/ntoledo319/EOLkits/releases/new.
-2. Choose existing tag v2, title it “Rupture AWS Deprecation Check v2,” review
-   the generated notes, and check “Publish this Action to the GitHub Marketplace.”
+2. In “Choose a tag,” enter `v2`, choose to create that new tag on publish, and
+   target the final `main` revision. Title the release “Rupture AWS Deprecation
+   Check v2,” review the generated notes, and check “Publish this Action to the
+   GitHub Marketplace.”
 3. Keep the existing Marketplace identity; do not create a second listing.
 4. Save the release and verify
    https://github.com/marketplace/actions/rupture-aws-deprecation-check shows v2.

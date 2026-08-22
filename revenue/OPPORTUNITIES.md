@@ -138,4 +138,5 @@ moving the Node path to nodejs24.x, tracking nodejs22.x without calling it
 deprecated today, and retiring a false universal IMDSv1 deadline. It also
 removed the speculative Drift pitch and closed the Migration Pack, organization,
 partner, and generic scanner research-list branches. None of those changes is
-demand evidence; collected revenue and delivered paid reports remain zero.
+demand evidence. Publishing main and obtaining green CI/Pages builds are release
+evidence only; collected revenue and delivered paid reports remain zero.

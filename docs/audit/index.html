@@ -63,12 +63,12 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 </script>
 </head>
 <body>
-<a href="/" class="brand">← EOLkits</a>
+<a href="/EOLkits/" class="brand">← EOLkits</a>
 <h1>Turn a repository into reviewable AWS migration evidence</h1>
 <p class="lede">Upload one repository ZIP or supported source file. The <strong>$299 evidence report</strong> returns the exact files and lines that matched, a prioritized remediation order, and a source link for every rule. It is a static source scan—not a live AWS inventory.</p>
 
 <div class="callout">
-  <strong>Don't take our word for it.</strong> &nbsp;<a class="cta secondary" href="/scan/">▶ Run the free scan</a><br>
+  <strong>Don't take our word for it.</strong> &nbsp;<a class="cta secondary" href="/EOLkits/scan/">▶ Run the free scan</a><br>
   Check representative files locally before paying. The paid report adds repository-wide ZIP scanning, exact line evidence, a sequenced remediation plan, and an evidence fingerprint.
 </div>
 
@@ -80,7 +80,7 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
   <li>Explicit scope and limitations: what was scanned, skipped, and not inferred</li>
   <li>Input SHA-256 plus a deterministic <strong>evidence fingerprint</strong> verifiable at <code>/verify/</code></li>
 </ul>
-<p><a class="cta secondary" href="/audit/sample/">▶ See an illustrative fictional sample →</a></p>
+<p><a class="cta secondary" href="/EOLkits/audit/sample/">▶ See an illustrative fictional sample →</a></p>
 
 <div class="pricing">
   <h2>Pricing</h2>
@@ -128,7 +128,7 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
   <p><input type="file" id="auditFile" name="file" required accept=".zip,.yaml,.yml,.json,.tf,.tfvars,.js,.ts,.tsx,.py,.toml,.lock,.sh,.txt"></p>
   <p class="reassure">Upload limits: 10 MiB input; ZIPs may contain at most 2,000 files and 25 MiB expanded text. Encrypted, path-traversing, binary, and suspiciously compressed archives are rejected before checkout. Do not upload secrets or unrelated personal data.</p>
   <button id="auditSubmit" type="submit">Upload and Proceed to Checkout</button>
-  <p class="reassure">By continuing, you authorize this upload to be scanned and agree to the <a href="/legal/terms.html">Terms</a> and <a href="/legal/privacy.html">Privacy Policy</a>. Stripe Checkout shows the final $299 price before payment.</p>
+  <p class="reassure">By continuing, you authorize this upload to be scanned and agree to the <a href="/EOLkits/legal/terms.html">Terms</a> and <a href="/EOLkits/legal/privacy.html">Privacy Policy</a>. Stripe Checkout shows the final $299 price before payment.</p>
   <p id="auditStatus" style="color:#6b7280;font-size:.875rem"></p>
 </form>
 
@@ -246,7 +246,7 @@ auditForm.addEventListener('submit', async (event) => {
 
 <footer>
   <p>Automated delivery · file/line evidence · official sources · input hash + evidence fingerprint · 30-day money-back guarantee.</p>
-  <p><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/scan/">Free scan</a> · <a href="/audit/sample/">Sample report</a></p>
+  <p><a href="/EOLkits/legal/terms.html">Terms</a> · <a href="/EOLkits/legal/privacy.html">Privacy</a> · <a href="/EOLkits/scan/">Free scan</a> · <a href="/EOLkits/audit/sample/">Sample report</a></p>
 </footer>
 </body>
 </html>
