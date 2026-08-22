@@ -1,10 +1,11 @@
-# Batched owner queue — maximum 44 minutes
+# Batched owner queue — maximum 41 minutes
 
-Last reconciled August 22 after recovering the observed GRACE static deploy feed.
+Last reconciled August 22 after autonomously closing the legacy Cloudflare
+commerce Worker.
 
-Do HQ-6 first because it repairs the existing public distribution listing, then
-complete HQ-1 through HQ-5, HQ-7, and finally HQ-8. Checkout remains closed
-until HQ-8. No old handoff or launch file is authoritative.
+Do HQ-5 first because it repairs the existing public distribution listing, then
+complete HQ-1 through HQ-4, HQ-6, and finally HQ-7. Checkout remains closed
+until HQ-7. No old handoff or launch file is authoritative.
 
 ## HQ-1 — supply truthful seller/legal and cost facts (3 minutes)
 
@@ -39,23 +40,10 @@ Steps:
 4. Keep transaction history. Keep the single $299 Audit Price
    price_1TRoGjDL3cQl851oiIWR5JIa, but do not attach a public Payment Link.
 5. In https://dashboard.stripe.com/webhooks, remove only the endpoint pointing
-   to the retired Cloudflare Worker after HQ-4 proves the replacement test
+   to the retired Cloudflare Worker after HQ-3 proves the replacement test
    webhook. Do not remove unrelated endpoints.
 
-## HQ-3 — remove the legacy Cloudflare commerce route (3 minutes)
-
-Why human-only: Cloudflare account access and destructive remote deletion.
-
-Steps:
-
-1. Open https://dash.cloudflare.com and select the eolkits.com zone.
-2. In Workers routes, remove only the route that sends EOLkits commerce/API
-   paths to the legacy Worker.
-3. After HQ-4 verifies the GRACE route, delete only the retired Worker named
-   rupture-worker or eolkits-worker. Verify the exact name and route first.
-4. Leave DNS, Pages, and unrelated Workers untouched.
-
-## HQ-4 — deploy Audit v2 closed and prove test fulfillment (15 minutes)
+## HQ-3 — deploy Audit v2 closed and prove test fulfillment (15 minutes)
 
 Why human-only: GRACE SSH access plus Stripe/Resend secrets and test Checkout UI.
 
@@ -82,7 +70,7 @@ Steps:
    visibly pending for reconciliation.
 7. Tear down only the separate test project. Leave production checkout off.
 
-## HQ-5 — remove false DEV promotion (10 minutes)
+## HQ-4 — remove false DEV promotion (10 minutes)
 
 Why human-only: platform posting/editing is a communication as the owner.
 
@@ -100,7 +88,7 @@ Steps:
    current primary sources and paid-product links point to the gated Audit page.
 5. Do not add new promotional posts in this batch.
 
-## HQ-6 — publish the prepared GitHub Marketplace draft (2 minutes)
+## HQ-5 — publish the prepared GitHub Marketplace draft (2 minutes)
 
 Why human-only: Marketplace developer agreement, 2FA, and release checkbox.
 
@@ -120,7 +108,7 @@ Steps:
 Official instructions:
 https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace
 
-## HQ-7 — publish the verified VSIX (5 minutes)
+## HQ-6 — publish the verified VSIX (5 minutes)
 
 Why human-only: publisher identity and Marketplace authentication.
 
@@ -137,11 +125,11 @@ Steps:
 4. Verify the listing installs version 1.0.0 and links only to the free tools and
    capability-gated Audit.
 
-## HQ-8 — enable the only checkout (1 minute)
+## HQ-7 — enable the only checkout (1 minute)
 
 Why human-only: this begins accepting real customer money.
 
-Prerequisites: HQ-1 through HQ-7 complete, zero unresolved refund/fulfillment
+Prerequisites: HQ-1 through HQ-6 complete, zero unresolved refund/fulfillment
 alerts, and the exact production commit is verified.
 
 Steps:
@@ -152,6 +140,6 @@ Steps:
 3. Verify /api/capabilities reports Audit 2.0 ready, then confirm the static form
    appears and creates one $299 input-bound Checkout Session.
 
-Estimated current owner total: 44 minutes. This leaves a 16-minute reserve for
+Estimated current owner total: 41 minutes. This leaves a 19-minute reserve for
 unrecorded prior owner work or one failed authentication attempt; do not exceed
 60 minutes without changing the plan.

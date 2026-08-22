@@ -85,7 +85,11 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
 2. Keep the honest GitHub Pages fallback and tested `v2` Action branch green;
    the owner publishes the prepared v2.0.0 draft into the existing Marketplace
    listing.
-3. Archive legacy Stripe links and remove the legacy Cloudflare commerce route.
+3. Archive legacy Stripe links. The verified live `rupture-worker` was replaced
+   automatically with a tested HTTP 410 tombstone on August 22; its direct
+   checkout, App-install, and Stripe-webhook bypasses are closed. Public DNS
+   sends `eolkits.com` directly to GRACE, so any unobserved legacy Worker route
+   is inert and no longer an owner launch task.
 4. Deploy Audit v2 with checkout disabled and complete the full Stripe test-mode
    operational gate.
 5. Update the existing GitHub Marketplace listing and publish the tested VSIX.
@@ -119,6 +123,11 @@ repository, kit, and future VS links route to the verified Pages funnel. The
 honest private v2.0.0 Marketplace draft is synchronized to the same commit.
 Highest-leverage next action is the owner's two-minute Marketplace agreement/2FA
 publish step, followed by the live-domain and real payment/fulfillment gates.
+The exposed pre-rename Cloudflare Worker is no longer a payment bypass: public
+health reports `retired: true`, its commercial and webhook paths return HTTP
+410, and retirement workflow run `32591848083` passed. The old-account token
+could not see a unique `eolkits.com` zone, but public DNS resolves directly to
+GRACE; the Worker tombstone remains safe even if a route is reintroduced.
 The active GRACE static deploy feed was safely converged on the verified main
 tree at commit `c3112151`; its next observed run is expected near 07:17 UTC and
 a repository workflow will verify the public domain at 07:35 UTC. Until that

@@ -9,7 +9,11 @@ This deployment serves one paid capability: the $299 Audit v2 repository evidenc
    default dry-run; verify the public domain serves the repaired claims.
 3. Route the API paths in `Caddyfile.eolkits-api.block` and verify `/health`, `/api/status`, and `/api/capabilities`.
 4. Run a complete Stripe **test-mode** checkout → signed webhook → real PDF render → Resend delivery → signed download → evidence lookup exercise. Do not self-charge in live mode; Stripe does not return processing fees on refunds.
-5. Archive every legacy Stripe Payment Link and remove the legacy Cloudflare Worker route.
+5. Archive every legacy Stripe Payment Link. The exact pre-rename Cloudflare
+   Worker already serves the tested retirement tombstone; do not restore its
+   bindings or commerce code. An exact stale route may be removed later as
+   hygiene, but public DNS bypasses Cloudflare and route cleanup is not a launch
+   gate.
 6. Set the repository variable `AUDIT_CHECKOUT_EXPECTED=true`, change the production environment to `EOLKITS_AUDIT_CHECKOUT_ENABLED=1`, and redeploy only after the preceding gates pass.
 
 ## Required environment

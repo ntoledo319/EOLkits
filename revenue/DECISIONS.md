@@ -244,7 +244,7 @@ Prepare, but do not publicly publish, an honest v2.0.0 release draft using a
 path-triggered GitHub workflow and the repository-scoped `GITHUB_TOKEN`. The
 draft targets commit `9d369ccb`; its workflow passed and printed the private
 draft URL. The automation is idempotent and refuses README copy containing the
-retired price claims. Publication remains in HQ-6 because accepting Marketplace
+retired price claims. Publication remains in HQ-5 because accepting Marketplace
 terms and using the owner's 2FA cannot be delegated, and the public v1.1.0
 listing remains stale until that action occurs.
 
@@ -286,3 +286,29 @@ Audit form that is not initially gated. This can remove the manual static rsync
 from owner labor only after the public probe passes. It cannot deploy or validate
 the paid API, reuse secret material, accept Marketplace terms, or establish
 demand; those gates remain separate.
+
+## D21 — close the proven Cloudflare bypass before chasing new distribution
+
+The directly reachable pre-rename `rupture-worker` still reported a healthy
+production environment with Stripe in live mode. Public DNS sent
+`eolkits.com` straight to GRACE, so a route audit alone could not retire that
+separate `workers.dev` bypass.
+
+Use the existing repository Cloudflare token only through a narrow workflow.
+Test the tombstone first, target the exact historical account and Worker from
+repository history, verify public health and commerce paths, and delete a route
+only if both its script name and `eolkits.com` pattern match. Early runs exposed
+three real deployment facts without changing the public Worker: Wrangler now
+requires Node 22+, the token belongs to the pre-migration account rather than
+the current TOML account, and the old service retains a Queue consumer. The
+final replacement therefore uses Node 24, a dedicated retirement-only config,
+and a tested handler that acknowledges stale queue events without invoking any
+former fulfillment code.
+
+Run `32591848083` passed. Independent probes confirmed `retired: true` and HTTP
+410 for direct checkout, App-install, and Stripe-webhook paths. The old-account
+token could not see a unique `eolkits.com` zone and changed no route. Because
+the domain resolves directly to GRACE, that route cannot execute today; keeping
+the exact Worker as an explicit tombstone is also safer than deletion if routing
+is changed later. Remove the three-minute Cloudflare task from the owner queue.
+This is risk retirement, not demand or revenue; collected revenue remains zero.
