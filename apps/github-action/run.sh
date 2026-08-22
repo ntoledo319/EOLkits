@@ -241,7 +241,7 @@ fi
   echo
   echo "</details>"
   echo
-  echo "[Get the repository evidence report](https://eolkits.com/audit/?utm_source=github_action&utm_medium=ci&utm_campaign=$KIT)"
+  echo "[Get the repository evidence report](https://ntoledo319.github.io/EOLkits/audit/?utm_source=github_action&utm_medium=ci&utm_campaign=$KIT)"
 } > "$REPORT"
 
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then

@@ -30,7 +30,7 @@ dev = ["pytest>=7.0", "pytest-cov>=4.1.0"]
 python-pivot = "python_pivot.cli:main"
 
 [project.urls]
-Homepage = "https://eolkits.com"
+Homepage = "https://ntoledo319.github.io/EOLkits/"
 Repository = "https://github.com/ntoledo319/EOLkits"
 
 [tool.setuptools.packages.find]

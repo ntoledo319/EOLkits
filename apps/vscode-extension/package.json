@@ -9,14 +9,14 @@
     "color": "#E8801A",
     "theme": "dark"
   },
-  "homepage": "https://eolkits.com",
+  "homepage": "https://ntoledo319.github.io/EOLkits/",
   "bugs": {
     "url": "https://github.com/ntoledo319/EOLkits/issues"
   },
   "qna": "marketplace",
   "pricing": "Free",
   "sponsor": {
-    "url": "https://eolkits.com/audit/?utm_source=vscode&utm_medium=marketplace&source=vscode"
+    "url": "https://ntoledo319.github.io/EOLkits/audit/?utm_source=vscode&utm_medium=marketplace&source=vscode"
   },
   "engines": {
     "vscode": "^1.85.0"

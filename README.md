@@ -6,8 +6,8 @@ a repository ZIP or source file into a shareable evidence report.
 
 ## Use it free
 
-Run the browser scanner at [eolkits.com/scan](https://eolkits.com/scan) or use one
-of the MIT-licensed kits in this repository:
+Run the verified [browser scanner](https://ntoledo319.github.io/EOLkits/scan/)
+or use one of the MIT-licensed kits in this repository:
 
 - [`lambda-lifeline`](./kits/lambda-lifeline) checks Lambda Node.js runtime,
   dependency, source, and IaC compatibility.
@@ -63,7 +63,7 @@ to be deleted immediately; checkout-bound source uploads expire within 48 hours 
 reports within 30 days. See the [terms](./legal/terms.md),
 [privacy notice](./legal/privacy.md), and [security model](./SECURITY.md).
 
-[Check whether Audit checkout is live](https://eolkits.com/audit)
+[Check whether Audit checkout is live](https://ntoledo319.github.io/EOLkits/audit/)
 
 ## Not for sale
 
