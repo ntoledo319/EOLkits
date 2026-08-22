@@ -502,3 +502,23 @@ benchmarks, or unverified analytics in this ledger.
   no public v2.0.0 release, and HTTP 404 at `eolkits.com/api/capabilities`.
   Therefore public listing updates, paid reports, collected revenue, and profit
   remain 0 / 0 / $0 / $0; CI and a repository commit are not demand.
+
+## Third-cycle blocker observation — 2026-08-22T23:47:26Z
+
+- Public `main` remained `81a414f6` with exact tree `cc89920e`. Its final ledger
+  release run `32605862353`, determinism `32605862354`, properties `32605862393`,
+  and Pages run `32605862029` all completed successfully.
+- Exact production observations: Stripe-retirement workflow runs 0; VS publish
+  runs 1, still only historical May run `25262940459`; VS listing
+  `rupture.rupture-vscode` v1.0.0 at 100 installs and 162 downloads; GitHub
+  Marketplace v1.1.0; public v2.0.0 release HTTP 404; GRACE verifier runs 0.
+- `eolkits.com` returned HTTP 200 for the legacy health/home surface, still
+  contained Migration Pack and Drift Watch, omitted the verified Audit marker,
+  and returned HTTP 404 for `/api/capabilities`. The health payload still
+  identified the old production filesystem/SQLite/inline-runner service.
+- All six historical `buy.stripe.com` URLs returned HTTP 200 Stripe-hosted pages.
+  That does not prove a link active, inactive, safe, or reconciled; authenticated
+  HQ-2 evidence is still required before any commerce claim.
+- GitHub exposed 1 star, 0 forks, 0 actual issues, and 0 qualified Audit-interest
+  issues. Paid reports, collected revenue, collected profit, and target gap
+  remain 0 / $0 / $0 / $4,000.

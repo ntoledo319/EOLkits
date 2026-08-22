@@ -172,3 +172,17 @@ acquisition before commerce opens. Then complete legal facts, the closed GRACE
 fulfillment proof, and false-post removal before enabling the single $299 Price.
 Do not create another VS publisher, add a product, lower the price, or call
 installs/auto-updates demand evidence.
+
+## Strict blocker state — 2026-08-22T23:47:26Z
+
+This is the third consecutive goal turn ending at the same external-authority
+boundary. Fresh public evidence still shows zero Stripe-retirement runs, no new
+VS publish run, VS v1.0.0, GitHub Marketplace v1.1.0, no public v2.0.0 release,
+HTTP 404 for GRACE capabilities, zero qualified issues, and $0 collected.
+
+The goal remains $4,000 collected profit; it is not complete. No safe legal
+autonomous task can make checkout live or publish under the owner's identities.
+Resume immediately when any owner queue item changes external state. The fastest
+resume event is a run URL from HQ-2; next are publication of the canonical
+GitHub draft or dispatch of guarded VS v1.1.0. Until one occurs, do not replace
+the blocked cash path with product polish, another offer, or synthetic demand.

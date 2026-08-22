@@ -552,3 +552,28 @@ inheritance; a new public package is an additional owner-authorized external
 release. The current image inputs also float, and a prebuilt image removes none
 of the operational proof dominating HQ-3. No public listing or checkout action
 was autonomously taken. Collected revenue remains $0.
+
+## D30 — mark the repeated owner-authority impasse as blocked
+
+This continuation is the third consecutive goal turn ending on the same exact
+boundary. First, the product and truthful funnel were made releasable but Stripe,
+Marketplace, GRACE, and legal state remained owner-gated. Second, the existing
+VS identity was recovered and its publication path pinned and secured, yet the
+same gates remained. Third, fresh live probes again show zero Stripe-retirement
+runs, no Marketplace publication, no GRACE v2 deployment, zero qualified issues,
+and $0. Three independent specialist reviews found no safe autonomous cash route.
+
+Restated goal: collect substantial profit from a truthful EOLkits offer with $0
+spend and near-zero owner labor. Alternatives rechecked were the prepared Audit
+checkout, both existing marketplaces, historical Stripe links, alternate free
+hosting, another digital marketplace, direct service/licensing, and additional
+organic/registry/sponsorship surfaces. Each requires owner identity/KYC or
+credentials, a prohibited public post/contact, or accepting money before verified
+fulfillment. The cheapest lawful test remains the already-prepared eight-minute
+HQ-2/HQ-5/HQ-6 batch, followed by the rest of the 37-minute queue.
+
+This cycle produced no customer-visible commercial improvement and is logged as
+an analysis-only failed cycle under the ship law. Publishing this evidence ledger
+preserves the exact resume state; it is not counted as a launch, demand, or
+revenue. Mark the persistent goal blocked, not complete. Resume on any owner
+queue result or other genuine external-state change.

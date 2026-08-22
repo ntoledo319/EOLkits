@@ -251,3 +251,19 @@ All code and evidence below is inside the workspace jail.
   with exact tree `99136547`; the full release matrix, extension package job,
   determinism, properties, built-in Pages, draft synchronization, and acquisition
   measurement passed. The Marketplace itself remains v1.0.0.
+
+## Third-cycle authority boundary — August 22
+
+The sellable code, truthful sample, fail-closed funnel, installable Action ref,
+and guarded VS candidate are finished repository assets. They are not a live
+business: no paid checkout is enabled, neither prepared Marketplace update is
+public, and GRACE has no v2 capability endpoint. Repository configuration still
+contains no GRACE deploy transport, Stripe/Resend runtime bundle, or self-hosted
+runner. The remaining missing assets are external operating authority and
+credentials, not another code artifact.
+
+Do not repurpose the six historical Stripe links as a sellable asset. Public
+probes return Stripe-hosted pages, but only the authenticated exact retirement
+audit can establish their catalog/session/subscription state, and Audit v2
+fulfillment is not deployed. Accepting payment through them would be unsafe and
+would not create a verified report-delivery path.
