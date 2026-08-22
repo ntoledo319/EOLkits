@@ -116,8 +116,8 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
 
 Collected profit: **$0**. Gap: **$4,000**. Checkout: **closed**.
 
-The strongest autonomous conversion repair is now public. Main and the
-installable `v2` ref both resolve to green commit `9c231b58`; the verified Pages
+The strongest autonomous conversion repair is now public. Main contains green
+product commit `9c231b58`, and the installable `v2` ref resolves to it; the verified Pages
 funnel exposes an actual four-page report created by the paid report engine,
 its entirely fictional ZIP input, and a hash/evidence manifest:
 

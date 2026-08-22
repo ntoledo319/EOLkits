@@ -189,7 +189,7 @@ All code and evidence below is inside the workspace jail.
 
 ## Engine-generated proof release — August 22
 
-- Main and public `v2` now resolve to `9c231b58`; the remote tree
+- Main contains product commit `9c231b58`, and public `v2` resolves to it; the remote tree
   `8a25da73a1dc8c3c9107c76e7a20d87cc620cd98` exactly matches the final locally
   verified tree.
 - Pages serves the real four-page Audit PDF at

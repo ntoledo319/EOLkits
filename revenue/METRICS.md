@@ -388,7 +388,11 @@ benchmarks, or unverified analytics in this ledger.
   Python/Node vulnerability audits, a clean high-confidence secret scan, and
   qpdf/content/visual inspection of all four PDF pages. The independent final
   review returned `NO PUBLISH BLOCKER` after one binary-archive copy correction.
-- Public `main` and `v2` both resolve to `9c231b58`. Marketplace-draft run
+- Public `main` contains product commit `9c231b58`, and `v2` resolves to it.
+  Documentation-ledger commit `48b6f2af` subsequently passed release run
+  `32603425198`, determinism `32603425199`, properties `32603425194`, and
+  built-in Pages `32603424362`; ledger-only descendants do not alter the product
+  tree. Marketplace-draft run
   `32602860373` synchronized private v2.0.0 to feature commit `bffb335a`; the
   final follow-up changes only renderer-portability tests, so Action bytes are
   unchanged. The public Marketplace page still reports v1.1.0.
