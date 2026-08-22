@@ -42,7 +42,9 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
   bounded job-summary link → Audit upload → Stripe Checkout.
 - Distribution advantage: the listing already exists at
   https://github.com/marketplace/actions/rupture-aws-deprecation-check.
-- Owner work: publish the reviewed v2 release through the existing listing.
+- Owner work: open the already-prepared private v2.0.0 draft, check the existing
+  Marketplace listing, and publish it with 2FA. The tested `@v2` branch already
+  works for direct installs.
 - 28-day planning hypothesis: three Audit sales = $870.09 after processing fees.
   This is not observed demand.
 - Falsifier: after five full live days, zero external Action runs or zero
@@ -80,8 +82,9 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
 
 1. Keep the reviewed repository repair on main without rewriting remote history;
    synthetic commits and obsolete publishing automation are stopped.
-2. Keep the honest GitHub Pages fallback green; the owner creates the `v2` tag
-   from final main while publishing the existing Marketplace Action release.
+2. Keep the honest GitHub Pages fallback and tested `v2` Action branch green;
+   the owner publishes the prepared v2.0.0 draft into the existing Marketplace
+   listing.
 3. Archive legacy Stripe links and remove the legacy Cloudflare commerce route.
 4. Deploy Audit v2 with checkout disabled and complete the full Stripe test-mode
    operational gate.
@@ -110,8 +113,9 @@ Collected profit: $0. Gap: $4,000. Checkout: closed. The repaired release is on
 main through the project-path/CI follow-ups. The replacement release workflow,
 determinism and property gates, both container builds, and both GitHub Pages
 deployment mechanisms passed. A public probe verified `/EOLkits` navigation,
-the split API origin, and closed-product tombstones. Highest-leverage next
-action: complete the owner queue's live-domain and real payment/fulfillment
-gates, then publish the `v2` Marketplace release. The live `eolkits.com`
-deployment is not yet repaired. No outbound message, bid, post, or customer
-commitment is authorized.
+the split API origin, and closed-product tombstones. The tested `v2` Action ref
+is now publicly installable, and an honest private v2.0.0 Marketplace draft was
+created automatically. Highest-leverage next action is the owner's two-minute
+Marketplace agreement/2FA publish step, followed by the live-domain and real
+payment/fulfillment gates. The live `eolkits.com` deployment is not yet repaired.
+No outbound message, bid, post, or customer commitment is authorized.

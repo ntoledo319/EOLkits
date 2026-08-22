@@ -114,6 +114,28 @@ Tests and commits are release evidence, not market signal.
   Pack and Drift Watch claims. HQ-4 remains mandatory; the custom domain is not
   counted as repaired or ready for checkout.
 
+## Distribution release evidence — August 22, 2026
+
+- The public branch `https://github.com/ntoledo319/EOLkits/tree/v2` resolves to
+  the fully verified release-ledger commit `3ea1a169849e913b3c4086c0ff8251d24e1400d9`.
+  The raw `action.yml` hash matched that commit, so
+  `uses: ntoledo319/EOLkits@v2` is an immediately valid install ref.
+- Commit `9d369ccbb516f5578665f3edfaae618c1a88b111` added a one-shot, idempotent
+  Marketplace draft workflow. Run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32589265862 passed and its
+  authenticated log recorded creation of the private v2.0.0 draft targeting
+  that commit. The same commit's release-surface
+  (https://github.com/ntoledo319/EOLkits/actions/runs/32589265886), determinism
+  (https://github.com/ntoledo319/EOLkits/actions/runs/32589265872), property
+  (https://github.com/ntoledo319/EOLkits/actions/runs/32589265838), and built-in
+  Pages (https://github.com/ntoledo319/EOLkits/actions/runs/32589265194) runs also
+  passed.
+- The Marketplace page still reports v1.1.0 and displays its stale release copy.
+  A release branch and private draft do not update the listing; only the owner's
+  Marketplace checkbox, agreement, 2FA, and publish action count as publication.
+- These are distribution/release facts, not external runs, visits, purchases, or
+  revenue. Collected revenue remains $0.
+
 ## Events that count after launch
 
 Record timestamp, source, and observed value for:

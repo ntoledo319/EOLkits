@@ -120,7 +120,9 @@ T$ means disqualified within this cycle.
 ## Rank
 
 1. K1 — repair/update the already-listed GitHub Action; fastest built-in
-   distribution and lowest owner time.
+   distribution and lowest owner time. Its tested v2 branch is installable and
+   its private v2.0.0 Marketplace draft is prepared; publication is the remaining
+   owner-controlled step.
 2. A1 — the sole paid fulfillment unit. It is not live until the operational
    gate passes.
 3. V1 — publish the tested free VSIX as a second contextual distribution surface.
@@ -140,4 +142,6 @@ removed the speculative Drift pitch and closed the Migration Pack, organization,
 partner, and generic scanner research-list branches. None of those changes is
 demand evidence. Publishing main and obtaining green CI/Pages builds are release
 evidence only. The repaired project-path Pages fallback is publicly reachable,
-but collected revenue and delivered paid reports remain zero.
+and the Action's tested `@v2` ref now resolves publicly. The Marketplace listing
+itself remains on stale v1.1.0 pending the prepared draft's owner publication.
+Collected revenue and delivered paid reports remain zero.

@@ -36,6 +36,10 @@ All code and evidence below is inside the workspace jail.
   nodejs24.x. Commands remain dry-run unless an apply flag is supplied.
 - $0 deploy/distribution: public GitHub repository and the existing GitHub
   Marketplace Action listing.
+- Distribution state: the tested `v2` release branch is public and resolves to
+  commit `3ea1a169`, so `uses: ntoledo319/EOLkits@v2` works now. The Marketplace
+  page still exposes the stale v1.1.0 release until the owner publishes the
+  prepared private v2.0.0 draft with the Marketplace checkbox.
 - License/provenance: MIT kit licenses; AWS SDK dependencies are Apache-2.0.
 - Capability worth paying for: a shareable, decision-ready report rather than
   raw console matches.
@@ -114,9 +118,9 @@ All code and evidence below is inside the workspace jail.
   willingness to pay.
 - Operations: no real Stripe test-mode end-to-end evidence has been recorded for
   Audit v2.
-- Distribution: one live Action listing exists but is stale at v1.1.0; VS is
-  not observed in its marketplace; the repaired GitHub Pages fallback is
-  public, but owned-site traffic is unknown.
+- Distribution: the Action v2 ref and repaired GitHub Pages fallback are public,
+  but the Marketplace listing remains stale at v1.1.0; VS is not observed in
+  its marketplace, and owned-site traffic is unknown.
 - Legal: accurate seller/controller identity, address, governing law, tax
   posture, and $0 incremental hosting confirmation are owner-only gates.
 - Remote history: origin/main accumulated synthetic status/benchmark commits and
