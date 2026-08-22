@@ -31,9 +31,9 @@
 <ol class="fix-steps"><li>Stop calling amazon-linux-extras — it does not exist on AL2023.</li><li>Search the current repositories first with `dnf search &lt;name&gt;` and `dnf provides &#x27;*/&lt;binary&gt;&#x27;`; package names vary by AL2023 release.</li><li>If the package is absent from core, check the documented SPAL repository and its support limitations.</li><li>Update Dockerfiles and user-data scripts that still run `amazon-linux-extras enable ...` / `install`.</li></ol>
 <p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/amazon-linux-2-eol/">Amazon Linux 2 EOL</a> — <strong>2026-06-30</strong>.</p>
 <h2>Check configured patterns in your project</h2>
-<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags selected related patterns in supported IaC and dependency files. It is not a complete source or AWS-account scan.</p>
-<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
+<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>
+<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
 <p>Primary source: <a href="https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html" target="_blank" rel="noopener nofollow">https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html</a></p>
-<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=amazon-linux-extras-command-not-found&deadline=2026-06-30&kit=al2023-gate">Get repository evidence — $299, exact file/line matches &rarr;</a></p>
+<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=amazon-linux-extras-command-not-found&deadline=2026-06-30&kit=al2023-gate">Inspect the $299 report sample and availability &rarr;</a></p>
 </body>
 </html>

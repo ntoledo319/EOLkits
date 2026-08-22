@@ -5,8 +5,22 @@ This deployment serves one paid capability: the $299 Audit v2 repository evidenc
 ## Safe rollout order
 
 1. Deploy the API with `EOLKITS_AUDIT_CHECKOUT_ENABLED=0`.
-2. Deploy the reviewed `docs/` tree with `ship-web.sh` after inspecting its
-   default dry-run; verify the public domain serves the repaired claims.
+2. Bootstrap the static target once, then deploy the reviewed `docs/` tree with
+   `ship-web.sh` after inspecting its default dry-run; verify the public domain
+   serves the repaired claims. The deploy script accepts only
+   `/home/ubuntu/sites/eolkits-webroot`, resolves and validates that directory
+   over SSH, and refuses to run unless its deployment sentinel is present:
+
+   ```bash
+   install -d -m 0755 /home/ubuntu/sites/eolkits-webroot
+   printf '%s\n' 'eolkits-static-site-v1' > \
+     /home/ubuntu/sites/eolkits-webroot/.eolkits-static-deploy-target
+   chmod 0644 /home/ubuntu/sites/eolkits-webroot/.eolkits-static-deploy-target
+   ```
+
+   Run those bootstrap commands as the same unprivileged `ubuntu` account used
+   for deployment. The sentinel is protected from `rsync --delete`; do not copy
+   it into `docs/` or reuse it for another directory.
 3. Route the API paths in `Caddyfile.eolkits-api.block` and verify `/health`, `/api/status`, and `/api/capabilities`.
 4. Run a complete Stripe **test-mode** checkout → signed webhook → real PDF render → Resend delivery → signed download → evidence lookup exercise. Do not self-charge in live mode; Stripe does not return processing fees on refunds.
 5. Archive every legacy Stripe Payment Link. The exact pre-rename Cloudflare

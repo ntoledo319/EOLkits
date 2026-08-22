@@ -31,9 +31,9 @@
 <ol class="fix-steps"><li>Confirm that the secret contains the expected complete PEM, including newlines and matching BEGIN/END labels; do not print private material to logs.</li><li>Validate it locally with `openssl pkey -in old.pem -check -noout` using an OpenSSL 3 environment.</li><li>If validation identifies a legacy encrypted encoding, convert it to a currently supported encoding such as PKCS#8, then verify the converted key before deployment.</li><li>Prefer rotating weak or ambiguously sourced key material and storing the replacement in a secret manager. Treat `--openssl-legacy-provider` only as a short-lived diagnostic workaround.</li></ol>
 <p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-node.js-20-phase-1/">Lambda Node.js 20 create/update restrictions</a> — <strong>2027-02-01</strong>.</p>
 <h2>Check configured patterns in your project</h2>
-<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags selected related patterns in supported IaC and dependency files. It is not a complete source or AWS-account scan.</p>
-<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
+<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>
+<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
 <p>Primary source: <a href="https://nodejs.org/api/crypto.html" target="_blank" rel="noopener nofollow">https://nodejs.org/api/crypto.html</a></p>
-<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-error-decoder-routines-unsupported&deadline=2027-02-01&kit=lambda-lifeline">Get repository evidence — $299, exact file/line matches &rarr;</a></p>
+<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-error-decoder-routines-unsupported&deadline=2027-02-01&kit=lambda-lifeline">Inspect the $299 report sample and availability &rarr;</a></p>
 </body>
 </html>

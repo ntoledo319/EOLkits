@@ -88,8 +88,10 @@ jobs:
           mkdir -p "$TMPDIR" "$PIP_CACHE_DIR"
           python -m venv "$GITHUB_WORKSPACE/tmp/runner-venv"
           venv="$GITHUB_WORKSPACE/tmp/runner-venv"
-          "$venv/bin/pip" install -r apps/runner/requirements-dev.txt
+          "$venv/bin/pip" install --require-hashes -r apps/runner/requirements.lock
+          "$venv/bin/pip" install --require-hashes -r apps/runner/requirements-test.lock
           "$venv/bin/pytest" -q apps/runner
+          "$venv/bin/python" apps/runner/build_sample_report.py --check
 
   web:
     runs-on: ubuntu-latest
@@ -110,7 +112,7 @@ jobs:
           mkdir -p "$TMPDIR" "$PIP_CACHE_DIR"
           python -m venv "$GITHUB_WORKSPACE/tmp/web-venv"
           venv="$GITHUB_WORKSPACE/tmp/web-venv"
-          "$venv/bin/pip" install -r apps/web/requirements-dev.txt
+          "$venv/bin/pip" install --require-hashes -r apps/web/requirements-dev.lock
           "$venv/bin/python" apps/web/build.py
           "$venv/bin/pytest" -q apps/web
           git diff --exit-code -- docs
@@ -215,6 +217,8 @@ jobs:
           "$venv/bin/pip" install 'pip-audit>=2.10,<3'
           "$venv/bin/pip-audit" -r apps/grace-api/requirements.lock --progress-spinner off
           "$venv/bin/pip-audit" -r apps/runner/requirements.lock --progress-spinner off
+          "$venv/bin/pip-audit" -r apps/runner/requirements-test.lock --progress-spinner off
+          "$venv/bin/pip-audit" -r apps/web/requirements-dev.lock --progress-spinner off
           node scripts/audit-node-locks.mjs \
             kits/lambda-lifeline/package-lock.json \
             apps/worker/package-lock.json \

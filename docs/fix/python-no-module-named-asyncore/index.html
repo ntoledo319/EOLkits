@@ -29,11 +29,11 @@
 <p>`asyncore` and its companion `asynchat` were deprecated in Python 3.6 and removed in Python 3.12. Older network code and some libraries that still import them fail at import time on the python3.12 runtime.</p>
 <h2>How to fix it</h2>
 <ol class="fix-steps"><li>Port the code to `asyncio` — its protocols and transports are the supported replacement for `asyncore`/`asynchat`.</li><li>If a third-party dependency imports `asyncore`, upgrade it to an asyncio-based release; many have shipped one.</li><li>If the dependency has no maintained release, replace it; copying removed standard-library modules forward creates an unsupported fork and should not be presented as a durable fix.</li><li>Re-test on python3.12 to surface other PEP 594 removals (`smtpd`, `imp`, `distutils`).</li></ol>
-<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-python-3.9-eol/">Lambda Python 3.9 EOL</a> — <strong>2027-02-01</strong>.</p>
+<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-python-3.9-eol/">Lambda Python 3.9 create/update restrictions</a> — <strong>2027-02-01</strong>.</p>
 <h2>Check configured patterns in your project</h2>
-<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags selected related patterns in supported IaC and dependency files. It is not a complete source or AWS-account scan.</p>
-<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
+<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>
+<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
 <p>Primary source: <a href="https://docs.python.org/3/whatsnew/3.12.html" target="_blank" rel="noopener nofollow">https://docs.python.org/3/whatsnew/3.12.html</a></p>
-<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=python-no-module-named-asyncore&deadline=2027-02-01&kit=python-pivot">Get repository evidence — $299, exact file/line matches &rarr;</a></p>
+<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=python-no-module-named-asyncore&deadline=2027-02-01&kit=python-pivot">Inspect the $299 report sample and availability &rarr;</a></p>
 </body>
 </html>

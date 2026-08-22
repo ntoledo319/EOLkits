@@ -29,11 +29,11 @@
 <p>Per the AWS Lambda runtime deprecation table, nodejs16.x and nodejs18.x are both deprecated (patches stopped) and share the same block dates: AWS blocks creating new functions on 2027-02-01 and updating existing ones on 2027-03-03 (AWS delayed both beyond the usual 30/60 days, in a cluster with nodejs20.x and several Python runtimes). The error fires once a deploy targets a runtime past its block date.</p>
 <h2>How to fix it</h2>
 <ol class="fix-steps"><li>Move to a currently supported runtime with adequate runway; EOLkits&#x27; current examples target nodejs24.x. Recheck AWS&#x27;s table before scheduling.</li><li>SAM/CloudFormation: `Runtime: nodejs24.x`. CDK: `runtime: lambda.Runtime.NODEJS_24_X`. Terraform: `runtime = &quot;nodejs24.x&quot;`. Serverless: `runtime: nodejs24.x`.</li><li>Rebuild native addons for the Node.js 24 ABI and switch the bundled aws-sdk v2 to @aws-sdk v3 — see the related /fix pages.</li><li>Redeploy and confirm with `aws lambda get-function-configuration --function-name &lt;name&gt; --query Runtime`.</li></ol>
-<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 EOL</a> — <strong>2027-02-01</strong>.</p>
+<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 create/update restrictions</a> — <strong>2027-02-01</strong>.</p>
 <h2>Check configured patterns in your project</h2>
-<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags selected related patterns in supported IaC and dependency files. It is not a complete source or AWS-account scan.</p>
-<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
+<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>
+<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
 <p>Primary source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html</a></p>
-<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=lambda-nodejs-runtime-no-longer-supported&deadline=2027-02-01&kit=lambda-lifeline">Get repository evidence — $299, exact file/line matches &rarr;</a></p>
+<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=lambda-nodejs-runtime-no-longer-supported&deadline=2027-02-01&kit=lambda-lifeline">Inspect the $299 report sample and availability &rarr;</a></p>
 </body>
 </html>

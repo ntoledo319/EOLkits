@@ -5,6 +5,13 @@ description: Upgrading to python3.13 on Lambda? PEP 594 removed cgi, telnetlib, 
 tags: aws, python, lambda, serverless
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 AWS Lambda launched the `python3.13` runtime in November 2024 — Amazon Linux 2023, Python 3.13.x, LTS support through October 2029. If you're still on `python3.9` or `python3.10`, the create-block deadline hits **2027-02-01**; `python3.11` create-blocks at **2027-07-31**. Many teams are jumping straight to `python3.13` to bank the longest runway.
 
 What bites them isn't the runtime label change. It's **PEP 594** — the "dead batteries" cleanup that deprecated 19 stdlib modules in Python 3.11 (warnings only) and **deleted all of them in Python 3.13**. Cold start, hard crash, `ModuleNotFoundError`. Here are the four that actually appear in Lambda functions and their transitive dependencies.

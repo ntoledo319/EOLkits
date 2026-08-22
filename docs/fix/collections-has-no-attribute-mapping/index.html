@@ -29,11 +29,11 @@
 <p>collections.Mapping (and Sequence, Iterable, etc.) were deprecated aliases since Python 3.3 and removed in 3.10. Older code or a stale dependency still references collections.Mapping.</p>
 <h2>How to fix it</h2>
 <ol class="fix-steps"><li>Import from collections.abc: `from collections.abc import Mapping`.</li><li>Replace references like `collections.Mapping` with `collections.abc.Mapping`.</li><li>Upgrade dependencies that still use the old path (a common offender in older pyyaml/jsonschema pins).</li></ol>
-<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-python-3.9-eol/">Lambda Python 3.9 EOL</a> — <strong>2027-02-01</strong>.</p>
+<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-python-3.9-eol/">Lambda Python 3.9 create/update restrictions</a> — <strong>2027-02-01</strong>.</p>
 <h2>Check configured patterns in your project</h2>
-<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags selected related patterns in supported IaC and dependency files. It is not a complete source or AWS-account scan.</p>
-<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
+<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>
+<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
 <p>Primary source: <a href="https://docs.python.org/3/whatsnew/3.10.html" target="_blank" rel="noopener nofollow">https://docs.python.org/3/whatsnew/3.10.html</a></p>
-<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=collections-has-no-attribute-mapping&deadline=2027-02-01&kit=python-pivot">Get repository evidence — $299, exact file/line matches &rarr;</a></p>
+<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=collections-has-no-attribute-mapping&deadline=2027-02-01&kit=python-pivot">Inspect the $299 report sample and availability &rarr;</a></p>
 </body>
 </html>

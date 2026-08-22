@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AWS runtime EOL checker — is your Lambda runtime or Amazon Linux deprecated? | EOLkits</title>
-<meta name="description" content="Free, instant check: paste your AWS Lambda runtimes or IaC (or click your runtime) and see which are past end-of-life and when AWS blocks creating/updating functions. Nothing uploaded. Dates from the AWS runtime deprecation table.">
+<meta name="description" content="Free, instant check: paste AWS Lambda runtimes or IaC and see tracked deprecation milestones. Pasted input is not uploaded; bounded first-party usage events may be sent.">
 <link rel="canonical" href="https://ntoledo319.github.io/EOLkits/eol-checker/">
 <link rel="stylesheet" href="/EOLkits/style.css">
 <script defer src="/EOLkits/track.js"></script>
@@ -15,7 +15,7 @@
 <body class="container article">
 <nav class="breadcrumb"><a href="/EOLkits/">Home</a> / <a href="/EOLkits/migrate/">Deadlines</a> / <span>EOL checker</span></nav>
 <h1>Is your AWS runtime past end-of-life?</h1>
-<p>Paste your SAM / CloudFormation / Terraform / Serverless config (or a list of runtimes), or click the runtimes you use. This checks them against EOLkits' cited snapshot of the <a href="/EOLkits/lambda-runtime-deprecation-schedule/">AWS runtime deprecation schedule</a> and shows the tracked create/update block dates. <strong>Runs in your browser — nothing is uploaded.</strong></p>
+<p>Paste your SAM / CloudFormation / Terraform / Serverless config (or a list of runtimes), or click the runtimes you use. This checks them against EOLkits' cited snapshot of the <a href="/EOLkits/lambda-runtime-deprecation-schedule/">AWS runtime deprecation schedule</a> and shows the tracked create/update block dates. <strong>Pasted input stays in your browser; bounded first-party usage events may be sent.</strong></p>
 <div id="chips"></div>
 <textarea id="inp" placeholder="Paste template.yaml / serverless.yml / *.tf here — e.g. Runtime: nodejs20.x, python3.9, FROM amazonlinux:2 ..."></textarea>
 <p><button id="go">Check my runtimes</button></p>

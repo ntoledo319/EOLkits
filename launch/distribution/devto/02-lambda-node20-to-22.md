@@ -5,6 +5,13 @@ description: Node.js 20 Lambda is deprecated. The exact breaking changes moving 
 tags: aws, lambda, node, serverless
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 AWS deprecates Lambda runtimes on a 3-phase schedule: Phase 1 ends security patches, Phase 2 blocks **creating** new functions, Phase 3 blocks **updating** existing ones. Once Phase 3 hits, a frozen function's only path forward is a full redeploy on a new runtime. `nodejs20.x` is on that track; `nodejs22.x` is the target (LTS, maintained into 2027).
 
 Most code moves cleanly. Here's the set that doesn't.

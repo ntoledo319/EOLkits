@@ -5,6 +5,13 @@ description: Half the internet says AWS blocks nodejs20.x in August/September 20
 tags: aws, lambda, node, serverless
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 If you searched "nodejs20.x Lambda deadline" recently, you probably read that AWS blocks new function creation on **Aug 31, 2026** and updates on **Sep 30, 2026**. A lot of blog posts say exactly that.
 
 Those dates are wrong now. AWS moved them.

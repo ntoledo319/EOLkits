@@ -2,7 +2,7 @@
 
 The report is deliberately a static source scan. It does not claim to inventory a
 live AWS account, predict downtime cost, or sign the rendered PDF. Instead it
-records exact file/line evidence, primary sources, the uploaded-byte hash, and a
+records exact file/line evidence, configured references, the uploaded-byte hash, and a
 deterministic evidence fingerprint that can be recomputed from the same input and
 rule pack.
 """
@@ -17,10 +17,11 @@ import json
 import os
 import re
 import socket
+import unicodedata
 import zipfile
 from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
-from typing import Any, Optional
+from typing import Any, Iterator, Optional
 from urllib.parse import urlparse
 
 import requests
@@ -31,11 +32,23 @@ MAX_INPUT_BYTES = int(os.environ.get("EOLKITS_MAX_UPLOAD_BYTES", str(10 * 1024 *
 MAX_EXPANDED_BYTES = int(os.environ.get("EOLKITS_MAX_EXPANDED_BYTES", str(25 * 1024 * 1024)))
 MAX_SOURCE_FILES = int(os.environ.get("EOLKITS_MAX_SOURCE_FILES", "2000"))
 MAX_ZIP_RATIO = int(os.environ.get("EOLKITS_MAX_ZIP_RATIO", "100"))
+MAX_ZIP_NAME_BYTES = int(os.environ.get("EOLKITS_MAX_ZIP_NAME_BYTES", str(1024 * 1024)))
+MAX_SCAN_LINES = int(os.environ.get("EOLKITS_MAX_SCAN_LINES", "500000"))
+MAX_CONFIG_RECORDS = int(os.environ.get("EOLKITS_MAX_CONFIG_RECORDS", "100000"))
+MAX_LAMBDA_RESOURCES = int(os.environ.get("EOLKITS_MAX_LAMBDA_RESOURCES", "10000"))
+MAX_FLOW_LINE_CHARS = int(os.environ.get("EOLKITS_MAX_FLOW_LINE_CHARS", "8192"))
+MAX_FLOW_RESOURCE_MATCHES = int(os.environ.get("EOLKITS_MAX_FLOW_RESOURCE_MATCHES", "100"))
+MAX_HCL_STRUCTURE_EVENTS = int(os.environ.get("EOLKITS_MAX_HCL_STRUCTURE_EVENTS", "100000"))
+MAX_SCAN_LINE_CHARS = int(os.environ.get("EOLKITS_MAX_SCAN_LINE_CHARS", str(256 * 1024)))
+MAX_EVIDENCE_RECORDS = int(os.environ.get("EOLKITS_MAX_EVIDENCE_RECORDS", "10000"))
+MAX_EVIDENCE_PER_RULE = int(os.environ.get("EOLKITS_MAX_EVIDENCE_PER_RULE", "2000"))
+MAX_MANIFEST_BYTES = int(os.environ.get("EOLKITS_MAX_MANIFEST_BYTES", str(1024 * 1024)))
+MAX_DEPENDENCY_SPEC_CHARS = int(os.environ.get("EOLKITS_MAX_DEPENDENCY_SPEC_CHARS", "256"))
 MAX_LOCATIONS_PER_FINDING = 25
 PUBLIC_SITE_URL = os.environ.get("PUBLIC_SITE_URL", "https://eolkits.com")
 ALLOWED_UPLOAD_ORIGIN = os.environ.get("EOLKITS_ALLOWED_UPLOAD_ORIGIN", PUBLIC_SITE_URL).rstrip("/")
 REPORT_VERSION = "2.0"
-RULESET_VERSION = "audit-v2-2026-08-22"
+RULESET_VERSION = "audit-v2-2026-08-22.2"
 
 SUPPORTED_SUFFIXES = {
     ".bash",
@@ -109,7 +122,9 @@ AUDIT_RULES: tuple[dict[str, Any], ...] = (
         "category": "Lambda runtime",
         "severity": "critical",
         "title": "Lambda Node.js 16 runtime reference",
-        "patterns": (r"\bnodejs16\.x\b",),
+        "patterns": (r"\bnodejs16\.x\b", r"\bNODEJS_16_X\b"),
+        "requires_lambda_context": True,
+        "runtime_id": "nodejs16.x",
         "description": "Node.js 16 is a retired Lambda runtime. Deploy operations may be blocked.",
         "remediation": "Move the function to a currently supported Lambda Node.js runtime, rebuild native dependencies, and run its tests before deployment.",
         "source_url": AWS_LAMBDA_SOURCE,
@@ -119,7 +134,9 @@ AUDIT_RULES: tuple[dict[str, Any], ...] = (
         "category": "Lambda runtime",
         "severity": "critical",
         "title": "Lambda Node.js 18 runtime reference",
-        "patterns": (r"\bnodejs18\.x\b",),
+        "patterns": (r"\bnodejs18\.x\b", r"\bNODEJS_18_X\b"),
+        "requires_lambda_context": True,
+        "runtime_id": "nodejs18.x",
         "description": "Node.js 18 is deprecated in Lambda and no longer receives runtime updates.",
         "remediation": "Move to a currently supported Lambda Node.js runtime and validate SDK and native-addon compatibility.",
         "source_url": AWS_LAMBDA_SOURCE,
@@ -129,7 +146,9 @@ AUDIT_RULES: tuple[dict[str, Any], ...] = (
         "category": "Lambda runtime",
         "severity": "high",
         "title": "Lambda Node.js 20 runtime reference",
-        "patterns": (r"\bnodejs20\.x\b",),
+        "patterns": (r"\bnodejs20\.x\b", r"\bNODEJS_20_X\b"),
+        "requires_lambda_context": True,
+        "runtime_id": "nodejs20.x",
         "description": "Node.js 20 is in Lambda's deprecation lifecycle; AWS publishes the applicable create/update block dates in its runtime table.",
         "remediation": "Plan a move to a currently supported Lambda Node.js runtime, then test native modules, OpenSSL behavior, and deployment packaging.",
         "source_url": AWS_LAMBDA_SOURCE,
@@ -140,6 +159,8 @@ AUDIT_RULES: tuple[dict[str, Any], ...] = (
         "severity": "medium",
         "title": "Lambda Node.js 22 runtime reference",
         "patterns": (r"\bnodejs22\.x\b", r"\bNODEJS_22_X\b"),
+        "requires_lambda_context": True,
+        "runtime_id": "nodejs22.x",
         "description": "AWS publishes a projected 2027 deprecation and create/update block timeline for Node.js 22.",
         "remediation": "Plan and test a move to Node.js 24 while Node.js 22 still has runway; recheck AWS's current dates before scheduling the change.",
         "source_url": AWS_LAMBDA_SOURCE,
@@ -149,7 +170,13 @@ AUDIT_RULES: tuple[dict[str, Any], ...] = (
         "category": "Lambda runtime",
         "severity": "critical",
         "title": "Lambda Python 3.8 runtime reference",
-        "patterns": (r"\bpython3\.8\b", r"\bPYTHON_3_8\b"),
+        "patterns": (
+            r"\bruntime\b[\"']?\s*[:=]\s*[\"']?\s*\bpython3\.8\b",
+            r"\baws\s+lambda\b[^\n]*--runtime(?:\s+|=)[\"']?python3\.8\b",
+            r"\bRuntime\.PYTHON_3_8\b",
+        ),
+        "requires_lambda_context": True,
+        "runtime_id": "python3.8",
         "description": "Python 3.8 is a retired Lambda runtime.",
         "remediation": "Move to a supported Python runtime and test removed standard-library modules and native wheels before deployment.",
         "source_url": AWS_LAMBDA_SOURCE,
@@ -159,7 +186,13 @@ AUDIT_RULES: tuple[dict[str, Any], ...] = (
         "category": "Lambda runtime",
         "severity": "critical",
         "title": "Lambda Python 3.9 runtime reference",
-        "patterns": (r"\bpython3\.9\b", r"\bPYTHON_3_9\b"),
+        "patterns": (
+            r"\bruntime\b[\"']?\s*[:=]\s*[\"']?\s*\bpython3\.9\b",
+            r"\baws\s+lambda\b[^\n]*--runtime(?:\s+|=)[\"']?python3\.9\b",
+            r"\bRuntime\.PYTHON_3_9\b",
+        ),
+        "requires_lambda_context": True,
+        "runtime_id": "python3.9",
         "description": "Python 3.9 is deprecated in Lambda and no longer receives runtime updates.",
         "remediation": "Move to a supported Python runtime and resolve Python 3.12+ compatibility findings before deployment.",
         "source_url": AWS_LAMBDA_SOURCE,
@@ -169,7 +202,13 @@ AUDIT_RULES: tuple[dict[str, Any], ...] = (
         "category": "Lambda runtime",
         "severity": "high",
         "title": "Lambda Python 3.10 runtime reference",
-        "patterns": (r"\bpython3\.10\b", r"\bPYTHON_3_10\b"),
+        "patterns": (
+            r"\bruntime\b[\"']?\s*[:=]\s*[\"']?\s*\bpython3\.10\b",
+            r"\baws\s+lambda\b[^\n]*--runtime(?:\s+|=)[\"']?python3\.10\b",
+            r"\bRuntime\.PYTHON_3_10\b",
+        ),
+        "requires_lambda_context": True,
+        "runtime_id": "python3.10",
         "description": "Python 3.10 has a published Lambda deprecation timeline.",
         "remediation": "Schedule the runtime move while there is test runway; check removed modules, typing changes, and native wheels.",
         "source_url": AWS_LAMBDA_SOURCE,
@@ -179,7 +218,13 @@ AUDIT_RULES: tuple[dict[str, Any], ...] = (
         "category": "Lambda runtime",
         "severity": "medium",
         "title": "Lambda Python 3.11 runtime reference",
-        "patterns": (r"\bpython3\.11\b", r"\bPYTHON_3_11\b"),
+        "patterns": (
+            r"\bruntime\b[\"']?\s*[:=]\s*[\"']?\s*\bpython3\.11\b",
+            r"\baws\s+lambda\b[^\n]*--runtime(?:\s+|=)[\"']?python3\.11\b",
+            r"\bRuntime\.PYTHON_3_11\b",
+        ),
+        "requires_lambda_context": True,
+        "runtime_id": "python3.11",
         "description": "Python 3.11 has a published Lambda deprecation timeline.",
         "remediation": "Track the AWS deadline and test the next supported runtime before the block window.",
         "source_url": AWS_LAMBDA_SOURCE,
@@ -334,22 +379,23 @@ SEVERITY_WEIGHT = {"critical": 4, "high": 3, "medium": 2, "low": 1}
 
 
 PDF_TEMPLATE = """
-<!DOCTYPE html><html><head><meta charset="utf-8"><title>EOLkits AWS Deprecation Evidence Report</title>
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>{% if illustrative_sample %}Illustrative fictional sample — {% endif %}EOLkits AWS Deprecation Evidence Report</title>
 <style>
-@page{margin:1.6cm}body{font-family:"DejaVu Sans",sans-serif;color:#111827;line-height:1.45;font-size:10.5pt}h1{color:#1f2937;border-bottom:3px solid #2563eb;padding-bottom:.45rem}h2{color:#1f2937;margin-top:1.7rem;border-bottom:1px solid #d1d5db;padding-bottom:.25rem}h3{margin-bottom:.35rem}a{color:#1d4ed8}code{background:#f3f4f6;padding:.1rem .25rem;border-radius:3px;font-family:"DejaVu Sans Mono",monospace;overflow-wrap:anywhere}table{width:100%;border-collapse:collapse;margin:.8rem 0}th,td{padding:.55rem;text-align:left;border-bottom:1px solid #e5e7eb;vertical-align:top}th{background:#f9fafb}.cover{page-break-after:always}.meta,.scope,.verification,.limitation{padding:.85rem 1rem;border-radius:7px;margin:.8rem 0}.meta,.scope{background:#f9fafb}.verification{background:#eff6ff}.limitation{background:#fffbeb;border:1px solid #fde68a}.finding{break-inside:avoid;border-left:4px solid #d1d5db;padding:0 0 .7rem .9rem;margin:1rem 0}.severity{display:inline-block;padding:.12rem .4rem;border-radius:4px;font-size:8.5pt;font-weight:700;text-transform:uppercase}.critical{background:#fee2e2;color:#991b1b}.high{background:#ffedd5;color:#9a3412}.medium{background:#fef3c7;color:#92400e}.low{background:#dcfce7;color:#166534}.evidence{font-family:"DejaVu Sans Mono",monospace;font-size:8.5pt;overflow-wrap:anywhere}.muted{color:#6b7280;font-size:9pt}
+@page{margin:1.6cm;@bottom-center{content:"EOLkits · " counter(page) " / " counter(pages);color:#6b7280;font-size:8pt}}body{font-family:"DejaVu Sans",sans-serif;color:#111827;line-height:1.45;font-size:10.5pt}h1{color:#1f2937;border-bottom:3px solid #2563eb;padding-bottom:.45rem}h2{color:#1f2937;margin-top:1.7rem;border-bottom:1px solid #d1d5db;padding-bottom:.25rem;break-after:avoid}h3{margin-bottom:.35rem}a{color:#1d4ed8}code{background:#f3f4f6;padding:.1rem .25rem;border-radius:3px;font-family:"DejaVu Sans Mono",monospace;overflow-wrap:anywhere}table{width:100%;border-collapse:collapse;margin:.8rem 0}th,td{padding:.55rem;text-align:left;border-bottom:1px solid #e5e7eb;vertical-align:top}th{background:#f9fafb}.meta,.scope,.verification,.limitation{padding:.85rem 1rem;border-radius:7px;margin:.8rem 0}.meta,.scope{background:#f9fafb}.verification{background:#eff6ff;break-inside:avoid}.limitation{background:#fffbeb;border:1px solid #fde68a;break-inside:avoid}.finding{break-inside:avoid;border-left:4px solid #d1d5db;padding:0 0 .7rem .9rem;margin:1rem 0}.severity{display:inline-block;padding:.12rem .4rem;border-radius:4px;font-size:8.5pt;font-weight:700;text-transform:uppercase}.critical{background:#fee2e2;color:#991b1b}.high{background:#ffedd5;color:#9a3412}.medium{background:#fef3c7;color:#92400e}.low{background:#dcfce7;color:#166534}.evidence{font-family:"DejaVu Sans Mono",monospace;font-size:8.5pt;overflow-wrap:anywhere}.muted{color:#6b7280;font-size:9pt}
 </style></head><body>
-<section class="cover"><h1>AWS Deprecation Evidence Report</h1>
+<section class="cover"><h1>{% if illustrative_sample %}Illustrative fictional sample — {% endif %}AWS Deprecation Evidence Report</h1>
+{% if illustrative_sample %}<div class="limitation"><strong>ILLUSTRATIVE SAMPLE.</strong> This report was generated from a published fictional repository fixture. It is not a customer report or evidence of a live AWS account scan.</div>{% endif %}
 <div class="meta"><p><strong>Generated:</strong> {{ generated_at }}</p><p><strong>Report engine:</strong> {{ report_version }}</p><p><strong>Rule pack:</strong> {{ rule_pack_version }}</p><p><strong>Uploaded artifact:</strong> <code>{{ input_name }}</code></p><p><strong>Input SHA-256:</strong> <code>{{ input_hash }}</code></p><p><strong>Evidence fingerprint:</strong> <code>{{ evidence_hash }}</code></p></div>
 <h2>Executive summary</h2><p>The static scan found <strong>{{ total_findings }} distinct risk type{% if total_findings != 1 %}s{% endif %}</strong> across <strong>{{ affected_files }}</strong> of {{ scanned_files }} scanned source files, supported by {{ evidence_lines }} file/line evidence record{% if evidence_lines != 1 %}s{% endif %}.</p>
 {% if deadline %}<p><strong>Buyer-supplied target date:</strong> {{ deadline }}. This date is context only; it does not alter scan results.</p>{% endif %}
 {% if categories %}<table><thead><tr><th>Category</th><th>Risk types</th><th>Evidence records</th></tr></thead><tbody>{% for category in categories %}<tr><td>{{ category.name }}</td><td>{{ category.count }}</td><td>{{ category.evidence_count }}</td></tr>{% endfor %}</tbody></table>{% else %}<p>No configured rule matched the supplied files. This is not proof that the repository or AWS account is free of deprecation risk.</p>{% endif %}
-<div class="scope"><strong>Observed scope:</strong> {{ scanned_files }} supported text files; {{ scanned_bytes }} decoded bytes.{% if skipped_files %} {{ skipped_files }} unsupported/binary files were skipped.{% endif %}</div>
+<div class="scope"><strong>Observed scope:</strong> {{ scanned_files }} supported text file{% if scanned_files != 1 %}s{% endif %}; {{ scanned_bytes }} decoded bytes.{% if skipped_files %} {{ skipped_files }} unsupported/binary file{% if skipped_files != 1 %}s were{% else %} was{% endif %} skipped.{% endif %}</div>
 <div class="limitation"><strong>Important limitation:</strong> This is a static scan of the uploaded artifact. It does not query a live AWS account, execute code, prove exploitability, inspect files that were not uploaded, or guarantee a complete resource inventory. Validate every recommended change in a non-production environment.</div></section>
 <h2>Prioritized findings</h2>{% if not findings %}<p>No configured evidence pattern matched.</p>{% endif %}
-{% for finding in findings %}<section class="finding"><h3><span class="severity {{ finding.severity }}">{{ finding.severity }}</span> {{ finding.title }}</h3><p>{{ finding.description }}</p><p><strong>Observed reach:</strong> {{ finding.affected_files }} file{% if finding.affected_files != 1 %}s{% endif %}, {{ finding.occurrences }} evidence line{% if finding.occurrences != 1 %}s{% endif %}.</p><p><strong>Remediation:</strong> {{ finding.remediation }}</p><p><strong>Primary/official source:</strong> <a href="{{ finding.source_url }}">{{ finding.source_url }}</a></p><table><thead><tr><th>Location</th><th>Observed text</th></tr></thead><tbody>{% for location in finding.locations %}<tr><td><code>{{ location.file }}:{{ location.line }}</code></td><td class="evidence">{{ location.evidence }}</td></tr>{% endfor %}</tbody></table>{% if finding.omitted_locations %}<p class="muted">{{ finding.omitted_locations }} additional evidence locations omitted from the PDF.</p>{% endif %}</section>{% endfor %}
+{% for finding in findings %}<section class="finding"><h3><span class="severity {{ finding.severity }}">{{ finding.severity }}</span> {{ finding.title }}</h3><p>{{ finding.description }}</p><p><strong>Observed reach:</strong> {{ finding.affected_files }} file{% if finding.affected_files != 1 %}s{% endif %}, {{ finding.occurrences }} evidence line{% if finding.occurrences != 1 %}s{% endif %}.</p><p><strong>Remediation:</strong> {{ finding.remediation }}</p><p><strong>Rule or package reference:</strong> <a href="{{ finding.source_url }}">{{ finding.source_url }}</a></p><table><thead><tr><th>Location</th><th>Observed text</th></tr></thead><tbody>{% for location in finding.locations %}<tr><td><code>{{ location.file }}:{{ location.line }}</code></td><td class="evidence">{{ location.evidence }}</td></tr>{% endfor %}</tbody></table>{% if finding.omitted_locations %}<p class="muted">{{ finding.omitted_locations }} additional evidence locations omitted from the PDF.</p>{% endif %}</section>{% endfor %}
 <h2>Roll-forward order</h2>{% if findings %}<ol>{% for finding in findings %}<li><strong>{{ finding.title }}</strong> — {{ finding.remediation }}</li>{% endfor %}</ol>{% else %}<p>Confirm the upload was complete, then compare deployed AWS inventory with the current AWS runtime and operating-system support tables.</p>{% endif %}
 {% if upcoming_deprecations %}<h2>Tracked AWS dates</h2><p class="muted">Dates below come from the cited public rule pack and should be rechecked before production planning.</p><ul>{% for dep in upcoming_deprecations %}<li><strong>{{ dep.name }}</strong> — {{ dep.date }} — <a href="{{ dep.url }}">source</a></li>{% endfor %}</ul>{% endif %}
-<div class="verification"><h2>Evidence verification</h2><p>Look up the evidence fingerprint at <a href="{{ verify_url }}">{{ verify_url }}</a>.</p><p class="muted">The fingerprint covers the input hash, report-engine/rule-pack versions, and canonical findings. It is not a digital signature of the PDF file.</p></div>
+{% if illustrative_sample %}<div class="verification"><h2>Sample evidence fingerprint</h2><p>This fictional sample fingerprint is intentionally not registered in the customer verification store. The <a href="{{ sample_manifest_url }}">published sample manifest</a> records the input and PDF hashes so the artifact can still be checked byte-for-byte.</p><p class="muted">The evidence fingerprint covers the input hash, report-engine/rule-pack versions, and canonical findings. It is not a digital signature of the PDF file.</p></div>{% else %}<div class="verification"><h2>Evidence verification</h2><p>Look up the evidence fingerprint at <a href="{{ verify_url }}">{{ verify_url }}</a>.</p><p class="muted">The fingerprint covers the input hash, report-engine/rule-pack versions, and canonical findings. It is not a digital signature of the PDF file.</p></div>{% endif %}
 </body></html>
 """
 
@@ -385,6 +431,8 @@ def generate_audit_package(
     output_path: Optional[str] = None,
     upload_path: Optional[str] = None,
     filename: Optional[str] = None,
+    report_time: Optional[datetime] = None,
+    illustrative_sample: bool = False,
 ) -> dict[str, Any]:
     """Generate a PDF and the metadata required for delivery/verification."""
     from weasyprint import HTML
@@ -396,7 +444,9 @@ def generate_audit_package(
     findings = _scan_sources(sources)
     rule_pack_version = _rule_pack_version()
     evidence_hash = _evidence_fingerprint(input_hash, rule_pack_version, findings)
-    generated = datetime.now(UTC)
+    if report_time is not None and report_time.tzinfo is None:
+        raise ValueError("report_time must include a timezone")
+    generated = report_time.astimezone(UTC) if report_time is not None else datetime.now(UTC)
     categories = _summarize_categories(findings)
     affected_files = len({loc["file"] for finding in findings for loc in finding["locations_all"]})
     evidence_lines = sum(finding["occurrences"] for finding in findings)
@@ -424,10 +474,16 @@ def generate_audit_package(
         skipped_files=skipped_files,
         evidence_lines=evidence_lines,
         deadline=_valid_deadline(deadline),
-        upcoming_deprecations=_upcoming_deprecations(),
+        upcoming_deprecations=_upcoming_deprecations(generated),
         verify_url=f"{PUBLIC_SITE_URL}/verify/?hash={evidence_hash}",
+        sample_manifest_url=(
+            f"{PUBLIC_SITE_URL.rstrip('/')}/audit/sample/eolkits-sample-report.json"
+        ),
+        illustrative_sample=illustrative_sample,
     )
-    pdf_bytes = HTML(string=html_content, base_url=PUBLIC_SITE_URL).write_pdf()
+    rendered_document = HTML(string=html_content, base_url=PUBLIC_SITE_URL).render()
+    pdf_pages = len(rendered_document.pages)
+    pdf_bytes = rendered_document.write_pdf()
     if output_path:
         Path(output_path).write_bytes(pdf_bytes)
     return {
@@ -438,10 +494,13 @@ def generate_audit_package(
         "evidence_hash": evidence_hash,
         "rule_pack_version": rule_pack_version,
         "report_version": REPORT_VERSION,
+        "pdf_pages": pdf_pages,
         "generated_at": generated.isoformat().replace("+00:00", "Z"),
         "findings_count": len(public_findings),
         "evidence_count": evidence_lines,
         "scanned_files": len(sources),
+        "skipped_files": skipped_files,
+        "illustrative_sample": illustrative_sample,
     }
 
 
@@ -450,11 +509,14 @@ def preflight_audit_input(upload_path: str, filename: str | None = None) -> dict
     content = _read_local_input(upload_path)
     input_name = _safe_input_name(filename, upload_path, None)
     sources, skipped = _source_files(content, input_name)
+    findings = _scan_sources(sources)
     return {
         "input_hash": hashlib.sha256(content).hexdigest(),
         "scanned_files": len(sources),
         "skipped_files": skipped,
         "decoded_bytes": sum(len(body.encode("utf-8")) for _, body in sources),
+        "findings_count": len(findings),
+        "evidence_count": sum(int(finding["occurrences"]) for finding in findings),
     }
 
 
@@ -551,9 +613,23 @@ def _zip_source_files(input_content: bytes) -> tuple[list[tuple[str, str]], int]
     skipped = 0
     total_uncompressed = 0
     with zipfile.ZipFile(io.BytesIO(input_content)) as archive:
-        members = [member for member in archive.infolist() if not member.is_dir()]
-        if len(members) > MAX_SOURCE_FILES:
-            raise ValueError(f"archive contains more than {MAX_SOURCE_FILES} files")
+        all_members = archive.infolist()
+        if len(all_members) > MAX_SOURCE_FILES:
+            raise ValueError(f"archive contains more than {MAX_SOURCE_FILES} files or directories")
+        if (
+            sum(len(member.filename.encode("utf-8", errors="replace")) for member in all_members)
+            > MAX_ZIP_NAME_BYTES
+        ):
+            raise ValueError("archive member names exceed the analysis limit")
+        members = [member for member in all_members if not member.is_dir()]
+        normalized_names: set[str] = set()
+        for member in members:
+            normalized = unicodedata.normalize(
+                "NFC", str(PurePosixPath(member.filename.replace("\\", "/")))
+            ).casefold()
+            if normalized in normalized_names:
+                raise ValueError("archive contains duplicate normalized file paths")
+            normalized_names.add(normalized)
         for member in members:
             name = member.filename.replace("\\", "/")
             path = PurePosixPath(name)
@@ -590,7 +666,43 @@ def _supported_source_name(name: str) -> bool:
 
 
 def _scan_sources(sources: list[tuple[str, str]]) -> list[dict[str, Any]]:
+    normalized_names = [
+        unicodedata.normalize("NFC", str(PurePosixPath(filename))).casefold()
+        for filename, _ in sources
+    ]
+    if len(normalized_names) != len(set(normalized_names)):
+        raise ValueError("source input contains duplicate normalized file paths")
+    total_lines = 0
+    for _, content in sources:
+        start = 0
+        while True:
+            end = content.find("\n", start)
+            line_end = len(content) if end < 0 else end
+            if line_end - start > MAX_SCAN_LINE_CHARS:
+                raise ValueError(
+                    f"source line exceeds the {MAX_SCAN_LINE_CHARS}-character analysis limit"
+                )
+            total_lines += 1
+            if total_lines > MAX_SCAN_LINES:
+                raise ValueError(f"source input exceeds the {MAX_SCAN_LINES}-line analysis limit")
+            if end < 0:
+                break
+            start = end + 1
     findings: list[dict[str, Any]] = []
+    evidence_records = 0
+    lambda_runtime_records = {
+        filename: (
+            _lambda_runtime_records(filename, content)
+            if re.search(
+                r"(?:nodejs(?:16|18|20|22)\.x|python3\.(?:8|9|10|11))\b|"
+                r"Runtime\.(?:NODEJS_(?:16|18|20|22)_X|PYTHON_3_(?:8|9|10|11))\b",
+                content,
+                re.IGNORECASE,
+            )
+            else set()
+        )
+        for filename, content in sources
+    }
     for rule in AUDIT_RULES:
         compiled = [
             re.compile(pattern, re.IGNORECASE | re.MULTILINE) for pattern in rule["patterns"]
@@ -599,14 +711,40 @@ def _scan_sources(sources: list[tuple[str, str]]) -> list[dict[str, Any]]:
         seen: set[tuple[str, int]] = set()
         for filename, content in sources:
             for line_number, line in enumerate(content.splitlines(), start=1):
-                if not any(pattern.search(line) for pattern in compiled):
+                match = next(
+                    (candidate for pattern in compiled if (candidate := pattern.search(line))),
+                    None,
+                )
+                if not match:
+                    continue
+                if (
+                    rule.get("requires_lambda_context")
+                    and (
+                        line_number,
+                        str(rule["runtime_id"]),
+                    )
+                    not in lambda_runtime_records[filename]
+                ):
                     continue
                 key = (filename, line_number)
                 if key in seen:
                     continue
+                evidence_records += 1
+                if len(locations) >= MAX_EVIDENCE_PER_RULE:
+                    raise ValueError(
+                        f"a finding exceeds the {MAX_EVIDENCE_PER_RULE}-record analysis limit"
+                    )
+                if evidence_records > MAX_EVIDENCE_RECORDS:
+                    raise ValueError(
+                        f"source findings exceed the {MAX_EVIDENCE_RECORDS}-record analysis limit"
+                    )
                 seen.add(key)
                 locations.append(
-                    {"file": filename, "line": line_number, "evidence": _compact_evidence(line)}
+                    {
+                        "file": filename,
+                        "line": line_number,
+                        "evidence": _compact_evidence(line, match.start()),
+                    }
                 )
         if not locations:
             continue
@@ -628,7 +766,7 @@ def _scan_sources(sources: list[tuple[str, str]]) -> list[dict[str, Any]]:
                 "omitted_locations": max(0, len(locations) - MAX_LOCATIONS_PER_FINDING),
             }
         )
-    findings.extend(_scan_dependency_manifests(sources))
+    findings.extend(_scan_dependency_manifests(sources, MAX_EVIDENCE_RECORDS - evidence_records))
     findings.sort(
         key=lambda item: (
             -item["severity_weight"],
@@ -638,6 +776,434 @@ def _scan_sources(sources: list[tuple[str, str]]) -> list[dict[str, Any]]:
         )
     )
     return findings
+
+
+def _config_key_records(
+    content: str,
+) -> Iterator[tuple[int, int, str, str, tuple[str, ...]]]:
+    """Lex YAML/JSON mapping paths without building attacker-controlled object graphs."""
+    stack: list[tuple[int, str]] = []
+    record_count = 0
+    document = 0
+    key_pattern = re.compile(
+        r"^(?P<space>[ \t]*)(?P<quote>[\"']?)(?P<key>[A-Za-z0-9_.-]+)"
+        r"(?P=quote)\s*:\s*(?P<value>.*)$"
+    )
+    for line_number, line in enumerate(content.splitlines(), 1):
+        if re.fullmatch(r"[ \t]*(?:---|\.\.\.)[ \t]*(?:#.*)?", line):
+            stack.clear()
+            document += 1
+            continue
+        match = key_pattern.match(line)
+        if not match:
+            continue
+        indent = len(match.group("space").expandtabs(8))
+        while stack and stack[-1][0] >= indent:
+            stack.pop()
+        key = match.group("key").lower()
+        raw_value = re.sub(r"\s+#.*$", "", match.group("value")).strip().rstrip(",").strip()
+        value = raw_value
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
+            value = value[1:-1]
+        # Only shallow paths are meaningful to the supported IaC formats. Keeping
+        # a bounded suffix avoids quadratic tuple growth on maliciously deep YAML.
+        path = tuple(item[1] for item in stack[-8:]) + (key,)
+        record_count += 1
+        if record_count > MAX_CONFIG_RECORDS:
+            raise ValueError(
+                f"source structure exceeds the {MAX_CONFIG_RECORDS}-record analysis limit"
+            )
+        yield document, line_number, key, value, path
+        if raw_value in {"", "{"}:
+            stack.append((indent, key))
+
+
+def _sam_transform_documents(content: str) -> set[int]:
+    documents: set[int] = set()
+    document = 0
+    pending_indent: int | None = None
+    for line in content.splitlines():
+        if re.fullmatch(r"[ \t]*(?:---|\.\.\.)[ \t]*(?:#.*)?", line):
+            document += 1
+            pending_indent = None
+            continue
+        transform = re.match(
+            r"^(?P<space>[ \t]*)[\"']?Transform[\"']?\s*:\s*(?P<value>.*)$",
+            line,
+            re.IGNORECASE,
+        )
+        if transform:
+            value = re.sub(r"\s+#.*$", "", transform.group("value")).strip()
+            if re.search(r"AWS::Serverless-", value, re.IGNORECASE):
+                documents.add(document)
+            pending_indent = len(transform.group("space").expandtabs(8)) if not value else None
+            continue
+        if pending_indent is None or not line.strip():
+            continue
+        indent = len(line[: len(line) - len(line.lstrip(" \t"))].expandtabs(8))
+        if indent <= pending_indent:
+            pending_indent = None
+        elif re.match(r"^[ \t]*-[ \t]*[\"']?AWS::Serverless-", line, re.IGNORECASE):
+            documents.add(document)
+            pending_indent = None
+    return documents
+
+
+def _runtime_id(value: str) -> str | None:
+    match = re.match(
+        r"^[\"']?(nodejs\d+\.x|python\d+\.\d+|ruby\d+\.\d+|java\d+|"
+        r"dotnet\d+|dotnetcore\d+\.\d+|go\d+\.x|provided\.al\d+|provided)\b",
+        value.strip(),
+        re.IGNORECASE,
+    )
+    return match.group(1).lower() if match else None
+
+
+def _cdk_runtime_id(value: str) -> str | None:
+    match = re.search(
+        r"Runtime\.(NODEJS|PYTHON|RUBY|JAVA|DOTNET|GO)_(\d+)(?:_(\d+))?(?:_X)?\b",
+        value,
+        re.IGNORECASE,
+    )
+    if not match:
+        return None
+    language, major, minor = match.groups()
+    language = language.lower()
+    if language == "nodejs":
+        return f"nodejs{major}.x"
+    if language in {"python", "ruby"}:
+        return f"{language}{major}.{minor or '0'}"
+    return f"{language}{major}"
+
+
+def _single_line_json_lambda_runtime_records(content: str) -> set[tuple[int, str]]:
+    """Recognize bounded minified CloudFormation/SAM JSON without recursive traversal."""
+    stripped = content.strip()
+    if "\n" in stripped or not stripped.startswith("{"):
+        return set()
+    if len(stripped) > 1024 * 1024:
+        raise ValueError("single-line JSON exceeds the structured analysis limit")
+    try:
+        document = json.loads(stripped)
+    except (json.JSONDecodeError, RecursionError):
+        return set()
+    if not isinstance(document, dict):
+        return set()
+
+    runtime_ids: set[str] = set()
+    resources = document.get("Resources")
+    if isinstance(resources, dict):
+        for resource in resources.values():
+            if not isinstance(resource, dict) or str(resource.get("Type", "")).lower() not in {
+                "aws::lambda::function",
+                "aws::serverless::function",
+            }:
+                continue
+            properties = resource.get("Properties")
+            runtime = properties.get("Runtime") if isinstance(properties, dict) else None
+            runtime_id = _runtime_id(str(runtime or ""))
+            if runtime_id:
+                runtime_ids.add(runtime_id)
+
+    transform = document.get("Transform")
+    transforms = transform if isinstance(transform, list) else [transform]
+    is_sam = any(
+        isinstance(item, str) and item.lower().startswith("aws::serverless-") for item in transforms
+    )
+    globals_section = document.get("Globals")
+    function_globals = (
+        globals_section.get("Function") if isinstance(globals_section, dict) else None
+    )
+    if is_sam and isinstance(function_globals, dict):
+        runtime_id = _runtime_id(str(function_globals.get("Runtime") or ""))
+        if runtime_id:
+            runtime_ids.add(runtime_id)
+    line_number = content.count("\n", 0, content.find(stripped)) + 1
+    return {(line_number, runtime_id) for runtime_id in runtime_ids}
+
+
+def _matching_brace(text: str, start: int) -> int | None:
+    depth = 0
+    quote: str | None = None
+    escaped = False
+    index = start
+    while index < len(text):
+        character = text[index]
+        if quote:
+            if escaped:
+                escaped = False
+            elif character == "\\" and quote == '"':
+                escaped = True
+            elif character == quote:
+                if quote == "'" and index + 1 < len(text) and text[index + 1] == "'":
+                    index += 2
+                    continue
+                quote = None
+            index += 1
+            continue
+        if character in {"'", '"'}:
+            quote = character
+        elif character == "{":
+            depth += 1
+        elif character == "}":
+            depth -= 1
+            if depth == 0:
+                return index
+        index += 1
+    return None
+
+
+def _yaml_flow_lambda_runtime_records(content: str) -> set[tuple[int, str]]:
+    """Recognize direct Runtime properties in one-line YAML flow-map resources."""
+    records: set[tuple[int, str]] = set()
+    type_pattern = re.compile(
+        r"\bType\s*:\s*[\"']?AWS::(?:Lambda|Serverless)::Function\b", re.IGNORECASE
+    )
+    properties_pattern = re.compile(r"\bProperties\s*:\s*\{", re.IGNORECASE)
+    runtime_pattern = re.compile(r"\bRuntime\s*:\s*[\"']?([A-Za-z0-9.]+)", re.IGNORECASE)
+    flow_matches = 0
+    for line_number, line in enumerate(content.splitlines(), 1):
+        if not type_pattern.search(line):
+            continue
+        if len(line) > MAX_FLOW_LINE_CHARS:
+            raise ValueError("source flow-mapping line exceeds the analysis limit")
+        for type_match in type_pattern.finditer(line):
+            flow_matches += 1
+            if flow_matches > MAX_FLOW_RESOURCE_MATCHES:
+                raise ValueError("source flow mapping exceeds the analysis limit")
+            resource_start = line.rfind("{", 0, type_match.start())
+            resource_end = _matching_brace(line, resource_start) if resource_start >= 0 else None
+            if resource_end is None:
+                continue
+            resource = line[resource_start : resource_end + 1]
+            properties_match = properties_pattern.search(resource)
+            if not properties_match:
+                continue
+            properties_start = resource.find("{", properties_match.start())
+            properties_end = _matching_brace(resource, properties_start)
+            if properties_end is None:
+                continue
+            properties = resource[properties_start : properties_end + 1]
+            runtime_match = runtime_pattern.search(properties)
+            runtime_id = _runtime_id(runtime_match.group(1)) if runtime_match else None
+            if runtime_id:
+                records.add((line_number, runtime_id))
+    return records
+
+
+def _yaml_lambda_runtime_records(content: str) -> set[tuple[int, str]]:
+    records: set[tuple[int, str]] = set()
+    lambda_resources: set[tuple[int, tuple[str, ...]]] = set()
+    aws_provider_documents: set[int] = set()
+    for document, _, key, value, path in _config_key_records(content):
+        if (
+            key == "type"
+            and value.lower() in {"aws::lambda::function", "aws::serverless::function"}
+            and "resources" in path
+        ):
+            lambda_resources.add((document, path[:-1]))
+            if len(lambda_resources) > MAX_LAMBDA_RESOURCES:
+                raise ValueError(
+                    f"source contains more than {MAX_LAMBDA_RESOURCES} Lambda resources"
+                )
+        if path == ("provider", "name") and value.lower() == "aws":
+            aws_provider_documents.add(document)
+    sam_documents = _sam_transform_documents(content)
+    for document, line_number, key, value, path in _config_key_records(content):
+        if key != "runtime":
+            continue
+        runtime_id = _runtime_id(value)
+        if not runtime_id:
+            continue
+        if (
+            path[-2:] == ("properties", "runtime")
+            and (
+                document,
+                path[:-2],
+            )
+            in lambda_resources
+        ):
+            records.add((line_number, runtime_id))
+            continue
+        if document in sam_documents and path == ("globals", "function", "runtime"):
+            records.add((line_number, runtime_id))
+            continue
+        if document in aws_provider_documents and (
+            path == ("provider", "runtime")
+            or (len(path) == 3 and path[0] == "functions" and path[-1] == "runtime")
+        ):
+            records.add((line_number, runtime_id))
+    records.update(_single_line_json_lambda_runtime_records(content))
+    records.update(_yaml_flow_lambda_runtime_records(content))
+    return records
+
+
+def _hcl_code_lines(content: str) -> Iterator[tuple[int, str, str]]:
+    """Yield original and same-length HCL code lines with strings/comments blanked."""
+    in_block_comment = False
+    heredoc: tuple[str, bool] | None = None
+    for line_number, original in enumerate(content.splitlines(), 1):
+        if heredoc:
+            marker, allow_indent = heredoc
+            candidate = original.strip() if allow_indent else original
+            if candidate == marker:
+                heredoc = None
+            yield line_number, original, " " * len(original)
+            continue
+        visible = list(original)
+        quote: str | None = None
+        escaped = False
+        index = 0
+        while index < len(original):
+            character = original[index]
+            following = original[index : index + 2]
+            if in_block_comment:
+                visible[index] = " "
+                if following == "*/":
+                    if index + 1 < len(visible):
+                        visible[index + 1] = " "
+                    in_block_comment = False
+                    index += 2
+                    continue
+                index += 1
+                continue
+            if quote:
+                visible[index] = " "
+                if escaped:
+                    escaped = False
+                elif character == "\\":
+                    escaped = True
+                elif character == quote:
+                    quote = None
+                index += 1
+                continue
+            if following == "/*":
+                visible[index] = visible[index + 1] = " "
+                in_block_comment = True
+                index += 2
+                continue
+            if following == "//" or character == "#":
+                for remainder in range(index, len(visible)):
+                    visible[remainder] = " "
+                break
+            if character in {"'", '"'}:
+                visible[index] = " "
+                quote = character
+            index += 1
+        code = "".join(visible)
+        heredoc_match = re.search(r"<<(?P<indent>-?)(?P<marker>[A-Za-z_][A-Za-z0-9_]*)", code)
+        if heredoc_match:
+            heredoc = (
+                heredoc_match.group("marker"),
+                heredoc_match.group("indent") == "-",
+            )
+        yield line_number, original, code
+
+
+def _terraform_lambda_runtime_records(content: str) -> set[tuple[int, str]]:
+    records: set[tuple[int, str]] = set()
+    inside_lambda = False
+    depth = 0
+    declaration = re.compile(
+        r"\bresource\s+[\"']aws_lambda_function[\"']\s+[\"'][^\"']+[\"']\s*\{",
+        re.IGNORECASE,
+    )
+    runtime_key = re.compile(r"\bruntime\b\s*=", re.IGNORECASE)
+    runtime_value = re.compile(r"\bruntime\b\s*=\s*[\"']?([^\"'\s}]+)", re.IGNORECASE)
+    structural_events = 0
+    for line_number, original, code in _hcl_code_lines(content):
+        original_match = None if inside_lambda else declaration.search(original)
+        visible_match = None if inside_lambda else re.search(r"\bresource\s+", code, re.IGNORECASE)
+        resource_match = (
+            original_match
+            if original_match and visible_match and original_match.start() == visible_match.start()
+            else None
+        )
+        if resource_match:
+            inside_lambda = True
+            depth = 0
+        if not inside_lambda:
+            continue
+        scan_start = resource_match.start() if resource_match else 0
+        position = scan_start
+        while position < len(code):
+            character = code[position]
+            if character == "{":
+                structural_events += 1
+                depth += 1
+            elif character == "}":
+                structural_events += 1
+                depth -= 1
+            elif depth == 1 and code[position : position + 7].lower() == "runtime":
+                runtime_match = runtime_key.match(code, position)
+                if not runtime_match:
+                    position += 1
+                    continue
+                structural_events += 1
+                value_match = runtime_value.match(original, position)
+                runtime_id = _runtime_id(value_match.group(1)) if value_match else None
+                if runtime_id:
+                    records.add((line_number, runtime_id))
+                position = runtime_match.end()
+                if structural_events > MAX_HCL_STRUCTURE_EVENTS:
+                    raise ValueError("Terraform structure exceeds the analysis limit")
+                continue
+            if structural_events > MAX_HCL_STRUCTURE_EVENTS:
+                raise ValueError("Terraform structure exceeds the analysis limit")
+            if depth <= 0 and character == "}":
+                inside_lambda = False
+                break
+            position += 1
+    return records
+
+
+def _lambda_runtime_records(filename: str, content: str) -> set[tuple[int, str]]:
+    """Return only (line, runtime) pairs bound to an AWS Lambda construct."""
+    records: set[tuple[int, str]] = set()
+    has_imported_cdk_runtime = bool(
+        re.search(
+            r"(?:aws-cdk-lib|@aws-cdk)/aws-lambda|"
+            r"from\s+aws_cdk\.aws_lambda\s+import[^\n]*\bRuntime\b|"
+            r"software\.amazon\.awscdk\.services\.lambda\.Runtime|"
+            r"Amazon\.CDK\.AWS\.Lambda",
+            content,
+            re.IGNORECASE,
+        )
+    )
+    for line_number, line in enumerate(content.splitlines(), 1):
+        cli_match = re.search(
+            r"\baws\s+lambda\b[^\n]*--runtime(?:\s+|=)[\"']?([^\"'\s]+)",
+            line,
+            re.IGNORECASE,
+        )
+        cli_runtime = _runtime_id(cli_match.group(1)) if cli_match else None
+        if cli_runtime:
+            records.add((line_number, cli_runtime))
+        qualified_cdk = re.search(
+            r"\bruntime\b\s*[:=(]\s*(?:aws_)?_?lambda\.(Runtime\.[A-Z0-9_]+)",
+            line,
+            re.IGNORECASE,
+        )
+        imported_cdk = (
+            re.search(r"\bruntime\b\s*[:=(]\s*(Runtime\.[A-Z0-9_]+)", line, re.IGNORECASE)
+            if has_imported_cdk_runtime
+            else None
+        )
+        cdk_match = qualified_cdk or imported_cdk
+        cdk_runtime = _cdk_runtime_id(cdk_match.group(1)) if cdk_match else None
+        if cdk_runtime:
+            records.add((line_number, cdk_runtime))
+
+    suffix = PurePosixPath(filename).suffix.lower()
+    basename = PurePosixPath(filename).name.lower()
+    if suffix in {".json", ".yaml", ".yml"} or basename in {
+        "serverless.yml",
+        "serverless.yaml",
+    }:
+        records.update(_yaml_lambda_runtime_records(content))
+    if suffix in {".tf", ".tfvars", ".hcl"}:
+        records.update(_terraform_lambda_runtime_records(content))
+    return records
 
 
 def _version_tuple(value: str) -> tuple[int, ...]:
@@ -667,66 +1233,111 @@ def _python_minimum(specifier: str | None) -> str | None:
     return None
 
 
+def _bounded_dependency_spec(spec: Any, manifest_name: str) -> str | None:
+    if spec is None:
+        return None
+    if not isinstance(spec, (str, int, float)):
+        raise ValueError(f"{manifest_name} contains a non-scalar dependency version")
+    value = str(spec).strip()
+    if len(value) > MAX_DEPENDENCY_SPEC_CHARS:
+        raise ValueError(
+            f"{manifest_name} dependency versions must be at most "
+            f"{MAX_DEPENDENCY_SPEC_CHARS} characters"
+        )
+    return value or None
+
+
+def _evidence_near(content: str, position: int) -> tuple[int, str]:
+    line_number = content.count("\n", 0, position) + 1
+    line_start = content.rfind("\n", 0, position) + 1
+    line_end = content.find("\n", position)
+    if line_end < 0:
+        line_end = len(content)
+    excerpt_start = max(line_start, position - 80)
+    excerpt_end = min(line_end, position + 360)
+    return line_number, _compact_evidence(content[excerpt_start:excerpt_end])
+
+
 def _manifest_dependencies(
     filename: str, content: str
 ) -> list[tuple[str, str, str | None, int, str]]:
     """Return (ecosystem, package, spec, line, evidence) manifest entries."""
     basename = PurePosixPath(filename).name.lower()
-    entries: list[tuple[str, str | None, int, str, str]] = []
+    is_requirements = basename.endswith("requirements.txt") or bool(
+        re.fullmatch(r"requirements.*\.txt", basename)
+    )
+    is_python_manifest = basename in {"pyproject.toml", "pipfile"}
+    if (basename == "package.json" or is_requirements or is_python_manifest) and len(
+        content.encode("utf-8")
+    ) > MAX_MANIFEST_BYTES:
+        raise ValueError(
+            f"{basename} exceeds the {MAX_MANIFEST_BYTES}-byte dependency analysis limit"
+        )
+    entries: list[tuple[str, str, str | None, int, str]] = []
     if basename == "package.json":
         try:
             package = json.loads(content)
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, RecursionError):
             return entries
+        if not isinstance(package, dict):
+            raise ValueError("package.json root must be an object")
         dependencies: dict[str, Any] = {}
         for key in ("dependencies", "devDependencies"):
             values = package.get(key) or {}
             if isinstance(values, dict):
-                dependencies.update(values)
-        lines = content.splitlines()
+                dependencies.update(
+                    (str(name), spec)
+                    for name, spec in values.items()
+                    if str(name) in NODE_NATIVE_PACKAGES
+                )
         for name, spec in dependencies.items():
-            line_no = next(
-                (index for index, line in enumerate(lines, 1) if json.dumps(str(name)) in line),
-                1,
-            )
-            evidence = lines[line_no - 1] if lines else f"{name}: {spec}"
-            entries.append(
-                ("node", str(name), str(spec) if spec is not None else None, line_no, evidence)
-            )
+            bounded_spec = _bounded_dependency_spec(spec, basename)
+            position = content.find(json.dumps(name))
+            line_no, evidence = _evidence_near(content, max(position, 0))
+            entries.append(("node", name, bounded_spec, line_no, evidence))
         return entries
 
     requirement_re = re.compile(r"^([A-Za-z0-9_.-]+)\s*(?:\[[^\]]*\])?\s*([<>=!~].+)?$")
-    if basename.endswith("requirements.txt") or re.fullmatch(r"requirements.*\.txt", basename):
+    if is_requirements:
         for line_no, raw in enumerate(content.splitlines(), 1):
             line = raw.strip()
             if not line or line.startswith(("#", "-")):
                 continue
+            name_match = re.match(r"^([A-Za-z0-9_.-]+)", line)
+            if not name_match:
+                continue
+            name = re.sub(r"[-_.]+", "-", name_match.group(1).lower())
+            if name not in PY312_WHEELS:
+                continue
+            if len(line) > MAX_DEPENDENCY_SPEC_CHARS + 256:
+                raise ValueError(f"{basename} dependency lines exceed the analysis limit")
             match = requirement_re.match(line.split(" #", 1)[0].strip())
             if match:
-                name = re.sub(r"[-_.]+", "-", match.group(1).lower())
-                entries.append(
-                    ("python", name, (match.group(2) or "").strip() or None, line_no, raw)
-                )
+                spec = _bounded_dependency_spec((match.group(2) or "").strip() or None, basename)
+                entries.append(("python", name, spec, line_no, _compact_evidence(raw)))
         return entries
 
-    if basename == "pyproject.toml" or basename == "pipfile" or basename.endswith(".toml"):
+    if is_python_manifest:
         for block in re.finditer(r"dependencies\s*=\s*\[([\s\S]*?)\]", content):
             for match in re.finditer(
                 r"[\"']\s*([A-Za-z0-9_.-]+)\s*(?:\[[^\]]*\])?\s*([<>=!~][^\"']*)?\s*[\"']",
                 block.group(1),
             ):
                 name = re.sub(r"[-_.]+", "-", match.group(1).lower())
+                if name not in PY312_WHEELS:
+                    continue
+                spec = _bounded_dependency_spec((match.group(2) or "").strip() or None, basename)
                 absolute = block.start(1) + match.start()
-                line_no = content.count("\n", 0, absolute) + 1
-                evidence = content.splitlines()[line_no - 1]
-                entries.append(
-                    ("python", name, (match.group(2) or "").strip() or None, line_no, evidence)
-                )
+                line_no, evidence = _evidence_near(content, absolute)
+                entries.append(("python", name, spec, line_no, evidence))
     return entries
 
 
-def _scan_dependency_manifests(sources: list[tuple[str, str]]) -> list[dict[str, Any]]:
+def _scan_dependency_manifests(
+    sources: list[tuple[str, str]], evidence_budget: int = MAX_EVIDENCE_RECORDS
+) -> list[dict[str, Any]]:
     grouped: dict[tuple[str, str], dict[str, Any]] = {}
+    evidence_records = 0
     for filename, content in sources:
         for ecosystem, name, spec, line_no, evidence in _manifest_dependencies(filename, content):
             if ecosystem == "node":
@@ -775,7 +1386,9 @@ def _scan_dependency_manifests(sources: list[tuple[str, str]]) -> list[dict[str,
                     "title": title,
                     "description": (
                         f"The manifest declares {name} as {spec or '(unpinned)'}. "
-                        f"The configured migration floor is {required}. {rule.get('note', '')}"
+                        f"The local rule pack uses {required} as a conservative triage baseline; "
+                        "actual support varies by package release, platform, and architecture. "
+                        f"{rule.get('note', '')}"
                     ),
                     "remediation": (
                         f"Update {name} to {required}, rebuild on the target runtime and architecture, "
@@ -785,6 +1398,9 @@ def _scan_dependency_manifests(sources: list[tuple[str, str]]) -> list[dict[str,
                     "locations_all": [],
                 },
             )
+            evidence_records += 1
+            if evidence_records > evidence_budget:
+                raise ValueError("dependency findings exceed the evidence analysis limit")
             finding["locations_all"].append(
                 {
                     "file": filename,
@@ -807,8 +1423,10 @@ def _scan_dependency_manifests(sources: list[tuple[str, str]]) -> list[dict[str,
     return findings
 
 
-def _compact_evidence(line: str) -> str:
-    compact = " ".join(line.strip().split())
+def _compact_evidence(line: str, match_position: int = 0) -> str:
+    start = max(0, match_position - 100)
+    excerpt = line[start : match_position + 340]
+    compact = " ".join(excerpt.strip().split())
     return compact if len(compact) <= 220 else compact[:217] + "..."
 
 
@@ -844,7 +1462,7 @@ def _rule_pack_version() -> str:
     return f"{RULESET_VERSION}+{digest.hexdigest()[:12]}"
 
 
-def _upcoming_deprecations() -> list[dict[str, str]]:
+def _upcoming_deprecations(as_of: datetime | None = None) -> list[dict[str, str]]:
     path = _rules_file()
     if not path:
         return []
@@ -852,12 +1470,38 @@ def _upcoming_deprecations() -> list[dict[str, str]]:
         data = yaml.safe_load(path.read_text()) or {}
     except (OSError, yaml.YAMLError):
         return []
-    items = []
-    today = datetime.now(UTC).date().isoformat()
+    items: list[dict[str, str]] = []
+    effective_time = as_of.astimezone(UTC) if as_of is not None else datetime.now(UTC)
+    today = effective_time.date().isoformat()
     for dep in data.get("deprecations", []):
-        date = str(dep.get("date") or "")
-        if date and date >= today and dep.get("url"):
-            items.append({"name": str(dep.get("name")), "date": date, "url": str(dep.get("url"))})
+        if not dep.get("url"):
+            continue
+        name = str(dep.get("name") or "")
+        subject = re.sub(
+            r"\s+(?:projected\s+)?create/update restrictions$", "", name, flags=re.IGNORECASE
+        )
+        is_lambda = (
+            "lambda"
+            in (str(dep.get("service") or "") + " " + " ".join(dep.get("tags") or [])).lower()
+        )
+        projected = bool(dep.get("dates_projected"))
+        candidates: list[tuple[str, str]] = []
+        deprecation_date = str(dep.get("deprecation_date") or "")
+        if deprecation_date:
+            label = "projected deprecation" if projected else "deprecation"
+            candidates.append((deprecation_date, f"{subject} — {label}"))
+        create_date = str(dep.get("date") or "")
+        if create_date:
+            label = "projected block on new functions" if projected else "block new functions"
+            candidates.append((create_date, f"{subject} — {label}" if is_lambda else name))
+        update_date = str(dep.get("block_update_date") or "")
+        if update_date:
+            label = "projected block on function updates" if projected else "block function updates"
+            candidates.append((update_date, f"{subject} — {label}"))
+        future = [candidate for candidate in candidates if candidate[0] >= today]
+        if future:
+            date, label = min(future)
+            items.append({"name": label, "date": date, "url": str(dep.get("url"))})
     return sorted(items, key=lambda item: (item["date"], item["name"]))[:8]
 
 

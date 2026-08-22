@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Free AWS Lambda Runtime &amp; Dependency EOL Scanner — EOLkits</title>
-<meta name="description" content="Drop SAM/CDK/Terraform/Serverless, package.json, or requirements files to find tracked AWS Lambda runtime and native-dependency migration risks. Runs entirely in your browser — nothing is uploaded.">
+<meta name="description" content="Drop SAM/CDK/Terraform/Serverless, package.json, or requirements files to find tracked AWS Lambda runtime and native-dependency migration risks. File names and contents are not uploaded; bounded aggregate counts may be sent.">
 <link rel="canonical" href="https://ntoledo319.github.io/EOLkits/scan/">
 <link rel="stylesheet" href="/EOLkits/style.css">
 <script defer src="/EOLkits/track.js"></script>
@@ -25,15 +25,15 @@
 <h2>What it checks</h2>
 <ul><li><strong>Lambda runtimes</strong> in SAM, CloudFormation, CDK, Terraform and Serverless Framework — flagged against AWS&rsquo;s published deprecation dates.</li><li><strong>Node native dependencies</strong> (sharp, bcrypt, better-sqlite3&hellip;) that need a version bump, rebuild, or replacement before a Node&nbsp;24 migration.</li><li><strong>Python wheels</strong> (numpy, pandas, cryptography&hellip;) that need a bump for a Python&nbsp;3.12 runtime.</li></ul>
 <p>Hit a specific error message? See <a href="/EOLkits/fix/">common AWS migration error fixes &rarr;</a></p>
-<p><small>This free scan covers configured high-impact source patterns. The paid report accepts one repository ZIP or source file and adds exact line evidence, sources, a remediation order, and explicit limitations. It does not query your AWS account.</small></p>
+<p><small>This free scan covers configured high-impact source patterns. The paid report accepts one repository ZIP or source file and adds exact line evidence, configured references, a remediation order, and explicit limitations. It does not query your AWS account.</small></p>
 <script>
 const SITE_BASE = "https://ntoledo319.github.io/EOLkits";
 const INTEREST_URL = "https://github.com/ntoledo319/EOLkits/issues/new?template=audit-interest.yml";
 const DATA = {"runtimes":{"nodejs20.x":{"date":"2027-02-01","slug":"lambda-node.js-20-phase-1","severity":"high","kit":"lambda-lifeline","historical":false},"nodejs22.x":{"date":"2027-06-01","slug":"lambda-node.js-22-phase-1","severity":"medium","kit":"lambda-lifeline","historical":false},"python3.9":{"date":"2027-02-01","slug":"lambda-python-3.9-eol","severity":"high","kit":"python-pivot","historical":false},"python3.10":{"date":"2027-02-01","slug":"lambda-python-3.10-eol","severity":"high","kit":"python-pivot","historical":false},"python3.11":{"date":"2027-07-31","slug":"lambda-python-3.11-eol","severity":"medium","kit":"python-pivot","historical":false},"nodejs18.x":{"date":"2027-02-01","slug":"lambda-node.js-18-eol","severity":"high","kit":"lambda-lifeline","historical":false},"python3.8":{"date":"2027-02-01","slug":"lambda-python-3.8-eol","severity":"high","kit":"python-pivot","historical":false},"nodejs14.x":{"date":"2023-11-27","slug":"lambda-node.js-14","severity":"high","kit":"","historical":true},"nodejs16.x":{"date":"2024-06-12","slug":"lambda-node.js-16","severity":"high","kit":"","historical":true}},"native":{"sharp":{"min":"0.33.0","note":"Conservative baseline only; verify the current release on Node.js 24."},"bcrypt":{"min":"5.1.1","note":"Conservative baseline only; verify Node.js 24 support or consider bcryptjs."},"better-sqlite3":{"min":"11.0.0","note":"Conservative baseline only; verify the current Node.js 24 support matrix."},"canvas":{"min":"2.11.2","note":"Conservative baseline only; verify current target prebuilds."},"node-gyp":{"min":"10.0.0","note":"Build system. Upgrade before rebuilding natives."},"node-sass":{"min":null,"note":"Unmaintained. Use sass (Dart Sass) instead."},"bufferutil":{"min":"4.0.8","note":"WebSocket utility native addon."},"utf-8-validate":{"min":"6.0.4","note":"WebSocket utility native addon."},"libpq":{"min":"1.11.0","note":"Conservative baseline only; verify the current release and target prebuild."},"grpc":{"min":null,"note":"Unmaintained. Migrate to @grpc/grpc-js (pure JS)."},"@grpc/grpc-js":{"min":"1.10.0","note":"Pure JS, no native; keep it current."},"sqlite3":{"min":"5.1.7","note":"Conservative baseline only; verify current Node.js 24 prebuilds."},"argon2":{"min":"0.40.1","note":"Conservative baseline only; verify current Node.js 24 prebuilds."},"re2":{"min":"1.21.0","note":"RE2 regex engine."},"fibers":{"min":null,"note":"Unmaintained since the Node.js 16 era; remove it."},"@tensorflow/tfjs-node":{"min":"4.20.0","note":"TensorFlow native."},"sodium-native":{"min":"4.3.0","note":"libsodium bindings."},"zmq":{"min":null,"note":"Unmaintained. Use zeromq instead."},"zeromq":{"min":"6.1.2","note":"ZeroMQ bindings."},"farmhash":{"min":"4.0.0","note":"Native hashing."},"@napi-rs/snappy":{"min":null,"note":"Stale package; use a maintained compressor."},"heapdump":{"min":null,"note":"Unmaintained. Use node --heapsnapshot-signal instead."}},"wheels":{"numpy":{"min":"1.26.0","note":"1.26+ ships cp312 wheels."},"scipy":{"min":"1.11.4","note":"1.11.4+ for cp312."},"pandas":{"min":"2.1.1","note":"2.1.1+ for cp312."},"scikit-learn":{"min":"1.3.2","note":"1.3.2+ for cp312."},"matplotlib":{"min":"3.8.0","note":"3.8.0+ for cp312."},"pillow":{"min":"10.1.0","note":"10.1.0+ for cp312."},"lxml":{"min":"4.9.4","note":"4.9.4+ for cp312."},"cryptography":{"min":"41.0.5","note":"41.0.5+ for cp312 (libssl3)."},"pycryptodome":{"min":"3.19.0","note":"3.19.0+ for cp312."},"bcrypt":{"min":"4.1.1","note":"4.1.1+ for cp312."},"pyopenssl":{"min":"23.3.0","note":"23.3.0+ for cp312."},"psycopg2-binary":{"min":"2.9.9","note":"2.9.9+ for cp312."},"psycopg":{"min":"3.1.13","note":"3.1.13+ for cp312."},"mysqlclient":{"min":"2.2.0","note":"2.2.0+ for cp312."},"pymssql":{"min":"2.2.11","note":"2.2.11+ for cp312."},"pyyaml":{"min":"6.0.1","note":"6.0.1+ for cp312."},"orjson":{"min":"3.9.10","note":"3.9.10+ for cp312."},"ujson":{"min":"5.8.0","note":"5.8.0+ for cp312."},"msgpack":{"min":"1.0.7","note":"1.0.7+ for cp312."},"aiohttp":{"min":"3.9.0","note":"3.9.0+ for cp312."},"grpcio":{"min":"1.59.0","note":"1.59.0+ for cp312."},"protobuf":{"min":"4.25.0","note":"4.25.0+ for cp312."},"frozenlist":{"min":"1.4.0","note":"1.4.0+ for cp312."},"multidict":{"min":"6.0.4","note":"6.0.4+ for cp312."},"yarl":{"min":"1.9.3","note":"1.9.3+ for cp312."},"tiktoken":{"min":"0.5.2","note":"0.5.2+ for cp312."},"tokenizers":{"min":"0.15.0","note":"0.15.0+ for cp312."},"awscrt":{"min":"0.19.17","note":"0.19.17+ for cp312."},"boto3":{"min":"1.29.0","note":"1.29+ tested on cp312."},"botocore":{"min":"1.32.0","note":"1.32+ tested on cp312."},"python-snappy":{"min":"0.7.0","note":"0.7.0+ ships a pure-Python wheel built on cramjam."},"fastparquet":{"min":"2023.10.1","note":"2023.10.1+ for cp312."}}};
 
 const $ = (s) => document.querySelector(s);
-const RT_RE = /(?:runtime\s*[:=]\s*["']?)(nodejs\d+\.x|python\d+\.\d+|ruby\d+\.\d+|java\d+|dotnet\d+|dotnetcore\d+\.\d+|go\d+\.x|provided\.al\d+|provided)\b/gi;
-const CDK_RE = /Runtime\.(NODEJS|PYTHON|RUBY|JAVA|DOTNET|GO)_(\d+)(?:_(\d+))?(?:_X)?/gi;
+const RT_VALUE_RE = /^(nodejs\d+\.x|python\d+\.\d+|ruby\d+\.\d+|java\d+|dotnet\d+|dotnetcore\d+\.\d+|go\d+\.x|provided\.al\d+|provided)\b/i;
+const CDK_VALUE_RE = /Runtime\.(NODEJS|PYTHON|RUBY|JAVA|DOTNET|GO)_(\d+)(?:_(\d+))?(?:_X)?/i;
 function cdkId(l, a, b) { l = l.toLowerCase(); if (l === 'nodejs') return 'nodejs' + a + '.x'; if (l === 'python') return 'python' + a + '.' + (b || '0'); if (l === 'ruby') return 'ruby' + a + '.' + (b || '0'); return l + a; }
 function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 function classify(name) {
@@ -47,10 +47,141 @@ function vtuple(v) { return (v || '').replace(/^[^\d]*/, '').split(/[.\-+]/).map
 function vlt(a, b) { const A = vtuple(a), B = vtuple(b); for (let i = 0; i < Math.max(A.length, B.length); i++) { const x = A[i] || 0, y = B[i] || 0; if (x < y) return true; if (x > y) return false; } return false; }
 function cleanV(v) { return v ? v.replace(/^[\^~>=<\s]+/, '') : null; }
 function extractMin(spec) { if (!spec) return null; for (const op of ['==', '>=']) { for (let part of spec.split(',')) { part = part.trim(); if (part.indexOf(op) === 0) return part.slice(op.length).trim(); } } return null; }
+function runtimeId(value) {
+  const cleaned = String(value || '').trim().replace(/^['"]/, '');
+  const m = cleaned.match(RT_VALUE_RE);
+  return m ? m[1].toLowerCase() : null;
+}
+function configRecords(c) {
+  const records = [], stack = [], lines = c.split(/\r?\n/); let documentId = 0;
+  const keyRe = /^([ \t]*)(["']?)([A-Za-z0-9_.-]+)\2\s*:\s*(.*)$/;
+  for (let i = 0; i < lines.length; i++) {
+    if (/^[ \t]*(?:---|\.\.\.)[ \t]*(?:#.*)?$/.test(lines[i])) { stack.length = 0; documentId++; continue; }
+    const m = lines[i].match(keyRe); if (!m) continue;
+    const indent = m[1].replace(/\t/g, '        ').length;
+    while (stack.length && stack[stack.length - 1][0] >= indent) stack.pop();
+    const key = m[3].toLowerCase();
+    const raw = m[4].replace(/\s+#.*$/, '').trim().replace(/,$/, '').trim();
+    let value = raw;
+    if (value.length >= 2 && ((value[0] === '"' && value[value.length - 1] === '"') || (value[0] === "'" && value[value.length - 1] === "'"))) value = value.slice(1, -1);
+    const path = stack.slice(-8).map((item) => item[1]).concat([key]);
+    records.push({ documentId, line: i + 1, key, value, path });
+    if (raw === '' || raw === '{') stack.push([indent, key]);
+  }
+  return records;
+}
+function samePath(left, right) { return left.length === right.length && left.every((value, index) => value === right[index]); }
+function samDocuments(c) {
+  const documents = new Set(); let documentId = 0, pendingIndent = null;
+  for (const line of c.split(/\r?\n/)) {
+    if (/^[ \t]*(?:---|\.\.\.)[ \t]*(?:#.*)?$/.test(line)) { documentId++; pendingIndent = null; continue; }
+    const transform = line.match(/^([ \t]*)["']?Transform["']?\s*:\s*(.*)$/i);
+    if (transform) {
+      const value = transform[2].replace(/\s+#.*$/, '').trim();
+      if (/AWS::Serverless-/i.test(value)) documents.add(documentId);
+      pendingIndent = value ? null : transform[1].replace(/\t/g, '        ').length;
+      continue;
+    }
+    if (pendingIndent === null || !line.trim()) continue;
+    const indent = (line.match(/^[ \t]*/) || [''])[0].replace(/\t/g, '        ').length;
+    if (indent <= pendingIndent) pendingIndent = null;
+    else if (/^[ \t]*-[ \t]*["']?AWS::Serverless-/i.test(line)) { documents.add(documentId); pendingIndent = null; }
+  }
+  return documents;
+}
+function yamlLambdaRuntimes(c, found) {
+  const records = configRecords(c), resources = new Set(), providers = new Set(), sam = samDocuments(c);
+  for (const r of records) {
+    if (r.key === 'type' && /^(AWS::Lambda::Function|AWS::Serverless::Function)$/i.test(r.value) && r.path.includes('resources')) resources.add(r.documentId + '\u0000' + r.path.slice(0, -1).join('\u0000'));
+    if (samePath(r.path, ['provider', 'name']) && r.value.toLowerCase() === 'aws') providers.add(r.documentId);
+  }
+  for (const r of records) {
+    if (r.key !== 'runtime') continue;
+    const resourceRuntime = r.path.length >= 3 && samePath(r.path.slice(-2), ['properties', 'runtime']) && resources.has(r.documentId + '\u0000' + r.path.slice(0, -2).join('\u0000'));
+    const samGlobal = sam.has(r.documentId) && samePath(r.path, ['globals', 'function', 'runtime']);
+    const serverless = providers.has(r.documentId) && (samePath(r.path, ['provider', 'runtime']) || (r.path.length === 3 && r.path[0] === 'functions' && r.path[2] === 'runtime'));
+    if (resourceRuntime || samGlobal || serverless) { const id = runtimeId(r.value); if (id) found.add(id); }
+  }
+}
+function jsonLambdaRuntimes(c, found) {
+  const stripped = c.trim(); if (stripped.includes('\n') || stripped.length > 1048576 || stripped[0] !== '{') return;
+  let document; try { document = JSON.parse(stripped); } catch (e) { return; }
+  if (!document || Array.isArray(document) || typeof document !== 'object') return;
+  const resources = document.Resources;
+  if (resources && typeof resources === 'object' && !Array.isArray(resources)) for (const key in resources) {
+    const resource = resources[key], type = resource && resource.Type, properties = resource && resource.Properties;
+    if (!/^AWS::(?:Lambda|Serverless)::Function$/i.test(String(type || '')) || !properties || typeof properties !== 'object') continue;
+    const id = runtimeId(properties.Runtime); if (id) found.add(id);
+  }
+  const transforms = Array.isArray(document.Transform) ? document.Transform : [document.Transform];
+  const globals = document.Globals && document.Globals.Function;
+  if (transforms.some((item) => typeof item === 'string' && item.toLowerCase().startsWith('aws::serverless-')) && globals && typeof globals === 'object') {
+    const id = runtimeId(globals.Runtime); if (id) found.add(id);
+  }
+}
+function hclCodeLines(c) {
+  const output = []; let block = false, heredoc = null;
+  for (const original of c.split(/\r?\n/)) {
+    if (heredoc) { const candidate = heredoc[1] ? original.trim() : original; if (candidate === heredoc[0]) heredoc = null; output.push([original, ' '.repeat(original.length)]); continue; }
+    const visible = [...original]; let quote = null, escaped = false, i = 0;
+    while (i < original.length) {
+      const ch = original[i], pair = original.slice(i, i + 2);
+      if (block) { visible[i] = ' '; if (pair === '*/') { visible[i + 1] = ' '; block = false; i += 2; continue; } i++; continue; }
+      if (quote) { visible[i] = ' '; if (escaped) escaped = false; else if (ch === '\\') escaped = true; else if (ch === quote) quote = null; i++; continue; }
+      if (pair === '/*') { visible[i] = visible[i + 1] = ' '; block = true; i += 2; continue; }
+      if (pair === '//' || ch === '#') { for (let j = i; j < visible.length; j++) visible[j] = ' '; break; }
+      if (ch === '"' || ch === "'") { visible[i] = ' '; quote = ch; }
+      i++;
+    }
+    const code = visible.join(''), marker = code.match(/<<(-?)([A-Za-z_][A-Za-z0-9_]*)/);
+    if (marker) heredoc = [marker[2], marker[1] === '-'];
+    output.push([original, code]);
+  }
+  return output;
+}
+function terraformLambdaRuntimes(c, found) {
+  let inside = false, depth = 0, structuralEvents = 0;
+  const declaration = /\bresource\s+["']aws_lambda_function["']\s+["'][^"']+["']\s*\{/i;
+  for (const pair of hclCodeLines(c)) {
+    const original = pair[0], code = pair[1], declarationMatch = inside ? null : original.match(declaration);
+    const visibleResource = inside ? -1 : code.search(/\bresource\s+/i);
+    const resource = declarationMatch && declarationMatch.index === visibleResource ? declarationMatch : null;
+    if (resource) { inside = true; depth = 0; }
+    if (!inside) continue;
+    let position = resource ? resource.index : 0;
+    while (position < code.length) {
+      const character = code[position];
+      if (character === '{') { depth++; structuralEvents++; }
+      else if (character === '}') { depth--; structuralEvents++; }
+      else if (depth === 1 && code.slice(position, position + 7).toLowerCase() === 'runtime') {
+        const key = code.slice(position).match(/^\bruntime\b\s*=/i);
+        if (!key) { position++; continue; }
+        const runtime = original.slice(position).match(/^\bruntime\b\s*=\s*["']?([^"'\s}]+)/i), id = runtime && runtimeId(runtime[1]);
+        if (id) found.add(id); position += key[0].length; structuralEvents++;
+        if (structuralEvents > 100000) return;
+        continue;
+      }
+      if (structuralEvents > 100000) return;
+      if (depth <= 0 && character === '}') { inside = false; break; }
+      position++;
+    }
+  }
+}
+function explicitLambdaRuntimes(c, found) {
+  const importedRuntime = /(?:aws-cdk-lib|@aws-cdk)\/aws-lambda|from\s+aws_cdk\.aws_lambda\s+import[^\n]*\bRuntime\b|software\.amazon\.awscdk\.services\.lambda\.Runtime|Amazon\.CDK\.AWS\.Lambda/i.test(c);
+  for (const line of c.split(/\r?\n/)) {
+    const cli = line.match(/\baws\s+lambda\b[^\n]*--runtime(?:\s+|=)["']?([^"'\s]+)/i); const cliId = cli && runtimeId(cli[1]); if (cliId) found.add(cliId);
+    const qualified = line.match(/\bruntime\b\s*[:=(]\s*(?:aws_)?_?lambda\.(Runtime\.[A-Z0-9_]+)/i);
+    const imported = importedRuntime && line.match(/\bruntime\b\s*[:=(]\s*(Runtime\.[A-Z0-9_]+)/i);
+    const cdk = qualified || imported; const match = cdk && cdk[1].match(CDK_VALUE_RE); const id = match && cdkId(match[1], match[2], match[3]); if (id) found.add(id);
+  }
+}
 function scanIaC(file, c) {
-  const f = new Set(), out = []; let m;
-  RT_RE.lastIndex = 0; while ((m = RT_RE.exec(c))) f.add(m[1].toLowerCase());
-  CDK_RE.lastIndex = 0; while ((m = CDK_RE.exec(c))) { const id = cdkId(m[1], m[2], m[3]); if (id) f.add(id); }
+  const f = new Set(), out = [];
+  yamlLambdaRuntimes(c, f);
+  jsonLambdaRuntimes(c, f);
+  terraformLambdaRuntimes(c, f);
+  explicitLambdaRuntimes(c, f);
   f.forEach((rt) => {
     const d = DATA.runtimes[rt];
     if (d) out.push({ kind: 'runtime', file, name: rt, severity: d.historical ? 'critical' : (d.severity || 'high'), date: d.date, kit: d.kit, historical: d.historical, note: d.historical ? 'Past a published milestone; recheck the linked provider status and enforcement dates.' : 'Runtime with an AWS-published deprecation and create/update restriction timeline.' });

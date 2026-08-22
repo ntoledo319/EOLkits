@@ -5,6 +5,13 @@ description: crypto.createCipher and crypto.createDecipher were removed in Node.
 tags: aws, lambda, node, javascript
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 If you bumped a Lambda function to `nodejs22.x` and your handler now dies on the first crypto call, this is the wall:
 
 ```

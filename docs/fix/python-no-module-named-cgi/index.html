@@ -29,11 +29,11 @@
 <p>cgi was deprecated in 3.11 and removed in 3.13. Code or a dependency still imports it — commonly for parse_qs or multipart parsing — and breaks after moving to a python3.13 runtime.</p>
 <h2>How to fix it</h2>
 <ol class="fix-steps"><li>Replace `cgi.parse_qs` with `urllib.parse.parse_qs`.</li><li>Replace `cgi.escape` with `html.escape`.</li><li>For multipart/form-data, use a maintained parser (e.g. `multipart`, `werkzeug`, or your web framework&#x27;s).</li><li>Upgrade dependencies that still import cgi, then re-test on Python 3.13.</li></ol>
-<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-python-3.11-eol/">Lambda Python 3.11 EOL</a> — <strong>2027-07-31</strong>.</p>
+<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-python-3.11-eol/">Lambda Python 3.11 projected create/update restrictions</a> — <strong>2027-07-31</strong>.</p>
 <h2>Check configured patterns in your project</h2>
-<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags selected related patterns in supported IaC and dependency files. It is not a complete source or AWS-account scan.</p>
-<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
+<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>
+<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
 <p>Primary source: <a href="https://docs.python.org/3/whatsnew/3.13.html" target="_blank" rel="noopener nofollow">https://docs.python.org/3/whatsnew/3.13.html</a></p>
-<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=python-no-module-named-cgi&deadline=2027-07-31&kit=python-pivot">Get repository evidence — $299, exact file/line matches &rarr;</a></p>
+<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=python-no-module-named-cgi&deadline=2027-07-31&kit=python-pivot">Inspect the $299 report sample and availability &rarr;</a></p>
 </body>
 </html>
