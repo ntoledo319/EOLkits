@@ -1,0 +1,157 @@
+name: Submit changed Pages URLs to IndexNow
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/submit-indexnow.yml'
+      - 'docs/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: submit-indexnow
+  cancel-in-progress: true
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+
+      - name: Submit added, updated, or deleted HTML URLs
+        shell: bash
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          INDEXNOW_ENDPOINT: https://api.indexnow.org/indexnow
+          SITE_BASE: https://ntoledo319.github.io/EOLkits
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          key_file=''
+          for candidate in docs/*.txt; do
+            name="${candidate#docs/}"
+            key="${name%.txt}"
+            if [[ "$name" != "$key" ]] \
+              && [[ "$key" =~ ^[A-Za-z0-9-]{8,128}$ ]] \
+              && [[ "$(tr -d '\r\n' < "$candidate")" == "$key" ]]; then
+              if [[ -n "$key_file" ]]; then
+                echo '::error::Multiple IndexNow ownership-key files found'
+                exit 1
+              fi
+              key_file="$candidate"
+            fi
+          done
+          if [[ -z "$key_file" ]]; then
+            echo '::error::No valid IndexNow ownership-key file found'
+            exit 1
+          fi
+
+          key="$(tr -d '\r\n' < "$key_file")"
+          key_location="$SITE_BASE/$key.txt"
+          public_key="$(curl --fail --silent --show-error --max-time 20 "$key_location")"
+          if [[ "$public_key" != "$key" ]]; then
+            echo '::error::The public IndexNow key does not match the release artifact'
+            exit 1
+          fi
+
+          url_file="$RUNNER_TEMP/indexnow-urls.txt"
+          response_file="$RUNNER_TEMP/indexnow-response.txt"
+          payload_file="$RUNNER_TEMP/indexnow-payload.json"
+          : > "$url_file"
+          mode='changed HTML paths'
+
+          path_to_url() {
+            local path="$1"
+            local relative
+            case "$path" in
+              docs/index.html)
+                printf '%s/\n' "$SITE_BASE"
+                ;;
+              docs/*/index.html)
+                relative="${path#docs/}"
+                relative="${relative%index.html}"
+                printf '%s/%s\n' "$SITE_BASE" "$relative"
+                ;;
+              docs/*.html)
+                relative="${path#docs/}"
+                printf '%s/%s\n' "$SITE_BASE" "$relative"
+                ;;
+            esac
+          }
+
+          zero_sha='0000000000000000000000000000000000000000'
+          if [[ "$GITHUB_EVENT_NAME" == 'push' \
+            && "$BEFORE_SHA" =~ ^[0-9a-f]{40}$ \
+            && "$BEFORE_SHA" != "$zero_sha" ]] \
+            && git cat-file -e "$BEFORE_SHA^{commit}" 2>/dev/null; then
+            while IFS= read -r -d '' changed_path; do
+              path_to_url "$changed_path" >> "$url_file"
+            done < <(
+              git diff --name-only -z --diff-filter=ACDMRT \
+                "$BEFORE_SHA" "$GITHUB_SHA" -- docs
+            )
+          fi
+
+          if [[ ! -s "$url_file" ]]; then
+            mode='current sitemap fallback'
+            grep -oE '<loc>[^<]+</loc>' docs/sitemap.xml \
+              | sed -e 's#<loc>##' -e 's#</loc>##' > "$url_file"
+          fi
+
+          sort -u "$url_file" -o "$url_file"
+          url_count="$(wc -l < "$url_file")"
+          if (( url_count < 1 || url_count > 10000 )); then
+            echo "::error::IndexNow URL count is outside the 1..10000 protocol bound: $url_count"
+            exit 1
+          fi
+          while IFS= read -r url; do
+            if [[ "$url" != "$SITE_BASE/"* ]] || [[ "$url" =~ [[:space:]] ]]; then
+              echo "::error::Out-of-scope or malformed IndexNow URL: $url"
+              exit 1
+            fi
+          done < "$url_file"
+
+          url_list="$(jq -R . < "$url_file" | jq -s .)"
+          jq -n \
+            --arg host 'ntoledo319.github.io' \
+            --arg key "$key" \
+            --arg keyLocation "$key_location" \
+            --argjson urlList "$url_list" \
+            '{host: $host, key: $key, keyLocation: $keyLocation, urlList: $urlList}' \
+            > "$payload_file"
+
+          if ! http_code="$(
+            curl --silent --show-error --max-time 30 \
+              --output "$response_file" \
+              --write-out '%{http_code}' \
+              --header 'Content-Type: application/json; charset=utf-8' \
+              --data-binary "@$payload_file" \
+              "$INDEXNOW_ENDPOINT"
+          )"; then
+            echo '::error::IndexNow request failed before an HTTP response was received'
+            exit 1
+          fi
+          case "$http_code" in
+            200|202) ;;
+            *)
+              echo "::error::IndexNow rejected the bounded submission with HTTP $http_code"
+              exit 1
+              ;;
+          esac
+
+          {
+            echo '## IndexNow submission'
+            echo
+            echo "- URLs submitted: **$url_count**"
+            echo "- Selection: **$mode**"
+            echo "- Endpoint response: **HTTP $http_code**"
+            echo
+            echo 'HTTP 200/202 proves receipt only; it does not prove crawling, indexing, ranking, traffic, or revenue.'
+          } >> "$GITHUB_STEP_SUMMARY"

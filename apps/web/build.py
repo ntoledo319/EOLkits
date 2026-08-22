@@ -35,9 +35,9 @@ PROJECT_BASE_PATH = os.environ.get("EOLKITS_BASE_PATH", "")
 SITE_URL = os.environ.get("EOLKITS_SITE_URL", "https://eolkits.com")
 API_URL = os.environ.get("EOLKITS_API_URL", "https://eolkits.com")
 AUDIT_INTEREST_URL = "https://github.com/ntoledo319/EOLkits/issues/new?template=audit-interest.yml"
-# IndexNow key (Bing/Yandex + AI engines that consume it — instant indexing of new
-# pages). Stable + committed so the hosted key file at /<key>.txt always matches what
-# we submit to api.indexnow.org; rotating it would break verification.
+# IndexNow ownership key for notifying participating search engines about changed
+# URLs. Stable + committed so the hosted key file at /<key>.txt always matches the
+# bounded submission workflow; receipt never implies crawling or indexing.
 INDEXNOW_KEY = "0c7a25ebf8815c561ded8ab9a156dfb5"
 
 

@@ -70,6 +70,25 @@ def test_sitemap_locations_use_the_canonical_host() -> None:
     assert all(location and location.startswith(f"{build.SITE_URL}/") for location in locations)
 
 
+def test_indexnow_key_verifies_the_entire_sitemap_scope() -> None:
+    candidates = [
+        path
+        for path in DOCS.glob("*.txt")
+        if re.fullmatch(r"[A-Za-z0-9-]{8,128}", path.stem)
+        and path.read_text(encoding="utf-8").strip() == path.stem
+    ]
+    assert len(candidates) == 1
+
+    root = ElementTree.parse(DOCS / "sitemap.xml").getroot()
+    locations = [
+        element.text for element in root.iter("{http://www.sitemaps.org/schemas/sitemap/0.9}loc")
+    ]
+    key_location = f"{build.SITE_URL}/{candidates[0].name}"
+    assert key_location.startswith(f"{build.SITE_URL}/")
+    assert locations
+    assert all(location and location.startswith(f"{build.SITE_URL}/") for location in locations)
+
+
 def test_project_pages_links_receive_the_repository_prefix(monkeypatch) -> None:
     monkeypatch.setattr(build, "PROJECT_BASE_PATH", "/EOLkits")
     monkeypatch.setattr(build, "API_URL", "https://eolkits.com")
