@@ -18,6 +18,9 @@ jobs:
   python-mutmut:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    env:
+      TMPDIR: ${{ github.workspace }}/tmp/runtime-tmp
+      PIP_CACHE_DIR: ${{ github.workspace }}/tmp/pip-cache
     strategy:
       fail-fast: false
       matrix:
@@ -32,14 +35,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd kits/${{ matrix.kit }}
-          pip install -e ".[dev]"
-          pip install 'mutmut>=3.0,<4'
+          mkdir -p "$TMPDIR" "$PIP_CACHE_DIR"
+          python -m venv "$GITHUB_WORKSPACE/tmp/mutation-venv"
+          venv="$GITHUB_WORKSPACE/tmp/mutation-venv"
+          "$venv/bin/pip" install -e "kits/${{ matrix.kit }}[dev]" 'mutmut>=3.0,<4'
 
       - name: Verify baseline tests pass
         run: |
           cd kits/${{ matrix.kit }}
-          python -m pytest -q --no-header
+          "$GITHUB_WORKSPACE/tmp/mutation-venv/bin/python" -m pytest -q --no-header
 
       - name: Run mutation tests
         id: mutmut
@@ -48,8 +52,8 @@ jobs:
           cd kits/${{ matrix.kit }}
           # mutmut returns non-zero whenever any mutant survives; that's
           # expected output, not a failure of the run itself.
-          mutmut run || true
-          mutmut results > mutation_report.txt 2>&1 || true
+          "$GITHUB_WORKSPACE/tmp/mutation-venv/bin/mutmut" run || true
+          "$GITHUB_WORKSPACE/tmp/mutation-venv/bin/mutmut" results > mutation_report.txt 2>&1 || true
           echo "----- report start -----"
           cat mutation_report.txt
           echo "----- report end -----"

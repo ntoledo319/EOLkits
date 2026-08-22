@@ -3,9 +3,7 @@
 from argparse import Namespace
 from pathlib import Path
 
-
 from al2023_gate import ansible
-
 
 FIXTURE = Path(__file__).parent / "fixtures" / "playbook.yml"
 

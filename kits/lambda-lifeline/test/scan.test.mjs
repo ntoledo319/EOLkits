@@ -15,8 +15,8 @@ function run(args) {
 test('scan --fixture prints a summary with at-risk counts', () => {
   const r = run(['scan', '--fixture', FIXTURE]);
   assert.equal(r.status, 0, r.stderr || r.stdout);
-  assert.match(r.stdout, /Scanned 6 functions/);
-  assert.match(r.stdout, /5 at risk/);   // 3 Node EOL + python 3.10 + ruby 3.2
+  assert.match(r.stdout, /Scanned 7 functions/);
+  assert.match(r.stdout, /6 at risk/);   // 3 Node past deprecation + Node 22 upcoming + Python 3.10 + Ruby 3.2
   assert.match(r.stdout, /nodejs20\.x/);
   assert.match(r.stdout, /nodejs18\.x/);
   assert.match(r.stdout, /nodejs16\.x/);
@@ -26,13 +26,21 @@ test('scan --fixture --json emits well-formed JSON', () => {
   const r = run(['scan', '--fixture', FIXTURE, '--json']);
   assert.equal(r.status, 0, r.stderr);
   const data = JSON.parse(r.stdout);
-  assert.equal(data.length, 6);
+  assert.equal(data.length, 7);
   const eol = data.filter(d => d.eol);
-  assert.equal(eol.length, 5);
+  assert.equal(eol.length, 6);
   const orders = data.find(d => d.function_name === 'api-orders-ingest');
   assert.equal(orders.runtime, 'nodejs20.x');
-  assert.equal(orders.recommended_target, 'nodejs22.x');
-  assert.ok(orders.days_until_block_update > 100); // Sep 30 2026 > 100 days from scan date
+  assert.equal(orders.recommended_target, 'nodejs24.x');
+  // Well-formed JSON check: the countdown field must be a finite number, not a magic
+  // magnitude (block_update = 2027-03-03, so a hardcoded threshold silently rots as time passes).
+  assert.equal(typeof orders.days_until_block_update, 'number');
+  assert.ok(Number.isFinite(orders.days_until_block_update));
+  const current = data.find(d => d.function_name === 'events-api-current');
+  assert.equal(current.runtime, 'nodejs22.x');
+  assert.equal(current.recommended_target, 'nodejs24.x');
+  assert.equal(current.deprecation_dates.phase1, '2027-04-30');
+  assert.equal(current.severity, 'medium');
 });
 
 test('scan --fixture --format csv emits CSV header', () => {

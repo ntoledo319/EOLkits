@@ -4,55 +4,5 @@ account_id = "19a8d5aafc1d8e775d523704ed558175"
 compatibility_date = "2024-04-01"
 compatibility_flags = ["nodejs_compat"]
 
-# Free tier configuration
-# See pricing.yml for cap tracking
-
-[[kv_namespaces]]
-binding = "IDEMPOTENCY"
-id = "640b434aaaa848908392cf4dbfe9b26c"
-
-[[kv_namespaces]]
-binding = "RATE_LIMITS"
-id = "a9421b31a1244bddbb2e75a0bde103b3"
-
-[[kv_namespaces]]
-binding = "DAILY_CAPS"
-id = "db472b0d7c2f4cdfbc8006732b9475fa"
-
-[[r2_buckets]]
-binding = "UPLOADS"
-bucket_name = "eolkits-uploads"
-
-[[queues.producers]]
-binding = "JOBS"
-queue = "eolkits-jobs"
-
-[[queues.consumers]]
-queue = "eolkits-jobs"
-max_batch_size = 1
-max_batch_timeout = 30
-max_retries = 3
-dead_letter_queue = "eolkits-jobs-dlq"
-
-[[queues.producers]]
-binding = "JOBS_DLQ"
-queue = "eolkits-jobs-dlq"
-
-# AI binding for support bot
-[ai]
-binding = "AI"
-
 [vars]
-ENVIRONMENT = "production"
-STRIPE_WEBHOOK_PATH = "/webhook/stripe"
-GITHUB_WEBHOOK_PATH = "/webhook/github"
-
-# Secrets (set via wrangler secret put)
-# STRIPE_KEY = "sk_test_..." or "sk_live_..."
-# STRIPE_WEBHOOK_SECRET = "whsec_..."
-# RESEND_API_KEY = "re_..."
-# GITHUB_APP_PRIVATE_KEY = "-----BEGIN RSA PRIVATE KEY-----..."
-# GITHUB_APP_ID = "123456"
-# GITHUB_WEBHOOK_SECRET = "..."
-# RUNNER_URL = "https://your-runner.example.com/job"
-# RUNNER_TOKEN = "shared bearer token for worker -> runner dispatch"
+ENVIRONMENT = "retired"

@@ -1,6 +1,6 @@
 # Rollback Playbook
 
-When a Node 22 deployment misbehaves in production, these are the procedures in priority order. Every procedure is non-destructive — your existing Lambda versions are immutable, so every rollback is an alias pointer change that takes effect in ~1 second.
+When a Node 24 deployment misbehaves in production, these are the procedures in priority order. Published Lambda versions are immutable, so an alias can be pointed back to an existing version without publishing another code version. Treat the AWS API response and your own health checks as the source of truth for when the rollback has propagated.
 
 ## 0. Know which alias you deployed to
 
@@ -55,7 +55,7 @@ If you ran the migration on dozens of functions, and need to revert all of them:
 
 ```bash
 # Scan what you migrated
-aws lambda list-functions --query "Functions[?Runtime=='nodejs22.x'].FunctionName" --output text | \
+aws lambda list-functions --query "Functions[?Runtime=='nodejs24.x'].FunctionName" --output text | \
   tr '\t' '\n' | while read fn; do
     lambda-lifeline rollback --function "$fn" --apply
   done
@@ -75,7 +75,7 @@ Aliases can't cross a runtime boundary if the old version doesn't exist. If you 
    ```
 2. Point alias at new published version.
 
-**Note:** After **August 31, 2026** you cannot create functions on `nodejs20.x` at all, and after **September 30, 2026** you cannot update them. Rollbacks to EOL runtimes become impossible past these dates — this is why version pinning + alias-based deploys matter.
+**Note:** After **February 1, 2027** you cannot create functions on `nodejs20.x` at all, and after **March 3, 2027** you cannot update them (AWS delayed both block dates into the synchronized Q1-2027 cluster; security patches for `nodejs20.x` already stopped Apr 30, 2026). Rollbacks to EOL runtimes become impossible past these dates — this is why version pinning + alias-based deploys matter.
 
 ## 5. Dependency rollback
 

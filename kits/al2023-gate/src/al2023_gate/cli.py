@@ -6,15 +6,13 @@ import argparse
 import os
 import sys
 
-from . import __version__
-from . import util
-from . import scan as scan_mod
-from . import remap as remap_mod
-from . import packer as packer_mod
-from . import cloudinit as cloudinit_mod
+from . import __version__, util
 from . import ansible as ansible_mod
+from . import cloudinit as cloudinit_mod
+from . import packer as packer_mod
+from . import remap as remap_mod
 from . import runbook as runbook_mod
-
+from . import scan as scan_mod
 
 BANNER = r"""
     _    _     ____   ___ ____ _____         ____    _  _____ _____
@@ -39,19 +37,13 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="cmd", required=True, metavar="COMMAND")
 
     # scan — matches scan.run(args): args.fixture, args.regions, args.profile, args.format, args.out, args.strict
-    s = sub.add_parser(
-        "scan", help="Scan AWS for AL2-based compute (EC2, LT, EKS, ECS, Beanstalk)"
-    )
+    s = sub.add_parser("scan", help="Scan AWS for AL2-based compute (EC2, LT, EKS, ECS, Beanstalk)")
     s.add_argument("--profile", help="AWS profile name")
     s.add_argument("--regions", help="Comma-separated AWS regions (default: us-east-1)")
     s.add_argument("--fixture", help="Path to JSON fixture for offline/demo mode")
-    s.add_argument(
-        "--format", choices=["table", "json", "csv", "md", "markdown"], default="table"
-    )
+    s.add_argument("--format", choices=["table", "json", "csv", "md", "markdown"], default="table")
     s.add_argument("--out", help="Write output to file instead of stdout")
-    s.add_argument(
-        "--strict", action="store_true", help="Exit 1 if AL2 resources found"
-    )
+    s.add_argument("--strict", action="store_true", help="Exit 1 if AL2 resources found")
     s.set_defaults(func=scan_mod.run)
 
     # remap
@@ -65,17 +57,11 @@ def build_parser() -> argparse.ArgumentParser:
     pk = sub.add_parser("packer", help="Generate Packer HCL template for AL2023 AMI")
     pk.add_argument("--packages", help="File with package list (one per line)")
     pk.add_argument("--from-list", help="Comma-separated inline package list")
-    pk.add_argument(
-        "--out", default="./build", help="Output directory for .pkr.hcl + report"
-    )
+    pk.add_argument("--out", default="./build", help="Output directory for .pkr.hcl + report")
     pk.add_argument("--region", default="us-east-1", help="Build region")
-    pk.add_argument(
-        "--instance-type", default="t3.small", help="Packer build instance type"
-    )
+    pk.add_argument("--instance-type", default="t3.small", help="Packer build instance type")
     pk.add_argument("--name", default="al2023-migration", help="AMI name prefix")
-    pk.add_argument(
-        "--arch", default="x86_64", choices=["x86_64", "arm64"], help="Architecture"
-    )
+    pk.add_argument("--arch", default="x86_64", choices=["x86_64", "arm64"], help="Architecture")
     pk.set_defaults(func=packer_mod.run)
 
     # cloudinit — matches cloudinit.run(args): args.paths (list)
@@ -91,25 +77,19 @@ def build_parser() -> argparse.ArgumentParser:
         "ansible", help="Patch Ansible playbooks (yum→dnf, python2→3, extras removal)"
     )
     an.add_argument("path", help="Playbook file or directory")
-    an.add_argument(
-        "--apply", action="store_true", help="Write changes (default dry-run)"
-    )
+    an.add_argument("--apply", action="store_true", help="Write changes (default dry-run)")
     an.add_argument("--strict", action="store_true", help="Exit 1 on findings")
     an.set_defaults(func=ansible_mod.run)
 
     # runbook — matches runbook.run(args): args.kind, args.name, args.region, args.cluster, args.out
-    rb = sub.add_parser(
-        "runbook", help="Generate migration runbook for ASG/EKS/ECS/Beanstalk"
-    )
+    rb = sub.add_parser("runbook", help="Generate migration runbook for ASG/EKS/ECS/Beanstalk")
     rb.add_argument(
         "--kind",
         required=True,
         choices=["asg", "eks", "ecs", "beanstalk"],
         help="Resource type",
     )
-    rb.add_argument(
-        "--name", help="Resource name (ASG / node group / task family / env)"
-    )
+    rb.add_argument("--name", help="Resource name (ASG / node group / task family / env)")
     rb.add_argument("--region", default="us-east-1", help="AWS region")
     rb.add_argument("--cluster", help="Cluster name (for EKS/ECS)")
     rb.add_argument("--out", help="Output path (default: stdout)")
@@ -142,14 +122,14 @@ def main(argv=None) -> int:
         return 130
     except FileNotFoundError as e:
         util.err(str(e))
-        return 1
+        return 2
     except Exception as e:  # noqa: BLE001
         util.err(f"fatal: {e}")
         if os.environ.get("AL2023_GATE_DEBUG"):
             import traceback
 
             traceback.print_exc()
-        return 1
+        return 2
 
 
 if __name__ == "__main__":

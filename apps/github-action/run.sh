@@ -5,7 +5,7 @@ set -uo pipefail
 
 KIT="${INPUT_KIT:-auto}"
 PATH_INPUT="${INPUT_PATH:-.}"
-FAIL_ON="${INPUT_FAIL_ON:-high}"
+FAIL_ON="${INPUT_FAIL_ON:-any}"
 
 ACTION_DIR="${GITHUB_ACTION_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 if [[ -d "$ACTION_DIR/kits" ]]; then
@@ -19,18 +19,37 @@ fi
 
 WORKSPACE="${GITHUB_WORKSPACE:-$PWD}"
 if [[ "$PATH_INPUT" = /* ]]; then
-  TARGET="$PATH_INPUT"
+  TARGET_CANDIDATE="$PATH_INPUT"
 else
-  TARGET="$WORKSPACE/$PATH_INPUT"
+  TARGET_CANDIDATE="$WORKSPACE/$PATH_INPUT"
 fi
 
-REPORT_DIR="${RUNNER_TEMP:-$PWD}"
-RAW_REPORT="$REPORT_DIR/rupture-action-raw.txt"
-REPORT="$REPORT_DIR/rupture-action-report.md"
-: > "$RAW_REPORT"
+WORKSPACE_REAL="$(realpath -e "$WORKSPACE")" || {
+  echo "::error::GitHub workspace does not exist: $WORKSPACE"
+  exit 1
+}
+TARGET="$(realpath -e "$TARGET_CANDIDATE")" || {
+  echo "::error::Scan path does not exist: $PATH_INPUT"
+  exit 1
+}
+case "$TARGET" in
+  "$WORKSPACE_REAL"|"$WORKSPACE_REAL"/*) ;;
+  *)
+    echo "::error::Scan path must stay inside GITHUB_WORKSPACE: $PATH_INPUT"
+    exit 1
+    ;;
+esac
 
-ANY_FAILED=false
+REPORT_DIR="$WORKSPACE_REAL/tmp/eolkits-action"
+mkdir -p "$REPORT_DIR"
+RAW_REPORT="$REPORT_DIR/eolkits-action-raw.txt"
+REPORT="$REPORT_DIR/eolkits-action-report.md"
+: > "$RAW_REPORT"
+PYTHON_BIN="python"
+
 HAS_FINDINGS=false
+TOOL_ERROR=false
+CONFIG_ERROR=false
 
 append_note() {
   printf "\n## %s\n\n%s\n" "$1" "$2" >> "$RAW_REPORT"
@@ -51,20 +70,30 @@ run_check() {
   echo "::endgroup::"
   printf "\n\`\`\`\n" >> "$RAW_REPORT"
 
-  if [[ "$rc" -ne 0 ]]; then
-    ANY_FAILED=true
+  if [[ "$rc" -eq 1 ]]; then
     HAS_FINDINGS=true
-    echo "::warning::$title reported findings or failed with exit code $rc"
+    echo "::warning::$title reported findings"
+  elif [[ "$rc" -ne 0 ]]; then
+    TOOL_ERROR=true
+    echo "::error::$title failed to execute (exit code $rc)"
   fi
 }
 
-install_kits() {
-  echo "::group::Install EOLkits kits"
-  python -m pip install --quiet --disable-pip-version-check --no-warn-script-location \
-    "$RUPTURE_ROOT/kits/al2023-gate" "$RUPTURE_ROOT/kits/python-pivot" || {
-    echo "::error::Failed to install Python EOLkits kits."
+install_python_kits() {
+  local action_venv="$REPORT_DIR/venv"
+  python -m venv "$action_venv" || {
+    echo "::error::Failed to create the project-local EOLkits Python environment."
     exit 1
   }
+  PYTHON_BIN="$action_venv/bin/python"
+  "$PYTHON_BIN" -m pip install --quiet --disable-pip-version-check \
+    "$RUPTURE_ROOT/kits/al2023-gate" "$RUPTURE_ROOT/kits/python-pivot" || {
+      echo "::error::Failed to install Python EOLkits kits."
+      exit 1
+    }
+}
+
+install_node_kit() {
   if [[ -f "$RUPTURE_ROOT/kits/lambda-lifeline/package-lock.json" ]]; then
     (cd "$RUPTURE_ROOT/kits/lambda-lifeline" && npm ci --omit=dev --quiet) || {
       echo "::error::Failed to install lambda-lifeline dependencies."
@@ -76,6 +105,15 @@ install_kits() {
       exit 1
     }
   fi
+}
+
+install_kits() {
+  echo "::group::Install EOLkits kits"
+  case "$KIT" in
+    auto|all) install_python_kits; install_node_kit ;;
+    lambda-lifeline) install_node_kit ;;
+    python-pivot|al2023-gate) install_python_kits ;;
+  esac
   echo "::endgroup::"
 }
 
@@ -100,7 +138,7 @@ run_lambda() {
   local audited=false
   while IFS= read -r pkg; do
     audited=true
-    run_check "lambda-lifeline native dependency audit: ${pkg#$WORKSPACE/}" \
+    run_check "lambda-lifeline native dependency audit: ${pkg#"$WORKSPACE"/}" \
       node "$RUPTURE_ROOT/kits/lambda-lifeline/bin/cli.mjs" audit --path "$(dirname "$pkg")" --strict
   done < <(find_files "package.json" | head -n 20)
 
@@ -111,16 +149,16 @@ run_lambda() {
 
 run_python() {
   run_check "python-pivot Python 3.12 compatibility check" \
-    python -m python_pivot.cli codemod "$TARGET" --strict
+    "$PYTHON_BIN" -m python_pivot.cli codemod "$TARGET" --strict
 
   run_check "python-pivot IaC runtime check" \
-    python -m python_pivot.cli iac "$TARGET" --strict
+    "$PYTHON_BIN" -m python_pivot.cli iac "$TARGET" --strict
 
   local audited=false
   while IFS= read -r depfile; do
     audited=true
-    run_check "python-pivot native wheel audit: ${depfile#$WORKSPACE/}" \
-      python -m python_pivot.cli audit "$depfile" --strict
+    run_check "python-pivot native wheel audit: ${depfile#"$WORKSPACE"/}" \
+      "$PYTHON_BIN" -m python_pivot.cli audit "$depfile" --strict
   done < <(
     {
       find_files "requirements.txt"
@@ -136,57 +174,53 @@ run_python() {
 
 run_al2023() {
   run_check "al2023-gate Ansible AL2023 check" \
-    python -m al2023_gate.cli ansible "$TARGET" --strict
+    "$PYTHON_BIN" -m al2023_gate.cli ansible "$TARGET" --strict
 
   run_check "al2023-gate cloud-init AL2023 check" \
-    python -m al2023_gate.cli cloudinit "$TARGET" --strict
+    "$PYTHON_BIN" -m al2023_gate.cli cloudinit "$TARGET" --strict
 }
 
-install_kits
-
 case "$KIT" in
-  auto|all)
-    run_lambda
-    run_python
-    run_al2023
-    ;;
-  lambda-lifeline)
-    run_lambda
-    ;;
-  python-pivot)
-    run_python
-    ;;
-  al2023-gate)
-    run_al2023
-    ;;
+  auto|all|lambda-lifeline|python-pivot|al2023-gate) ;;
   *)
-    ANY_FAILED=true
-    HAS_FINDINGS=true
+    CONFIG_ERROR=true
     append_note "Invalid kit" "Unknown kit \`$KIT\`. Use \`auto\`, \`all\`, \`lambda-lifeline\`, \`al2023-gate\`, or \`python-pivot\`."
     ;;
 esac
 
-SHOULD_FAIL=false
 case "$FAIL_ON" in
-  none|off|false)
-    SHOULD_FAIL=false
-    ;;
-  critical)
-    if grep -qi "critical" "$RAW_REPORT"; then
-      SHOULD_FAIL=true
-    fi
-    ;;
-  low|medium|high)
-    SHOULD_FAIL="$ANY_FAILED"
-    ;;
+  any|none|off|false) ;;
   *)
-    SHOULD_FAIL=true
-    append_note "Invalid fail-on threshold" "Unknown fail-on threshold \`$FAIL_ON\`. Use \`low\`, \`medium\`, \`high\`, \`critical\`, or \`none\`."
+    CONFIG_ERROR=true
+    append_note "Invalid fail-on mode" "Unknown fail-on mode \`$FAIL_ON\`. Use \`any\` or \`none\`."
     ;;
 esac
 
+if [[ "$CONFIG_ERROR" = false ]]; then
+  install_kits
+  case "$KIT" in
+    auto|all)
+      run_lambda
+      run_python
+      run_al2023
+      ;;
+    lambda-lifeline) run_lambda ;;
+    python-pivot) run_python ;;
+    al2023-gate) run_al2023 ;;
+  esac
+fi
+
+SHOULD_FAIL=false
+if [[ "$CONFIG_ERROR" = true || "$TOOL_ERROR" = true ]]; then
+  SHOULD_FAIL=true
+elif [[ "$FAIL_ON" = "any" && "$HAS_FINDINGS" = true ]]; then
+  SHOULD_FAIL=true
+fi
+
 STATUS="passed"
-if [[ "$SHOULD_FAIL" = true ]]; then
+if [[ "$CONFIG_ERROR" = true || "$TOOL_ERROR" = true ]]; then
+  STATUS="failed to run"
+elif [[ "$SHOULD_FAIL" = true ]]; then
   STATUS="failed"
 elif [[ "$HAS_FINDINGS" = true ]]; then
   STATUS="completed with findings"
@@ -197,7 +231,7 @@ fi
   echo
   echo "- Kit: \`$KIT\`"
   echo "- Path: \`$PATH_INPUT\`"
-  echo "- Threshold: \`$FAIL_ON\`"
+  echo "- Fail mode: \`$FAIL_ON\`"
   echo "- Status: \`$STATUS\`"
   echo
   echo "<details>"
@@ -207,7 +241,7 @@ fi
   echo
   echo "</details>"
   echo
-  echo "[Get the full audit report](https://eolkits.com/audit/?utm_source=github_action&utm_medium=ci&utm_campaign=$KIT) · [Have it fixed: Migration Pack](https://eolkits.com/pack/?utm_source=github_action&utm_medium=ci&utm_campaign=$KIT)"
+  echo "[Get the repository evidence report](https://eolkits.com/audit/?utm_source=github_action&utm_medium=ci&utm_campaign=$KIT)"
 } > "$REPORT"
 
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
@@ -220,8 +254,10 @@ fi
   echo "has_findings=$HAS_FINDINGS"
 } >> "${GITHUB_OUTPUT:-/dev/null}"
 
-if [[ "$SHOULD_FAIL" = true ]]; then
-  echo "::warning::EOLkits found deprecation risks at or above the configured threshold."
+if [[ "$CONFIG_ERROR" = true || "$TOOL_ERROR" = true ]]; then
+  echo "::error::EOLkits could not complete every configured check."
+elif [[ "$SHOULD_FAIL" = true ]]; then
+  echo "::warning::EOLkits found one or more deprecation risks."
 else
-  echo "EOLkits check completed without failing the configured threshold."
+  echo "EOLkits check completed."
 fi

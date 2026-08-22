@@ -1,9 +1,9 @@
 """Shared utilities: coloring, logging."""
 
 from __future__ import annotations
+
 import os
 import sys
-
 
 _isatty = sys.stdout.isatty() and not os.environ.get("NO_COLOR")
 

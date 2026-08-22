@@ -1,6 +1,7 @@
 """Manual rollback: re-point a Lambda alias at its previous version."""
 
 from __future__ import annotations
+
 import argparse
 
 from . import util
@@ -14,9 +15,7 @@ def run(args: argparse.Namespace) -> int:
         return 2
 
     region = args.region or "us-east-1"
-    session = (
-        boto3.Session(profile_name=args.profile) if args.profile else boto3.Session()
-    )
+    session = boto3.Session(profile_name=args.profile) if args.profile else boto3.Session()
     lam = session.client("lambda", region_name=region)
 
     util.hdr(f"Rollback alias {args.alias} on {args.function}")
@@ -40,9 +39,7 @@ def run(args: argparse.Namespace) -> int:
                 versions.append(v["Version"])
     versions_sorted = sorted(set(versions), key=lambda x: int(x))
     if len(versions_sorted) < 2:
-        util.err(
-            f"Only {len(versions_sorted)} version(s) exist — nothing to roll back to."
-        )
+        util.err(f"Only {len(versions_sorted)} version(s) exist — nothing to roll back to.")
         return 1
 
     try:

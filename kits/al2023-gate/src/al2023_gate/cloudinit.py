@@ -7,11 +7,13 @@ blind rewrites. Instead emits an actionable list of locations and suggested edit
 """
 
 from __future__ import annotations
+
 import argparse
 import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Pattern
+
 from . import util
 
 
@@ -120,11 +122,7 @@ def scan_text(text: str) -> List[dict]:
         for m in rule.pattern.finditer(text):
             before = text[: m.start()]
             line_num = before.count("\n") + 1
-            line = (
-                text.splitlines()[line_num - 1]
-                if line_num - 1 < len(text.splitlines())
-                else ""
-            )
+            line = text.splitlines()[line_num - 1] if line_num - 1 < len(text.splitlines()) else ""
             findings.append(
                 {
                     "rule": rule.name,

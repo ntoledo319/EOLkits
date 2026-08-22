@@ -1,0 +1,7 @@
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  LegacyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: nodejs20.x
+      Handler: index.handler

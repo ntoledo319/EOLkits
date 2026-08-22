@@ -4,7 +4,6 @@ import json
 from argparse import Namespace
 from pathlib import Path
 
-
 from python_pivot import audit
 
 FIXTURE = Path(__file__).parent / "fixtures" / "requirements.txt"
@@ -29,12 +28,12 @@ def test_detects_outdated_numpy():
     assert numpy_finding["severity"] == "high"
 
 
-def test_detects_dead_python_snappy():
+def test_detects_outdated_python_snappy():
     pkgs = audit.parse_requirements(FIXTURE)
     findings = audit.audit_packages(pkgs)
     snappy = next((f for f in findings if f["package"] == "python-snappy"), None)
     assert snappy is not None
-    assert snappy["severity"] == "critical"
+    assert snappy["severity"] == "high"
 
 
 def test_ignores_clean_requests():

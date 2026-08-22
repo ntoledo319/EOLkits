@@ -17,7 +17,7 @@ function scratch() {
   return { dir, cleanup: () => rmSync(dir, { recursive: true, force: true }) };
 }
 
-test('audit detects outdated sharp and flags node-sass as dead', () => {
+test('audit detects outdated sharp and flags node-sass for replacement', () => {
   const { dir, cleanup } = scratch();
   try {
     writeFileSync(join(dir, 'package.json'), JSON.stringify({
@@ -30,7 +30,7 @@ test('audit detects outdated sharp and flags node-sass as dead', () => {
     assert.match(r.stdout, /sharp/);
     assert.match(r.stdout, /UPGRADE/);
     assert.match(r.stdout, /node-sass/);
-    assert.match(r.stdout, /DEAD/);
+    assert.match(r.stdout, /REPLACE/);
   } finally { cleanup(); }
 });
 
@@ -54,7 +54,7 @@ test('audit passes on clean deps', () => {
     }));
     const r = run(['audit', '--path', dir, '--strict']);
     assert.equal(r.status, 0);
-    assert.match(r.stdout, /All native deps are Node 22-compatible/);
+    assert.match(r.stdout, /meet the configured baseline/);
   } finally { cleanup(); }
 });
 

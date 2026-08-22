@@ -1,13 +1,13 @@
 # python-pivot
 ### AWS Lambda Python 3.9/3.10/3.11 → 3.12 migration kit
 
-> **Python 3.9 EOL: 2025-12-15. Python 3.10 EOL: 2026-10-31.** Once AWS Lambda flips the switch, your functions stop receiving security patches, and shortly after, AWS blocks function updates — then blocks new deployments entirely. This is the same 3-phase rollout they used to kill Python 3.7 and 3.8.
+> AWS publishes separate Lambda runtime deprecation, block-create, and block-update dates and may revise them. Check the linked AWS runtime table before planning a production change.
 
-`python-pivot` is a single-binary Python tool that finds every Python Lambda in your account, rewrites the code that breaks in 3.12, audits your requirements for native-wheel compatibility, patches your IaC across SAM/CDK/Terraform/Serverless, and runs a staged canary deploy with CloudWatch-alarm-driven auto-rollback.
+`python-pivot` checks Python Lambda functions visible to the selected credentials and regions, detects supported Python 3.12 compatibility patterns, audits curated dependency versions, previews supported IaC rewrites, and provides guarded deploy and rollback commands.
 
 Works offline (fixture mode) for demos and CI. Works live against AWS with standard boto3 credentials.
 
-[![Tests](https://img.shields.io/badge/tests-44%20passing-green)](test/)
+[![Tests](https://img.shields.io/badge/tests-CI%20verified-green)](test/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Python 3.9 EOL](https://img.shields.io/badge/python3.9-EOL%202025--12--15-red)](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html)
 
@@ -15,35 +15,21 @@ Works offline (fixture mode) for demos and CI. Works live against AWS with stand
 
 ## The deadline
 
-| Runtime | Phase 1 (no patches) | Phase 2 (block create) | Phase 3 (block update) |
-|---|---|---|---|
-| python3.7 | ✅ dead (2023-11-27) | ✅ dead (2023-12-28) | ✅ dead (2024-01-29) |
-| python3.8 | ✅ dead (2024-10-14) | ✅ dead (2024-11-13) | ✅ dead (2024-12-16) |
-| **python3.9** | **2025-12-15 (already past)** | **2026-01-14** | **2026-02-13** |
-| **python3.10** | **2026-10-31** | **2026-11-30** | **2026-12-31** |
-| python3.11 | 2027-06-30 | 2027-07-30 | 2027-08-31 |
-| python3.12 | target | — | — |
-
-Primary source: <https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html>
-
----
-
-## Demo
-
-![python-pivot demo](docs/demos/demo.svg)
-
-*Live recording — scan → audit → deploy plan. Real terminal output. All commands work offline via fixture mode.*
+Use the [AWS Lambda runtime table](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html)
+as the source of truth. The repository's cited snapshot is in
+[`rules/public/deprecations.yml`](../../rules/public/deprecations.yml), but AWS can
+change enforcement dates after a release is cut.
 
 ---
 
 ## Install
 
 ```bash
-pip install python-pivot
-# or from source:
 git clone https://github.com/ntoledo319/EOLkits.git
 cd EOLkits/kits/python-pivot
-pip install -e .
+python3 -m venv .venv
+.venv/bin/pip install -e .
+. .venv/bin/activate
 ```
 
 No external runtime deps. `boto3` required only for `scan`, `deploy`, `rollback` against live AWS.
@@ -71,18 +57,18 @@ python-pivot rollback    # revert alias to previous version
 $ python-pivot scan --fixture test/fixtures/lambda-inventory.json
 
 ▸ Scanning fixture test/fixtures/lambda-inventory.json
-ℹ Scanned 6 Python Lambda function(s). 3 need migration.
+ℹ Scanned 6 Python Lambda function(s). 4 need migration.
 
-FUNCTION           RUNTIME     REGION     SEVERITY      DAYS-TO-EOL  TARGET
+FUNCTION           RUNTIME     REGION     SEVERITY      EOL DELTA    TARGET
 ---------------------------------------------------------------------------
-payment-webhook    python3.9   us-east-1  critical-eol         -134  python3.12
-analytics-daily    python3.8   us-east-1  critical-eol         -561  python3.12
-image-resize       python3.10  us-east-2  low                   186  python3.12
-slack-notify       python3.11  us-east-1  low                   428  python3.12
+payment-webhook    python3.9   us-east-1  critical-eol     250d ago  python3.12
+analytics-daily    python3.8   us-east-1  critical-eol     677d ago  python3.12
+image-resize       python3.10  us-east-2  high               in 70d  python3.12
+slack-notify       python3.11  us-east-1  low               in 312d  python3.12
 order-fulfillment  python3.12  us-east-1  ok                      —  python3.12
-legacy-etl         python3.7   eu-west-1  critical-eol         -883  python3.12
+legacy-etl         python3.7   eu-west-1  critical-eol     999d ago  python3.12
 
-⚠ python3.9 hits EOL in -134 day(s). Next: `python-pivot codemod`
+⚠ python3.9 reached EOL 250 day(s) ago. Next: `python-pivot codemod`
 ```
 
 Add `--strict` for CI, `--format json|csv|md`, `--regions us-east-1,eu-west-1` for multi-region live scans.
@@ -119,8 +105,8 @@ $ python-pivot audit requirements.txt
   [high]     cryptography     declared===40.0.0  · needs >=41.0.5
       41.0.5+ for cp312 (libssl3).
   [high]     pillow           declared===9.5.0   · needs >=10.1.0
-  [critical] python-snappy    declared===0.6.1   · needs (none — no cp312 wheels)
-      No cp312 wheels. Switch to `cramjam` or `plyvel`.
+  [high]     python-snappy    declared===0.6.1   · needs >=0.7.0
+      0.7.0+ (2024-02-27) ships a pure-Python py3-none-any wheel built on `cramjam` — installs fine on cp312, no library swap needed.
 
 ⚠ 10 package(s) need attention before Python 3.12.
 ```
@@ -179,7 +165,9 @@ $ python-pivot deploy \
 ✓ Alias live reverted to 46
 ```
 
-Requires `--alarm` with `--apply`. No alarm = no deploy. Every stage checks CloudWatch alarm state; any trip = instant rollback.
+Requires `--alarm` with `--apply`. No alarm = no deploy. After each configured
+dwell interval the command checks CloudWatch; an observed `ALARM` state triggers
+an alias rollback. This is not continuous monitoring.
 
 ### 6. Manual rollback
 
@@ -202,24 +190,13 @@ $ python-pivot rollback --function payment-webhook --alias live --apply
 
 ---
 
-## Free vs paid
+## Free and hosted options
 
-| | Free (this repo) | Team ($999) | Enterprise ($2,499) |
-|---|---|---|---|
-| Scanner | ✓ | ✓ | ✓ |
-| Codemod | ✓ | ✓ | ✓ |
-| Native-wheel audit (30+ pkgs) | ✓ | ✓ | ✓ |
-| IaC patcher (SAM/CDK/TF/SLS) | ✓ | ✓ | ✓ |
-| Canary deploy + rollback | ✓ | ✓ | ✓ |
-| PDF migration playbook | — | ✓ | ✓ |
-| 2-hour captioned video walkthrough | — | ✓ | ✓ |
-| Extended wheel table (200+ pkgs, private indexes) | — | ✓ | ✓ |
-| Custom codemod rules for your codebase | — | 3 | Unlimited |
-| Priority Slack channel | — | ✓ (7 days) | ✓ (30 days) |
-| Live migration pairing session | — | — | 2 × 90 min |
-| On-call during cutover | — | — | ✓ |
-
-Bundle with `lambda-lifeline` (Node.js 20 → 22) and `al2023-gate` (AL2 → AL2023): see <https://eolkits-kits.com>.
+The CLI is free and MIT-licensed. The only paid product currently offered is a
+server-gated [$299 repository evidence report](https://eolkits.com/audit): static
+source/IaC findings with exact observed file/line locations, limitations, and cited
+sources. It does not inspect an AWS account. Migration Pack and the previously
+described hosted products are not for sale.
 
 ---
 
@@ -247,4 +224,4 @@ MIT. See [LICENSE](LICENSE).
 - [Python 3.12 What's New](https://docs.python.org/3.12/whatsnew/3.12.html)
 - [PyPI wheel compatibility tags](https://peps.python.org/pep-0425/)
 
-*Built by [EOLkits Kits](https://github.com/ntoledo319/EOLkits). Every AWS deprecation deadline deserves a kit.*
+*Built by [EOLkits Kits](https://github.com/ntoledo319/EOLkits). Tracked AWS deprecations deserve tested migration paths.*

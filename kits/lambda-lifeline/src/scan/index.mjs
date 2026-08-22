@@ -1,4 +1,5 @@
-// Scanner: enumerate Lambda functions across regions, flag Node 16/18/20 runtimes.
+// Scanner: enumerate Lambda functions across regions and flag tracked retired or
+// approaching-deprecation runtimes.
 // Works in two modes:
 //   1) Live AWS: uses @aws-sdk/client-lambda via default credential chain
 //   2) Fixture: --fixture <file.json> for demos, CI tests, and air-gapped buyers
@@ -9,8 +10,8 @@ import { parseArgs, list } from '../util/args.mjs';
 import { log, color } from '../util/log.mjs';
 import { writeFileSync, readFileSync } from 'node:fs';
 
-const EOL_RUNTIMES = new Set([
-  'nodejs16.x', 'nodejs18.x', 'nodejs20.x',
+const AT_RISK_RUNTIMES = new Set([
+  'nodejs14.x', 'nodejs16.x', 'nodejs18.x', 'nodejs20.x', 'nodejs22.x',
   'python3.9', 'python3.10',                    // bonus: flagged but not our primary scope
   'ruby3.2',                                    // bonus
   'dotnet6',
@@ -18,20 +19,26 @@ const EOL_RUNTIMES = new Set([
   'provided.al2',
 ]);
 
+// Dates from the AWS Lambda runtime deprecation table (docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html).
+// AWS delayed the usual 30/60-day block windows into a synchronized Q1-2027 cluster
+// (block_create 2027-02-01, block_update 2027-03-03) for these Amazon Linux 2/AL2023 runtimes.
 const PHASE_DATES = {
-  'nodejs16.x': { phase1: '2024-06-12', block_create: '2026-08-31', block_update: '2026-09-30' },
-  'nodejs18.x': { phase1: '2025-09-01', block_create: '2026-08-31', block_update: '2026-09-30' },
-  'nodejs20.x': { phase1: '2026-04-30', block_create: '2026-08-31', block_update: '2026-09-30' },
-  'python3.9':  { phase1: '2025-12-15', block_create: '2026-08-31', block_update: '2026-09-30' },
-  'python3.10': { phase1: '2026-10-31', block_create: '2026-11-30', block_update: '2027-01-15' },
-  'ruby3.2':    { phase1: '2026-03-31', block_create: '2026-08-31', block_update: '2026-09-30' },
-  'dotnet6':    { phase1: '2024-12-20', block_create: '2026-08-31', block_update: '2026-09-30' },
+  'nodejs16.x': { phase1: '2024-06-12', block_create: '2027-02-01', block_update: '2027-03-03' },
+  'nodejs18.x': { phase1: '2025-09-01', block_create: '2027-02-01', block_update: '2027-03-03' },
+  'nodejs20.x': { phase1: '2026-04-30', block_create: '2027-02-01', block_update: '2027-03-03' },
+  'nodejs22.x': { phase1: '2027-04-30', block_create: '2027-06-01', block_update: '2027-07-01' },
+  'python3.9':  { phase1: '2025-12-15', block_create: '2027-02-01', block_update: '2027-03-03' },
+  'python3.10': { phase1: '2026-10-31', block_create: '2027-02-01', block_update: '2027-03-03' },
+  'ruby3.2':    { phase1: '2026-03-31', block_create: '2027-02-01', block_update: '2027-03-03' },
+  'dotnet6':    { phase1: '2024-12-20', block_create: '2027-02-01', block_update: '2027-03-03' },
 };
 
 const UPGRADE_TARGETS = {
-  'nodejs16.x': 'nodejs22.x',
-  'nodejs18.x': 'nodejs22.x',
-  'nodejs20.x': 'nodejs22.x',
+  'nodejs14.x': 'nodejs24.x',
+  'nodejs16.x': 'nodejs24.x',
+  'nodejs18.x': 'nodejs24.x',
+  'nodejs20.x': 'nodejs24.x',
+  'nodejs22.x': 'nodejs24.x',
   'python3.9':  'python3.12',
   'python3.10': 'python3.12',
   'ruby3.2':    'ruby3.4',
@@ -48,7 +55,7 @@ function daysUntil(isoDate) {
 
 function severity(runtime) {
   const dates = PHASE_DATES[runtime];
-  if (!dates) return 'unknown';
+  if (!dates) return 'critical-eol';
   const d = daysUntil(dates.block_update);
   if (d <= 0) return 'critical-blocked';
   if (d <= 60) return 'critical';
@@ -119,8 +126,8 @@ function normalizeFunction(fn, accountId, region) {
     package_type: fn.PackageType || 'Zip',
     architectures: fn.Architectures || ['x86_64'],
     code_size: fn.CodeSize,
-    eol: EOL_RUNTIMES.has(fn.Runtime),
-    severity: EOL_RUNTIMES.has(fn.Runtime) ? severity(fn.Runtime) : 'ok',
+    eol: AT_RISK_RUNTIMES.has(fn.Runtime),
+    severity: AT_RISK_RUNTIMES.has(fn.Runtime) ? severity(fn.Runtime) : 'ok',
     recommended_target: UPGRADE_TARGETS[fn.Runtime] || null,
     deprecation_dates: PHASE_DATES[fn.Runtime] || null,
     days_until_block_update: PHASE_DATES[fn.Runtime]
@@ -131,7 +138,7 @@ function normalizeFunction(fn, accountId, region) {
 
 function renderTable(rows) {
   if (rows.length === 0) {
-    log.ok('No functions using EOL runtimes. You are all green. ✓');
+    log.ok('No functions were returned by the selected scan.');
     return;
   }
   const eol = rows.filter(r => r.eol);

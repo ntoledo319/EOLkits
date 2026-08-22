@@ -14,6 +14,30 @@ h1{margin-top:0}
 .btn{display:inline-block;background:#2563eb;color:#fff;padding:.6rem 1.2rem;border-radius:6px;text-decoration:none;font-weight:600}
 footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
 </style>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='', refHost='';
+    try{refHost=(new URL(ref)).hostname.toLowerCase().slice(0,100);}catch(e){}
+    if(refHost===location.hostname.toLowerCase())refHost='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !refHost)return;
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'referral'),
+      utm_source: q.get('utm_source')||aeo||refHost,
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':'referral'),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||''
+    }));
+  }catch(e){}
+})();
+</script>
 </head>
 <body>
 <a href="/" class="brand">← EOLkits</a>
@@ -29,18 +53,16 @@ const body = document.getElementById('body');
 function h(html) { body.innerHTML = html; }
 if (sku === 'audit') {
   title.textContent = 'Your audit is on the way';
-  h('<div class="card"><p>Payment received. Your hash-anchored audit PDF is generating now and lands in your inbox within ~5 minutes.</p><p>Verify authenticity any time at <a href="/verify/">/verify/</a>.</p></div>'
-    + '<div class="card upsell"><h3>Want it fixed, not just found?</h3><p>Upgrade to a <strong>Migration Pack</strong> within 48 hours and we credit your $299 audit toward the $1,499 — a real PR with codemods, IaC patches, canary plan, and a CI-failure refund guarantee.</p><p><a class="btn" href="/pack/?utm_source=audit_upsell&utm_medium=success&utm_campaign=audit48h">Apply my $299 credit →</a></p></div>');
+  h('<div class="card"><p>Payment received. Your repository evidence PDF is queued for automated generation and email delivery. Delays are possible.</p><p>Its evidence lookup records the input hash, rule-pack version, evidence fingerprint, and observed counts. The PDF itself is not digitally signed.</p><p>If fulfillment cannot complete after retries, the system attempts an automatic refund and surfaces any unresolved refund for operator review.</p></div>');
 } else if (sku === 'pack') {
-  title.textContent = 'Migration Pack confirmed';
-  h('<div class="card"><p>Payment received. We are opening your migration PR now (within ~5 minutes). Watch the repo you authorized.</p><p>If CI fails on the PR within 7 days and you have not added the <code>override:ci-failure</code> label, you are refunded automatically.</p><p>Track fulfillment on the <a href="/status/">status page</a>.</p></div>');
+  title.textContent = 'Migration Pack is closed';
+  h('<div class="card"><p>Migration Pack is not available for purchase. If a legacy payment link charged you, email <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> with the Stripe receipt so the payment can be reviewed and refunded.</p></div>');
 } else if (sku === 'drift') {
-  title.textContent = 'Drift Watch is on';
-  h('<div class="card"><p>Subscription active. We will scan weekly and email a delta PDF the moment a new AWS deprecation touches your stack.</p></div>');
+  title.textContent = 'Drift Watch is unavailable';
+  h('<div class="card"><p>Drift Watch is not open for purchase. If a legacy payment link charged you, email <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> with the Stripe receipt so the payment can be reviewed and refunded.</p></div>');
 } else {
   h('<div class="card"><p>Payment received. Check your email for next steps.</p></div>');
 }
-try { navigator.sendBeacon('https://eolkits.com/api/events', new Blob([JSON.stringify({ event: 'purchase_success', sku: sku, path: location.pathname, meta: { session_id: sid } })], { type: 'application/json' })); } catch (e) {}
 </script>
 </body>
 </html>

@@ -1,181 +1,109 @@
-name: Reproducible Release (C4, C5)
+name: Release one tested kit
 
 on:
   push:
     tags:
-      - 'v*.*.*'
-  workflow_dispatch:
+      - 'al2023-gate-v*.*.*'
+      - 'python-pivot-v*.*.*'
+      - 'lambda-lifeline-v*.*.*'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  build-python-kits:
+  release:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        kit: [al2023-gate, python-pivot]
     steps:
       - uses: actions/checkout@v6
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
-      - name: Build package and SBOM
-        run: |
-          python -m pip install --upgrade pip build setuptools wheel
-          mkdir -p dist
-          cd kits/${{ matrix.kit }}
-          python -m build --no-isolation --sdist --wheel --outdir ../../dist
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          import tomllib
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
 
-          pyproject = tomllib.loads(Path("pyproject.toml").read_text())
-          project = pyproject["project"]
-          sbom = {
-              "bomFormat": "CycloneDX",
-              "specVersion": "1.5",
-              "version": 1,
-              "metadata": {
-                  "component": {
-                      "type": "application",
-                      "name": project["name"],
-                      "version": project["version"],
-                      "licenses": [{"license": {"id": "MIT"}}],
-                  }
-              },
-              "components": [],
+      - name: Resolve and validate tag
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="$GITHUB_REF_NAME"
+          case "$tag" in
+            al2023-gate-v*) kit=al2023-gate ;;
+            python-pivot-v*) kit=python-pivot ;;
+            lambda-lifeline-v*) kit=lambda-lifeline ;;
+            *) echo "::error::Unsupported release tag: $tag"; exit 1 ;;
+          esac
+          version="${tag#${kit}-v}"
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+            echo "::error::Tag version must be strict SemVer: $tag"; exit 1;
           }
-          Path("../../dist", f"{project['name']}-sbom.json").write_text(
-              json.dumps(sbom, indent=2) + "\n"
-          )
+          if [[ "$kit" = lambda-lifeline ]]; then
+            manifest_version="$(node -p "require('./kits/$kit/package.json').version")"
+          else
+            manifest_version="$(python - "$kit" <<'PY'
+          import sys, tomllib
+          from pathlib import Path
+          print(tomllib.loads(Path('kits', sys.argv[1], 'pyproject.toml').read_text())['project']['version'])
           PY
-          cd ../..
-          sha256sum dist/* > dist/SHA256SUMS-${{ matrix.kit }}.txt
+          )"
+          fi
+          [[ "$version" = "$manifest_version" ]] || {
+            echo "::error::Tag version $version does not match $kit manifest $manifest_version"; exit 1;
+          }
+          {
+            echo "kit=$kit"
+            echo "version=$version"
+          } >> "$GITHUB_OUTPUT"
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: release-${{ matrix.kit }}
-          path: dist/*
-
-  build-node-kit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '20'
-
-      - name: Build package and SBOM
+      - name: Create project-local Python environment
+        if: steps.release.outputs.kit != 'lambda-lifeline'
         run: |
-          mkdir -p dist
-          cd kits/lambda-lifeline
+          python -m venv "$GITHUB_WORKSPACE/tmp/release-venv"
+          "$GITHUB_WORKSPACE/tmp/release-venv/bin/pip" install \
+            -e "kits/${{ steps.release.outputs.kit }}[dev]" \
+            'build>=1.2,<2'
+
+      - name: Test and build Python kit
+        if: steps.release.outputs.kit != 'lambda-lifeline'
+        env:
+          TMPDIR: ${{ github.workspace }}/tmp/runtime-tmp
+        run: |
+          set -euo pipefail
+          mkdir -p "$TMPDIR" "$GITHUB_WORKSPACE/dist"
+          venv="$GITHUB_WORKSPACE/tmp/release-venv"
+          "$venv/bin/pytest" -q "kits/${{ steps.release.outputs.kit }}/test"
+          "$venv/bin/python" -m build \
+            "kits/${{ steps.release.outputs.kit }}" \
+            --outdir "$GITHUB_WORKSPACE/dist"
+
+      - name: Test and build Node kit
+        if: steps.release.outputs.kit == 'lambda-lifeline'
+        working-directory: kits/lambda-lifeline
+        run: |
+          set -euo pipefail
           npm ci
-          npm pack --pack-destination ../../dist
-          node - <<'NODE'
-          const fs = require('fs');
-          const path = require('path');
-          const pkg = require('./package.json');
-          const sbom = {
-            bomFormat: 'CycloneDX',
-            specVersion: '1.5',
-            version: 1,
-            metadata: {
-              component: {
-                type: 'application',
-                name: pkg.name,
-                version: pkg.version,
-                licenses: [{ license: { id: 'MIT' } }]
-              }
-            },
-            components: Object.entries(pkg.dependencies || {}).map(([name, version]) => ({
-              type: 'library',
-              name,
-              version
-            }))
-          };
-          fs.writeFileSync(path.join('..', '..', 'dist', `${pkg.name}-sbom.json`), `${JSON.stringify(sbom, null, 2)}\n`);
-          NODE
-          cd ../..
-          sha256sum dist/* > dist/SHA256SUMS-lambda-lifeline.txt
+          npm test
+          mkdir -p "$GITHUB_WORKSPACE/dist"
+          npm pack --pack-destination "$GITHUB_WORKSPACE/dist"
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: release-lambda-lifeline
-          path: dist/*
-
-  verify-artifacts:
-    runs-on: ubuntu-latest
-    needs: [build-python-kits, build-node-kit]
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v8
-        with:
-          pattern: release-*
-          merge-multiple: true
-          path: dist
-
-      - name: Verify checksums exist
+      - name: Generate and verify checksums
         run: |
-          test -s dist/SHA256SUMS-al2023-gate.txt
-          test -s dist/SHA256SUMS-python-pivot.txt
-          test -s dist/SHA256SUMS-lambda-lifeline.txt
-          find dist -type f -maxdepth 1 | sort
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE/dist"
+          find . -maxdepth 1 -type f ! -name SHA256SUMS.txt -print0 \
+            | sort -z | xargs -0 sha256sum > SHA256SUMS.txt
+          test -s SHA256SUMS.txt
+          sha256sum --check SHA256SUMS.txt
 
-  sign-release:
-    runs-on: ubuntu-latest
-    needs: verify-artifacts
-    if: startsWith(github.ref, 'refs/tags/')
-    permissions:
-      contents: write
-      id-token: write
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v8
-        with:
-          pattern: release-*
-          merge-multiple: true
-          path: dist
-
-      - name: Generate combined checksums
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          (cd dist && sha256sum * > SHA256SUMS.txt)
-
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v3
-
-      - name: Sign artifacts
-        run: |
-          for artifact in dist/*; do
-            if [ -f "$artifact" ] && [[ "$artifact" != *.sig ]]; then
-              cosign sign-blob --yes "$artifact" --output-signature "${artifact}.sig"
-            fi
-          done
-
-      - name: Create release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: dist/*
-          body: |
-            ## EOLkits Release ${{ github.ref_name }}
-
-            ### Artifacts
-            - Python wheels and source distributions for `al2023-gate` and `python-pivot`
-            - npm package tarball for `lambda-lifeline`
-            - CycloneDX SBOMs
-            - SHA256 checksums
-            - Sigstore signatures
-
-            ### Verification
-            ```bash
-            cosign verify-blob --signature <artifact>.sig <artifact>
-            sha256sum -c SHA256SUMS.txt
-            ```
+          set -euo pipefail
+          gh release create "$GITHUB_REF_NAME" "$GITHUB_WORKSPACE"/dist/* \
+            --verify-tag \
+            --generate-notes \
+            --title "${{ steps.release.outputs.kit }} v${{ steps.release.outputs.version }}"

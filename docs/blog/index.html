@@ -1,6 +1,33 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Blog — EOLkits</title>
-<style>body{font-family:system-ui,sans-serif;max-width:780px;margin:0 auto;padding:2rem;line-height:1.6}.brand{color:#2563eb;font-weight:600}article{border-bottom:1px solid #e5e7eb;padding:1rem 0}time{color:#6b7280;font-size:.85rem}</style>
-</head><body><a href="/" class="brand">← EOLkits</a><h1>Operations log</h1>
-<p>Auto-published every week from CI. <a href="/blog/feed.xml">RSS</a></p>
-<article><time>—</time><h2>Welcome</h2><p>This log is generated weekly by <code>.github/workflows/blog-loop.yml</code>. The first real entry lands after the next CI run.</p></article>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Blog — AWS migration guides | EOLkits</title>
+<meta name="description" content="In-depth, sourced guides for migrating off deprecated AWS runtimes — Lambda Node.js, Python, and Amazon Linux 2.">
+<link rel="canonical" href="https://eolkits.com/blog/">
+<link rel="stylesheet" href="/style.css">
+<script defer src="/track.js"></script>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='', refHost='';
+    try{refHost=(new URL(ref)).hostname.toLowerCase().slice(0,100);}catch(e){}
+    if(refHost===location.hostname.toLowerCase())refHost='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !refHost)return;
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'referral'),
+      utm_source: q.get('utm_source')||aeo||refHost,
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':'referral'),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||''
+    }));
+  }catch(e){}
+})();
+</script>
+</head><body class="container article"><a href="/" class="brand">← EOLkits</a><h1>AWS migration guides</h1>
+<p>The former long-form post mixed verified facts with unsupported completeness and performance claims, so it has been retired pending a primary-source rewrite.</p>
+<p>Use the cited <a href="/migrate/">deadline pages</a>, the <a href="/fix/">specific error references</a>, or the <a href="/scan/">free local scanner</a>.</p>
 <footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a></footer></body></html>

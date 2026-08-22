@@ -1,35 +1,39 @@
-# `eolkits/check` — GitHub Action
+# EOLkits AWS Deprecation Check
 
-Free GitHub Action that scans your IaC and source for AWS runtime deprecation issues, annotates the PR, and links to the paid Audit PDF for the deeper report.
+This free composite GitHub Action runs the repository's local AWS deprecation
+checks and writes a bounded Markdown report to the job summary.
 
 ## Usage
 
 ```yaml
-- uses: ntoledo319/EOLkits@v1
-  with:
-    kit: auto          # or: all | lambda-lifeline | al2023-gate | python-pivot
-    path: .
-    format: markdown
-    fail-on: high
-    comment-pr: true
+permissions:
+  contents: read
+  pull-requests: write # omit when comment-pr is false
+
+steps:
+  - uses: actions/checkout@v6
+  - uses: ntoledo319/EOLkits@v2
+    with:
+      kit: auto
+      path: .
+      fail-on: any
+      comment-pr: true
 ```
 
-## Inputs
+Inputs are documented in the root [`action.yml`](../../action.yml). The `path`
+must resolve inside `GITHUB_WORKSPACE`; missing paths, traversal, and external
+absolute paths fail closed.
 
-See `action.yml`. All optional with sensible defaults.
+## Boundaries
 
-## What it does
+- The action checks source, dependency manifests, and supported IaC patterns. It
+  does not inventory an AWS account or prove that a match is exploitable.
+- Scan commands run without their apply flags and do not intentionally modify the
+  checked-out repository.
+- PR comments are off by default. `comment-pr: true` requires pull-request write
+  permission; keep the default for a read-only or untrusted-fork workflow.
+- Setup actions and package installation use the network. Repository contents are
+  not sent to EOLkits.
 
-- Runs the path-safe checks from all kits in dry-run mode by default (`auto`/`all`).
-- Uses `lambda-lifeline` for Node.js and Lambda IaC, `python-pivot` for Python 3.12 readiness, and `al2023-gate` for AL2023 Ansible/cloud-init risk.
-- Comments findings on the PR (configurable).
-- Fails the check on `--fail-on` severity (default: `high`).
-
-## What it does NOT do
-
-- It does not modify your code. Use the paid **Migration Pack** (`https://eolkits.com/pack/?utm_source=github_action&utm_medium=readme`) for that.
-- It does not send any data outside the runner. Install traffic is limited to GitHub Actions setup actions plus local package installs from the checked-out action source.
-
-## Pricing
-
-The Action is free. The Audit PDF (`/audit`) and Migration Pack (`/pack`) are paid.
+The action is free. The only paid EOLkits product currently offered is the
+server-gated [$299 repository evidence report](https://eolkits.com/audit/?utm_source=github_action&utm_medium=readme).

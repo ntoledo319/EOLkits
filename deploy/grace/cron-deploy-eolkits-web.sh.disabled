@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "The legacy cron deploy is retired. Use GitHub Pages or the reviewed manual ship-web.sh dry-run/apply flow." >&2
+exit 1

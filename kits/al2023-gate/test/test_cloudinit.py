@@ -3,9 +3,7 @@
 from argparse import Namespace
 from pathlib import Path
 
-
 from al2023_gate import cloudinit
-
 
 FIXTURE = Path(__file__).parent / "fixtures" / "user-data.sh"
 

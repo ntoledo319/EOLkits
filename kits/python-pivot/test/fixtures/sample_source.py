@@ -1,8 +1,9 @@
 """Sample lambda handler with all the 3.12 hazards."""
 
-from collections import Mapping, MutableMapping  # deprecated
 import asyncio
 import datetime
+from collections import Mapping, MutableMapping  # deprecated
+
 import pkg_resources
 
 

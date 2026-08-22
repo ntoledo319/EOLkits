@@ -1,21 +1,21 @@
 [build-system]
-requires = ["setuptools>=61"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "al2023-gate"
 version = "1.0.0"
-description = "Amazon Linux 2 → AL2023 migration kit. Scan AMIs, remap packages (yum→dnf), diff cloud-init, patch Ansible playbooks, generate Packer templates, and swap ECS/EKS AMIs safely before Jun 30, 2026 EOL."
+description = "Amazon Linux 2 to AL2023 migration checks, package remapping, cloud-init and Ansible previews, Packer scaffolding, and rollout runbooks."
 readme = "README.md"
 requires-python = ">=3.9"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "EOLkits" }]
 keywords = ["aws", "amazon-linux", "al2", "al2023", "migration", "eol", "packer", "ansible", "ec2", "eks"]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 4 - Beta",
     "Environment :: Console",
     "Intended Audience :: System Administrators",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3 :: Only",
     "Topic :: System :: Systems Administration",
@@ -40,4 +40,3 @@ where = ["src"]
 paths_to_mutate = "src/al2023_gate/"
 tests_dir = "test/"
 runner = "python -m pytest -x -q --no-header"
-

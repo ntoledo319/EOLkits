@@ -3,7 +3,6 @@
 import json
 from argparse import Namespace
 
-
 from al2023_gate import remap
 
 

@@ -36,6 +36,10 @@ Thumbs.db
 /tmp/rupture_pack.*
 .aider*
 
+# Revenue-loop scratch (WORKSPACE_ROOT/tmp per AGENTS.md §1); binaries + throwaway scripts
+/tmp/
+.kilo/
+
 # Mutation testing scratch (mutmut writes mutants/, never commit)
 mutants/
 .mutmut-cache

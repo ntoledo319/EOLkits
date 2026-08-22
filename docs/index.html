@@ -4,9 +4,34 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>EOLkits - AWS deprecation migration tools</title>
-<meta name="description" content="MIT-licensed CLIs and paid automation for AWS runtime and platform deprecation migrations.">
+<meta name="description" content="MIT-licensed AWS deprecation scanners and an optional paid repository evidence report with exact file and line matches.">
 <link rel="canonical" href="https://eolkits.com/">
 <link rel="stylesheet" href="/style.css">
+<script defer src="/track.js"></script>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='', refHost='';
+    try{refHost=(new URL(ref)).hostname.toLowerCase().slice(0,100);}catch(e){}
+    if(refHost===location.hostname.toLowerCase())refHost='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !refHost)return;
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'referral'),
+      utm_source: q.get('utm_source')||aeo||refHost,
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':'referral'),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||''
+    }));
+  }catch(e){}
+})();
+</script>
 </head>
 <body>
 <header class="nav">
@@ -14,8 +39,8 @@
     <a href="/" class="brand"><span class="brand-mark">></span> EOLkits</a>
     <nav>
       <a href="/migrate/">Deadlines</a>
+      <a href="/scan/">Free scan</a>
       <a href="/audit/">Audit</a>
-      <a href="/pack/">Migration Pack</a>
       <a href="https://github.com/ntoledo319/EOLkits" class="btn-ghost">GitHub</a>
     </nav>
   </div>
@@ -24,13 +49,20 @@
 <main>
   <section class="hero">
     <div class="container">
-      <div class="eyebrow">AWS deadlines that break deploys</div>
-      <h1>Migration kits for AWS platform deprecations.</h1>
-      <p class="lede">EOLkits scans deprecated runtimes, patches source and IaC, generates rollout plans, and keeps every fact tied to a primary source.</p>
+      <div class="eyebrow">AWS runtime &amp; OS EOLs that break production</div>
+      <h1>Find high-impact AWS deprecation risks in your source — free.</h1>
+      <p class="lede">The browser scanner checks configured Lambda runtime and Node/Python dependency patterns without uploading file contents. Repository CLIs add their documented operating-system checks. The $299 evidence report adds repository-wide file/line evidence, remediation order, sources, and explicit scope limitations.</p>
       <div class="cta-row">
-        <a class="btn-primary" href="/migrate/">See Deadlines</a>
+        <a class="btn-primary" href="/scan/">Run the free scan</a>
         <a class="btn-secondary" href="https://github.com/ntoledo319/EOLkits">Clone the CLIs</a>
+        <a class="btn-ghost" href="/migrate/">See the deadlines</a>
       </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p class="sub">Free &amp; open-source (MIT) · official source links · local browser scan available · one server-gated paid product · 30-day audit refund policy</p>
     </div>
   </section>
 
@@ -40,7 +72,7 @@
       <p class="sub">Each kit is standalone, MIT-licensed, and safe by default: scan first, apply only when requested.</p>
       <div class="kit-grid">
         <article class="kit-card urgent">
-          <div class="kit-deadline">Jun 30, 2026</div>
+          <div class="kit-deadline">AL2 standard support ended Jun 30, 2026 — plan migration</div>
           <h3>al2023-gate</h3>
           <p class="kit-sub">Amazon Linux 2 to AL2023</p>
           <p>Find AL2 AMIs, remap packages, patch cloud-init, Packer, and Ansible, then generate rollout runbooks.</p>
@@ -54,9 +86,9 @@
           <a class="kit-link" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/python-pivot">Read docs</a>
         </article>
         <article class="kit-card">
-          <div class="kit-deadline">Post-deadline cleanup</div>
+          <div class="kit-deadline">Lambda Node.js migration readiness</div>
           <h3>lambda-lifeline</h3>
-          <p class="kit-sub">Lambda Node.js 20 to 22</p>
+          <p class="kit-sub">Lambda Node.js 16–22 to 24</p>
           <p>Patch Lambda runtime fields, source syntax, aws-sdk v2 usage, and staged deploy/rollback plans.</p>
           <a class="kit-link" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/lambda-lifeline">Read docs</a>
         </article>
@@ -67,7 +99,7 @@
   <section class="section dark" id="pricing">
     <div class="container">
       <h2>Pricing</h2>
-      <p class="sub">The CLIs are free. Paid tiers add hosted fulfillment, reports, and automated PRs.</p>
+      <p class="sub">Try before you buy: the CLIs and browser scanner are free. The repository evidence report is the only paid product.</p>
       <div class="pricing-grid">
         <article class="pricing-card">
           <h3>CLI</h3>
@@ -78,28 +110,12 @@
         <article class="pricing-card featured">
           <h3>Audit PDF</h3>
           <div class="price">$299</div>
-          <p>Hash-anchored report, verification URL, severity scoring, and rollout roadmap.</p>
-          <a class="btn-primary" href="/audit/">Order audit</a>
-        </article>
-        <article class="pricing-card">
-          <h3>Migration Pack</h3>
-          <div class="price">$1,499</div>
-          <p>GitHub App PR with codemods, IaC patches, canary plan, rollback, and CI-failure refund policy.</p>
-          <a class="btn-outline" href="/pack/">Get pack</a>
-        </article>
-        <article class="pricing-card">
-          <h3>Drift Watch</h3>
-          <div class="price">$19<span class="per">/mo</span></div>
-          <p>Weekly re-scan of a read-only IAM role, delta PDF on change, and an auto-PR on each new deprecation.</p>
-          <a class="btn-outline" href="/drift/">Start watching</a>
-        </article>
-        <article class="pricing-card">
-          <h3>Org License</h3>
-          <div class="price">$14,999<span class="per">/yr</span></div>
-          <p>Live rule-pack feed, private rule extensions, and unlimited runs across your whole org.</p>
-          <a class="btn-outline" href="/license/">Get a license</a>
+          <p>One repository ZIP or source file: exact file/line evidence, observed reach, remediation order, official sources, and an evidence fingerprint. 30-day money-back.</p>
+          <a class="btn-primary" href="/audit/">Check availability</a>
+          <p class="small"><a href="/audit/sample/">See a sample report →</a></p>
         </article>
       </div>
+      <p class="sub">There is no subscription, managed migration, AWS-account inventory, or automated pull-request product for sale.</p>
     </div>
   </section>
 </main>
@@ -107,6 +123,7 @@
 <footer class="footer">
   <div class="container">
     <div class="muted small">© 2026 EOLkits. MIT-licensed kits for AWS deprecation migrations.</div>
+    <div class="muted small"><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/legal/SECURITY.html">Security</a> · <a href="mailto:hello@toledotechnologies.com">Support</a></div>
   </div>
 </footer>
 </body>

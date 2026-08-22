@@ -3,73 +3,46 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Migration Pack — EOLkits</title>
+<meta name="robots" content="noindex,follow">
+<title>Migration Pack is unavailable — EOLkits</title>
 <style>
-body{font-family:system-ui,-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:2rem;line-height:1.6}
+body{font-family:system-ui,-apple-system,sans-serif;max-width:760px;margin:0 auto;padding:2rem;line-height:1.6}
 .brand{color:#2563eb;font-weight:600}
-h1{margin-top:0}
-.price{font-size:3rem;font-weight:700;color:#059669}
-.guarantee{background:#ecfdf5;border:2px solid #059669;border-radius:8px;padding:1.5rem;margin:1.5rem 0}
-.guarantee h3{margin-top:0;color:#059669}
-button{background:#2563eb;color:white;border:none;padding:0.75rem 1.5rem;border-radius:6px;font-size:1rem;cursor:pointer}
-button:hover{background:#1d4ed8}
-.steps{background:#f9fafb;border-radius:8px;padding:1.5rem;margin:1.5rem 0}
-.steps ol{margin:0;padding-left:1.5rem}
-footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
+.badge{display:inline-block;background:#fef3c7;color:#92400e;border-radius:999px;padding:.25rem .75rem;font-size:.82rem;font-weight:700}
+.box{background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:1.25rem;margin:1.5rem 0}
+footer{margin-top:3rem;border-top:1px solid #e5e7eb;padding-top:1rem;color:#6b7280;font-size:.875rem}
 </style>
+<script>
+(function(){
+  try{
+    var KEY='eolkits_ft';
+    if(localStorage.getItem(KEY))return;
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='', refHost='';
+    try{refHost=(new URL(ref)).hostname.toLowerCase().slice(0,100);}catch(e){}
+    if(refHost===location.hostname.toLowerCase())refHost='';
+    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
+    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
+    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
+    else if(/claude\.ai/i.test(ref))aeo='claude';
+    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
+    if(!hasUtm && !refHost)return;
+    localStorage.setItem(KEY, JSON.stringify({
+      source: q.get('source')||(aeo?('aeo_'+aeo):'referral'),
+      utm_source: q.get('utm_source')||aeo||refHost,
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':'referral'),
+      utm_campaign: q.get('utm_campaign')||'',
+      kit: q.get('kit')||''
+    }));
+  }catch(e){}
+})();
+</script>
 </head>
 <body>
 <a href="/" class="brand">← EOLkits</a>
-<h1>Migration Pack</h1>
-<p class="price">$1,499</p>
-<p>A real PR opened on your repository with codemods, IaC patches, canary plan, and rollback script.</p>
-
-<div class="guarantee">
-  <h3>Refund Guarantee</h3>
-  <p>If your CI fails on the migration PR within 7 days, you are automatically refunded. No questions, no human in the loop.</p>
-</div>
-
-<div class="steps">
-  <h3>What you get</h3>
-  <ol>
-    <li><strong>GitHub App Install</strong> — Grant read/write access to your repo</li>
-    <li><strong>Automated Analysis</strong> — We scan for deprecated patterns</li>
-    <li><strong>PR Created</strong> — Real PR with codemods and IaC patches within 5 minutes</li>
-    <li><strong>CI Check</strong> — Run your existing tests</li>
-    <li><strong>Auto-Refund</strong> — If CI fails and no override label added</li>
-  </ol>
-</div>
-
-<h3>Install GitHub App</h3>
-<p>First, install the EOLkits Migration Bot on your repository:</p>
-<p><a href="https://eolkits.com/pack/install" style="display:inline-block;background:#24292f;color:white;padding:0.75rem 1.5rem;border-radius:6px;text-decoration:none;font-weight:600">Install GitHub App</a></p>
-
-<h3>Or Purchase Now</h3>
-<form action="https://eolkits.com/api/pack/checkout" method="POST">
-  <p><input type="email" name="email" placeholder="your@email.com" required style="padding:0.5rem;width:300px"></p>
-  <p><input type="text" name="repo" placeholder="owner/repo" required style="padding:0.5rem;width:300px"></p>
-  <button type="submit">Purchase Migration Pack — $1,499</button>
-</form>
-
-<footer>
-  <p>Refund auto-fires if CI fails within 7 days. <a href="/legal/terms.html">Terms</a> apply.</p>
-  <p><a href="/">Home</a> · <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></p>
-</footer>
-<script>
-(function () {
-  var qp = new URLSearchParams(location.search);
-  var form = document.querySelector('form[action$="/api/pack/checkout"]');
-  if (form) {
-    ['source', 'utm_source', 'utm_medium', 'utm_campaign', 'kit'].forEach(function (k) {
-      var v = qp.get(k);
-      if (v) { var i = document.createElement('input'); i.type = 'hidden'; i.name = k; i.value = v; form.appendChild(i); }
-    });
-    if (!qp.get('source')) { var s = document.createElement('input'); s.type = 'hidden'; s.name = 'source'; s.value = 'pack_page'; form.appendChild(s); }
-  }
-  try {
-    navigator.sendBeacon('https://eolkits.com/api/events', new Blob([JSON.stringify({ event: 'view', sku: 'migration_pack', path: location.pathname, utm_source: qp.get('utm_source') || '', utm_campaign: qp.get('utm_campaign') || '', kit: qp.get('kit') || '' })], { type: 'application/json' }));
-  } catch (e) {}
-})();
-</script>
+<h1>Migration Pack is unavailable</h1>
+<p class="badge">No checkout · no account · no waitlist</p>
+<p>The former automated pull-request offer was never proved through a public GitHub App and paid end-to-end fulfillment. It is not offered for sale.</p>
+<div class="box"><strong>Available now:</strong> use the <a href="/scan/">free local browser scanner</a>, or check whether the server-gated <a href="/audit/">$299 repository evidence report</a> is open.</div>
+<footer><a href="/">Home</a> · <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></footer>
 </body>
 </html>
