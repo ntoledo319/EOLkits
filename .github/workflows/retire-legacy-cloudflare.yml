@@ -24,6 +24,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      # The verified live rupture-kits Worker predates the account migration.
+      # Keep this override scoped to its one-time retirement workflow.
+      CLOUDFLARE_ACCOUNT_ID: 8386730baf2dc6008a63c5bfd92c6f49
+      WRANGLER_SEND_METRICS: 'false'
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
