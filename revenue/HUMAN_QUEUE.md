@@ -1,6 +1,6 @@
 # Batched owner queue — maximum 41 minutes
 
-Last reconciled August 22 after preparing the price-qualified demand probe and
+Last reconciled August 22 after publishing the price-qualified demand probe and
 privacy-safe telemetry release. The Stripe workflow has not been
 owner-dispatched; no new owner task or owner minute was added.
 
@@ -105,11 +105,11 @@ Steps:
 
 1. After final main CI is green, open the private prepared draft directly:
    https://github.com/ntoledo319/EOLkits/releases/tag/untagged-db9a4617f412abd63d2d
-2. Verify it is v2.0.0 targeting the latest green `main` commit (the draft
-   synchronizer updates the target whenever the Action surface changes), check
+2. Verify it is v2.0.0 targeting the green Action release commit `db32bdfb`
+   (later documentation-only main commits do not invalidate that target), check
    “Publish this Action to the GitHub Marketplace,” keep the existing
    Marketplace identity, and publish with 2FA. Do not create a second listing
-   or a second release. Stop if the draft target differs from green `main`.
+   or a second release. Stop if its Action files differ from public `v2`.
 3. Verify
    https://github.com/marketplace/actions/rupture-aws-deprecation-check shows
    v2.0.0 and the bounded release copy.
