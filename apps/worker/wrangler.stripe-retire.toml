@@ -1,0 +1,12 @@
+# One-time configuration for auditing exact EOLkits charging surfaces and
+# deactivating only six catalog Prices plus their six approved historical
+# Payment Link URLs before restoring the normal retirement tombstone.
+name = "rupture-worker"
+main = "src/stripe_retirement.ts"
+account_id = "8386730baf2dc6008a63c5bfd92c6f49"
+compatibility_date = "2024-04-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+[vars]
+ENVIRONMENT = "retired"
