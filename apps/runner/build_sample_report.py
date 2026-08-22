@@ -25,6 +25,7 @@ PUBLIC_SITE_URL = "https://ntoledo319.github.io/EOLkits"
 GENERATED_AT = datetime(2026, 8, 22, 21, 0, tzinfo=UTC)
 SAMPLE_BUILDER_VERSION = 1
 SAMPLE_PDF_PAGES = 4
+RENDERER_VARIANT_MANIFEST_FIELDS = frozenset({"pdf_bytes", "pdf_sha256"})
 
 sys.path.insert(0, str(RUNNER_DIR))
 import audit_pdf  # noqa: E402, I001
@@ -201,6 +202,42 @@ def validate_checked_in_assets() -> list[str]:
     return errors
 
 
+def validate_engine_compatibility() -> list[str]:
+    """Verify engine semantics while allowing platform-specific PDF serialization.
+
+    WeasyPrint delegates font shaping and PDF serialization to native libraries.
+    The checked-in PDF therefore has one exact published hash, but a fresh render
+    on another supported Linux image can be semantically identical without being
+    byte-identical. All engine-derived manifest fields except the resulting PDF
+    byte count and hash must still match.
+    """
+    try:
+        fresh_assets = build_sample_assets()
+    except (OSError, RuntimeError, ValueError) as exc:
+        return [f"fresh report-engine render failed: {exc}"]
+
+    checked_manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+    fresh_manifest = json.loads(fresh_assets[MANIFEST_PATH].decode("utf-8"))
+    checked_semantics = {
+        key: value
+        for key, value in checked_manifest.items()
+        if key not in RENDERER_VARIANT_MANIFEST_FIELDS
+    }
+    fresh_semantics = {
+        key: value
+        for key, value in fresh_manifest.items()
+        if key not in RENDERER_VARIANT_MANIFEST_FIELDS
+    }
+    errors: list[str] = []
+    if fresh_assets[INPUT_PATH] != INPUT_PATH.read_bytes():
+        errors.append("fresh engine fixture differs from the checked-in fictional input")
+    if checked_semantics != fresh_semantics:
+        errors.append("fresh report-engine metadata differs from the published sample")
+    if not fresh_assets[PDF_PATH].startswith(b"%PDF"):
+        errors.append("fresh report-engine output does not have a PDF header")
+    return errors
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group(required=True)
@@ -214,18 +251,15 @@ def main() -> int:
 
     if args.check:
         errors = validate_checked_in_assets()
-        expected = build_sample_assets() if not errors else {}
-        mismatches = [
-            path.relative_to(REPOSITORY_ROOT).as_posix()
-            for path, content in expected.items()
-            if path.read_bytes() != content
-        ]
-        if mismatches:
-            errors.append("fresh engine render differs: " + ", ".join(mismatches))
+        if not errors:
+            errors.extend(validate_engine_compatibility())
         if errors:
             print("Sample report assets are stale: " + "; ".join(errors), file=sys.stderr)
             return 1
-        print("Sample PDF, fictional input, and manifest match the Audit v2 engine metadata.")
+        print(
+            "Sample PDF hash, fictional input, and renderer-independent Audit v2 "
+            "engine metadata are valid."
+        )
         return 0
 
     expected = build_sample_assets()
