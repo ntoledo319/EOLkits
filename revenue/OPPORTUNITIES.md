@@ -88,7 +88,7 @@ T$ means disqualified within this cycle.
 | K5 | 14 | 10 | P | $290.03 | M | Useful acquisition, no built-in payment |
 | K6 | — | 15 | M | $0 | H | Repackaged free code; archived |
 | K7 | — | 30 | N | $0 | H | Requires contracts and support |
-| V1 | 10 | 1 | M | $580.06 | M | Existing 101-install listing; in-place update pending |
+| V1 | 10 | 1 | M | $580.06 | M | Existing ~100-install listing; in-place update pending |
 | V2 | — | 25 | M | $0 | H | Entitlements/payment/support unbuilt |
 | V3 | 21 | 20 | M | $290.03 | M | Duplicates A1 at lower fidelity |
 | V4 | — | 20 | N | $0 | M | No channel or differentiated buyer |
@@ -209,8 +209,8 @@ K1 remains the fastest bet. Public `v2` now points to fully green commit
 listing itself still reports v1.1.0, so the existing built-in distribution is
 not repaired until HQ-5 publishes the prepared draft. V1 remains third, but the
 exact-ID audit corrected the prior search inference: `rupture.rupture-vscode`
-is public at v1.0.0 with 101 cumulative installs and 162 downloads. Its tested
-in-place v1.1.0 update is not public yet. C4 remains fourth;
+is public at v1.0.0 with an approximately 100-install counter and 162 downloads.
+Its tested in-place v1.1.0 update is not public yet. C4 remains fourth;
 another accepted IndexNow notification is release/discovery opportunity, not a
 visit or conversion.
 
@@ -223,10 +223,10 @@ artifact inspection.
 ## Existing VS distribution recovery — August 22
 
 V1 is stronger than previously recorded but does not move above K1 or A1. The
-project already owns a public `rupture.rupture-vscode` listing with 101
-cumulative installs and 162 downloads; the EOLkits rename changed the technical
-identity and therefore hid, rather than migrated, that channel. The published
-v1.0.0 also sends its Audit link to a current HTTP 404.
+project already owns a public `rupture.rupture-vscode` listing with an
+approximately 100-install counter and 162 downloads; the EOLkits rename changed
+the technical identity and therefore hid, rather than migrated, that channel.
+The published v1.0.0 also sends its Audit link to a current HTTP 404.
 
 Preserve the stable identity and publish an EOLkits-branded v1.1.0 update through
 the existing credential. The candidate preserves legacy commands and settings,
@@ -235,9 +235,15 @@ form whose VS source is counted separately. This shrinks estimated owner labor
 from five minutes of publisher/credential setup to one workflow dispatch and
 verification; it does not authorize an autonomous Marketplace post.
 
-The 101 installs and 162 downloads establish a distribution asset only. Set the
-V1 baseline to those counters when v1.1.0 publishes. After five full days, zero
-counter growth and zero external VS-attributed qualified-interest authors kills
-the extension-as-revenue-channel hypothesis; retain the free utility without
-further promotion. Do not count auto-updates, existing installs, or owner probes
-as demand.
+The observed 100–101 install-counter range and 162 downloads establish a
+distribution asset only. Set a fresh V1 baseline when v1.1.0 publishes. After
+five full days, zero counter growth and zero external VS-attributed
+qualified-interest authors kills the extension-as-revenue-channel hypothesis;
+retain the free utility without further promotion. Do not count auto-updates,
+existing installs, or owner probes as demand.
+
+Repository commit `a9cdcaeb` now contains the exact locally verified v1.1.0
+candidate, and its full release/VS package, determinism, property, Pages,
+Marketplace-draft, and acquisition workflows passed. This removes the technical
+release risk but does not start V1's clock: the public listing still serves
+v1.0.0 until HQ-6.

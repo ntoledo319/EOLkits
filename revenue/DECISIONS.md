@@ -508,6 +508,15 @@ interest link only when the extension has actual findings. Add “VS Code
 extension” to the privacy-bounded issue form and count that source separately in
 the read-only acquisition artifact. Users must choose to open and submit it; the
 extension sends no code, telemetry, or messages. Start V1's five-full-day
-falsifier only after v1.1.0 is public, using the 101-install/162-download baseline
+falsifier only after v1.1.0 is public, using a fresh Marketplace-counter baseline
 plus external VS-attributed qualified authors. Zero growth and zero authors kill
 the channel hypothesis; packaging, auto-updates, and internal probes do not pass.
+
+Release evidence: repository commit `a9cdcaeb` has exact tree `99136547` and
+passed the complete release matrix, including a clean extension install/test/
+package job, plus determinism, properties, built-in Pages, Marketplace-draft,
+and acquisition runs. Adjacent gallery queries returned 101 then 100 for the
+install statistic while downloads stayed 162, so record the distribution as
+approximately 100 installs and baseline it again only after v1.1.0 publishes.
+The public listing remains v1.0.0; CI success does not authorize or imply the
+owner-only Marketplace post.
