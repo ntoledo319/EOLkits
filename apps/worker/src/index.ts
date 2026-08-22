@@ -42,4 +42,12 @@ export default {
       410
     );
   },
+
+  async queue(batch: MessageBatch<unknown>): Promise<void> {
+    // The retired service still has a Cloudflare Queue consumer attached.
+    // Acknowledge stale events without executing any former fulfillment path.
+    for (const message of batch.messages) {
+      message.ack();
+    }
+  },
 };

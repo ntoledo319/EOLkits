@@ -97,7 +97,8 @@ jobs:
             echo
             echo '- `rupture-worker` now serves the tested fail-closed tombstone.'
             echo '- Health reports `retired: true`; checkout, App install, and webhook paths return HTTP 410.'
-            echo '- No Stripe, storage, queue, email, GitHub, or runner binding is used by the replacement code.'
+            echo '- No Stripe, storage, email, GitHub, or runner binding is used by the replacement code.'
+            echo '- Legacy queue events are acknowledged without running fulfillment.'
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Remove only exact retired EOLkits routes when permitted
