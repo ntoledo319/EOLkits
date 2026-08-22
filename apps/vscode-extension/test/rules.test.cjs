@@ -1,4 +1,6 @@
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const {
   scanJavaScriptText,
   scanPythonText,
@@ -21,5 +23,14 @@ assert.equal(scanJavaScriptText("import AWS from 'aws-sdk';")[0].code, 'AWS_SDK_
 assert.equal(scanPythonText('from collections import Mapping')[0].severity, 'low');
 assert.equal(scanTerraformText('ami_name = "al2-ami-hvm"')[0].code, 'TF_AL2_AMI_DEPRECATED');
 assert.equal(scanStructuredText('{"Runtime":"nodejs24.x"}').length, 0);
+
+const extensionRoot = path.resolve(__dirname, '..');
+const manifest = JSON.parse(fs.readFileSync(path.join(extensionRoot, 'package.json'), 'utf8'));
+const compiledExtension = fs.readFileSync(path.join(extensionRoot, 'out', 'extension.js'), 'utf8');
+const verifiedSite = 'https://ntoledo319.github.io/EOLkits/';
+assert.equal(manifest.homepage, verifiedSite);
+assert.ok(manifest.sponsor.url.startsWith(`${verifiedSite}audit/`));
+assert.match(compiledExtension, /https:\/\/ntoledo319\.github\.io\/EOLkits\/audit\//);
+assert.doesNotMatch(compiledExtension, /https:\/\/eolkits\.com\/audit/);
 
 console.log('scanner rule behavior passed');

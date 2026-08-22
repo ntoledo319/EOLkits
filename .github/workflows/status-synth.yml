@@ -16,7 +16,8 @@ jobs:
     steps:
       - name: Probe live static and API surfaces
         env:
-          SITE_URL: ${{ vars.PAGES_URL || 'https://eolkits.com' }}
+          SITE_URL: ${{ vars.PAGES_URL || 'https://ntoledo319.github.io/EOLkits' }}
+          API_URL: ${{ vars.API_URL || 'https://eolkits.com' }}
           API_MONITOR_ENABLED: ${{ vars.API_MONITOR_ENABLED || 'false' }}
           EXPECTED_CHECKOUT: ${{ vars.AUDIT_CHECKOUT_EXPECTED || 'false' }}
           EXPECTED_BUILD_SHA: ${{ vars.EOLKITS_BUILD_SHA || '' }}
@@ -26,9 +27,9 @@ jobs:
           curl --fail --silent --show-error --max-time 12 --output /dev/null "$SITE_URL/audit/"
           curl --fail --silent --show-error --max-time 12 --output /dev/null "$SITE_URL/status/"
           if [[ "$API_MONITOR_ENABLED" == "true" ]]; then
-            health="$(curl --fail --silent --show-error --max-time 12 "$SITE_URL/health")"
-            status="$(curl --fail --silent --show-error --max-time 12 "$SITE_URL/api/status")"
-            capabilities="$(curl --fail --silent --show-error --max-time 12 "$SITE_URL/api/capabilities")"
+            health="$(curl --fail --silent --show-error --max-time 12 "$API_URL/health")"
+            status="$(curl --fail --silent --show-error --max-time 12 "$API_URL/api/status")"
+            capabilities="$(curl --fail --silent --show-error --max-time 12 "$API_URL/api/capabilities")"
             jq -e '.ok == true' <<<"$health"
             jq -e '.overall == "healthy"' <<<"$status"
             jq -e --argjson expected "$EXPECTED_CHECKOUT" '.audit.report_version == "2.0" and .audit.checkout_enabled == $expected' <<<"$capabilities"
