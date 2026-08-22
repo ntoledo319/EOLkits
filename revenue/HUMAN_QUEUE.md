@@ -1,6 +1,6 @@
 # Batched owner queue — maximum 45 minutes
 
-Last reconciled August 22 after the final claim, funnel, and Pages-path pass.
+Last reconciled August 22 after the public Pages probe and replacement CI pass.
 
 Do these in order. Checkout remains closed until HQ-8. No old handoff or launch
 file is authoritative.

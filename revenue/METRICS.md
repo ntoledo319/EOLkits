@@ -88,9 +88,31 @@ Tests and commits are release evidence, not market signal.
   Pages build https://github.com/ntoledo319/EOLkits/actions/runs/32556970104.
 - The first public Pages probe returned 200 but exposed a race: the legacy
   branch-source deployment overwrote the custom artifact with root-domain links.
-  The committed `docs/` contract and both CI paths are being aligned to the
-  `/EOLkits` artifact before this cycle closes; do not count this item as fixed
-  until a second public probe passes.
+  The follow-up commit
+  https://github.com/ntoledo319/EOLkits/commit/f4ef711e022ce032a31d15f2fb0ab845b2225e91
+  made committed `docs/` the `/EOLkits` artifact and made the GRACE ship script
+  build the root-domain variant immediately before rsync. The custom Pages run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32557385166 and built-in
+  Pages run https://github.com/ntoledo319/EOLkits/actions/runs/32557384585 both
+  passed.
+- The release-surface run on that follow-up failed only because its stale-URL
+  guard still rejected the now-intentional GitHub Pages origin; its other twelve
+  jobs, including both container builds, passed. Commit
+  https://github.com/ntoledo319/EOLkits/commit/b9cf566d0c39eb9b7eb831a575bd7618a2984d8d
+  corrected the guard. Its replacement release run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32557638726,
+  determinism run https://github.com/ntoledo319/EOLkits/actions/runs/32557638717,
+  property run https://github.com/ntoledo319/EOLkits/actions/runs/32557638719,
+  and built-in Pages run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32557638168 all passed.
+- The final public probe returned 200 for the Pages home, scanner, and retired
+  Migration Pack route. Navigation is prefixed with `/EOLkits`; scanner Audit
+  links use `https://ntoledo319.github.io/EOLkits`; status, events, and scanner
+  API calls use `https://eolkits.com`; and the retired Pack page has no checkout,
+  account, or waitlist. This is release evidence, not a visit or demand event.
+- A separate public probe of `https://eolkits.com/` still found the old Migration
+  Pack and Drift Watch claims. HQ-4 remains mandatory; the custom domain is not
+  counted as repaired or ready for checkout.
 
 ## Events that count after launch
 

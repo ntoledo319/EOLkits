@@ -12,8 +12,10 @@ All code and evidence below is inside the workspace jail.
 - Completeness: 18 generated-site tests pass; the 84-file output is
   byte-deterministic across consecutive builds, link/source checked, and free of
   trailing whitespace. The GitHub Pages project-path build keeps static links
-  under `/EOLkits` and API calls on `eolkits.com`. The observed live domain is
-  still obsolete until deployment.
+  under `/EOLkits` and API calls on `eolkits.com`. Both GitHub Pages deployment
+  paths now publish that same artifact, and a public probe passed at
+  https://ntoledo319.github.io/EOLkits/. The observed `eolkits.com` deployment
+  is still obsolete until the owner runs the reviewed GRACE ship path.
 - $0 deploy: GitHub Pages.
 - License/provenance: repository MIT; factual AWS claims require primary-source
   review. No buyer code leaves the browser scanner.
@@ -113,7 +115,8 @@ All code and evidence below is inside the workspace jail.
 - Operations: no real Stripe test-mode end-to-end evidence has been recorded for
   Audit v2.
 - Distribution: one live Action listing exists but is stale at v1.1.0; VS is
-  not observed in its marketplace; owned-site traffic is unknown.
+  not observed in its marketplace; the repaired GitHub Pages fallback is
+  public, but owned-site traffic is unknown.
 - Legal: accurate seller/controller identity, address, governing law, tax
   posture, and $0 incremental hosting confirmation are owner-only gates.
 - Remote history: origin/main accumulated synthetic status/benchmark commits and

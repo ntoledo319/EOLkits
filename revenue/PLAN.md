@@ -107,8 +107,11 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
 ## Current gap and next action
 
 Collected profit: $0. Gap: $4,000. Checkout: closed. The repaired release is on
-main and its five initial GitHub workflows passed, including container and Pages
-jobs. Highest-leverage next action: complete the owner queue's live-domain and
-real payment/fulfillment gates, then publish the `v2` Marketplace release. The
-live `eolkits.com` deployment is not yet repaired. No outbound message, bid,
-post, or customer commitment is authorized.
+main through the project-path/CI follow-ups. The replacement release workflow,
+determinism and property gates, both container builds, and both GitHub Pages
+deployment mechanisms passed. A public probe verified `/EOLkits` navigation,
+the split API origin, and closed-product tombstones. Highest-leverage next
+action: complete the owner queue's live-domain and real payment/fulfillment
+gates, then publish the `v2` Marketplace release. The live `eolkits.com`
+deployment is not yet repaired. No outbound message, bid, post, or customer
+commitment is authorized.

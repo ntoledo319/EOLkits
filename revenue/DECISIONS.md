@@ -191,8 +191,10 @@ release-quality repairs, not customer or revenue signal.
 GitHub Pages serves a project path, not a domain root. Its release build now
 prefixes static navigation with `/EOLkits` while keeping status, verification,
 scanner, widget, and pageview requests on the live `eolkits.com` API origin.
-Regression tests cover the split; the committed `docs/` tree remains the
-root-domain GRACE artifact.
+Regression tests cover the split; the committed `docs/` tree is the GitHub Pages
+project artifact. The manual GRACE ship path builds a fresh root-domain artifact
+immediately before its reviewed rsync, so it does not reuse the project-path
+bytes.
 
 Remove the Migration Pack, organization-license, partner, and generic scanner
 research forms. Closed-product routes are short noindex tombstones with no
@@ -218,4 +220,13 @@ branch-source Pages deployment could race and overwrite the custom Actions
 artifact. Therefore the committed `docs/` tree itself becomes the `/EOLkits`
 project-path artifact, and GRACE's manual ship script builds the root-domain
 variant immediately before rsync. Both GitHub deployment mechanisms will now
-publish identical bytes.
+publish identical bytes. Commit f4ef711e implemented that contract; both Pages
+deployments passed and the second public probe confirmed the prefixed navigation
+and split API origin.
+
+The first release-surface run after that change exposed one stale CI assertion:
+it rejected every `ntoledo319.github.io` URL even though that host is now the
+intentional Pages canonical. All twelve non-web jobs passed. Commit b9cf566d
+narrowed the assertion to reject unprefixed and legacy URLs, reproduced the web
+job locally, and passed the replacement release, determinism, property, and
+built-in Pages runs. This failure and correction are release evidence only.
