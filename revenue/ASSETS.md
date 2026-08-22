@@ -88,11 +88,14 @@ All code and evidence below is inside the workspace jail.
 - Components: retired Cloudflare Worker, old Migration Pack/App material, Drift
   Watch, Organization License, partner/white-label routes.
 - Completeness: incomplete or operationally unproved. Active API routes return
-  410, the Worker defaults to tombstone mode, and its normal deploy command
-  fails deliberately. Dormant PR-runner/JWT code and autonomous publisher
-  scripts were removed.
-- $0 deploy: do not deploy except a temporary Worker tombstone needed to close
-  an existing unsafe route.
+  410. The verified live pre-rename Worker was replaced in production with the
+  tested tombstone: health reports retirement and checkout, App-install, and
+  webhook paths return 410. Its retained Queue consumer acknowledges stale
+  events without fulfillment. Dormant PR-runner/JWT code and autonomous
+  publisher scripts were removed.
+- $0 deploy: the closure workflow uses the existing Cloudflare account and
+  preserves only the explicit tombstone. Do not restore commerce bindings or
+  deploy a new Worker product.
 - License/provenance: historical source remains MIT where stated; no artifact is
   approved for sale.
 - Capability worth paying for: none today.
@@ -122,7 +125,8 @@ All code and evidence below is inside the workspace jail.
 - Revenue/demand: observed collected revenue is $0; no customer delivery proves
   willingness to pay.
 - Operations: no real Stripe test-mode end-to-end evidence has been recorded for
-  Audit v2.
+  Audit v2. The formerly live Stripe-capable Cloudflare Worker is now closed;
+  legacy Stripe Payment Links still require dashboard archival.
 - Distribution: the Action v2 ref and repaired GitHub Pages fallback are public,
   but the Marketplace listing remains stale at v1.1.0; VS is not observed in
   its marketplace, and owned-site traffic is unknown.

@@ -150,4 +150,8 @@ delivered paid reports remain zero. The previously overlooked GRACE static
 auto-deploy was observed running daily from `marketing-machine-v2`; that feed is
 now converged on the verified main tree and has a scheduled post-run truth gate.
 This reduces launch labor if the next public probe passes, but is not traffic,
-demand, payment, or proof that the API can fulfill an order.
+demand, payment, or proof that the API can fulfill an order. The live
+Stripe-capable `rupture-worker` was subsequently replaced with the tested
+fail-closed tombstone and its public commerce/webhook paths now return 410.
+That removes a dangerous bypass and three owner minutes; it does not improve a
+frame's demand score or make A1 purchasable.

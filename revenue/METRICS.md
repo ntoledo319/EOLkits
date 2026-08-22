@@ -40,7 +40,8 @@ Only observed evidence belongs here. Forecasts are in OPPORTUNITIES.md and PLAN.
   and GitHub Pages/API-origin regressions.
 - lambda-lifeline on Node.js 24: 28 passed, including nodejs22.x-to-nodejs24.x
   planning and multiline stream-constructor coverage.
-- Retired Worker tombstone: TypeScript build plus 9 passed.
+- Retired Worker tombstone: TypeScript build plus 10 passed, including inert
+  acknowledgement of the retained legacy Queue consumer.
 - lambda-lifeline randomized properties: 3 passed across 60 generated examples;
   this gate found and drove the Node.js 14 IaC regression repair.
 - VS extension: TypeScript compile, ESLint 10, scanner behavior suite, minimal
@@ -111,7 +112,7 @@ Tests and commits are release evidence, not market signal.
   API calls use `https://eolkits.com`; and the retired Pack page has no checkout,
   account, or waitlist. This is release evidence, not a visit or demand event.
 - A separate public probe of `https://eolkits.com/` still found the old Migration
-  Pack and Drift Watch claims. HQ-4 remains mandatory; the custom domain is not
+  Pack and Drift Watch claims. HQ-3 remains mandatory; the custom domain is not
   counted as repaired or ready for checkout.
 
 ## Distribution release evidence — August 22, 2026
@@ -202,3 +203,25 @@ benchmarks, or unverified analytics in this ledger.
   obsolete products and `/api/capabilities` still returned 404. No checkout,
   purchase, delivery, qualified visit, or revenue was observed. Collected
   revenue remains $0.
+
+## Legacy Cloudflare commerce retirement — August 22, 2026
+
+- Before repair, the public pre-rename Worker at
+  `https://rupture-worker.rupture-kits.workers.dev/status.json` returned a
+  healthy production status with Stripe in live mode. This was an unsafe bypass,
+  not revenue evidence.
+- Main commit `90c7b147851db7b3c9945f0c7080a164930c8f7b` contains the bounded
+  retirement workflow and dedicated old-account target. Successful run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32591848083 tested the
+  replacement, deployed it to the exact historical `rupture-worker`, and proved
+  the public closure after edge propagation.
+- Independent public probes observed `{"ok":false,"retired":true}` at `/health`
+  and HTTP 410 at `/checkout`, `/api/checkout`, `/pack/install`, and
+  `/webhook/stripe`. The old direct payment, App-install, and webhook surface is
+  closed.
+- The old-account token could not see a unique `eolkits.com` zone, so it changed
+  no Worker route. Public DNS resolves `eolkits.com` directly to the GRACE IP,
+  making a Cloudflare Worker route non-invocable today; the deployed tombstone
+  also fails closed if routing changes later.
+- No checkout, purchase, report delivery, qualified visit, or revenue was
+  observed. Collected revenue remains $0.
