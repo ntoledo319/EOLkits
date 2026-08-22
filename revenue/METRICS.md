@@ -311,3 +311,36 @@ benchmarks, or unverified analytics in this ledger.
 - No external qualified issue, public external `@v2` code reference, checkout,
   purchase, delivery, or collected dollar was observed. Revenue and profit
   remain $0.
+
+## Bounded search notification — 2026-08-22T20:49:09Z
+
+- Main commit
+  https://github.com/ntoledo319/EOLkits/commit/951fd4b64d1119d0a427c9986d6d1692818aa4be
+  has exact tree `b21d1e82468040bbbdf8d55d2bc1c911849a5ee9` and adds the
+  changed-URL IndexNow workflow plus a permanent generated-site ownership/scope
+  regression. The generated-site suite now reports 24 passing cases.
+- IndexNow run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32597777674 passed. Its
+  executable contract requires a live matching ownership key, 1–10,000 unique
+  URLs under `https://ntoledo319.github.io/EOLkits/`, and an IndexNow HTTP 200 or
+  202 response. Because the publishing diff changed no generated HTML, this
+  bootstrap run selected all 51 canonical sitemap URLs. This proves protocol
+  receipt only—not crawling, indexing, ranking, visits, leads, or revenue.
+- The same commit's release, property, determinism, custom Pages, and built-in
+  Pages runs all passed:
+  https://github.com/ntoledo319/EOLkits/actions/runs/32597777615,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32597777613,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32597777612,
+  https://github.com/ntoledo319/EOLkits/actions/runs/32597777622, and
+  https://github.com/ntoledo319/EOLkits/actions/runs/32597777192.
+- Acquisition run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32597777625 retained artifact
+  `acquisition-evidence-32597777625` (ID `9482023122`, SHA-256 digest
+  `c7dd09d326a184669da72935350ad0f5467b033e8b36a457c654c65467aa6b77`). At
+  20:49:07 UTC it observed 0 qualified-interest issues, 0 distinct external
+  authors, 0 within-30-day windows, 0 external public `@v2` code references with
+  search available, no public v2.0.0 release, 1 star, and 0 forks.
+- Exact Stripe-retirement runs remain 0; scheduled GRACE-verifier runs remain 0;
+  the Marketplace remains v1.1.0; `eolkits.com` still serves the obsolete site
+  with `/api/capabilities` returning 404. Paid deliveries, collected revenue,
+  and collected profit remain 0 / $0 / $0.

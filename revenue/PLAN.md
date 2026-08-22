@@ -119,7 +119,7 @@ main through the project-path/CI follow-ups. The replacement release workflow,
 determinism and property gates, both container builds, and both GitHub Pages
 deployment mechanisms passed. A public probe verified `/EOLkits` navigation,
 the split API origin, and closed-product tombstones. The tested `v2` Action ref
-is now publicly installable at the final `8748cf6a` acquisition commit; Action,
+is now publicly installable at the final `db32bdfb` acquisition commit; Action,
 repository, kit, and future VS links route to the verified Pages funnel. The
 honest private v2.0.0 Marketplace draft is synchronized to the same commit.
 Highest-leverage next action is the owner's five-minute exact Stripe workflow/
@@ -154,3 +154,14 @@ references, zero paid reports, and $0 collected. Bet A's five-day gate begins at
 2026-08-22 20:29 UTC while checkout telemetry remains dormant behind the v2
 capability handshake. The owner priority stays HQ-2 → HQ-5 → closed v2
 deployment; demand instrumentation does not make the stale API safe to charge.
+
+Main commit `951fd4b6` adds the strongest remaining autonomous discovery action:
+an official-protocol IndexNow workflow for the verified Pages corpus. It checks
+the already-public ownership key, confines submissions to the `/EOLkits/`
+prefix, caps the batch, maps ordinary pushes to changed/deleted HTML, and treats
+HTTP 200/202 only as receipt. Bootstrap run `32597777674` accepted the 51-URL
+sitemap batch; every release/Pages/property/determinism gate also passed. Fresh
+acquisition run `32597777625` still observed 0 qualified issues, 0 external
+public `@v2` references, no v2.0.0 public release, 1 star, and 0 forks. Therefore
+the next leverage remains owner HQ-2 then HQ-5; do not build another SKU or move
+the August 27 falsifier forward because of an indexing notification.

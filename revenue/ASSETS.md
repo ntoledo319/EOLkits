@@ -9,7 +9,7 @@ All code and evidence below is inside the workspace jail.
   cited migration/error guidance without uploading code.
 - Stack: deterministic Python/Jinja/PyYAML generator producing docs/ for GitHub
   Pages; client-side scanner and first-party event beacon.
-- Completeness: 23 generated-site tests pass; the 84-file output is
+- Completeness: 24 generated-site tests pass; the 84-file output is
   byte-deterministic across consecutive builds, link/source checked, and free of
   trailing whitespace. The GitHub Pages project-path build keeps static links
   under `/EOLkits` and API calls on `eolkits.com`. Both GitHub Pages deployment
@@ -20,6 +20,12 @@ All code and evidence below is inside the workspace jail.
   commit. Its source feed now points, without force, at the verified truthful
   tree; the next observed run and an independent scheduled verifier must pass
   before the custom domain is counted as repaired.
+- Search distribution: the Pages artifact exposes one valid IndexNow ownership
+  key and a 51-URL same-scope sitemap. A contents-read-only workflow now submits
+  changed/deleted HTML paths on ordinary pushes, with a bounded sitemap fallback
+  for bootstrap/manual runs. Its first public run received an IndexNow HTTP
+  200/202 success response. Receipt is not proof of indexing, ranking, visits,
+  or demand.
 - $0 deploy: GitHub Pages.
 - License/provenance: repository MIT; factual AWS claims require primary-source
   review. No buyer code leaves the browser scanner.
@@ -41,7 +47,7 @@ All code and evidence below is inside the workspace jail.
 - $0 deploy/distribution: public GitHub repository and the existing GitHub
   Marketplace Action listing.
 - Distribution state: the tested `v2` release branch is public and resolves to
-  commit `8748cf6a`, so `uses: ntoledo319/EOLkits@v2` works now and routes report
+  commit `db32bdfb`, so `uses: ntoledo319/EOLkits@v2` works now and routes report
   interest to the verified Pages funnel. The Marketplace
   page still exposes the stale v1.1.0 release until the owner publishes the
   prepared private v2.0.0 draft with the Marketplace checkbox.
@@ -134,8 +140,10 @@ All code and evidence below is inside the workspace jail.
   Prices/Payment Links and the stale GRACE Checkout POSTs are not yet counted as
   closed. Historical Worker versions also require account-level key rotation.
 - Distribution: the Action v2 ref and repaired GitHub Pages fallback are public,
-  but the Marketplace listing remains stale at v1.1.0; VS is not observed in
-  its marketplace, and owned-site traffic is unknown.
+  and the 51 canonical Pages URLs have one accepted IndexNow submission, but the
+  Marketplace listing remains stale at v1.1.0; VS is not observed in its
+  marketplace, indexing/traffic remain unobserved, and the repository metadata
+  still points at the stale custom domain with an unsupported “unpatched” claim.
 - Legal: accurate seller/controller identity, address, governing law, tax
   posture, and $0 incremental hosting confirmation are owner-only gates.
 - Remote history: origin/main accumulated synthetic status/benchmark commits and
@@ -157,7 +165,7 @@ All code and evidence below is inside the workspace jail.
   issue authors and public `@v2` code references. It writes only a run summary
   and 14-day artifact; it never comments, posts, commits metrics, or calls an
   external person. Interest remains a signal, never revenue.
-- The generated site has 23 passing cases, including JavaScript parsing of the
+- The generated site has 24 passing cases, including JavaScript parsing of the
   Audit, scanner, and status pages. It stores no visitor ID, cookie, referrer,
   or local-storage attribution. Telemetry stays dormant until the v2 capability
   handshake succeeds, then sends only canonical first-party fields.
@@ -170,3 +178,8 @@ All code and evidence below is inside the workspace jail.
   GitHub form is installed, `v2` carries the findings-only Action link, and
   acquisition-evidence run `32596830945` completed successfully with a preserved
   observation artifact. This is measurement availability, not customer demand.
+- Search notification run `32597777674` subsequently passed after verifying the
+  public key and the 51 same-scope sitemap URLs. Fresh acquisition artifact
+  `acquisition-evidence-32597777625` still observed zero qualified authors and
+  zero external public `@v2` references. Search-engine receipt and those zero
+  lower bounds do not establish demand.

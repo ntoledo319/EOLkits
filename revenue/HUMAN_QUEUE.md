@@ -1,8 +1,9 @@
 # Batched owner queue — maximum 41 minutes
 
-Last reconciled August 22 after publishing the price-qualified demand probe and
-privacy-safe telemetry release. The Stripe workflow has not been
-owner-dispatched; no new owner task or owner minute was added.
+Last reconciled August 22 after publishing the price-qualified demand probe,
+privacy-safe telemetry release, and bounded IndexNow submission. The Stripe
+workflow has not been owner-dispatched; v2.0.0 is not public; no new owner task
+or owner minute was added.
 
 Do HQ-2 first because the stale GRACE API can still mint live Checkout Sessions,
 then HQ-5 because it repairs existing distribution. Complete HQ-1, HQ-3, HQ-4,
