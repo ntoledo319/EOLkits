@@ -158,6 +158,11 @@ legacy user settings/commands, repairs the verified Audit route, and measures
 only user-submitted, findings-qualified VS interest. Marketplace v1.1.0 is not
 public yet, and the approximate counters are not demand or revenue.
 
+Public guard commit `32d01c2f` pins publication to exact green candidate
+`a9cdcaeb`, rejects non-owner dispatch/reruns and wrong confirmation values, and
+passed release, determinism, property, and Pages CI. This closes the repository
+release gate; it does not mean v1.1.0 has been published.
+
 Highest-leverage next action is the five-minute HQ-2 exact Stripe closure/key
 rotation because the audit may expose anomalous commerce state. Immediately
 afterward, use the same owner sitting for the three-minute HQ-5/HQ-6 distribution

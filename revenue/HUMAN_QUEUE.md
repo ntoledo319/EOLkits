@@ -7,7 +7,8 @@ The Stripe workflow has not been owner-dispatched; neither Marketplace update
 is public. HQ-6 no longer requires a new publisher or credential, reducing its
 estimate by four minutes. Repository commit `a9cdcaeb` and its full release/VS
 package run `32604619029` are green; the publication workflow now requires exact
-owner identity and typed confirmation.
+owner identity and typed confirmation. Guard commit `32d01c2f` and its complete
+release run `32605744293` are also green.
 
 Do HQ-2 first because the stale GRACE API can still mint live Checkout Sessions
 and the exact audit may stop on anomalous commerce state. Then do HQ-5 and HQ-6
