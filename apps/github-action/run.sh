@@ -241,7 +241,13 @@ fi
   echo
   echo "</details>"
   echo
-  echo "[Get the repository evidence report](https://ntoledo319.github.io/EOLkits/audit/?utm_source=github_action&utm_medium=ci&utm_campaign=$KIT)"
+  echo "[See the one-repository evidence report (\$299)](https://ntoledo319.github.io/EOLkits/audit/?source=github_action&utm_source=github_action&utm_medium=ci&utm_campaign=$KIT)"
+  if [[ "$HAS_FINDINGS" = true ]]; then
+    echo
+    echo "[Would this report be worth \$299? Record qualified public interest](https://github.com/ntoledo319/EOLkits/issues/new?template=audit-interest.yml)"
+    echo
+    echo "This is not an order or waitlist. GitHub issues are public; do not include repository details, code, secrets, company information, or personal data."
+  fi
 } > "$REPORT"
 
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then

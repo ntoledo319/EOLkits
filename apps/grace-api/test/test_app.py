@@ -52,6 +52,9 @@ def test_health_reports_grace_native_primitives(tmp_path, monkeypatch):
     data = response.json()
     assert data["storage"] == "filesystem"
     assert data["database"] == "sqlite"
+    assert response.headers["cache-control"] == "no-store"
+    assert "unnotified_leads" not in data
+    assert "refunds_pending" not in data
 
 
 def test_upload_checkout_verify_flow_uses_local_state(tmp_path, monkeypatch):
@@ -238,14 +241,14 @@ def test_stripe_webhook_is_idempotent_and_validates(tmp_path, monkeypatch):
 
 
 def test_events_beacon_records_funnel(tmp_path, monkeypatch):
-    mod, client = _load_app(tmp_path, monkeypatch)
+    mod, client = _load_app(tmp_path, monkeypatch, EOLKITS_ADMIN_TOKEN="test-admin")
     r = client.post(
         "/api/events",
         json={"event": "view", "sku": "audit", "utm_source": "migrate", "kit": "al2023-gate"},
     )
     assert r.status_code == 200 and r.json() == {"ok": True}
     assert mod.store.event_counts(7).get("view") == 1
-    status = client.get("/status").json()
+    status = client.get("/status", headers={"X-Admin-Token": "test-admin"}).json()
     assert status["funnel_7d"].get("view") == 1
 
 
@@ -338,6 +341,7 @@ def test_capability_handshake_and_status_fail_closed(tmp_path, monkeypatch):
 
     capabilities = client.get("/api/capabilities")
     assert capabilities.status_code == 200
+    assert capabilities.headers["cache-control"] == "no-store"
     assert capabilities.json()["audit"] == {
         "checkout_enabled": True,
         "reason": "ready",
@@ -349,7 +353,7 @@ def test_capability_handshake_and_status_fail_closed(tmp_path, monkeypatch):
     status = client.get("/api/status").json()
     assert set(status["components"]) == {"storage", "stripe", "email", "runner"}
     assert status["overall"] == "degraded"
-    assert status["commerce_7d"]["paid"] == 0
+    assert "commerce_7d" not in status
 
 
 def test_upload_is_immutable_and_get_requires_short_lived_signature(tmp_path, monkeypatch):
@@ -768,7 +772,12 @@ def test_retired_subscription_renewal_is_cancelled_and_refunded(tmp_path, monkey
 
 
 def test_failed_automatic_refund_stays_visible_for_owner(tmp_path, monkeypatch):
-    mod, client = _load_app(tmp_path, monkeypatch, STRIPE_KEY="sk_live_dummytest")
+    mod, client = _load_app(
+        tmp_path,
+        monkeypatch,
+        STRIPE_KEY="sk_live_dummytest",
+        EOLKITS_ADMIN_TOKEN="test-admin",
+    )
     mod.store.record_purchase(
         session_id="cs_refund_failure",
         payment_intent="pi_refund_failure",
@@ -797,6 +806,8 @@ def test_failed_automatic_refund_stays_visible_for_owner(tmp_path, monkeypatch):
     jobs = mod.store.recent_jobs()
     assert any(j["type"] == "refund_review" and j["status"] == "requires_owner" for j in jobs)
     status = client.get("/api/status").json()
+    assert "commerce_7d" not in status
+    status = client.get("/api/status", headers={"X-Admin-Token": "test-admin"}).json()
     assert status["commerce_7d"]["refunds_failed"] == 1
     assert status["overall"] == "degraded"
 

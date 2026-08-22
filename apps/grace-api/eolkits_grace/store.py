@@ -696,6 +696,24 @@ class Store:
             ).fetchall()
             return {row["name"]: int(row["n"]) for row in rows}
 
+    def purge_telemetry(self, *, event_cutoff: str, rate_cutoff: int) -> dict[str, int]:
+        """Bound telemetry retention and discard expired abuse-limit buckets.
+
+        Funnel events intentionally contain no visitor identifier, but they still
+        describe site activity and must not grow forever. Rate-limit keys are
+        server-secret-keyed pseudonyms; two days exceeds every configured window
+        while keeping active limits intact.
+        """
+        with self.connect() as conn:
+            events = conn.execute("DELETE FROM events WHERE ts < ?", (event_cutoff,))
+            limits = conn.execute(
+                "DELETE FROM rate_limits WHERE window_start < ?", (int(rate_cutoff),)
+            )
+            return {
+                "events": int(events.rowcount),
+                "rate_limits": int(limits.rowcount),
+            }
+
     def commerce_counts(self, since_days: int = 7) -> dict[str, int]:
         """Return public-safe throughput plus lifetime unresolved money states."""
         cutoff = (datetime.now(UTC) - timedelta(days=since_days)).isoformat()

@@ -1,0 +1,125 @@
+name: Measure public acquisition evidence
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 12 * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/acquisition-evidence.yml'
+      - '.github/ISSUE_TEMPLATE/audit-interest.yml'
+      - 'apps/web/**'
+      - 'apps/github-action/**'
+
+permissions:
+  contents: read
+  issues: read
+
+concurrency:
+  group: acquisition-evidence
+  cancel-in-progress: true
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    env:
+      TMPDIR: ${{ github.workspace }}/tmp/runtime-tmp
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Measure public lower bounds
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$TMPDIR" "$GITHUB_WORKSPACE/tmp/acquisition"
+          owner="${GITHUB_REPOSITORY%%/*}"
+          evidence_dir="$GITHUB_WORKSPACE/tmp/acquisition"
+
+          gh api --paginate "repos/$GITHUB_REPOSITORY/issues?state=all&per_page=100" \
+            --jq '.[]' > "$evidence_dir/issues.ndjson"
+          jq -s --arg owner "$owner" '
+            [.[]
+              | select(has("pull_request") | not)
+              | select(.title | startswith("[Audit interest]"))
+              | select(.user.type != "Bot")
+              | select(.user.login != $owner)
+              | select((.user.login | test("\\[bot\\]$"; "i")) | not)
+              | select(((.body // "") | ascii_downcase) as $body
+                  | ($body | contains("- [x] i ran an eolkits scanner on real project files"))
+                  and ($body | contains("- [x] i understand the offer is one static repository evidence report priced at $299"))
+                  and ($body | contains("- [x] if checkout were open and the documented scope fit, i would consider purchasing it"))
+                  and ($body | contains("- [x] i will not include repository names")))
+            ]' "$evidence_dir/issues.ndjson" > "$evidence_dir/qualified-interest.json"
+
+          issue_count="$(jq 'length' "$evidence_dir/qualified-interest.json")"
+          author_count="$(jq '[.[].user.login] | unique | length' "$evidence_dir/qualified-interest.json")"
+          near_term_count="$(jq '[.[] | select((.body // "") | contains("Within 30 days"))] | length' "$evidence_dir/qualified-interest.json")"
+
+          repo_json="$(gh api "repos/$GITHUB_REPOSITORY")"
+          stars="$(jq -r '.stargazers_count' <<< "$repo_json")"
+          forks="$(jq -r '.forks_count' <<< "$repo_json")"
+
+          code_query='"ntoledo319/EOLkits@v2" -repo:ntoledo319/EOLkits'
+          external_search_available=false
+          external_v2_refs=0
+          if code_json="$(gh api --method GET search/code -f q="$code_query" -f per_page=100 2>"$evidence_dir/code-search.err")"; then
+            external_search_available=true
+            external_v2_refs="$(jq -r '.total_count' <<< "$code_json")"
+          fi
+
+          public_v2_release=false
+          if release_json="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/v2.0.0" 2>/dev/null)"; then
+            if [[ "$(jq -r '.draft == false' <<< "$release_json")" == true ]]; then
+              public_v2_release=true
+            fi
+          fi
+
+          observed_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          jq -n \
+            --arg observed_at "$observed_at" \
+            --argjson qualified_interest_issues "$issue_count" \
+            --argjson distinct_external_authors "$author_count" \
+            --argjson within_30_days "$near_term_count" \
+            --argjson external_v2_code_refs "$external_v2_refs" \
+            --argjson external_v2_search_available "$external_search_available" \
+            --argjson public_v2_release "$public_v2_release" \
+            --argjson stars "$stars" \
+            --argjson forks "$forks" \
+            '{
+              observed_at: $observed_at,
+              qualified_interest_issues: $qualified_interest_issues,
+              distinct_external_authors: $distinct_external_authors,
+              within_30_days: $within_30_days,
+              external_v2_code_refs: $external_v2_code_refs,
+              external_v2_search_available: $external_v2_search_available,
+              public_v2_release: $public_v2_release,
+              stars: $stars,
+              forks: $forks,
+              caveat: "Public lower bounds only; private repositories, unindexed use, and purchases are not observed here. Interest is not revenue."
+            }' > "$evidence_dir/evidence.json"
+
+          {
+            echo '## Public acquisition evidence'
+            echo
+            echo "Observed: \`$observed_at\`"
+            echo
+            echo "- Price-qualified Audit interest issues: **$issue_count**"
+            echo "- Distinct external authors: **$author_count**"
+            echo "- Purchase window within 30 days: **$near_term_count**"
+            echo "- Public code references to \`ntoledo319/EOLkits@v2\` outside this repository: **$external_v2_refs**"
+            echo "- Code-search result available: **$external_search_available**"
+            echo "- Public v2.0.0 release: **$public_v2_release**"
+            echo
+            echo 'These are public lower bounds, not purchases or revenue. Private use and search-index lag are invisible.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Preserve the observation
+        uses: actions/upload-artifact@v7
+        with:
+          name: acquisition-evidence-${{ github.run_id }}
+          path: tmp/acquisition/evidence.json
+          if-no-files-found: error
+          retention-days: 14

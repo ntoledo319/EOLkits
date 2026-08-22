@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta name="referrer" content="origin">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Privacy Policy — EOLkits</title>
@@ -19,8 +20,8 @@
 <li><strong>Free browser scanner:</strong> Source files are processed in your browser and are not uploaded by that tool.</li>
 <li><strong>Paid evidence report:</strong> Email address, original upload filename, uploaded ZIP/source bytes, content hash, generated PDF, evidence fingerprint, and fulfillment status.</li>
 <li><strong>Purchases:</strong> Stripe Checkout identifiers, price/SKU, amount, currency, customer email, refund state, and limited attribution fields. Card numbers are handled by Stripe and are not stored by EOLkits.</li>
-<li><strong>Product research:</strong> Email, company/name when supplied, product of interest, form fields, and a supplied source or referrer origin/path without its query.</li>
-<li><strong>First-party usage events:</strong> Page path, event name, product/kit, and supplied source or UTM values. EOLkits does not use advertising trackers or third-party analytics cookies.</li>
+<li><strong>Product research:</strong> The current Audit-interest form is a public GitHub issue. GitHub publishes the submitting account and the selected form answers; EOLkits tells submitters not to include project, company, security, or personal data.</li>
+<li><strong>First-party usage events:</strong> A canonical page category, allowlisted event name, product/kit token, supplied source/UTM tokens, and bounded aggregate file and finding counts. Invalid or PII-like attribution values are discarded. EOLkits does not use advertising trackers, third-party analytics, cookies, browser storage, fingerprinting, or a visitor identifier.</li>
 <li><strong>Abuse prevention:</strong> A server-secret-keyed pseudonymous network-source token is used for rate limiting; the originating address is not written to the application database.</li>
 <li><strong>Infrastructure logs:</strong> The hosting and email providers may process request metadata such as IP address, user agent, delivery status, and timestamps for security and operation.</li>
 </ul>
@@ -38,8 +39,9 @@
 <ul>
 <li>Purchase, refund, and fulfillment records are stored in both Stripe and local EOLkits SQLite state as needed to deliver, reconcile, refund, and account for a purchase.</li>
 <li>Financial records may be retained as required by tax, accounting, fraud, or legal obligations.</li>
-<li>First-party funnel events and product-research leads are retained for product operation and may be deleted on a verified request unless legal retention applies.</li>
-<li>First-touch source/UTM attribution may be stored in your browser&#x27;s local storage. It contains no random user identifier and can be cleared using your browser&#x27;s site-data controls.</li>
+<li>Raw first-party funnel events are automatically deleted after 30 days. Pseudonymous abuse-rate keys are automatically deleted after two days. Detailed event and commerce counts are available only to the authenticated operator.</li>
+<li>Source/UTM attribution is read from the current page URL only when the verified v2 first-party API is available. It is not written to cookies or browser storage, and outbound referrers are limited to the site origin.</li>
+<li>Product-research leads submitted through any separately displayed private form may be deleted on a verified request unless legal retention applies. Public GitHub issue data follows GitHub&#x27;s controls and retention practices.</li>
 </ul>
 <h2>5. Providers</h2>
 <p>EOLkits uses:</p>

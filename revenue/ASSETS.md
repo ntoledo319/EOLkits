@@ -9,7 +9,7 @@ All code and evidence below is inside the workspace jail.
   cited migration/error guidance without uploading code.
 - Stack: deterministic Python/Jinja/PyYAML generator producing docs/ for GitHub
   Pages; client-side scanner and first-party event beacon.
-- Completeness: 18 generated-site tests pass; the 84-file output is
+- Completeness: 23 generated-site tests pass; the 84-file output is
   byte-deterministic across consecutive builds, link/source checked, and free of
   trailing whitespace. The GitHub Pages project-path build keeps static links
   under `/EOLkits` and API calls on `eolkits.com`. Both GitHub Pages deployment
@@ -70,7 +70,7 @@ All code and evidence below is inside the workspace jail.
   evidence PDF with exact locations, cited rules, hashes, and explicit limits.
 - Stack: FastAPI, SQLite FULL WAL, immutable bounded uploads, Stripe webhooks,
   durable jobs/refunds, Resend, WeasyPrint, signed report URLs.
-- Completeness: 72 API cases and 14 report-runner cases pass; production
+- Completeness: 74 API cases and 14 report-runner cases pass; production
   operation is unproved. Checkout
   defaults off and readiness also fails closed on missing runner, email, Stripe,
   storage, pending refunds, or at-risk fulfillment.
@@ -144,3 +144,25 @@ All code and evidence below is inside the workspace jail.
 - Funnel sprawl: closed Migration Pack, organization, partner, and scanner
   research-list forms were removed. Those pages no longer collect speculative
   leads or promise future features.
+
+## Demand-signal and privacy hardening — August 22
+
+- The browser scanner now reveals a structured `$299 Audit interest` GitHub
+  issue form only after at least one real finding. The closed Audit page exposes
+  the same form. It requires a real-project finding, exact $299 scope
+  acknowledgement, purchase consideration, and a no-sensitive-data pledge. It
+  is explicitly public, nonbinding, and not an order, reservation, waitlist, or
+  promise of follow-up.
+- A daily read-only workflow records public lower bounds for qualified external
+  issue authors and public `@v2` code references. It writes only a run summary
+  and 14-day artifact; it never comments, posts, commits metrics, or calls an
+  external person. Interest remains a signal, never revenue.
+- The generated site has 23 passing cases, including JavaScript parsing of the
+  Audit, scanner, and status pages. It stores no visitor ID, cookie, referrer,
+  or local-storage attribution. Telemetry stays dormant until the v2 capability
+  handshake succeeds, then sends only canonical first-party fields.
+- The API has 74 passing cases. GitHub Pages is exact-origin CORS-allowed;
+  impostor origins are rejected. Raw events expire after 30 days, abuse keys
+  after two days, ingestion is body/rate/database bounded, PII-like attribution
+  is discarded, and funnel/commerce/order detail is admin-only with no-store
+  caching.

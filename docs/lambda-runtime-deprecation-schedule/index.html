@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta name="referrer" content="origin">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AWS Lambda runtime deprecation schedule (2026–2027) | EOLkits</title>
@@ -10,30 +11,6 @@
 <script defer src="/EOLkits/track.js"></script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What happens when an AWS Lambda runtime is deprecated?", "acceptedAnswer": {"@type": "Answer", "text": "Existing functions keep running after deprecation, but AWS no longer applies runtime updates or security patches. AWS publishes separate dates for blocking creation and updates; those intervals vary, so use the current per-runtime table rather than assuming a fixed delay."}}, {"@type": "Question", "name": "How do I find which Lambda runtimes I'm using?", "acceptedAnswer": {"@type": "Answer", "text": "Run the free scanner at eolkits.com/scan over your SAM/CDK/Terraform/Serverless config (nothing is uploaded), or run: aws lambda list-functions --query 'Functions[].Runtime'."}}, {"@type": "Question", "name": "What should I upgrade Lambda Python and Node runtimes to?", "acceptedAnswer": {"@type": "Answer", "text": "EOLkits' bounded rewrite paths currently target python3.12 and nodejs24.x; that is a tool choice, not an AWS recommendation. Recheck AWS's current support table, then test removed standard-library modules, SDK packaging, and native-wheel or ABI changes on the chosen target."}}]}</script>
 <style>.sched{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.92rem}.sched th,.sched td{border:1px solid #e5e7eb;padding:.5rem .6rem;text-align:left}.sched th{background:#f3f4f6}.sched .sev{font-weight:700}.sev-critical{color:#dc2626}.sev-high{color:#ea580c}.sev-medium{color:#ca8a04}.cta{display:inline-block;margin:1rem 0;padding:.7rem 1.2rem;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600}</style>
-<script>
-(function(){
-  try{
-    var KEY='eolkits_ft';
-    if(localStorage.getItem(KEY))return;
-    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='', refHost='';
-    try{refHost=(new URL(ref)).hostname.toLowerCase().slice(0,100);}catch(e){}
-    if(refHost===location.hostname.toLowerCase())refHost='';
-    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
-    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
-    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
-    else if(/claude\.ai/i.test(ref))aeo='claude';
-    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
-    if(!hasUtm && !refHost)return;
-    localStorage.setItem(KEY, JSON.stringify({
-      source: q.get('source')||(aeo?('aeo_'+aeo):'referral'),
-      utm_source: q.get('utm_source')||aeo||refHost,
-      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':'referral'),
-      utm_campaign: q.get('utm_campaign')||'',
-      kit: q.get('kit')||''
-    }));
-  }catch(e){}
-})();
-</script>
 </head>
 <body class="container article">
 <nav class="breadcrumb"><a href="/EOLkits/">Home</a> / <a href="/EOLkits/migrate/">Deadlines</a> / <span>Lambda runtime schedule</span></nav>

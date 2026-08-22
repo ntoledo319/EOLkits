@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+import subprocess
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -99,9 +101,11 @@ def test_project_pages_keep_live_api_calls_on_the_api_origin(monkeypatch) -> Non
     scanner = build.build_scan_page(build.load_deprecations())
 
     assert "fetch('https://eolkits.com/api/status'" in status
-    assert "sendBeacon('https://eolkits.com/api/events'" in widget
+    assert "/api/events" not in widget
+    assert "meta.repo" not in widget
+    assert "textContent = repo" in widget
     assert 'const SITE_BASE = "https://ntoledo319.github.io/EOLkits"' in scanner
-    assert 'const API_BASE = "https://eolkits.com"' in scanner
+    assert "API_BASE" not in scanner
     assert "sendBeacon('/api/" not in scanner
 
 
@@ -119,8 +123,16 @@ def test_retired_generated_surfaces_are_not_publishable() -> None:
 def test_tracking_does_not_retain_full_referrer() -> None:
     track = (DOCS / "track.js").read_text(encoding="utf-8")
     assert "document.referrer" not in track
+    assert "localStorage" not in track
+    assert "sendBeacon" not in track
+    assert "/api/capabilities" in track
+    assert "report_version)==='2.0'" in track
+    assert "credentials:'omit'" in track
     for page in DOCS.rglob("*.html"):
-        assert "ref: ref.slice" not in page.read_text(encoding="utf-8")
+        html = page.read_text(encoding="utf-8")
+        assert "ref: ref.slice" not in html
+        assert "localStorage" not in html
+        assert '<meta name="referrer" content="origin">' in html
 
 
 def test_false_imds_deadline_and_unbuilt_drift_offer_stay_retired() -> None:
@@ -163,3 +175,19 @@ def test_generated_text_has_no_trailing_whitespace() -> None:
             if line.endswith((" ", "\t")):
                 offenders.append(f"{path.relative_to(DOCS)}:{line_number}")
     assert not offenders, "generated trailing whitespace:\n" + "\n".join(offenders)
+
+
+def test_commercial_inline_javascript_parses() -> None:
+    for relative in ("audit/index.html", "scan/index.html", "status/index.html"):
+        html = (DOCS / relative).read_text(encoding="utf-8")
+        scripts = re.findall(r"<script>\s*(.*?)</script>", html, flags=re.DOTALL)
+        assert scripts, f"no inline script found in {relative}"
+        for script in scripts:
+            checked = subprocess.run(
+                ["node", "--check", "-"],
+                input=script,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            assert checked.returncode == 0, f"{relative}: {checked.stderr}"

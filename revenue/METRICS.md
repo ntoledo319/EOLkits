@@ -259,3 +259,19 @@ benchmarks, or unverified analytics in this ledger.
   or Stripe-key state is recorded as changed or reconciled by this release.
   Public rendering of the historical `buy.stripe.com` links also remains
   unverified. Collected revenue remains $0 and delivered paid reports remain 0.
+
+## Qualified-demand baseline — 2026-08-22T20:21:59Z
+
+- GitHub Issues API observation: 0 actual issues in the repository (pull
+  requests excluded), therefore 0 `$299 Audit interest` submissions and 0
+  distinct external qualified authors.
+- GitHub public code-search observation for the exact install string
+  `ntoledo319/EOLkits@v2`, excluding this repository: 0 observed external public
+  references. Private repositories and indexing delay are invisible, so this is
+  a lower bound, not a claim of zero use.
+- Exact Stripe retirement workflow runs: 0. Public v2.0.0 releases: 0. The
+  Marketplace remains v1.1.0. These are availability facts, not demand.
+- Paid reports delivered: 0. Collected revenue: $0. Collected profit: $0.
+- The structured issue form and read-only acquisition-evidence workflow are
+  locally verified but not yet public at this ledger point; they become a live
+  measurement surface only after publication and a green remote run.

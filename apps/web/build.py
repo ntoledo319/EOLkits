@@ -34,6 +34,7 @@ BUILD_DATE_FILE = BASE_DIR / "BUILD_DATE"
 PROJECT_BASE_PATH = os.environ.get("EOLKITS_BASE_PATH", "")
 SITE_URL = os.environ.get("EOLKITS_SITE_URL", "https://eolkits.com")
 API_URL = os.environ.get("EOLKITS_API_URL", "https://eolkits.com")
+AUDIT_INTEREST_URL = "https://github.com/ntoledo319/EOLkits/issues/new?template=audit-interest.yml"
 # IndexNow key (Bing/Yandex + AI engines that consume it — instant indexing of new
 # pages). Stable + committed so the hosted key file at /<key>.txt always matches what
 # we submit to api.indexnow.org; rotating it would break verification.
@@ -51,7 +52,12 @@ def _interpolate_api(html):
     result has zero ``{API_URL}`` / ``{{`` / ``}}`` left — which the CI gate and
     the deploy gate both enforce.
     """
-    return html.replace("{API_URL}", API_URL).replace("{{", "{").replace("}}", "}")
+    return (
+        html.replace("{API_URL}", API_URL)
+        .replace("{AUDIT_INTEREST_URL}", AUDIT_INTEREST_URL)
+        .replace("{{", "{")
+        .replace("}}", "}")
+    )
 
 
 ROOT_RELATIVE_ATTR_RE = re.compile(
@@ -303,6 +309,14 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 <p class="reassure">🔒 Secure checkout via Stripe · automated delivery with durable retries · 30-day money-back guarantee</p>
 
 <div id="auditGate" class="callout"><strong>Checkout safety check:</strong> waiting for the v2 fulfillment backend. Checkout stays closed unless the live API confirms report engine 2.0.</div>
+<div id="auditInterest" class="callout">
+  <strong>Found a relevant issue in a real project?</strong>
+  Checkout is paused while fulfillment is verified. If this exact one-repository
+  report would be worth $299 to you, record a public, no-obligation demand signal.
+  It is not an order, reservation, waitlist, or promise of a reply.
+  <p><a class="cta secondary" href="{AUDIT_INTEREST_URL}" target="_blank" rel="noopener">Record qualified $299 interest on GitHub</a></p>
+  <p class="reassure">GitHub publishes your username and submission. Do not include repository names, filenames, code, secrets, security details, company information, or personal data.</p>
+</div>
 <form id="auditForm" hidden>
   <h3>Start Audit</h3>
   <p><input type="email" id="auditEmail" name="email" placeholder="your@email.com" required style="padding:0.5rem;width:300px"></p>
@@ -317,22 +331,18 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 <script>
 const API = '{API_URL}';
 const qp = new URLSearchParams(location.search);
-function attribution() {{
-  var ft = {{}};
-  try {{ ft = JSON.parse(localStorage.getItem('eolkits_ft') || '{{}}'); }} catch (e) {{}}
-  return {{
-    source: ft.source || qp.get('source') || 'audit_page',
-    utm_source: ft.utm_source || qp.get('utm_source') || '',
-    utm_medium: ft.utm_medium || qp.get('utm_medium') || '',
-    utm_campaign: ft.utm_campaign || qp.get('utm_campaign') || '',
-    kit: ft.kit || qp.get('kit') || ''
-  }};
+function attributionToken(value) {{
+  value = String(value || '').toLowerCase();
+  return /^[a-z0-9._-]{{1,64}}$/.test(value) ? value : '';
 }}
-function track(eventName, extra) {{
-  try {{
-    const payload = Object.assign({{ event: eventName, sku: 'audit', path: location.pathname }}, attribution(), extra || {{}});
-    navigator.sendBeacon(API + '/api/events', new Blob([JSON.stringify(payload)], {{ type: 'application/json' }}));
-  }} catch (e) {{}}
+function attribution() {{
+  return {{
+    source: attributionToken(qp.get('source')) || 'audit_page',
+    utm_source: attributionToken(qp.get('utm_source')),
+    utm_medium: attributionToken(qp.get('utm_medium')),
+    utm_campaign: attributionToken(qp.get('utm_campaign')),
+    kit: attributionToken(qp.get('kit'))
+  }};
 }}
 function apiMessage(data, fallback) {{
   if (data && typeof data.detail === 'string') return data.detail;
@@ -345,16 +355,17 @@ const auditStatus = document.getElementById('auditStatus');
 const auditSubmit = document.getElementById('auditSubmit');
 const deadlineInput = document.getElementById('auditDeadline');
 const auditGate = document.getElementById('auditGate');
+const auditInterest = document.getElementById('auditInterest');
 // Prefill report context from a deadline-tagged migration page. The deadline does
 // not alter price.
 if (qp.get('deadline') && deadlineInput) deadlineInput.value = qp.get('deadline');
 if (qp.get('cancelled')) auditStatus.textContent = 'Checkout cancelled — finish whenever you are ready.';
-track('view');
-fetch(API + '/api/capabilities').then(r => r.ok ? r.json() : Promise.reject()).then(c => {{
+fetch(API + '/api/capabilities', {{ cache: 'no-store', credentials: 'omit' }}).then(r => r.ok ? r.json() : Promise.reject()).then(c => {{
   const a = c && c.audit;
   if (a && a.checkout_enabled === true && String(a.report_version) === '2.0') {{
     auditForm.hidden = false;
     auditGate.hidden = true;
+    auditInterest.hidden = true;
   }} else {{
     auditGate.textContent = 'Audit checkout is temporarily paused while fulfillment is verified.';
   }}
@@ -395,7 +406,9 @@ auditForm.addEventListener('submit', async (event) => {{
     if (!upload.ok) throw new Error('Upload failed');
 
     auditStatus.textContent = 'Opening secure checkout...';
-    track('checkout_click', {{ deadline: deadline }});
+    if (typeof window.eolkitsTrack === 'function') {{
+      window.eolkitsTrack('checkout_click', {{ sku: 'audit', deadline: deadline }});
+    }}
     const a = attribution();
     const checkoutBody = new URLSearchParams({{ email: email, upload_id: presignData.uploadId }});
     if (deadline) checkoutBody.set('deadline', deadline);
@@ -1332,23 +1345,38 @@ def build_al2_vs_al2023_page(deprecations, pricing_view):
 
 
 def build_track_js():
-    """First-party pageview beacon for content pages (home/scan/migrate/fix). The
-    commerce pages fire their own richer inline events; this gives the TOP of the
-    funnel visibility via POST /api/events -> /status funnel counts. No third party,
-    no cookies — a single sendBeacon on load with path + first-touch attribution."""
+    """Expose bounded first-party telemetry only after the v2 API proves itself.
+
+    The obsolete GRACE backend lacks ``/api/capabilities`` and retains events
+    indefinitely. Waiting for the explicit report-version handshake prevents the
+    repaired Pages build from writing into that stale store. No visitor identifier,
+    referrer, cookie, or local-storage value is collected.
+    """
     return (
-        "(function(){try{"
-        "var qp=new URLSearchParams(location.search);"
-        "var ft={};try{ft=JSON.parse(localStorage.getItem('eolkits_ft')||'{}');}catch(e){}"
-        "var p={event:'view',path:location.pathname,"
-        "source:ft.source||qp.get('source')||'organic',"
-        "utm_source:ft.utm_source||qp.get('utm_source')||'',"
-        "utm_medium:ft.utm_medium||qp.get('utm_medium')||'',"
-        "utm_campaign:ft.utm_campaign||qp.get('utm_campaign')||''};"
-        "navigator.sendBeacon('"
-        + API_URL
-        + "/api/events',new Blob([JSON.stringify(p)],{type:'application/json'}));"
-        "}catch(e){}})();"
+        "(function(){'use strict';"
+        "var ready=false,qp=new URLSearchParams(location.search),api="
+        + json.dumps(API_URL.rstrip("/"))
+        + ";"
+        "function tok(v){v=String(v||'').toLowerCase();return/^[a-z0-9._-]{1,64}$/.test(v)?v:'';}"
+        "function count(v){v=Number(v);return Number.isFinite(v)?Math.max(0,Math.min(Math.trunc(v),10000)):0;}"
+        "window.eolkitsTrack=function(name,extra){if(!ready)return;try{"
+        "var p={event:name,path:location.pathname,"
+        "source:tok(qp.get('source'))||'organic',"
+        "utm_source:tok(qp.get('utm_source')),"
+        "utm_medium:tok(qp.get('utm_medium')),"
+        "utm_campaign:tok(qp.get('utm_campaign')),"
+        "kit:tok(qp.get('kit'))};"
+        "if(extra&&tok(extra.sku))p.sku=tok(extra.sku);"
+        "if(extra&&/^\\d{4}-\\d{2}-\\d{2}$/.test(String(extra.deadline||'')))p.deadline=String(extra.deadline);"
+        "if(name==='scan_completed'&&extra&&extra.meta)p.meta={finding_count:count(extra.meta.finding_count),file_count:count(extra.meta.file_count)};"
+        "fetch(api+'/api/events',{method:'POST',mode:'cors',cache:'no-store',credentials:'omit',keepalive:true,"
+        "headers:{'Content-Type':'application/json'},body:JSON.stringify(p)}).catch(function(){});"
+        "}catch(e){}};"
+        "fetch(api+'/api/capabilities',{cache:'no-store',credentials:'omit'})"
+        ".then(function(r){if(!r.ok)throw new Error('unavailable');return r.json();})"
+        ".then(function(c){var a=c&&c.audit;ready=Boolean(a&&String(a.report_version)==='2.0');"
+        "if(ready)window.eolkitsTrack('view');}).catch(function(){});"
+        "})();"
     )
 
 
@@ -1490,15 +1518,13 @@ def build_widget_js():
   const container = document.createElement('div');
   container.className = 'eolkits-widget';
   container.innerHTML = `
-    <h3>${{repo}}</h3>
+    <h3 class="eolkits-repo"></h3>
     <p>Check this repository for AWS runtime and platform deprecation risks.</p>
     <a href="{SITE_URL}/audit/?repo=${{encodeURIComponent(repo)}}&utm_source=widget&utm_medium=embed&source=widget" target="_blank" rel="noopener">Run EOLkits audit</a>
     <div class="powered">Powered by EOLkits</div>
   `;
+  container.querySelector('.eolkits-repo').textContent = repo;
   script.parentNode.insertBefore(container, script.nextSibling);
-  try {{
-    navigator.sendBeacon('{API_URL}/api/events', new Blob([JSON.stringify({{ event: 'widget_view', source: 'widget', sku: 'audit', meta: {{ repo: repo }} }})], {{ type: 'application/json' }}));
-  }} catch (e) {{}}
 }})();
 """
 
@@ -1598,29 +1624,48 @@ if (sku === 'audit') {{
 
 def build_status_page():
     html = """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Status — EOLkits</title>
-<style>body{font-family:system-ui,sans-serif;max-width:900px;margin:0 auto;padding:2rem;line-height:1.6}.brand{color:#2563eb;font-weight:600}.svc{display:flex;justify-content:space-between;align-items:center;border:1px solid #e5e7eb;border-radius:8px;padding:1rem;margin:.5rem 0}.dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:8px;background:#9ca3af}.dot.green{background:#10b981}.dot.red{background:#ef4444}.muted{color:#6b7280;font-size:.85rem}.notice{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:1rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}.card{border:1px solid #e5e7eb;border-radius:8px;padding:1rem}</style>
+<style>body{font-family:system-ui,sans-serif;max-width:900px;margin:0 auto;padding:2rem;line-height:1.6}.brand{color:#2563eb;font-weight:600}.svc{display:flex;justify-content:space-between;align-items:center;border:1px solid #e5e7eb;border-radius:8px;padding:1rem;margin:.5rem 0}.dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:8px;background:#9ca3af}.dot.green{background:#10b981}.dot.red{background:#ef4444}.muted{color:#6b7280;font-size:.85rem}.notice{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:1rem}</style>
 </head><body><a href="/" class="brand">← EOLkits</a><h1>System Status</h1>
-<p class="muted">Live backend readiness and anonymous seven-day funnel/commerce aggregates. This is not an end-to-end synthetic purchase test.</p>
+<p class="muted">Live backend readiness only. Low-volume funnel, commerce, and order details are private operator data. This is not an end-to-end synthetic purchase test.</p>
 <p id="feedState" class="notice">Loading the live API status…</p>
 <div id="services"><div class="svc"><span><span class="dot" id="dot-storage"></span>Upload/report storage</span><span id="t-storage">unknown</span></div>
 <div class="svc"><span><span class="dot" id="dot-stripe"></span>Stripe configuration</span><span id="t-stripe">unknown</span></div>
 <div class="svc"><span><span class="dot" id="dot-runner"></span>Job runner</span><span id="t-runner">—</span></div>
 <div class="svc"><span><span class="dot" id="dot-email"></span>Email configuration</span><span id="t-email">unknown</span></div></div>
 <h2>Product availability</h2><ul id="capabilities"><li>Loading…</li></ul>
-<div class="grid"><div class="card"><h2>Funnel (7 days)</h2><ul id="funnel"><li>Loading…</li></ul></div><div class="card"><h2>Commerce (7 days)</h2><ul id="commerce"><li>Loading…</li></ul></div></div>
 <script>
-function list(id,data){const el=document.getElementById(id);el.innerHTML='';const entries=Object.entries(data||{});if(!entries.length){el.innerHTML='<li>No events observed</li>';return;}for(const [k,v] of entries){const li=document.createElement('li');li.textContent=k+': '+v;el.appendChild(li);}}
+function list(id,data){const el=document.getElementById(id);el.innerHTML='';const entries=Object.entries(data||{});if(!entries.length){el.innerHTML='<li>No capabilities reported</li>';return;}for(const [k,v] of entries){const li=document.createElement('li');li.textContent=k+': '+v;el.appendChild(li);} }
 fetch('{API_URL}/api/status',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject(new Error('HTTP '+r.status))).then(d=>{
   document.getElementById('feedState').textContent='Live API reported '+(d.overall||'unknown')+' at '+(d.timestamp||'unknown time')+'.';
   for(const s of ['storage','stripe','runner','email']){
     const v=(d.components||{})[s];
     if(v){document.getElementById('dot-'+s).className='dot '+(v.ok?'green':'red');document.getElementById('t-'+s).textContent=v.ok?'ready':'not ready';}
   }
-  list('capabilities',d.capabilities);list('funnel',d.funnel_7d);list('commerce',d.commerce_7d);
-}).catch(e=>{document.getElementById('feedState').textContent='Live status unavailable; all component states remain unknown. '+e.message;list('capabilities',{});list('funnel',{});list('commerce',{});});
+  list('capabilities',d.capabilities);
+}).catch(e=>{document.getElementById('feedState').textContent='Live status unavailable; all component states remain unknown. '+e.message;list('capabilities',{});});
 </script>
 <footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a></footer></body></html>"""
     return _interpolate_api(html)
+
+
+def inject_privacy_meta(content: str) -> str:
+    """Limit cross-origin referrers without relying on server configuration.
+
+    GitHub Pages cannot set response headers. Injecting this into every generated
+    HTML document keeps query parameters and page paths out of outbound Referer
+    headers while retaining the first-party origin for basic attribution.
+    """
+    if not re.search(r"<html\b", content, flags=re.IGNORECASE):
+        return content
+    if re.search(r'<meta\s+name=["\']referrer["\']', content, flags=re.IGNORECASE):
+        return content
+    return re.sub(
+        r"(<head\b[^>]*>)",
+        r'\1\n<meta name="referrer" content="origin">',
+        content,
+        count=1,
+        flags=re.IGNORECASE,
+    )
 
 
 def build_status_data_seed():
@@ -1908,47 +1953,6 @@ def md_to_html(md_text, title, canonical_path):
     )
 
 
-# First-touch attribution shim (M4a): persists the first meaningful referral
-# (UTM parameters or an external referrer hostname, never its path/query)
-# into localStorage on the page where a cold visitor LANDS, so it survives the
-# internal navigation to /audit/ where conversion happens. Without it,
-# attribution() reads only the current URL, so a buyer who lands on a /migrate/
-# page via an AEO citation and clicks through to /audit/ is mis-credited
-# 'audit_page' and the cold-reach channel that produced the sale is invisible.
-FIRST_TOUCH_JS = """<script>
-(function(){
-  try{
-    var KEY='eolkits_ft';
-    if(localStorage.getItem(KEY))return;
-    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='', refHost='';
-    try{refHost=(new URL(ref)).hostname.toLowerCase().slice(0,100);}catch(e){}
-    if(refHost===location.hostname.toLowerCase())refHost='';
-    if(/chatgpt\\.com|chat\\.openai\\.com/i.test(ref))aeo='chatgpt';
-    else if(/perplexity\\.ai/i.test(ref))aeo='perplexity';
-    else if(/gemini\\.google\\.com/i.test(ref))aeo='gemini';
-    else if(/claude\\.ai/i.test(ref))aeo='claude';
-    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
-    if(!hasUtm && !refHost)return;
-    localStorage.setItem(KEY, JSON.stringify({
-      source: q.get('source')||(aeo?('aeo_'+aeo):'referral'),
-      utm_source: q.get('utm_source')||aeo||refHost,
-      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':'referral'),
-      utm_campaign: q.get('utm_campaign')||'',
-      kit: q.get('kit')||''
-    }));
-  }catch(e){}
-})();
-</script>
-"""
-
-
-def inject_first_touch(path: str, content: str) -> str:
-    """Insert the first-touch shim before </head> on every generated HTML page."""
-    if path.endswith(".html") and "</head>" in content:
-        return content.replace("</head>", FIRST_TOUCH_JS + "</head>", 1)
-    return content
-
-
 # --- M1: the free /scan engine -------------------------------------------- #
 # The checked snapshot below is compared with the shared machine-readable rules at
 # build time. Both the browser scanner and paid report consume the shared file, so
@@ -2133,10 +2137,11 @@ function render(all) {
   const n = all.length;
   box.innerHTML = '<p class="scan-count">' + n + ' finding' + (n === 1 ? '' : 's') + ' — all detected locally in your browser.</p>' +
     '<table class="scan-tbl"><thead><tr><th>Severity</th><th>What</th><th>File</th><th>Deadline / fix</th><th>Detail</th></tr></thead><tbody>' + rows + '</tbody></table>' +
-    '<a class="scan-cta" href="' + auditLink(deadline, kit) + '">Get repository-wide file/line evidence, sources &amp; remediation order — check Audit v2 availability &rarr;</a>';
+    '<a class="scan-cta" href="' + auditLink(deadline, kit) + '">See the one-repository evidence report ($299) &rarr;</a>' +
+    '<p class="scan-interest"><a href="' + INTEREST_URL + '" target="_blank" rel="noopener">Would this report be worth $299? Record qualified public interest on GitHub.</a><br><small>No order or waitlist. Do not disclose project details, code, secrets, company information, or personal data.</small></p>';
 }
 const dz = $('#dz'), fi = $('#fi'); let acc = [];
-function scanDone(fileCount) { try { navigator.sendBeacon(API_BASE + '/api/events', new Blob([JSON.stringify({ event: 'scan_completed', sku: 'audit', path: location.pathname, meta: { finding_count: acc.length, file_count: fileCount } })], { type: 'application/json' })); } catch (e) {} }
+function scanDone(fileCount) { try { if (typeof window.eolkitsTrack === 'function') window.eolkitsTrack('scan_completed', { sku: 'audit', meta: { finding_count: acc.length, file_count: fileCount } }); } catch (e) {} }
 function handle(files) { acc = []; const arr = [...files]; let pending = arr.length; if (!pending) return; arr.forEach((file) => { const r = new FileReader(); r.onload = () => { try { acc = acc.concat(scanFile(file.name, r.result)); } catch (e) {} if (--pending === 0) { render(acc); scanDone(arr.length); } }; r.onerror = () => { if (--pending === 0) { render(acc); scanDone(arr.length); } }; r.readAsText(file); }); }
 dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('over'); });
 dz.addEventListener('dragleave', () => dz.classList.remove('over'));
@@ -2186,6 +2191,7 @@ def build_scan_page(deprecations):
         ".sev-medium td:first-child{color:#a16207;font-weight:700}"
         ".sev-low td:first-child{color:#2563eb}"
         ".scan-cta{display:inline-block;margin-top:1rem;padding:.75rem 1.25rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}"
+        ".scan-interest{margin-top:1rem;padding:1rem;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px}"
         ".scan-ok{padding:1rem;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px}"
         ".scan-count{font-weight:600;margin-top:1rem}.privacy{color:#16a34a;font-weight:600}"
         "</style>\n</head>\n"
@@ -2197,7 +2203,7 @@ def build_scan_page(deprecations):
         "<p>Drop your infrastructure and dependency files below to find deprecated AWS Lambda runtimes and the "
         "native Node.js&nbsp;24 / Python&nbsp;3.12 dependency risks that can block a migration. "
         '<span class="privacy">File names and contents stay in your browser.</span> '
-        "After a scan, the page sends only file and finding counts for funnel measurement.</p>\n"
+        "If the verified v2 telemetry service is available, the page sends only file and finding counts—never file names or contents.</p>\n"
         '<div id="dz"><strong>Drop files here</strong><br><small>or click to choose — template.yaml, serverless.yml, *.tf, CDK *.ts, package.json, requirements.txt, pyproject.toml</small>'
         '<input id="fi" type="file" multiple accept=".yaml,.yml,.json,.tf,.ts,.js,.mjs,.txt,.toml" style="display:none"></div>\n'
         '<div id="results"></div>\n'
@@ -2215,8 +2221,8 @@ def build_scan_page(deprecations):
         + body
         + "<script>\nconst SITE_BASE = "
         + json.dumps(SITE_URL.rstrip("/"))
-        + ";\nconst API_BASE = "
-        + json.dumps(API_URL.rstrip("/"))
+        + ";\nconst INTEREST_URL = "
+        + json.dumps(AUDIT_INTEREST_URL)
         + ";\nconst DATA = "
         + data
         + ";\n"
@@ -2632,7 +2638,7 @@ def main():
     for path, content in pages.items():
         full_path = DOCS_DIR / path
         full_path.parent.mkdir(parents=True, exist_ok=True)
-        rendered = inject_first_touch(path, normalize_project_links(content))
+        rendered = normalize_project_links(inject_privacy_meta(content))
         full_path.write_text(normalize_generated_text(rendered), encoding="utf-8")
         print(f"Built: docs/{path}")
 
@@ -2662,7 +2668,8 @@ def main():
             html_doc = md_to_html(md_text, title, f"/legal/{name}.html")
             output = legal_output / f"{name}.html"
             output.write_text(
-                normalize_generated_text(normalize_project_links(html_doc)), encoding="utf-8"
+                normalize_generated_text(normalize_project_links(inject_privacy_meta(html_doc))),
+                encoding="utf-8",
             )
             print(f"Rendered: legal/{name}.html")
 

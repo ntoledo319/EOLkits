@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta name="referrer" content="origin">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sample audit report — EOLkits</title>
@@ -21,30 +22,6 @@ th{background:#f3f4f6}
 code{background:#f3f4f6;padding:.1rem .3rem;border-radius:4px}
 footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:.875rem}
 </style>
-<script>
-(function(){
-  try{
-    var KEY='eolkits_ft';
-    if(localStorage.getItem(KEY))return;
-    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='', refHost='';
-    try{refHost=(new URL(ref)).hostname.toLowerCase().slice(0,100);}catch(e){}
-    if(refHost===location.hostname.toLowerCase())refHost='';
-    if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
-    else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
-    else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
-    else if(/claude\.ai/i.test(ref))aeo='claude';
-    var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
-    if(!hasUtm && !refHost)return;
-    localStorage.setItem(KEY, JSON.stringify({
-      source: q.get('source')||(aeo?('aeo_'+aeo):'referral'),
-      utm_source: q.get('utm_source')||aeo||refHost,
-      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':'referral'),
-      utm_campaign: q.get('utm_campaign')||'',
-      kit: q.get('kit')||''
-    }));
-  }catch(e){}
-})();
-</script>
 </head>
 <body>
 <a href="/EOLkits/audit/" class="brand">← Back to Audit</a>

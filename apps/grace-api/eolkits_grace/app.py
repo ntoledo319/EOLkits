@@ -80,6 +80,7 @@ STALE_RUNNING_SECONDS = 1800
 # form's `_next` without ever becoming an open redirector.
 _SITE_ORIGINS = (
     "https://eolkits.com",
+    "https://ntoledo319.github.io",
     "https://toledotechnologies.com",
     "https://web.toledotechnologies.com",
     "https://sitelift.toledotechnologies.com",
@@ -210,8 +211,9 @@ app.add_middleware(
 
 
 @app.get("/health")
-async def health() -> dict[str, Any]:
+async def health(response: Response) -> dict[str, Any]:
     commerce = store.commerce_counts(7)
+    response.headers["Cache-Control"] = "no-store"
     return {
         "ok": (
             not commerce.get("refunds_pending")
@@ -228,12 +230,6 @@ async def health() -> dict[str, Any]:
         ),
         "build_sha": settings.build_sha,
         "audit_report_version": AUDIT_REPORT_VERSION,
-        # A non-zero value means leads were captured but the owner alert failed — a
-        # silent-drop early-warning the old FormSubmit path could never give.
-        "unnotified_leads": store.count_unnotified(),
-        "refunds_pending": commerce.get("refunds_pending", 0),
-        "refunds_failed": commerce.get("refunds_failed", 0),
-        "fulfillment_at_risk": commerce.get("fulfillment_at_risk", 0),
     }
 
 
@@ -266,7 +262,10 @@ def _require_audit_ready() -> None:
 @app.get("/status")
 @app.get("/status.json")
 @app.get("/api/status")
-async def status(x_admin_token: str | None = Header(None)) -> dict[str, Any]:
+async def status(response: Response, x_admin_token: str | None = Header(None)) -> dict[str, Any]:
+    is_admin = _admin_ok(x_admin_token)
+    response.headers["Cache-Control"] = "private, no-store" if is_admin else "no-store"
+    commerce = store.commerce_counts(7)
     data: dict[str, Any] = {
         "timestamp": datetime.now(UTC).isoformat(),
         "overall": "healthy",
@@ -286,8 +285,6 @@ async def status(x_admin_token: str | None = Header(None)) -> dict[str, Any]:
                 "url": bool(settings.runner_url),
             },
         },
-        "funnel_7d": store.event_counts(7),
-        "commerce_7d": store.commerce_counts(7),
         "capabilities": {
             "audit": _audit_readiness()[0],
             "migration_pack": False,
@@ -298,25 +295,29 @@ async def status(x_admin_token: str | None = Header(None)) -> dict[str, Any]:
     data["overall"] = (
         "healthy"
         if all(component.get("ok") for component in data["components"].values())
-        and not data["commerce_7d"].get("refunds_failed")
-        and not data["commerce_7d"].get("refunds_pending")
-        and not data["commerce_7d"].get("fulfillment_at_risk")
+        and not commerce.get("refunds_failed")
+        and not commerce.get("refunds_pending")
+        and not commerce.get("fulfillment_at_risk")
         else "degraded"
     )
-    # recent_jobs carries per-order payloads (emails, repos, errors). Only expose it
-    # to an authenticated admin — never to an unauthenticated caller.
-    if _admin_ok(x_admin_token):
+    # Low-volume funnel/commerce counts can reveal an individual visitor or buyer,
+    # and recent_jobs carries per-order payloads. Expose all operational metrics
+    # only to an authenticated admin — never to an unauthenticated caller.
+    if is_admin:
+        data["funnel_7d"] = store.event_counts(7)
+        data["commerce_7d"] = commerce
         data["recent_jobs"] = store.recent_jobs(20)
     return data
 
 
 @app.get("/api/capabilities")
-async def capabilities() -> dict[str, Any]:
+async def capabilities(response: Response) -> dict[str, Any]:
     """Public feature handshake used by the static storefront.
 
     Old backends do not expose this route, so a newly deployed static page keeps
     checkout hidden until the v2 fulfillment backend is actually live.
     """
+    response.headers["Cache-Control"] = "no-store"
     audit_ready, audit_reason = _audit_readiness()
     return {
         "audit": {
@@ -516,6 +517,7 @@ async def audit_checkout(
     kit: str | None = Form(None),
 ) -> Response:
     _require_audit_ready()
+    deadline = _safe_deadline(deadline)
     # SSRF hardening: never trust an arbitrary upload_url. Accept an upload_id
     # (preferred) or extract one only from a URL that points at our own host,
     # then validate the upload actually exists locally.
@@ -624,9 +626,10 @@ async def drift_checkout() -> Response:
 
 
 @app.post("/api/events")
-async def record_event(request: Request) -> dict[str, Any]:
-    """First-party funnel beacon. No third-party tracker; stores source/utm/kit/
-    deadline/sku so conversion drop-offs are visible and attributable."""
+async def record_event(request: Request, response: Response) -> dict[str, Any]:
+    """Bounded, first-party aggregate signal with no visitor identifier."""
+    if _event_database_bytes() >= settings.max_event_db_bytes:
+        raise HTTPException(status_code=503, detail="telemetry capacity exceeded")
     source_key = _request_source_key(request)
     if not store.allow_rate(
         f"event-hour:{source_key}", limit=settings.event_hourly_limit, window_seconds=3600
@@ -647,28 +650,25 @@ async def record_event(request: Request) -> dict[str, Any]:
     store.record_event(
         name,
         {
-            "source": body.get("source"),
-            "utm_source": body.get("utm_source"),
-            "utm_medium": body.get("utm_medium"),
-            "utm_campaign": body.get("utm_campaign"),
-            "kit": body.get("kit"),
-            "deadline": body.get("deadline"),
-            "sku": body.get("sku"),
-            "path": body.get("path"),
+            "source": _event_token(body.get("source")),
+            "utm_source": _event_token(body.get("utm_source")),
+            "utm_medium": _event_token(body.get("utm_medium")),
+            "utm_campaign": _event_token(body.get("utm_campaign")),
+            "kit": _event_token(body.get("kit")),
+            "deadline": _safe_deadline(body.get("deadline")),
+            "sku": _event_token(body.get("sku")),
+            "path": _canonical_event_path(body.get("path")),
             "meta": (
                 {
-                    "finding_count": max(
-                        0, min(int((body.get("meta") or {}).get("finding_count") or 0), 10000)
-                    ),
-                    "file_count": max(
-                        0, min(int((body.get("meta") or {}).get("file_count") or 0), 10000)
-                    ),
+                    "finding_count": _event_count(body["meta"].get("finding_count")),
+                    "file_count": _event_count(body["meta"].get("file_count")),
                 }
                 if name == "scan_completed" and isinstance(body.get("meta"), dict)
                 else None
             ),
         },
     )
+    response.headers["Cache-Control"] = "no-store"
     return {"ok": True}
 
 
@@ -1155,7 +1155,9 @@ async def partner_audit(
 
 
 def cleanup_expired_artifacts(
-    upload_retention_hours: int = 24, report_retention_days: int = 30
+    upload_retention_hours: int = 24,
+    report_retention_days: int = 30,
+    event_retention_days: int = 30,
 ) -> dict[str, int]:
     """Enforce upload/report retention without recursive or symlink traversal."""
     upload_cutoff = time.time() - (upload_retention_hours * 3600)
@@ -1217,10 +1219,15 @@ def cleanup_expired_artifacts(
                 continue
 
     expired_kv = store.purge_expired_kv()
+    telemetry = store.purge_telemetry(
+        event_cutoff=(datetime.now(UTC) - timedelta(days=event_retention_days)).isoformat(),
+        rate_cutoff=int(time.time()) - (2 * 86400),
+    )
     return {
         "uploads": removed_uploads,
         "reports": removed_reports,
         "expired_kv": expired_kv,
+        **telemetry,
     }
 
 
@@ -1349,7 +1356,71 @@ def _attribution(
         "utm_campaign": utm_campaign,
         "kit": kit,
     }
-    return {key: str(value)[:200] for key, value in fields.items() if value}
+    return {
+        key: clean for key, value in fields.items() if (clean := _event_token(value)) is not None
+    }
+
+
+def _event_token(value: Any) -> str | None:
+    """Return a compact non-PII attribution token or discard it."""
+    if value is None:
+        return None
+    token = str(value).strip().lower()
+    return token if re.fullmatch(r"[a-z0-9._-]{1,64}", token) else None
+
+
+def _safe_deadline(value: Any) -> str | None:
+    candidate = str(value or "").strip()
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", candidate):
+        return None
+    try:
+        datetime.strptime(candidate, "%Y-%m-%d")
+    except ValueError:
+        return None
+    return candidate
+
+
+def _canonical_event_path(value: Any) -> str:
+    """Collapse page paths to a small route taxonomy; never store query data."""
+    candidate = str(value or "")
+    if not candidate.startswith("/") or any(c in candidate for c in "?#\r\n"):
+        return "/other/"
+    if candidate == "/EOLkits" or candidate.startswith("/EOLkits/"):
+        candidate = candidate[len("/EOLkits") :] or "/"
+    segment = candidate.strip("/").split("/", 1)[0]
+    allowed = {
+        "audit",
+        "blog",
+        "eol-checker",
+        "fix",
+        "license",
+        "migrate",
+        "scan",
+        "status",
+        "verify",
+    }
+    if not segment:
+        return "/"
+    return f"/{segment}/" if segment in allowed else "/other/"
+
+
+def _event_count(value: Any) -> int:
+    try:
+        return max(0, min(int(value or 0), 10000))
+    except (TypeError, ValueError, OverflowError):
+        return 0
+
+
+def _event_database_bytes() -> int:
+    """Include SQLite sidecars so telemetry stops before exhausting shared disk."""
+    total = 0
+    for suffix in ("", "-wal", "-shm"):
+        path = Path(str(settings.db_path) + suffix)
+        try:
+            total += path.stat().st_size
+        except FileNotFoundError:
+            pass
+    return total
 
 
 def _valid_sha(sha: str) -> bool:

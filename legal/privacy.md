@@ -18,11 +18,14 @@ Drift Watch, and Organization License are not currently available for purchase.
 - **Purchases:** Stripe Checkout identifiers, price/SKU, amount, currency,
   customer email, refund state, and limited attribution fields. Card numbers are
   handled by Stripe and are not stored by EOLkits.
-- **Product research:** Email, company/name when supplied, product of interest,
-  form fields, and a supplied source or referrer origin/path without its query.
-- **First-party usage events:** Page path, event name, product/kit, and supplied
-  source or UTM values. EOLkits does not use advertising trackers or third-party
-  analytics cookies.
+- **Product research:** The current Audit-interest form is a public GitHub issue.
+  GitHub publishes the submitting account and the selected form answers; EOLkits
+  tells submitters not to include project, company, security, or personal data.
+- **First-party usage events:** A canonical page category, allowlisted event
+  name, product/kit token, supplied source/UTM tokens, and bounded aggregate file
+  and finding counts. Invalid or PII-like attribution values are discarded.
+  EOLkits does not use advertising trackers, third-party analytics, cookies,
+  browser storage, fingerprinting, or a visitor identifier.
 - **Abuse prevention:** A server-secret-keyed pseudonymous network-source token
   is used for rate limiting; the originating address is not written to the
   application database.
@@ -60,12 +63,15 @@ Drift Watch, and Organization License are not currently available for purchase.
   purchase.
 - Financial records may be retained as required by tax, accounting, fraud, or
   legal obligations.
-- First-party funnel events and product-research leads are retained for product
-  operation and may be deleted on a verified request unless legal retention
-  applies.
-- First-touch source/UTM attribution may be stored in your browser's local
-  storage. It contains no random user identifier and can be cleared using your
-  browser's site-data controls.
+- Raw first-party funnel events are automatically deleted after 30 days.
+  Pseudonymous abuse-rate keys are automatically deleted after two days. Detailed
+  event and commerce counts are available only to the authenticated operator.
+- Source/UTM attribution is read from the current page URL only when the verified
+  v2 first-party API is available. It is not written to cookies or browser
+  storage, and outbound referrers are limited to the site origin.
+- Product-research leads submitted through any separately displayed private form
+  may be deleted on a verified request unless legal retention applies. Public
+  GitHub issue data follows GitHub's controls and retention practices.
 
 ## 5. Providers
 
