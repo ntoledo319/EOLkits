@@ -16,12 +16,15 @@ export function activate(context: vscode.ExtensionContext) {
     treeProvider = new EOLkitsTreeProvider();
 
     // Register tree view
-    vscode.window.registerTreeDataProvider('eolkits.deprecations', treeProvider);
+    context.subscriptions.push(
+        vscode.window.registerTreeDataProvider('eolkits.deprecations', treeProvider),
+        diagnostics
+    );
 
     // Register commands
     context.subscriptions.push(
-        vscode.commands.registerCommand('eolkits.scanWorkspace', () => {
-            scanWorkspace();
+        vscode.commands.registerCommand('eolkits.scanWorkspace', (resource?: vscode.Uri) => {
+            void scanWorkspace(resource);
         }),
         vscode.commands.registerCommand('eolkits.showReport', () => {
             showReport();
@@ -32,26 +35,32 @@ export function activate(context: vscode.ExtensionContext) {
     );
 
     // Auto-scan on save
-    vscode.workspace.onDidSaveTextDocument((document) => {
-        const config = vscode.workspace.getConfiguration('eolkits');
-        if (config.get<boolean>('autoScan', true)) {
-            scanner.scanDocument(document);
-        }
-    });
+    context.subscriptions.push(
+        vscode.workspace.onDidSaveTextDocument((document) => {
+            const config = vscode.workspace.getConfiguration('eolkits');
+            if (config.get<boolean>('autoScan', true)) {
+                void scanner.scanDocument(document);
+            }
+        })
+    );
 
     // Initial workspace scan
-    scanWorkspace();
+    void scanWorkspace();
 }
 
-async function scanWorkspace() {
+async function scanWorkspace(resource?: vscode.Uri) {
     const progressOptions = {
         location: vscode.ProgressLocation.Window,
         title: 'EOLkits: Scanning for AWS deprecations...'
     };
 
     await vscode.window.withProgress(progressOptions, async (progress) => {
+        diagnostics.clear();
+        const include = resource
+            ? new vscode.RelativePattern(resource, '**/*.{yaml,yml,json,jsonc,tf,hcl,js,jsx,ts,tsx,py}')
+            : '**/*.{yaml,yml,json,jsonc,tf,hcl,js,jsx,ts,tsx,py}';
         const files = await vscode.workspace.findFiles(
-            '**/*.{yaml,yml,json,tf,js,ts,py}',
+            include,
             '**/node_modules/**'
         );
 
@@ -62,7 +71,7 @@ async function scanWorkspace() {
             try {
                 const document = await vscode.workspace.openTextDocument(file);
                 await scanner.scanDocument(document);
-            } catch (e) {
+            } catch {
                 // Skip files that can't be opened
             }
             progress.report({ increment: (i / files.length) * 100 });
@@ -71,6 +80,7 @@ async function scanWorkspace() {
         // Update tree view
         const findings = diagnostics.getAllFindings();
         treeProvider.updateFindings(findings);
+        await vscode.commands.executeCommand('setContext', 'eolkits.hasDeprecations', findings.length > 0);
 
         // Show summary
         const count = findings.length;
@@ -105,16 +115,17 @@ function showReport() {
 function generateReportHtml(findings: any[]): string {
     const rows = findings.map(f => `
         <tr>
-            <td><span class="severity ${f.severity}">${f.severity}</span></td>
-            <td>${f.message}</td>
-            <td>${f.file}</td>
-            <td>Line ${f.line}</td>
+            <td><span class="severity ${escapeHtml(f.severity)}">${escapeHtml(f.severity)}</span></td>
+            <td>${escapeHtml(f.message)}</td>
+            <td>${escapeHtml(f.file)}</td>
+            <td>Line ${escapeHtml(String(f.line))}</td>
         </tr>
     `).join('');
 
     return `<!DOCTYPE html>
     <html>
     <head>
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';">
         <style>
             body { font-family: sans-serif; padding: 20px; }
             table { width: 100%; border-collapse: collapse; }
@@ -139,9 +150,19 @@ function generateReportHtml(findings: any[]): string {
             </tr>
             ${rows}
         </table>
-        <p><a href="https://eolkits.com/audit/?utm_source=vscode&utm_medium=extension&source=vscode">Get full audit report →</a></p>
+        <p><a href="https://eolkits.com/audit/?utm_source=vscode&utm_medium=extension&source=vscode">Get repository evidence report →</a></p>
     </body>
     </html>`;
+}
+
+function escapeHtml(value: string): string {
+    return value.replace(/[&<>"']/g, (character) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[character] as string));
 }
 
 export function deactivate() {

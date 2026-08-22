@@ -4,7 +4,6 @@ import json
 from argparse import Namespace
 from pathlib import Path
 
-
 from python_pivot import audit
 
 FIXTURE = Path(__file__).parent / "fixtures" / "requirements.txt"

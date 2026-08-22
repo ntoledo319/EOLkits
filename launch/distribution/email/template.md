@@ -1,4 +1,9 @@
-# Value-first B2B email — the empire's "Found Money Lead", done safely
+# ARCHIVED — DO NOT SEND
+
+This template predates the current offer and no autonomous outreach is
+authorized.
+
+# B2B email draft (historical)
 
 Lead with a **genuine free finding** about the recipient's own public repo. No pitch up top.
 Soft CTA, easy opt-out. This only works if it's true and specific — never blast a generic template.

@@ -1,4 +1,8 @@
-# Outreach targets — public repos with AWS EOL exposure (via GitHub code search)
+# ARCHIVED — DO NOT CONTACT
+
+This target list is stale and no autonomous outreach is authorized.
+
+# Outreach targets (historical)
 
 Regenerate any time (no extra creds — `gh` is authed):
 ```

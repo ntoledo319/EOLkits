@@ -1,4 +1,9 @@
-# Attributions & License Disclosure
+# ARCHIVED — NOT A CURRENT LICENSE AUDIT
+
+Use the repository-root `ATTRIBUTIONS.md` and lockfile-derived third-party
+reports. This historical bundle disclosure is not approved for sale.
+
+# Historical bundle attributions
 
 This bundle ("AWS Runtime EOL Migration Toolkit") packages three open-source CLIs from the EOLkits project
 (`github.com/ntoledo319/EOLkits`) plus an original migration playbook. This file satisfies the pre-publish license

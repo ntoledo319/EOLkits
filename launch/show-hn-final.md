@@ -1,4 +1,9 @@
-# Show HN — final
+# ARCHIVED — DO NOT POST
+
+This is not a final launch artifact. It predates the current product and claim
+audit and describes unavailable capabilities.
+
+# Show HN draft (historical)
 
 This is the version to paste at submission time. Replaces the earlier draft.
 

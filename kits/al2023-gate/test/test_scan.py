@@ -4,7 +4,6 @@ import json
 from argparse import Namespace
 from pathlib import Path
 
-
 from al2023_gate import scan
 
 FIXTURE = Path(__file__).parent / "fixtures" / "inventory.json"
@@ -93,6 +92,17 @@ def test_run_writes_to_file_when_out_specified(tmp_path, capsys):
 
 def test_classify_ami_al2_patterns():
     assert scan.classify_ami("Amazon Linux 2 AMI 2.0.20240318.0") == "al2"
+    assert (
+        scan.classify_ami(
+            "arn:aws:elasticbeanstalk:us-east-1::platform/Python 3.11 running on 64bit Amazon Linux 2"
+        )
+        == "al2"
+    )
     assert scan.classify_ami("amzn2-ami-kernel-5.10-hvm") == "al2"
     assert scan.classify_ami("Amazon Linux 2023 AMI") == "al2023"
     assert scan.classify_ami(None) == "unknown"
+
+
+def test_deadline_delta_never_prints_negative_days():
+    assert scan.deadline_delta(-53) == "53 day(s) ago"
+    assert scan.deadline_delta(12) == "in 12 day(s)"

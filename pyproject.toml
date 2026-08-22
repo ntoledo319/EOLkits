@@ -1,0 +1,25 @@
+[tool.black]
+line-length = 100
+target-version = ["py39"]
+extend-exclude = """
+/(
+  tmp
+  | node_modules
+  | docs
+  | mutants
+)/
+"""
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+extend-exclude = ["tmp", "node_modules", "docs", "mutants"]
+
+[tool.ruff.lint]
+# Stable correctness/import contract. Security is covered by the dedicated
+# authorization review and tests; migration fixtures intentionally contain old
+# APIs, so broad preview/style rule families are not enabled implicitly.
+select = ["E4", "E7", "E9", "F", "I"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/test/fixtures/**" = ["F401", "F841"]

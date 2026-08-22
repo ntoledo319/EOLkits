@@ -1,90 +1,52 @@
 # Security Policy — EOLkits
 
-## Supported Versions
+## Supported Version
 
-| Version | Supported |
-|---------|-----------|
-| Latest release | ✅ Yes |
-| All previous | ❌ No (upgrade to latest) |
+Only the current default-branch revision and most recent release are supported.
 
-## Reporting Security Vulnerabilities
+## Report a Vulnerability
 
-**Please do not file public issues for security vulnerabilities.**
+Do not file a public issue containing exploit details, credentials, customer
+data, or a private report URL.
 
-Instead:
-1. Open a private vulnerability report on GitHub:
-   - Go to https://github.com/ntoledo319/EOLkits/security/advisories
-   - Click "Report a vulnerability"
-2. Or contact via GitHub Discussions with "[SECURITY]" prefix
+Use GitHub private vulnerability reporting:
 
-**Expected response time:** 48 hours
+1. Open `https://github.com/ntoledo319/EOLkits/security/advisories`.
+2. Select **Report a vulnerability**.
+3. Include the affected revision, impact, reproduction, and any suggested fix.
 
-## Security Measures
+If private reporting is unavailable, email `hello@toledotechnologies.com` with
+the subject `EOLkits security report`. There is no guaranteed response time.
 
-### Code
-- All code MIT licensed and open for audit
-- 116 passing tests across all kits
-- Deterministic builds (byte-identical output)
-- Reproducible releases with SBOMs
-- Sigstore-signed binaries
+## Current Boundaries
 
-### Infrastructure
-- GRACE-managed VPS deployment with host Caddy, Docker, and satellite monitoring
-- Stripe for payments (PCI DSS Level 1)
-- All data encrypted in transit (TLS 1.3) and at rest (AES-256)
-- Uploaded files auto-deleted after 30 days
-- No plaintext credential storage
+- The free browser scanner processes selected files locally in the browser.
+- Paid Audit source uploads are immutable after receipt, size bounded, and
+  deleted after successful delivery or swept within 48 hours. Generated reports
+  are swept within 30 days.
+- Repository ZIPs are inspected in memory with file-count, expanded-size,
+  compression-ratio, encryption, and path-safety checks; they are not extracted
+  onto the host.
+- Paid checkout is gated by the live API capability response. Unavailable SKUs
+  reject at the API, and unfulfillable paid sessions enter a durable refund job.
+- Migration Pack, Drift Watch, Organization License, and the public GitHub App
+  write path are not currently available for purchase.
 
-### GitHub App
-- Minimum required permissions only
-- No access to private code without explicit install
-- `.no-eolkits` opt-out file supported
-- Abuse endpoint for immediate blocking
+## Research Rules
 
-## Bug Bounty
+Good-faith research must avoid data destruction, privacy violations, persistence,
+denial of service, social engineering, and access to other users' data. Stop and
+report if you encounter customer data or a secret. Third-party systems such as
+Stripe, GitHub, Resend, and the hosting provider are outside EOLkits authorization.
 
-**Status:** Active (in-system credits only, no cash pre-revenue)
+There is no cash or credit bug-bounty program. Coordinated disclosure and clear
+credit are welcome when requested by the reporter.
 
-| Severity | Reward |
-|----------|--------|
-| Critical (RCE, data breach) | $1,499 Audit credit |
-| High (Auth bypass, SSRF) | $599 Audit credit |
-| Medium (XSS, info disclosure) | $299 Audit credit |
-| Low (Best practice) | GitHub mention |
+## User Checklist
 
-**Scope:**
-- https://eolkits.com/*
-- https://eolkits.com/health and EOLkits API paths on the same host
-- GitHub App webhooks
-- Open-source CLI tools
-
-**Out of scope:**
-- Third-party services (Stripe, GitHub, hosting providers)
-- Social engineering
-- DOS/availability issues
-- Physical security
-
-## Safe Harbor
-
-We support safe harbor for security researchers:
-- No legal action for good-faith research
-- No DMCA actions for bypassing copy protection (there is none)
-- Please avoid: data destruction, privacy violations, DOS
-
-## Security Checklist for Users
-
-- [ ] Verify CLI signatures before use (`cosign verify`)
-- [ ] Review generated PRs before merging
-- [ ] Use least-privilege IAM roles for scanning
-- [ ] Enable 2FA on your GitHub account
-- [ ] Review the `.no-eolkits` file option for opt-out
-
-## Incident History
-
-| Date | Incident | Status |
-|------|----------|--------|
-| None yet | - | - |
-
----
-
-*This security policy follows coordinated disclosure principles.*
+- Review findings and generated changes before use.
+- Test migrations in a non-production environment.
+- Do not upload secrets, private keys, or regulated data.
+- Pin Actions/releases to a reviewed revision for sensitive pipelines.
+- Recheck AWS support dates at the official linked source before scheduling a
+  production change.

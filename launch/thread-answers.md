@@ -1,4 +1,8 @@
-# Direct Support Thread Answers
+# ARCHIVED — DO NOT POST
+
+These answers have not passed the current claim and platform-policy review.
+
+# Direct Support Thread Answers (historical)
 
 Use these only when the thread is already about the exact migration problem.
 Lead with the useful fix, disclose affiliation, and avoid repeating the same

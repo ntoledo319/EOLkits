@@ -1,7 +1,8 @@
 // Native-binary dep audit.
 // Scans package.json (+ lockfile if present) for packages that ship native addons
-// whose ABI is tied to the Node major version. Each entry includes the minimum
-// version required for Node 22 compatibility.
+// whose ABI is tied to the Node major version. Each entry includes a conservative
+// minimum baseline. Meeting it is not proof of Node.js 24 compatibility; verify
+// the upstream release and rebuild/test on the target runtime and architecture.
 //
 // Exit code 0 if clean, 1 if risks found and --strict is set.
 
@@ -10,31 +11,31 @@ import { log, color } from '../util/log.mjs';
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-// Canonical list of native-binary packages + minimum Node 22 compatible version.
-// Sourced from upstream release notes cross-checked 2026-04-28.
+// Canonical list of native-binary packages + conservative modern baseline.
+// The values are triage floors, not promises of Node.js 24 prebuilt binaries.
 export const NATIVE_PACKAGES = {
-  'sharp':            { minForNode22: '0.33.0', note: 'libvips native binding. v0.33+ ships Node 22 prebuilds.' },
-  'bcrypt':           { minForNode22: '5.1.1',  note: 'Native bcrypt. Consider bcryptjs for pure-JS drop-in.' },
-  'better-sqlite3':   { minForNode22: '11.0.0', note: 'SQLite native binding.' },
-  'canvas':           { minForNode22: '2.11.2', note: 'node-canvas. Needs rebuilt prebuilds for Node 22.' },
-  'node-gyp':         { minForNode22: '10.0.0', note: 'Build system. Upgrade before rebuilding natives.' },
-  'node-sass':        { minForNode22: null,     note: 'DEAD. Use `sass` (Dart Sass) instead — no native deps.' },
-  'bufferutil':       { minForNode22: '4.0.8',  note: 'WebSocket utility native addon.' },
-  'utf-8-validate':   { minForNode22: '6.0.4',  note: 'WebSocket utility native addon.' },
-  'libpq':            { minForNode22: '1.11.0', note: 'PostgreSQL client. No published 2.x exists as of this check — verify the latest release supports Node 22 prebuilds before pinning.' },
-  'grpc':             { minForNode22: null,     note: 'DEAD. Migrate to `@grpc/grpc-js` (pure JS).' },
-  '@grpc/grpc-js':    { minForNode22: '1.10.0', note: 'Pure JS, no native; just keep up to date.' },
-  'sqlite3':          { minForNode22: '5.1.7',  note: 'SQLite3 bindings. Prebuilds available.' },
-  'argon2':           { minForNode22: '0.40.1', note: 'argon2 bindings. "0.40.0" (exact) was never published — nearest real release is 0.40.1; verify the exact Node 22 prebuild floor in the package changelog before relying on this number.' },
-  're2':              { minForNode22: '1.21.0', note: 'RE2 regex engine.' },
-  'fibers':           { minForNode22: null,     note: 'DEAD since Node 16. Must remove.' },
-  '@tensorflow/tfjs-node': { minForNode22: '4.20.0', note: 'TensorFlow native.' },
-  'sodium-native':    { minForNode22: '4.3.0',  note: 'libsodium bindings.' },
-  'zmq':              { minForNode22: null,     note: 'DEAD. Use `zeromq` instead.' },
-  'zeromq':           { minForNode22: '6.1.2',  note: 'ZeroMQ bindings.' },
-  'farmhash':         { minForNode22: '4.0.0',  note: 'Native hashing.' },
-  '@napi-rs/snappy':  { minForNode22: null,     note: 'DEAD. No release since 2021 (predates Node 22 by 3+ years) — no Node 22 prebuilds exist. Migrate to `snappy` or a pure-JS compressor.' },
-  'heapdump':         { minForNode22: null,     note: 'DEAD. Use `node --heapsnapshot-signal` instead.' },
+  'sharp':            { minimumBaseline: '0.33.0', note: 'libvips native binding; verify the current release on Node.js 24.' },
+  'bcrypt':           { minimumBaseline: '5.1.1',  note: 'Native bcrypt. Consider bcryptjs for pure-JS drop-in.' },
+  'better-sqlite3':   { minimumBaseline: '11.0.0', note: 'SQLite native binding.' },
+  'canvas':           { minimumBaseline: '2.11.2', note: 'node-canvas native binding; verify current target prebuilds.' },
+  'node-gyp':         { minimumBaseline: '10.0.0', note: 'Build system. Upgrade before rebuilding natives.' },
+  'node-sass':        { minimumBaseline: null,     note: 'Unmaintained. Use `sass` (Dart Sass) instead.' },
+  'bufferutil':       { minimumBaseline: '4.0.8',  note: 'WebSocket utility native addon.' },
+  'utf-8-validate':   { minimumBaseline: '6.0.4',  note: 'WebSocket utility native addon.' },
+  'libpq':            { minimumBaseline: '1.11.0', note: 'PostgreSQL native client; verify the current release and target prebuild.' },
+  'grpc':             { minimumBaseline: null,     note: 'Unmaintained. Migrate to `@grpc/grpc-js` (pure JS).' },
+  '@grpc/grpc-js':    { minimumBaseline: '1.10.0', note: 'Pure JS, no native; just keep up to date.' },
+  'sqlite3':          { minimumBaseline: '5.1.7',  note: 'SQLite3 bindings. Prebuilds available.' },
+  'argon2':           { minimumBaseline: '0.40.1', note: 'Native binding; verify the current Node.js 24 prebuild floor upstream.' },
+  're2':              { minimumBaseline: '1.21.0', note: 'RE2 regex engine.' },
+  'fibers':           { minimumBaseline: null,     note: 'Unmaintained since the Node.js 16 era; remove it.' },
+  '@tensorflow/tfjs-node': { minimumBaseline: '4.20.0', note: 'TensorFlow native.' },
+  'sodium-native':    { minimumBaseline: '4.3.0',  note: 'libsodium bindings.' },
+  'zmq':              { minimumBaseline: null,     note: 'Unmaintained. Use `zeromq` instead.' },
+  'zeromq':           { minimumBaseline: '6.1.2',  note: 'ZeroMQ bindings.' },
+  'farmhash':         { minimumBaseline: '4.0.0',  note: 'Native hashing.' },
+  '@napi-rs/snappy':  { minimumBaseline: null,     note: 'Stale package; use a maintained compressor.' },
+  'heapdump':         { minimumBaseline: null,     note: 'Unmaintained. Use `node --heapsnapshot-signal` instead.' },
 };
 
 // Version compare (semver-ish, without dev deps).
@@ -65,12 +66,12 @@ export function auditPackage(pkg) {
     const info = NATIVE_PACKAGES[name];
     if (!info) continue;
     const declared = cleanVersion(versionSpec);
-    const needed = info.minForNode22;
+    const needed = info.minimumBaseline;
     const status =
       needed === null
         ? 'dead'
         : declared && cmpVer(declared, needed) >= 0
-          ? 'ok'
+          ? 'baseline-met'
           : 'upgrade-required';
     findings.push({ name, declared, required: needed, status, note: info.note });
   }
@@ -96,35 +97,35 @@ export async function auditCommand(argv) {
 
   if (flags.json) {
     log.json({ package: pkg.name, findings });
-    if (flags.strict && findings.some(f => f.status !== 'ok')) process.exit(1);
+    if (flags.strict && findings.some(f => f.status !== 'baseline-met')) process.exit(1);
     return;
   }
 
   if (findings.length === 0) {
-    log.ok('No native-binary packages detected. You are Node 22-safe on this dimension.');
+    log.ok('No configured native-binary package matched this manifest.');
     return;
   }
 
   for (const f of findings) {
-    const icon = f.status === 'ok' ? color.green('✓')
+    const icon = f.status === 'baseline-met' ? color.cyan('i')
                : f.status === 'dead' ? color.red('✗')
                : color.yellow('⚠');
-    const tag = f.status === 'ok' ? color.green('OK')
-              : f.status === 'dead' ? color.red('DEAD')
+    const tag = f.status === 'baseline-met' ? color.cyan('VERIFY')
+              : f.status === 'dead' ? color.red('REPLACE')
               : color.yellow('UPGRADE');
     const versions = f.status === 'dead'
-      ? 'drop this dep'
+      ? 'replace this dep'
       : `declared ${f.declared || '?'}  →  need ≥ ${f.required}`;
     console.log(`  ${icon} ${color.bold(f.name.padEnd(28))} ${tag.padEnd(10)} ${versions}`);
     console.log(`     ${color.gray(f.note)}`);
   }
 
-  const risky = findings.filter(f => f.status !== 'ok');
+  const risky = findings.filter(f => f.status !== 'baseline-met');
   console.log();
   if (risky.length === 0) {
-    log.ok('All native deps are Node 22-compatible.');
+    log.ok('All matched native deps meet the configured baseline. Verify each upstream release and rebuild/test on Node.js 24.');
   } else {
-    log.warn(`${risky.length} native dep(s) need action before Node 22.`);
+    log.warn(`${risky.length} native dep(s) need action before Node.js 24.`);
     log.info('Next: bump versions in package.json, run `npm install && npm rebuild`, then `npm test`.');
   }
   if (flags.strict && risky.length > 0) process.exit(1);

@@ -108,17 +108,17 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: '3.12' }
-      - run: pip install python-pivot
-      - run: python-pivot codemod src/ --strict
-      - run: python-pivot audit requirements.txt --strict
-      - run: python-pivot iac infra/ --strict
+      - uses: actions/checkout@v6
+      - uses: ntoledo319/EOLkits@v2
+        with:
+          kit: python-pivot
+          path: .
+          fail-on: any
+          comment-pr: false
       - name: Live scan (read-only)
         env:
           AWS_REGION: us-east-1
           AWS_ACCESS_KEY_ID: ${{ secrets.READONLY_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.READONLY_SECRET }}
-        run: python-pivot scan --regions us-east-1 --strict
+        run: echo "Run the live account scan only from a separately reviewed, read-only credential workflow."
 ```

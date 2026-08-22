@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import urlparse
 
 
 def _bool_env(name: str, default: bool = False) -> bool:
@@ -29,15 +30,10 @@ class Settings:
     # production startup fails closed instead of silently running with fakes.
     stripe_key: str = os.environ.get("STRIPE_KEY", "")
     stripe_webhook_secret: str = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
-    github_webhook_secret: str | None = os.environ.get("GITHUB_WEBHOOK_SECRET")
-    github_app_id: str | None = os.environ.get("GITHUB_APP_ID")
-    github_app_private_key: str | None = os.environ.get("GITHUB_APP_PRIVATE_KEY")
-    github_app_slug: str | None = os.environ.get("GITHUB_APP_SLUG")
     resend_api_key: str | None = os.environ.get("RESEND_API_KEY")
     # Where inbound leads (/api/v1/lead) are emailed. Comma-separated. Defaults to
-    # the studio inbox; set to a guaranteed-deliverable address in prod so leads
-    # never route back through the dead FormSubmit/mxroute path. The durable
-    # `leads` row is the real guarantee regardless of this.
+    # the studio inbox; set it to an operator-verified address in production.
+    # The durable `leads` row is the source of truth when notification fails.
     lead_notify_to: str = os.environ.get("LEAD_NOTIFY_TO", "hello@toledotechnologies.com")
 
     runner_url: str | None = os.environ.get("RUNNER_URL")
@@ -48,11 +44,42 @@ class Settings:
     # unset, /status exposes only high-level health — never internal job/funnel data.
     admin_token: str | None = os.environ.get("EOLKITS_ADMIN_TOKEN")
 
-    # Secret used to sign short-lived internal upload URLs handed to the runner
-    # (SSRF mitigation — see app._signed_upload_url / audit_pdf._download_input).
+    # Secret used to sign short-lived internal upload URLs handed to an HTTP
+    # runner. Upload bytes are never available from an unsigned GET request.
     internal_url_secret: str = os.environ.get("EOLKITS_INTERNAL_URL_SECRET", "")
 
-    max_upload_bytes: int = int(os.environ.get("EOLKITS_MAX_UPLOAD_BYTES", str(50 * 1024 * 1024)))
+    max_upload_bytes: int = int(os.environ.get("EOLKITS_MAX_UPLOAD_BYTES", str(10 * 1024 * 1024)))
+    upload_presign_hourly_limit: int = int(
+        os.environ.get("EOLKITS_UPLOAD_PRESIGN_HOURLY_LIMIT", "10")
+    )
+    upload_presign_daily_limit: int = int(
+        os.environ.get("EOLKITS_UPLOAD_PRESIGN_DAILY_LIMIT", "50")
+    )
+    max_active_upload_bytes: int = int(
+        os.environ.get("EOLKITS_MAX_ACTIVE_UPLOAD_BYTES", str(512 * 1024 * 1024))
+    )
+    min_free_disk_bytes: int = int(
+        os.environ.get("EOLKITS_MIN_FREE_DISK_BYTES", str(512 * 1024 * 1024))
+    )
+    max_webhook_bytes: int = int(os.environ.get("EOLKITS_MAX_WEBHOOK_BYTES", str(256 * 1024)))
+    max_form_bytes: int = int(os.environ.get("EOLKITS_MAX_FORM_BYTES", str(64 * 1024)))
+    max_event_bytes: int = int(os.environ.get("EOLKITS_MAX_EVENT_BYTES", str(16 * 1024)))
+    preflight_concurrency: int = max(1, int(os.environ.get("EOLKITS_PREFLIGHT_CONCURRENCY", "1")))
+    event_hourly_limit: int = int(os.environ.get("EOLKITS_EVENT_HOURLY_LIMIT", "240"))
+    event_daily_limit: int = int(os.environ.get("EOLKITS_EVENT_DAILY_LIMIT", "10000"))
+    lead_ip_minute_limit: int = int(os.environ.get("EOLKITS_LEAD_IP_MINUTE_LIMIT", "8"))
+    lead_ip_daily_limit: int = int(os.environ.get("EOLKITS_LEAD_IP_DAILY_LIMIT", "20"))
+    lead_global_daily_limit: int = int(os.environ.get("EOLKITS_LEAD_GLOBAL_DAILY_LIMIT", "500"))
+    # Lead alerts are deliberately capped below the provider's free daily quota.
+    # Paid delivery/refund mail is uncapped and therefore always has priority.
+    lead_notification_daily_limit: int = int(
+        os.environ.get("EOLKITS_LEAD_NOTIFICATION_DAILY_LIMIT", "20")
+    )
+    # Audit v2 is the only paid capability implemented end-to-end. This kill
+    # switch is intentionally server-side so an operator can stop new charges
+    # without waiting for a static-site deploy.
+    audit_checkout_enabled: bool = _bool_env("EOLKITS_AUDIT_CHECKOUT_ENABLED", False)
+    build_sha: str = os.environ.get("EOLKITS_BUILD_SHA", "unknown")[:64]
 
     @property
     def db_path(self) -> Path:
@@ -86,19 +113,25 @@ class Settings:
             missing.append("STRIPE_KEY (must be a live sk_live_/rk_live_ key)")
         if not self.stripe_webhook_secret or self.stripe_webhook_secret == "whsec_test":
             missing.append("STRIPE_WEBHOOK_SECRET")
-        if not self.github_webhook_secret:
-            missing.append("GITHUB_WEBHOOK_SECRET")
-        if not self.github_app_id or not self.github_app_private_key:
-            missing.append("GITHUB_APP_ID / GITHUB_APP_PRIVATE_KEY")
         if not self.resend_api_key:
             missing.append("RESEND_API_KEY (email provider)")
-        if not self.internal_url_secret:
-            missing.append("EOLKITS_INTERNAL_URL_SECRET")
+        if len(self.internal_url_secret.encode("utf-8")) < 32:
+            missing.append("EOLKITS_INTERNAL_URL_SECRET (minimum 32 bytes)")
+        if self.runner_url and len((self.runner_token or "").encode("utf-8")) < 32:
+            missing.append("RUNNER_TOKEN (minimum 32 bytes when RUNNER_URL is set)")
+        if self.runner_url and urlparse(self.runner_url).scheme != "https":
+            missing.append("RUNNER_URL (must use HTTPS in production)")
+        if self.admin_token and len(self.admin_token.encode("utf-8")) < 32:
+            missing.append("EOLKITS_ADMIN_TOKEN (minimum 32 bytes when configured)")
         return missing
 
     def require_runtime_secrets(self) -> None:
         """Fail closed: abort startup in production when live secrets are absent."""
         if not self.is_production:
+            if self.stripe_is_live:
+                raise RuntimeError(
+                    "Refusing to start a non-production environment with a live Stripe key"
+                )
             return
         missing = self.missing_production_secrets()
         if missing:

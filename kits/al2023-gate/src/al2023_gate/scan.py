@@ -4,9 +4,8 @@ Scanner: find AL2-based compute across AWS resources.
 Data sources (in priority order):
  1. EC2 instances whose AMI description matches AL2
  2. Launch templates referring to AL2 AMIs
- 3. ECS task definitions using AL2-based container images
- 4. EKS node groups using AL2 AMI types
- 5. Elastic Beanstalk environments on AL2 platforms
+ 3. EKS managed node groups using AL2 AMI types
+ 4. Elastic Beanstalk environments whose platform descriptor identifies AL2
 
 Works in two modes:
  - Live AWS: uses boto3 if installed and credentials available
@@ -14,13 +13,14 @@ Works in two modes:
 """
 
 from __future__ import annotations
-from dataclasses import dataclass, asdict, field
-from datetime import date
-from typing import List, Optional
+
 import argparse
 import json
-from . import util
+from dataclasses import asdict, dataclass, field
+from datetime import date
+from typing import List, Optional
 
+from . import util
 
 AL2_EOL = date(2026, 6, 30)
 
@@ -28,7 +28,7 @@ AL2_EOL = date(2026, 6, 30)
 # Canonical AMI-description patterns that identify AL2 (case-insensitive substring match)
 AL2_PATTERNS = [
     "amzn2-ami",
-    "amazon linux 2 ",
+    "amazon linux 2",
     "amazon-linux-2",
     "al2-x86_64",
     "al2-arm64",
@@ -139,7 +139,8 @@ def scan_live(regions: List[str], profile: Optional[str] = None) -> List[Finding
         import boto3
     except ImportError:
         raise SystemExit(
-            "boto3 not installed. Run `pip install al2023-gate[aws]` "
+            "boto3 not installed. From the kit checkout, run "
+            "`.venv/bin/pip install -e '.[aws]'` "
             "or use `--fixture <file.json>` for offline mode."
         )
 
@@ -171,11 +172,23 @@ def scan_live(regions: List[str], profile: Optional[str] = None) -> List[Finding
         # Batch describe AMIs
         ami_desc = {}
         if amis_to_lookup:
-            resp = ec2.describe_images(ImageIds=list(amis_to_lookup))
-            for img in resp.get("Images", []):
-                ami_desc[img["ImageId"]] = (
-                    img.get("Description", "") + " " + img.get("Name", "")
-                )
+            image_ids = sorted(amis_to_lookup)
+            for offset in range(0, len(image_ids), 100):
+                batch = image_ids[offset : offset + 100]
+                try:
+                    resp = ec2.describe_images(ImageIds=batch)
+                except Exception:
+                    # One inaccessible/deregistered AMI must not hide every
+                    # other instance in a large account.
+                    for image_id in batch:
+                        description = _describe_single(ec2, image_id)
+                        if description:
+                            ami_desc[image_id] = description
+                    continue
+                for img in resp.get("Images", []):
+                    ami_desc[img["ImageId"]] = (
+                        img.get("Description", "") + " " + img.get("Name", "")
+                    )
 
         for inst in instance_records:
             desc = ami_desc.get(inst["ImageId"], "")
@@ -203,12 +216,17 @@ def scan_live(regions: List[str], profile: Optional[str] = None) -> List[Finding
         lt_paginator = ec2.get_paginator("describe_launch_templates")
         for page in lt_paginator.paginate():
             for lt in page.get("LaunchTemplates", []):
-                # latest version
+                # Scan both aliases: callers may pin the default version while
+                # a newer, unused latest version exists (or vice versa).
                 v = ec2.describe_launch_template_versions(
                     LaunchTemplateId=lt["LaunchTemplateId"],
-                    Versions=["$Latest"],
+                    Versions=["$Default", "$Latest"],
                 )
+                seen_versions = set()
                 for ver in v.get("LaunchTemplateVersions", []):
+                    if ver["VersionNumber"] in seen_versions:
+                        continue
+                    seen_versions.add(ver["VersionNumber"])
                     image_id = ver.get("LaunchTemplateData", {}).get("ImageId")
                     if not image_id:
                         continue
@@ -225,64 +243,67 @@ def scan_live(regions: List[str], profile: Optional[str] = None) -> List[Finding
                                 ami_description=desc,
                                 platform=platform,
                                 severity=severity_for(platform),
-                                recommended_action=_recommend(
-                                    platform, "launch_template"
-                                ),
+                                recommended_action=_recommend(platform, "launch_template"),
                             )
                         )
 
         # 3. EKS node groups
         try:
             eks = session.client("eks", region_name=region)
-            for cluster in eks.list_clusters().get("clusters", []):
-                for ng_name in eks.list_nodegroups(clusterName=cluster).get(
-                    "nodegroups", []
-                ):
-                    ng = eks.describe_nodegroup(
-                        clusterName=cluster, nodegroupName=ng_name
-                    )["nodegroup"]
-                    ami_type = ng.get("amiType", "")
-                    if ami_type.startswith("AL2_"):
-                        findings.append(
-                            Finding(
-                                resource_type="eks_nodegroup",
-                                resource_id=f"{cluster}/{ng_name}",
-                                region=region,
-                                account_id=account_id,
-                                ami_id=ami_type,
-                                ami_description=f"EKS amiType={ami_type}",
-                                platform="al2",
-                                severity=severity_for("al2"),
-                                recommended_action=_recommend("al2", "eks_nodegroup"),
-                            )
-                        )
+            cluster_pages = eks.get_paginator("list_clusters").paginate()
+            for cluster_page in cluster_pages:
+                for cluster in cluster_page.get("clusters", []):
+                    nodegroup_pages = eks.get_paginator("list_nodegroups").paginate(
+                        clusterName=cluster
+                    )
+                    for nodegroup_page in nodegroup_pages:
+                        for ng_name in nodegroup_page.get("nodegroups", []):
+                            ng = eks.describe_nodegroup(clusterName=cluster, nodegroupName=ng_name)[
+                                "nodegroup"
+                            ]
+                            ami_type = ng.get("amiType", "")
+                            if ami_type.startswith("AL2_"):
+                                findings.append(
+                                    Finding(
+                                        resource_type="eks_nodegroup",
+                                        resource_id=f"{cluster}/{ng_name}",
+                                        region=region,
+                                        account_id=account_id,
+                                        ami_id=ami_type,
+                                        ami_description=f"EKS amiType={ami_type}",
+                                        platform="al2",
+                                        severity=severity_for("al2"),
+                                        recommended_action=_recommend("al2", "eks_nodegroup"),
+                                    )
+                                )
         except Exception as e:
             util.dim(f"    (eks scan skipped: {e.__class__.__name__})")
 
         # 4. Elastic Beanstalk platforms
         try:
             eb = session.client("elasticbeanstalk", region_name=region)
-            for env in eb.describe_environments(IncludeDeleted=False).get(
-                "Environments", []
-            ):
-                platform_arn = env.get("PlatformArn", "")
-                # AL2 EB platforms contain "AL2" or "Amazon Linux 2" in the arn
-                if "AL2" in platform_arn and "AL2023" not in platform_arn:
-                    findings.append(
-                        Finding(
-                            resource_type="beanstalk_environment",
-                            resource_id=env["EnvironmentName"],
-                            region=region,
-                            account_id=account_id,
-                            ami_id=None,
-                            ami_description=platform_arn,
-                            platform="al2",
-                            severity=severity_for("al2"),
-                            recommended_action=_recommend(
-                                "al2", "beanstalk_environment"
-                            ),
-                        )
+            environment_pages = eb.get_paginator("describe_environments").paginate(
+                IncludeDeleted=False
+            )
+            for environment_page in environment_pages:
+                for env in environment_page.get("Environments", []):
+                    platform = " ".join(
+                        str(env.get(key) or "") for key in ("PlatformArn", "SolutionStackName")
                     )
+                    if classify_ami(platform) == "al2":
+                        findings.append(
+                            Finding(
+                                resource_type="beanstalk_environment",
+                                resource_id=env["EnvironmentName"],
+                                region=region,
+                                account_id=account_id,
+                                ami_id=None,
+                                ami_description=platform,
+                                platform="al2",
+                                severity=severity_for("al2"),
+                                recommended_action=_recommend("al2", "beanstalk_environment"),
+                            )
+                        )
         except Exception as e:
             util.dim(f"    (beanstalk scan skipped: {e.__class__.__name__})")
 
@@ -303,6 +324,14 @@ def _describe_single(ec2_client, image_id: str) -> str:
 # ---------- Output ----------
 
 
+def deadline_delta(days: int) -> str:
+    if days == 0:
+        return "today"
+    if days > 0:
+        return f"in {days} day(s)"
+    return f"{abs(days)} day(s) ago"
+
+
 def render_table(findings: List[Finding]) -> None:
     if not findings:
         util.ok("No AL2 resources found. ✓")
@@ -319,15 +348,14 @@ def render_table(findings: List[Finding]) -> None:
     print(util.color.bold(hdr))
     print(util.color.gray("-" * len(hdr)))
     for f in findings:
-        sev_col = (
-            util.color.red if f.severity.startswith("critical") else util.color.yellow
-        )
+        sev_col = util.color.red if f.severity.startswith("critical") else util.color.yellow
         print(
             f"{f.resource_type:<24}{f.resource_id[:37]:<38}{f.region:<12}{f.platform:<10}{sev_col(f.severity)}"
         )
     print()
     util.warn(
-        f"AL2 EOL in {days_until(AL2_EOL)} day(s). Next: `al2023-gate packer` to scaffold an AL2023 AMI build."
+        f"AL2 EOL: {deadline_delta(days_until(AL2_EOL))}. "
+        "Next: `al2023-gate packer` to scaffold an AL2023 AMI build."
     )
 
 
@@ -341,7 +369,7 @@ def to_markdown(findings: List[Finding]) -> str:
         "",
         f"**Scanned:** {date.today().isoformat()}  ",
         f"**Total resources:** {len(findings)}  ",
-        f"**AL2 EOL:** 2026-06-30 ({days_until(AL2_EOL)} days)",
+        f"**AL2 EOL:** 2026-06-30 ({deadline_delta(days_until(AL2_EOL))})",
         "",
     ]
     al2 = [f for f in findings if f.platform == "al2"]
@@ -394,9 +422,7 @@ def run(args: argparse.Namespace) -> int:
         for f in findings:
             d = asdict(f)
             rows.append(
-                ",".join(
-                    '"' + str(d.get(c, "") or "").replace('"', '""') + '"' for c in cols
-                )
+                ",".join('"' + str(d.get(c, "") or "").replace('"', '""') + '"' for c in cols)
             )
         out_text = "\n".join(rows)
 

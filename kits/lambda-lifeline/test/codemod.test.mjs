@@ -70,12 +70,31 @@ test('codemod flags Buffer negative-index lint', () => {
   } finally { cleanup(); }
 });
 
+test('codemod flags multiline stream constructors but respects explicit highWaterMark', () => {
+  const { dir, cleanup } = scratch();
+  try {
+    const srcFile = join(dir, 'streams.mjs');
+    writeFileSync(srcFile, `
+      const risky = new Readable({
+        read() { this.push('x'); this.push(null); }
+      });
+      const explicit = new Writable({
+        highWaterMark: 16 * 1024,
+        write(chunk, encoding, callback) { callback(); }
+      });
+    `);
+    const r = run(['codemod', '--path', dir, '--json']);
+    assert.equal(r.status, 0, r.stderr);
+    assert.match(r.stdout, /streams-hwm · 1 hit\(s\)/);
+  } finally { cleanup(); }
+});
+
 test('codemod on clean code reports zero hits', () => {
   const { dir, cleanup } = scratch();
   try {
     writeFileSync(join(dir, 'clean.mjs'), `import c from './c.json' with { type: 'json' };\n`);
     const r = run(['codemod', '--path', dir]);
     assert.equal(r.status, 0);
-    assert.match(r.stdout, /No codemod hits/);
+    assert.match(r.stdout, /No configured Node\.js migration codemod rule matched/);
   } finally { cleanup(); }
 });

@@ -1,0 +1,15 @@
+services:
+  eolkits-api:
+    container_name: eolkits-api-test
+    restart: "no"
+    environment:
+      ENVIRONMENT: staging
+      PUBLIC_SITE_URL: "${EOLKITS_TEST_PUBLIC_URL:-http://127.0.0.1:8121}"
+      PUBLIC_API_URL: "${EOLKITS_TEST_PUBLIC_URL:-http://127.0.0.1:8121}"
+      EOLKITS_AUDIT_CHECKOUT_ENABLED: "1"
+      EOLKITS_BUILD_SHA: test-mode-e2e
+    volumes:
+      - eolkits_api_test_data:/data/eolkits
+
+volumes:
+  eolkits_api_test_data:

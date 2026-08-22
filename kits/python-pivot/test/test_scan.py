@@ -2,10 +2,10 @@
 
 import json
 from argparse import Namespace
+from datetime import date
 from pathlib import Path
 
-
-from python_pivot import scan
+from python_pivot import runtimes, scan
 
 FIXTURE = Path(__file__).parent / "fixtures" / "lambda-inventory.json"
 
@@ -82,3 +82,15 @@ def test_run_out_file(tmp_path):
     assert outfile.exists()
     data = json.loads(outfile.read_text())
     assert len(data) == 6
+
+
+def test_eol_delta_labels_past_and_future_dates():
+    assert scan.eol_delta(-250) == "250d ago"
+    assert scan.eol_delta(70) == "in 70d"
+
+
+def test_runtime_block_dates_match_the_cited_aws_schedule():
+    for runtime in ("python3.8", "python3.9", "python3.10"):
+        assert runtimes.RUNTIME_TABLE[runtime].block_create == date(2027, 2, 1)
+        assert runtimes.RUNTIME_TABLE[runtime].block_update == date(2027, 3, 3)
+    assert runtimes.RUNTIME_TABLE["python3.11"].block_create == date(2027, 7, 31)

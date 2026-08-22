@@ -4,7 +4,6 @@ import requests
 
 from .config import Settings
 
-
 RESEND_API = "https://api.resend.com/emails"
 
 
@@ -28,46 +27,23 @@ def render_audit_delivery_email(
     verify_url: str,
     rule_pack_version: str,
     input_sha: str,
+    evidence_sha: str,
+    findings_count: int,
 ) -> str:
     return f"""<!doctype html>
 <html><body style="font-family:system-ui,-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:24px;line-height:1.6">
 <h2 style="margin:0 0 12px">Your EOLkits Audit is ready</h2>
-<p>The audit you requested has been generated and signed.</p>
+<p>Your static evidence report is ready. It contains {findings_count} distinct risk type{"" if findings_count == 1 else "s"}, with file-and-line evidence and source links.</p>
 <p><a href="{pdf_url}" style="display:inline-block;background:#2563eb;color:#fff;padding:10px 18px;border-radius:6px;text-decoration:none">Download PDF</a></p>
 <h3 style="margin-top:24px;font-size:14px;color:#374151">Verification</h3>
 <ul style="font-size:13px;color:#4b5563">
 <li>Input SHA-256: <code>{input_sha}</code></li>
+<li>Evidence fingerprint: <code>{evidence_sha}</code></li>
 <li>Rule pack version: <code>{rule_pack_version}</code></li>
-<li>Verify authenticity: <a href="{verify_url}">{verify_url}</a></li>
+<li>Verify evidence metadata: <a href="{verify_url}">{verify_url}</a></li>
 </ul>
-<div style="background:#ecfdf5;border:1px solid #059669;border-radius:8px;padding:16px;margin-top:24px">
-<h3 style="margin:0 0 6px;font-size:15px;color:#065f46">Want it fixed, not just found?</h3>
-<p style="margin:0 0 10px;font-size:13px;color:#065f46">Upgrade to a <strong>Migration Pack</strong> within 48 hours and we credit this $299 audit toward the $1,499 — a real PR with codemods, IaC patches, a canary plan, and an automatic refund if your CI fails.</p>
-<a href="https://eolkits.com/pack/?utm_source=audit_email&utm_medium=email&utm_campaign=audit48h" style="display:inline-block;background:#059669;color:#fff;padding:8px 16px;border-radius:6px;text-decoration:none;font-size:13px">Apply my $299 credit</a>
-</div>
+<p style="font-size:13px;color:#4b5563">The fingerprint covers canonical findings and the input hash; it is not a digital signature of the PDF. Validate changes in a non-production environment.</p>
 <p style="font-size:12px;color:#6b7280;margin-top:32px">This is a transactional message. You are receiving it because you purchased an Audit PDF on EOLkits.</p>
-</body></html>"""
-
-
-def render_license_delivery_email(
-    *,
-    license_key: str,
-    company: str,
-    expires_at: str,
-    verify_url: str,
-) -> str:
-    return f"""<!doctype html>
-<html><body style="font-family:system-ui,-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:24px;line-height:1.6">
-<h2 style="margin:0 0 12px">Your EOLkits Org License is active</h2>
-<p>Thanks for licensing EOLkits for <strong>{company}</strong>. Your key is below — keep it somewhere your team can find it.</p>
-<p style="background:#f3f4f6;border-radius:8px;padding:16px;font-family:monospace;font-size:16px;letter-spacing:1px">{license_key}</p>
-<h3 style="margin-top:24px;font-size:14px;color:#374151">Details</h3>
-<ul style="font-size:13px;color:#4b5563">
-<li>Expires: <code>{expires_at}</code></li>
-<li>Verify this key: <a href="{verify_url}">{verify_url}</a></li>
-</ul>
-<p style="font-size:13px;color:#4b5563;margin-top:16px">This license covers unlimited runs, private rule extensions, and the live rule-pack feed for your organization.</p>
-<p style="font-size:12px;color:#6b7280;margin-top:32px">This is a transactional message. You are receiving it because you purchased an Org License on EOLkits.</p>
 </body></html>"""
 
 
@@ -78,6 +54,7 @@ def send_email(
     subject: str,
     html: str,
     attachments: list[dict] | None = None,
+    idempotency_key: str | None = None,
 ) -> dict:
     """Send one email via Resend. Returns the provider payload on success and
     RAISES :class:`EmailDeliveryError` on any failure (no provider configured,
@@ -96,12 +73,15 @@ def send_email(
     if attachments:
         payload["attachments"] = attachments
     try:
+        headers = {
+            "Authorization": f"Bearer {settings.resend_api_key}",
+            "Content-Type": "application/json",
+        }
+        if idempotency_key:
+            headers["Idempotency-Key"] = idempotency_key[:256]
         response = requests.post(
             RESEND_API,
-            headers={
-                "Authorization": f"Bearer {settings.resend_api_key}",
-                "Content-Type": "application/json",
-            },
+            headers=headers,
             json=payload,
             timeout=30,
         )
@@ -117,4 +97,3 @@ def send_email(
         f"email provider returned {response.status_code}: {response.text[:500]}",
         retryable=retryable,
     )
-

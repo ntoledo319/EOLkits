@@ -1,6 +1,6 @@
 # Rollback Playbook
 
-When a Node 22 deployment misbehaves in production, these are the procedures in priority order. Every procedure is non-destructive — your existing Lambda versions are immutable, so every rollback is an alias pointer change that takes effect in ~1 second.
+When a Node 24 deployment misbehaves in production, these are the procedures in priority order. Published Lambda versions are immutable, so an alias can be pointed back to an existing version without publishing another code version. Treat the AWS API response and your own health checks as the source of truth for when the rollback has propagated.
 
 ## 0. Know which alias you deployed to
 
@@ -55,7 +55,7 @@ If you ran the migration on dozens of functions, and need to revert all of them:
 
 ```bash
 # Scan what you migrated
-aws lambda list-functions --query "Functions[?Runtime=='nodejs22.x'].FunctionName" --output text | \
+aws lambda list-functions --query "Functions[?Runtime=='nodejs24.x'].FunctionName" --output text | \
   tr '\t' '\n' | while read fn; do
     lambda-lifeline rollback --function "$fn" --apply
   done

@@ -1,31 +1,23 @@
 {
-  "generated_at": "2026-06-22T00:00:00Z",
+  "generated_at": "2026-08-22T00:00:00Z",
+  "source": "static-fallback-only",
   "checks": {
-    "stripe": {
-      "ok": true,
-      "last_checked": "2026-06-22T00:00:00Z"
+    "storage": {
+      "ok": null,
+      "status": "unknown"
     },
-    "worker": {
-      "ok": true,
-      "last_checked": "2026-06-22T00:00:00Z"
+    "stripe": {
+      "ok": null,
+      "status": "unknown"
     },
     "runner": {
-      "ok": true,
-      "last_checked": "2026-06-22T00:00:00Z"
+      "ok": null,
+      "status": "unknown"
     },
     "email": {
-      "ok": true,
-      "last_checked": "2026-06-22T00:00:00Z"
-    },
-    "github": {
-      "ok": true,
-      "last_checked": "2026-06-22T00:00:00Z"
+      "ok": null,
+      "status": "unknown"
     }
   },
-  "metrics": {
-    "audits_delivered_7d": 0,
-    "prs_opened_7d": 0,
-    "drift_watch_subscribers": 0,
-    "rules_in_public_pack": 0
-  }
+  "metrics": null
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // lambda-lifeline CLI — https://github.com/ntoledo319/EOLkits
-// EOLkits · MIT · safe for production use (all mutations gated behind --apply)
+// EOLkits · MIT · all mutations gated behind --apply
 
 import { scanCommand } from '../src/scan/index.mjs';
 import { codemodCommand } from '../src/codemod/index.mjs';
@@ -23,10 +23,10 @@ USAGE
   lambda-lifeline <command> [options]
 
 COMMANDS
-  scan       Scan all AWS accounts/regions for Node 16/18/20 Lambda functions
+  scan       Scan functions visible to one AWS credential profile in selected regions
              Flags: --regions us-east-1,us-west-2  --profile <aws-profile>  --json  --out scan.json
 
-  codemod    Rewrite code for Node.js 22 compatibility
+  codemod    Rewrite code for Node.js 24 compatibility
              Flags: --path <dir>  --apply  --rules assert-to-with,buffer-safety,streams-hwm
              (default: --dry-run — prints a diff, writes nothing)
 
@@ -38,13 +38,13 @@ COMMANDS
              Flags: --function <name>  --all  --apply
 
   iac        Patch IaC files (SAM template.yaml, CDK, Terraform)
-             Flags: --path <dir>  --from nodejs20.x  --to nodejs22.x  --apply
+             Flags: --path <dir>  --from nodejs20.x  --to nodejs24.x  --apply
 
   plan       Print a staged canary deploy plan (versions → alias → weighted routing)
              Flags: --function <name>  --stages 5,25,50,100  --wait-minutes 10
 
   deploy     Execute staged canary deploy with auto-rollback on alarm
-             Flags: --function <name>  --new-runtime nodejs22.x  --apply
+             Flags: --function <name>  --new-runtime nodejs24.x  --apply
              (default: --dry-run. Requires CloudWatch alarm ARNs via --alarm)
 
   rollback   Roll function alias back to previous version
@@ -116,7 +116,7 @@ async function main() {
   } catch (err) {
     console.error(`\n✗ ${err.message}`);
     if (process.env.DEBUG) console.error(err.stack);
-    process.exit(1);
+    process.exit(2);
   }
 }
 

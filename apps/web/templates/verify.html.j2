@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verify Audit Report | EOLkits</title>
-    <meta name="description" content="Verify the authenticity of your EOLkits Audit PDF report.">
+    <meta name="description" content="Look up the evidence metadata recorded for an EOLkits Audit report.">
     
     <style>
         body {
@@ -83,17 +83,17 @@
     </style>
 </head>
 <body>
-    <h1>Verify Audit Report</h1>
-    <p>Enter the SHA-256 hash from your Audit PDF to verify its authenticity.</p>
+    <h1>Look up audit evidence metadata</h1>
+    <p>Enter the evidence fingerprint printed in an Audit PDF to retrieve the input hash, rule-pack version, and observed counts recorded at generation time.</p>
     
     <div class="verify-box">
         <input type="text" 
                class="hash-input" 
                id="hashInput"
-               placeholder="Enter SHA-256 hash (64 characters)"
+               placeholder="Enter evidence fingerprint (64 characters)"
                maxlength="64"
                pattern="[a-fA-F0-9]{64}">
-        <button class="verify-btn" onclick="verifyHash()">Verify</button>
+        <button class="verify-btn" onclick="verifyHash()">Look up</button>
     </div>
     
     <div id="result" class="result">
@@ -103,8 +103,8 @@
     </div>
     
     <p style="color: #6b7280; font-size: 0.875rem; margin-top: 2rem;">
-        Each EOLkits Audit PDF is cryptographically tied to your input files.
-        Any modification invalidates the hash.
+        This lookup does not hash or digitally sign the PDF bytes. It confirms only that the entered
+        fingerprint and its recorded evidence metadata exist in the service's 30-day record.
     </p>
 
     <script>
@@ -139,7 +139,7 @@
             resultEl.className = 'result pending';
             iconEl.textContent = '⏳';
             titleEl.textContent = 'Verifying...';
-            messageEl.textContent = 'Checking report authenticity...';
+            messageEl.textContent = 'Looking up recorded evidence metadata...';
             
             try {
                 const response = await fetch(`${API_BASE}/api/verify/${hash}`);
@@ -148,18 +148,19 @@
                 if (response.ok && data.valid) {
                     resultEl.className = 'result valid';
                     iconEl.textContent = '✅';
-                    titleEl.textContent = 'Report Verified';
+                    titleEl.textContent = 'Evidence record found';
                     messageEl.innerHTML = `
-                        <strong>Hash:</strong> ${hash.substring(0, 16)}...${hash.substring(48)}<br>
+                        <strong>Evidence fingerprint:</strong> ${hash.substring(0, 16)}...${hash.substring(48)}<br>
                         <strong>Generated:</strong> ${data.generatedAt || 'recorded'}<br>
                         <strong>Rule Pack:</strong> ${data.rulePackVersion || 'recorded'}<br>
-                        <strong>Status:</strong> Authentic and unmodified
+                        <strong>Input SHA-256:</strong> ${data.inputSha256 || 'recorded'}<br>
+                        <strong>Observed findings:</strong> ${data.findingsCount ?? 'recorded'}
                     `;
                 } else {
                     resultEl.className = 'result invalid';
                     iconEl.textContent = '⚠️';
-                    titleEl.textContent = 'Verification Failed';
-                    messageEl.textContent = data.error || 'This hash was not found in our records. The report may have been modified or is not a genuine EOLkits audit.';
+                    titleEl.textContent = 'Evidence record not found';
+                    messageEl.textContent = data.error || 'This fingerprint was not found in the service\'s current records. Records expire after 30 days.';
                 }
             } catch (error) {
                 resultEl.className = 'result invalid';

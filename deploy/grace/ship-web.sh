@@ -1,30 +1,43 @@
 #!/usr/bin/env bash
-# Ship the EOLkits static site (docs/) to the GRACE VPS static web root.
-#
-# Closes the "deploy gap" (SEO-GRACE-HANDOFF.md §7.1): the static `eolkits`
-# satellite is served by host Caddy from /var/www/eolkits and was deployed by
-# hand. This is the ONE step Claude Code can't do itself (no SSH from the dev
-# env) — run it from your workstation, which has the VPS key.
+# Optional manual deployment of docs/ to a user-writable GRACE web root.
 #
 # Usage (run from repo root):
 #   deploy/grace/ship-web.sh            # build + DRY-RUN rsync (shows the diff, changes nothing)
 #   deploy/grace/ship-web.sh --apply    # build + snapshot the live root + real rsync
 #
-# Overrides (defaults from HANDOFF-2026-06-08.md):
-#   GRACE_HOST=ubuntu@15.204.209.97 GRACE_WEBROOT=/var/www/eolkits deploy/grace/ship-web.sh --apply
-#
-# The API satellite (eolkits-api / apps/grace-api) is already live and is NOT
-# touched here — this ships only the static site.
+# Required variables:
+#   GRACE_HOST=ubuntu@example-host
+#   GRACE_WEBROOT=/home/ubuntu/sites/eolkits-webroot
+# The target must already be writable by the SSH user. This script never uses
+# elevated privileges and never changes API services.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
-GRACE_HOST="${GRACE_HOST:-ubuntu@15.204.209.97}"
-GRACE_WEBROOT="${GRACE_WEBROOT:-/var/www/eolkits}"
+: "${GRACE_HOST:?Set GRACE_HOST to the reviewed SSH host}"
+: "${GRACE_WEBROOT:?Set GRACE_WEBROOT to the reviewed, user-writable web root}"
+if [[ ! "$GRACE_HOST" =~ ^[A-Za-z0-9._@:-]+$ ]]; then
+  echo "ERROR: GRACE_HOST contains unsupported characters" >&2
+  exit 2
+fi
+if [[ ! "$GRACE_WEBROOT" =~ ^/[A-Za-z0-9._/-]+$ ]]; then
+  echo "ERROR: GRACE_WEBROOT must be an absolute path containing only safe path characters" >&2
+  exit 2
+fi
+case "$GRACE_WEBROOT" in
+  /|""|*/../*|*/..) echo "ERROR: unsafe GRACE_WEBROOT" >&2; exit 2 ;;
+esac
+
+mkdir -p "$ROOT/tmp/runtime-tmp" "$ROOT/tmp/web-deploy-venv" "$ROOT/tmp/pip-cache"
+export TMPDIR="$ROOT/tmp/runtime-tmp"
+export PIP_CACHE_DIR="$ROOT/tmp/pip-cache"
+if [ ! -x "$ROOT/tmp/web-deploy-venv/bin/python" ]; then
+  python3 -m venv "$ROOT/tmp/web-deploy-venv"
+fi
+"$ROOT/tmp/web-deploy-venv/bin/pip" install -r apps/web/requirements-dev.txt
 
 echo "==> Building site (deterministic; targets eolkits.com by default)"
-python3 apps/web/build.py
-if [ -f feed/publish.py ]; then python3 feed/publish.py; fi
+"$ROOT/tmp/web-deploy-venv/bin/python" apps/web/build.py
 
 echo "==> Pre-flight gate: no un-interpolated {API_URL} placeholders in docs/"
 if grep -rq "{API_URL}" docs --include='*.html'; then
@@ -36,21 +49,20 @@ fi
 if [ "${1:-}" != "--apply" ]; then
   echo "==> DRY RUN — no changes will be made. Re-run with --apply to deploy."
   echo "    Target: $GRACE_HOST:$GRACE_WEBROOT/"
-  rsync -avn --delete --rsync-path="sudo rsync" -e "ssh -o BatchMode=yes -o ConnectTimeout=15" docs/ "$GRACE_HOST:$GRACE_WEBROOT/"
+  rsync -avn --delete -e "ssh -o BatchMode=yes -o ConnectTimeout=15" docs/ "$GRACE_HOST:$GRACE_WEBROOT/"
   exit 0
 fi
 
-echo "==> Snapshotting current web root (fast rollback: untar this if needed)"
-ssh "$GRACE_HOST" "sudo tar czf /tmp/eolkits-webroot-backup-\$(date +%F-%H%M).tgz -C \"\$(dirname '$GRACE_WEBROOT')\" \"\$(basename '$GRACE_WEBROOT')\"" || \
-  echo "  (snapshot skipped — continuing)"
+echo "==> Snapshotting current web root beside the target"
+ssh -o BatchMode=yes -o ConnectTimeout=15 "$GRACE_HOST" \
+  "test -d '$GRACE_WEBROOT' && tar czf '${GRACE_WEBROOT}.rollback.tgz' -C '$GRACE_WEBROOT' ."
 
 echo "==> Deploying docs/ -> $GRACE_HOST:$GRACE_WEBROOT/  (Caddy serves files directly; no reload needed)"
-# Web root is root/uid-owned; --rsync-path="sudo rsync" writes via the box's passwordless sudo.
-rsync -av --delete --rsync-path="sudo rsync" -e "ssh -o BatchMode=yes -o ConnectTimeout=15" docs/ "$GRACE_HOST:$GRACE_WEBROOT/"
+rsync -av --delete -e "ssh -o BatchMode=yes -o ConnectTimeout=15" docs/ "$GRACE_HOST:$GRACE_WEBROOT/"
 
 echo "==> Verifying live site"
 curl -sI "https://eolkits.com/audit/" | head -1
-if curl -s "https://eolkits.com/audit/" | grep -q "money-back"; then
+if curl -fsS "https://eolkits.com/audit/" | grep -q "Repository evidence report"; then
   echo "  ✓ new conversion audit page is live"
 else
   echo "  (audit page served but marker not seen — may be a CDN/cache delay)"

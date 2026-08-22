@@ -1,6 +1,7 @@
 """IaC patcher: rewrite Python Lambda runtimes in SAM / CDK / Terraform / Serverless."""
 
 from __future__ import annotations
+
 import argparse
 import re
 from dataclasses import dataclass
@@ -8,7 +9,6 @@ from pathlib import Path
 from typing import List, Tuple
 
 from . import util
-
 
 TARGET_RUNTIME = "python3.12"
 DEPRECATED_PY = r"python3\.(?:7|8|9|10|11)"

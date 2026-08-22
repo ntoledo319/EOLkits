@@ -1,42 +1,37 @@
-"""
-Property-based tests for lambda-lifeline codemods (C2)
-Uses Hypothesis to verify round-trip invariants and determinism.
+"""Behavioral properties for the shipped lambda-lifeline CLI.
+
+These tests intentionally invoke only real commands and fail on operational
+exit code 2; they never turn an unsupported-command error into a green test.
 """
 
-import pytest
-from hypothesis import given, strategies as st, settings, assume
-from pathlib import Path
-import tempfile
 import subprocess
-import json
+import tempfile
+from pathlib import Path
+
+from hypothesis import given, settings
+from hypothesis import strategies as st
+
+CLI = Path(__file__).resolve().parents[1] / "bin" / "cli.mjs"
 
 
-class TestCodemodProperties:
-    """Property-based tests for codemod transformations."""
-
-    @given(
-        runtime=st.sampled_from(
-            ["nodejs20.x", "nodejs18.x", "nodejs16.x", "nodejs14.x"]
-        ),
-        handler=st.text(
-            min_size=1,
-            max_size=100,
-            alphabet=st.characters(whitelist_categories=("L", "N")),
-        ),
+def run_cli(*args: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["node", str(CLI), *args],
+        capture_output=True,
+        text=True,
+        check=False,
     )
-    @settings(max_examples=50)
-    def test_runtime_upgrade_preserves_function_structure(self, runtime, handler):
-        """
-        Property: Upgrading runtime preserves the function's logical structure.
-        The handler name, memory, timeout, and environment variables should be unchanged.
-        """
-        assume(handler.isidentifier())
 
-        # Generate SAM template with property-based values
-        template = f"""AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
+
+@given(
+    runtime=st.sampled_from(["nodejs14.x", "nodejs16.x", "nodejs18.x", "nodejs20.x"]),
+    handler=st.from_regex(r"[A-Za-z][A-Za-z0-9_]{0,30}\.handler", fullmatch=True),
+)
+@settings(max_examples=30, deadline=None)
+def test_iac_apply_changes_only_the_runtime(runtime: str, handler: str) -> None:
+    template = f"""Transform: AWS::Serverless-2016-10-31
 Resources:
-  TestFunction:
+  Function:
     Type: AWS::Serverless::Function
     Properties:
       Runtime: {runtime}
@@ -47,241 +42,48 @@ Resources:
         Variables:
           LOG_LEVEL: info
 """
+    with tempfile.TemporaryDirectory() as directory:
+        path = Path(directory) / "template.yaml"
+        path.write_text(template, encoding="utf-8")
 
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
-            f.write(template)
-            template_path = f.name
+        preview = run_cli("iac", "--path", str(path), "--strict")
+        assert preview.returncode == 1, preview.stderr
+        assert path.read_text(encoding="utf-8") == template
 
-        try:
-            # Run upgrade command
-            result = subprocess.run(
-                [
-                    "lambda-lifeline",
-                    "upgrade",
-                    "--template",
-                    template_path,
-                    "--dry-run",
-                    "--format",
-                    "json",
-                ],
-                capture_output=True,
-                text=True,
-            )
-
-            if result.returncode == 0:
-                output = json.loads(result.stdout)
-
-                # Property: Handler name is preserved
-                assert (
-                    output.get("handler") == handler
-                ), "Handler name should be preserved"
-
-                # Property: Memory and timeout are preserved
-                assert output.get("memory") == 512, "Memory should be preserved"
-                assert output.get("timeout") == 30, "Timeout should be preserved"
-
-                # Property: Environment variables are preserved
-                env = output.get("environment", {})
-                assert (
-                    env.get("LOG_LEVEL") == "info"
-                ), "Environment variables should be preserved"
-
-                # Property: Runtime is upgraded (if it was deprecated)
-                if runtime in ["nodejs14.x", "nodejs16.x", "nodejs20.x"]:
-                    assert (
-                        output.get("runtime") == "nodejs22.x"
-                    ), "Deprecated runtime should be upgraded"
-                else:
-                    assert (
-                        output.get("runtime") == runtime
-                    ), "Non-deprecated runtime should be unchanged"
-        finally:
-            Path(template_path).unlink(missing_ok=True)
-
-    @given(
-        code=st.text(
-            min_size=10,
-            max_size=1000,
-            alphabet=st.characters(whitelist_categories=("L", "N", "P", "Z")),
-        ),
-    )
-    @settings(max_examples=30)
-    def test_aws_sdk_import_detection(self, code):
-        """
-        Property: aws-sdk v2 imports are always detected when present.
-        """
-        # Generate code that may or may not contain aws-sdk imports
-        if "aws-sdk" in code:
-            test_code = f"""
-const AWS = require('aws-sdk');
-{code}
-"""
-        else:
-            test_code = code
-
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".js", delete=False) as f:
-            f.write(test_code)
-            code_path = f.name
-
-        try:
-            result = subprocess.run(
-                ["lambda-lifeline", "scan", "--path", code_path, "--format", "json"],
-                capture_output=True,
-                text=True,
-            )
-
-            if result.returncode == 0:
-                output = json.loads(result.stdout)
-                findings = output.get("findings", [])
-
-                # Property: If aws-sdk is in code, it should be detected
-                if "aws-sdk" in test_code:
-                    sdk_findings = [f for f in findings if "aws-sdk" in str(f).lower()]
-                    assert (
-                        len(sdk_findings) > 0 or result.returncode != 0
-                    ), "aws-sdk should be detected when present"
-        finally:
-            Path(code_path).unlink(missing_ok=True)
+        applied = run_cli("iac", "--path", str(path), "--apply")
+        assert applied.returncode == 0, applied.stderr
+        result = path.read_text(encoding="utf-8")
+        assert "Runtime: nodejs24.x" in result
+        assert f"Handler: {handler}" in result
+        assert "MemorySize: 512" in result
+        assert "Timeout: 30" in result
+        assert "LOG_LEVEL: info" in result
 
 
-class TestDeterminism:
-    """Tests for determinism - same input always produces same output."""
+@given(
+    variable=st.from_regex(r"[A-Za-z_$][A-Za-z0-9_$]{0,20}", fullmatch=True),
+    suffix=st.text(alphabet=" abcdefghijklmnopqrstuvwxyz0123456789;\n", max_size=80),
+)
+@settings(max_examples=30, deadline=None)
+def test_codemod_rewrite_is_idempotent_and_preserves_surrounding_text(
+    variable: str, suffix: str
+) -> None:
+    original = f"import {variable} from './data.json' assert {{ type: 'json' }};\n{suffix}"
+    with tempfile.TemporaryDirectory() as directory:
+        path = Path(directory) / "index.mjs"
+        path.write_text(original, encoding="utf-8")
 
-    def test_deterministic_output_on_same_input(self):
-        """
-        Property: Running the same codemod twice on identical input produces identical output.
-        This is critical for reproducible builds and CI verification.
-        """
-        template = """AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
-Resources:
-  TestFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Runtime: nodejs20.x
-      Handler: index.handler
-"""
+        first = run_cli("codemod", "--path", str(path), "--apply")
+        assert first.returncode == 0, first.stderr
+        once = path.read_text(encoding="utf-8")
+        assert f"import {variable} from './data.json' with {{ type: 'json' }};" in once
+        assert once.endswith(suffix)
 
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
-            f.write(template)
-            template_path = f.name
-
-        try:
-            # Run twice
-            result1 = subprocess.run(
-                [
-                    "lambda-lifeline",
-                    "upgrade",
-                    "--template",
-                    template_path,
-                    "--dry-run",
-                    "--format",
-                    "json",
-                ],
-                capture_output=True,
-                text=True,
-            )
-
-            result2 = subprocess.run(
-                [
-                    "lambda-lifeline",
-                    "upgrade",
-                    "--template",
-                    template_path,
-                    "--dry-run",
-                    "--format",
-                    "json",
-                ],
-                capture_output=True,
-                text=True,
-            )
-
-            # Property: Same input produces identical output
-            assert result1.stdout == result2.stdout, "Output should be deterministic"
-            assert (
-                result1.returncode == result2.returncode
-            ), "Exit code should be deterministic"
-
-        finally:
-            Path(template_path).unlink(missing_ok=True)
-
-    @given(
-        st.lists(
-            st.fixed_dictionaries(
-                {
-                    "name": st.text(min_size=1, max_size=50),
-                    "runtime": st.sampled_from(
-                        ["nodejs20.x", "nodejs18.x", "python3.9", "python3.12"]
-                    ),
-                }
-            ),
-            min_size=1,
-            max_size=5,
-        )
-    )
-    @settings(max_examples=20)
-    def test_scan_output_determinism(self, functions):
-        """
-        Property: Scan output is deterministic for the set of functions.
-        """
-        template_parts = [
-            "AWSTemplateFormatVersion: '2010-09-09'",
-            "Transform: AWS::Serverless-2016-10-31",
-            "Resources:",
-        ]
-
-        for i, func in enumerate(functions):
-            template_parts.append(
-                f"""  Function{i}:
-    Type: AWS::Serverless::Function
-    Properties:
-      Runtime: {func['runtime']}
-      Handler: {func['name']}.handler"""
-            )
-
-        template = "\n".join(template_parts)
-
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
-            f.write(template)
-            template_path = f.name
-
-        try:
-            outputs = []
-            for _ in range(3):  # Run 3 times
-                result = subprocess.run(
-                    [
-                        "lambda-lifeline",
-                        "scan",
-                        "--path",
-                        template_path,
-                        "--format",
-                        "json",
-                    ],
-                    capture_output=True,
-                    text=True,
-                )
-                outputs.append(result.stdout)
-
-            # Property: All runs produce identical output
-            assert all(
-                o == outputs[0] for o in outputs
-            ), "Scan output must be deterministic"
-
-        finally:
-            Path(template_path).unlink(missing_ok=True)
+        second = run_cli("codemod", "--path", str(path), "--apply")
+        assert second.returncode == 0, second.stderr
+        assert path.read_text(encoding="utf-8") == once
 
 
-class TestRoundTrip:
-    """Tests for round-trip invariants."""
-
-    def test_upgrade_then_downgrade_identity(self):
-        """
-        Property: Upgrading then downgrading (if available) returns to original state.
-        This may not always be possible, but when it is, it should work.
-
-        Note: This is a weaker property - some upgrades are irreversible.
-        """
-        # This test documents the expected behavior
-        # In practice, many deprecations are one-way (e.g., Node.js 20 → 22)
-        # This test can be skipped or marked as expected to fail
-        pytest.skip("Upgrades are generally irreversible by design")
+def test_missing_path_is_an_operational_error() -> None:
+    result = run_cli("iac", "--path", "definitely-does-not-exist", "--strict")
+    assert result.returncode == 2

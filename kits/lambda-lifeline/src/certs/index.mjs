@@ -43,7 +43,7 @@ export async function certsCommand(argv) {
     do {
       const resp = await client.send(new Lambda.ListFunctionsCommand({ Marker }));
       for (const fn of resp.Functions || []) {
-        if (['nodejs16.x', 'nodejs18.x', 'nodejs20.x', 'nodejs22.x'].includes(fn.Runtime)) {
+        if (['nodejs16.x', 'nodejs18.x', 'nodejs20.x', 'nodejs22.x', 'nodejs24.x'].includes(fn.Runtime)) {
           targets.push(fn.FunctionName);
         }
       }

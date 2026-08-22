@@ -1,4 +1,8 @@
-# Faceless short-video scripts (YouTube Shorts / TikTok)
+# ARCHIVED — DO NOT PUBLISH
+
+These scripts have not passed the current fact and platform-policy review.
+
+# Short-video drafts (historical)
 
 For GRACE's `media_manager` (ffmpeg + Piper TTS faceless render) or manual. ~30–45s each,
 screen-recording of the free scanner + captions. Channel fit: YouTube Shorts > TikTok for a

@@ -1,4 +1,8 @@
-# Show HN draft — ARCHIVED
+# ARCHIVED — DO NOT POST
+
+This draft predates the current product and claim audit.
+
+# Show HN draft (historical)
 
 This earlier draft has been superseded. The active version is **[show-hn-final.md](./show-hn-final.md)** with the AL2023/Jun 30 reframe.
 

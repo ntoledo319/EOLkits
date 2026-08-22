@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-export class EOLkitsDiagnostics {
+export class EOLkitsDiagnostics implements vscode.Disposable {
     private diagnosticCollection: vscode.DiagnosticCollection;
     private allFindings: Map<string, Finding[]> = new Map();
 
@@ -33,7 +33,7 @@ export class EOLkitsDiagnostics {
 
     getAllFindings(): Finding[] {
         const result: Finding[] = [];
-        for (const [uri, findings] of this.allFindings) {
+        for (const findings of this.allFindings.values()) {
             result.push(...findings);
         }
         return result.sort((a, b) => this.severityRank(b.severity) - this.severityRank(a.severity));
@@ -41,6 +41,11 @@ export class EOLkitsDiagnostics {
 
     clear(): void {
         this.diagnosticCollection.clear();
+        this.allFindings.clear();
+    }
+
+    dispose(): void {
+        this.diagnosticCollection.dispose();
         this.allFindings.clear();
     }
 

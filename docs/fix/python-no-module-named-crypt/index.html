@@ -21,21 +21,21 @@
   try{
     var KEY='eolkits_ft';
     if(localStorage.getItem(KEY))return;
-    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='';
+    var q=new URLSearchParams(location.search), ref=document.referrer||'', aeo='', refHost='';
+    try{refHost=(new URL(ref)).hostname.toLowerCase().slice(0,100);}catch(e){}
+    if(refHost===location.hostname.toLowerCase())refHost='';
     if(/chatgpt\.com|chat\.openai\.com/i.test(ref))aeo='chatgpt';
     else if(/perplexity\.ai/i.test(ref))aeo='perplexity';
     else if(/gemini\.google\.com/i.test(ref))aeo='gemini';
     else if(/claude\.ai/i.test(ref))aeo='claude';
-    var ext = ref && ref.indexOf(location.host)===-1;
     var hasUtm = q.get('utm_source')||q.get('source')||q.get('utm_campaign')||q.get('kit');
-    if(!hasUtm && !aeo && !ext)return;  // wait for the first MEANINGFUL touch
+    if(!hasUtm && !refHost)return;
     localStorage.setItem(KEY, JSON.stringify({
-      source: q.get('source')||(aeo?('aeo_'+aeo):'')||'',
-      utm_source: q.get('utm_source')||aeo||'',
-      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':''),
+      source: q.get('source')||(aeo?('aeo_'+aeo):'referral'),
+      utm_source: q.get('utm_source')||aeo||refHost,
+      utm_medium: q.get('utm_medium')||(aeo?'ai_referral':'referral'),
       utm_campaign: q.get('utm_campaign')||'',
-      kit: q.get('kit')||'',
-      ref: ref.slice(0,200), landing: location.pathname, ts: new Date().toISOString()
+      kit: q.get('kit')||''
     }));
   }catch(e){}
 })();
@@ -53,9 +53,10 @@
 <h2>How to fix it</h2>
 <ol class="fix-steps"><li>For new hashing, use a dedicated library (`passlib`, `bcrypt`, `argon2-cffi`) or `hashlib.scrypt`.</li><li>To verify existing crypt(3) hashes, use `passlib.hash` — it implements the sha512_crypt/sha256_crypt schemes crypt produced.</li><li>There is no stdlib replacement by design; do not try to reintroduce crypt.</li><li>Re-test on Python 3.13.</li></ol>
 <p class="fix-rel">Related deadline: <a href="/migrate/lambda-python-3.11-eol/">Lambda Python 3.11 EOL</a> — <strong>2027-07-31</strong>.</p>
-<h2>Find every instance in your project</h2>
-<p>The free <a href="/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags this and related breakages across your IaC and dependency files.</p>
+<h2>Check configured patterns in your project</h2>
+<p>The free <a href="/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags selected related patterns in supported IaC and dependency files. It is not a complete source or AWS-account scan.</p>
+<p>Prefer a 10-second check? Paste your config into the <a href="/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
 <p>Primary source: <a href="https://docs.python.org/3/whatsnew/3.13.html" target="_blank" rel="noopener nofollow">https://docs.python.org/3/whatsnew/3.13.html</a></p>
-<p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=python-no-module-named-crypt&deadline=2027-07-31&kit=python-pivot">Get the full migration audit — $299, hash-anchored PDF &rarr;</a></p>
+<p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=python-no-module-named-crypt&deadline=2027-07-31&kit=python-pivot">Get repository evidence — $299, exact file/line matches &rarr;</a></p>
 </body>
 </html>

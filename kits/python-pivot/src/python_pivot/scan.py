@@ -4,13 +4,14 @@ Fixture shape: {"functions": [{"FunctionName":..., "Runtime":..., "Region":..., 
 """
 
 from __future__ import annotations
+
 import argparse
 import json
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from typing import List, Optional
 
 from . import util
-from .runtimes import RUNTIME_TABLE, days_until, severity_for, is_eol_or_soon
+from .runtimes import RUNTIME_TABLE, days_until, is_eol_or_soon, severity_for
 
 
 @dataclass
@@ -80,15 +81,23 @@ def scan_live(regions: List[str], profile: Optional[str] = None) -> List[Finding
                             if info and info.deprecation_phase1
                             else None
                         ),
-                        recommended_runtime=(
-                            info.recommended_target if info else "python3.12"
-                        ),
+                        recommended_runtime=(info.recommended_target if info else "python3.12"),
                     )
                 )
     return findings
 
 
 # ---------------- rendering ----------------
+
+
+def eol_delta(days: Optional[int]) -> str:
+    if days is None:
+        return "—"
+    if days == 0:
+        return "today"
+    if days > 0:
+        return f"in {days}d"
+    return f"{abs(days)}d ago"
 
 
 def render_table(findings: List[Finding]) -> str:
@@ -98,11 +107,11 @@ def render_table(findings: List[Finding]) -> str:
     c2 = max(len("RUNTIME"), max(len(f.runtime) for f in findings))
     c3 = max(len("REGION"), max(len(f.region) for f in findings))
     c4 = max(len("SEVERITY"), max(len(f.severity) for f in findings))
-    header = f"{'FUNCTION':<{c1}}  {'RUNTIME':<{c2}}  {'REGION':<{c3}}  {'SEVERITY':<{c4}}  DAYS-TO-EOL  TARGET"
+    header = f"{'FUNCTION':<{c1}}  {'RUNTIME':<{c2}}  {'REGION':<{c3}}  {'SEVERITY':<{c4}}  EOL DELTA    TARGET"
     sep = "-" * len(header)
     lines = [header, sep]
     for f in findings:
-        d = "—" if f.days_to_eol is None else str(f.days_to_eol)
+        d = eol_delta(f.days_to_eol)
         lines.append(
             f"{f.function_name:<{c1}}  {f.runtime:<{c2}}  {f.region:<{c3}}  {f.severity:<{c4}}  {d:>11}  {f.recommended_runtime}"
         )
@@ -133,11 +142,11 @@ def render_csv(findings: List[Finding]) -> str:
 
 def render_markdown(findings: List[Finding]) -> str:
     lines = [
-        "| Function | Runtime | Region | Severity | Days to EOL | Recommended |",
+        "| Function | Runtime | Region | Severity | EOL delta | Recommended |",
         "|---|---|---|---|---|---|",
     ]
     for f in findings:
-        d = "—" if f.days_to_eol is None else str(f.days_to_eol)
+        d = eol_delta(f.days_to_eol)
         lines.append(
             f"| `{f.function_name}` | {f.runtime} | {f.region} | {f.severity} | {d} | {f.recommended_runtime} |"
         )
@@ -154,18 +163,14 @@ def run(args: argparse.Namespace) -> int:
         findings = scan_fixture(args.fixture)
         source = f"fixture {args.fixture}"
     else:
-        regions = [
-            r.strip() for r in (args.regions or "us-east-1").split(",") if r.strip()
-        ]
+        regions = [r.strip() for r in (args.regions or "us-east-1").split(",") if r.strip()]
         findings = scan_live(regions, profile=args.profile)
         source = ",".join(regions)
 
     if not machine:
         util.hdr(f"Scanning {source}", to_stderr=False)
         eol = [f for f in findings if is_eol_or_soon(f.runtime)]
-        util.info(
-            f"Scanned {len(findings)} Python Lambda function(s). {len(eol)} need migration."
-        )
+        util.info(f"Scanned {len(findings)} Python Lambda function(s). {len(eol)} need migration.")
 
     if args.format == "json":
         out = render_json(findings)
@@ -184,13 +189,14 @@ def run(args: argparse.Namespace) -> int:
         print(out)
 
     if not machine:
-        worst = next(
-            (f for f in findings if f.severity in ("critical", "critical-eol")), None
-        )
+        worst = next((f for f in findings if f.severity in ("critical", "critical-eol")), None)
         if worst and worst.days_to_eol is not None:
-            util.warn(
-                f"{worst.runtime} hits EOL in {worst.days_to_eol} day(s). Next: `python-pivot codemod`"
+            timing = (
+                f"reaches EOL in {worst.days_to_eol} day(s)"
+                if worst.days_to_eol >= 0
+                else f"reached EOL {abs(worst.days_to_eol)} day(s) ago"
             )
+            util.warn(f"{worst.runtime} {timing}. Next: `python-pivot codemod`")
 
     if args.strict and any(is_eol_or_soon(f.runtime) for f in findings):
         return 1

@@ -1,122 +1,112 @@
 # Privacy Policy — EOLkits
 
-**Last updated:** April 29, 2026
+**Last updated:** August 22, 2026
 
-## 1. Introduction
+## 1. Scope
 
-This Privacy Policy explains how EOLkits ("we", "us", "our") collects, uses, and protects your information when you use our services.
+This policy describes data used by the EOLkits website, free browser tools, paid
+repository evidence report, and product-research forms. The Migration Pack,
+Drift Watch, and Organization License are not currently available for purchase.
 
-## 2. Information We Collect
+## 2. Data We Process
 
-### 2.1 Automatically Collected
-- **Usage data:** Page views, feature usage, error logs
-- **Technical data:** IP address, browser type, operating system
-- **Purchase data:** Stripe checkout session metadata (no full card details)
+- **Free browser scanner:** Source files are processed in your browser and are
+  not uploaded by that tool.
+- **Paid evidence report:** Email address, original upload filename, uploaded
+  ZIP/source bytes, content hash, generated PDF, evidence fingerprint, and
+  fulfillment status.
+- **Purchases:** Stripe Checkout identifiers, price/SKU, amount, currency,
+  customer email, refund state, and limited attribution fields. Card numbers are
+  handled by Stripe and are not stored by EOLkits.
+- **Product research:** Email, company/name when supplied, product of interest,
+  form fields, and a supplied source or referrer origin/path without its query.
+- **First-party usage events:** Page path, event name, product/kit, and supplied
+  source or UTM values. EOLkits does not use advertising trackers or third-party
+  analytics cookies.
+- **Abuse prevention:** A server-secret-keyed pseudonymous network-source token
+  is used for rate limiting; the originating address is not written to the
+  application database.
+- **Infrastructure logs:** The hosting and email providers may process request
+  metadata such as IP address, user agent, delivery status, and timestamps for
+  security and operation.
 
-### 2.2 Provided by You
-- **Account information:** Email address (for purchase receipts)
-- **Repository information:** When using Migration Pack (repo names, PR metadata)
-- **Audit uploads:** Files uploaded for analysis (stored temporarily, see Section 4)
+## 3. Why We Process It
 
-### 2.3 From Third Parties
-- **Stripe:** Payment confirmation, customer ID
-- **GitHub:** Repository metadata (with your permission via GitHub App)
-- **Resend:** Email delivery status
+| Purpose | Data | Basis |
+|---|---|---|
+| Generate and deliver a purchased report | Upload, email, purchase/job state | Contract fulfillment |
+| Process or refund payment | Stripe/purchase state | Contract fulfillment and accounting |
+| Protect and operate the service | Request/job/error data | Legitimate interest |
+| Respond to a requested research follow-up | Submitted research form | Consent/request |
 
-## 3. How We Use Information
+## 4. Storage and Retention
 
-| Purpose | Data Used | Legal Basis |
-|---------|-----------|-------------|
-| Provide Services | Purchase data, uploads | Contract fulfillment |
-| Process Payments | Stripe data | Contract fulfillment |
-| Deliver Reports | Email address | Contract fulfillment |
-| Improve Services | Usage data, error logs | Legitimate interest |
-| Legal Compliance | All data | Legal obligation |
+### Audit uploads and reports
 
-## 4. Data Storage and Retention
+- Uploads and generated PDFs are stored on the EOLkits API's managed filesystem.
+- A successfully delivered report causes its source upload to be deleted
+  immediately. Uploads that do not reach checkout normally expire within 24
+  hours. Checkout-bound uploads are retained for up to 48 hours so fulfillment
+  retries can finish, then are swept.
+- Generated report PDFs and their verification metadata expire within 30 days.
+- Download and verification URLs contain a high-entropy identifier. Anyone who
+  receives the full URL can use it during the retention window, so do not share
+  it publicly.
 
-### 4.1 Uploaded Files (Audit Analysis)
-- Stored on the GRACE-managed EOLkits API volume (encrypted at rest by the host)
-- **Retention:** 30 days maximum
-- **Auto-deletion:** Files deleted after report delivery + 30 days
-- **Access:** Only accessible via unique, unguessable URL
+### Operational and financial records
 
-### 4.2 Purchase Records
-- Retained for 7 years (tax/accounting requirements)
-- Stored in Stripe (PCI-compliant)
+- Purchase, refund, and fulfillment records are stored in both Stripe and local
+  EOLkits SQLite state as needed to deliver, reconcile, refund, and account for a
+  purchase.
+- Financial records may be retained as required by tax, accounting, fraud, or
+  legal obligations.
+- First-party funnel events and product-research leads are retained for product
+  operation and may be deleted on a verified request unless legal retention
+  applies.
+- First-touch source/UTM attribution may be stored in your browser's local
+  storage. It contains no random user identifier and can be cleared using your
+  browser's site-data controls.
 
-### 4.3 Repository Metadata
-- Stored only while GitHub App is installed
-- Deleted upon uninstall
+## 5. Providers
 
-## 5. Data Sharing
+EOLkits uses:
 
-We do **not** sell your data. We share data only with:
+| Provider | Purpose | Data shared |
+|---|---|---|
+| Stripe | Checkout and refunds | Email and transaction metadata |
+| Resend | Transactional email and requested lead notifications | Email and message content |
+| GitHub | Public source, issues, discussions, and releases | Information you submit to GitHub |
+| Hosting provider | Static site and API operation | Requests, uploads, generated reports, operational state |
 
-| Recipient | Purpose | Data Shared |
-|-----------|---------|-------------|
-| Stripe | Payment processing | Payment intent, email |
-| GRACE-hosted EOLkits API | Infrastructure | Uploaded files and generated reports |
-| GitHub | PR creation | Repository access (your permission) |
-| Resend | Email delivery | Email address, message content |
+EOLkits does not sell personal data.
 
-All recipients are GDPR-compliant and under data processing agreements where required.
+## 6. Security
 
-## 6. Cookies and Tracking
+- Traffic is served over HTTPS.
+- Upload identifiers are high entropy and uploads become immutable after receipt.
+- Archive scanning is bounded and does not extract files onto the host filesystem.
+- Production configuration fails closed when required payment/email secrets are
+  absent.
+- No security control eliminates all risk; avoid uploading secrets, credentials,
+  private keys, or data unrelated to the requested source scan.
 
-- **Essential cookies:** Required for site functionality
-- **Analytics:** Minimal, privacy-preserving analytics (no third-party trackers)
-- **No advertising cookies**
+## 7. Your Choices and Rights
 
-## 7. Your Rights
+You may request access, correction, or deletion of eligible data, and may object
+to or restrict processing where applicable. Financial/legal records and data
+needed to resolve a transaction may be retained as required.
 
-Under GDPR and similar regulations, you have the right to:
-- **Access:** Request a copy of your data
-- **Correction:** Update inaccurate information
-- **Deletion:** Request data deletion (subject to legal retention)
-- **Portability:** Receive data in machine-readable format
-- **Objection:** Object to certain processing
+Email `hello@toledotechnologies.com` from the address associated with the data
+and use the subject `EOLkits Privacy Request`. You may also open a private contact
+request through the operator's GitHub profile; do not put sensitive data in a
+public issue or discussion.
 
-To exercise these rights:
-- GitHub Discussions: https://github.com/ntoledo319/EOLkits/discussions
-- Include "Privacy Request" in subject
+## 8. International Processing and Children
 
-## 8. Security Measures
+Providers may process data in the United States or other locations where they
+operate. EOLkits is not directed to children under 16 and does not knowingly
+collect their data.
 
-- All data encrypted in transit (TLS 1.3)
-- Uploaded files encrypted at rest (AES-256)
-- Stripe handles all payment data (PCI DSS Level 1)
-- Regular security audits via automated CI
-- No plaintext credential storage
+## 9. Changes
 
-## 9. International Transfers
-
-Data may be processed in:
-- United States (hosting provider, Stripe, GitHub, Resend)
-
-All providers offer adequate protection under GDPR adequacy decisions or Standard Contractual Clauses.
-
-## 10. Children's Privacy
-
-Our services are not intended for users under 16. We do not knowingly collect data from children.
-
-## 11. Changes to This Policy
-
-We will notify users of significant changes via:
-- GitHub repository notice
-- Email to registered users
-
-## 12. Contact Information
-
-For privacy questions or requests:
-- GitHub Discussions: https://github.com/ntoledo319/EOLkits/discussions
-- Privacy-specific: Open a discussion with "[Privacy]" prefix
-
-## 13. Data Protection Officer
-
-Currently: The project operator (contact via GitHub Discussions)
-To be formalized upon business entity registration.
-
----
-
-*This Privacy Policy is adapted from the Mozilla Privacy Policy template and customized for EOLkits's specific data practices.*
+Material changes will be published on this page with a new update date.

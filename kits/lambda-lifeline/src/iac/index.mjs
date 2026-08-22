@@ -10,8 +10,8 @@ import { join, extname, basename, relative } from 'node:path';
 
 const IGNORE_DIRS = new Set(['node_modules', '.git', 'dist', 'build', '.aws-sam', 'cdk.out', '.terraform', 'coverage']);
 
-const DEFAULT_FROM = ['nodejs16.x', 'nodejs18.x', 'nodejs20.x'];
-const DEFAULT_TO = 'nodejs22.x';
+const DEFAULT_FROM = ['nodejs14.x', 'nodejs16.x', 'nodejs18.x', 'nodejs20.x', 'nodejs22.x'];
+const DEFAULT_TO = 'nodejs24.x';
 
 // File-type detectors
 function isSAM(file, content) {
@@ -42,7 +42,7 @@ function patchSAM(content, from, to) {
   return { changed, hits };
 }
 
-// CDK: lambda.Runtime.NODEJS_22_X → lambda.Runtime.NODEJS_22_X
+// CDK: lambda.Runtime.NODEJS_20_X → lambda.Runtime.NODEJS_24_X
 function patchCDK(content, from, to) {
   const fromVers = from.map(r => r.match(/nodejs(\d+)/)[1]);
   const toVer = to.match(/nodejs(\d+)/)[1];

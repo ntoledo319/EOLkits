@@ -1,4 +1,9 @@
-# EOLkits — Send-Ready Distribution Kit
+# ARCHIVED — DO NOT SEND OR PUBLISH
+
+This copy predates the Audit v2 truth and operational gates. It is historical
+research, not an approved campaign or product description.
+
+# EOLkits — Send-Ready Distribution Kit (historical)
 
 _Updated 2026-06-22 for the new conversion site (free `/scan`, `/audit` with guarantee + sample,
 `/fix` corpus). **Reframed 2026-08-19: AL2's Jun 30, 2026 EOL is now ~7 weeks past — every AL2

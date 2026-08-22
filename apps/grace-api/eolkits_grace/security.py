@@ -32,18 +32,6 @@ def verify_stripe_signature(payload: bytes, signature: str | None, secret: str) 
     return any(hmac.compare_digest(expected, candidate) for candidate in pieces.get("v1", []))
 
 
-def verify_github_signature(payload: bytes, signature: str | None, secret: str | None) -> bool:
-    # Fail closed: a missing/empty secret must NEVER bypass verification.
-    # Production startup aborts when GITHUB_WEBHOOK_SECRET is unset (see config),
-    # so reaching here without a secret means the request cannot be trusted.
-    if not secret:
-        return False
-    if not signature or not signature.startswith("sha256="):
-        return False
-    expected = "sha256=" + hmac.new(secret.encode("utf-8"), payload, hashlib.sha256).hexdigest()
-    return hmac.compare_digest(expected, signature)
-
-
 def sign_internal_url(secret: str, upload_id: str, expires_at: int) -> str:
     """HMAC token authorizing the runner to fetch a specific local upload.
 
@@ -62,4 +50,3 @@ def verify_internal_url(secret: str, upload_id: str, expires_at: int, token: str
         return False
     expected = sign_internal_url(secret, upload_id, expires_at)
     return hmac.compare_digest(expected, token)
-

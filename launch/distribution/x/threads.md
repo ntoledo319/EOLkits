@@ -1,4 +1,8 @@
-# X / Twitter — ready-to-post content (own account, own content)
+# ARCHIVED — DO NOT POST
+
+This copy predates the current offer and claim audit.
+
+# Social thread drafts (historical)
 
 Dev audience lives on X (where Reddit is now a dud). These are evergreen + deadline-timed
 posts. Auto-postable via the X API (see ../email/../README for the cred gate — X's API is

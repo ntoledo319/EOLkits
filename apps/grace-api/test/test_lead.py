@@ -21,7 +21,10 @@ def _load_app(tmp_path, monkeypatch, **env_overrides):
         "STRIPE_WEBHOOK_SECRET": "whsec_test",
         "PUBLIC_SITE_URL": "https://eolkits.com",
         "PUBLIC_API_URL": "https://eolkits.com",
-        "EOLKITS_INLINE_RUNNER": "0",
+        "EOLKITS_INLINE_RUNNER": "1",
+        "EOLKITS_AUDIT_CHECKOUT_ENABLED": "1",
+        "RESEND_API_KEY": "re_test",
+        "LEAD_NOTIFY_TO": "",
     }
     env.update(env_overrides)
     for key, value in env.items():
@@ -114,10 +117,12 @@ def test_lead_requires_a_valid_email(tmp_path, monkeypatch):
 def test_lead_notify_success_marks_notified(tmp_path, monkeypatch):
     mod, client = _load_app(tmp_path, monkeypatch, LEAD_NOTIFY_TO="owner@toledo.test")
     monkeypatch.setattr(mod, "send_email", lambda *a, **k: None)  # send succeeds
-    r = client.post("/api/v1/lead", json={"email": "warm@lead.com", "product": "ToledoWeb Migration Audit"})
+    r = client.post(
+        "/api/v1/lead", json={"email": "warm@lead.com", "product": "ToledoWeb Migration Audit"}
+    )
     assert r.status_code == 200
     lead = mod.store.recent_leads()[0]
-    assert lead["notified"] == 1               # confirmed-sent -> flagged
+    assert lead["notified"] == 1  # confirmed-sent -> flagged
     assert mod.store.count_unnotified() == 0
 
 
@@ -132,10 +137,10 @@ def test_lead_notify_failure_is_durable_and_recoverable(tmp_path, monkeypatch):
     monkeypatch.setattr(mod, "send_email", _boom)
     r = client.post("/api/v1/lead", json={"email": "atrisk@lead.com", "product": "Site Rescue"})
     assert r.status_code == 200
-    assert r.json()["ok"] is True              # buyer still gets success
+    assert r.json()["ok"] is True  # buyer still gets success
     lead = mod.store.recent_leads()[0]
     assert lead["email"] == "atrisk@lead.com"  # durable row kept
-    assert lead["notified"] == 0               # owner NOT silently told it's fine
+    assert lead["notified"] == 0  # owner NOT silently told it's fine
     assert mod.store.count_unnotified() == 1
 
     monkeypatch.setattr(mod, "send_email", lambda *a, **k: None)  # email recovers
@@ -190,7 +195,55 @@ def test_lead_preserves_heterogeneous_and_checkbox_fields(tmp_path, monkeypatch)
     assert lead["email"] == "founder@startup.io"
     assert lead["name"] == "Startup Inc"  # falls back to company
     import json as _json
+
     fields = _json.loads(lead["fields"])
     assert fields["platform"] == "iOS native, Android native"  # checkboxes joined
     assert fields["summary"] == "Need an MVP in 8 weeks"
     assert "_captcha" not in fields  # control fields stripped
+
+
+def test_lead_email_budget_is_global_durable_and_per_recipient(tmp_path, monkeypatch):
+    mod, client = _load_app(
+        tmp_path,
+        monkeypatch,
+        LEAD_NOTIFY_TO="first@owner.test,second@owner.test",
+        EOLKITS_LEAD_NOTIFICATION_DAILY_LIMIT="3",
+    )
+    sends: list[str] = []
+    monkeypatch.setattr(mod, "send_email", lambda settings, **kwargs: sends.append(kwargs["to"]))
+    for index in range(3):
+        response = client.post("/api/v1/lead", json={"email": f"lead{index}@example.com"})
+        assert response.status_code == 200
+    assert len(mod.store.recent_leads()) == 3
+    assert sends == ["first@owner.test", "second@owner.test", "first@owner.test"]
+    assert mod.store.count_unnotified() == 1
+
+    # Reloading the app against the same SQLite DB must not reset the provider
+    # budget or send queued lead mail past the commerce reserve.
+    mod2, _ = _load_app(
+        tmp_path,
+        monkeypatch,
+        LEAD_NOTIFY_TO="first@owner.test,second@owner.test",
+        EOLKITS_LEAD_NOTIFICATION_DAILY_LIMIT="3",
+    )
+    monkeypatch.setattr(mod2, "send_email", lambda settings, **kwargs: sends.append(kwargs["to"]))
+    result = mod2.resend_unnotified_leads()
+    assert result["still_unnotified"] == 1
+    assert len(sends) == 3
+
+
+def test_lead_capture_rate_limit_survives_app_restart(tmp_path, monkeypatch):
+    mod, client = _load_app(
+        tmp_path,
+        monkeypatch,
+        EOLKITS_LEAD_IP_MINUTE_LIMIT="1",
+        LEAD_NOTIFY_TO="",
+    )
+    assert client.post("/api/v1/lead", json={"email": "one@example.com"}).status_code == 200
+    _, restarted = _load_app(
+        tmp_path,
+        monkeypatch,
+        EOLKITS_LEAD_IP_MINUTE_LIMIT="1",
+        LEAD_NOTIFY_TO="",
+    )
+    assert restarted.post("/api/v1/lead", json={"email": "two@example.com"}).status_code == 429

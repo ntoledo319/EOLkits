@@ -11,6 +11,9 @@ on:
 jobs:
   python-determinism:
     runs-on: ubuntu-latest
+    env:
+      TMPDIR: ${{ github.workspace }}/tmp/runtime-tmp
+      PIP_CACHE_DIR: ${{ github.workspace }}/tmp/pip-cache
     strategy:
       matrix:
         include:
@@ -27,33 +30,42 @@ jobs:
           python-version: '3.12'
       - name: Install kit
         run: |
-          cd kits/${{ matrix.kit }}
-          pip install -e ".[dev]"
+          mkdir -p "$TMPDIR" "$PIP_CACHE_DIR"
+          python -m venv "$GITHUB_WORKSPACE/tmp/determinism-venv"
+          "$GITHUB_WORKSPACE/tmp/determinism-venv/bin/pip" install -e "kits/${{ matrix.kit }}[dev]"
       - name: Run kit twice on same fixture
         run: |
+          mkdir -p "$GITHUB_WORKSPACE/tmp/determinism"
           cd kits/${{ matrix.kit }}
-          python -m ${{ matrix.module }} --no-banner scan --fixture ${{ matrix.fixture }} --format json > /tmp/run1.json
-          python -m ${{ matrix.module }} --no-banner scan --fixture ${{ matrix.fixture }} --format json > /tmp/run2.json
-          jq 'walk(if type == "object" then del(.timestamp, .generated_at) else . end)' /tmp/run1.json > /tmp/run1_normalized.json
-          jq 'walk(if type == "object" then del(.timestamp, .generated_at) else . end)' /tmp/run2.json > /tmp/run2_normalized.json
-          diff /tmp/run1_normalized.json /tmp/run2_normalized.json
+          venv="$GITHUB_WORKSPACE/tmp/determinism-venv"
+          output="$GITHUB_WORKSPACE/tmp/determinism"
+          "$venv/bin/python" -m ${{ matrix.module }} --no-banner scan --fixture ${{ matrix.fixture }} --format json > "$output/run1.json"
+          "$venv/bin/python" -m ${{ matrix.module }} --no-banner scan --fixture ${{ matrix.fixture }} --format json > "$output/run2.json"
+          jq 'walk(if type == "object" then del(.timestamp, .generated_at) else . end)' "$output/run1.json" > "$output/run1_normalized.json"
+          jq 'walk(if type == "object" then del(.timestamp, .generated_at) else . end)' "$output/run2.json" > "$output/run2_normalized.json"
+          diff "$output/run1_normalized.json" "$output/run2_normalized.json"
 
   node-determinism:
     runs-on: ubuntu-latest
+    env:
+      TMPDIR: ${{ github.workspace }}/tmp/runtime-tmp
+      npm_config_cache: ${{ github.workspace }}/tmp/npm-cache
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
       - name: Install dependencies
         run: |
+          mkdir -p "$TMPDIR" "$npm_config_cache" "$GITHUB_WORKSPACE/tmp/determinism"
           cd kits/lambda-lifeline
           npm ci
       - name: Run kit twice on same fixture
         run: |
           cd kits/lambda-lifeline
-          node bin/cli.mjs scan --fixture test/fixtures/lambda-inventory.json --json > /tmp/run1.json
-          node bin/cli.mjs scan --fixture test/fixtures/lambda-inventory.json --json > /tmp/run2.json
-          jq 'walk(if type == "object" then del(.timestamp, .generated_at) else . end)' /tmp/run1.json > /tmp/run1_normalized.json
-          jq 'walk(if type == "object" then del(.timestamp, .generated_at) else . end)' /tmp/run2.json > /tmp/run2_normalized.json
-          diff /tmp/run1_normalized.json /tmp/run2_normalized.json
+          output="$GITHUB_WORKSPACE/tmp/determinism"
+          node bin/cli.mjs scan --fixture test/fixtures/lambda-inventory.json --json > "$output/run1.json"
+          node bin/cli.mjs scan --fixture test/fixtures/lambda-inventory.json --json > "$output/run2.json"
+          jq 'walk(if type == "object" then del(.timestamp, .generated_at) else . end)' "$output/run1.json" > "$output/run1_normalized.json"
+          jq 'walk(if type == "object" then del(.timestamp, .generated_at) else . end)' "$output/run2.json" > "$output/run2_normalized.json"
+          diff "$output/run1_normalized.json" "$output/run2_normalized.json"

@@ -1,21 +1,27 @@
 """Canonical pricing loaded from the repo-root pricing.yml.
 
-This is the single source of truth for SKU -> Stripe Price IDs, amounts, and the
-deadline-driven audit surge tiers. Both the checkout path and the webhook
-validation path use it so the price we charge always matches a real, approved
-Stripe Price object (verified live: surge_7d $599, surge_30d $399, standard
-$299, migration_pack $1499, org_license $14999, drift_watch $19).
+This is the single source of truth for SKU -> Stripe Price IDs and amounts.
+Audit uses one price: charging more for identical automated output based on a
+buyer-entered date was removed. Both checkout and webhook validation use this
+file so the displayed and charged amount stay aligned.
 """
 
 from __future__ import annotations
 
 import os
-from datetime import UTC, datetime
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
 import yaml
+
+# Public Payment Links using these former prices may survive in bookmarks or git
+# history. They are recognized only so paid sessions can enter the durable refund
+# path; they are never accepted by ``allowed_price_ids`` for fulfillment.
+RETIRED_PRICE_SKUS = {
+    "price_1TRoEZDL3cQl851o9DFh1DIz": "audit",  # former $599 surge tier
+    "price_1TRoGiDL3cQl851ouqnljzMx": "audit",  # former $399 surge tier
+}
 
 
 def _pricing_path() -> Path:
@@ -37,24 +43,6 @@ def _skus() -> dict[str, Any]:
     return load_pricing().get("skus", {})
 
 
-def days_until_deadline(deadline: str | None) -> int:
-    """Canonical day count used by BOTH the static site and the API so the
-    displayed price equals the checkout price. Accepts YYYY-MM-DD or ISO 8601."""
-    if not deadline:
-        return 999
-    text = deadline.strip()
-    try:
-        parsed = datetime.fromisoformat(text)
-    except ValueError:
-        try:
-            parsed = datetime.strptime(text[:10], "%Y-%m-%d")
-        except ValueError:
-            return 999
-    if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=UTC)
-    return (parsed - datetime.now(UTC)).days
-
-
 def audit_tiers() -> list[dict[str, Any]]:
     tiers = _skus().get("audit", {}).get("tiers", [])
     # Ascending max_days so the first match is the tightest applicable tier.
@@ -63,34 +51,17 @@ def audit_tiers() -> list[dict[str, Any]]:
 
 def _standard_tier() -> dict[str, Any]:
     tiers = audit_tiers()
+    if not tiers:
+        raise RuntimeError("Audit pricing has no configured tier")
     for tier in tiers:
         if tier.get("name") == "standard":
             return tier
     return tiers[-1]
 
 
-def audit_tier(days_until: int) -> dict[str, Any]:
-    """Return the tier dict for a NON-NEGATIVE days-until-deadline.
-
-    Selection rule (identical to the static site's compute_urgency): the first
-    tier whose ``max_days`` >= days_until. Callers that may pass a negative
-    (already-passed) deadline should use ``audit_price_for_deadline``, which
-    matches the site by pricing a passed deadline at the standard tier rather
-    than the surge tier — so the displayed price always equals the charged price.
-    """
-    for tier in audit_tiers():
-        if days_until <= int(tier.get("max_days", 9999)):
-            return tier
-    return _standard_tier()
-
-
 def audit_price_for_deadline(deadline: str | None) -> dict[str, Any]:
-    days = days_until_deadline(deadline)
-    # Passed deadline -> standard pricing (mirrors build.py compute_urgency,
-    # which shows base price + "deadline passed" messaging).
-    if days < 0:
-        return _standard_tier()
-    return audit_tier(days)
+    # Deadline remains report context, never a customer-controlled price lever.
+    return _standard_tier()
 
 
 def allowed_price_ids(sku: str) -> set[str]:
@@ -129,4 +100,4 @@ def sku_for_price_id(price_id: str) -> str | None:
     for sku, entry in _skus().items():
         if entry.get("stripe_price_id") == price_id:
             return sku
-    return None
+    return RETIRED_PRICE_SKUS.get(price_id)

@@ -1,117 +1,121 @@
-# EOLkits on GRACE
+# EOLkits audit deployment on GRACE
 
-This is the GRACE-native deployment path for EOLkits paid fulfillment.
+This deployment serves one paid capability: the $299 Audit v2 repository evidence report. Migration Pack, Drift Watch, organization licenses, GitHub App flows, and partner fulfillment are closed and return `410` or research-only responses.
 
-GRACE already owns the public static site as the `eolkits` satellite:
+## Safe rollout order
 
-- id: `eolkits`
-- kind: `static`
-- domain: `eolkits.com`
-- web root: `/var/www/eolkits`
+1. Deploy the API with `EOLKITS_AUDIT_CHECKOUT_ENABLED=0`.
+2. Deploy the reviewed `docs/` tree with `ship-web.sh` after inspecting its
+   default dry-run; verify the public domain serves the repaired claims.
+3. Route the API paths in `Caddyfile.eolkits-api.block` and verify `/health`, `/api/status`, and `/api/capabilities`.
+4. Run a complete Stripe **test-mode** checkout → signed webhook → real PDF render → Resend delivery → signed download → evidence lookup exercise. Do not self-charge in live mode; Stripe does not return processing fees on refunds.
+5. Archive every legacy Stripe Payment Link and remove the legacy Cloudflare Worker route.
+6. Set the repository variable `AUDIT_CHECKOUT_EXPECTED=true`, change the production environment to `EOLKITS_AUDIT_CHECKOUT_ENABLED=1`, and redeploy only after the preceding gates pass.
 
-Do not replace or duplicate that entry. This directory adds a second satellite,
-`eolkits-api`, for paid API and webhook fulfillment only.
+## Required environment
 
-## Runtime Shape
+Create `.env.production` beside the compose file. Never commit it.
 
-- `eolkits.com` remains a static site served by host Caddy.
-- selected API paths on `eolkits.com` are reverse-proxied to a GRACE-managed compose satellite.
-- Local filesystem volume replaces Cloudflare R2.
-- SQLite state under the API volume replaces Cloudflare KV for idempotency, jobs, verification records, and license keys.
-- BackgroundTasks plus the inline runner replace Cloudflare Queues for the single-VPS GRACE shape.
-- GRACE monitors and controls the API through the satellite plane.
-
-## Apply On GRACE
-
-On the VPS, use a separate site root:
-
-```bash
-sudo mkdir -p /home/ubuntu/sites/eolkits-api
-sudo rsync -a --delete /path/to/EOLkits/ /home/ubuntu/sites/eolkits-api/
-cd /home/ubuntu/sites/eolkits-api
-cp deploy/grace/docker-compose.eolkits-api.yml docker-compose.yml
-```
-
-Create `/home/ubuntu/sites/eolkits-api/.env.production` with:
-
-```bash
-# Required — the API fails closed at startup in ENVIRONMENT=production if any
-# of STRIPE_KEY (live), STRIPE_WEBHOOK_SECRET, GITHUB_WEBHOOK_SECRET,
-# GITHUB_APP_ID/PRIVATE_KEY, RESEND_API_KEY, or EOLKITS_INTERNAL_URL_SECRET
-# are missing or use sandbox/dummy values.
-STRIPE_KEY=sk_live_...                 # must be a live sk_live_/rk_live_ key
-STRIPE_WEBHOOK_SECRET=whsec_...        # from the live Stripe webhook endpoint
-GITHUB_APP_ID=...
-GITHUB_APP_PRIVATE_KEY=...             # PEM contents (\n-escaped is fine)
-GITHUB_APP_SLUG=...                    # the App's URL slug; powers the install link
-GITHUB_WEBHOOK_SECRET=...
-RESEND_API_KEY=...
-EOLKITS_INTERNAL_URL_SECRET=...        # random 32+ byte secret for signed upload refs
-PUBLIC_SITE_URL=https://eolkits.com
-PUBLIC_API_URL=https://eolkits.com
+```dotenv
+STRIPE_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+RESEND_API_KEY=re_...
+EOLKITS_INTERNAL_URL_SECRET=<32-or-more-random-bytes>
+EOLKITS_ADMIN_TOKEN=<optional-32-or-more-random-bytes>
+EOLKITS_AUDIT_CHECKOUT_ENABLED=0
+EOLKITS_BUILD_SHA=<deployed-git-commit>
 EOLKITS_API_PORT=8120
 ```
 
-Generate the internal-URL secret with `openssl rand -hex 32`.
+Generate secrets on the deployment host with `openssl rand -hex 32`. GitHub App credentials are not used by Audit v2 and must not be added.
 
-**Redeploying an already-live host:** the existing `.env.production` already has
-the Stripe/GitHub/Resend secrets — keep them. You only need to **append the two
-vars introduced by the hardening** (`EOLKITS_INTERNAL_URL_SECRET` and
-`GITHUB_APP_SLUG`); the API validates the full set on startup and will refuse to
-boot if either is missing.
+## Deploy checkout closed
 
-Start it:
+Use the checked-in compose file from a reviewed clone, then verify locally before changing Caddy:
 
 ```bash
-sudo docker compose -p eolkits-api --env-file .env.production up -d --build
-curl -sf http://127.0.0.1:8120/health
+docker compose -f deploy/grace/docker-compose.eolkits-api.yml \
+  --env-file deploy/grace/.env.production up -d --build
+curl -fsS http://127.0.0.1:8120/health | jq
+curl -fsS http://127.0.0.1:8120/api/capabilities | jq -e '.audit.checkout_enabled == false and .audit.report_version == "2.0"'
 ```
 
-Insert `deploy/grace/Caddyfile.eolkits-api.block` inside the existing `eolkits.com, www.eolkits.com` block before the static `file_server`, then validate and reload:
+Validate the final public surface:
 
 ```bash
-sudo caddy validate --config /etc/caddy/Caddyfile
-sudo systemctl reload caddy
-curl -sf https://eolkits.com/health
+curl -fsS https://eolkits.com/health | jq
+curl -fsS https://eolkits.com/api/status | jq -e '.overall == "healthy"'
+curl -fsS https://eolkits.com/api/capabilities | jq
 ```
 
-## GRACE Satellite Integration
+## Active public endpoints
 
-Append `deploy/grace/satellites.eolkits-api.yaml` to `grace-backend/config/satellites.yaml`.
-
-Add `deploy/grace/satellite-agent.eolkits-api.py.snippet` to the `SATELLITES` dict in GRACE's host-side satellite agent.
-
-Then redeploy/restart the GRACE backend and satellite agent using GRACE's snapshot-first runbook. Afterward:
-
-```bash
-curl -sf https://graceai.love/api/v1/satellites
-```
-
-You should see both:
-
-- `eolkits` for the static public site.
-- `eolkits-api` for paid fulfillment.
-
-## Public Endpoints
-
-- `GET /health`
-- `GET /status`
-- `POST /upload/presign`
-- `PUT /upload/{upload_id}`
-- `GET /upload/{upload_id}`
-- `GET /upload/report/{sha}`
+- `GET /health`, `/api/status`, `/api/capabilities`
+- `POST /upload/presign`, `PUT /upload/{upload_id}`
+- signed `GET /upload/{upload_id}` and `/upload/report/{report_id}`
 - `POST /api/audit/checkout`
-- `POST /api/pack/checkout`
-- `POST /api/drift/checkout` (Drift Watch — subscription Checkout Session)
-- `POST /api/events` (first-party funnel beacon; source/utm/kit/deadline/sku)
+- `POST /api/events` for bounded, allowlisted, non-commerce funnel events
 - `POST /webhook/stripe`
-- `POST /webhook/github`
-- `GET /pack/install`
-- `GET /pack/setup` (GitHub App post-install Setup URL — persists installation→repo mapping)
-- `GET /verify/{sha}` and `GET /api/verify/{sha}`
-- `POST /support/ask`
+- `GET /verify/{fingerprint}` and `/api/verify/{fingerprint}`
+- `POST /api/v1/lead` for honest research requests
+- authenticated `POST /admin/reconcile-refund`
 
-## Cleanup
+The server-side checkout switch defaults to off. The static page independently keeps its form hidden unless the live capability handshake reports Audit report version `2.0` and checkout enabled.
 
-Once `https://eolkits.com/health` is live and Stripe/GitHub webhooks point to `https://eolkits.com/webhook/stripe` and `https://eolkits.com/webhook/github`, remove old Cloudflare Worker webhook URLs from provider dashboards. Keep `apps/worker/` only as historical/reference code until deleted in a follow-up cleanup.
+## Test-mode E2E deployment
 
+Production startup deliberately rejects Stripe test keys. Use the staging override and a separate Compose project/volume instead of weakening that guard:
+
+```bash
+EOLKITS_ENV_FILE=.env.test EOLKITS_API_PORT=8121 docker compose -p eolkits-api-test \
+  -f deploy/grace/docker-compose.eolkits-api.yml \
+  -f deploy/grace/docker-compose.eolkits-api.test.yml \
+  --env-file deploy/grace/.env.test up -d --build
+curl -fsS http://127.0.0.1:8121/api/capabilities | jq -e '.audit.checkout_enabled == true'
+```
+
+`deploy/grace/.env.test` must contain Stripe test credentials, a test webhook secret, Resend credentials for an owned delivery address, and a distinct internal URL secret. The service env-file selector above prevents `.env.production` from being loaded. Non-production startup also rejects live Stripe keys. Inspect `docker compose ... config` before launch, tear the test project down after evidence is captured, and never point public Caddy at it.
+
+The staging service overrides both public URLs to `http://127.0.0.1:8121` and
+does not restart automatically. Forward that port to the operator workstation so
+Stripe's success redirect and signed report link resolve against the test volume:
+
+```bash
+ssh -L 8121:127.0.0.1:8121 <grace-host>
+```
+
+In a second host shell, run Stripe CLI test-mode webhook forwarding and put the
+fresh `whsec_...` it prints into `deploy/grace/.env.test` before recreating the
+container:
+
+```bash
+stripe listen --forward-to http://127.0.0.1:8121/webhook/stripe
+```
+
+The API container does not serve the static `/audit/` page. Exercise the exact
+presign → immutable upload → checkout sequence from the repository root instead:
+
+```bash
+AUDIT_FILE=rules/public/deprecations.yml
+AUDIT_SIZE="$(wc -c < "$AUDIT_FILE")"
+PRESIGN="$(jq -n --arg filename "$(basename "$AUDIT_FILE")" --argjson size "$AUDIT_SIZE" \
+  '{filename:$filename,size:$size}' | \
+  curl -fsS -H 'Content-Type: application/json' --data-binary @- \
+  http://127.0.0.1:8121/upload/presign)"
+UPLOAD_ID="$(jq -er '.uploadId' <<<"$PRESIGN")"
+UPLOAD_URL="$(jq -er '.uploadUrl' <<<"$PRESIGN")"
+curl -fsS -X PUT -H 'Content-Type: text/yaml' --data-binary @"$AUDIT_FILE" "$UPLOAD_URL"
+CHECKOUT="$(curl -fsS -H 'Accept: application/json' \
+  --data-urlencode 'email=owned-delivery-address@example.com' \
+  --data-urlencode "upload_id=$UPLOAD_ID" \
+  --data-urlencode 'source=staging-e2e' \
+  http://127.0.0.1:8121/api/audit/checkout)"
+jq -er '.url' <<<"$CHECKOUT"
+```
+
+Replace the example email with an address the operator owns, open the returned
+Stripe test Checkout URL in a browser, and use Stripe's documented test card.
+Verify that the delivered signed PDF link opens through the tunnel and that
+`/api/verify/<evidence-fingerprint>` matches the report metadata. The staging
+checkout uses inline Stripe test `price_data`; it never tries to reuse the
+production Price object.

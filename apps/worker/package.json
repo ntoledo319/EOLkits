@@ -1,25 +1,22 @@
 {
   "name": "eolkits-worker",
   "version": "1.0.0",
-  "description": "Cloudflare Worker for EOLkits payment processing and webhooks",
+  "description": "HTTP 410 tombstone for the retired EOLkits commerce worker",
   "main": "src/index.ts",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "deploy": "node -e \"throw new Error('Retired: deploy apps/grace-api instead')\"",
+    "deploy:retired-tombstone": "wrangler deploy",
     "build": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "dependencies": {
-    "js-yaml": "^4.1.1",
-    "stripe": "^14.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260506.1",
-    "@types/js-yaml": "^4.0.9",
+    "@cloudflare/workers-types": "5.20260822.1",
     "@types/node": "^20.0.0",
     "typescript": "^5.4.0",
     "vitest": "^4.1.5",
-    "wrangler": "^4.88.0"
+    "wrangler": "4.125.0"
   }
 }
