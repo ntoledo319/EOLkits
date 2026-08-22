@@ -71,6 +71,7 @@ interface StripeCheckoutSession {
   livemode: boolean;
   metadata: Record<string, string>;
   object: 'checkout.session';
+  payment_status: string;
   status: string | null;
   success_url: string | null;
 }
@@ -107,6 +108,7 @@ interface AuditState {
   openCheckoutHoldUntil: number | null;
   openCheckoutSessions: number;
   prices: StripePrice[];
+  recentCompletedCheckoutSessions: number;
   unexpectedActivePaymentLinks: number;
   unexpectedActivePrices: number;
 }
@@ -175,11 +177,13 @@ const MAX_LIST_PAGES = 1;
 const MAX_PAYMENT_LINK_MUTATIONS = 6;
 const REQUEST_TIMEOUT_MS = 12_000;
 const MAX_TOKEN_LIFETIME_SECONDS = 20 * 60;
+const COMPLETED_SESSION_WINDOW_SECONDS = 30 * 24 * 60 * 60;
 const TERMINAL_SUBSCRIPTION_STATUSES = new Set(['canceled', 'incomplete_expired']);
 const FUTURE_SCHEDULE_STATUSES = new Set(['active', 'not_started']);
 const TARGET_PRICE_IDS = new Set(PRICE_TARGETS.map((target) => target.id));
 const TARGET_PRODUCT_IDS = new Set(PRICE_TARGETS.map((target) => target.product));
 const TARGET_PRODUCTS = [...TARGET_PRODUCT_IDS].sort();
+const PRICE_MUTATION_ORDER = [2, 0, 1, 3, 4, 5] as const;
 const KNOWN_PAYMENT_LINK_URLS = new Set([
   'https://buy.stripe.com/dRmbJ14nYgVO7Fp4AQ87K00',
   'https://buy.stripe.com/dRmbJ107I8pi6Bld7m87K01',
@@ -502,7 +506,7 @@ async function countUnexpectedActivePrices(env: Env): Promise<number> {
   return lists.flat().filter((price) => !TARGET_PRICE_IDS.has(price.id)).length;
 }
 
-function validateCheckoutSession(value: unknown): StripeCheckoutSession {
+function validateCheckoutSession(value: unknown, expectedStatus: 'complete' | 'open'): StripeCheckoutSession {
   if (!value || typeof value !== 'object') throw new Error('Invalid Checkout Session response');
   const candidate = value as Partial<StripeCheckoutSession>;
   if (
@@ -510,7 +514,9 @@ function validateCheckoutSession(value: unknown): StripeCheckoutSession {
     typeof candidate.id !== 'string' ||
     !candidate.id ||
     candidate.livemode !== true ||
-    candidate.status !== 'open' ||
+    candidate.status !== expectedStatus ||
+    typeof candidate.payment_status !== 'string' ||
+    !candidate.payment_status ||
     !candidate.metadata ||
     typeof candidate.metadata !== 'object' ||
     Array.isArray(candidate.metadata) ||
@@ -543,12 +549,29 @@ async function openTargetCheckoutSessions(
     'Checkout Session'
   );
   const matching = sessions
-    .map(validateCheckoutSession)
+    .map((session) => validateCheckoutSession(session, 'open'))
     .filter(checkoutSessionMatchesTarget);
   return {
     count: matching.length,
     holdUntil: matching.length ? Math.max(...matching.map((session) => session.expires_at)) : null,
   };
+}
+
+async function countRecentCompletedTargetCheckoutSessions(env: Env): Promise<number> {
+  const createdAfter = Math.floor(Date.now() / 1000) - COMPLETED_SESSION_WINDOW_SECONDS;
+  const sessions = await listStripe<StripeCheckoutSession>(
+    env,
+    '/checkout/sessions',
+    {
+      'created[gte]': String(createdAfter),
+      'expand[]': 'data.line_items',
+      status: 'complete',
+    },
+    'completed Checkout Session'
+  );
+  return sessions
+    .map((session) => validateCheckoutSession(session, 'complete'))
+    .filter(checkoutSessionMatchesTarget).length;
 }
 
 function validateSubscription(value: unknown): StripeSubscription {
@@ -632,11 +655,16 @@ async function audit(env: Env): Promise<AuditState> {
     auditPaymentLinks(env),
     countUnexpectedActivePrices(env),
   ]);
-  const [checkout, futureSubscriptions, futureSchedules] = await Promise.all([
-    openTargetCheckoutSessions(env),
-    countFutureSubscriptions(env),
-    countFutureSchedules(env),
-  ]);
+  // Snapshot open Sessions before completed Sessions. Once the exact Prices
+  // are inactive, an in-flight Session must appear in the first snapshot or,
+  // if it transitions, the later completed snapshot.
+  const checkout = await openTargetCheckoutSessions(env);
+  const [recentCompletedCheckoutSessions, futureSubscriptions, futureSchedules] =
+    await Promise.all([
+      countRecentCompletedTargetCheckoutSessions(env),
+      countFutureSubscriptions(env),
+      countFutureSchedules(env),
+    ]);
   return {
     activePaymentLinks: paymentLinks.known,
     futureSchedules,
@@ -644,6 +672,7 @@ async function audit(env: Env): Promise<AuditState> {
     openCheckoutHoldUntil: checkout.holdUntil,
     openCheckoutSessions: checkout.count,
     prices,
+    recentCompletedCheckoutSessions,
     unexpectedActivePaymentLinks: paymentLinks.unexpected,
     unexpectedActivePrices,
   };
@@ -657,7 +686,8 @@ function containmentComplete(state: AuditState): boolean {
     state.unexpectedActivePrices === 0 &&
     state.futureSubscriptions === 0 &&
     state.futureSchedules === 0 &&
-    state.openCheckoutSessions === 0
+    state.openCheckoutSessions === 0 &&
+    state.recentCompletedCheckoutSessions === 0
   );
 }
 
@@ -676,6 +706,7 @@ function publicState(state: AuditState): Record<string, unknown> {
     future_subscription_schedules: state.futureSchedules,
     open_checkout_sessions: state.openCheckoutSessions,
     open_checkout_hold_until: state.openCheckoutHoldUntil,
+    recent_completed_checkout_sessions: state.recentCompletedCheckoutSessions,
     containment_complete: containmentComplete(state),
   };
 }
@@ -710,15 +741,8 @@ async function handleAdmin(request: Request, env: Env): Promise<Response> {
     let changedPaymentLinks = 0;
     const changedPrices: string[] = [];
     const mutationFailures: string[] = [];
-    for (const link of before.activePaymentLinks) {
-      try {
-        await deactivatePaymentLink(env, link);
-        changedPaymentLinks += 1;
-      } catch {
-        mutationFailures.push('payment-link');
-      }
-    }
-    for (let index = 0; index < before.prices.length; index += 1) {
+    // Close the stale GRACE $299 path first, then every other exact Price.
+    for (const index of PRICE_MUTATION_ORDER) {
       if (!before.prices[index].active) continue;
       const target = PRICE_TARGETS[index];
       try {
@@ -727,6 +751,14 @@ async function handleAdmin(request: Request, env: Env): Promise<Response> {
         changedPrices.push(target.alias);
       } catch {
         mutationFailures.push(target.alias);
+      }
+    }
+    for (const link of before.activePaymentLinks) {
+      try {
+        await deactivatePaymentLink(env, link);
+        changedPaymentLinks += 1;
+      } catch {
+        mutationFailures.push('payment-link');
       }
     }
 
@@ -760,12 +792,18 @@ async function handleAdmin(request: Request, env: Env): Promise<Response> {
         409
       );
     }
+    const preflightSettlementRequired =
+      before.openCheckoutSessions > 0 || before.recentCompletedCheckoutSessions > 0;
     return json({
       ok: true,
       mode: 'deactivate',
       changed_payment_links: changedPaymentLinks,
       changed_prices: changedPrices.sort(),
       ...publicState(after),
+      preflight_open_checkout_sessions: before.openCheckoutSessions,
+      preflight_open_checkout_hold_until: before.openCheckoutHoldUntil,
+      preflight_recent_completed_checkout_sessions: before.recentCompletedCheckoutSessions,
+      containment_complete: containmentComplete(after) && !preflightSettlementRequired,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown retirement error';
