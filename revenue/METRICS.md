@@ -430,8 +430,34 @@ benchmarks, or unverified analytics in this ledger.
 - TypeScript, ESLint 10, scanner behavior, identity/legacy-setting regressions,
   and packaging passed. The inspected 12-file local VSIX is 21,356 bytes with
   SHA-256 `73cad6c4d50876a679ec6c8e46cdd96c34f8d2a571269d8c647c6011e91270b1`.
-  This is a local build artifact; Marketplace publication and remote CI remain
-  pending at this ledger point.
-- The 101 installs and 162 downloads are the historical V1 baseline, not new
-  EOLkits conversions. Observed VS-attributed qualified issues, paid reports,
+  This is a local build artifact; Marketplace publication was not inferred from it.
+- The observed 100–101 install-counter range and 162 downloads are the historical
+  V1 baseline range, not new EOLkits conversions. Observed VS-attributed
+  qualified issues, paid reports,
   collected revenue, and profit remain 0 / 0 / $0 / $0.
+
+## Repository-side VS recovery published — 2026-08-22T23:14:55Z
+
+- Main commit
+  https://github.com/ntoledo319/EOLkits/commit/a9cdcaeb40637d1f58f7539e80a16ec569be6704
+  published exact tree `99136547cecd5a1ee638174dd95a29a919c9889e`,
+  matching the locally verified candidate byte-for-byte.
+- Full release run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32604619029 passed every job,
+  including the fresh `npm ci && npm test && npm run package` VS extension job,
+  both container builds, dependency audit, lint/type checks, every kit, the
+  runner, API, Worker, web build, and Action fixtures. Determinism
+  `32604619039`, properties `32604619066`, Marketplace draft `32604619021`, and
+  built-in Pages `32604618393` also passed.
+- Acquisition run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32604619185 passed and wrote
+  artifact `acquisition-evidence-32604619185` (ID `9483794445`, 399 bytes,
+  digest `sha256:304becb0e19b4e5098745141ff66d8b850ba211892b69c157502fa03e2d2657c`).
+  A direct public issue probe still found 0 actual issues and 0 Audit-interest
+  issues.
+- A follow-up Marketplace query still returned public v1.0.0, 162 downloads,
+  and an install counter of 100 rather than the prior query's 101. Treat the
+  counter as approximate and set the real post-update baseline only after HQ-6.
+  No publish workflow was dispatched in this cycle.
+- Marketplace v1.1.0, paid reports, collected revenue, and profit remain
+  not published / 0 / $0 / $0.

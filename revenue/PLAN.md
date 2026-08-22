@@ -149,12 +149,13 @@ star, 0 forks, and $0 collected. Bet A's first five-full-day falsifier remains
 2026-08-27 20:29 UTC; internal downloads and release probes do not move it.
 
 The strongest recovered distribution asset is the existing
-`rupture.rupture-vscode` listing: its public baseline is v1.0.0, 101 cumulative
-installs, and 162 downloads. The published version sends users to a dead
-`/Rupture/audit` URL. The tested v1.1.0 candidate now preserves that identity and
+`rupture.rupture-vscode` listing: it is v1.0.0, adjacent queries returned a
+100–101 install-counter range, and downloads were 162. The published version
+sends users to a dead `/Rupture/audit` URL. Repository commit `a9cdcaeb` now
+contains the fully green v1.1.0 candidate, which preserves that identity and
 legacy user settings/commands, repairs the verified Audit route, and measures
-only user-submitted, findings-qualified VS interest. It is not public yet, and
-the baseline counters are not demand or revenue.
+only user-submitted, findings-qualified VS interest. Marketplace v1.1.0 is not
+public yet, and the approximate counters are not demand or revenue.
 
 Highest-leverage next action remains the five-minute owner HQ-2 exact Stripe
 closure/key rotation, followed by the two-minute HQ-5 GitHub Marketplace publish

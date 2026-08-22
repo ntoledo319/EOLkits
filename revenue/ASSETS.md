@@ -62,7 +62,8 @@ All code and evidence below is inside the workspace jail.
 - Buyer sentence: flag bundled AWS deprecation patterns locally on save or on
   demand in YAML, JSON/JSONC, Terraform/HCL, JavaScript/TypeScript, and Python.
 - Completeness: the exact public listing `rupture.rupture-vscode` is live at
-  v1.0.0 with 101 cumulative installs and 162 downloads observed on August 22.
+  v1.0.0; adjacent August 22 queries returned 100–101 on its Marketplace install
+  counter and 162 downloads, showing that the install counter is approximate.
   A tested 12-file EOLkits-branded v1.1.0 in-place update preserves that stable
   identity, legacy commands/settings, and the installed base; publication is
   still owner-gated.
@@ -224,7 +225,7 @@ All code and evidence below is inside the workspace jail.
 
 - Exact Marketplace API lookup found the existing public identity
   `rupture.rupture-vscode`; searching only for the EOLkits rebrand had produced
-  a false negative. The old listing reports v1.0.0, 101 cumulative installs,
+  a false negative. The old listing reports v1.0.0, approximately 100 installs,
   and 162 downloads. These are historical baseline counters, not current EOLkits
   demand, attributable traffic, or revenue.
 - The currently published v1.0.0 code links findings to
@@ -240,3 +241,7 @@ All code and evidence below is inside the workspace jail.
   privacy-bounded signal. Acquisition evidence separates VS-attributed issues
   and external authors. Neither the form nor the local package is a sale; the
   five-day V1 falsifier starts only after the owner publishes v1.1.0.
+- Repository commit `a9cdcaeb` published this v1.1.0 source/package candidate
+  with exact tree `99136547`; the full release matrix, extension package job,
+  determinism, properties, built-in Pages, draft synchronization, and acquisition
+  measurement passed. The Marketplace itself remains v1.0.0.

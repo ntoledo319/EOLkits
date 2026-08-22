@@ -5,6 +5,8 @@ on `main`, advancing public `v2` to green product commit `9c231b58`, and
 recovering the existing VS Marketplace identity. The Stripe workflow has not
 been owner-dispatched; neither Marketplace update is public. HQ-6 no longer
 requires a new publisher or credential, reducing its estimate by four minutes.
+Repository commit `a9cdcaeb` and its full release/VS package run `32604619029`
+are green, so HQ-6 has no remaining repository-side preparation.
 
 Do HQ-2 first because the stale GRACE API can still mint live Checkout Sessions,
 then HQ-5 and HQ-6 because they repair existing distribution. Complete HQ-1,
