@@ -33,4 +33,18 @@ describe('retired worker tombstone', () => {
       error: 'This legacy commerce service is retired.',
     });
   });
+
+  it('acknowledges legacy queue events without running fulfillment', async () => {
+    const acknowledged: string[] = [];
+    const batch = {
+      messages: [
+        { ack: () => acknowledged.push('first') },
+        { ack: () => acknowledged.push('second') },
+      ],
+    } as unknown as Parameters<typeof worker.queue>[0];
+
+    await worker.queue(batch);
+
+    expect(acknowledged).toEqual(['first', 'second']);
+  });
 });
