@@ -136,6 +136,31 @@ Tests and commits are release evidence, not market signal.
 - These are distribution/release facts, not external runs, visits, purchases, or
   revenue. Collected revenue remains $0.
 
+## Verified acquisition routing — August 22, 2026
+
+- Commit `8748cf6a34bb18c3c5cdecd5bb98f5305f0eb997` moved repository, Action,
+  kit-package, and VS extension acquisition links from the obsolete custom-domain
+  pages to `https://ntoledo319.github.io/EOLkits/`. The static smoke monitor now
+  probes Pages separately from the optional `eolkits.com` API origin.
+- Local verification passed the real Action findings fixture and report-link
+  assertion, VS compile/lint/scanner tests and minimal VSIX packaging, both
+  Python wheel/sdist builds, all 28 Lambda kit cases, Node package dry-run, YAML
+  parsing, ShellCheck, and a stale-acquisition-link gate.
+- Remote runs passed: release surfaces
+  https://github.com/ntoledo319/EOLkits/actions/runs/32589723873,
+  determinism https://github.com/ntoledo319/EOLkits/actions/runs/32589723804,
+  properties https://github.com/ntoledo319/EOLkits/actions/runs/32589723777,
+  built-in Pages https://github.com/ntoledo319/EOLkits/actions/runs/32589722988,
+  and Marketplace-draft synchronization
+  https://github.com/ntoledo319/EOLkits/actions/runs/32589723779.
+- The draft workflow log recorded synchronization of private v2.0.0 to the exact
+  `8748cf6a` commit. After every gate passed, the public `v2` branch advanced
+  without force to the same commit. A public raw-file probe confirmed its Action
+  report uses the Pages Audit URL and no obsolete `eolkits.com/audit` link.
+- The public Marketplace page still reports v1.1.0. No external Action run,
+  qualified visit, checkout, purchase, delivery, or revenue was observed by this
+  release work.
+
 ## Events that count after launch
 
 Record timestamp, source, and observed value for:

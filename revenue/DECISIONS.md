@@ -247,3 +247,19 @@ draft URL. The automation is idempotent and refuses README copy containing the
 retired price claims. Publication remains in HQ-6 because accepting Marketplace
 terms and using the owner's 2FA cannot be delegated, and the public v1.1.0
 listing remains stale until that action occurs.
+
+## D19 — never send acquisition traffic to an unproved deployment
+
+The public `eolkits.com` site still serves retired products, while the repaired
+GitHub Pages build is verified. Therefore route repository, Action report, kit
+metadata, kit README, and VS extension links to the Pages project URL. Keep the
+Pages static origin and `eolkits.com` API origin separate in the read-only smoke
+workflow so deploying the API later does not require sending users back to stale
+static pages.
+
+CI now executes the Action fixture and asserts its generated report contains the
+Pages Audit URL, tests the compiled VS extension and manifest URLs, and rejects
+obsolete custom-domain acquisition paths across distribution sources. Commit
+8748cf6a passed the full remote release, determinism, property, Pages, and draft
+workflows. Only after those gates passed did the `v2` branch fast-forward without
+force to that commit; the private v2.0.0 draft was synchronized to the same tree.
