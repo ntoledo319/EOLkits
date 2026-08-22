@@ -1,7 +1,7 @@
 # Batched owner queue — maximum 41 minutes
 
 Last reconciled August 22 after publishing the engine-generated sample report
-and advancing public `main`/`v2` to green commit `9c231b58`. The Stripe workflow
+on `main` and advancing public `v2` to green product commit `9c231b58`. The Stripe workflow
 has not been owner-dispatched; v2.0.0 is not public; no new owner task or owner
 minute was added.
 

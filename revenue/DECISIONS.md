@@ -461,8 +461,10 @@ release, determinism, property, and both Pages gates.
 
 ## D27 — publish one final tree across every autonomous distribution ref
 
-Advance public `main` and the installable `v2` branch without force to final
-commit `9c231b58`, exact tree `8a25da73a1dc8c3c9107c76e7a20d87cc620cd98`.
+Publish final product commit `9c231b58` on `main` and advance the installable
+`v2` branch to it without force; its exact tree is
+`8a25da73a1dc8c3c9107c76e7a20d87cc620cd98`. Later ledger-only main commits do
+not change the product tree.
 The private v2.0.0 draft remains at feature commit `bffb335a`; final changes are
 runner-test-only and Action bytes are identical. Its Marketplace agreement/2FA
 publish remains owner-only.
