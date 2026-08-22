@@ -1,0 +1,173 @@
+name: Retire legacy Cloudflare commerce
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/retire-legacy-cloudflare.yml
+      - apps/worker/**
+
+permissions:
+  contents: read
+
+concurrency:
+  group: retire-legacy-cloudflare-commerce
+  cancel-in-progress: false
+
+env:
+  TMPDIR: ${{ github.workspace }}/tmp/runtime-tmp
+  npm_config_cache: ${{ github.workspace }}/tmp/npm-cache
+
+jobs:
+  retire:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Test the closed replacement
+        working-directory: apps/worker
+        run: |
+          set -euo pipefail
+          # Assigned by the workflow-level environment.
+          # shellcheck disable=SC2154
+          mkdir -p "$TMPDIR" "$npm_config_cache"
+          npm ci
+          npm run build
+          npm test
+
+      - name: Replace the exact legacy Worker with the tombstone
+        working-directory: apps/worker
+        run: |
+          set -euo pipefail
+          if [[ -z "$CLOUDFLARE_API_TOKEN" ]]; then
+            echo '::error::CLOUDFLARE_API_TOKEN is not available to the retirement workflow'
+            exit 1
+          fi
+
+          # rupture-worker is the verified live pre-rename deployment. The
+          # --name override is intentional: do not create eolkits-worker.
+          npm exec -- wrangler deploy --config wrangler.toml --name rupture-worker
+
+      - name: Prove the public payment bypass is closed
+        env:
+          LEGACY_WORKER_URL: https://rupture-worker.rupture-kits.workers.dev
+        run: |
+          set -euo pipefail
+          health=''
+          attempt=0
+          while (( attempt < 12 )); do
+            attempt=$((attempt + 1))
+            health="$(curl --fail --silent --show-error --max-time 20 \
+              "$LEGACY_WORKER_URL/health" || true)"
+            if jq -e \
+              '.ok == false and .retired == true and
+               .replacement == "https://eolkits.com/api/capabilities"' \
+              <<<"$health" >/dev/null 2>&1; then
+              break
+            fi
+            sleep 5
+          done
+
+          jq -e \
+            '.ok == false and .retired == true and
+             .replacement == "https://eolkits.com/api/capabilities"' \
+            <<<"$health" >/dev/null
+
+          for path in checkout api/checkout pack/install webhook/stripe; do
+            status="$(curl --silent --show-error --max-time 20 \
+              --output /dev/null --write-out '%{http_code}' \
+              "$LEGACY_WORKER_URL/$path")"
+            if [[ "$status" != '410' ]]; then
+              echo "::error::Legacy /$path returned HTTP $status instead of 410"
+              exit 1
+            fi
+          done
+
+          # Backticks below are literal Markdown, not shell substitutions.
+          # shellcheck disable=SC2016
+          {
+            echo '## Legacy Cloudflare commerce retirement'
+            echo
+            echo '- `rupture-worker` now serves the tested fail-closed tombstone.'
+            echo '- Health reports `retired: true`; checkout, App install, and webhook paths return HTTP 410.'
+            echo '- No Stripe, storage, queue, email, GitHub, or runner binding is used by the replacement code.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove only exact retired EOLkits routes when permitted
+        run: |
+          set -euo pipefail
+          api='https://api.cloudflare.com/client/v4'
+          auth="Authorization: Bearer $CLOUDFLARE_API_TOKEN"
+
+          if ! zones="$(curl --fail --silent --show-error --max-time 20 \
+            --get "$api/zones" --header "$auth" \
+            --data-urlencode 'name=eolkits.com')"; then
+            echo '::warning::The token cannot audit the zone; the direct Worker is closed but route cleanup remains unproved.'
+            echo '- Route cleanup: unavailable with the repository token.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          if [[ "$(jq '[.result[] | select(.name == "eolkits.com")] | length' \
+            <<<"$zones")" != '1' ]]; then
+            echo '::warning::A unique eolkits.com zone was not visible; no route was changed.'
+            echo '- Route cleanup: no unique zone visible; no route changed.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          zone_id="$(jq -r '.result[] | select(.name == "eolkits.com") | .id' \
+            <<<"$zones")"
+
+          if ! routes="$(curl --fail --silent --show-error --max-time 20 \
+            "$api/zones/$zone_id/workers/routes" --header "$auth")"; then
+            echo '::warning::The token cannot list Worker routes; no route was changed.'
+            echo '- Route cleanup: route list unavailable; no route changed.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          mapfile -t route_ids < <(jq -r \
+            '.result[] |
+             select(
+               (.script == "rupture-worker" or .script == "eolkits-worker") and
+               ((.pattern // "") | ascii_downcase | contains("eolkits.com"))
+             ) |
+             .id' <<<"$routes")
+
+          if (( ${#route_ids[@]} == 0 )); then
+            echo '- Route cleanup: no exact retired EOLkits route existed.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          removed=0
+          for route_id in "${route_ids[@]}"; do
+            if ! deletion="$(curl --fail --silent --show-error --max-time 20 \
+              --request DELETE "$api/zones/$zone_id/workers/routes/$route_id" \
+              --header "$auth")"; then
+              echo '::warning::The token could list but could not remove an exact retired route.'
+              echo '- Route cleanup: exact route found, but deletion was not permitted.' >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            jq -e '.success == true' <<<"$deletion" >/dev/null
+            removed=$((removed + 1))
+          done
+
+          after="$(curl --fail --silent --show-error --max-time 20 \
+            "$api/zones/$zone_id/workers/routes" --header "$auth")"
+          remaining="$(jq \
+            '[.result[] |
+              select(
+                (.script == "rupture-worker" or .script == "eolkits-worker") and
+                ((.pattern // "") | ascii_downcase | contains("eolkits.com"))
+              )] |
+             length' <<<"$after")"
+          if [[ "$remaining" != '0' ]]; then
+            echo '::error::An exact retired EOLkits Worker route remains after deletion'
+            exit 1
+          fi
+
+          echo "- Route cleanup: removed $removed exact retired EOLkits route(s); verified zero remain." \
+            >> "$GITHUB_STEP_SUMMARY"
