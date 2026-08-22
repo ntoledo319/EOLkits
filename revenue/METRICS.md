@@ -463,4 +463,15 @@ Evidence hierarchy: **dollars > signups > visits > stars.** Only *observed* numb
 | 2026-08-21 | **dev.to articles staged on branch: 25** (unchanged — no new-fetch content candidate this cycle) | `launch/distribution/devto/01`–`25`. |
 | 2026-08-21 | **Day 39 — 11 days past the original 28-day window (closed 08-10).** HUMAN_QUEUE core batch still fully unactioned, 39 days running; no observed buyer signal. | — |
 
+## Cycle 2026-08-22 (cloud routine) — Day 40
+| Timestamp (UTC) | Observation | Evidence |
+|---|---|---|
+| 2026-08-22 | **WebFetch re-tested — 39th consecutive cycle blocked** | `EGRESS_BLOCKED` on `https://example.com`; also tried `docs.aws.amazon.com` and an AL2023 package mirror (`cdn.amazonlinux.com`) directly, both blocked too. Registry channel (npm/PyPI, opened D48) reconfirmed working. Consistent with D17's root cause — no re-diagnosis. |
+| 2026-08-22 | **Found a live truth bug in `kits/python-pivot`'s own headline "The deadline" table**, never caught by any of the 39 prior date-bug sweeps because it used different wrong date strings than the Node-side superseded schedule those greps searched for | `runtimes.py`'s `RUNTIME_TABLE` had `block_create`/`block_update` wrong for python3.8/3.9/3.10 (superseded 2024/2026 dates instead of the Q1-2027 cluster) — python3.9 and python3.10 understated block-create by over a year each. The dead-code table fields are never read by the CLI, but `README.md`'s deadline table hard-codes the identical wrong numbers and IS what a reader/Gumroad-bundle buyer sees. See DECISIONS D50. |
+| 2026-08-22 | **Shipped: corrected `runtimes.py` + `README.md`** to the `deprecations.yml`-verified dates (all Q1-2027-cluster block dates now 2027-02-01/2027-03-03; python3.11's 1-day typo also fixed) | Checked for the same unsynced-duplicate pattern D49 found — `lambda-lifeline`'s `PHASE_DATES` and `apps/web/build.py`'s scan-page copy were both already correct, no cross-file duplicate bug this time. |
+| 2026-08-22 | **Regression check:** `kits/python-pivot` 44/44 green (fresh jail-local venv, deleted after use) + `kits/lambda-lifeline` `npm test` 24/24 green (standing check). Post-fix repo-wide grep for the specific wrong-date strings: zero remaining hits outside the gitignored, auto-regenerating `egg-info/PKG-INFO` | Ran directly this cycle. |
+| 2026-08-22 | **collected dollars unchanged** | $0. No new listing/payment-rail change this cycle — a correctness fix in a paid kit's own headline claim + its data table. |
+| 2026-08-22 | **dev.to articles staged on branch: 25** (unchanged — no new-fetch content candidate this cycle) | `launch/distribution/devto/01`–`25`. |
+| 2026-08-22 | **Day 40 — 12 days past the original 28-day window (closed 08-10).** HUMAN_QUEUE core batch still fully unactioned, 40 days running; no observed buyer signal. | — |
+
 _Next update: after the owner burns down any HUMAN_QUEUE item, record the first real listing/install/dollar here._

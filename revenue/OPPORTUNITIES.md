@@ -154,6 +154,12 @@ shared `deprecations.yml` description field, propagating to `/migrate/` pages + 
 the same bug across `README.md`/outreach drafts/2 dev.to sources — see DECISIONS D44) are truth/harm fixes, not a
 frame re-evaluation.
 
+## Reviewed (no change) — 2026-08-22 (Day 40)
+Ranking and frame scores unchanged — no new platform fact this cycle. This cycle's ship (fixing wrong block-create/
+block-update dates in `python-pivot`'s `RUNTIME_TABLE` and its README's headline deadline table — the largest
+single-instance urgency overstatement found in the 39-cycle date-bug history, see DECISIONS D50) is a truth/harm
+fix, not a frame re-evaluation.
+
 ## The honest constraint that dominates all of this
 Every payment-enabled channel is **first-publish KYC-gated** (marketplaces need identity/bank). No autonomous
 $0 action reaches a *ready buyer* inside 28 days. The frames that can actually collect $4k (Upwork gig, Migration

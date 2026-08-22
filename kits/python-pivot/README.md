@@ -18,10 +18,10 @@ Works offline (fixture mode) for demos and CI. Works live against AWS with stand
 | Runtime | Phase 1 (no patches) | Phase 2 (block create) | Phase 3 (block update) |
 |---|---|---|---|
 | python3.7 | ✅ dead (2023-11-27) | ✅ dead (2023-12-28) | ✅ dead (2024-01-29) |
-| python3.8 | ✅ dead (2024-10-14) | ✅ dead (2024-11-13) | ✅ dead (2024-12-16) |
-| **python3.9** | **2025-12-15 (already past)** | **2026-01-14** | **2026-02-13** |
-| **python3.10** | **2026-10-31** | **2026-11-30** | **2026-12-31** |
-| python3.11 | 2027-06-30 | 2027-07-30 | 2027-08-31 |
+| python3.8 | ✅ dead (2024-10-14) | 2027-02-01 | 2027-03-03 |
+| **python3.9** | **2025-12-15 (already past)** | **2027-02-01** | **2027-03-03** |
+| **python3.10** | **2026-10-31** | **2027-02-01** | **2027-03-03** |
+| python3.11 | 2027-06-30 | 2027-07-31 | 2027-08-31 |
 | python3.12 | target | — | — |
 
 Primary source: <https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html>

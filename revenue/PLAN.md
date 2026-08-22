@@ -4,7 +4,7 @@ WORKSPACE_ROOT: /Users/nicholastoledo/Development/active/Rupture
 
 # PLAN — Revenue Loop v2 (EOLkits)
 
-**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 39 (2026-08-21) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
+**Day 0 = 2026-07-13 · Day 28 = 2026-08-10 (original window closed) · Today = Day 40 (2026-08-22) · Target = $4,000 collected profit · Collected so far = $0 · GAP = $4,000**
 
 Jail (§1) in effect: all writes inside WORKSPACE_ROOT. The agent **cannot** SSH to the GRACE VPS (key is in
 `$HOME/.grace-keys/`, outside the jail) or create KYC accounts. Ship channel = `git push` to
@@ -1243,3 +1243,38 @@ Clicks with no buys ⇒ a conversion/trust problem to fix, not a traffic problem
 164. **Next candidate for the next cycle:** re-check WebFetch first. If still blocked: read `kits/al2023-gate`'s
     `REMAP_TABLE` (~40 entries) for staleness once a verification channel for AL2023 dnf data is confirmed; failing
     that, one more full-repo grep for other hand-kept duplicate tables (this cycle found one on the first look).
+
+## Cycle 2026-08-22 (cloud routine) — Day 40
+165. **WebFetch re-tested — 39th consecutive cycle blocked** (`EGRESS_BLOCKED` on `example.com`; also re-tried
+    `docs.aws.amazon.com` and an AL2023 package mirror directly — both blocked too). Registry channel (npm/PyPI,
+    opened D48) reconfirmed working. Per D17's root cause, no re-diagnosis.
+166. **Checked D49's flagged candidate (`al2023-gate`'s `REMAP_TABLE`) — not duplicated elsewhere, and its
+    AL2→AL2023 dnf package data isn't checkable against the allowlisted registries; left untouched, same as D49.**
+167. **A fresh full-repo grep for hand-kept hardcoded tables found one D49's own search missed:
+    `kits/python-pivot/src/python_pivot/runtimes.py`'s `RUNTIME_TABLE`** — never checked by any of the 39 prior
+    date-bug sweeps because its wrong values came from a different superseded schedule (different specific date
+    strings) than the "Sep 30/Aug 31 2026" pattern every prior grep searched for.
+168. **Found `block_create`/`block_update` wrong for 3 of 4 active Python runtimes** (cross-checked against this
+    repo's own already-verified `deprecations.yml` — no new external fetch): python3.8 had the original superseded
+    30/60-day dates instead of the Q1-2027 cluster; python3.9 and python3.10 understated the true block-create date
+    by **just over a year** each; python3.11's block-create was off by one day. The dead-code fields in
+    `runtimes.py` itself are never read by the CLI, but **`kits/python-pivot/README.md`'s "The deadline" table —
+    the kit's own headline claim, shipped in the Gumroad bundle per D15 — hard-codes the identical wrong numbers**
+    and is what a real reader/buyer actually sees. This is the largest single-instance urgency overstatement found
+    in the whole 39-cycle date-bug history (prior fixes were off by ~5 months at most; this one by >1 year on 2
+    rows of the kit's most prominent table). See DECISIONS D50.
+169. **Shipped: corrected both files** (`runtimes.py`'s `RUNTIME_TABLE`, `README.md`'s deadline table) to the
+    `deprecations.yml`-verified Q1-2027 dates. Checked the Node-side sibling table (`lambda-lifeline`'s
+    `PHASE_DATES`) and the `apps/web/build.py` `/scan/`-adjacent copy — both already correct, no unsynced-duplicate
+    bug this time (unlike D49's finding).
+170. **Regression check:** `kits/python-pivot` 44/44 green (fresh jail-local venv, deleted after use — no test
+    asserted the old wrong dead-field values); `kits/lambda-lifeline` `npm test` 24/24 green (standing check,
+    untouched this cycle). Repo-wide grep for the specific wrong-date strings post-fix: zero remaining hits outside
+    the gitignored, auto-regenerating `egg-info/PKG-INFO` build artifact.
+171. **Day-40 state:** $0 collected, $4,000 gap, unchanged since Day 0. HUMAN_QUEUE core batch (HQ-1′/2′, HQ-5b
+    item 0, HQ-4, HQ-6, HQ-7, HQ-10) remains the only lever that can move the gap materially — 40 days running with
+    zero observed action on any of it.
+172. **Next candidate for the next cycle:** re-check WebFetch first. If still blocked: `al2023-gate`'s
+    `REMAP_TABLE` remains unverifiable from this jail (no AL2023 package-metadata channel found reachable this
+    cycle either); the next honest move is one more full-repo table sweep using a broader pattern (list-of-dicts,
+    YAML/JSON sidecars) in case another hand-kept table uses a naming convention this cycle's grep missed.

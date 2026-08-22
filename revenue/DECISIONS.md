@@ -2295,3 +2295,97 @@ optimistic projections.
   AL2023 compare-with-AL2 doc (still needs WebFetch to verify authoritatively) is the honest next step once fetch
   clears; (2) absent that, a fresh full-repo grep for any *other* hand-kept duplicate tables (the pattern this
   cycle found once already) is worth one pass before assuming the correctness-audit lane is exhausted.
+
+## 2026-08-22 · Cycle (Day 40)
+
+### D50 — Followed D49's own "other hand-kept duplicate tables" lead; found `python-pivot`'s `RUNTIME_TABLE` had carried wrong block-create/block-update dates for 3 runtimes since the kit was first built, visible on its own README's headline table
+- **Integrated first:** `git fetch && checkout marketing-machine-v2 && pull --rebase` — branch was at `7d0e281`
+  (D49's cycle commit); no conflicts, nothing else had pushed since 08-21.
+- **Re-tested WebFetch via the tool itself — 39th consecutive cycle blocked**: `EGRESS_BLOCKED` on
+  `https://example.com` (neutral control). Also re-tried `docs.aws.amazon.com` and an AL2023 package-repo mirror
+  directly (`cdn.amazonlinux.com`) in case only the *docs* path was allowlisted differently — both `CONNECT tunnel
+  failed, response 403`, same as the general-web policy denial D17 root-caused. Registry channel (npm/PyPI, opened
+  D48) reconfirmed working (`registry.npmjs.org`, `pypi.org` both 200).
+- **Checked D49's flagged candidate first — `kits/al2023-gate`'s `REMAP_TABLE`** (AL2→AL2023 dnf package-rename
+  data, ~40 entries): confirmed it is NOT duplicated anywhere else in the repo (`apps/web/build.py`'s only
+  `al2023-gate`-related text is descriptive prose, not a data table), and its package-name claims aren't checkable
+  against the allowlisted npm/PyPI/crates/Go-proxy registries (OS package data, not a language registry) — the
+  AL2023 mirror test above confirms that channel is also blocked. Left untouched, same as D49 deferred it.
+- **Moved to D49's fallback: a full-repo grep for other hand-kept hardcoded tables** (`^[A-Z_]* = {`, `_TABLE`
+  patterns) across `kits/` and `apps/` beyond the ones already known. Found `kits/python-pivot/src/python_pivot/
+  runtimes.py`'s `RUNTIME_TABLE` — a dataclass table with `deprecation_phase1`, `block_create`, `block_update`
+  fields per Python runtime, powering `scan.py`'s severity/days-to-EOL calculation. Never previously checked by
+  any of the 39 prior cycles' date-bug sweeps (those all searched for the specific "Sep 30/Aug 31 2026" string
+  from the *Node* superseded schedule — this table's wrong values came from a *different*, older superseded
+  schedule with different specific numbers, so none of those greps would have caught it).
+- **Cross-checked all 7 entries against `rules/public/deprecations.yml`** (this repo's own authoritative source,
+  verified against the live AWS table by D3 on 2026-07-13 and re-verified multiple times since — no new external
+  fetch needed, so no risk of repeating D3's original mistake). Found `deprecation_phase1` values all correct
+  (2024-10-14 / 2025-12-15 / 2026-10-31 / 2027-06-30 for py3.8/3.9/3.10/3.11 — these match `deprecations.yml`'s
+  description-text dates exactly), but `block_create`/`block_update` were **wrong for 3 of 4 active runtimes**:
+  - `python3.8`: had `2024-11-13` / `2024-12-16` (the original, since-superseded 30/60-day schedule) — should be
+    the AWS-delayed **`2027-02-01` / `2027-03-03`** (same Q1-2027 cluster as python3.9/3.10, confirmed in
+    `deprecations.yml`'s own python3.8 entry).
+  - `python3.9`: had `2026-01-14` / `2026-02-13` — should be `2027-02-01` / `2027-03-03`. **Understated the true
+    block-create date by just over a year.**
+  - `python3.10`: had `2026-11-30` / `2026-12-31` — should be `2027-02-01` / `2027-03-03`. Same ~1-year
+    understatement.
+  - `python3.11`: had `block_create=2027-07-30` (should be `2027-07-31` per `deprecations.yml`'s `date:
+    "2027-07-31"`) — a 1-day typo, `block_update=2027-08-31` was already correct.
+  - `python3.7` (not in `deprecations.yml`, too old to be actively tracked) left untouched — its dates are already
+    all in the past regardless of the exact day, so no live inaccuracy of consequence and no repo-local source to
+    verify against; consistent with the "don't touch what the allowed channels can't verify" discipline every
+    prior no-fetch cycle has followed.
+- **Checked where these fields are actually read before fixing** (the "does this even matter" question D48/D49
+  both asked of their own findings): `scan.py`'s `Finding.days_to_eol` is computed from `deprecation_phase1` only
+  — `block_create`/`block_update` are stored on the dataclass but **never read anywhere in the CLI's own
+  code** (`run()`, `render_table/json/csv/markdown` — grepped the whole kit, zero consumers outside `runtimes.py`
+  itself). So this specific bug was **not** actively mis-informing a live scan report the way D3's original
+  `lambda-lifeline` bug was.
+- **But then found the live instance: `kits/python-pivot/README.md`'s "The deadline" table (line 16-25) — the
+  kit's own headline, second-thing-a-reader-sees section — hard-codes the identical wrong numbers**, not sourced
+  from `runtimes.py` at all (no build step connects them; this is independently-typed prose that happened to
+  match the code's wrong values, or vice versa — same root data, two hand-typed copies). This table **is** what a
+  buyer/GitHub visitor/Gumroad-bundle reader (per D15, this kit's full source including README ships in the $79
+  bundle) actually reads, and it told them AWS blocks new python3.9 Lambda deployments **2026-01-14** (13 months
+  early) and python3.10 **2026-11-30** (14 months early) — a materially larger urgency overstatement than any
+  single instance of the recurring Node-side date bug D3/D30/D31/D44/etc. fixed (those were off by ~5 months at
+  most; this one is off by more than a year on two rows of the kit's single most prominent table).
+- **Shipped: corrected both files** (`kits/python-pivot/src/python_pivot/runtimes.py`'s `RUNTIME_TABLE`,
+  `kits/python-pivot/README.md`'s deadline table) to the `deprecations.yml`-verified dates. Also dropped the
+  "✅ dead" marker from python3.8's block-create/block-update README cells since those dates (2027-02-01/03-03)
+  are not, in fact, dead yet — only its `deprecation_phase1` (2024-10-14) is past.
+- **Checked for the same D49-style unsynced-duplicate pattern before calling this closed:** confirmed
+  `kits/lambda-lifeline/src/scan/index.mjs`'s own `PHASE_DATES` table (the Node-side sibling of this exact
+  data shape) already has the correct `2027-02-01`/`2027-03-03` values for its python3.9/python3.10 rows (fixed
+  by an earlier cycle, consistent with D3's original Node-focused fix) — no cross-kit duplicate bug. Confirmed
+  `apps/web/build.py` already shows the correct `2027-03-03` for python3.9 (line 485) — no unsynced duplicate on
+  the live `/scan/`-adjacent surfaces either, unlike D49's finding. Repo-wide grep for the specific wrong-date
+  strings (`2026-01-14`, `2026-02-13`, `2026-11-30`, `2026-12-31`, `2027-07-30`) after the fix: zero remaining
+  hits (the only pre-fix hit outside the two edited files was the gitignored, auto-generated
+  `python_pivot.egg-info/PKG-INFO` build artifact, which regenerates from the now-fixed README on next build —
+  not a tracked file, no fix needed there).
+- **Verified before shipping (§9):** fresh jail-local `python3 -m venv` in `WORKSPACE_ROOT/tmp` (default 3.11 —
+  fine for this kit, no 3.12-only syntax), `pip install -e . pytest`, full suite **44/44 green** (no test asserted
+  on the old wrong `block_create`/`block_update` values, confirmed via grep first — matches the "dead field, never
+  consumed" finding above). `kits/lambda-lifeline` `npm test` **24/24 green** (standing regression check, file
+  untouched this cycle). Venv deleted after use.
+- **Ship-law check:** externally visible ✅ — both files are on the public `ntoledo319/EOLkits` repo the moment
+  this pushes; the README fix is the one that actually reaches a reader (GitHub visitor, or a Gumroad-bundle buyer
+  per D15 once HQ-1′/2′ is actioned) — a real, live truth correction on a paid kit's own headline claim, the exact
+  class of bug this loop treats as highest-priority (§2 hard-constraint-5, "truth only").
+- **Why this over new dev.to content or another tense-copy sweep this cycle:** same reasoning D48/D49 already
+  established — a correctness bug in a live paid kit's own reference table, discovered via a source this repo
+  already treats as authoritative (`deprecations.yml`), outranks both the exhausted no-fetch content backlog and
+  another pass over already-swept tense/date-label copy. This is also a materially larger single-instance
+  overstatement (>1 year on 2 rows) than any prior date-bug fix in the 39-cycle history, which is unusual (most
+  recent cycles' finds have been narrower — a stale classification, a wrong version pin).
+- **Day-40 state:** $0 collected, $4,000 gap, unchanged since Day 0 (2026-07-13). HUMAN_QUEUE core batch (HQ-1′/2′,
+  HQ-5b item 0, HQ-4, HQ-6, HQ-7, HQ-10) remains the only lever that can move the gap materially — 40 days running
+  with zero observed action on any of it.
+- **Next candidate for the next cycle:** re-check WebFetch first per the standing rule. If still blocked: (1) the
+  `al2023-gate` `REMAP_TABLE` remains unverifiable from this jail (no reachable AL2023 package-metadata channel
+  found this cycle either) — leave it flagged, not attempted speculatively again without a new channel; (2) a
+  fresh full-repo grep for any *other* hardcoded date/version table this cycle's pattern-match (`_TABLE`,
+  `^[A-Z_]* = {`) might have missed due to a different naming convention (e.g. a plain list-of-dicts or a
+  YAML/JSON sidecar instead of a Python/JS literal) is the next honest place to extend this lane.

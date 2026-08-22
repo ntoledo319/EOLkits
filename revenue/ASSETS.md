@@ -240,6 +240,19 @@ cycle discovered is reachable through the egress proxy even though general WebFe
 note already said package registries are allowlisted — this is the first cycle to test and use that channel). See
 DECISIONS D48. No new codebase or SKU — product ladder table above is still current.
 
+## 2026-08-22: found + fixed a live truth bug in `python-pivot`'s own headline "deadline" table + its underlying `RUNTIME_TABLE`
+A full-repo grep for hand-kept hardcoded tables (following D49's own "check for more of these" lead) found
+`kits/python-pivot/src/python_pivot/runtimes.py`'s `RUNTIME_TABLE` — never checked by any of the 39 prior date-bug
+sweeps because its wrong values used different specific date strings than the Node-side superseded schedule those
+greps targeted. `block_create`/`block_update` were wrong for python3.8/3.9/3.10 (the original superseded 2024/2026
+dates instead of the AWS-delayed Q1-2027 cluster) — python3.9 and python3.10 understated the true block-create date
+by over a year each. The table's fields are dead code in the CLI itself, but `README.md`'s own "The deadline" table
+— the kit's headline claim, shipped inside the $79 Gumroad bundle per D15 — hard-codes the identical wrong numbers
+and is what a real reader/buyer sees. The largest single-instance urgency overstatement found in the whole
+39-cycle date-bug history. Fixed both files to the `deprecations.yml`-verified dates; checked the Node-side sibling
+table and `apps/web`'s scan-page copy — both already correct, no unsynced duplicate this time. See DECISIONS D50.
+No new codebase or SKU — product ladder table above is still current.
+
 ## 2026-08-21: found + fixed a stale classification in `python-pivot`'s wheel table + an unsynced duplicate of D48's fix on the live `/scan/` page
 Extended D48's registry-verification pattern to `kits/python-pivot`'s `PY312_WHEEL_TABLE`: all 30 non-null version
 pins check out against PyPI, but the one `None`-status entry (`python-snappy`, "no cp312 wheels") was itself stale —
