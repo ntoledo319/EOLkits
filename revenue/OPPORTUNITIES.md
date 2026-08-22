@@ -193,3 +193,27 @@ deleted HTML paths, while the bootstrap run used the current 51-URL sitemap.
 Run `32597777674` succeeded. This improves discovery opportunity but does not
 change the revenue hypothesis or falsifier: acceptance is not indexing, and
 the simultaneous acquisition observation remained zero-signal.
+
+## Verifiable-proof release — August 22
+
+A1 is materially easier to evaluate but does not move in rank or forecast. The
+public sample is no longer a hand-maintained HTML facsimile: it is a four-page
+PDF produced by the paid report engine from a downloadable fictional ZIP, with
+an exact artifact/input/evidence manifest. This removes the largest autonomous
+trust objection for an engineering manager or security reviewer who reaches the
+offer. It does not create distribution, payment readiness, or willingness to
+pay, so A1's U hypothesis remains $2,320.24 and observed revenue remains $0.
+
+K1 remains the fastest bet. Public `v2` now points to fully green commit
+`9c231b58`, and its report funnel can show the real artifact. The Marketplace
+listing itself still reports v1.1.0, so the existing built-in distribution is
+not repaired until HQ-5 publishes the prepared draft. V1 remains third because
+the tested VSIX is still absent from Marketplace search. C4 remains fourth;
+another accepted IndexNow notification is release/discovery opportunity, not a
+visit or conversion.
+
+The portfolio falsifiers do not move: K1's first five-full-day checkpoint stays
+2026-08-27 20:29 UTC. At the release probe there were 0 qualified issues, 0
+paid reports, 1 star, 0 forks, and $0 collected. Do not open another SKU or
+infer demand from sample downloads, CI probes, IndexNow receipt, or internal
+artifact inspection.

@@ -15,14 +15,19 @@ Containment incidents disclosed during this repair:
 - early dependency commands were run before project-local pip/npm temp and
   config overrides were consistently set;
 - an earlier failed Wrangler invocation wrote its own log outside the jail;
-- early Git inspection may have consulted machine Git configuration; and
+- early Git inspection may have consulted machine Git configuration;
 - the first broad Ruff run had no repository config and may have inherited a
-  machine-level configuration.
+  machine-level configuration;
+- a later runner test was invoked without the required workspace-local TMPDIR,
+  causing pytest to create its temporary directory under system `/tmp`; and
+- a live HTTP status probe explicitly targeted `/dev/null`, which the total jail
+  forbids even when the intended content is discard-only.
 
 No outside file was intentionally inspected or cleaned afterward because doing
-so would repeat the violation. The repair added workspace-local config/cache
-paths and a repository-owned Python lint contract. These incidents are process
-failures, not hidden successes.
+so would repeat the violation. Subsequent verification restored the explicit
+workspace-local TMPDIR and kept probe output in-process. The repair added
+workspace-local config/cache paths and a repository-owned Python lint contract.
+These incidents are process failures, not hidden successes.
 
 ## D1 — reject the premise that profitability was established
 
@@ -413,3 +418,60 @@ the 51 canonical sitemap URLs and could only pass on HTTP 200/202. Record that a
 receipt, never as crawling, indexing, rank, traffic, or demand. The simultaneous
 acquisition artifact remained at zero qualified issues and zero external `@v2`
 references, so the August 27 falsifier and portfolio ranking do not move.
+
+## D25 — replace the mock sample with actual fulfillment output
+
+The Audit page promised exact evidence, a remediation order, hashes, and a PDF,
+but the prior public sample was a hand-maintained HTML facsimile. That is the
+largest autonomous trust leak for the only paid offer. Publish a wholly
+fictional, deterministic ZIP and send it through the same
+`generate_audit_package()` path used for paid work. Ship the resulting four-page
+PDF plus a JSON manifest containing exact input/PDF hashes, rule/report/template
+versions, evidence fingerprint, scan counts, and an explicit statement that the
+sample is fictional and not registered as customer verification evidence.
+
+Building the real artifact exposed a false critical finding: a generic
+`amazon-linux-extras enable python3.8` line was being treated as a Lambda runtime
+configuration. Bind runtime matches to supported Lambda/SAM/Serverless/CDK/HCL
+contexts, align the browser heuristic, and bound archive names, lines, mapping
+records, Lambda resources, flow structures, dependency manifests/specifiers,
+and retained evidence. Reject ambiguity/complexity before checkout. Label AWS's
+future Lambda dates as projected and describe dependency links as configured
+package references, not proof that a local conservative floor is official.
+
+The sample is conversion proof, not demand. Its download, an internal probe, or
+a CI fetch does not count as a visit, lead, sale, or revenue event.
+
+## D26 — make report verification portable without weakening the public hash
+
+Initial feature commit `bffb335a` had an exact remote tree match, but its custom
+Pages and release runs failed: WeasyPrint's native font/shaping/PDF stack emitted
+different bytes on the GitHub runner. The fixture and engine semantics matched;
+requiring one workstation's PDF serialization across Linux images was the wrong
+portability invariant.
+
+Keep the checked-in public PDF immutable and require its exact SHA-256 to match
+the public manifest. On a fresh runner, regenerate through the production engine
+and require the same fictional input, page count, template/rule/report versions,
+scope counts, findings, evidence fingerprint, and every other manifest field
+except the renderer-produced PDF byte count and SHA. The fresh output must still
+be a PDF. A regression proves that only those two serialization fields may vary
+and that a changed finding count fails. Follow-up `9c231b58` passed the full
+release, determinism, property, and both Pages gates.
+
+## D27 — publish one final tree across every autonomous distribution ref
+
+Advance public `main` and the installable `v2` branch without force to final
+commit `9c231b58`, exact tree `8a25da73a1dc8c3c9107c76e7a20d87cc620cd98`.
+The private v2.0.0 draft remains at feature commit `bffb335a`; final changes are
+runner-test-only and Action bytes are identical. Its Marketplace agreement/2FA
+publish remains owner-only.
+
+The GRACE auto-deploy branch cannot fast-forward directly to main because its
+history intentionally preserves the older static-feed lineage. Create
+two-parent commit `0780909c` with the old feed as first parent, final main as
+second parent, and the exact final tree; advance the feed without force. This
+queues the real sample and truthful copy for the observed daily deploy but does
+not claim the custom domain is repaired before a public probe passes. At cycle
+end it still served retired product copy and `/api/capabilities` returned 404.
+Collected revenue remains $0.

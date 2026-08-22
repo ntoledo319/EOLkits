@@ -344,3 +344,58 @@ benchmarks, or unverified analytics in this ledger.
   the Marketplace remains v1.1.0; `eolkits.com` still serves the obsolete site
   with `/api/capabilities` returning 404. Paid deliveries, collected revenue,
   and collected profit remain 0 / $0 / $0.
+
+## Engine-generated proof published — 2026-08-22T22:42:43Z
+
+- Feature commit
+  https://github.com/ntoledo319/EOLkits/commit/bffb335acca35a9a3cf2f48771198327ceab7a61
+  published remote tree `7fd7a81a73e588fff43dd93314c2a60053b9fde6`,
+  exactly matching the locally verified product tree. It added a genuine
+  engine-generated fictional report, detector/DoS hardening, renderer/test
+  locks, truthful privacy/scope copy, safer static deployment, and individual
+  archive guards on all 25 DEV source files.
+- The first custom Pages run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32602860382 and release run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32602860359 failed because a
+  GitHub-hosted runner's native font/PDF stack serialized an otherwise matching
+  WeasyPrint report to different bytes. Determinism `32602860366`, properties
+  `32602860404`, built-in Pages `32602860212`, IndexNow `32602860388`, acquisition
+  `32602860363`, Marketplace-draft `32602860373`, and status smoke
+  `32602912166` passed. The failures are recorded release evidence, not hidden.
+- Follow-up commit
+  https://github.com/ntoledo319/EOLkits/commit/9c231b58c5f2af2ab671a19b2ebd01a8ae475c9a
+  published exact final tree `8a25da73a1dc8c3c9107c76e7a20d87cc620cd98`.
+  The portable gate preserves the checked-in PDF's exact hash and compares the
+  fixture, page count, template/rule versions, findings, evidence fingerprint,
+  and every other renderer-independent engine field. Its replacement release
+  https://github.com/ntoledo319/EOLkits/actions/runs/32603025003, determinism
+  https://github.com/ntoledo319/EOLkits/actions/runs/32603025004, properties
+  https://github.com/ntoledo319/EOLkits/actions/runs/32603025011, custom Pages
+  https://github.com/ntoledo319/EOLkits/actions/runs/32603024985, and built-in
+  Pages https://github.com/ntoledo319/EOLkits/actions/runs/32603024375 all passed.
+- Public probes returned the expected release marker and HTTP-served artifacts:
+  `application/pdf` at 29,392 bytes, `application/x-zip-compressed` at 850 bytes,
+  and `application/json` at 1,145 bytes. Their observed SHA-256 values were:
+  PDF `855c793c8b2735f54fad08465f05c50943cb7908fd194b43dacf0eca9c423d9a`,
+  ZIP `3fd7c4f6cfdb27d436399a0a639d4990303030839a0a338bb343a1ef12031b67`,
+  and manifest `8ad77bb90851ec9ec1ae893118bb3efca69d4545e72ee179915b957222396a58`.
+  The manifest reports 4 PDF pages, 4 findings, 5 evidence records, 4 scanned
+  files, 1 skipped README, fictional=true, and verification_registered=false.
+- Local final checks recorded 33 runner cases and 32 generated-site cases,
+  deterministic sample validation, 74 API cases, 49 al2023-gate cases, 50
+  python-pivot cases, 28 lambda-lifeline cases, 39 Worker cases, Action fixtures,
+  VS compile/lint/rule/package gates, Ruff/Black/mypy, YAML/ShellCheck, clean
+  Python/Node vulnerability audits, a clean high-confidence secret scan, and
+  qpdf/content/visual inspection of all four PDF pages. The independent final
+  review returned `NO PUBLISH BLOCKER` after one binary-archive copy correction.
+- Public `main` and `v2` both resolve to `9c231b58`. Marketplace-draft run
+  `32602860373` synchronized private v2.0.0 to feature commit `bffb335a`; the
+  final follow-up changes only renderer-portability tests, so Action bytes are
+  unchanged. The public Marketplace page still reports v1.1.0.
+- The GRACE source feed advanced without force to two-parent commit
+  `0780909c938bf6acb0fe01ed1aad1c83662b5140`, whose tree exactly matches final
+  main. At this observation, `eolkits.com` still contained Migration Pack and
+  Drift Watch copy and `/api/capabilities` returned 404; checkout is not live.
+- GitHub exposed 0 actual issues (pull requests excluded), 1 star, and 0 forks.
+  No qualified issue, checkout, purchase, report delivery, refund, or collected
+  dollar was observed. Revenue / profit / target gap remain $0 / $0 / $4,000.

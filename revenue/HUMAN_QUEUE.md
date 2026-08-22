@@ -1,9 +1,9 @@
 # Batched owner queue — maximum 41 minutes
 
-Last reconciled August 22 after publishing the price-qualified demand probe,
-privacy-safe telemetry release, and bounded IndexNow submission. The Stripe
-workflow has not been owner-dispatched; v2.0.0 is not public; no new owner task
-or owner minute was added.
+Last reconciled August 22 after publishing the engine-generated sample report
+and advancing public `main`/`v2` to green commit `9c231b58`. The Stripe workflow
+has not been owner-dispatched; v2.0.0 is not public; no new owner task or owner
+minute was added.
 
 Do HQ-2 first because the stale GRACE API can still mint live Checkout Sessions,
 then HQ-5 because it repairs existing distribution. Complete HQ-1, HQ-3, HQ-4,
@@ -62,7 +62,8 @@ Steps:
 1. Open deploy/grace/README.md in this repository and follow “Deploy checkout
    closed” exactly with EOLKITS_AUDIT_CHECKOUT_ENABLED=0.
 2. First inspect the scheduled “Verify GRACE static release” run after 07:35 UTC.
-   The still-active box-side deploy now follows the verified truthful tree. If
+   The still-active box-side deploy now follows final-tree feed commit
+   `0780909c`. If
    that run passes, do not run a redundant static rsync. If it fails, use
    `deploy/grace/ship-web.sh` with the documented `GRACE_HOST` and
    `GRACE_WEBROOT`, inspect its dry-run, then rerun it with `--apply`. Verify
@@ -87,16 +88,15 @@ Why human-only: platform posting/editing is a communication as the owner.
 Steps:
 
 1. Open https://dev.to/dashboard.
-2. Immediately unpublish “401 from 169.254.169.254 — fixing EC2 instances after
-   the IMDSv2 enforcement deadline”; its universal December 31, 2025 deadline is
-   not supported by current AWS documentation.
-3. Review the remaining 24 EOLkits posts. Immediately unpublish any post that claims live
-   Migration Pack/automatic PR, Organization License, Drift Watch, AWS-account
-   scanning, guaranteed timing, cost/blast-radius estimates, or an active
-   checkout that is not currently true.
-4. Technical posts may remain only if their dates and remediation claims match
-   current primary sources and paid-product links point to the gated Audit page.
-5. Do not add new promotional posts in this batch.
+2. Unpublish all 25 EOLkits posts as one batch. The repository copies are now
+   individually quarantined, but that does not alter the already-live DEV posts.
+   The corpus contains unqualified account-wide/zero-telemetry/closed-product
+   claims and obsolete `eolkits.com` canonicals; article 24 additionally invents
+   a universal December 31, 2025 IMDSv2 enforcement deadline.
+3. Do not edit or republish during this batch. A later post may return only after
+   its dates and scope match current primary sources and its links point to the
+   verified Pages funnel.
+4. Do not add new promotional posts in this batch.
 
 ## HQ-5 — publish the prepared GitHub Marketplace draft (2 minutes)
 
@@ -106,8 +106,9 @@ Steps:
 
 1. After final main CI is green, open the private prepared draft directly:
    https://github.com/ntoledo319/EOLkits/releases/tag/untagged-db9a4617f412abd63d2d
-2. Verify it is v2.0.0 targeting the green Action release commit `db32bdfb`
-   (later documentation-only main commits do not invalidate that target), check
+2. Verify it is v2.0.0 targeting feature commit `bffb335a`. Final green commit
+   `9c231b58` differs only in renderer-portability tests, and public `v2` points
+   there with identical Action files. Check
    “Publish this Action to the GitHub Marketplace,” keep the existing
    Marketplace identity, and publish with 2FA. Do not create a second listing
    or a second release. Stop if its Action files differ from public `v2`.
