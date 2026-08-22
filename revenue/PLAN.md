@@ -84,22 +84,22 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
 
 1. Keep the reviewed repository repair on main without rewriting remote history;
    synthetic commits and obsolete publishing automation are stopped.
-2. Keep the honest GitHub Pages fallback and tested `v2` Action branch green;
-   the owner publishes the prepared v2.0.0 draft into the existing Marketplace
-   listing.
-3. Run the owner-gated exact Stripe retirement. It validates and deactivates all
+2. Run the owner-gated exact Stripe retirement. It validates and deactivates all
    six historical catalog Prices—including $299 while fulfillment is closed—and
    only the six approved Payment Link URLs; any charge/session/subscription/
    schedule anomaly stops the containment claim. Rotate/revoke the account key
    afterward because old Cloudflare versions retain secret snapshots. The
    verified live `rupture-worker` itself is already a tested HTTP 410 tombstone.
+3. Keep the honest GitHub Pages fallback and tested `v2` Action branch green;
+   immediately after Stripe containment, the owner publishes the canonical
+   v2.0.0 draft into the existing Marketplace listing and dispatches the guarded
+   in-place VS update. These distribution releases do not wait for checkout.
 4. Deploy Audit v2 with checkout disabled and complete the full Stripe test-mode
    operational gate.
-5. Update the existing GitHub Marketplace listing and publish VS v1.1.0 in place
-   over `rupture.rupture-vscode`; do not create a rebranded second listing.
-6. Supply the truthful legal/controller values, then enable Audit checkout only
+5. Supply the truthful legal/controller values and remove the false public DEV
+   corpus, then enable Audit checkout only
    if every gate is green and incremental hosting cost is $0.
-7. Measure dollars, purchases, checkout starts, qualified Audit views, Action
+6. Measure dollars, purchases, checkout starts, qualified Audit views, Action
    usage, and extension installs. Do not count tests, commits, posts, or stars as
    demand.
 
@@ -137,9 +137,10 @@ stacks can serialize an equivalent PDF differently; the corrected gate preserves
 the published artifact's exact hash and compares every renderer-independent
 engine field. That failure is recorded, not hidden.
 
-The private v2.0.0 Marketplace draft was synchronized to feature commit
-`bffb335a`; final `9c231b58` changes only the cross-renderer sample test, so its
-Action files are identical. The Marketplace itself still advertises v1.1.0.
+The current canonical private v2.0.0 Marketplace draft was created by green run
+`32604619021` at commit `a9cdcaeb`; its Action files are byte-identical to public
+`v2` at `9c231b58`. An older direct draft URL in the owner queue was stale and has
+been replaced. The Marketplace itself still advertises v1.1.0.
 The GRACE static feed now points at two-parent commit `0780909c` with the exact
 final tree, but `eolkits.com` still serves Migration Pack/Drift Watch copy and
 `/api/capabilities` returns 404 until the next observed deploy or owner rollout.
@@ -157,8 +158,12 @@ legacy user settings/commands, repairs the verified Audit route, and measures
 only user-submitted, findings-qualified VS interest. Marketplace v1.1.0 is not
 public yet, and the approximate counters are not demand or revenue.
 
-Highest-leverage next action remains the five-minute owner HQ-2 exact Stripe
-closure/key rotation, followed by the two-minute HQ-5 GitHub Marketplace publish
-and one-minute HQ-6 in-place VS update. Then complete the closed GRACE fulfillment
-proof before enabling the single $299 Price. Do not create another VS publisher,
-add a product, lower the price, or call installs/auto-updates demand evidence.
+Highest-leverage next action is the five-minute HQ-2 exact Stripe closure/key
+rotation because the audit may expose anomalous commerce state. Immediately
+afterward, use the same owner sitting for the three-minute HQ-5/HQ-6 distribution
+batch: publish the canonical GitHub draft and dispatch the owner-guarded in-place
+VS update. Both releases route to the fail-closed Pages funnel and can start
+acquisition before commerce opens. Then complete legal facts, the closed GRACE
+fulfillment proof, and false-post removal before enabling the single $299 Price.
+Do not create another VS publisher, add a product, lower the price, or call
+installs/auto-updates demand evidence.

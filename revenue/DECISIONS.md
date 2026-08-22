@@ -520,3 +520,35 @@ install statistic while downloads stayed 162, so record the distribution as
 approximately 100 installs and baseline it again only after v1.1.0 publishes.
 The public listing remains v1.0.0; CI success does not authorize or imply the
 owner-only Marketplace post.
+
+## D29 — remove release-hand-off ambiguity and guard the publisher credential
+
+Green Marketplace-draft run `32604619021` created the current canonical private
+v2.0.0 draft at `untagged-0866963caf3f06db98a1`, targeting `a9cdcaeb`. The
+owner queue still pointed at an older untagged draft and target. Replace that
+ephemeral link with the observed current draft and require the owner to reject
+the two stale drafts. Direct comparison confirms the canonical target's Action
+files are byte-identical to public `v2` at `9c231b58`.
+
+Treat a VS Marketplace publication as a production credential action, not an
+ordinary test workflow. Require the exact repository owner as both dispatch and
+triggering actor, the `main` ref, the exact repository, and typed confirmation
+`PUBLISH_RUPTURE_VSCODE_1_1_0`; recheck those values before checkout or secret
+use and serialize publication attempts. This prevents a collaborator with
+Actions dispatch/rerun permission from spending the existing publisher token.
+Package only verified release commit `a9cdcaeb`, with persisted Git credentials
+disabled, so later ledger-only `main` commits cannot silently change the VSIX.
+
+Keep HQ-2 before HQ-5 and HQ-6 because its exact audit can stop on anomalous
+commerce state; five minutes does not affect a five-day signal gate. Publish the
+two repaired, fail-closed distribution artifacts immediately after containment.
+Remove them from HQ-7's checkout-safety prerequisites: distribution state cannot
+make fulfillment safe or unsafe. HQ-1 through HQ-4, exact production
+verification, and zero unresolved refund/fulfillment alerts still gate checkout.
+
+Do not publish GHCR as a launch shortcut. The repository lacks the pre-publish
+OCI source linkage and package workflow needed for deliberate permission
+inheritance; a new public package is an additional owner-authorized external
+release. The current image inputs also float, and a prebuilt image removes none
+of the operational proof dominating HQ-3. No public listing or checkout action
+was autonomously taken. Collected revenue remains $0.

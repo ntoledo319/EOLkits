@@ -50,7 +50,9 @@ All code and evidence below is inside the workspace jail.
   green commit `9c231b58`, so `uses: ntoledo319/EOLkits@v2` works now and routes report
   interest to the verified Pages funnel. The Marketplace
   page still exposes the stale v1.1.0 release until the owner publishes the
-  prepared private v2.0.0 draft with the Marketplace checkbox.
+  canonical private v2.0.0 draft from green run `32604619021` with the
+  Marketplace checkbox. Its target is `a9cdcaeb`; its Action files are
+  byte-identical to public `v2`.
 - License/provenance: MIT kit licenses; AWS SDK dependencies are Apache-2.0.
 - Capability worth paying for: a shareable, decision-ready report rather than
   raw console matches.
@@ -66,7 +68,11 @@ All code and evidence below is inside the workspace jail.
   counter and 162 downloads, showing that the install counter is approximate.
   A tested 12-file EOLkits-branded v1.1.0 in-place update preserves that stable
   identity, legacy commands/settings, and the installed base; publication is
-  still owner-gated.
+  still owner-gated. The publish workflow now also requires the exact repository
+  owner as both dispatch and triggering actor plus an exact release confirmation,
+  so a collaborator cannot spend the publisher credential by dispatch or rerun.
+  It checks out and verifies green release commit `a9cdcaeb` explicitly rather
+  than publishing whatever commit happens to lead `main` when the owner clicks.
 - $0 deploy/distribution: Visual Studio Marketplace.
 - License/provenance: MIT; VSIX contains compiled project code, manifest, README,
   icon, and license, with no node_modules.
