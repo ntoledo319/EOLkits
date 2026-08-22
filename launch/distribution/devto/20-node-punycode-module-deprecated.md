@@ -5,6 +5,13 @@ description: Node.js 22 Lambda logs are suddenly full of DEP0040 punycode warnin
 tags: aws, lambda, node, serverless
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 Upgrade a Lambda function to `nodejs22.x` and CloudWatch fills up with a warning that wasn't there before:
 
 ```

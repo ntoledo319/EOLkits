@@ -29,11 +29,11 @@
 <p>Common right after changing the runtime: (1) on nodejs18+ the AWS SDK v2 (&#x27;aws-sdk&#x27;) is no longer preinstalled — only @aws-sdk v3 is; (2) the deployment bundle omitted a dependency; (3) a Lambda layer was built on a different OS/architecture; or (4) a native binary needs a different glibc. The handler then throws ImportModuleError at cold start.</p>
 <h2>How to fix it</h2>
 <ol class="fix-steps"><li>If it names `aws-sdk` on nodejs18+: migrate to @aws-sdk v3 modular clients, or bundle aws-sdk v2 explicitly (see the dedicated /fix page).</li><li>Inspect the built ZIP or image and the bundler&#x27;s current configuration to confirm the named dependency is actually included.</li><li>Build layers/packages on the runtime&#x27;s base image (e.g. `public.ecr.aws/lambda/nodejs:22`) and match the architecture (x86_64 vs arm64).</li><li>Confirm the module is where Lambda expects it (`nodejs/node_modules/...` for a layer; top level for a function package) and that the handler string matches the file path.</li></ol>
-<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 EOL</a> — <strong>2027-02-01</strong>.</p>
+<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 create/update restrictions</a> — <strong>2027-02-01</strong>.</p>
 <h2>Check configured patterns in your project</h2>
-<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags selected related patterns in supported IaC and dependency files. It is not a complete source or AWS-account scan.</p>
-<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
+<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>
+<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
 <p>Primary source: <a href="https://repost.aws/knowledge-center/lambda-import-module-error-nodejs" target="_blank" rel="noopener nofollow">https://repost.aws/knowledge-center/lambda-import-module-error-nodejs</a></p>
-<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=lambda-runtime-importmoduleerror-cannot-find-module&deadline=2027-02-01&kit=lambda-lifeline">Get repository evidence — $299, exact file/line matches &rarr;</a></p>
+<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=lambda-runtime-importmoduleerror-cannot-find-module&deadline=2027-02-01&kit=lambda-lifeline">Inspect the $299 report sample and availability &rarr;</a></p>
 </body>
 </html>

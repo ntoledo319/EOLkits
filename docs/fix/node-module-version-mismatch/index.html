@@ -31,9 +31,9 @@
 <ol class="fix-steps"><li>Rebuild native modules against the new Node version: `rm -rf node_modules &amp;&amp; npm install` (or `npm rebuild`).</li><li>Check the package&#x27;s current support matrix and upgrade to a release that explicitly supports Node.js 24; rebuild on the target OS and architecture.</li><li>Replace unmaintained native packages such as node-sass, fibers, and grpc with maintained alternatives (sass, native timers, @grpc/grpc-js).</li><li>Build the deployment package on the same Node major version Lambda will run.</li></ol>
 <p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-node.js-20-phase-1/">Lambda Node.js 20 create/update restrictions</a> — <strong>2027-02-01</strong>.</p>
 <h2>Check configured patterns in your project</h2>
-<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags selected related patterns in supported IaC and dependency files. It is not a complete source or AWS-account scan.</p>
-<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
+<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>
+<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
 <p>Primary source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html</a></p>
-<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-module-version-mismatch&deadline=2027-02-01&kit=lambda-lifeline">Get repository evidence — $299, exact file/line matches &rarr;</a></p>
+<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-module-version-mismatch&deadline=2027-02-01&kit=lambda-lifeline">Inspect the $299 report sample and availability &rarr;</a></p>
 </body>
 </html>

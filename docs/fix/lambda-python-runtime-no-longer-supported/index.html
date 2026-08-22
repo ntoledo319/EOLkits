@@ -29,11 +29,11 @@
 <p>Per the AWS Lambda runtime deprecation table, python3.9 was deprecated on 2025-12-15; AWS blocks creating new python3.9 functions on 2027-02-01 and updating existing ones on 2027-03-03 (AWS delayed these beyond the usual 30/60 days). Earlier runtimes such as python3.7 are already blocked for create. The error fires when a deploy targets a runtime past its block date.</p>
 <h2>How to fix it</h2>
 <ol class="fix-steps"><li>Change the runtime to a currently supported version. EOLkits&#x27; bounded rewrite examples use python3.12; recheck AWS&#x27;s current table and choose the target your dependencies support.</li><li>SAM/CloudFormation: `Runtime: python3.12`. CDK: `runtime: lambda.Runtime.PYTHON_3_12`. Terraform: `runtime = &quot;python3.12&quot;`. Serverless: `runtime: python3.12`.</li><li>Re-test: Python 3.12 removed distutils and imp and moved the collections ABCs — see the related /fix pages.</li><li>Redeploy and confirm with `aws lambda get-function-configuration --function-name &lt;name&gt; --query Runtime`.</li></ol>
-<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-python-3.9-eol/">Lambda Python 3.9 EOL</a> — <strong>2027-02-01</strong>.</p>
+<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-python-3.9-eol/">Lambda Python 3.9 create/update restrictions</a> — <strong>2027-02-01</strong>.</p>
 <h2>Check configured patterns in your project</h2>
-<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags selected related patterns in supported IaC and dependency files. It is not a complete source or AWS-account scan.</p>
-<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
+<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>
+<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
 <p>Primary source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html</a></p>
-<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=lambda-python-runtime-no-longer-supported&deadline=2027-02-01&kit=python-pivot">Get repository evidence — $299, exact file/line matches &rarr;</a></p>
+<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=lambda-python-runtime-no-longer-supported&deadline=2027-02-01&kit=python-pivot">Inspect the $299 report sample and availability &rarr;</a></p>
 </body>
 </html>

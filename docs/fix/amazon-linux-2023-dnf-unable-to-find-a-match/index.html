@@ -31,9 +31,9 @@
 <ol class="fix-steps"><li>Find the real name: `dnf search &lt;keyword&gt;` and `dnf provides &#x27;*/&lt;binary&gt;&#x27;`.</li><li>Use the version-namespaced package where AL2023 splits versions, e.g. `dnf install -y python3.11` / `nginx1.24` / `postgresql15`.</li><li>If it lived behind amazon-linux-extras on AL2, it&#x27;s now a default dnf package, version-namespaced, or in SPAL — enable SPAL instead of the old extras topic.</li><li>Do not add a repository built for another distribution. Check SPAL, which is built for AL2023 but has separate support limitations; if the package is absent, vendor or build it deliberately.</li><li>Check support status/dates with the `dnf-plugin-support-info` plugin before standardizing on a package.</li></ol>
 <p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/amazon-linux-2-eol/">Amazon Linux 2 EOL</a> — <strong>2026-06-30</strong>.</p>
 <h2>Check configured patterns in your project</h2>
-<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags selected related patterns in supported IaC and dependency files. It is not a complete source or AWS-account scan.</p>
-<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
+<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>
+<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
 <p>Primary source: <a href="https://docs.aws.amazon.com/linux/al2023/ug/package-management.html" target="_blank" rel="noopener nofollow">https://docs.aws.amazon.com/linux/al2023/ug/package-management.html</a></p>
-<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=amazon-linux-2023-dnf-unable-to-find-a-match&deadline=2026-06-30&kit=al2023-gate">Get repository evidence — $299, exact file/line matches &rarr;</a></p>
+<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=amazon-linux-2023-dnf-unable-to-find-a-match&deadline=2026-06-30&kit=al2023-gate">Inspect the $299 report sample and availability &rarr;</a></p>
 </body>
 </html>

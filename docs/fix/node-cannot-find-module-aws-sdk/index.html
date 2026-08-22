@@ -29,11 +29,11 @@
 <p>Lambda preinstalled `aws-sdk` (v2) only on nodejs16.x and earlier. From nodejs18.x the runtime bundles AWS SDK for JavaScript v3 (the modular @aws-sdk/* clients) instead, so `require(&#x27;aws-sdk&#x27;)` resolves to nothing after the runtime upgrade.</p>
 <h2>How to fix it</h2>
 <ol class="fix-steps"><li>Preferred: migrate to v3 modular clients, e.g. `const { S3Client } = require(&#x27;@aws-sdk/client-s3&#x27;)` instead of `const AWS = require(&#x27;aws-sdk&#x27;)`.</li><li>v3 also changes calls: clients return promises directly (no `.promise()`), and response shapes differ.</li><li>Quick unblock: add `aws-sdk` to package.json and bundle it in the deployment package (no longer free/preinstalled, so it adds cold-start weight).</li><li>Rebuild and redeploy the package on the target Node version.</li></ol>
-<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 EOL</a> — <strong>2027-02-01</strong>.</p>
+<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 create/update restrictions</a> — <strong>2027-02-01</strong>.</p>
 <h2>Check configured patterns in your project</h2>
-<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags selected related patterns in supported IaC and dependency files. It is not a complete source or AWS-account scan.</p>
-<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
+<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>
+<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
 <p>Primary source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-nodejs.html" target="_blank" rel="noopener nofollow">https://docs.aws.amazon.com/lambda/latest/dg/lambda-nodejs.html</a></p>
-<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-cannot-find-module-aws-sdk&deadline=2027-02-01&kit=lambda-lifeline">Get repository evidence — $299, exact file/line matches &rarr;</a></p>
+<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-cannot-find-module-aws-sdk&deadline=2027-02-01&kit=lambda-lifeline">Inspect the $299 report sample and availability &rarr;</a></p>
 </body>
 </html>

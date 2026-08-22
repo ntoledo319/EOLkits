@@ -4,9 +4,9 @@
 <meta name="referrer" content="origin">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lambda Python 3.11 EOL migration guide — milestone 2027-07-31 | EOLkits</title>
-    <meta name="description" content="Lambda Python 3.11 EOL: tracked milestone 2027-07-31 (more than 30 days out). AWS Lambda. 2 migration checks to verify, plus a free bounded CLI…">
-    <meta name="keywords" content="Lambda Python 3.11 EOL, AWS deprecation, AWS Lambda, lambda, python, runtime, migration, end of life, 2027-07-31">
+    <title>Lambda Python 3.11 projected create/update restrictions migration guide — milestone 2027-07-31 | EOLkits</title>
+    <meta name="description" content="Lambda Python 3.11 projected create/update restrictions: tracked milestone 2027-07-31 (more than 30 days out). AWS Lambda. 2 migration checks to verify, plus…">
+    <meta name="keywords" content="Lambda Python 3.11 projected create/update restrictions, AWS deprecation, AWS Lambda, lambda, python, runtime, migration, end of life, 2027-07-31">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.11-eol/">
     <link rel="stylesheet" href="/EOLkits/style.css">
@@ -14,8 +14,8 @@
     <link rel="alternate" type="text/calendar" title="AWS Deprecation Deadlines (EOLkits)" href="/EOLkits/deprecations.ics">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Lambda Python 3.11 EOL — AWS deprecation migration guide (milestone 2027-07-31)">
-    <meta property="og:description" content="Python 3.11 Lambda runtime deprecated 2027-06-30. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.11 functions on 2027-07-31 and updating existing ones on 2027-08-31.">
+    <meta property="og:title" content="Lambda Python 3.11 projected create/update restrictions — AWS deprecation migration guide (milestone 2027-07-31)">
+    <meta property="og:description" content="AWS currently projects Python 3.11 Lambda runtime deprecation on 2027-06-30, blocking new python3.11 functions on 2027-07-31, and blocking updates on 2027-08-31. AWS marks future runtime dates as subject to change.">
     <meta property="og:url" content="https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.11-eol/">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="EOLkits">
@@ -27,7 +27,7 @@
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Lambda Python 3.11 EOL — Migration Guide">
+    <meta name="twitter:title" content="Lambda Python 3.11 projected create/update restrictions — Migration Guide">
     <meta name="twitter:description" content="Tracked milestone 2027-07-31 (343 days from the build date). 2 bounded migration checks to verify.">
     <meta name="twitter:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
 
@@ -36,8 +36,8 @@
     {
         "@context": "https://schema.org",
         "@type": "TechArticle",
-        "headline": "Lambda Python 3.11 EOL \u2014 AWS Deprecation Migration Guide",
-        "description": "Python 3.11 Lambda runtime deprecated 2027-06-30. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.11 functions on 2027-07-31 and updating existing ones on 2027-08-31.",
+        "headline": "Lambda Python 3.11 projected create/update restrictions \u2014 AWS Deprecation Migration Guide",
+        "description": "AWS currently projects Python 3.11 Lambda runtime deprecation on 2027-06-30, blocking new python3.11 functions on 2027-07-31, and blocking updates on 2027-08-31. AWS marks future runtime dates as subject to change.",
         "datePublished": "2026-08-22",
         "dateModified": "2026-08-22",
         "proficiencyLevel": "Expert",
@@ -66,7 +66,7 @@
         "itemListElement": [
             { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://ntoledo319.github.io/EOLkits/" },
             { "@type": "ListItem", "position": 2, "name": "AWS deprecations", "item": "https://ntoledo319.github.io/EOLkits/migrate/" },
-            { "@type": "ListItem", "position": 3, "name": "Lambda Python 3.11 EOL", "item": "https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.11-eol/" }
+            { "@type": "ListItem", "position": 3, "name": "Lambda Python 3.11 projected create/update restrictions", "item": "https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.11-eol/" }
         ]
     }
     </script>
@@ -79,22 +79,22 @@
         "mainEntity": [
             {
                 "@type": "Question",
-                "name": "What is the next tracked milestone for Lambda Python 3.11 EOL?",
-                "acceptedAnswer": { "@type": "Answer", "text": "EOLkits tracks 2027-07-31 as the next published milestone. Python 3.11 Lambda runtime deprecated 2027-06-30. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.11 functions on 2027-07-31 and updating existing ones on 2027-08-31. Provider status source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html. Future dates can change." }
+                "name": "What is the next tracked milestone for Lambda Python 3.11 projected create/update restrictions?",
+                "acceptedAnswer": { "@type": "Answer", "text": "EOLkits tracks 2027-07-31 as the next published milestone. AWS currently projects Python 3.11 Lambda runtime deprecation on 2027-06-30, blocking new python3.11 functions on 2027-07-31, and blocking updates on 2027-08-31. AWS marks future runtime dates as subject to change. Provider status source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html. Future dates can change." }
             },
             {
                 "@type": "Question",
-                "name": "What should I verify when moving away from Lambda Python 3.11 EOL?",
+                "name": "What should I verify when moving away from Lambda Python 3.11 projected create/update restrictions?",
                 "acceptedAnswer": { "@type": "Answer", "text": "Configured migration checks to validate in your workload: distutils is removed in Python 3.12; Native dependencies may need Python 3.12-compatible wheels. A listed check is not proof of impact. Provider status source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
             },
             {
                 "@type": "Question",
-                "name": "Which AWS services are affected by Lambda Python 3.11 EOL?",
+                "name": "Which AWS services are affected by Lambda Python 3.11 projected create/update restrictions?",
                 "acceptedAnswer": { "@type": "Answer", "text": "Affected services: AWS Lambda. Affected resource types: function. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
             },
             {
                 "@type": "Question",
-                "name": "Is there a free tool to migrate off Lambda Python 3.11 EOL?",
+                "name": "Is there a free tool to migrate off Lambda Python 3.11 projected create/update restrictions?",
                 "acceptedAnswer": { "@type": "Answer", "text": "Yes. python-pivot is an MIT-licensed CLI with bounded static checks and targeted local change previews. The optional $299 static repository evidence report adds file-and-line evidence when its fulfillment backend is ready; EOLkits does not currently sell automated pull requests." }
             }
         ]
@@ -117,13 +117,13 @@
 
 <main class="container article">
     <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a href="/EOLkits/">Home</a> / <a href="/EOLkits/migrate/">AWS deprecations</a> / <span>Lambda Python 3.11 EOL</span>
+        <a href="/EOLkits/">Home</a> / <a href="/EOLkits/migrate/">AWS deprecations</a> / <span>Lambda Python 3.11 projected create/update restrictions</span>
     </nav>
 
     <article>
         <div class="deadline-banner ahead">
             <span class="severity-badge severity-medium">medium</span>
-            <h1>Lambda Python 3.11 EOL</h1>
+            <h1>Lambda Python 3.11 projected create/update restrictions</h1>
             <p class="banner-sub">AWS Lambda — published migration milestone</p>
             <div class="countdown" data-deadline="2027-07-31">2027-07-31</div>
             <p class="urgency">343 days until the 2027-07-31 deadline — enough runway to migrate safely.</p>
@@ -131,7 +131,7 @@
 
         <section>
             <h2>What is being deprecated?</h2>
-            <p>Python 3.11 Lambda runtime deprecated 2027-06-30. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.11 functions on 2027-07-31 and updating existing ones on 2027-08-31.</p>
+            <p>AWS currently projects Python 3.11 Lambda runtime deprecation on 2027-06-30, blocking new python3.11 functions on 2027-07-31, and blocking updates on 2027-08-31. AWS marks future runtime dates as subject to change.</p>
             <table class="facts">
                 <tr><th>Next tracked milestone</th><td><strong>2027-07-31</strong> (343 days from build date 2026-08-22)</td></tr>
                 <tr><th>Service</th><td>AWS Lambda</td></tr>
@@ -189,10 +189,10 @@
                 <div class="pricing-card featured">
                     <h3>Audit PDF</h3>
                     <div class="price">$299</div>
-                    <p>Static scan of one repository ZIP or source file with exact file/line evidence, observed reach, remediation order, source links, and explicit limitations. <strong>30-day money-back guarantee.</strong></p>
+                    <p>Static scan of one repository ZIP or source file with exact file/line evidence, observed reach, remediation order, configured references, and explicit limitations. <strong>30-day money-back guarantee.</strong></p>
                     <a href="/EOLkits/audit/?deadline=2027-07-31&utm_source=migrate&utm_medium=cta&utm_campaign=lambda-python-3.11-eol&kit=python-pivot" class="btn-primary">Check Audit v2 availability</a>
                     <p class="small"><a href="/EOLkits/scan/">Run the free scan first</a> · <a href="/EOLkits/audit/sample/">see a sample →</a></p>
-                    <p class="small">Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
+                    <p class="small">Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
                 </div>
             </div>
         </section>
@@ -200,8 +200,8 @@
         <section class="embed-badge">
             <h2>Embed this milestone in your README</h2>
             <p>Drop a milestone badge into a repo that needs this migration review. It links back to the provider-sourced date and bounded checks on this page.</p>
-            <p><img src="https://ntoledo319.github.io/EOLkits/badge/lambda-python-3.11-eol.svg" alt="Lambda Python 3.11 EOL milestone badge"></p>
-            <pre class="code-block"><code>[![Lambda Python 3.11 EOL milestone](https://ntoledo319.github.io/EOLkits/badge/lambda-python-3.11-eol.svg)](https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.11-eol/)</code></pre>
+            <p><img src="https://ntoledo319.github.io/EOLkits/badge/lambda-python-3.11-eol.svg" alt="Lambda Python 3.11 projected create/update restrictions milestone badge"></p>
+            <pre class="code-block"><code>[![Lambda Python 3.11 projected create/update restrictions milestone](https://ntoledo319.github.io/EOLkits/badge/lambda-python-3.11-eol.svg)](https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.11-eol/)</code></pre>
         </section>
 
 
@@ -216,17 +216,17 @@
                 </li>
 
                 <li>
-                    <a href="/EOLkits/migrate/lambda-python-3.9-eol/">Lambda Python 3.9 EOL</a>
+                    <a href="/EOLkits/migrate/lambda-python-3.9-eol/">Lambda Python 3.9 create/update restrictions</a>
                     <span class="rel-meta">— milestone <strong>2027-02-01</strong> · high · <code>python-pivot</code></span>
                 </li>
 
                 <li>
-                    <a href="/EOLkits/migrate/lambda-python-3.10-eol/">Lambda Python 3.10 EOL</a>
+                    <a href="/EOLkits/migrate/lambda-python-3.10-eol/">Lambda Python 3.10 projected create/update restrictions</a>
                     <span class="rel-meta">— milestone <strong>2027-02-01</strong> · high · <code>python-pivot</code></span>
                 </li>
 
                 <li>
-                    <a href="/EOLkits/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 EOL</a>
+                    <a href="/EOLkits/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 create/update restrictions</a>
                     <span class="rel-meta">— milestone <strong>2027-02-01</strong> · high · <code>lambda-lifeline</code></span>
                 </li>
 
@@ -239,7 +239,7 @@
             <h2>Frequently asked questions</h2>
             <details open>
                 <summary>What is the next tracked milestone?</summary>
-                <p>2027-07-31. Python 3.11 Lambda runtime deprecated 2027-06-30. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.11 functions on 2027-07-31 and updating existing ones on 2027-08-31. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[provider status source]</a></p>
+                <p>2027-07-31. AWS currently projects Python 3.11 Lambda runtime deprecation on 2027-06-30, blocking new python3.11 functions on 2027-07-31, and blocking updates on 2027-08-31. AWS marks future runtime dates as subject to change. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[provider status source]</a></p>
             </details>
             <details>
                 <summary>What should I verify before changing the workload?</summary>

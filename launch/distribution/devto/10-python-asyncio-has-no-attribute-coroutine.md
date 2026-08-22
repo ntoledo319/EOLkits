@@ -5,6 +5,13 @@ description: Python 3.11 removed the legacy @asyncio.coroutine decorator. Why ol
 tags: python, aws, lambda, asyncio
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 You bumped a Lambda function (or any service) to Python 3.11 or later and something that used to run now dies on import or at call time with:
 
 ```

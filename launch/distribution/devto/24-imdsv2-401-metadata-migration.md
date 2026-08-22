@@ -5,6 +5,13 @@ description: IMDSv1 is off by default on new EC2 instances. If you are seeing 40
 tags: aws, ec2, security, devops
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 If your EC2 instance, CI runner, or Kubernetes node started returning credential errors or a bare `401` from `http://169.254.169.254/latest/meta-data/`, one of two things happened: you launched a new instance after December 31 2025 (when AWS flipped the default to IMDSv2-required), or you enforced IMDSv2 on an existing instance before auditing every workload that still used the old one-step token-free request.
 
 Both produce the same symptoms. Here is how to triage and fix them.

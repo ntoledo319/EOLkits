@@ -5,6 +5,13 @@ description: A native addon (sharp, bcrypt, better-sqlite3, grpc) fails to load 
 tags: aws, lambda, node, javascript
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 You upgrade a Lambda function from `nodejs20.x` to `nodejs22.x`, redeploy, and the first cold start dies with something like this:
 
 ```

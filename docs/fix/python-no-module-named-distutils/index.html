@@ -29,11 +29,11 @@
 <p>distutils was deprecated in Python 3.10 and fully removed in 3.12. Code (or a dependency) still imports it. This commonly surfaces after moving a Lambda function or container to a Python 3.12 runtime.</p>
 <h2>How to fix it</h2>
 <ol class="fix-steps"><li>Interim only: if the current setuptools documentation still provides a compatible distutils shim, bundle a tested setuptools version with the deployment package.</li><li>Durable: replace `distutils` usage with `setuptools` and the `packaging` library (e.g. `packaging.version.Version` instead of `distutils.version.LooseVersion`).</li><li>Upgrade dependencies that import distutils to versions that no longer do.</li><li>Re-test on Python 3.12 locally before redeploying.</li></ol>
-<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-python-3.9-eol/">Lambda Python 3.9 EOL</a> — <strong>2027-02-01</strong>.</p>
+<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-python-3.9-eol/">Lambda Python 3.9 create/update restrictions</a> — <strong>2027-02-01</strong>.</p>
 <h2>Check configured patterns in your project</h2>
-<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags selected related patterns in supported IaC and dependency files. It is not a complete source or AWS-account scan.</p>
-<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
+<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>
+<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
 <p>Primary source: <a href="https://docs.python.org/3/whatsnew/3.12.html" target="_blank" rel="noopener nofollow">https://docs.python.org/3/whatsnew/3.12.html</a></p>
-<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=python-no-module-named-distutils&deadline=2027-02-01&kit=python-pivot">Get repository evidence — $299, exact file/line matches &rarr;</a></p>
+<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=python-no-module-named-distutils&deadline=2027-02-01&kit=python-pivot">Inspect the $299 report sample and availability &rarr;</a></p>
 </body>
 </html>

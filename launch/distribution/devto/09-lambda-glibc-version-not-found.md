@@ -5,6 +5,13 @@ description: A native dependency (cryptography, numpy, pydantic-core, grpcio, ps
 tags: aws, lambda, python, node
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 You upgraded a Lambda runtime, redeployed, and a cold start now dies with something like:
 
 ```

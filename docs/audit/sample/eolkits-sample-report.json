@@ -1,0 +1,31 @@
+{
+  "artifact": "EOLkits Audit v2 illustrative sample",
+  "engine_sample_mode": true,
+  "evidence_count": 5,
+  "evidence_fingerprint": "e96abc1d709f84e1525e7945ac03628a4c01f5ea5db1691857b3f28a633c1ee8",
+  "fictional": true,
+  "findings_count": 4,
+  "generated_at": "2026-08-22T21:00:00Z",
+  "input_bytes": 850,
+  "input_file": "fictional-repository.zip",
+  "input_sha256": "3fd7c4f6cfdb27d436399a0a639d4990303030839a0a338bb343a1ef12031b67",
+  "limitations": "Fictional static-source sample only; no customer repository or AWS account was used.",
+  "pdf_bytes": 29392,
+  "pdf_file": "eolkits-sample-report.pdf",
+  "pdf_pages": 4,
+  "pdf_sha256": "855c793c8b2735f54fad08465f05c50943cb7908fd194b43dacf0eca9c423d9a",
+  "report_template_sha256": "2fda6e31ebb430a4b030adaf6ef5732ad87c9080c56fcbd2a59ffcae55456163",
+  "report_version": "2.0",
+  "rule_pack_version": "audit-v2-2026-08-22.2+ded83b5774ba",
+  "sample_builder_version": 1,
+  "scanned_files": 4,
+  "skipped_files": 1,
+  "source_files": [
+    "README.md",
+    "images/Dockerfile",
+    "infra/template.yaml",
+    "serverless.yml",
+    "src/compat.py"
+  ],
+  "verification_registered": false
+}

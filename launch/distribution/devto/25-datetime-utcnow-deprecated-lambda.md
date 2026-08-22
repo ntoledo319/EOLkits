@@ -5,6 +5,13 @@ description: Bumped your Lambda to python3.12 and now CloudWatch Logs is full of
 tags: python, aws, lambda, serverless
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 The moment you bump a Lambda function to the `python3.12` runtime, CloudWatch Logs often starts showing warnings like this — once per cold start, or during your test suite against a Python 3.12 environment:
 
 ```

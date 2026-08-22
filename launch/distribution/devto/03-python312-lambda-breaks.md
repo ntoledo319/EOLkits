@@ -5,6 +5,13 @@ description: Moving AWS Lambda to python3.12? distutils, imp, and the collection
 tags: aws, lambda, python, serverless
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 AWS Lambda's `python3.9`, `3.10`, and `3.11` runtimes are on the deprecation track; `python3.12` (on Amazon Linux 2023) is the target. The runtime swap is one line — but Python 3.12 itself removed a pile of long-deprecated stdlib, so code that ran on 3.9 throws on import.
 
 ## The removals you'll hit

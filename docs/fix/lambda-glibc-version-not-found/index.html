@@ -29,11 +29,11 @@
 <p>Native extensions (cryptography, numpy, pydantic-core, grpcio, psycopg2, plus Go/Rust binaries) link against the glibc of the machine that built them. Lambda&#x27;s base OS controls the available glibc: AL2-based runtimes, including Python 3.11 and Node.js 18, use glibc 2.26; AL2023-based runtimes, including Python 3.12+ and Node.js 20+, use glibc 2.34. A binary built against a newer glibc cannot load on an older base.</p>
 <h2>How to fix it</h2>
 <ol class="fix-steps"><li>When feasible, move to a supported AL2023-based runtime such as python3.12+ or nodejs24.x, then rebuild and test every native dependency on that exact base and architecture.</li><li>Build the dependency for the exact target: `pip install --platform manylinux2014_x86_64 --only-binary=:all: --target ./package &lt;pkg&gt;` (manylinux2014 = glibc 2.17, safe on both AL2 and AL2023).</li><li>Or build inside the matching base image (`public.ecr.aws/lambda/python:3.12`) so the binary links the runtime&#x27;s glibc.</li><li>Match the architecture too — x86_64 vs arm64/Graviton wheels are not interchangeable.</li></ol>
-<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-python-3.9-eol/">Lambda Python 3.9 EOL</a> — <strong>2027-02-01</strong>.</p>
+<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-python-3.9-eol/">Lambda Python 3.9 create/update restrictions</a> — <strong>2027-02-01</strong>.</p>
 <h2>Check configured patterns in your project</h2>
-<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags selected related patterns in supported IaC and dependency files. It is not a complete source or AWS-account scan.</p>
-<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
+<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>
+<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
 <p>Primary source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html</a></p>
-<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=lambda-glibc-version-not-found&deadline=2027-02-01&kit=python-pivot">Get repository evidence — $299, exact file/line matches &rarr;</a></p>
+<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=lambda-glibc-version-not-found&deadline=2027-02-01&kit=python-pivot">Inspect the $299 report sample and availability &rarr;</a></p>
 </body>
 </html>

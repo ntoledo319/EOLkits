@@ -18,12 +18,15 @@ a complete AWS account inventory.
 
 ### Paid repository evidence report
 
-The only self-serve paid product is a static evidence report for one uploaded
-repository ZIP or supported source file. The report includes:
+When its readiness gate is open, the only self-serve paid product is a static
+evidence report for one uploaded repository ZIP or supported source file. The
+report includes:
 
 - exact observed file/line evidence for matched rules;
 - observed match/file counts and a severity-based remediation order;
-- an official or primary project source for each configured rule;
+- a configured rule or package reference for each matched finding (dependency
+  floors are conservative triage baselines and require target-specific
+  verification);
 - the input SHA-256, rule-pack/report-engine versions, and a deterministic
   evidence fingerprint; and
 - explicit scope and limitations.
@@ -62,6 +65,11 @@ You confirm that you have authority to upload and analyze the submitted files.
 Do not upload credentials, secrets, private keys, regulated personal data, or
 unrelated confidential material. Review every finding and test every change in a
 non-production environment before deployment.
+
+Uploads are subject to the limits shown before checkout, including compressed
+and expanded size, archive-entry, decoded-line, mapping-record, resource, and
+dependency-manifest complexity limits. Inputs outside those bounds are rejected
+before payment.
 
 ## 5. Intellectual Property
 

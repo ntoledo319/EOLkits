@@ -51,8 +51,8 @@ Right-click any folder in the Explorer to scan it directly.
 The extension tells you **what** is deprecated. To **fix** it, EOLkits ships:
 
 - **Free, MIT CLIs** — one per deadline (`al2023-gate`, `python-pivot`, `lambda-lifeline`). Their documented commands scan specific source and IaC patterns; selected commands can prepare migration edits or rollout artifacts. Review all output before applying it: <https://github.com/ntoledo319/EOLkits>
-- Prefer a 10-second check before installing? Paste your config into the **[free AWS EOL checker](https://ntoledo319.github.io/EOLkits/eol-checker/?utm_source=vscode&utm_medium=marketplace&source=vscode)** — nothing uploaded.
-- **[$299 Audit](https://ntoledo319.github.io/EOLkits/audit/?utm_source=vscode&utm_medium=marketplace&source=vscode)** — when checkout is enabled, upload a repository ZIP or source file and receive a static PDF with exact observed file/line evidence, remediation notes, scope limits, and cited sources. **30-day money-back.**
+- Prefer a 10-second check before installing? Paste your config into the **[free AWS EOL checker](https://ntoledo319.github.io/EOLkits/eol-checker/?utm_source=vscode&utm_medium=marketplace&source=vscode)**. Pasted input is not uploaded; bounded first-party usage events may be sent.
+- **[$299 Audit](https://ntoledo319.github.io/EOLkits/audit/?utm_source=vscode&utm_medium=marketplace&source=vscode)** — when checkout is enabled, upload a repository ZIP or source file and receive a static PDF with exact observed file/line evidence, remediation notes, scope limits, and configured rule or package references. **30-day money-back.**
 
 Migration Pack and the other previously described hosted products are not available for purchase.
 

@@ -1113,10 +1113,10 @@ async def support_ask(request: Request) -> dict[str, Any]:
     if not question:
         raise HTTPException(status_code=400, detail="Missing question")
     canned = {
-        "pricing": "See https://eolkits.com/#pricing for current availability. The CLI is free (MIT). Audit v2 is the only self-serve paid product; Migration Pack, Org License, and Drift Watch are not for sale.",
+        "pricing": "See https://eolkits.com/#pricing for current availability. The CLI is free (MIT). Audit v2 is the only prepared self-serve paid product and remains readiness-gated; Migration Pack, Org License, and Drift Watch are not for sale.",
         "refund": "Audit purchases have a 30-day money-back guarantee. Email hello@toledotechnologies.com from the purchase address. Terms: https://eolkits.com/legal/terms.html",
         "install": "Install any kit from https://github.com/ntoledo319/EOLkits. Each kit README has package-specific setup.",
-        "license": "CLI code is MIT licensed. The only paid product currently offered is the server-gated repository evidence report.",
+        "license": "CLI code is MIT licensed. The only prepared paid product is the readiness-gated repository evidence report.",
         "support": "Use GitHub Discussions at https://github.com/ntoledo319/EOLkits/discussions.",
     }
     for keyword, answer in canned.items():

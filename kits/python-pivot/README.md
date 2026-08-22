@@ -192,10 +192,10 @@ $ python-pivot rollback --function payment-webhook --alias live --apply
 
 ## Free and hosted options
 
-The CLI is free and MIT-licensed. The only paid product currently offered is a
+The CLI is free and MIT-licensed. EOLkits is prepared to offer one paid product: a
 server-gated [$299 repository evidence report](https://ntoledo319.github.io/EOLkits/audit/): static
-source/IaC findings with exact observed file/line locations, limitations, and cited
-sources. It does not inspect an AWS account. Migration Pack and the previously
+source/IaC findings with exact observed file/line locations, limitations, and configured
+references. It does not inspect an AWS account. Migration Pack and the previously
 described hosted products are not for sale.
 
 ---

@@ -216,7 +216,7 @@ def build_audit_page(pricing):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AWS deprecation evidence report | EOLkits</title>
-<meta name="description" content="A static repository evidence report for AWS runtime and Amazon Linux migration risks: exact file/line evidence, remediation, and official source links.">
+<meta name="description" content="A static repository evidence report for AWS runtime and Amazon Linux migration risks: exact file/line evidence, remediation, and configured rule or package references.">
 <style>
 body{font-family:system-ui,-apple-system,sans-serif;max-width:820px;margin:0 auto;padding:2rem;line-height:1.6;color:#111827}
 .brand{color:#2563eb;font-weight:600}
@@ -253,22 +253,22 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 <body>
 <a href="/" class="brand">← EOLkits</a>
 <h1>Turn a repository into reviewable AWS migration evidence</h1>
-<p class="lede">Upload one repository ZIP or supported source file. The <strong>$299 evidence report</strong> returns the exact files and lines that matched, a prioritized remediation order, and a source link for every rule. It is a static source scan—not a live AWS inventory.</p>
+<p class="lede">Upload one repository ZIP or supported source file. The <strong>$299 evidence report</strong> returns the exact files and lines that matched, a severity-and-reach-ranked remediation order, and a configured rule or package reference for each matched finding. It is a static source scan—not a live AWS inventory.</p>
 
 <div class="callout">
   <strong>Don't take our word for it.</strong> &nbsp;<a class="cta secondary" href="/scan/">▶ Run the free scan</a><br>
-  Check representative files locally before paying. The paid report adds repository-wide ZIP scanning, exact line evidence, a sequenced remediation plan, and an evidence fingerprint.
+  Check representative files locally before paying. The paid report adds archive-wide scanning of supported text files, exact line evidence, a severity-and-reach-ranked remediation order, and an evidence fingerprint.
 </div>
 
 <h2>What you get</h2>
 <ul>
   <li>Exact <strong>file:line evidence</strong> and observed match counts—no invented resource counts</li>
   <li>A <strong>roll-forward order</strong> based on finding severity and observed reach</li>
-  <li>Official AWS, Python, Node.js, or project source link for every configured rule</li>
+  <li>The configured rule or package reference for each finding; dependency floors are conservative triage baselines that still require target-specific verification</li>
   <li>Explicit scope and limitations: what was scanned, skipped, and not inferred</li>
   <li>Input SHA-256 plus a deterministic <strong>evidence fingerprint</strong> verifiable at <code>/verify/</code></li>
 </ul>
-<p><a class="cta secondary" href="/audit/sample/">▶ See an illustrative fictional sample →</a></p>
+<p><a class="cta secondary" href="/audit/sample/">▶ Inspect the fictional sample</a> &nbsp; <a href="/audit/sample/eolkits-sample-report.pdf">Download the engine-generated PDF →</a></p>
 
 <div class="pricing">
   <h2>Pricing</h2>
@@ -277,19 +277,19 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 </div>
 
 <div class="valuebox">
-  <strong>What this buys:</strong> a reviewable change-approval artifact your team can check against the uploaded repository and the linked official sources. No speculative downtime-dollar estimate is included.
+  <strong>What this buys:</strong> a reviewable change-approval artifact your team can check against the uploaded repository and the linked rule or package references. No speculative downtime-dollar estimate is included.
 </div>
 
 <div class="guarantee">
   <h3>30-day refund policy</h3>
-  <p><strong>Request a full refund within 30 days.</strong> Email from the purchase address with the Stripe receipt or Checkout Session identifier; no explanation is required.</p>
+  <p><strong>When checkout is open, request a full refund within 30 days.</strong> Email from the purchase address with the Stripe receipt or Checkout Session identifier; no explanation is required.</p>
   <p>If fulfillment permanently fails after retries, the system queues a full refund. Any refund that cannot be confirmed is surfaced for operator review.</p>
 </div>
 
 <h2>Why you can trust the report (without trusting the brand)</h2>
 <div class="grid">
   <div class="cell"><h4>Evidence, not estimates</h4>Each match includes the observed file, line, and text.</div>
-  <div class="cell"><h4>Checkable sources</h4>Each configured rule links the official documentation used for the claim.</div>
+  <div class="cell"><h4>Checkable references</h4>Each finding links its configured rule or package reference; conservative dependency floors still require release and target verification.</div>
   <div class="cell"><h4>Repeatable findings</h4>The evidence fingerprint covers the input hash, rule-pack version, and canonical findings.</div>
   <div class="cell"><h4>Bounded scope</h4>The report says plainly that it does not query AWS or prove a complete inventory.</div>
 </div>
@@ -299,14 +299,15 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 </div>
 
 <h2>How it works</h2>
+<p><strong>When checkout is open:</strong></p>
 <ol>
   <li>Upload a repository ZIP or a supported SAM / CDK / Terraform / Serverless / cloud-init source file (10 MiB compressed maximum)</li>
   <li>We safely inspect supported text files without extracting the archive to disk</li>
   <li>Get a PDF by email after automated processing; delays and retries are possible</li>
-  <li>Verify the evidence metadata at <code>/verify/</code></li>
+  <li>Verify the evidence metadata at <code>/verify/</code> during its retention window of up to 30 days</li>
 </ol>
 
-<p class="reassure">🔒 Secure checkout via Stripe · automated delivery with durable retries · 30-day money-back guarantee</p>
+<p class="reassure">When the readiness gate opens: Stripe checkout · automated delivery with durable retries · 30-day money-back guarantee</p>
 
 <div id="auditGate" class="callout"><strong>Checkout safety check:</strong> waiting for the v2 fulfillment backend. Checkout stays closed unless the live API confirms report engine 2.0.</div>
 <div id="auditInterest" class="callout">
@@ -322,7 +323,7 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
   <p><input type="email" id="auditEmail" name="email" placeholder="your@email.com" required style="padding:0.5rem;width:300px"></p>
   <p><input type="date" id="auditDeadline" name="deadline" style="padding:0.5rem;width:300px" aria-label="Deadline date"></p>
   <p><input type="file" id="auditFile" name="file" required accept=".zip,.yaml,.yml,.json,.tf,.tfvars,.js,.ts,.tsx,.py,.toml,.lock,.sh,.txt"></p>
-  <p class="reassure">Upload limits: 10 MiB input; ZIPs may contain at most 2,000 files and 25 MiB expanded text. Encrypted, path-traversing, binary, and suspiciously compressed archives are rejected before checkout. Do not upload secrets or unrelated personal data.</p>
+  <p class="reassure">Upload limits: 10 MiB input; ZIPs may contain at most 2,000 entries and 25 MiB expanded text. Analysis is also bounded to 500,000 decoded lines, 100,000 mapping records per file, 10,000 Lambda resources per file, 10,000 retained evidence records, and 1 MiB per dependency manifest. Binary archive members are skipped; standalone binary inputs and archives with no supported text are rejected. Encrypted, ambiguous-path, path-traversing, over-complex, and suspiciously compressed archives are rejected before checkout. Do not upload secrets or unrelated personal data.</p>
   <button id="auditSubmit" type="submit">Upload and Proceed to Checkout</button>
   <p class="reassure">By continuing, you authorize this upload to be scanned and agree to the <a href="/legal/terms.html">Terms</a> and <a href="/legal/privacy.html">Privacy Policy</a>. Stripe Checkout shows the final $299 price before payment.</p>
   <p id="auditStatus" style="color:#6b7280;font-size:.875rem"></p>
@@ -432,15 +433,15 @@ auditForm.addEventListener('submit', async (event) => {{
 
 <div class="faq">
 <h2>Questions</h2>
-<details><summary>Why pay when the CLI is free?</summary><p>The CLI is the right choice for hands-on engineers. The paid product packages repository-wide evidence, line locations, prioritization, limitations, and sources into a shareable PDF.</p></details>
+<details><summary>Why pay when the CLI is free?</summary><p>The CLI is the right choice for hands-on engineers. The paid product packages supported-file evidence across the uploaded archive, line locations, prioritization, limitations, and references into a shareable PDF.</p></details>
 <details><summary>Is my code safe?</summary><p>Uploads travel over TLS, are used only for report generation, and are deleted after successful delivery. Unchecked uploads normally expire within 24 hours; checkout-bound uploads are retained for no more than 48 hours so retries can finish. Generated reports expire within 30 days. Prefer no upload? Use the free local tools.</p></details>
-<details><summary>How can I trust the results?</summary><p>Check the exact file/line evidence and official source for each rule. The report carries an input hash and evidence fingerprint. It does not claim to be a digitally signed PDF.</p></details>
+<details><summary>How can I trust the results?</summary><p>Check the exact file/line evidence and the configured rule or package reference for each finding. Dependency floors are conservative triage baselines, not guarantees of target compatibility. The report carries an input hash and evidence fingerprint. It does not claim to be a digitally signed PDF.</p></details>
 <details><summary>How fast is it?</summary><p>Processing is automated, but delivery time depends on queue, runner, and email-provider availability. Failed jobs retry and unresolved failures surface for refund review.</p></details>
 <details><summary>What if it's wrong, or I'm just not happy?</summary><p>Email us within 30 days for a full refund. No questions asked.</p></details>
 </div>
 
 <footer>
-  <p>Automated delivery · file/line evidence · official sources · input hash + evidence fingerprint · 30-day money-back guarantee.</p>
+  <p>File/line evidence · configured references · input hash + evidence fingerprint · checkout and automated delivery remain readiness-gated.</p>
   <p><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/scan/">Free scan</a> · <a href="/audit/sample/">Sample report</a></p>
 </footer>
 </body>
@@ -449,28 +450,20 @@ auditForm.addEventListener('submit', async (event) => {{
 
 
 def build_audit_sample_page(pricing):
-    """A redacted, illustrative sample of the Audit report rendered as HTML — the
-    'see exactly what you get' proof artifact. Static and deterministic; not passed
-    through _interpolate_api (no API origin needed)."""
+    """Landing page for the engine-generated fictional PDF and hash manifest."""
     html = """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sample audit report — EOLkits</title>
-<meta name="description" content="Illustrative EOLkits evidence report format: exact file/line matches, observed reach, remediation order, limitations, and official source links.">
+<meta name="description" content="Illustrative EOLkits evidence report format: exact file/line matches, observed reach, remediation order, limitations, and configured references.">
 <style>
 body{font-family:system-ui,-apple-system,sans-serif;max-width:820px;margin:0 auto;padding:2rem;line-height:1.6;color:#111827}
 .brand{color:#2563eb;font-weight:600}
 .banner{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:.75rem 1rem;margin:1rem 0;font-size:.9rem}
+.download{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:1rem;margin:1rem 0}
 .meta{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:1rem;margin:1rem 0;font-size:.9rem}
-table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.92rem}
-th,td{border:1px solid #e5e7eb;padding:.5rem .6rem;text-align:left;vertical-align:top}
-th{background:#f3f4f6}
-.sev{font-weight:700;white-space:nowrap}
-.crit{color:#dc2626}
-.high{color:#ea580c}
-.med{color:#ca8a04}
 .cta{display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:.7rem 1.2rem;border-radius:6px;font-weight:600;margin:1rem 0}
 code{background:#f3f4f6;padding:.1rem .3rem;border-radius:4px}
 footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:.875rem}
@@ -479,41 +472,34 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 <body>
 <a href="/audit/" class="brand">← Back to Audit</a>
 <div class="banner"><strong>ILLUSTRATIVE SAMPLE.</strong> This fictional repository shows the v2 report format. It is not a customer report or evidence of a live AWS account scan.</div>
+<div class="download"><strong>Inspect the actual engine output.</strong><br><a class="cta" href="/audit/sample/eolkits-sample-report.pdf">Download the sample PDF</a><br><a href="/audit/sample/fictional-repository.zip">Fictional input ZIP</a> · <a href="/audit/sample/eolkits-sample-report.json">SHA-256 and evidence manifest</a></div>
 <h1>AWS deprecation evidence report</h1>
 <div class="meta">
   <div><strong>Uploaded artifact:</strong> <code>fictional-repository.zip</code></div>
-  <div><strong>Observed scope:</strong> 6 supported text files; 1 unsupported binary skipped</div>
-  <div><strong>Input SHA-256:</strong> <code>3f9a…c1e2</code></div>
-  <div><strong>Evidence fingerprint:</strong> <code>8b74…91aa</code> — metadata lookup at <code>/verify/</code></div>
-  <div><strong>Findings:</strong> 4 distinct risk types · 6 file/line evidence records</div>
+  <div><strong>Format:</strong> 4-page engine-generated PDF</div>
+  <div><strong>Observed scope:</strong> 4 supported text files; 1 unsupported README skipped</div>
+  <div><strong>Hashes:</strong> the downloadable manifest records the complete input SHA-256, PDF SHA-256, and evidence fingerprint.</div>
+  <div><strong>Findings:</strong> 4 distinct risk types · 5 file/line evidence records</div>
 </div>
 
 <div class="banner"><strong>Scope limitation:</strong> static uploaded-source scan only. No AWS account was queried; resource inventory and runtime behavior are not inferred.</div>
 
-<h2>Prioritized findings</h2>
-<table>
-<tr><th>Severity</th><th>Finding</th><th>Observed location</th><th>Official source</th></tr>
-<tr><td class="sev crit">Critical</td><td>Amazon Linux 2 dependency</td><td><code>infra/main.tf:12</code><br><code>images/Dockerfile:1</code></td><td><a href="https://aws.amazon.com/amazon-linux-2/faqs/">Amazon Linux 2 FAQ</a></td></tr>
-<tr><td class="sev crit">Critical</td><td><code>distutils</code> removed in Python 3.12</td><td><code>src/compat.py:2</code></td><td><a href="https://docs.python.org/3/whatsnew/3.12.html#distutils">Python 3.12 changes</a></td></tr>
-<tr><td class="sev high">High</td><td><code>amazon-linux-extras</code> removed in AL2023</td><td><code>scripts/bootstrap.sh:4</code></td><td><a href="https://docs.aws.amazon.com/linux/al2023/ug/compare-with-al2.html">AWS AL2/AL2023 comparison</a></td></tr>
-<tr><td class="sev high">High</td><td>Lambda Python 3.9 runtime reference</td><td><code>template.yaml:18</code><br><code>serverless.yml:9</code></td><td><a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html">Lambda runtime table</a></td></tr>
-</table>
-
-<h2>Roll-forward roadmap</h2>
-<ol>
-  <li>Replace the two observed AL2 image references and remove the incompatible Extras command; validate a rebuilt image in staging.</li>
-  <li>Replace the observed <code>distutils</code> import and run the Python test suite on the target runtime.</li>
-  <li>Update the two observed Lambda runtime fields, rebuild dependencies, and deploy through the repository's normal canary/rollback controls.</li>
-</ol>
+<h2>What is inside the PDF</h2>
+<ul>
+  <li>Engine-ranked findings with exact observed file/line evidence</li>
+  <li>Observed reach, remediation notes, and a configured reference per finding</li>
+  <li>Explicit scan scope, skipped-file count, limitations, and roll-forward order</li>
+  <li>The same input hash and evidence fingerprint recorded in the manifest above</li>
+</ul>
 
 <h2>What the report does not claim</h2>
 <p>It does not estimate downtime dollars, count deployed instances/functions, inspect omitted files, or guarantee that a match is reachable at runtime. Those facts require environment-specific validation.</p>
 
-<a class="cta" href="/audit/">Get this report for your own stack — from $299 →</a>
+<a class="cta" href="/audit/?source=audit_sample&amp;utm_source=audit_sample&amp;utm_medium=proof">Review the fixed $299 scope and availability →</a>
 <p><a href="/scan/">Or run the free scan first →</a></p>
 
 <footer>
-  <p>Production reports include exact observed evidence, rule sources, input SHA-256, and a deterministic evidence fingerprint. The PDF itself is not digitally signed.</p>
+  <p>Production reports include exact observed evidence, configured rule or package references, input SHA-256, and a deterministic evidence fingerprint. The PDF itself is not digitally signed.</p>
   <p><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></p>
 </footer>
 </body>
@@ -588,6 +574,14 @@ def load_deprecations():
             ):
                 raise ValueError(
                     f"rules/public/deprecations.yml: deprecations[{index}] needs an HTTPS primary-source url"
+                )
+            if "lambda" in (
+                str(entry.get("service") or "") + " " + " ".join(entry.get("tags") or [])
+            ).lower() and not re.fullmatch(
+                r"\d{4}-\d{2}-\d{2}", str(entry.get("deprecation_date") or "")
+            ):
+                raise ValueError(
+                    f"rules/public/deprecations.yml: deprecations[{index}] needs a Lambda deprecation_date"
                 )
         return data
     return {"deprecations": []}
@@ -827,7 +821,7 @@ def build_llms_txt(deprecations, pricing_view):
             )
         lines.append(
             f"- [Free in-browser scanner]({SITE_URL}/scan/): drop IaC / dependency files "
-            f"to find deprecated runtimes and incompatible dependencies locally — nothing uploaded."
+            f"to find deprecated runtimes and incompatible dependencies locally. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent."
         )
 
     lines += [
@@ -838,7 +832,7 @@ def build_llms_txt(deprecations, pricing_view):
         "git clone https://github.com/ntoledo319/EOLkits",
         f"- [Audit PDF]({SITE_URL}/audit/): ${pricing_view['audit_pdf']['base']} "
         f"— one repository ZIP or supported source file; exact file/line evidence, "
-        f"remediation order, source links, and a deterministic evidence fingerprint.",
+        f"remediation order, configured references, and a deterministic evidence fingerprint.",
         "- No subscription, AWS-account inventory, or automated pull-request product is for sale.",
         "",
         "## Calendar",
@@ -889,6 +883,7 @@ def build_lambda_schedule_page(deprecations, pricing_view):
         name = _h.escape(str(d.get("name", "")))
         slug = deprecation_slug(d)
         rt = _h.escape(_runtime_id_from_name(str(d.get("name", ""))) or name)
+        deprecated = _h.escape(str(d.get("deprecation_date") or "—"))
         create = _h.escape(str(d.get("date") or "—"))
         update = _h.escape(str(d.get("block_update_date") or "—"))
         sev = _h.escape(str(d.get("severity", "")))
@@ -897,7 +892,7 @@ def build_lambda_schedule_page(deprecations, pricing_view):
         src = _h.escape(str(d.get("url", "")))
         rows += (
             '<tr><td><a href="/migrate/' + slug + '/"><code>' + rt + "</code></a></td>"
-            "<td>" + create + "</td><td>" + update + "</td>"
+            "<td>" + deprecated + "</td><td>" + create + "</td><td>" + update + "</td>"
             '<td class="sev sev-' + sev + '">' + sev + "</td>"
             "<td><code>" + target + "</code></td>"
             '<td><a href="' + src + '" target="_blank" rel="noopener nofollow">AWS</a></td></tr>'
@@ -919,7 +914,7 @@ def build_lambda_schedule_page(deprecations, pricing_view):
                 "name": "How do I find which Lambda runtimes I'm using?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Run the free scanner at eolkits.com/scan over your SAM/CDK/Terraform/Serverless config (nothing is uploaded), or run: aws lambda list-functions --query 'Functions[].Runtime'.",
+                    "text": "Run the free scanner at eolkits.com/scan over your SAM/CDK/Terraform/Serverless config; file names and contents are not uploaded, while bounded aggregate file and finding counts may be sent. Or run: aws lambda list-functions --query 'Functions[].Runtime'.",
                 },
             },
             {
@@ -952,15 +947,15 @@ def build_lambda_schedule_page(deprecations, pricing_view):
         "<h1>AWS Lambda runtime deprecation schedule (2026–2027)</h1>\n"
         "<p>For the runtimes EOLkits tracks: when patches stop, when AWS says it will block <strong>creating</strong> new functions, when it will block <strong>updating</strong> existing ones, and the target currently supported by these bounded tools. Each row links the AWS source; future dates can change.</p>\n"
         '<p><a class="cta" href="/scan/">Scan your stack free — find your deprecated runtimes →</a></p>\n'
-        '<p>Prefer a 10-second check? Paste your config into the <a href="/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>\n'
-        '<table class="sched"><thead><tr><th>Runtime</th><th>Blocks create</th><th>Blocks update</th><th>Severity</th><th>EOLkits target</th><th>Source</th></tr></thead><tbody>\n'
+        '<p>Prefer a 10-second check? Paste your config into the <a href="/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>\n'
+        '<table class="sched"><thead><tr><th>Runtime</th><th>Deprecation</th><th>Blocks create</th><th>Blocks update</th><th>Severity</th><th>EOLkits target</th><th>Source</th></tr></thead><tbody>\n'
         + rows
         + "\n</tbody></table>\n"
         '<p class="muted">Functions keep running after deprecation, but become unpatched and — after the block-update date — unmodifiable. Dates reflect the AWS-published schedule and can shift; the linked AWS page is authoritative.</p>\n'
         "<h2>Fixing the upgrade</h2>\n"
         '<p>The upgrade can surface specific errors — removed stdlib modules, the unbundled AWS SDK v2 on Node 18+, native-wheel/ABI breaks. See <a href="/fix/">common migration error fixes</a>, or check the <a href="/audit/">repository evidence report ($'
         + str(audit_base)
-        + ", 30-day money-back)</a> for exact file/line matches, source links, and a remediation order.</p>\n"
+        + ", 30-day money-back)</a> for exact file/line matches, configured references, and a remediation order.</p>\n"
         '<p><a href="/migrate/">See all tracked AWS deadlines →</a></p>\n'
         "</body>\n</html>\n"
     )
@@ -968,8 +963,8 @@ def build_lambda_schedule_page(deprecations, pricing_view):
 
 def build_eol_checker_page(deprecations, pricing_view):
     """Free interactive tool: paste your runtimes / IaC (or click chips) and instantly see
-    which are past AWS end-of-life and when AWS blocks them. Runs entirely client-side —
-    nothing is uploaded. The dataset is baked from the cited deprecations.yml, so the built
+    which are past AWS end-of-life and when AWS blocks them. Input processing is entirely
+    client-side; bounded first-party usage events may be sent. The dataset is baked from the cited deprecations.yml, so the built
     HTML is static & deterministic (the day-countdown is computed in the browser). A linkable,
     shareable top-of-funnel asset that routes to the free /scan and the paid /audit."""
     ap = pricing_view.get("audit_pdf", {}) if isinstance(pricing_view, dict) else {}
@@ -1093,7 +1088,7 @@ def build_eol_checker_page(deprecations, pricing_view):
         '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
         "<title>AWS runtime EOL checker — is your Lambda runtime or Amazon Linux deprecated? | EOLkits</title>\n"
-        '<meta name="description" content="Free, instant check: paste your AWS Lambda runtimes or IaC (or click your runtime) and see which are past end-of-life and when AWS blocks creating/updating functions. Nothing uploaded. Dates from the AWS runtime deprecation table.">\n'
+        '<meta name="description" content="Free, instant check: paste AWS Lambda runtimes or IaC and see tracked deprecation milestones. Pasted input is not uploaded; bounded first-party usage events may be sent.">\n'
         '<link rel="canonical" href="' + SITE_URL + '/eol-checker/">\n'
         '<link rel="stylesheet" href="/style.css">\n'
         '<script defer src="/track.js"></script>\n'
@@ -1112,7 +1107,7 @@ def build_eol_checker_page(deprecations, pricing_view):
         '<body class="container article">\n'
         '<nav class="breadcrumb"><a href="/">Home</a> / <a href="/migrate/">Deadlines</a> / <span>EOL checker</span></nav>\n'
         "<h1>Is your AWS runtime past end-of-life?</h1>\n"
-        '<p>Paste your SAM / CloudFormation / Terraform / Serverless config (or a list of runtimes), or click the runtimes you use. This checks them against EOLkits\' cited snapshot of the <a href="/lambda-runtime-deprecation-schedule/">AWS runtime deprecation schedule</a> and shows the tracked create/update block dates. <strong>Runs in your browser — nothing is uploaded.</strong></p>\n'
+        '<p>Paste your SAM / CloudFormation / Terraform / Serverless config (or a list of runtimes), or click the runtimes you use. This checks them against EOLkits\' cited snapshot of the <a href="/lambda-runtime-deprecation-schedule/">AWS runtime deprecation schedule</a> and shows the tracked create/update block dates. <strong>Pasted input stays in your browser; bounded first-party usage events may be sent.</strong></p>\n'
         '<div id="chips"></div>\n'
         '<textarea id="inp" placeholder="Paste template.yaml / serverless.yml / *.tf here — e.g. Runtime: nodejs20.x, python3.9, FROM amazonlinux:2 ..."></textarea>\n'
         '<p><button id="go">Check my runtimes</button></p>\n'
@@ -1413,7 +1408,7 @@ def build_index_page(pricing):
     <div class="container">
       <div class="eyebrow">AWS runtime &amp; OS EOLs that break production</div>
       <h1>Find high-impact AWS deprecation risks in your source — free.</h1>
-      <p class="lede">The browser scanner checks configured Lambda runtime and Node/Python dependency patterns without uploading file contents. Repository CLIs add their documented operating-system checks. The $299 evidence report adds repository-wide file/line evidence, remediation order, sources, and explicit scope limitations.</p>
+      <p class="lede">The browser scanner checks configured Lambda runtime and Node/Python dependency patterns without uploading file contents. Repository CLIs add their documented operating-system checks. When its readiness gate is open, the $299 evidence report adds file/line evidence across supported files in the uploaded archive, remediation order, configured references, and explicit scope limitations.</p>
       <div class="cta-row">
         <a class="btn-primary" href="/scan/">Run the free scan</a>
         <a class="btn-secondary" href="https://github.com/ntoledo319/EOLkits">Clone the CLIs</a>
@@ -1472,7 +1467,7 @@ def build_index_page(pricing):
         <article class="pricing-card featured">
           <h3>Audit PDF</h3>
           <div class="price">${audit["base"]}</div>
-          <p>One repository ZIP or source file: exact file/line evidence, observed reach, remediation order, official sources, and an evidence fingerprint. 30-day money-back.</p>
+          <p>One repository ZIP or source file: exact file/line evidence, observed reach, remediation order, configured references, and an evidence fingerprint. 30-day money-back.</p>
           <a class="btn-primary" href="/audit/">Check availability</a>
           <p class="small"><a href="/audit/sample/">See a sample report →</a></p>
         </article>
@@ -2064,8 +2059,8 @@ def _runtime_id_from_name(name: str):
 
 _SCAN_JS = r"""
 const $ = (s) => document.querySelector(s);
-const RT_RE = /(?:runtime\s*[:=]\s*["']?)(nodejs\d+\.x|python\d+\.\d+|ruby\d+\.\d+|java\d+|dotnet\d+|dotnetcore\d+\.\d+|go\d+\.x|provided\.al\d+|provided)\b/gi;
-const CDK_RE = /Runtime\.(NODEJS|PYTHON|RUBY|JAVA|DOTNET|GO)_(\d+)(?:_(\d+))?(?:_X)?/gi;
+const RT_VALUE_RE = /^(nodejs\d+\.x|python\d+\.\d+|ruby\d+\.\d+|java\d+|dotnet\d+|dotnetcore\d+\.\d+|go\d+\.x|provided\.al\d+|provided)\b/i;
+const CDK_VALUE_RE = /Runtime\.(NODEJS|PYTHON|RUBY|JAVA|DOTNET|GO)_(\d+)(?:_(\d+))?(?:_X)?/i;
 function cdkId(l, a, b) { l = l.toLowerCase(); if (l === 'nodejs') return 'nodejs' + a + '.x'; if (l === 'python') return 'python' + a + '.' + (b || '0'); if (l === 'ruby') return 'ruby' + a + '.' + (b || '0'); return l + a; }
 function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 function classify(name) {
@@ -2079,10 +2074,141 @@ function vtuple(v) { return (v || '').replace(/^[^\d]*/, '').split(/[.\-+]/).map
 function vlt(a, b) { const A = vtuple(a), B = vtuple(b); for (let i = 0; i < Math.max(A.length, B.length); i++) { const x = A[i] || 0, y = B[i] || 0; if (x < y) return true; if (x > y) return false; } return false; }
 function cleanV(v) { return v ? v.replace(/^[\^~>=<\s]+/, '') : null; }
 function extractMin(spec) { if (!spec) return null; for (const op of ['==', '>=']) { for (let part of spec.split(',')) { part = part.trim(); if (part.indexOf(op) === 0) return part.slice(op.length).trim(); } } return null; }
+function runtimeId(value) {
+  const cleaned = String(value || '').trim().replace(/^['"]/, '');
+  const m = cleaned.match(RT_VALUE_RE);
+  return m ? m[1].toLowerCase() : null;
+}
+function configRecords(c) {
+  const records = [], stack = [], lines = c.split(/\r?\n/); let documentId = 0;
+  const keyRe = /^([ \t]*)(["']?)([A-Za-z0-9_.-]+)\2\s*:\s*(.*)$/;
+  for (let i = 0; i < lines.length; i++) {
+    if (/^[ \t]*(?:---|\.\.\.)[ \t]*(?:#.*)?$/.test(lines[i])) { stack.length = 0; documentId++; continue; }
+    const m = lines[i].match(keyRe); if (!m) continue;
+    const indent = m[1].replace(/\t/g, '        ').length;
+    while (stack.length && stack[stack.length - 1][0] >= indent) stack.pop();
+    const key = m[3].toLowerCase();
+    const raw = m[4].replace(/\s+#.*$/, '').trim().replace(/,$/, '').trim();
+    let value = raw;
+    if (value.length >= 2 && ((value[0] === '"' && value[value.length - 1] === '"') || (value[0] === "'" && value[value.length - 1] === "'"))) value = value.slice(1, -1);
+    const path = stack.slice(-8).map((item) => item[1]).concat([key]);
+    records.push({ documentId, line: i + 1, key, value, path });
+    if (raw === '' || raw === '{') stack.push([indent, key]);
+  }
+  return records;
+}
+function samePath(left, right) { return left.length === right.length && left.every((value, index) => value === right[index]); }
+function samDocuments(c) {
+  const documents = new Set(); let documentId = 0, pendingIndent = null;
+  for (const line of c.split(/\r?\n/)) {
+    if (/^[ \t]*(?:---|\.\.\.)[ \t]*(?:#.*)?$/.test(line)) { documentId++; pendingIndent = null; continue; }
+    const transform = line.match(/^([ \t]*)["']?Transform["']?\s*:\s*(.*)$/i);
+    if (transform) {
+      const value = transform[2].replace(/\s+#.*$/, '').trim();
+      if (/AWS::Serverless-/i.test(value)) documents.add(documentId);
+      pendingIndent = value ? null : transform[1].replace(/\t/g, '        ').length;
+      continue;
+    }
+    if (pendingIndent === null || !line.trim()) continue;
+    const indent = (line.match(/^[ \t]*/) || [''])[0].replace(/\t/g, '        ').length;
+    if (indent <= pendingIndent) pendingIndent = null;
+    else if (/^[ \t]*-[ \t]*["']?AWS::Serverless-/i.test(line)) { documents.add(documentId); pendingIndent = null; }
+  }
+  return documents;
+}
+function yamlLambdaRuntimes(c, found) {
+  const records = configRecords(c), resources = new Set(), providers = new Set(), sam = samDocuments(c);
+  for (const r of records) {
+    if (r.key === 'type' && /^(AWS::Lambda::Function|AWS::Serverless::Function)$/i.test(r.value) && r.path.includes('resources')) resources.add(r.documentId + '\u0000' + r.path.slice(0, -1).join('\u0000'));
+    if (samePath(r.path, ['provider', 'name']) && r.value.toLowerCase() === 'aws') providers.add(r.documentId);
+  }
+  for (const r of records) {
+    if (r.key !== 'runtime') continue;
+    const resourceRuntime = r.path.length >= 3 && samePath(r.path.slice(-2), ['properties', 'runtime']) && resources.has(r.documentId + '\u0000' + r.path.slice(0, -2).join('\u0000'));
+    const samGlobal = sam.has(r.documentId) && samePath(r.path, ['globals', 'function', 'runtime']);
+    const serverless = providers.has(r.documentId) && (samePath(r.path, ['provider', 'runtime']) || (r.path.length === 3 && r.path[0] === 'functions' && r.path[2] === 'runtime'));
+    if (resourceRuntime || samGlobal || serverless) { const id = runtimeId(r.value); if (id) found.add(id); }
+  }
+}
+function jsonLambdaRuntimes(c, found) {
+  const stripped = c.trim(); if (stripped.includes('\n') || stripped.length > 1048576 || stripped[0] !== '{') return;
+  let document; try { document = JSON.parse(stripped); } catch (e) { return; }
+  if (!document || Array.isArray(document) || typeof document !== 'object') return;
+  const resources = document.Resources;
+  if (resources && typeof resources === 'object' && !Array.isArray(resources)) for (const key in resources) {
+    const resource = resources[key], type = resource && resource.Type, properties = resource && resource.Properties;
+    if (!/^AWS::(?:Lambda|Serverless)::Function$/i.test(String(type || '')) || !properties || typeof properties !== 'object') continue;
+    const id = runtimeId(properties.Runtime); if (id) found.add(id);
+  }
+  const transforms = Array.isArray(document.Transform) ? document.Transform : [document.Transform];
+  const globals = document.Globals && document.Globals.Function;
+  if (transforms.some((item) => typeof item === 'string' && item.toLowerCase().startsWith('aws::serverless-')) && globals && typeof globals === 'object') {
+    const id = runtimeId(globals.Runtime); if (id) found.add(id);
+  }
+}
+function hclCodeLines(c) {
+  const output = []; let block = false, heredoc = null;
+  for (const original of c.split(/\r?\n/)) {
+    if (heredoc) { const candidate = heredoc[1] ? original.trim() : original; if (candidate === heredoc[0]) heredoc = null; output.push([original, ' '.repeat(original.length)]); continue; }
+    const visible = [...original]; let quote = null, escaped = false, i = 0;
+    while (i < original.length) {
+      const ch = original[i], pair = original.slice(i, i + 2);
+      if (block) { visible[i] = ' '; if (pair === '*/') { visible[i + 1] = ' '; block = false; i += 2; continue; } i++; continue; }
+      if (quote) { visible[i] = ' '; if (escaped) escaped = false; else if (ch === '\\') escaped = true; else if (ch === quote) quote = null; i++; continue; }
+      if (pair === '/*') { visible[i] = visible[i + 1] = ' '; block = true; i += 2; continue; }
+      if (pair === '//' || ch === '#') { for (let j = i; j < visible.length; j++) visible[j] = ' '; break; }
+      if (ch === '"' || ch === "'") { visible[i] = ' '; quote = ch; }
+      i++;
+    }
+    const code = visible.join(''), marker = code.match(/<<(-?)([A-Za-z_][A-Za-z0-9_]*)/);
+    if (marker) heredoc = [marker[2], marker[1] === '-'];
+    output.push([original, code]);
+  }
+  return output;
+}
+function terraformLambdaRuntimes(c, found) {
+  let inside = false, depth = 0, structuralEvents = 0;
+  const declaration = /\bresource\s+["']aws_lambda_function["']\s+["'][^"']+["']\s*\{/i;
+  for (const pair of hclCodeLines(c)) {
+    const original = pair[0], code = pair[1], declarationMatch = inside ? null : original.match(declaration);
+    const visibleResource = inside ? -1 : code.search(/\bresource\s+/i);
+    const resource = declarationMatch && declarationMatch.index === visibleResource ? declarationMatch : null;
+    if (resource) { inside = true; depth = 0; }
+    if (!inside) continue;
+    let position = resource ? resource.index : 0;
+    while (position < code.length) {
+      const character = code[position];
+      if (character === '{') { depth++; structuralEvents++; }
+      else if (character === '}') { depth--; structuralEvents++; }
+      else if (depth === 1 && code.slice(position, position + 7).toLowerCase() === 'runtime') {
+        const key = code.slice(position).match(/^\bruntime\b\s*=/i);
+        if (!key) { position++; continue; }
+        const runtime = original.slice(position).match(/^\bruntime\b\s*=\s*["']?([^"'\s}]+)/i), id = runtime && runtimeId(runtime[1]);
+        if (id) found.add(id); position += key[0].length; structuralEvents++;
+        if (structuralEvents > 100000) return;
+        continue;
+      }
+      if (structuralEvents > 100000) return;
+      if (depth <= 0 && character === '}') { inside = false; break; }
+      position++;
+    }
+  }
+}
+function explicitLambdaRuntimes(c, found) {
+  const importedRuntime = /(?:aws-cdk-lib|@aws-cdk)\/aws-lambda|from\s+aws_cdk\.aws_lambda\s+import[^\n]*\bRuntime\b|software\.amazon\.awscdk\.services\.lambda\.Runtime|Amazon\.CDK\.AWS\.Lambda/i.test(c);
+  for (const line of c.split(/\r?\n/)) {
+    const cli = line.match(/\baws\s+lambda\b[^\n]*--runtime(?:\s+|=)["']?([^"'\s]+)/i); const cliId = cli && runtimeId(cli[1]); if (cliId) found.add(cliId);
+    const qualified = line.match(/\bruntime\b\s*[:=(]\s*(?:aws_)?_?lambda\.(Runtime\.[A-Z0-9_]+)/i);
+    const imported = importedRuntime && line.match(/\bruntime\b\s*[:=(]\s*(Runtime\.[A-Z0-9_]+)/i);
+    const cdk = qualified || imported; const match = cdk && cdk[1].match(CDK_VALUE_RE); const id = match && cdkId(match[1], match[2], match[3]); if (id) found.add(id);
+  }
+}
 function scanIaC(file, c) {
-  const f = new Set(), out = []; let m;
-  RT_RE.lastIndex = 0; while ((m = RT_RE.exec(c))) f.add(m[1].toLowerCase());
-  CDK_RE.lastIndex = 0; while ((m = CDK_RE.exec(c))) { const id = cdkId(m[1], m[2], m[3]); if (id) f.add(id); }
+  const f = new Set(), out = [];
+  yamlLambdaRuntimes(c, f);
+  jsonLambdaRuntimes(c, f);
+  terraformLambdaRuntimes(c, f);
+  explicitLambdaRuntimes(c, f);
   f.forEach((rt) => {
     const d = DATA.runtimes[rt];
     if (d) out.push({ kind: 'runtime', file, name: rt, severity: d.historical ? 'critical' : (d.severity || 'high'), date: d.date, kit: d.kit, historical: d.historical, note: d.historical ? 'Past a published milestone; recheck the linked provider status and enforcement dates.' : 'Runtime with an AWS-published deprecation and create/update restriction timeline.' });
@@ -2178,7 +2304,7 @@ def build_scan_page(deprecations):
         '<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
         "<title>Free AWS Lambda Runtime &amp; Dependency EOL Scanner — EOLkits</title>\n"
-        '<meta name="description" content="Drop SAM/CDK/Terraform/Serverless, package.json, or requirements files to find tracked AWS Lambda runtime and native-dependency migration risks. Runs entirely in your browser — nothing is uploaded.">\n'
+        '<meta name="description" content="Drop SAM/CDK/Terraform/Serverless, package.json, or requirements files to find tracked AWS Lambda runtime and native-dependency migration risks. File names and contents are not uploaded; bounded aggregate counts may be sent.">\n'
         f'<link rel="canonical" href="{SITE_URL}/scan/">\n'
         '<link rel="stylesheet" href="/style.css">\n'
         '<script defer src="/track.js"></script>\n' + _og_image_meta() + "<style>"
@@ -2213,7 +2339,7 @@ def build_scan_page(deprecations):
         "<li><strong>Python wheels</strong> (numpy, pandas, cryptography&hellip;) that need a bump for a Python&nbsp;3.12 runtime.</li>"
         "</ul>\n"
         '<p>Hit a specific error message? See <a href="/fix/">common AWS migration error fixes &rarr;</a></p>\n'
-        "<p><small>This free scan covers configured high-impact source patterns. The paid report accepts one repository ZIP or source file and adds exact line evidence, sources, a remediation order, and explicit limitations. It does not query your AWS account.</small></p>\n"
+        "<p><small>This free scan covers configured high-impact source patterns. The paid report accepts one repository ZIP or source file and adds exact line evidence, configured references, a remediation order, and explicit limitations. It does not query your AWS account.</small></p>\n"
     )
     tail = "</body>\n</html>\n"
     return (
@@ -2264,7 +2390,7 @@ def _fix_audit_link(slug, kit, deadline):
     return "/audit/?" + urlencode(q)
 
 
-def build_error_pages(fixes, deprecations, full_pricing):
+def build_error_pages(fixes, deprecations, _full_pricing):
     """M2: deterministic /fix/<slug> pages keyed on REAL, paste-able error strings.
     Each entry carries a source for its core claim and cross-links the bounded
     scanner, related milestone, and capability-gated Audit path."""
@@ -2272,12 +2398,6 @@ def build_error_pages(fixes, deprecations, full_pricing):
 
     if not fixes:
         return {}
-    pricing_view = build_pricing_view(full_pricing)
-    try:
-        ap = pricing_view["audit_pdf"]
-        audit_base = ap["base"] if isinstance(ap, dict) else getattr(ap, "base", None)
-    except Exception:
-        audit_base = None
     dep_by_slug = {deprecation_slug(d): d for d in deprecations.get("deprecations", [])}
 
     pages = {}
@@ -2341,7 +2461,6 @@ def build_error_pages(fixes, deprecations, full_pricing):
                 + "</strong>.</p>\n"
             )
         audit_link = _fix_audit_link(slug, kit, rel_date)
-        cta_price = ("$" + str(audit_base)) if audit_base else "the audit"
 
         head = (
             '<!DOCTYPE html>\n<html lang="en">\n<head>\n'
@@ -2378,8 +2497,8 @@ def build_error_pages(fixes, deprecations, full_pricing):
             + "</ol>\n"
             + rel_html
             + "<h2>Check configured patterns in your project</h2>\n"
-            + '<p>The free <a href="/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags selected related patterns in supported IaC and dependency files. It is not a complete source or AWS-account scan.</p>\n'
-            + '<p>Prefer a 10-second check? Paste your config into the <a href="/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>\n'
+            + '<p>The free <a href="/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>\n'
+            + '<p>Prefer a 10-second check? Paste your config into the <a href="/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>\n'
             + (
                 (
                     '<p>Primary source: <a href="'
@@ -2393,9 +2512,7 @@ def build_error_pages(fixes, deprecations, full_pricing):
             )
             + '<p><a class="fix-cta" href="'
             + audit_link
-            + '">Get repository evidence — '
-            + cta_price
-            + ", exact file/line matches &rarr;</a></p>\n"
+            + '">Inspect the $299 report sample and availability &rarr;</a></p>\n'
             "</body>\n</html>\n"
         )
         pages["fix/" + slug + "/index.html"] = head + body

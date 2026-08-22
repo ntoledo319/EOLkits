@@ -5,6 +5,13 @@ description: Upgraded to nodejs18.x, 20.x, or 22.x on AWS Lambda and a private k
 tags: aws, lambda, node, security
 ---
 
+> [!CAUTION]
+> Archived launch copy — do not publish or reuse. This draft predates the current
+> bounded browser scanner, telemetry disclosure, lifecycle-date corrections, and
+> readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
+> Use the [current README](../../../README.md) and
+> [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+
 You bump the Lambda runtime label from `nodejs16.x` to `nodejs18.x`, `20.x`, or `22.x`. The handler code doesn't change. The private key you've been loading for months — for signing a JWT, terminating TLS, or calling `crypto.createPrivateKey` — suddenly throws:
 
 ```

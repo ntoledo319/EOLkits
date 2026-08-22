@@ -29,11 +29,11 @@
 <p>lib2to3 relied on a grammar that couldn&#x27;t track new syntax; deprecated in 3.11, removed in 3.13. Build tooling or a dependency that imported lib2to3 (often as a code fixer) breaks on a python3.13 runtime.</p>
 <h2>How to fix it</h2>
 <ol class="fix-steps"><li>Replace lib2to3-based fixers with a maintained concrete-syntax-tree library: `LibCST` or `parso`.</li><li>If a dependency pulled in lib2to3 transitively, upgrade it — most have dropped it.</li><li>For a one-off Python 2→3 conversion, run 2to3 from an older Python (≤3.12) before upgrading the runtime.</li><li>Re-test on Python 3.13.</li></ol>
-<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-python-3.11-eol/">Lambda Python 3.11 EOL</a> — <strong>2027-07-31</strong>.</p>
+<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-python-3.11-eol/">Lambda Python 3.11 projected create/update restrictions</a> — <strong>2027-07-31</strong>.</p>
 <h2>Check configured patterns in your project</h2>
-<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags selected related patterns in supported IaC and dependency files. It is not a complete source or AWS-account scan.</p>
-<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
+<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>
+<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
 <p>Primary source: <a href="https://docs.python.org/3/whatsnew/3.13.html" target="_blank" rel="noopener nofollow">https://docs.python.org/3/whatsnew/3.13.html</a></p>
-<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=python-no-module-named-lib2to3&deadline=2027-07-31&kit=python-pivot">Get repository evidence — $299, exact file/line matches &rarr;</a></p>
+<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=python-no-module-named-lib2to3&deadline=2027-07-31&kit=python-pivot">Inspect the $299 report sample and availability &rarr;</a></p>
 </body>
 </html>

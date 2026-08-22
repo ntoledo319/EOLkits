@@ -29,11 +29,11 @@
 <p>Node deprecated the built-in punycode module in favor of the userland package. DEP0040 became a runtime deprecation in Node.js 21, so current runtimes can emit it when code or a transitive dependency imports the built-in module.</p>
 <h2>How to fix it</h2>
 <ol class="fix-steps"><li>In your own code, depend on the userland package: `npm install punycode` then `require(&#x27;punycode/&#x27;)` (note the trailing slash).</li><li>If it comes from a dependency, upgrade it — many libraries have dropped the built-in punycode.</li><li>Find the source with `node --trace-deprecation`.</li><li>It is a warning, not a breaker — but resolve it before the module is removed in a future major.</li></ol>
-<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 EOL</a> — <strong>2027-02-01</strong>.</p>
+<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 create/update restrictions</a> — <strong>2027-02-01</strong>.</p>
 <h2>Check configured patterns in your project</h2>
-<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> runs in your browser (nothing uploaded) and flags selected related patterns in supported IaC and dependency files. It is not a complete source or AWS-account scan.</p>
-<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a> — nothing uploaded.</p>
+<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>
+<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
 <p>Primary source: <a href="https://nodejs.org/api/punycode.html" target="_blank" rel="noopener nofollow">https://nodejs.org/api/punycode.html</a></p>
-<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-punycode-module-deprecated&deadline=2027-02-01&kit=lambda-lifeline">Get repository evidence — $299, exact file/line matches &rarr;</a></p>
+<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-punycode-module-deprecated&deadline=2027-02-01&kit=lambda-lifeline">Inspect the $299 report sample and availability &rarr;</a></p>
 </body>
 </html>
