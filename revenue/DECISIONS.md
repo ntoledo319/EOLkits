@@ -230,3 +230,20 @@ intentional Pages canonical. All twelve non-web jobs passed. Commit b9cf566d
 narrowed the assertion to reject unprefixed and legacy URLs, reproduced the web
 job locally, and passed the replacement release, determinism, property, and
 built-in Pages runs. This failure and correction are release evidence only.
+
+## D18 — make Action v2 usable without impersonating the owner
+
+The repaired README documented `uses: ntoledo319/EOLkits@v2`, but no such ref
+existed because GitHub's Marketplace agreement, publish checkbox, and 2FA are
+owner-controlled. GitHub's official custom-action guidance permits a branch
+named for a release. Create public branch `v2` at the fully verified `3ea1a169`
+tree and verify the raw `action.yml` bytes. This makes direct v2 installs work
+without claiming the Marketplace page has changed.
+
+Prepare, but do not publicly publish, an honest v2.0.0 release draft using a
+path-triggered GitHub workflow and the repository-scoped `GITHUB_TOKEN`. The
+draft targets commit `9d369ccb`; its workflow passed and printed the private
+draft URL. The automation is idempotent and refuses README copy containing the
+retired price claims. Publication remains in HQ-6 because accepting Marketplace
+terms and using the owner's 2FA cannot be delegated, and the public v1.1.0
+listing remains stale until that action occurs.

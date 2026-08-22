@@ -1,9 +1,10 @@
-# Batched owner queue — maximum 45 minutes
+# Batched owner queue — maximum 44 minutes
 
-Last reconciled August 22 after the public Pages probe and replacement CI pass.
+Last reconciled August 22 after the public `v2` ref and private Marketplace draft.
 
-Do these in order. Checkout remains closed until HQ-8. No old handoff or launch
-file is authoritative.
+Do HQ-6 first because it repairs the existing public distribution listing, then
+complete HQ-1 through HQ-5, HQ-7, and finally HQ-8. Checkout remains closed
+until HQ-8. No old handoff or launch file is authoritative.
 
 ## HQ-1 — supply truthful seller/legal and cost facts (3 minutes)
 
@@ -96,22 +97,21 @@ Steps:
    current primary sources and paid-product links point to the gated Audit page.
 5. Do not add new promotional posts in this batch.
 
-## HQ-6 — update the existing GitHub Marketplace Action (3 minutes)
+## HQ-6 — publish the prepared GitHub Marketplace draft (2 minutes)
 
 Why human-only: Marketplace developer agreement, 2FA, and release checkbox.
 
 Steps:
 
-1. After final main CI is green, open
-   https://github.com/ntoledo319/EOLkits/releases/new.
-2. In “Choose a tag,” enter `v2`, choose to create that new tag on publish, and
-   target the final `main` revision. Title the release “Rupture AWS Deprecation
-   Check v2,” review the generated notes, and check “Publish this Action to the
-   GitHub Marketplace.”
-3. Keep the existing Marketplace identity; do not create a second listing.
-4. Save the release and verify
-   https://github.com/marketplace/actions/rupture-aws-deprecation-check shows v2.
-5. On https://github.com/ntoledo319/EOLkits/settings, remove any repository
+1. After final main CI is green, open the private prepared draft directly:
+   https://github.com/ntoledo319/EOLkits/releases/tag/untagged-db9a4617f412abd63d2d
+2. Verify it is v2.0.0 targeting commit `9d369ccb`, check “Publish this Action to
+   the GitHub Marketplace,” keep the existing Marketplace identity, and publish
+   with 2FA. Do not create a second listing or a second release.
+3. Verify
+   https://github.com/marketplace/actions/rupture-aws-deprecation-check shows
+   v2.0.0 and the bounded release copy.
+4. On https://github.com/ntoledo319/EOLkits/settings, remove any repository
    description claiming Amazon Linux 2 instances are necessarily “unpatched.”
 
 Official instructions:
@@ -149,6 +149,6 @@ Steps:
 3. Verify /api/capabilities reports Audit 2.0 ready, then confirm the static form
    appears and creates one $299 input-bound Checkout Session.
 
-Estimated current owner total: 45 minutes. This leaves a 15-minute reserve for
+Estimated current owner total: 44 minutes. This leaves a 16-minute reserve for
 unrecorded prior owner work or one failed authentication attempt; do not exceed
 60 minutes without changing the plan.
