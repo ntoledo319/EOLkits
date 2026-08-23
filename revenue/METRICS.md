@@ -344,3 +344,21 @@ benchmarks, or unverified analytics in this ledger.
   the Marketplace remains v1.1.0; `eolkits.com` still serves the obsolete site
   with `/api/capabilities` returning 404. Paid deliveries, collected revenue,
   and collected profit remain 0 / $0 / $0.
+
+## Cloud cycle observation — 2026-08-23T06:14:19Z
+
+- This cycle ran from an isolated cloud checkout (no VPS/local/Stripe access),
+  so it re-observed nothing about GRACE, Stripe, the Marketplace listing, or
+  `eolkits.com`'s live content; all figures above from 2026-08-22 stand
+  unverified-but-unchanged by this cycle, not re-confirmed.
+- WebFetch returned `EGRESS_BLOCKED` for every domain tested this cycle
+  (`example.com`, `docs.aws.amazon.com`, `repost.aws`, `eolkits.com`).
+  WebSearch worked and was used instead; see D25 for how facts were sourced
+  under that constraint.
+- Shipped: two new drafted, unposted answers appended to
+  `launch/distribution/repost-answers.md` (Batch 3) for real open AWS re:Post
+  threads (`QUz3FDy7jfQliBFrh_hKZoaQ`, `QUqvfJVhQ4ReeApG8shtcu1A`) found via
+  live search this cycle. This is backlog inventory, not a post, view, click,
+  signup, or dollar — no external event to record yet.
+- Paid reports delivered: 0. Collected revenue: $0. Collected profit: $0. Gap
+  to $4,000 target: $4,000, unchanged.

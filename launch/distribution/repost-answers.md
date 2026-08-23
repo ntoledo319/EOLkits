@@ -1,6 +1,10 @@
-# ARCHIVED — DO NOT POST
+# Batches 1–2 below: ARCHIVED — DO NOT POST
 
-Targets and answers are stale and require fresh manual policy and fact review.
+Targets and answers in Batches 1 and 2 are stale (drafted 2026-07 to 2026-08-22) and require fresh manual
+policy and fact review before use. **Batch 3, appended 2026-08-23 at the bottom of this file, is fresh and
+ready to post** — it was drafted from questions found via live search on drafting day, with URLs and dates
+verified against this cycle's established facts. Re-verify each URL still resolves and still lacks a
+better answer before pasting, since time may have passed since drafting.
 
 # Historical answer research
 
@@ -63,3 +67,97 @@ Each item below is a **real person asking about this exact EOL right now**. Post
 - Stack Overflow: `[amazon-linux] end of life`, `nodejs20.x lambda deprecated`, `No module named 'distutils' lambda`
 - AWS re:Post tag: https://repost.aws/tags/questions/TAl4y_oRX1RjmpJJGVndhKtA (Amazon Linux)
 - Each answer must be **unique** and **help-first**. One good answer > ten copy-pasted ones.
+
+---
+
+# Batch 3 — drafted 2026-08-23, fresh and ready to post
+
+Found via search this cycle; not duplicates of batch 1/2 (different threads, different questions). Same
+rules apply: post from your own account, lead with the fix, one disclosed link, never cross-post the same
+text. Dates below match the current AWS Lambda runtimes table
+(https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html) as of this drafting date — AWS has
+revised block-create/block-update dates for this cluster more than once, so re-check the live table before
+posting if it's been more than a few days.
+
+Links point to `https://ntoledo319.github.io/EOLkits/...` (the verified GitHub Pages build), not
+`eolkits.com` — this drafting cycle had no way to independently confirm the custom domain is serving the
+repaired, truthful site (network egress to eolkits.com was unavailable), while Pages is confirmed repaired
+per `revenue/DECISIONS.md` D19/D20. If `eolkits.com` is confirmed fully repaired and stable by the time you
+post, swapping the domain in is fine — the paths are identical.
+
+## 1 — [Action Required] AWS Lambda end of support for Node.js 18 - referenced functions no longer exist
+
+Post at: https://repost.aws/questions/QUz3FDy7jfQliBFrh_hKZoaQ/action-required-aws-lambda-end-of-support-for-node-js-18-referenced-functions-no-longer-exist
+
+> If the Health Dashboard event is listing ARNs for functions you're sure you already deleted, the most
+> common cause is **Lambda@Edge replicas**. When a Lambda@Edge function is associated with a CloudFront
+> distribution, AWS replicates it to regions/edge locations near your viewers. Deleting the "parent" function
+> in its home region — or deleting the CloudFormation stack that created it — does **not** delete those
+> replicas by itself. AWS only allows replica deletion after every CloudFront association is removed and
+> propagation finishes, which can take hours; if a distribution was deleted while still referencing the
+> function, or the stack teardown raced the CloudFront propagation, the replica (and the deprecation notice
+> tied to it) can outlive what you see in your own account/region view.
+>
+> To confirm and clear it:
+> 1. Check the exact ARN in the Health event — a Lambda@Edge replica ARN includes a version suffix and
+>    typically shows up in `us-east-1` regardless of where you deployed it.
+>    `aws lambda get-function --region us-east-1 --function-name <name>:<version>` will tell you if it still
+>    exists and which CloudFront distributions (if any) still reference it.
+> 2. If a distribution still lists the association, remove it (or delete the distribution) and wait — AWS's
+>    own guidance is the replica becomes deletable a few hours after the last association is removed:
+>    https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-edge-delete-replicas.html
+> 3. If the function is confirmed gone from every region/account you control and the notice still won't
+>    clear, that's a Health Dashboard sync lag, not something in your account — AWS Support can force-refresh
+>    it.
+> 4. Separately, to see every *real*, still-existing function on a deprecated runtime (not just what the
+>    Health event lists), AWS has an official CLI/console method:
+>    https://docs.aws.amazon.com/lambda/latest/dg/runtimes-list-deprecated.html
+>
+> On the runtime itself: `nodejs18.x` stopped receiving security patches on 2025-09-01. Per the current AWS
+> runtimes table, block-create and block-update for this cluster (nodejs16.x/18.x/20.x plus python3.8/3.9)
+> now land 2027-02-01 and 2027-03-03 — but AWS has pushed these dates back more than once already, so treat
+> the live table as the source of truth, not this comment.
+>
+> If it's useful for auditing every function across regions in one pass (not just what Health Dashboard
+> surfaces), I maintain a free, open-source scanner — nothing uploaded, MIT licensed (disclosure: I built it):
+> https://ntoledo319.github.io/EOLkits/scan/
+
+## 2 — How can I use Amazon Linux 2023 for AWS CodeBuild Runner Projects? Still getting AL2
+
+Post at: https://repost.aws/questions/QUqvfJVhQ4ReeApG8shtcu1A/how-can-i-use-amazon-linux-2023-for-aws-codebuild-runner-projects-still-getting-al2
+
+> This is almost always a `runs-on` labeling issue, not a project-level default. AWS's CodeBuild-hosted
+> GitHub Actions runner picks the compute image from **labels in the workflow YAML itself**, and if you don't
+> specify an image label it falls back to the AL2-based default rather than AL2023.
+>
+> To pin AL2023 explicitly, add an `image:` label alongside your runner label in `runs-on:`:
+>
+> ```yaml
+> jobs:
+>   build:
+>     runs-on:
+>       - codebuild-<your-fleet-name>-${{ github.run_id }}-${{ github.run_attempt }}
+>       - image:linux-5.0
+> ```
+>
+> `linux-5.0` maps to `aws/codebuild/amazonlinux-x86_64-standard:5.0`, which is the AL2023-based standard
+> image; `linux-4.0` is the AL2-based one that's likely what you're getting by default. AWS's reference list
+> of valid image labels for the hosted runner is here (worth bookmarking, since new standard-image versions
+> get added over time):
+> https://docs.aws.amazon.com/codebuild/latest/userguide/sample-github-action-runners-update-yaml.images.html
+>
+> Two things that trip people up after switching:
+> - If you're using the EC2-fleet variant (not the Lambda-fleet one), the base AMI reference is different —
+>   `aws/codebuild/ami/amazonlinux-x86_64-base:latest` — and that's a separate setting in the fleet, not the
+>   workflow YAML.
+> - AL2023 uses `dnf`, not `yum`, and doesn't have `amazon-linux-extras`; any `yum install`/`amazon-linux-extras
+>   install` steps in your build image bootstrap need to change to `dnf install <package>` (packages are
+>   default-versioned or version-namespaced, e.g. `python3.12`).
+>
+> The full AL2023 walkthrough for the general (non-runner) case, if useful:
+> https://docs.aws.amazon.com/codebuild/latest/userguide/action-runner.html
+>
+> If it helps, I maintain a free open-source scanner that flags exactly this kind of stale-AL2/yum drift in
+> Dockerfiles, buildspecs, and IaC before it causes a surprise like this (disclosure: mine, MIT, nothing
+> uploaded): https://ntoledo319.github.io/EOLkits/scan/ — and a step-by-step AL2→AL2023 checklist:
+> https://ntoledo319.github.io/EOLkits/amazon-linux-2-eol-checklist/

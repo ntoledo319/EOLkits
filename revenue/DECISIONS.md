@@ -413,3 +413,48 @@ the 51 canonical sitemap URLs and could only pass on HTTP 200/202. Record that a
 receipt, never as crawling, indexing, rank, traffic, or demand. The simultaneous
 acquisition artifact remained at zero qualified issues and zero external `@v2`
 references, so the August 27 falsifier and portfolio ranking do not move.
+
+## D25 — cloud cycle, corrected WORKSPACE_ROOT, restocked the answer backlog
+
+This 2026-08-23 cycle ran as an isolated cloud checkout with no access to any
+local machine, the GRACE VPS, or local/box secrets; its only ship channel is
+`git push` to `marketing-machine-v2`. `revenue/PLAN.md` line 1 still recorded a
+prior local run's machine path (`/home/nick/Development/active/Rupture`); it
+is corrected to this cycle's actual repo root. This is a bookkeeping
+correction, not a claim that any prior local evidence was wrong.
+
+Live web access was available via search this cycle but WebFetch was blocked
+for every tested domain (`example.com`, `docs.aws.amazon.com`, `repost.aws`,
+`eolkits.com`) with `EGRESS_BLOCKED`, so no page content could be directly
+fetched and verified byte-for-byte. Facts below rest on (a) AWS Lambda
+runtime-table dates already cross-verified in this repo's own prior cycles
+(D14, D23) and repeated verbatim in this cycle's task instructions, and (b)
+corroborating search-result snippets from multiple independent sources for
+each specific technical claim (Lambda@Edge replica deletion behavior,
+CodeBuild GitHub Actions runner image labels). No date, URL, or claim was
+invented; where confidence was insufficient (a WeasyPrint/AL2023 Elastic
+Beanstalk image-rendering question found via search) the candidate was
+dropped rather than drafted speculatively.
+
+Per this cycle's standing priority, restocked the K1/C4 answer backlog:
+appended Batch 3 to `launch/distribution/repost-answers.md` with two fresh,
+unique, help-first drafts for real open AWS re:Post threads not covered by
+Batches 1–2 (`QUz3FDy7jfQliBFrh_hKZoaQ` — Node.js 18 deprecation notice citing
+already-deleted functions, actually a Lambda@Edge replica/CloudFront
+propagation issue; `QUqvfJVhQ4ReeApG8shtcu1A` — CodeBuild-hosted GitHub
+Actions runner defaulting to AL2 instead of AL2023 for lack of an `image:`
+runs-on label). Both answers solve the asker's actual problem first and
+mention eolkits once, disclosed, as in prior batches.
+
+Unlike Batches 1–2, Batch 3 links to the verified `ntoledo319.github.io/EOLkits`
+Pages build rather than `eolkits.com`: this cycle had no way to confirm the
+custom domain is still serving the repaired site (D19/D20's scheduled
+post-deploy truth gate result was not observed from this checkout), so per
+D19's own rule — never send acquisition traffic to an unproved deployment —
+the verified surface was used instead. This does not change Batches 1–2's
+archived status; those still need the fresh review already noted.
+
+This is one more drafted-content ship, not demand evidence. It does not
+change K1/A1's ranking, gates, or falsifiers, and it adds no owner-queue item
+with a deadline (pasting the new answers is available to the owner whenever
+convenient, same as the rest of the backlog). Collected revenue remains $0.

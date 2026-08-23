@@ -1,5 +1,11 @@
-/home/nick/Development/active/Rupture
+/home/user/EOLkits
 # Revenue plan — reset August 22, 2026
+
+Note (2026-08-23 cloud cycle): WORKSPACE_ROOT above is corrected from a stale
+prior-cycle local-machine path (`/home/nick/Development/active/Rupture`,
+recorded by an earlier local run) to this cycle's actual repo root. This
+session is a fresh isolated cloud checkout with no access to that local
+machine, the GRACE VPS, or local secrets — see D25 in DECISIONS.md.
 
 ## Reality
 
@@ -154,6 +160,21 @@ references, zero paid reports, and $0 collected. Bet A's five-day gate begins at
 2026-08-22 20:29 UTC while checkout telemetry remains dormant behind the v2
 capability handshake. The owner priority stays HQ-2 → HQ-5 → closed v2
 deployment; demand instrumentation does not make the stale API safe to charge.
+
+Cloud cycle 2026-08-23: no new owner action was added and no code/infra
+changed. The prior cycle's stated blockers are unchanged and this cycle could
+not independently re-check them (no VPS/local/Stripe access from this
+checkout). This cycle's highest-leverage in-jail, $0, no-human-contact ship
+was restocking the K1/A1 answer backlog: two fresh, verified, help-first
+drafts appended to `launch/distribution/repost-answers.md` (Batch 3) for real,
+currently open AWS re:Post threads found via live search this cycle — a
+Node.js 18 Lambda@Edge-replica Health Dashboard confusion, and a CodeBuild
+GitHub Actions runner defaulting to AL2 instead of AL2023. Both route to the
+verified Pages funnel, not the unconfirmed custom domain (see D25). Owner
+work remains unchanged: HQ-2 through HQ-7 in that order, plus now optionally
+pasting the two new Batch 3 answers (no new owner minutes required until they
+choose to paste them; posting is their action, not a queue item with a
+deadline). Collected profit remains $0; gap remains $4,000.
 
 Main commit `951fd4b6` adds the strongest remaining autonomous discovery action:
 an official-protocol IndexNow workflow for the verified Pages corpus. It checks
