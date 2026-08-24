@@ -161,3 +161,62 @@ Post at: https://repost.aws/questions/QUqvfJVhQ4ReeApG8shtcu1A/how-can-i-use-ama
 > Dockerfiles, buildspecs, and IaC before it causes a surprise like this (disclosure: mine, MIT, nothing
 > uploaded): https://ntoledo319.github.io/EOLkits/scan/ — and a step-by-step AL2→AL2023 checklist:
 > https://ntoledo319.github.io/EOLkits/amazon-linux-2-eol-checklist/
+
+---
+
+# Batch 4 — drafted 2026-08-24, fresh and ready to post
+
+Found via search this cycle; not a duplicate of Batches 1–3 (different thread, different question). Same
+rules apply: post from your own account, lead with the fix, one disclosed link, never cross-post the same
+text. WebFetch (direct page fetch) was unavailable again this cycle (`EGRESS_BLOCKED`), so this was
+cross-checked via multiple independent search results rather than a byte-for-byte page fetch — re-verify
+the thread still lacks a better answer before pasting, since time may have passed since drafting. The
+runtime-management-controls mechanism and its rollback path below are AWS's own documented feature
+(https://docs.aws.amazon.com/lambda/latest/dg/runtime-management.html and
+.../runtime-management-rollback.html), not inferred from the thread. Link points to
+`https://ntoledo319.github.io/EOLkits/...` (the verified GitHub Pages build) for the same reason Batch 3
+does — network egress to `eolkits.com` was unavailable this cycle to independently confirm it is still
+serving the repaired site.
+
+## 1 — python 3.9 runtime update gives Runtime.Unknown in INIT phase
+
+Post at: https://repost.aws/questions/QUowJJh-50R3KbxGrZ2YNsCA/python-3-9-runtime-update-gives-runtime-unknown-in-init-phase
+
+> This is almost always a **native-extension / glibc mismatch introduced by an automatic minor-version
+> bump of the runtime's execution environment**, not a change in your own code. By default Lambda's
+> "runtime management controls" are set to **Auto**, which means AWS can silently roll your function onto a
+> newer internal build of `python3.9` (for example bumping from build `v96` to `v101`) even though you
+> never touched the function. If any dependency ships a compiled/native component — `psycopg2`, `numpy`,
+> `pandas`, `lxml`, `grpcio`, `cryptography` — and it was built against the glibc/OpenSSL of the *older*
+> internal build, it can fail to load in the new one. That failure often surfaces as a bare
+> `Runtime.Unknown` during INIT instead of a clear `ImportModuleError`, because the crash happens before
+> the Python interpreter finishes initializing enough to report a normal traceback.
+>
+> To confirm and fix:
+> 1. Compare the runtime version ARN of a failing invocation against a known-good one:
+>    `aws lambda get-function --function-name <name> --query 'Configuration.RuntimeVersionConfig'`. If it
+>    changed without a deployment on your end, that confirms an automatic runtime update, not a code
+>    regression.
+> 2. For an immediate rollback while you investigate, Lambda explicitly supports pinning to the last known
+>    working runtime version ARN via the console's "Runtime version" tab or
+>    `PutRuntimeManagementConfig` with `UpdateRuntimeOn=Manual`. This is a documented, supported mitigation
+>    for exactly this scenario:
+>    https://docs.aws.amazon.com/lambda/latest/dg/runtime-management-rollback.html
+> 3. The durable fix is to rebuild any native dependency inside the *exact* target runtime's build image
+>    (e.g. AWS SAM's `public.ecr.aws/sam/build-python3.9` container, or the equivalent Lambda base image)
+>    rather than shipping a locally-built wheel, or switch that dependency to a maintained Lambda Layer.
+>    Full runtime-management-controls background:
+>    https://docs.aws.amazon.com/lambda/latest/dg/runtime-management.html
+>
+> Worth noting separately: `python3.9` itself is already past Lambda's own deprecation timeline (deprecated
+> 2025-12-15; per the current runtimes table, block-create is 2027-02-01 and block-update is 2027-03-03 for
+> this runtime cluster — AWS has revised these dates before, so treat the live table as the source of
+> truth, not this comment: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html). Since any
+> native dependency will need the same rebuild-for-target-glibc treatment on 3.11/3.12/3.13 anyway, it's
+> usually less total work to do that rebuild once as part of moving off 3.9 rather than chasing another
+> silent minor-version drift later.
+>
+> If useful, I've written up this exact glibc/native-extension failure mode in more depth, and I maintain a
+> free, open-source scanner that flags stale-runtime and native-dependency drift in source/IaC before it
+> causes this kind of surprise (disclosure: mine, MIT, nothing uploaded):
+> https://ntoledo319.github.io/EOLkits/fix/lambda-glibc-version-not-found/

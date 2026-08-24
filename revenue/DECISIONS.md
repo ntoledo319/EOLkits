@@ -458,3 +458,49 @@ This is one more drafted-content ship, not demand evidence. It does not
 change K1/A1's ranking, gates, or falsifiers, and it adds no owner-queue item
 with a deadline (pasting the new answers is available to the owner whenever
 convenient, same as the rest of the backlog). Collected revenue remains $0.
+
+## D26 — cloud cycle, restocked the answer backlog again (Batch 4)
+
+This 2026-08-24 cycle is another isolated cloud checkout with no VPS/local/
+Stripe access; same jail and ship channel as D25. WebFetch again returned
+`EGRESS_BLOCKED` for a neutral control (`example.com`), so, following D25's
+precedent, no page content was fetched byte-for-byte; WebSearch worked and
+was used instead, cross-checking each specific technical claim against
+multiple independent search results before drafting.
+
+Per the standing K1/C4 answer-backlog priority, appended Batch 4 to
+`launch/distribution/repost-answers.md`: one fresh, unique, help-first draft
+for a real open AWS re:Post thread not covered by Batches 1–3
+(`QUowJJh-50R3KbxGrZ2YNsCA` — "python 3.9 runtime update gives Runtime.Unknown
+in INIT phase"). Search corroboration (multiple independent snippets)
+confirmed the thread's actual content: the user's `python3.9` execution
+environment auto-updated from internal build v96 to v101, and a native
+extension (psycopg2 was named in a related discussion of the same failure
+mode) then failed to load, producing a bare `Runtime.Unknown` in INIT rather
+than a clear import error. The answer's core fix — pinning/rolling back the
+runtime version via Lambda's documented runtime-management-controls
+(`UpdateRuntimeOn=Manual`) — is AWS's own documented mechanism for exactly
+this failure mode, not inferred from the thread itself; both cited docs URLs
+(`runtime-management.html`, `runtime-management-rollback.html`) are the
+existing official pages already used as sourcing precedent in this repo.
+
+Only one answer was drafted this cycle, not two: several other superficially
+promising candidates found via search (the SSM State Manager Python 3.9
+notice-confusion thread, the "Lambda runtime deprecation dates differ by
+documentation language" thread, the "rollback to Node 14" thread) already had
+substantive community answers visible in their own search-result summaries,
+so a second EOLkits answer there would not clearly add net-new help-first
+value. Per AGENTS.md's own instruction — quality over quantity, skip rather
+than pad — this cycle shipped the one candidate that was both genuinely
+novel and clearly still worth answering, rather than padding to two.
+
+As in Batch 3, the drafted link points to the verified
+`ntoledo319.github.io/EOLkits` Pages build (specifically its
+`/fix/lambda-glibc-version-not-found/` page, whose existing copy already
+names `psycopg2` and the AL2/AL2023 glibc split relevant to this exact
+failure mode) rather than `eolkits.com`, because this checkout again had no
+way to confirm the custom domain is still serving the repaired site.
+
+This is one more drafted-content ship, not demand evidence. It does not
+change K1/A1's ranking, gates, or falsifiers, and adds no owner-queue item
+with a deadline. Collected revenue remains $0; gap remains $4,000.

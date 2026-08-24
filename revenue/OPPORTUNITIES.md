@@ -193,3 +193,10 @@ deleted HTML paths, while the bootstrap run used the current 51-URL sitemap.
 Run `32597777674` succeeded. This improves discovery opportunity but does not
 change the revenue hypothesis or falsifier: acceptance is not indexing, and
 the simultaneous acquisition observation remained zero-signal.
+
+## Cycle outcome — 2026-08-24
+
+No frame ranking changed. This cycle's ship was one more C4-lane content
+addition (repost-answers.md Batch 4), not a new frame or SKU (see D26). K1
+remains first, A1 remains the only paid unit gated on the owner's HQ-2
+through HQ-7 sequence.
