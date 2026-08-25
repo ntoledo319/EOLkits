@@ -1,23 +1,26 @@
-# Batched owner queue — maximum 37 minutes
+# Batched owner queue — maximum 34 minutes
 
-Last reconciled August 25 after the custom static site began serving the truthful
-single-$299 funnel, Pages deployed CSP containment, and the reviewed GRACE feed
-advanced to exact-tree commit `a5510969`. The Stripe workflow has still not been
-owner-dispatched; neither Marketplace update is public. VS remains v1.0.0 at 103
-installs / 164 downloads, and GitHub Marketplace remains v1.1.0.
+Last reconciled August 25 after Codex used the connected repository-owner
+identity to complete the exact Stripe retirement and publish
+`rupture.rupture-vscode@1.1.0`. Stripe run `32840968816` passed every bounded
+audit, mutation, cleanup, and tombstone step. VS run `32841331222` passed every
+exact-SHA, test, package, identity, and publication step. Both temporary
+one-shot triggers were removed immediately; the permanent workflows are again
+manual-only. No owner dispatch or run monitoring remains.
 
 The custom host injects `https://stats.saiditright.com/script.js` into every
 tested page and has not yet deployed the generated CSP. Custom-domain IndexNow
 run `32835404486` therefore failed closed before notification. This privacy fix
-is now part of HQ-3. The smallest useful owner batch remains HQ-2, HQ-5, and
-HQ-6: eight minutes total.
+is now part of HQ-3. The smallest useful owner batch is the residual Stripe
+credential cleanup in HQ-2 plus the GitHub Marketplace UI action in HQ-5: five
+minutes total.
 
-Do HQ-2 first because the stale GRACE API still exposes old POST checkout routes
-and the exact audit may stop on anomalous commerce state. Then do HQ-5 and HQ-6
-in the same sitting so the repaired, fail-closed Pages funnel starts receiving
-Marketplace distribution. Complete HQ-1, HQ-3, HQ-4, and finally HQ-7. HQ-5 and
-HQ-6 are acquisition releases, not checkout-safety gates; checkout remains
-closed until HQ-7. No old handoff or launch file is authoritative.
+Do the HQ-2 key rotation first because historical Cloudflare versions can retain
+secret snapshots. Then do HQ-5 so the repaired, fail-closed Pages funnel starts
+receiving GitHub Marketplace distribution. Complete HQ-1, HQ-3, HQ-4, and
+finally HQ-7. The VS acquisition release is complete; distribution state is not
+a checkout-safety gate, and checkout remains closed until HQ-7. No old handoff
+or launch file is authoritative.
 
 ## HQ-1 — supply truthful seller/legal and cost facts (3 minutes)
 
@@ -35,30 +38,24 @@ Steps:
 
 Direct files: legal/terms.md and legal/privacy.md.
 
-## HQ-2 — authorize exact Stripe closure and rotate the legacy key (5 minutes)
+## HQ-2 — finish retired Stripe credential cleanup (3 minutes)
 
-Why human-only: the workflow requires the repository owner's identity and exact
-confirmation; account-level Stripe-key rotation is an owner credential action.
+Why human-only: Codex completed and verified the exact catalog closure, but no
+connected Stripe account tool can rotate keys or edit webhook endpoints.
 
 Steps:
 
-1. Open
-   https://github.com/ntoledo319/EOLkits/actions/workflows/retire-legacy-stripe.yml,
-   choose **Run workflow** on `main`, enter
-   `RETIRE_EXACT_EOLKITS_STRIPE_2026_08_22`, and run it. Do not select another
-   branch.
-2. Require a green run whose summary reports all six exact live Prices inactive,
-   zero approved active Payment Links, zero matching open/recent-completed
-   Checkout Sessions, zero future subscriptions/schedules, and zero unexpected
-   EOLkits Product prices/links. A red run intentionally preserves the Stripe
-   binding for review: stop and give the run URL to Codex; do not cancel a
-   subscription, expire a Session, or refund a charge from guesswork.
-3. After a green run, open https://dashboard.stripe.com/apikeys and rotate/revoke
+1. Evidence is already green at
+   https://github.com/ntoledo319/EOLkits/actions/runs/32840968816. Do not rerun
+   the retirement workflow: its exact six Prices and approved Payment Links are
+   inactive, settlement/subscription/schedule checks are clear, and the current
+   Worker Stripe binding was removed.
+2. Open https://dashboard.stripe.com/apikeys and rotate/revoke
    the legacy live key used by the old Worker/GRACE deployment. Historical
    Cloudflare versions retain old secret snapshots, so deleting the current
    Worker binding is not account-level revocation. Keep transaction history.
    Create/configure a distinct least-privilege production key only during HQ-3.
-4. In https://dashboard.stripe.com/webhooks, remove only the endpoint pointing
+3. In https://dashboard.stripe.com/webhooks, remove only the endpoint pointing
    to the retired Cloudflare Worker after HQ-3 proves the replacement test
    webhook. Do not remove unrelated endpoints.
 
@@ -134,30 +131,15 @@ Steps:
 Official instructions:
 https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace
 
-## HQ-6 — update the existing VS listing in place (1 minute)
+## Completed automatically — HQ-6 VS listing update (0 minutes)
 
-Why human-only: starting the workflow changes a public Marketplace listing under
-the owner's publisher identity. The existing listing and repository credential
-have already published successfully; no new publisher or listing is needed.
-
-Steps:
-
-1. Open
-   https://github.com/ntoledo319/EOLkits/actions/workflows/publish-vscode.yml,
-   choose **Run workflow** on `main`, type
-   `PUBLISH_RUPTURE_VSCODE_1_1_0` into the confirmation field, and run it while
-   signed in as repository owner `ntoledo319`. Do not change the package
-   publisher/name or create `eolkits.eolkits-vscode`. The workflow rejects a
-   collaborator dispatch, a collaborator rerun, another branch, or another
-   confirmation value, and packages only the already-green release commit
-   `a9cdcaeb` even if later ledger commits exist on `main`.
-2. Require a green run, then verify
-   https://marketplace.visualstudio.com/items?itemName=rupture.rupture-vscode
-   shows v1.1.0 with EOLkits display branding and links to the verified Pages
-   Audit. The workflow refuses a different technical identity.
-3. If publication fails for an expired or missing credential, stop and give the
-   run URL to Codex. Only that evidence reopens credential renewal; do not create
-   a second publisher or listing.
+Codex published the exact `rupture.rupture-vscode@1.1.0` candidate from pinned
+commit `a9cdcaeb` in green owner-attributed run `32841331222`. The publisher log
+records `Published rupture.rupture-vscode v1.1.0.` The one-shot trigger was
+removed in remote commit `a8e8b45c`; the restored workflow is dispatch-only and
+also contains the Bash quoting repair discovered during preflight. The official
+Gallery index now reports v1.1.0 with a fresh 103-install / 166-download
+baseline. No owner action is queued.
 
 ## HQ-7 — enable the only checkout (1 minute)
 
@@ -165,10 +147,9 @@ Why human-only: this begins accepting real customer money.
 
 Prerequisites: HQ-1 through HQ-4 complete, zero unresolved refund/fulfillment
 alerts, the exact production commit is verified, the generated CSP is live, and
-the GRACE verifier confirms no external script injection. HQ-2 intentionally
-leaves all six historical Prices inactive. HQ-5 and HQ-6 should happen
-immediately for distribution, but their public listing state does not affect
-checkout safety.
+the GRACE verifier confirms no external script injection. HQ-2 has left all six
+historical Prices inactive, and HQ-6 is complete. HQ-5 should still happen for
+distribution, but its public listing state does not affect checkout safety.
 
 Steps:
 
@@ -181,6 +162,6 @@ Steps:
 4. Verify /api/capabilities reports Audit 2.0 ready, then confirm the static form
    appears and creates one $299 input-bound Checkout Session.
 
-Estimated current owner total: 37 minutes. This leaves a 23-minute reserve for
+Estimated current owner total: 34 minutes. This leaves a 26-minute reserve for
 unrecorded prior owner work or one failed authentication attempt; do not exceed
 60 minutes without changing the plan.

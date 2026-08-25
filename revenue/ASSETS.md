@@ -289,3 +289,33 @@ would not create a verified report-delivery path.
   cover the generated surface.
 - This is a security/distribution asset, not a sale. GRACE v2, Stripe retirement,
   Marketplace publication, and checkout remain owner-gated.
+
+## Hands-off retirement and VS release — August 25
+
+- The Stripe retirement tool now refuses every mutation when its read-only
+  preflight finds an active Payment Link outside the exact URL allowlist. This
+  closes a real Stripe behavior gap: archiving a Price can also deactivate links
+  using that Product. The worker guard, workflow guard, and zero-POST regression
+  all passed; the focused Worker/tombstone suite is 39/39 green.
+- Owner-attributed run `32840968816` then completed the exact live retirement.
+  Every verification, mutation, cleanup, tombstone, and public fail-closed step
+  passed. The success postcondition requires all six exact Prices inactive, no
+  approved or unexpected active links, and no matching open/recent Sessions,
+  future subscriptions, or schedules. The current Worker Stripe binding was
+  removed. Account-level legacy-key rotation remains outside the connected
+  tooling and stays in HQ-2.
+- Owner-attributed run `32841331222` published the pinned existing identity
+  `rupture.rupture-vscode@1.1.0`. Its exact-SHA, install, compile/lint/rule test,
+  identity, version, package, and publish steps all passed. The publisher log
+  records the successful release, and the public version-specific VSIX endpoint
+  returns a package whose manifest is `rupture.rupture-vscode@1.1.0`, branded
+  EOLkits, with the repaired Pages Audit URL.
+- Both narrowly scoped one-shot push gates were removed immediately after their
+  terminal runs. Restoration head `a8e8b45c` has tree `cb5a151b`, both permanent
+  workflows are dispatch-only again, and all four workflows on that head passed.
+  The VS workflow retains a repaired Bash identity check found by preflight
+  validation.
+- Fresh GRACE capability run `32840796298` remained `deploy_transport=false`
+  and `runtime_bundle=false`. Repository-owner GitHub authority is connected;
+  GRACE/Stripe account control, legal facts, DEV control, and GitHub Marketplace
+  agreement/2FA are still absent capabilities rather than missing code.
