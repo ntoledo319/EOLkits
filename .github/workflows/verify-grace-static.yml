@@ -37,6 +37,14 @@ jobs:
           grep -Fq 'No checkout · no subscription · no waitlist' <<<"$drift"
           grep -Fq '<form id="auditForm" hidden>' <<<"$audit"
           grep -Fq 'Checkout stays closed unless the live API confirms report engine 2.0.' <<<"$audit"
+          for page in "$home" "$audit" "$pack" "$drift"; do
+            if ! grep -Fq 'http-equiv="Content-Security-Policy"' <<<"$page" \
+              || ! grep -Fq "script-src 'self' 'unsafe-inline'" <<<"$page" \
+              || ! grep -Fq "connect-src 'self' https://eolkits.com" <<<"$page"; then
+              echo '::error::The custom domain is missing the generated privacy CSP'
+              exit 1
+            fi
+          done
           grep -Fq 'Sitemap: https://eolkits.com/sitemap.xml' <<<"$robots"
           grep -Fq '<loc>https://eolkits.com/' <<<"$sitemap"
 
@@ -50,6 +58,10 @@ jobs:
           fi
           if grep -Eq '\$1,499|\$14,999' <<<"$home$audit$pack$drift"; then
             echo '::error::A retired commercial price is still public on the custom domain'
+            exit 1
+          fi
+          if grep -Eq "<script[^>]+src=['\"]https?://" <<<"$home$audit$pack$drift"; then
+            echo '::error::An unreviewed cross-origin script is injected into the custom domain'
             exit 1
           fi
 

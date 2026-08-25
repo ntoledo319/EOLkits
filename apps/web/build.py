@@ -39,6 +39,22 @@ AUDIT_INTEREST_URL = "https://github.com/ntoledo319/EOLkits/issues/new?template=
 # URLs. Stable + committed so the hosted key file at /<key>.txt always matches the
 # bounded submission workflow; receipt never implies crawling or indexing.
 INDEXNOW_KEY = "0c7a25ebf8815c561ded8ab9a156dfb5"
+# GitHub Pages cannot set response headers, and the GRACE static host has
+# historically post-processed HTML outside this repository. Keep a restrictive
+# document policy in every generated page so an unreviewed cross-origin script
+# cannot execute or transmit page/query data even if a host injects a tag.
+CONTENT_SECURITY_POLICY = (
+    "default-src 'self'; "
+    "base-uri 'none'; "
+    "object-src 'none'; "
+    "frame-src 'none'; "
+    "script-src 'self' 'unsafe-inline'; "
+    "style-src 'self' 'unsafe-inline'; "
+    "img-src 'self' data:; "
+    "font-src 'self' data:; "
+    "connect-src 'self' https://eolkits.com; "
+    "form-action 'self'"
+)
 
 
 def _interpolate_api(html):
@@ -1595,7 +1611,6 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 <script>
 const qp = new URLSearchParams(location.search);
 const sku = qp.get('sku') || '';
-const sid = qp.get('session_id') || '';
 const title = document.getElementById('title');
 const body = document.getElementById('body');
 function h(html) {{ body.innerHTML = html; }}
@@ -1644,19 +1659,32 @@ fetch('{API_URL}/api/status',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.r
 
 
 def inject_privacy_meta(content: str) -> str:
-    """Limit cross-origin referrers without relying on server configuration.
+    """Inject browser-enforced privacy controls into every HTML document.
 
     GitHub Pages cannot set response headers. Injecting this into every generated
     HTML document keeps query parameters and page paths out of outbound Referer
-    headers while retaining the first-party origin for basic attribution.
+    headers while retaining the first-party origin for basic attribution. The
+    CSP also prevents unreviewed third-party scripts and connections from being
+    activated by hosting-layer HTML injection.
     """
     if not re.search(r"<html\b", content, flags=re.IGNORECASE):
         return content
-    if re.search(r'<meta\s+name=["\']referrer["\']', content, flags=re.IGNORECASE):
+    metas: list[str] = []
+    if not re.search(r'<meta\s+name=["\']referrer["\']', content, flags=re.IGNORECASE):
+        metas.append('<meta name="referrer" content="origin">')
+    if not re.search(
+        r'<meta\s+http-equiv=["\']Content-Security-Policy["\']',
+        content,
+        flags=re.IGNORECASE,
+    ):
+        metas.append(
+            '<meta http-equiv="Content-Security-Policy" content="' + CONTENT_SECURITY_POLICY + '">'
+        )
+    if not metas:
         return content
     return re.sub(
         r"(<head\b[^>]*>)",
-        r'\1\n<meta name="referrer" content="origin">',
+        lambda match: match.group(1) + "\n" + "\n".join(metas),
         content,
         count=1,
         flags=re.IGNORECASE,
