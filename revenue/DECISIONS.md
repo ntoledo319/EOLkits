@@ -623,3 +623,59 @@ blocked finding. Keep the revenue objective unfinished and continue on the
 shipped security state. The actual cash boundary is unchanged: HQ-2, HQ-5, and
 HQ-6 require owner identity/credential authority, and HQ-3 must remove the live
 injection and prove closed fulfillment before HQ-7 can accept money.
+
+## D33 — use owner-attributed, one-use push authorization for prepared workflows
+
+The connected GitHub session is the exact repository owner `ntoledo319` with
+admin/push authority, but its tool surface has no workflow-dispatch method and
+the jailed shell has no in-workspace GitHub user token. The owner explicitly
+directed Codex to remove the human element and execute connected-account work.
+Treat that as authorization for the two already prepared exact mutations, not
+as authority to accept agreements, invent legal facts, contact people, enable
+checkout, or use absent external credentials.
+
+For each workflow, temporarily add a path-limited `main` push trigger and a
+second authorization branch requiring exact repository, branch, owner actor,
+owner triggering actor, event type, and a novel one-use commit message. Mirror
+the same event-specific check inside the first shell step. Publish an exact-tree
+commit without force, observe the terminal run, then immediately restore the
+permanent dispatch-only workflow with a different message. A specialist review
+approved this mechanism subject to those conditions. Both restore heads
+produced no second mutation run. This is a narrow audited transport for the
+owner's explicit instruction, not a reusable confirmation bypass.
+
+## D34 — fail Stripe retirement before mutation on any unknown active link
+
+Do not execute the original retirement artifact. Stripe documents that
+archiving a Price can deactivate existing Payment Links using its Product. The
+old code counted an unknown Product-linked active link but still archived the
+six Prices; that link could be implicitly deactivated, disappear from the
+active-only final audit, and allow a false containment result. Its test mock
+incorrectly kept such a link active.
+
+Block before every Stripe POST when the full read-only preflight finds any
+unexpected active Payment Link, return a sanitized 409 with zero changes, add
+the same guard to the workflow, and regress all six Prices plus the unknown link
+as unchanged. After 39/39 focused tests and specialist approval, run exact
+retirement once. Run `32840968816` passed every safety/postcondition step and
+the trigger was removed. Keep account-level key rotation in HQ-2 because the
+Worker can remove its current binding but cannot revoke historical credentials.
+
+## D35 — ship VS v1.1.0 through the recovered identity and start its clock
+
+Preserve `rupture.rupture-vscode`; creating an EOLkits publisher would discard
+the only observed built-in distribution. Local preflight found and repaired an
+invalid Bash quoting expression in the unpublished identity check, then passed
+compile, lint, rule behavior, VSIX packaging, YAML parsing, `bash -n`, and
+ShellCheck. Publish only pinned candidate `a9cdcaeb` through the one-use owner
+gate. Run `32841331222` succeeded and the public v1.1.0 package contains the
+repaired Audit link; restore commit `a8e8b45c` removed the trigger and passed all
+CI.
+
+Start V1's five-day signal clock from the successful publisher timestamp even
+while the Gallery's latest-version query propagates. Baseline the existing
+listing once propagation completes: the official index exposed v1.1.0 at
+11:21:39 UTC with 103 installs / 166 downloads and zero qualified VS-attributed
+issue authors. Auto-updates, package availability, and counter changes are not
+sales. Keep checkout closed and keep the $4,000 gap unchanged until dollars are
+actually observed.

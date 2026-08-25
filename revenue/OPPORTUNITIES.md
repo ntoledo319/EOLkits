@@ -316,3 +316,29 @@ weak historical counter movement, not attributable demand. Qualified issues,
 paid reports, and workspace-observed collected revenue remain 0 / 0 / $0. HQ-2
 followed by HQ-5/HQ-6 remains the shortest route to commercial evidence; the
 GRACE privacy/deployment correction is now an explicit prerequisite to HQ-7.
+
+## Hands-off distribution activation — August 25
+
+Ranking remains K1, A1, V1, C4, but two execution facts changed. The legacy
+Stripe surfaces are now exactly retired, so anomalous stale commerce no longer
+precedes distribution; residual key rotation is credential hygiene, not a
+catalog-closure blocker. K1 still needs the two-minute GitHub Marketplace UI
+publication and still has no paid checkout, so its revenue forecast does not
+move.
+
+V1 is now launched through the existing built-in distribution channel. Green
+run `32841331222` published exact identity `rupture.rupture-vscode` at v1.1.0
+from pinned commit `a9cdcaeb`; the version-specific public package is already
+downloadable and contains the repaired, findings-qualified Audit path. The
+Gallery latest-version query initially served cached v1.0.0, then exposed
+v1.1.0 at 11:21:39 UTC. The release clock starts at the publisher's successful
+2026-08-25 11:15 UTC result; its five-full-day falsifier is August 30 at 11:15
+UTC. Fresh baseline counters are 103 installs and 166 downloads. Counter
+movement alone is not revenue or qualified demand.
+
+No price, unit forecast, or target math changes. Qualified issues, paid reports,
+workspace-observed collected revenue, and profit remain 0 / 0 / $0 / $0. The
+fastest remaining route to a first dollar is HQ-5 distribution followed by the
+closed GRACE proof, legal facts, DEV cleanup, and exact $299 checkout activation;
+another product or channel would add identity/KYC work without removing that
+cash-path boundary.
