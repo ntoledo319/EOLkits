@@ -7,11 +7,6 @@ on:
         description: Type RETIRE_EXACT_EOLKITS_STRIPE_2026_08_22
         required: true
         type: string
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/retire-legacy-stripe.yml
 
 permissions:
   contents: read
@@ -31,36 +26,21 @@ jobs:
       github.ref == 'refs/heads/main' &&
       github.actor == github.repository_owner &&
       github.triggering_actor == github.repository_owner &&
-      (
-        (github.event_name == 'workflow_dispatch' &&
-          inputs.confirm == 'RETIRE_EXACT_EOLKITS_STRIPE_2026_08_22') ||
-        (github.event_name == 'push' &&
-          github.event.head_commit.message == 'AUTHORIZE_RETIRE_EXACT_EOLKITS_STRIPE_ONCE_2026_08_25_1109Z')
-      )
+      inputs.confirm == 'RETIRE_EXACT_EOLKITS_STRIPE_2026_08_22'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - name: Reconfirm the production authorization
         shell: bash
         env:
-          AUTHORIZATION_EVENT: ${{ github.event_name }}
-          AUTHORIZATION_MESSAGE: ${{ github.event.head_commit.message }}
           RETIREMENT_CONFIRMATION: ${{ inputs.confirm }}
         run: |
           set -euo pipefail
-          authorization_matches='false'
-          if [[ "$AUTHORIZATION_EVENT" == 'workflow_dispatch' &&
-                "$RETIREMENT_CONFIRMATION" == 'RETIRE_EXACT_EOLKITS_STRIPE_2026_08_22' ]]; then
-            authorization_matches='true'
-          elif [[ "$AUTHORIZATION_EVENT" == 'push' &&
-                  "$AUTHORIZATION_MESSAGE" == 'AUTHORIZE_RETIRE_EXACT_EOLKITS_STRIPE_ONCE_2026_08_25_1109Z' ]]; then
-            authorization_matches='true'
-          fi
           if [[ "$GITHUB_REPOSITORY" != 'ntoledo319/EOLkits' ||
                 "$GITHUB_REF" != 'refs/heads/main' ||
                 "$GITHUB_ACTOR" != "$GITHUB_REPOSITORY_OWNER" ||
                 "$GITHUB_TRIGGERING_ACTOR" != "$GITHUB_REPOSITORY_OWNER" ||
-                "$authorization_matches" != 'true' ]]; then
+                "$RETIREMENT_CONFIRMATION" != 'RETIRE_EXACT_EOLKITS_STRIPE_2026_08_22' ]]; then
             echo '::error::Exact owner authorization on ntoledo319/EOLkits main is required'
             exit 1
           fi
