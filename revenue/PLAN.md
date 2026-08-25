@@ -8,11 +8,12 @@ had a broad, apparently automated product suite, but only one paid deliverable
 can be made truthful and bounded today: a static evidence PDF derived from one
 repository ZIP or supported source file.
 
-The live site observed on August 21 still advertised unavailable products and
-unsafe claims. This repair closes those offers, ships a truthful static funnel,
-and keeps Audit checkout off until its real deployment completes the operational
-gate. Code passing tests is not evidence that Stripe, Resend, DNS, storage, or
-refund operations work together.
+The custom site observed on August 25 now closes unavailable products and serves
+the truthful single-$299 static funnel. Its hosting layer nevertheless injects
+an unreviewed analytics script into every tested page, so the domain remains
+unsafe for checkout until the new CSP deploys and the injection is removed.
+Code passing tests is not evidence that Stripe, Resend, DNS, storage, privacy,
+or refund operations work together.
 
 ## Target and arithmetic
 
@@ -95,7 +96,8 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
    v2.0.0 draft into the existing Marketplace listing and dispatches the guarded
    in-place VS update. These distribution releases do not wait for checkout.
 4. Deploy Audit v2 with checkout disabled and complete the full Stripe test-mode
-   operational gate.
+   operational gate. Remove the hosting-layer analytics injection, deploy the
+   generated CSP, and require the custom-domain verifier to pass first.
 5. Supply the truthful legal/controller values and remove the false public DEV
    corpus, then enable Audit checkout only
    if every gate is green and incremental hosting cost is $0.
@@ -141,17 +143,28 @@ The current canonical private v2.0.0 Marketplace draft was created by green run
 `32604619021` at commit `a9cdcaeb`; its Action files are byte-identical to public
 `v2` at `9c231b58`. An older direct draft URL in the owner queue was stale and has
 been replaced. The Marketplace itself still advertises v1.1.0.
-The GRACE static feed now points at two-parent commit `0780909c` with the exact
-final tree, but `eolkits.com` still serves Migration Pack/Drift Watch copy and
-`/api/capabilities` returns 404 until the next observed deploy or owner rollout.
+The GRACE static site has now repaired the stale product copy: the August 25
+07:17 UTC release serves one $299 Audit and tombstones Migration Pack and Drift
+Watch. The backend did not move: `/api/capabilities` and `/api/status` return
+404, and the old `/health` payload still reports the filesystem/SQLite/inline-
+runner service. A hosting layer also injects `stats.saiditright.com` into every
+tested custom-domain page despite the privacy policy.
+
+Public `main` commit `b97befa7` and GRACE feed commit `a5510969` now share exact
+tree `6b0eef76`. All 64 generated HTML pages contain a browser-enforced CSP, and
+Audit success URLs no longer carry a Stripe session ID. Pages deployed that
+tree at 10:05 UTC; its five-page live probe found CSP everywhere and no external
+script. Custom-domain IndexNow run `32835404486` correctly stopped before
+submission because the current 07:17 deployment lacks the CSP. Main IndexNow
+run `32835361747` and every other triggered main workflow passed.
 
 Observed demand remains zero: 0 qualified issues, 0 paid reports, 1 repository
 star, 0 forks, and $0 collected. Bet A's first five-full-day falsifier remains
 2026-08-27 20:29 UTC; internal downloads and release probes do not move it.
 
 The strongest recovered distribution asset is the existing
-`rupture.rupture-vscode` listing: it is v1.0.0, adjacent queries returned a
-100–101 install-counter range, and downloads were 162. The published version
+`rupture.rupture-vscode` listing: it is still v1.0.0, with 103 installs and 164
+downloads on the August 25 probe. The published version
 sends users to a dead `/Rupture/audit` URL. Repository commit `a9cdcaeb` now
 contains the fully green v1.1.0 candidate, which preserves that identity and
 legacy user settings/commands, repairs the verified Audit route, and measures
@@ -186,3 +199,24 @@ Resume immediately when any owner queue item changes external state. The fastest
 resume event is a run URL from HQ-2; next are publication of the canonical
 GitHub draft or dispatch of guarded VS v1.1.0. Until one occurs, do not replace
 the blocked cash path with product polish, another offer, or synthetic demand.
+
+## Resumed cycle state — 2026-08-25T10:07:45Z
+
+This cycle shipped a real customer-visible security improvement, so it is not an
+analysis-only cycle. Pages is live with CSP containment, the canonical GRACE
+feed carries the same exact tree, and unsafe custom-domain search notification
+is mechanically blocked. The remaining custom-host deployment/privacy step is
+folded into HQ-3 rather than creating another product bet.
+
+Workspace-observed collected profit remains **$0** and the target gap remains
+**$4,000**. No authenticated Stripe dashboard result appeared, so $0 is the
+workspace evidence ledger—not a claim that the unseen account has no charges.
+There are still 0 qualified issues and 0 paid reports; VS remains v1.0.0 and the
+GitHub Marketplace remains v1.1.0. Bet A's first five-full-day checkpoint stays
+2026-08-27 20:29 UTC.
+
+Highest-leverage next action is unchanged: HQ-2 exact Stripe closure/key
+rotation, immediately followed by HQ-5 and HQ-6 in the same eight-minute owner
+batch. Then HQ-3 removes the injected script, deploys Audit v2 checkout-closed,
+and proves end-to-end test fulfillment. Do not enable HQ-7 or rerun custom-domain
+IndexNow until both the live CSP and absence of external scripts are verified.
