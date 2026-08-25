@@ -88,7 +88,7 @@ T$ means disqualified within this cycle.
 | K5 | 14 | 10 | P | $290.03 | M | Useful acquisition, no built-in payment |
 | K6 | — | 15 | M | $0 | H | Repackaged free code; archived |
 | K7 | — | 30 | N | $0 | H | Requires contracts and support |
-| V1 | 10 | 7 | M | $580.06 | M | Strong compounding funnel if published |
+| V1 | 10 | 1 | M | $580.06 | M | Existing ~100-install listing; in-place update pending |
 | V2 | — | 25 | M | $0 | H | Entitlements/payment/support unbuilt |
 | V3 | 21 | 20 | M | $290.03 | M | Duplicates A1 at lower fidelity |
 | V4 | — | 20 | N | $0 | M | No channel or differentiated buyer |
@@ -121,11 +121,12 @@ T$ means disqualified within this cycle.
 
 1. K1 — repair/update the already-listed GitHub Action; fastest built-in
    distribution and lowest owner time. Its tested v2 branch is installable and
-   its private v2.0.0 Marketplace draft is prepared; publication is the remaining
-   owner-controlled step.
+   its canonical private v2.0.0 Marketplace draft is prepared at a verified
+   Action-equivalent target; publication is the remaining owner-controlled step.
 2. A1 — the sole paid fulfillment unit. It is not live until the operational
    gate passes.
-3. V1 — publish the tested free VSIX as a second contextual distribution surface.
+3. V1 — publish the tested free VSIX as a second contextual distribution surface;
+   exact-owner/confirmation guards now protect the existing publisher credential.
 4. C4 — preserve only cited, useful search pages and measure them. The repaired
    51-URL Pages corpus now has a protocol-valid IndexNow submission path, but no
    crawl, rank, visit, or conversion signal has been observed.
@@ -194,18 +195,101 @@ Run `32597777674` succeeded. This improves discovery opportunity but does not
 change the revenue hypothesis or falsifier: acceptance is not indexing, and
 the simultaneous acquisition observation remained zero-signal.
 
-## Cycle outcome — 2026-08-24
+## Verifiable-proof release — August 22
 
-No frame ranking changed. This cycle's ship was one more C4-lane content
-addition (repost-answers.md Batch 4), not a new frame or SKU (see D26). K1
-remains first, A1 remains the only paid unit gated on the owner's HQ-2
-through HQ-7 sequence.
+A1 is materially easier to evaluate but does not move in rank or forecast. The
+public sample is no longer a hand-maintained HTML facsimile: it is a four-page
+PDF produced by the paid report engine from a downloadable fictional ZIP, with
+an exact artifact/input/evidence manifest. This removes the largest autonomous
+trust objection for an engineering manager or security reviewer who reaches the
+offer. It does not create distribution, payment readiness, or willingness to
+pay, so A1's U hypothesis remains $2,320.24 and observed revenue remains $0.
 
-## Cycle outcome — 2026-08-25
+K1 remains the fastest bet. Public `v2` now points to fully green commit
+`9c231b58`, and its report funnel can show the real artifact. The Marketplace
+listing itself still reports v1.1.0, so the existing built-in distribution is
+not repaired until HQ-5 publishes the prepared draft. V1 remains third, but the
+exact-ID audit corrected the prior search inference: `rupture.rupture-vscode`
+is public at v1.0.0 with an approximately 100-install counter and 162 downloads.
+Its tested in-place v1.1.0 update is not public yet. C4 remains fourth;
+another accepted IndexNow notification is release/discovery opportunity, not a
+visit or conversion.
 
-No frame ranking changed. This cycle's ship was one more C4-lane content
-addition (repost-answers.md Batch 5), not a new frame or SKU (see D27). K1
-remains first, A1 remains the only paid unit gated on the owner's HQ-2
-through HQ-7 sequence. No new external signal was observed this cycle (no
-GitHub/Stripe/VS access from this checkout); the K1 five-day gate (2026-08-27)
-and Day-7 gate (2026-08-29) are unchanged.
+The portfolio falsifiers do not move: K1's first five-full-day checkpoint stays
+2026-08-27 20:29 UTC. At the release probe there were 0 qualified issues, 0
+paid reports, 1 star, 0 forks, and $0 collected. Do not open another SKU or
+infer demand from sample downloads, CI probes, IndexNow receipt, or internal
+artifact inspection.
+
+## Existing VS distribution recovery — August 22
+
+V1 is stronger than previously recorded but does not move above K1 or A1. The
+project already owns a public `rupture.rupture-vscode` listing with an
+approximately 100-install counter and 162 downloads; the EOLkits rename changed
+the technical identity and therefore hid, rather than migrated, that channel.
+The published v1.0.0 also sends its Audit link to a current HTTP 404.
+
+Preserve the stable identity and publish an EOLkits-branded v1.1.0 update through
+the existing credential. The candidate preserves legacy commands and settings,
+repairs all paid-funnel links, and exposes a findings-only qualified-interest
+form whose VS source is counted separately. This shrinks estimated owner labor
+from five minutes of publisher/credential setup to one workflow dispatch and
+verification; it does not authorize an autonomous Marketplace post.
+
+The observed 100–101 install-counter range and 162 downloads establish a
+distribution asset only. Set a fresh V1 baseline when v1.1.0 publishes. After
+five full days, zero counter growth and zero external VS-attributed
+qualified-interest authors kills the extension-as-revenue-channel hypothesis;
+retain the free utility without further promotion. Do not count auto-updates,
+existing installs, or owner probes as demand.
+
+Repository commit `a9cdcaeb` now contains the exact locally verified v1.1.0
+candidate, and its full release/VS package, determinism, property, Pages,
+Marketplace-draft, and acquisition workflows passed. This removes the technical
+release risk but does not start V1's clock: the public listing still serves
+v1.0.0 until HQ-6.
+
+## Owner-gate reconciliation — August 22
+
+The ranking remains K1, A1, V1, C4. A prebuilt GHCR image does not outrank any
+of them. GitHub supports anonymous pulls for public containers and repository
+permission inheritance when a package is linked correctly before publication,
+but this repository has neither the OCI source link nor a package workflow.
+Creating that new public package is also a new owner-authorized external release.
+It would not remove the SSH, secrets, Caddy, Stripe test UI, delivery, or refund
+proof that dominate HQ-3. Do not spend the launch window on container-registry
+hardening. Source checked August 22:
+https://docs.github.com/en/packages/learn-github-packages/about-permissions-for-github-packages
+
+K1 and V1 can safely publish while checkout is closed because every repaired
+link ends at the capability-gated Pages funnel. Still, the five-minute Stripe
+audit comes first because it may expose anomalous commerce state; their
+three-minute owner batch follows immediately. The GRACE operational gate remains
+before the $299 checkout. This ordering does not alter revenue estimates or
+count an unpublished artifact as signal.
+
+## Third-cycle blocker audit — August 22
+
+No new frame enters the ranking. The goal behind every route is collected money
+from a truthful, fulfilled offer. Seven alternatives were rechecked:
+
+1. use the prepared Stripe/GRACE Audit path — blocked by owner Stripe authority,
+   GRACE credentials, legal facts, and the real fulfillment/refund exercise;
+2. publish the Action or VS update — blocked by owner agreement/2FA or publisher
+   identity and prohibited autonomous posting;
+3. reuse a historical Stripe Payment Link — rejected because authenticated
+   commerce state and v2 fulfillment are unproved;
+4. deploy on another free host — does not supply payment/KYC, email credentials,
+   durable report operations, or permission to publish under the owner;
+5. list a code/report product on another marketplace — adds seller identity,
+   KYC, agreement, public listing, and usually a new unproved fulfillment path;
+6. sell a service/license directly — requires prohibited customer contact,
+   commitments, and payment coordination; and
+7. add SEO, samples, telemetry, registries, sponsorships, or ads — cannot collect
+   money while every payment rail is closed and adds no observed buyer signal.
+
+The cheapest legal route remains HQ-2 followed immediately by HQ-5/HQ-6, then
+HQ-1/HQ-3/HQ-4/HQ-7. It is fully prepared and costs eight owner minutes for the
+first containment/distribution batch, 37 minutes total. It is not autonomously
+executable under the identity/contact/credential rules. More repository work is
+now negative leverage.

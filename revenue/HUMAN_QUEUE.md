@@ -1,34 +1,27 @@
-# Batched owner queue — maximum 41 minutes
+# Batched owner queue — maximum 37 minutes
 
-Last reconciled August 22 after publishing the price-qualified demand probe,
-privacy-safe telemetry release, and bounded IndexNow submission. The Stripe
-workflow has not been owner-dispatched; v2.0.0 is not public; no new owner task
-or owner minute was added.
+Last reconciled August 22 after publishing the engine-generated sample report,
+advancing public `v2` to green product commit `9c231b58`, recovering the existing
+VS Marketplace identity, and correcting the canonical private GitHub draft.
+The Stripe workflow has not been owner-dispatched; neither Marketplace update
+is public. HQ-6 no longer requires a new publisher or credential, reducing its
+estimate by four minutes. Repository commit `a9cdcaeb` and its full release/VS
+package run `32604619029` are green; the publication workflow now requires exact
+owner identity and typed confirmation. Guard commit `32d01c2f` and its complete
+release run `32605744293` are also green.
 
-Cloud cycle 2026-08-23 (isolated checkout, no VPS/local/Stripe access): re-read
-this queue and made no change to it. HQ-1 through HQ-7 and their order/minute
-estimates are unchanged. That cycle's only ship was drafted content (Batch 3 in
-`launch/distribution/repost-answers.md`) — optional owner reading, not a queue
-item with a deadline, so the 41-minute total is unaffected.
+The autonomous goal is blocked after three consecutive live-state audits found
+the same owner identity/credential boundary. This is not a request for new
+planning. Any completed item below is a resume trigger; send its run URL or
+result back to Codex. The smallest useful batch remains HQ-2, HQ-5, and HQ-6:
+eight minutes total.
 
-Cloud cycle 2026-08-24 (isolated checkout, no VPS/local/Stripe access): re-read
-this queue and made no change to it. HQ-1 through HQ-7, their order, and the
-41-minute total are unchanged. That cycle's only ship was one more drafted
-answer (Batch 4 in `launch/distribution/repost-answers.md`) — again optional
-owner reading, not a queue item with a deadline.
-
-Cloud cycle 2026-08-25 (isolated checkout, no VPS/local/Stripe/GitHub-API
-access): re-read this queue and made no change to it. HQ-1 through HQ-7, their
-order, and the 41-minute total are unchanged. No evidence was available this
-cycle that any HQ item has been completed since 2026-08-22. That cycle's only
-ship was one more drafted answer (Batch 5 in
-`launch/distribution/repost-answers.md`) — again optional owner reading, not a
-queue item with a deadline.
-
-Do HQ-2 first because the stale GRACE API can still mint live Checkout Sessions,
-then HQ-5 because it repairs existing distribution. Complete HQ-1, HQ-3, HQ-4,
-HQ-6, and finally HQ-7. Checkout remains closed until HQ-7. No old handoff or
-launch file is authoritative.
+Do HQ-2 first because the stale GRACE API can still mint live Checkout Sessions
+and the exact audit may stop on anomalous commerce state. Then do HQ-5 and HQ-6
+in the same sitting so the repaired, fail-closed Pages funnel starts receiving
+Marketplace distribution. Complete HQ-1, HQ-3, HQ-4, and finally HQ-7. HQ-5 and
+HQ-6 are acquisition releases, not checkout-safety gates; checkout remains
+closed until HQ-7. No old handoff or launch file is authoritative.
 
 ## HQ-1 — supply truthful seller/legal and cost facts (3 minutes)
 
@@ -82,7 +75,8 @@ Steps:
 1. Open deploy/grace/README.md in this repository and follow “Deploy checkout
    closed” exactly with EOLKITS_AUDIT_CHECKOUT_ENABLED=0.
 2. First inspect the scheduled “Verify GRACE static release” run after 07:35 UTC.
-   The still-active box-side deploy now follows the verified truthful tree. If
+   The still-active box-side deploy now follows final-tree feed commit
+   `0780909c`. If
    that run passes, do not run a redundant static rsync. If it fails, use
    `deploy/grace/ship-web.sh` with the documented `GRACE_HOST` and
    `GRACE_WEBROOT`, inspect its dry-run, then rerun it with `--apply`. Verify
@@ -107,16 +101,15 @@ Why human-only: platform posting/editing is a communication as the owner.
 Steps:
 
 1. Open https://dev.to/dashboard.
-2. Immediately unpublish “401 from 169.254.169.254 — fixing EC2 instances after
-   the IMDSv2 enforcement deadline”; its universal December 31, 2025 deadline is
-   not supported by current AWS documentation.
-3. Review the remaining 24 EOLkits posts. Immediately unpublish any post that claims live
-   Migration Pack/automatic PR, Organization License, Drift Watch, AWS-account
-   scanning, guaranteed timing, cost/blast-radius estimates, or an active
-   checkout that is not currently true.
-4. Technical posts may remain only if their dates and remediation claims match
-   current primary sources and paid-product links point to the gated Audit page.
-5. Do not add new promotional posts in this batch.
+2. Unpublish all 25 EOLkits posts as one batch. The repository copies are now
+   individually quarantined, but that does not alter the already-live DEV posts.
+   The corpus contains unqualified account-wide/zero-telemetry/closed-product
+   claims and obsolete `eolkits.com` canonicals; article 24 additionally invents
+   a universal December 31, 2025 IMDSv2 enforcement deadline.
+3. Do not edit or republish during this batch. A later post may return only after
+   its dates and scope match current primary sources and its links point to the
+   verified Pages funnel.
+4. Do not add new promotional posts in this batch.
 
 ## HQ-5 — publish the prepared GitHub Marketplace draft (2 minutes)
 
@@ -125,9 +118,12 @@ Why human-only: Marketplace developer agreement, 2FA, and release checkbox.
 Steps:
 
 1. After final main CI is green, open the private prepared draft directly:
-   https://github.com/ntoledo319/EOLkits/releases/tag/untagged-db9a4617f412abd63d2d
-2. Verify it is v2.0.0 targeting the green Action release commit `db32bdfb`
-   (later documentation-only main commits do not invalidate that target), check
+   https://github.com/ntoledo319/EOLkits/releases/tag/untagged-0866963caf3f06db98a1
+   This is the canonical draft created by green run `32604619021`; do not publish
+   either older untagged draft.
+2. Verify it is v2.0.0 targeting green commit `a9cdcaeb`. Public `v2` points to
+   green commit `9c231b58`, whose `action.yml` and `apps/github-action/` files are
+   byte-identical to the draft target. Check
    “Publish this Action to the GitHub Marketplace,” keep the existing
    Marketplace identity, and publish with 2FA. Do not create a second listing
    or a second release. Stop if its Action files differ from public `v2`.
@@ -140,30 +136,39 @@ Steps:
 Official instructions:
 https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace
 
-## HQ-6 — publish the verified VSIX (5 minutes)
+## HQ-6 — update the existing VS listing in place (1 minute)
 
-Why human-only: publisher identity and Marketplace authentication.
+Why human-only: starting the workflow changes a public Marketplace listing under
+the owner's publisher identity. The existing listing and repository credential
+have already published successfully; no new publisher or listing is needed.
 
 Steps:
 
-1. Open https://marketplace.visualstudio.com/manage/publishers/ and create or
-   verify the eolkits publisher.
-2. Follow https://code.visualstudio.com/api/working-with-extensions/publishing-extension
-   to create the currently supported Marketplace credential. Microsoft says
-   global PATs retire December 1, 2026, so prefer the documented Entra path where
-   available.
-3. Add the credential as repository secret VSCE_PAT, then run the “Publish VS
-   Code Extension” workflow from main.
-4. Verify the listing installs version 1.0.0 and links only to the free tools and
-   capability-gated Audit.
+1. Open
+   https://github.com/ntoledo319/EOLkits/actions/workflows/publish-vscode.yml,
+   choose **Run workflow** on `main`, type
+   `PUBLISH_RUPTURE_VSCODE_1_1_0` into the confirmation field, and run it while
+   signed in as repository owner `ntoledo319`. Do not change the package
+   publisher/name or create `eolkits.eolkits-vscode`. The workflow rejects a
+   collaborator dispatch, a collaborator rerun, another branch, or another
+   confirmation value, and packages only the already-green release commit
+   `a9cdcaeb` even if later ledger commits exist on `main`.
+2. Require a green run, then verify
+   https://marketplace.visualstudio.com/items?itemName=rupture.rupture-vscode
+   shows v1.1.0 with EOLkits display branding and links to the verified Pages
+   Audit. The workflow refuses a different technical identity.
+3. If publication fails for an expired or missing credential, stop and give the
+   run URL to Codex. Only that evidence reopens credential renewal; do not create
+   a second publisher or listing.
 
 ## HQ-7 — enable the only checkout (1 minute)
 
 Why human-only: this begins accepting real customer money.
 
-Prerequisites: HQ-1 through HQ-6 complete, zero unresolved refund/fulfillment
+Prerequisites: HQ-1 through HQ-4 complete, zero unresolved refund/fulfillment
 alerts, and the exact production commit is verified. HQ-2 intentionally leaves
-all six historical Prices inactive.
+all six historical Prices inactive. HQ-5 and HQ-6 should happen immediately for
+distribution, but their public listing state does not affect checkout safety.
 
 Steps:
 
@@ -176,6 +181,6 @@ Steps:
 4. Verify /api/capabilities reports Audit 2.0 ready, then confirm the static form
    appears and creates one $299 input-bound Checkout Session.
 
-Estimated current owner total: 41 minutes. This leaves a 19-minute reserve for
+Estimated current owner total: 37 minutes. This leaves a 23-minute reserve for
 unrecorded prior owner work or one failed authentication attempt; do not exceed
 60 minutes without changing the plan.

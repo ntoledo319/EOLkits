@@ -89,6 +89,9 @@ EOLkits does not sell personal data.
 ## 6. Security
 
 - Traffic is served over HTTPS.
+- Generated pages restrict scripts and browser network connections to reviewed
+  first-party origins. An unreviewed hosting-layer script is treated as a
+  deployment failure and is not an authorized analytics provider.
 - Upload identifiers are high entropy and uploads become immutable after receipt.
 - Archive scanning is bounded and does not extract files onto the host filesystem.
 - Production configuration fails closed when required payment/email secrets are

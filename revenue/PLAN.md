@@ -1,11 +1,5 @@
-/home/user/EOLkits
+/home/nick/Development/active/Rupture
 # Revenue plan — reset August 22, 2026
-
-Note (2026-08-23 cloud cycle): WORKSPACE_ROOT above is corrected from a stale
-prior-cycle local-machine path (`/home/nick/Development/active/Rupture`,
-recorded by an earlier local run) to this cycle's actual repo root. This
-session is a fresh isolated cloud checkout with no access to that local
-machine, the GRACE VPS, or local secrets — see D25 in DECISIONS.md.
 
 ## Reality
 
@@ -79,30 +73,33 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
   relevant users to the same Audit page.
 - Funnel: VS Marketplace/editor search and organic error searches → local
   finding or answer page → Audit sample/availability.
-- Owner work: one publisher authentication and publish action.
+- Owner work: one dispatch and verification against the already-public
+  `rupture.rupture-vscode` listing; no new publisher or listing.
 - 28-day planning hypothesis: two Audit sales = $580.06 net. This is unobserved.
-- Falsifier: after nine live days, zero extension installs and zero attributable
-  Audit views; stop extension promotion and retain it only as a free utility.
+- Falsifier: after five full v1.1.0 days, zero install/download growth and zero
+  external VS-attributed qualified-interest authors triggers one repositioning;
+  four more zero-signal days stop promotion and leave only the free utility.
 
 ## Sequence
 
 1. Keep the reviewed repository repair on main without rewriting remote history;
    synthetic commits and obsolete publishing automation are stopped.
-2. Keep the honest GitHub Pages fallback and tested `v2` Action branch green;
-   the owner publishes the prepared v2.0.0 draft into the existing Marketplace
-   listing.
-3. Run the owner-gated exact Stripe retirement. It validates and deactivates all
+2. Run the owner-gated exact Stripe retirement. It validates and deactivates all
    six historical catalog Prices—including $299 while fulfillment is closed—and
    only the six approved Payment Link URLs; any charge/session/subscription/
    schedule anomaly stops the containment claim. Rotate/revoke the account key
    afterward because old Cloudflare versions retain secret snapshots. The
    verified live `rupture-worker` itself is already a tested HTTP 410 tombstone.
+3. Keep the honest GitHub Pages fallback and tested `v2` Action branch green;
+   immediately after Stripe containment, the owner publishes the canonical
+   v2.0.0 draft into the existing Marketplace listing and dispatches the guarded
+   in-place VS update. These distribution releases do not wait for checkout.
 4. Deploy Audit v2 with checkout disabled and complete the full Stripe test-mode
    operational gate.
-5. Update the existing GitHub Marketplace listing and publish the tested VSIX.
-6. Supply the truthful legal/controller values, then enable Audit checkout only
+5. Supply the truthful legal/controller values and remove the false public DEV
+   corpus, then enable Audit checkout only
    if every gate is green and incremental hosting cost is $0.
-7. Measure dollars, purchases, checkout starts, qualified Audit views, Action
+6. Measure dollars, purchases, checkout starts, qualified Audit views, Action
    usage, and extension installs. Do not count tests, commits, posts, or stars as
    demand.
 
@@ -120,116 +117,72 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
 
 ## Current gap and next action
 
-Collected profit: $0. Gap: $4,000. Checkout: closed. The repaired release is on
-main through the project-path/CI follow-ups. The replacement release workflow,
-determinism and property gates, both container builds, and both GitHub Pages
-deployment mechanisms passed. A public probe verified `/EOLkits` navigation,
-the split API origin, and closed-product tombstones. The tested `v2` Action ref
-is now publicly installable at the final `db32bdfb` acquisition commit; Action,
-repository, kit, and future VS links route to the verified Pages funnel. The
-honest private v2.0.0 Marketplace draft is synchronized to the same commit.
-Highest-leverage next action is the owner's five-minute exact Stripe workflow/
-key-rotation task because the stale GRACE API still exposes charge-capable POST
-routes. The two-minute Marketplace agreement/2FA publish step follows immediately
-to start measuring external distribution while the live-domain and real
-payment/fulfillment gates are completed.
-The exposed pre-rename Cloudflare Worker is no longer a payment bypass: public
-health reports `retired: true`, its commercial and webhook paths return HTTP
-410, and retirement workflow run `32591848083` passed. The old-account token
-could not see a unique `eolkits.com` zone, but public DNS resolves directly to
-GRACE; the Worker tombstone remains safe even if a route is reintroduced.
-The active GRACE static deploy feed was safely converged on the verified main
-tree at commit `c3112151`; its next observed run is expected near 07:17 UTC and
-a repository workflow will verify the public domain at 07:35 UTC. Until that
-probe passes, `eolkits.com` is still not counted as repaired. The API/payment
-deployment remains owner-authenticated and checkout remains closed. Repository
-automation also proved it has neither a known GRACE deploy transport nor the
-complete runtime-secret bundle, so that identity boundary cannot be hidden in a
-push. Main commit `e4109e3e` contains the reviewed Stripe closure; its Worker,
-release, determinism, property, Pages, and tombstone workflows passed. The
-owner-only production Stripe workflow itself has not run. No outbound message,
-bid, post, or customer commitment is authorized.
+Collected profit: **$0**. Gap: **$4,000**. Checkout: **closed**.
 
-Main commit `db32bdfb` now exposes a backend-independent price-qualified signal:
-only a real browser/Action finding exposes a public GitHub issue form that
-requires the exact $299 scope and purchase consideration. Read-only run
-`32596830945` preserved the first observation; Pages, release, determinism,
-property, Marketplace-draft, and public `v2` verification are green. Baseline
-observed values remain zero qualified issues, zero external public `@v2` code
-references, zero paid reports, and $0 collected. Bet A's five-day gate begins at
-2026-08-22 20:29 UTC while checkout telemetry remains dormant behind the v2
-capability handshake. The owner priority stays HQ-2 → HQ-5 → closed v2
-deployment; demand instrumentation does not make the stale API safe to charge.
+The strongest autonomous conversion repair is now public. Main contains green
+product commit `9c231b58`, and the installable `v2` ref resolves to it; the verified Pages
+funnel exposes an actual four-page report created by the paid report engine,
+its entirely fictional ZIP input, and a hash/evidence manifest:
 
-Cloud cycle 2026-08-23: no new owner action was added and no code/infra
-changed. The prior cycle's stated blockers are unchanged and this cycle could
-not independently re-check them (no VPS/local/Stripe access from this
-checkout). This cycle's highest-leverage in-jail, $0, no-human-contact ship
-was restocking the K1/A1 answer backlog: two fresh, verified, help-first
-drafts appended to `launch/distribution/repost-answers.md` (Batch 3) for real,
-currently open AWS re:Post threads found via live search this cycle — a
-Node.js 18 Lambda@Edge-replica Health Dashboard confusion, and a CodeBuild
-GitHub Actions runner defaulting to AL2 instead of AL2023. Both route to the
-verified Pages funnel, not the unconfirmed custom domain (see D25). Owner
-work remains unchanged: HQ-2 through HQ-7 in that order, plus now optionally
-pasting the two new Batch 3 answers (no new owner minutes required until they
-choose to paste them; posting is their action, not a queue item with a
-deadline). Collected profit remains $0; gap remains $4,000.
+- https://ntoledo319.github.io/EOLkits/audit/
+- https://ntoledo319.github.io/EOLkits/audit/sample/eolkits-sample-report.pdf
+- https://ntoledo319.github.io/EOLkits/audit/sample/fictional-repository.zip
+- https://ntoledo319.github.io/EOLkits/audit/sample/eolkits-sample-report.json
 
-Cloud cycle 2026-08-24: another isolated cloud checkout, no code/infra
-changed, no new owner-queue item added. WebFetch was again `EGRESS_BLOCKED`
-for a neutral control; WebSearch worked and was used, cross-checked across
-multiple independent results per finding (see D26). This cycle's
-highest-leverage in-jail, $0, no-human-contact ship was one more restock of
-the K1/A1 answer backlog: one fresh, unique, help-first draft appended to
-`launch/distribution/repost-answers.md` (Batch 4) for a real, currently open
-AWS re:Post thread (`QUowJJh-50R3KbxGrZ2YNsCA`, a Python 3.9 Lambda
-`Runtime.Unknown` INIT-phase failure caused by an automatic runtime-version
-bump breaking a native dependency). Several other candidate threads found
-this cycle already had substantive community answers and were skipped rather
-than padded (D26). Owner work remains unchanged: HQ-2 through HQ-7 in that
-order, plus optionally pasting the new Batch 4 answer whenever convenient.
-Collected profit remains $0; gap remains $4,000.
+The public PDF is 29,392 bytes with SHA-256
+`855c793c8b2735f54fad08465f05c50943cb7908fd194b43dacf0eca9c423d9a`.
+The replacement release, determinism, property, custom Pages, and built-in Pages
+workflows passed. The first Pages attempt failed because native WeasyPrint/font
+stacks can serialize an equivalent PDF differently; the corrected gate preserves
+the published artifact's exact hash and compares every renderer-independent
+engine field. That failure is recorded, not hidden.
 
-Main commit `951fd4b6` adds the strongest remaining autonomous discovery action:
-an official-protocol IndexNow workflow for the verified Pages corpus. It checks
-the already-public ownership key, confines submissions to the `/EOLkits/`
-prefix, caps the batch, maps ordinary pushes to changed/deleted HTML, and treats
-HTTP 200/202 only as receipt. Bootstrap run `32597777674` accepted the 51-URL
-sitemap batch; every release/Pages/property/determinism gate also passed. Fresh
-acquisition run `32597777625` still observed 0 qualified issues, 0 external
-public `@v2` references, no v2.0.0 public release, 1 star, and 0 forks. Therefore
-the next leverage remains owner HQ-2 then HQ-5; do not build another SKU or move
-the August 27 falsifier forward because of an indexing notification.
+The current canonical private v2.0.0 Marketplace draft was created by green run
+`32604619021` at commit `a9cdcaeb`; its Action files are byte-identical to public
+`v2` at `9c231b58`. An older direct draft URL in the owner queue was stale and has
+been replaced. The Marketplace itself still advertises v1.1.0.
+The GRACE static feed now points at two-parent commit `0780909c` with the exact
+final tree, but `eolkits.com` still serves Migration Pack/Drift Watch copy and
+`/api/capabilities` returns 404 until the next observed deploy or owner rollout.
 
-Between the 2026-08-24 cycle and this one, a separate in-repo effort (commits
-`bffb335a`/`9c231b58`/`0780909c`, all dated 2026-08-22 but merged after this
-cycle's prior read) shipped a verifiable report-proof/fulfillment hardening
-pass for the Audit runner and merged it into the GRACE static feed. This cycle
-did not author or re-verify that work; it is noted here only so the next cycle
-does not mistake it for new owner action. No HQ item, gate, or ranking changes
-because of it — it is still release evidence, not fulfillment proof, until the
-owner completes HQ-2 through HQ-7.
+Observed demand remains zero: 0 qualified issues, 0 paid reports, 1 repository
+star, 0 forks, and $0 collected. Bet A's first five-full-day falsifier remains
+2026-08-27 20:29 UTC; internal downloads and release probes do not move it.
 
-Cloud cycle 2026-08-25: another isolated cloud checkout (no VPS/local/Stripe
-access). Unlike the two prior cloud cycles, WebSearch again worked and this
-cycle's WebFetch neutral-control probe (`example.com`) again returned
-`EGRESS_BLOCKED`, so all sourcing is via cross-checked search snippets, per
-D25/D26 precedent. This cycle's highest-leverage in-jail, $0, no-human-contact
-ship was one more K1/C4 answer-backlog restock: one fresh, unique, help-first
-draft appended to `launch/distribution/repost-answers.md` (Batch 5) for a real,
-currently-search-indexed AWS re:Post thread (`QURnP8vskJREG40Ilrwx_RLQ`, a
-Lambda nodejs16.x-to-nodejs20.x runtime bump breaking Cognito login in an
-API-Gateway-developer-portal SAM app) whose existing community answer did not
-cover the two things this draft adds: the AWS-SDK-v2-bundled-on-nodejs16.x vs
-SDK-v3-bundled-on-nodejs18.x+ breaking-change diagnosis, and the fact that
-`nodejs20.x` itself is already in the 2027-02-01/2027-03-03 block cluster, so
-jumping straight to `nodejs22.x`/`nodejs24.x` avoids repeating the migration.
-Several other candidate threads found this cycle (the Lambda-runtime-dates-
-diverge-by-locale thread, a stale 2023-era .NET Core 3.1 deprecation thread, a
-CloudFront-secure-static-site nodejs20.x EOL thread) already had substantive
-community answers with no clear distinctive gap to fill, so per AGENTS.md's
-quality-over-quantity instruction they were not drafted. Owner work remains
-unchanged: HQ-2 through HQ-7 in that order, plus optionally pasting the new
-Batch 5 answer whenever convenient. Collected profit remains $0; gap remains
-$4,000.
+The strongest recovered distribution asset is the existing
+`rupture.rupture-vscode` listing: it is v1.0.0, adjacent queries returned a
+100–101 install-counter range, and downloads were 162. The published version
+sends users to a dead `/Rupture/audit` URL. Repository commit `a9cdcaeb` now
+contains the fully green v1.1.0 candidate, which preserves that identity and
+legacy user settings/commands, repairs the verified Audit route, and measures
+only user-submitted, findings-qualified VS interest. Marketplace v1.1.0 is not
+public yet, and the approximate counters are not demand or revenue.
+
+Public guard commit `32d01c2f` pins publication to exact green candidate
+`a9cdcaeb`, rejects non-owner dispatch/reruns and wrong confirmation values, and
+passed release, determinism, property, and Pages CI. This closes the repository
+release gate; it does not mean v1.1.0 has been published.
+
+Highest-leverage next action is the five-minute HQ-2 exact Stripe closure/key
+rotation because the audit may expose anomalous commerce state. Immediately
+afterward, use the same owner sitting for the three-minute HQ-5/HQ-6 distribution
+batch: publish the canonical GitHub draft and dispatch the owner-guarded in-place
+VS update. Both releases route to the fail-closed Pages funnel and can start
+acquisition before commerce opens. Then complete legal facts, the closed GRACE
+fulfillment proof, and false-post removal before enabling the single $299 Price.
+Do not create another VS publisher, add a product, lower the price, or call
+installs/auto-updates demand evidence.
+
+## Strict blocker state — 2026-08-22T23:47:26Z
+
+This is the third consecutive goal turn ending at the same external-authority
+boundary. Fresh public evidence still shows zero Stripe-retirement runs, no new
+VS publish run, VS v1.0.0, GitHub Marketplace v1.1.0, no public v2.0.0 release,
+HTTP 404 for GRACE capabilities, zero qualified issues, and $0 collected.
+
+The goal remains $4,000 collected profit; it is not complete. No safe legal
+autonomous task can make checkout live or publish under the owner's identities.
+Resume immediately when any owner queue item changes external state. The fastest
+resume event is a run URL from HQ-2; next are publication of the canonical
+GitHub draft or dispatch of guarded VS v1.1.0. Until one occurs, do not replace
+the blocked cash path with product polish, another offer, or synthetic demand.

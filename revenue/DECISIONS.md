@@ -15,14 +15,19 @@ Containment incidents disclosed during this repair:
 - early dependency commands were run before project-local pip/npm temp and
   config overrides were consistently set;
 - an earlier failed Wrangler invocation wrote its own log outside the jail;
-- early Git inspection may have consulted machine Git configuration; and
+- early Git inspection may have consulted machine Git configuration;
 - the first broad Ruff run had no repository config and may have inherited a
-  machine-level configuration.
+  machine-level configuration;
+- a later runner test was invoked without the required workspace-local TMPDIR,
+  causing pytest to create its temporary directory under system `/tmp`; and
+- a live HTTP status probe explicitly targeted `/dev/null`, which the total jail
+  forbids even when the intended content is discard-only.
 
 No outside file was intentionally inspected or cleaned afterward because doing
-so would repeat the violation. The repair added workspace-local config/cache
-paths and a repository-owned Python lint contract. These incidents are process
-failures, not hidden successes.
+so would repeat the violation. Subsequent verification restored the explicit
+workspace-local TMPDIR and kept probe output in-process. The repair added
+workspace-local config/cache paths and a repository-owned Python lint contract.
+These incidents are process failures, not hidden successes.
 
 ## D1 — reject the premise that profitability was established
 
@@ -414,156 +419,161 @@ receipt, never as crawling, indexing, rank, traffic, or demand. The simultaneous
 acquisition artifact remained at zero qualified issues and zero external `@v2`
 references, so the August 27 falsifier and portfolio ranking do not move.
 
-## D25 — cloud cycle, corrected WORKSPACE_ROOT, restocked the answer backlog
+## D25 — replace the mock sample with actual fulfillment output
 
-This 2026-08-23 cycle ran as an isolated cloud checkout with no access to any
-local machine, the GRACE VPS, or local/box secrets; its only ship channel is
-`git push` to `marketing-machine-v2`. `revenue/PLAN.md` line 1 still recorded a
-prior local run's machine path (`/home/nick/Development/active/Rupture`); it
-is corrected to this cycle's actual repo root. This is a bookkeeping
-correction, not a claim that any prior local evidence was wrong.
+The Audit page promised exact evidence, a remediation order, hashes, and a PDF,
+but the prior public sample was a hand-maintained HTML facsimile. That is the
+largest autonomous trust leak for the only paid offer. Publish a wholly
+fictional, deterministic ZIP and send it through the same
+`generate_audit_package()` path used for paid work. Ship the resulting four-page
+PDF plus a JSON manifest containing exact input/PDF hashes, rule/report/template
+versions, evidence fingerprint, scan counts, and an explicit statement that the
+sample is fictional and not registered as customer verification evidence.
 
-Live web access was available via search this cycle but WebFetch was blocked
-for every tested domain (`example.com`, `docs.aws.amazon.com`, `repost.aws`,
-`eolkits.com`) with `EGRESS_BLOCKED`, so no page content could be directly
-fetched and verified byte-for-byte. Facts below rest on (a) AWS Lambda
-runtime-table dates already cross-verified in this repo's own prior cycles
-(D14, D23) and repeated verbatim in this cycle's task instructions, and (b)
-corroborating search-result snippets from multiple independent sources for
-each specific technical claim (Lambda@Edge replica deletion behavior,
-CodeBuild GitHub Actions runner image labels). No date, URL, or claim was
-invented; where confidence was insufficient (a WeasyPrint/AL2023 Elastic
-Beanstalk image-rendering question found via search) the candidate was
-dropped rather than drafted speculatively.
+Building the real artifact exposed a false critical finding: a generic
+`amazon-linux-extras enable python3.8` line was being treated as a Lambda runtime
+configuration. Bind runtime matches to supported Lambda/SAM/Serverless/CDK/HCL
+contexts, align the browser heuristic, and bound archive names, lines, mapping
+records, Lambda resources, flow structures, dependency manifests/specifiers,
+and retained evidence. Reject ambiguity/complexity before checkout. Label AWS's
+future Lambda dates as projected and describe dependency links as configured
+package references, not proof that a local conservative floor is official.
 
-Per this cycle's standing priority, restocked the K1/C4 answer backlog:
-appended Batch 3 to `launch/distribution/repost-answers.md` with two fresh,
-unique, help-first drafts for real open AWS re:Post threads not covered by
-Batches 1–2 (`QUz3FDy7jfQliBFrh_hKZoaQ` — Node.js 18 deprecation notice citing
-already-deleted functions, actually a Lambda@Edge replica/CloudFront
-propagation issue; `QUqvfJVhQ4ReeApG8shtcu1A` — CodeBuild-hosted GitHub
-Actions runner defaulting to AL2 instead of AL2023 for lack of an `image:`
-runs-on label). Both answers solve the asker's actual problem first and
-mention eolkits once, disclosed, as in prior batches.
+The sample is conversion proof, not demand. Its download, an internal probe, or
+a CI fetch does not count as a visit, lead, sale, or revenue event.
 
-Unlike Batches 1–2, Batch 3 links to the verified `ntoledo319.github.io/EOLkits`
-Pages build rather than `eolkits.com`: this cycle had no way to confirm the
-custom domain is still serving the repaired site (D19/D20's scheduled
-post-deploy truth gate result was not observed from this checkout), so per
-D19's own rule — never send acquisition traffic to an unproved deployment —
-the verified surface was used instead. This does not change Batches 1–2's
-archived status; those still need the fresh review already noted.
+## D26 — make report verification portable without weakening the public hash
 
-This is one more drafted-content ship, not demand evidence. It does not
-change K1/A1's ranking, gates, or falsifiers, and it adds no owner-queue item
-with a deadline (pasting the new answers is available to the owner whenever
-convenient, same as the rest of the backlog). Collected revenue remains $0.
+Initial feature commit `bffb335a` had an exact remote tree match, but its custom
+Pages and release runs failed: WeasyPrint's native font/shaping/PDF stack emitted
+different bytes on the GitHub runner. The fixture and engine semantics matched;
+requiring one workstation's PDF serialization across Linux images was the wrong
+portability invariant.
 
-## D26 — cloud cycle, restocked the answer backlog again (Batch 4)
+Keep the checked-in public PDF immutable and require its exact SHA-256 to match
+the public manifest. On a fresh runner, regenerate through the production engine
+and require the same fictional input, page count, template/rule/report versions,
+scope counts, findings, evidence fingerprint, and every other manifest field
+except the renderer-produced PDF byte count and SHA. The fresh output must still
+be a PDF. A regression proves that only those two serialization fields may vary
+and that a changed finding count fails. Follow-up `9c231b58` passed the full
+release, determinism, property, and both Pages gates.
 
-This 2026-08-24 cycle is another isolated cloud checkout with no VPS/local/
-Stripe access; same jail and ship channel as D25. WebFetch again returned
-`EGRESS_BLOCKED` for a neutral control (`example.com`), so, following D25's
-precedent, no page content was fetched byte-for-byte; WebSearch worked and
-was used instead, cross-checking each specific technical claim against
-multiple independent search results before drafting.
+## D27 — publish one final tree across every autonomous distribution ref
 
-Per the standing K1/C4 answer-backlog priority, appended Batch 4 to
-`launch/distribution/repost-answers.md`: one fresh, unique, help-first draft
-for a real open AWS re:Post thread not covered by Batches 1–3
-(`QUowJJh-50R3KbxGrZ2YNsCA` — "python 3.9 runtime update gives Runtime.Unknown
-in INIT phase"). Search corroboration (multiple independent snippets)
-confirmed the thread's actual content: the user's `python3.9` execution
-environment auto-updated from internal build v96 to v101, and a native
-extension (psycopg2 was named in a related discussion of the same failure
-mode) then failed to load, producing a bare `Runtime.Unknown` in INIT rather
-than a clear import error. The answer's core fix — pinning/rolling back the
-runtime version via Lambda's documented runtime-management-controls
-(`UpdateRuntimeOn=Manual`) — is AWS's own documented mechanism for exactly
-this failure mode, not inferred from the thread itself; both cited docs URLs
-(`runtime-management.html`, `runtime-management-rollback.html`) are the
-existing official pages already used as sourcing precedent in this repo.
+Publish final product commit `9c231b58` on `main` and advance the installable
+`v2` branch to it without force; its exact tree is
+`8a25da73a1dc8c3c9107c76e7a20d87cc620cd98`. Later ledger-only main commits do
+not change the product tree.
+The private v2.0.0 draft remains at feature commit `bffb335a`; final changes are
+runner-test-only and Action bytes are identical. Its Marketplace agreement/2FA
+publish remains owner-only.
 
-Only one answer was drafted this cycle, not two: several other superficially
-promising candidates found via search (the SSM State Manager Python 3.9
-notice-confusion thread, the "Lambda runtime deprecation dates differ by
-documentation language" thread, the "rollback to Node 14" thread) already had
-substantive community answers visible in their own search-result summaries,
-so a second EOLkits answer there would not clearly add net-new help-first
-value. Per AGENTS.md's own instruction — quality over quantity, skip rather
-than pad — this cycle shipped the one candidate that was both genuinely
-novel and clearly still worth answering, rather than padding to two.
+The GRACE auto-deploy branch cannot fast-forward directly to main because its
+history intentionally preserves the older static-feed lineage. Create
+two-parent commit `0780909c` with the old feed as first parent, final main as
+second parent, and the exact final tree; advance the feed without force. This
+queues the real sample and truthful copy for the observed daily deploy but does
+not claim the custom domain is repaired before a public probe passes. At cycle
+end it still served retired product copy and `/api/capabilities` returned 404.
+Collected revenue remains $0.
 
-As in Batch 3, the drafted link points to the verified
-`ntoledo319.github.io/EOLkits` Pages build (specifically its
-`/fix/lambda-glibc-version-not-found/` page, whose existing copy already
-names `psycopg2` and the AL2/AL2023 glibc split relevant to this exact
-failure mode) rather than `eolkits.com`, because this checkout again had no
-way to confirm the custom domain is still serving the repaired site.
+## D28 — recover the installed VS channel instead of creating a second listing
 
-This is one more drafted-content ship, not demand evidence. It does not
-change K1/A1's ranking, gates, or falsifiers, and adds no owner-queue item
-with a deadline. Collected revenue remains $0; gap remains $4,000.
+The earlier “not published” conclusion came from searching the new EOLkits name.
+Exact Marketplace API lookup proves that `rupture.rupture-vscode` remains public
+at v1.0.0 with 101 cumulative installs and 162 downloads, while
+`eolkits.eolkits-vscode` does not exist. Historical workflow run `25262940459`
+also proves the repository previously published the stable identity through its
+existing `VSCE_PAT` binding. These counters establish an existing distribution
+asset only; they are not current users, qualified intent, or revenue.
 
-## D27 — cloud cycle, restocked the answer backlog again (Batch 5)
+Do not create a new EOLkits publisher or listing. Restore `publisher=rupture` and
+`name=rupture-vscode`, retain EOLkits as the display brand, bump to v1.1.0, and
+make the publish workflow fail if that identity drifts. This preserves upgrade
+delivery to the installed base and reduces HQ-6 to the public workflow dispatch
+and verification. That final public post remains owner-only.
 
-This 2026-08-25 cycle is another isolated cloud checkout with no VPS/local/
-Stripe/GitHub-API access; same jail and ship channel as D25/D26. WebFetch
-again returned `EGRESS_BLOCKED` for a neutral control (`example.com`);
-WebSearch worked and was used, cross-checking each specific technical claim
-against multiple independent search-result snippets before drafting, per
-the same discipline as D25/D26.
+An in-place minor update must not silently break the old namespace. Keep
+`rupture.*` command activation/aliases and deprecated configuration properties
+for this transition. Resolve an explicitly configured `eolkits.*` value first,
+then an explicit `rupture.*` value, then the current default; this prevents a
+legacy `rupture.autoScan=false` from turning back on merely because the new
+manifest contributes a default. Regression-test both precedence directions and
+package contents before publication.
 
-Between the 2026-08-24 cycle's read and this one, three same-day-dated
-(2026-08-22) commits (`bffb335a`, `9c231b58`, `0780909c`) landed on this
-branch shipping an Audit report-proof/fulfillment hardening pass, authored
-outside this cycle. This cycle did not write or independently re-verify that
-code; it is recorded in PLAN.md/ASSETS.md for continuity, not claimed as this
-cycle's work, and changes no HQ item, gate, or ranking — it is release
-evidence at most until the owner completes HQ-2 through HQ-7.
+The current v1.0.0 links to a dead `https://ntoledo319.github.io/Rupture/audit`
+route. Repair it to the verified Pages funnel and show a `$299` nonbinding public
+interest link only when the extension has actual findings. Add “VS Code
+extension” to the privacy-bounded issue form and count that source separately in
+the read-only acquisition artifact. Users must choose to open and submit it; the
+extension sends no code, telemetry, or messages. Start V1's five-full-day
+falsifier only after v1.1.0 is public, using a fresh Marketplace-counter baseline
+plus external VS-attributed qualified authors. Zero growth and zero authors kill
+the channel hypothesis; packaging, auto-updates, and internal probes do not pass.
 
-Per the standing K1/C4 answer-backlog priority, appended Batch 5 to
-`launch/distribution/repost-answers.md`: one fresh, unique, help-first draft
-for a real, search-indexed AWS re:Post thread not covered by Batches 1–4
-(`QURnP8vskJREG40Ilrwx_RLQ` — "API GATEWAY DEV PORTAL - Update Lambda
-Functions to nodejs20", a SAM-generated developer-portal app whose Cognito
-login broke after bumping from `nodejs16.x` to `nodejs20.x`). The existing
-community answer (found via search) only gestured at an SDK v2/v3 concern;
-this draft adds two things it did not cover: (a) the specific, well-documented
-mechanism — `nodejs16.x` bundles AWS SDK v2, `nodejs18.x`+ bundles v3, and a
-lingering `require('aws-sdk')` v2 call is the most common cause of exactly
-this kind of post-bump breakage — corroborated via multiple independent
-search snippets (an AWS CDK GitHub issue, a re:Post thread on the same SDK
-mismatch, and a migration-guide article), not asserted from the target thread
-alone; and (b) a warning not to stop at `nodejs20.x`, since it is already in
-the same 2027-02-01/2027-03-03 block-create/block-update cluster as
-`nodejs16.x`/`nodejs18.x` per AWS's current runtimes table — recommending
-`nodejs22.x`/`nodejs24.x` instead so the asker does not repeat this migration
-within the year.
+Release evidence: repository commit `a9cdcaeb` has exact tree `99136547` and
+passed the complete release matrix, including a clean extension install/test/
+package job, plus determinism, properties, built-in Pages, Marketplace-draft,
+and acquisition runs. Adjacent gallery queries returned 101 then 100 for the
+install statistic while downloads stayed 162, so record the distribution as
+approximately 100 installs and baseline it again only after v1.1.0 publishes.
+The public listing remains v1.0.0; CI success does not authorize or imply the
+owner-only Marketplace post.
 
-This cycle's searches surfaced three other superficially promising
-candidates, each rejected under AGENTS.md's quality-over-quantity rule
-because each already had a substantive community answer with no clear
-distinctive gap: a thread about Lambda deprecation dates diverging by
-documentation locale (`QU_XgpAZ8CRdmRP17Oz8S1Aw`) whose existing answer
-already told the asker to trust the English page; a stale 2023-era .NET Core
-3.1 Lambda-deprecation-policy thread already covering the phase-1/phase-2
-policy generically; and a CloudFront-secure-static-site `nodejs20.x` EOL
-thread (`QUyHgVGQcUQyWa1bOcW7p4sQ`) whose existing answer already gave two
-concrete remediation paths. Search itself also surfaced materially
-conflicting "block" dates for `nodejs20.x` across sources (2026-08-31/
-2026-09-30 in one snippet, 2026-06-01/2026-07-01 in another, versus this
-repo's already-verified 2027-02-01/2027-03-03) — exactly the superseded-date
-confusion AGENTS.md warns about. Per D14/D23/D25/D26 precedent, this draft
-uses only the repo's already-cross-verified 2027 dates, explicitly warns
-against the various 2026 dates, and does not treat any single search snippet
-as authoritative on its own.
+## D29 — remove release-hand-off ambiguity and guard the publisher credential
 
-As in Batches 3–4, the drafted link points to the verified
-`ntoledo319.github.io/EOLkits` Pages build rather than `eolkits.com`, because
-this checkout again had no way to confirm the custom domain is still serving
-the repaired site.
+Green Marketplace-draft run `32604619021` created the current canonical private
+v2.0.0 draft at `untagged-0866963caf3f06db98a1`, targeting `a9cdcaeb`. The
+owner queue still pointed at an older untagged draft and target. Replace that
+ephemeral link with the observed current draft and require the owner to reject
+the two stale drafts. Direct comparison confirms the canonical target's Action
+files are byte-identical to public `v2` at `9c231b58`.
 
-This is one more drafted-content ship, not demand evidence. It does not
-change K1/A1's ranking, gates, or falsifiers, and adds no owner-queue item
-with a deadline. Collected revenue remains $0; gap remains $4,000.
+Treat a VS Marketplace publication as a production credential action, not an
+ordinary test workflow. Require the exact repository owner as both dispatch and
+triggering actor, the `main` ref, the exact repository, and typed confirmation
+`PUBLISH_RUPTURE_VSCODE_1_1_0`; recheck those values before checkout or secret
+use and serialize publication attempts. This prevents a collaborator with
+Actions dispatch/rerun permission from spending the existing publisher token.
+Package only verified release commit `a9cdcaeb`, with persisted Git credentials
+disabled, so later ledger-only `main` commits cannot silently change the VSIX.
+
+Keep HQ-2 before HQ-5 and HQ-6 because its exact audit can stop on anomalous
+commerce state; five minutes does not affect a five-day signal gate. Publish the
+two repaired, fail-closed distribution artifacts immediately after containment.
+Remove them from HQ-7's checkout-safety prerequisites: distribution state cannot
+make fulfillment safe or unsafe. HQ-1 through HQ-4, exact production
+verification, and zero unresolved refund/fulfillment alerts still gate checkout.
+
+Do not publish GHCR as a launch shortcut. The repository lacks the pre-publish
+OCI source linkage and package workflow needed for deliberate permission
+inheritance; a new public package is an additional owner-authorized external
+release. The current image inputs also float, and a prebuilt image removes none
+of the operational proof dominating HQ-3. No public listing or checkout action
+was autonomously taken. Collected revenue remains $0.
+
+## D30 — mark the repeated owner-authority impasse as blocked
+
+This continuation is the third consecutive goal turn ending on the same exact
+boundary. First, the product and truthful funnel were made releasable but Stripe,
+Marketplace, GRACE, and legal state remained owner-gated. Second, the existing
+VS identity was recovered and its publication path pinned and secured, yet the
+same gates remained. Third, fresh live probes again show zero Stripe-retirement
+runs, no Marketplace publication, no GRACE v2 deployment, zero qualified issues,
+and $0. Three independent specialist reviews found no safe autonomous cash route.
+
+Restated goal: collect substantial profit from a truthful EOLkits offer with $0
+spend and near-zero owner labor. Alternatives rechecked were the prepared Audit
+checkout, both existing marketplaces, historical Stripe links, alternate free
+hosting, another digital marketplace, direct service/licensing, and additional
+organic/registry/sponsorship surfaces. Each requires owner identity/KYC or
+credentials, a prohibited public post/contact, or accepting money before verified
+fulfillment. The cheapest lawful test remains the already-prepared eight-minute
+HQ-2/HQ-5/HQ-6 batch, followed by the rest of the 37-minute queue.
+
+This cycle produced no customer-visible commercial improvement and is logged as
+an analysis-only failed cycle under the ship law. Publishing this evidence ledger
+preserves the exact resume state; it is not counted as a launch, demand, or
+revenue. Mark the persistent goal blocked, not complete. Resume on any owner
+queue result or other genuine external-state change.

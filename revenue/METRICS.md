@@ -16,8 +16,9 @@ Only observed evidence belongs here. Forecasts are in OPPORTUNITIES.md and PLAN.
   https://github.com/marketplace/actions/rupture-aws-deprecation-check
 - DEV profile observed with 25 posts and 0 comments:
   https://dev.to/ntoledo319
-- No EOLkits result was observed in Visual Studio Marketplace search. This is an
-  inference that the extension is not published, not a marketplace account audit.
+- The initial EOLkits-name search missed the stable technical identity. Exact
+  Marketplace API lookup later found public `rupture.rupture-vscode` v1.0.0;
+  the recovered baseline is recorded below and supersedes that inference.
 
 ## Live-surface baseline — August 21–22, 2026
 
@@ -345,59 +346,179 @@ benchmarks, or unverified analytics in this ledger.
   with `/api/capabilities` returning 404. Paid deliveries, collected revenue,
   and collected profit remain 0 / $0 / $0.
 
-## Cloud cycle observation — 2026-08-23T06:14:19Z
+## Engine-generated proof published — 2026-08-22T22:42:43Z
 
-- This cycle ran from an isolated cloud checkout (no VPS/local/Stripe access),
-  so it re-observed nothing about GRACE, Stripe, the Marketplace listing, or
-  `eolkits.com`'s live content; all figures above from 2026-08-22 stand
-  unverified-but-unchanged by this cycle, not re-confirmed.
-- WebFetch returned `EGRESS_BLOCKED` for every domain tested this cycle
-  (`example.com`, `docs.aws.amazon.com`, `repost.aws`, `eolkits.com`).
-  WebSearch worked and was used instead; see D25 for how facts were sourced
-  under that constraint.
-- Shipped: two new drafted, unposted answers appended to
-  `launch/distribution/repost-answers.md` (Batch 3) for real open AWS re:Post
-  threads (`QUz3FDy7jfQliBFrh_hKZoaQ`, `QUqvfJVhQ4ReeApG8shtcu1A`) found via
-  live search this cycle. This is backlog inventory, not a post, view, click,
-  signup, or dollar — no external event to record yet.
-- Paid reports delivered: 0. Collected revenue: $0. Collected profit: $0. Gap
-  to $4,000 target: $4,000, unchanged.
+- Feature commit
+  https://github.com/ntoledo319/EOLkits/commit/bffb335acca35a9a3cf2f48771198327ceab7a61
+  published remote tree `7fd7a81a73e588fff43dd93314c2a60053b9fde6`,
+  exactly matching the locally verified product tree. It added a genuine
+  engine-generated fictional report, detector/DoS hardening, renderer/test
+  locks, truthful privacy/scope copy, safer static deployment, and individual
+  archive guards on all 25 DEV source files.
+- The first custom Pages run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32602860382 and release run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32602860359 failed because a
+  GitHub-hosted runner's native font/PDF stack serialized an otherwise matching
+  WeasyPrint report to different bytes. Determinism `32602860366`, properties
+  `32602860404`, built-in Pages `32602860212`, IndexNow `32602860388`, acquisition
+  `32602860363`, Marketplace-draft `32602860373`, and status smoke
+  `32602912166` passed. The failures are recorded release evidence, not hidden.
+- Follow-up commit
+  https://github.com/ntoledo319/EOLkits/commit/9c231b58c5f2af2ab671a19b2ebd01a8ae475c9a
+  published exact final tree `8a25da73a1dc8c3c9107c76e7a20d87cc620cd98`.
+  The portable gate preserves the checked-in PDF's exact hash and compares the
+  fixture, page count, template/rule versions, findings, evidence fingerprint,
+  and every other renderer-independent engine field. Its replacement release
+  https://github.com/ntoledo319/EOLkits/actions/runs/32603025003, determinism
+  https://github.com/ntoledo319/EOLkits/actions/runs/32603025004, properties
+  https://github.com/ntoledo319/EOLkits/actions/runs/32603025011, custom Pages
+  https://github.com/ntoledo319/EOLkits/actions/runs/32603024985, and built-in
+  Pages https://github.com/ntoledo319/EOLkits/actions/runs/32603024375 all passed.
+- Public probes returned the expected release marker and HTTP-served artifacts:
+  `application/pdf` at 29,392 bytes, `application/x-zip-compressed` at 850 bytes,
+  and `application/json` at 1,145 bytes. Their observed SHA-256 values were:
+  PDF `855c793c8b2735f54fad08465f05c50943cb7908fd194b43dacf0eca9c423d9a`,
+  ZIP `3fd7c4f6cfdb27d436399a0a639d4990303030839a0a338bb343a1ef12031b67`,
+  and manifest `8ad77bb90851ec9ec1ae893118bb3efca69d4545e72ee179915b957222396a58`.
+  The manifest reports 4 PDF pages, 4 findings, 5 evidence records, 4 scanned
+  files, 1 skipped README, fictional=true, and verification_registered=false.
+- Local final checks recorded 33 runner cases and 32 generated-site cases,
+  deterministic sample validation, 74 API cases, 49 al2023-gate cases, 50
+  python-pivot cases, 28 lambda-lifeline cases, 39 Worker cases, Action fixtures,
+  VS compile/lint/rule/package gates, Ruff/Black/mypy, YAML/ShellCheck, clean
+  Python/Node vulnerability audits, a clean high-confidence secret scan, and
+  qpdf/content/visual inspection of all four PDF pages. The independent final
+  review returned `NO PUBLISH BLOCKER` after one binary-archive copy correction.
+- Public `main` contains product commit `9c231b58`, and `v2` resolves to it.
+  Documentation-ledger commit `48b6f2af` subsequently passed release run
+  `32603425198`, determinism `32603425199`, properties `32603425194`, and
+  built-in Pages `32603424362`; ledger-only descendants do not alter the product
+  tree. Marketplace-draft run
+  `32602860373` synchronized private v2.0.0 to feature commit `bffb335a`; the
+  final follow-up changes only renderer-portability tests, so Action bytes are
+  unchanged. The public Marketplace page still reports v1.1.0.
+- The GRACE source feed advanced without force to two-parent commit
+  `0780909c938bf6acb0fe01ed1aad1c83662b5140`, whose tree exactly matches final
+  main. At this observation, `eolkits.com` still contained Migration Pack and
+  Drift Watch copy and `/api/capabilities` returned 404; checkout is not live.
+- GitHub exposed 0 actual issues (pull requests excluded), 1 star, and 0 forks.
+  No qualified issue, checkout, purchase, report delivery, refund, or collected
+  dollar was observed. Revenue / profit / target gap remain $0 / $0 / $4,000.
 
-## Cloud cycle observation — 2026-08-24T00:00:00Z (see D26 for exact timing basis)
+## Existing VS distribution recovered — 2026-08-22T23:02:30Z
 
-- This cycle also ran from an isolated cloud checkout (no VPS/local/Stripe
-  access). WebFetch returned `EGRESS_BLOCKED` again for a neutral control
-  (`example.com`); WebSearch worked and was used instead, per D25/D26.
-- No independent re-observation of GRACE, Stripe, the Marketplace listing, or
-  `eolkits.com`'s live content was possible this cycle; all prior figures
-  stand unverified-but-unchanged, not re-confirmed.
-- Shipped: one new drafted, unposted answer appended to
-  `launch/distribution/repost-answers.md` (Batch 4) for a real open AWS
-  re:Post thread (`QUowJJh-50R3KbxGrZ2YNsCA`) found via live search this
-  cycle, cross-checked against multiple independent search results. This is
-  backlog inventory, not a post, view, click, signup, or dollar — no external
-  event to record yet.
-- Paid reports delivered: 0. Collected revenue: $0. Collected profit: $0. Gap
-  to $4,000 target: $4,000, unchanged.
+- An exact public Visual Studio Marketplace gallery query returned
+  `rupture.rupture-vscode`, display name “Rupture - AWS Deprecation Scanner,”
+  version 1.0.0, published `2026-05-02T22:02:07.783Z`, last updated
+  `2026-05-02T22:06:15.09Z`, with 101 cumulative installs and 162 downloads.
+  The same query returned zero extensions for `eolkits.eolkits-vscode`.
+- Historical GitHub Actions run
+  https://github.com/ntoledo319/EOLkits/actions/runs/25262940459 completed its
+  package and publish steps successfully against commit `8e6e3ad3`, whose
+  manifest identity was `rupture.rupture-vscode`. Its expired logs returned HTTP
+  410, so no secret value or unsupported log detail is claimed.
+- The code at that published commit routes both Audit actions to
+  `https://ntoledo319.github.io/Rupture/audit`; a live probe returned HTTP 404.
+  This establishes a broken handoff in the existing release, not a visit count
+  or proof that an installed user clicked it.
+- The local v1.1.0 candidate preserves the stable listing identity and EOLkits
+  display branding; retains legacy `rupture.*` command activation/registration;
+  gives explicitly configured legacy settings fallback priority only when no
+  explicit `eolkits.*` value exists; and routes findings to the verified Pages
+  Audit plus a public, nonbinding qualified-interest form. The measurement job
+  now reports VS-attributed issues and distinct external authors separately.
+- TypeScript, ESLint 10, scanner behavior, identity/legacy-setting regressions,
+  and packaging passed. The inspected 12-file local VSIX is 21,356 bytes with
+  SHA-256 `73cad6c4d50876a679ec6c8e46cdd96c34f8d2a571269d8c647c6011e91270b1`.
+  This is a local build artifact; Marketplace publication was not inferred from it.
+- The observed 100–101 install-counter range and 162 downloads are the historical
+  V1 baseline range, not new EOLkits conversions. Observed VS-attributed
+  qualified issues, paid reports,
+  collected revenue, and profit remain 0 / 0 / $0 / $0.
 
-## Cloud cycle observation — 2026-08-25T00:00:00Z
+## Repository-side VS recovery published — 2026-08-22T23:14:55Z
 
-- Another isolated cloud checkout (no VPS/local/Stripe access). WebFetch
-  returned `EGRESS_BLOCKED` for a neutral control (`example.com`); WebSearch
-  worked and was used instead, cross-checking each specific claim against
-  multiple independent search-result snippets before drafting, per D25/D26.
-- No independent re-observation of GRACE, Stripe, the Marketplace listing,
-  GitHub Actions/release state, or `eolkits.com`'s live content was possible
-  this cycle (no `gh`/GitHub API access from this checkout); all prior
-  figures stand unverified-but-unchanged, not re-confirmed. In particular,
-  the exact Stripe-retirement run count, v2.0.0 public-release status, star/
-  fork counts, and qualified-issue count are carried forward unobserved this
-  cycle rather than re-measured.
-- Shipped: one new drafted, unposted answer appended to
-  `launch/distribution/repost-answers.md` (Batch 5) for a real,
-  search-indexed AWS re:Post thread (`QURnP8vskJREG40Ilrwx_RLQ`) found this
-  cycle, cross-checked against multiple independent search results. This is
-  backlog inventory, not a post, view, click, signup, or dollar — no external
-  event to record yet.
-- Paid reports delivered: 0. Collected revenue: $0. Collected profit: $0. Gap
-  to $4,000 target: $4,000, unchanged.
+- Main commit
+  https://github.com/ntoledo319/EOLkits/commit/a9cdcaeb40637d1f58f7539e80a16ec569be6704
+  published exact tree `99136547cecd5a1ee638174dd95a29a919c9889e`,
+  matching the locally verified candidate byte-for-byte.
+- Full release run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32604619029 passed every job,
+  including the fresh `npm ci && npm test && npm run package` VS extension job,
+  both container builds, dependency audit, lint/type checks, every kit, the
+  runner, API, Worker, web build, and Action fixtures. Determinism
+  `32604619039`, properties `32604619066`, Marketplace draft `32604619021`, and
+  built-in Pages `32604618393` also passed.
+- Acquisition run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32604619185 passed and wrote
+  artifact `acquisition-evidence-32604619185` (ID `9483794445`, 399 bytes,
+  digest `sha256:304becb0e19b4e5098745141ff66d8b850ba211892b69c157502fa03e2d2657c`).
+  A direct public issue probe still found 0 actual issues and 0 Audit-interest
+  issues.
+- A follow-up Marketplace query still returned public v1.0.0, 162 downloads,
+  and an install counter of 100 rather than the prior query's 101. Treat the
+  counter as approximate and set the real post-update baseline only after HQ-6.
+  No publish workflow was dispatched in this cycle.
+- Marketplace v1.1.0, paid reports, collected revenue, and profit remain
+  not published / 0 / $0 / $0.
+
+## Release-gate reconciliation — 2026-08-22T23:28:01Z
+
+- Green Marketplace-draft run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32604619021 logged creation
+  of the canonical private v2.0.0 draft at
+  https://github.com/ntoledo319/EOLkits/releases/tag/untagged-0866963caf3f06db98a1,
+  targeting commit `a9cdcaeb40637d1f58f7539e80a16ec569be6704`. The
+  owner queue's prior `untagged-db9a...` URL was stale. A local exact diff found
+  no differences between that target and public `v2` commit `9c231b58` under
+  `action.yml` or `apps/github-action/`.
+- The VS publication workflow had only a branch check around use of `VSCE_PAT`.
+  The reviewed candidate now requires repository owner `ntoledo319` as dispatch
+  and triggering actor, exact repository/main ref, and typed version-specific
+  confirmation before source checkout or publisher-secret use. It checks out
+  exact green release commit `a9cdcaeb` with persisted Git credentials disabled
+  and re-verifies HEAD before packaging. This is release authorization
+  hardening, not a Marketplace publication or demand event.
+- Public VS remains v1.0.0 with 162 downloads and an approximately 100-install
+  counter. Exact Stripe-retirement runs remain 0; GitHub Marketplace remains
+  v1.1.0; `eolkits.com/api/capabilities` remains unavailable. Purchases,
+  deliveries, collected revenue, and collected profit remain 0 / 0 / $0 / $0.
+
+## Release-gate repair published — 2026-08-22T23:39:27Z
+
+- Main commit
+  https://github.com/ntoledo319/EOLkits/commit/32d01c2f505b30c8caac856c0f1af0da9ae059c3
+  published exact tree `f2200f3b0bfbf7f43161699b4fc97197c04b38ad`,
+  matching the locally reviewed commit tree. GitHub's workflow API reports
+  `.github/workflows/publish-vscode.yml` active.
+- Test release surfaces run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32605744293 passed all 13
+  jobs, including the fresh VS compile/lint/rule/package job, both containers,
+  dependency audit, every kit, API, Worker, web, Action, and Python quality
+  checks. Determinism run `32605744252`, property run `32605744279`, and built-in
+  Pages run `32605743603` also completed successfully.
+- A fresh live probe still found VS v1.0.0 at 100 installs/162 downloads, zero
+  Stripe-retirement runs, no newer VS publish run, GitHub Marketplace v1.1.0,
+  no public v2.0.0 release, and HTTP 404 at `eolkits.com/api/capabilities`.
+  Therefore public listing updates, paid reports, collected revenue, and profit
+  remain 0 / 0 / $0 / $0; CI and a repository commit are not demand.
+
+## Third-cycle blocker observation — 2026-08-22T23:47:26Z
+
+- Public `main` remained `81a414f6` with exact tree `cc89920e`. Its final ledger
+  release run `32605862353`, determinism `32605862354`, properties `32605862393`,
+  and Pages run `32605862029` all completed successfully.
+- Exact production observations: Stripe-retirement workflow runs 0; VS publish
+  runs 1, still only historical May run `25262940459`; VS listing
+  `rupture.rupture-vscode` v1.0.0 at 100 installs and 162 downloads; GitHub
+  Marketplace v1.1.0; public v2.0.0 release HTTP 404; GRACE verifier runs 0.
+- `eolkits.com` returned HTTP 200 for the legacy health/home surface, still
+  contained Migration Pack and Drift Watch, omitted the verified Audit marker,
+  and returned HTTP 404 for `/api/capabilities`. The health payload still
+  identified the old production filesystem/SQLite/inline-runner service.
+- All six historical `buy.stripe.com` URLs returned HTTP 200 Stripe-hosted pages.
+  That does not prove a link active, inactive, safe, or reconciled; authenticated
+  HQ-2 evidence is still required before any commerce claim.
+- GitHub exposed 1 star, 0 forks, 0 actual issues, and 0 qualified Audit-interest
+  issues. Paid reports, collected revenue, collected profit, and target gap
+  remain 0 / $0 / $0 / $4,000.

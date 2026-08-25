@@ -11,6 +11,7 @@ on:
       - '.github/ISSUE_TEMPLATE/audit-interest.yml'
       - 'apps/web/**'
       - 'apps/github-action/**'
+      - 'apps/vscode-extension/**'
 
 permissions:
   contents: read
@@ -57,6 +58,8 @@ jobs:
           issue_count="$(jq 'length' "$evidence_dir/qualified-interest.json")"
           author_count="$(jq '[.[].user.login] | unique | length' "$evidence_dir/qualified-interest.json")"
           near_term_count="$(jq '[.[] | select((.body // "") | contains("Within 30 days"))] | length' "$evidence_dir/qualified-interest.json")"
+          vscode_issue_count="$(jq '[.[] | select((.body // "") | contains("VS Code extension"))] | length' "$evidence_dir/qualified-interest.json")"
+          vscode_author_count="$(jq '[.[] | select((.body // "") | contains("VS Code extension")) | .user.login] | unique | length' "$evidence_dir/qualified-interest.json")"
 
           repo_json="$(gh api "repos/$GITHUB_REPOSITORY")"
           stars="$(jq -r '.stargazers_count' <<< "$repo_json")"
@@ -83,6 +86,8 @@ jobs:
             --argjson qualified_interest_issues "$issue_count" \
             --argjson distinct_external_authors "$author_count" \
             --argjson within_30_days "$near_term_count" \
+            --argjson vscode_qualified_interest_issues "$vscode_issue_count" \
+            --argjson vscode_distinct_external_authors "$vscode_author_count" \
             --argjson external_v2_code_refs "$external_v2_refs" \
             --argjson external_v2_search_available "$external_search_available" \
             --argjson public_v2_release "$public_v2_release" \
@@ -93,6 +98,8 @@ jobs:
               qualified_interest_issues: $qualified_interest_issues,
               distinct_external_authors: $distinct_external_authors,
               within_30_days: $within_30_days,
+              vscode_qualified_interest_issues: $vscode_qualified_interest_issues,
+              vscode_distinct_external_authors: $vscode_distinct_external_authors,
               external_v2_code_refs: $external_v2_code_refs,
               external_v2_search_available: $external_v2_search_available,
               public_v2_release: $public_v2_release,
@@ -109,6 +116,8 @@ jobs:
             echo "- Price-qualified Audit interest issues: **$issue_count**"
             echo "- Distinct external authors: **$author_count**"
             echo "- Purchase window within 30 days: **$near_term_count**"
+            echo "- VS Code-attributed qualified issues: **$vscode_issue_count**"
+            echo "- Distinct external VS Code authors: **$vscode_author_count**"
             echo "- Public code references to \`ntoledo319/EOLkits@v2\` outside this repository: **$external_v2_refs**"
             echo "- Code-search result available: **$external_search_available**"
             echo "- Public v2.0.0 release: **$public_v2_release**"
