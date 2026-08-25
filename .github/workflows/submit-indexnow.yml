@@ -1,9 +1,9 @@
-name: Submit changed Pages URLs to IndexNow
+name: Submit changed site URLs to IndexNow
 
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, marketing-machine-v2]
     paths:
       - '.github/workflows/submit-indexnow.yml'
       - 'docs/**'
@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: submit-indexnow
+  group: submit-indexnow-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -29,10 +29,26 @@ jobs:
         env:
           BEFORE_SHA: ${{ github.event.before }}
           INDEXNOW_ENDPOINT: https://api.indexnow.org/indexnow
-          SITE_BASE: https://ntoledo319.github.io/EOLkits
         run: |
+          # Dollar signs below are literal price markers, not shell expansion.
+          # shellcheck disable=SC2016
           set -euo pipefail
           shopt -s nullglob
+
+          case "$GITHUB_REF_NAME" in
+            main)
+              site_base='https://ntoledo319.github.io/EOLkits'
+              site_host='ntoledo319.github.io'
+              ;;
+            marketing-machine-v2)
+              site_base='https://eolkits.com'
+              site_host='eolkits.com'
+              ;;
+            *)
+              echo "::error::Unsupported IndexNow release ref: $GITHUB_REF_NAME"
+              exit 1
+              ;;
+          esac
 
           key_file=''
           for candidate in docs/*.txt; do
@@ -54,11 +70,40 @@ jobs:
           fi
 
           key="$(tr -d '\r\n' < "$key_file")"
-          key_location="$SITE_BASE/$key.txt"
+          key_location="$site_base/$key.txt"
           public_key="$(curl --fail --silent --show-error --max-time 20 "$key_location")"
           if [[ "$public_key" != "$key" ]]; then
             echo '::error::The public IndexNow key does not match the release artifact'
             exit 1
+          fi
+
+          if [[ "$site_host" == 'eolkits.com' ]]; then
+            home="$(curl --fail --silent --show-error --max-time 20 "$site_base/")"
+            audit="$(curl --fail --silent --show-error --max-time 20 "$site_base/audit/")"
+            pack="$(curl --fail --silent --show-error --max-time 20 "$site_base/pack/")"
+            drift="$(curl --fail --silent --show-error --max-time 20 "$site_base/drift/")"
+            grep -Fq 'repository evidence report is the only paid product' <<<"$home"
+            grep -Fq '<div class="price">$299</div>' <<<"$home"
+            grep -Fq '<form id="auditForm" hidden>' <<<"$audit"
+            grep -Fq 'Checkout stays closed unless the live API confirms report engine 2.0.' <<<"$audit"
+            grep -Fq 'Migration Pack is unavailable' <<<"$pack"
+            grep -Fq 'Drift Watch is unavailable' <<<"$drift"
+            for page in "$home" "$audit" "$pack" "$drift"; do
+              if ! grep -Fq 'http-equiv="Content-Security-Policy"' <<<"$page" \
+                || ! grep -Fq "script-src 'self' 'unsafe-inline'" <<<"$page" \
+                || ! grep -Fq "connect-src 'self' https://eolkits.com" <<<"$page"; then
+                echo '::error::Refusing to notify search engines before the privacy CSP is live'
+                exit 1
+              fi
+            done
+            if grep -Eq '\$1,499|\$14,999' <<<"$home$audit$pack$drift"; then
+              echo '::error::Refusing to notify search engines about retired commercial copy'
+              exit 1
+            fi
+            if grep -Eq "<script[^>]+src=['\"]https?://" <<<"$home$audit$pack$drift"; then
+              echo '::error::Refusing to notify search engines while an external script is injected'
+              exit 1
+            fi
           fi
 
           url_file="$RUNNER_TEMP/indexnow-urls.txt"
@@ -72,16 +117,16 @@ jobs:
             local relative
             case "$path" in
               docs/index.html)
-                printf '%s/\n' "$SITE_BASE"
+                printf '%s/\n' "$site_base"
                 ;;
               docs/*/index.html)
                 relative="${path#docs/}"
                 relative="${relative%index.html}"
-                printf '%s/%s\n' "$SITE_BASE" "$relative"
+                printf '%s/%s\n' "$site_base" "$relative"
                 ;;
               docs/*.html)
                 relative="${path#docs/}"
-                printf '%s/%s\n' "$SITE_BASE" "$relative"
+                printf '%s/%s\n' "$site_base" "$relative"
                 ;;
             esac
           }
@@ -101,8 +146,15 @@ jobs:
 
           if [[ ! -s "$url_file" ]]; then
             mode='current sitemap fallback'
-            grep -oE '<loc>[^<]+</loc>' docs/sitemap.xml \
-              | sed -e 's#<loc>##' -e 's#</loc>##' > "$url_file"
+            if [[ "$site_host" == 'ntoledo319.github.io' ]]; then
+              grep -oE '<loc>[^<]+</loc>' docs/sitemap.xml \
+                | sed -e 's#<loc>##' -e 's#</loc>##' > "$url_file"
+            else
+              curl --fail --silent --show-error --max-time 20 \
+                "$site_base/sitemap.xml" \
+                | grep -oE '<loc>[^<]+</loc>' \
+                | sed -e 's#<loc>##' -e 's#</loc>##' > "$url_file"
+            fi
           fi
 
           sort -u "$url_file" -o "$url_file"
@@ -112,7 +164,7 @@ jobs:
             exit 1
           fi
           while IFS= read -r url; do
-            if [[ "$url" != "$SITE_BASE/"* ]] || [[ "$url" =~ [[:space:]] ]]; then
+            if [[ "$url" != "$site_base/"* ]] || [[ "$url" =~ [[:space:]] ]]; then
               echo "::error::Out-of-scope or malformed IndexNow URL: $url"
               exit 1
             fi
@@ -120,7 +172,7 @@ jobs:
 
           url_list="$(jq -R . < "$url_file" | jq -s .)"
           jq -n \
-            --arg host 'ntoledo319.github.io' \
+            --arg host "$site_host" \
             --arg key "$key" \
             --arg keyLocation "$key_location" \
             --argjson urlList "$url_list" \
@@ -149,6 +201,7 @@ jobs:
           {
             echo '## IndexNow submission'
             echo
+            echo "- Target: **$site_base**"
             echo "- URLs submitted: **$url_count**"
             echo "- Selection: **$mode**"
             echo "- Endpoint response: **HTTP $http_code**"

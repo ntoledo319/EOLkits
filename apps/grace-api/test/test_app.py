@@ -548,6 +548,8 @@ def test_checkout_double_submit_reuses_one_stripe_session(tmp_path, monkeypatch)
     assert first.json()["url"] == second.json()["url"]
     assert len(calls) == 1
     assert calls[0]["idempotency_key"] == f"eolkits-audit-{presign['uploadId']}"
+    assert calls[0]["success_path"] == "/success/?sku=audit"
+    assert "CHECKOUT_SESSION_ID" not in calls[0]["success_path"]
 
 
 def test_prepared_delivery_retry_is_byte_identical_and_skips_runner(tmp_path, monkeypatch):

@@ -93,6 +93,28 @@ def test_indexnow_key_verifies_the_entire_sitemap_scope() -> None:
     assert all(location and location.startswith(f"{build.SITE_URL}/") for location in locations)
 
 
+def test_indexnow_submission_is_scoped_to_both_verified_hosts() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "submit-indexnow.yml").read_text(encoding="utf-8")
+
+    assert "branches: [main, marketing-machine-v2]" in workflow
+    assert "main)\n              site_base='https://ntoledo319.github.io/EOLkits'" in workflow
+    assert "marketing-machine-v2)\n              site_base='https://eolkits.com'" in workflow
+    assert 'key_location="$site_base/$key.txt"' in workflow
+    assert '--arg host "$site_host"' in workflow
+    assert '"$site_base/sitemap.xml"' in workflow
+    assert "repository evidence report is the only paid product" in workflow
+    assert "Checkout stays closed unless the live API confirms report engine 2.0." in workflow
+    assert "Refusing to notify search engines about retired commercial copy" in workflow
+    assert "Refusing to notify search engines while an external script is injected" in workflow
+
+    grace_verifier = (ROOT / ".github" / "workflows" / "verify-grace-static.yml").read_text(
+        encoding="utf-8"
+    )
+    assert 'http-equiv="Content-Security-Policy"' in grace_verifier
+    assert "script-src 'self' 'unsafe-inline'" in grace_verifier
+    assert "An unreviewed cross-origin script is injected" in grace_verifier
+
+
 def test_project_pages_links_receive_the_repository_prefix(monkeypatch) -> None:
     monkeypatch.setattr(build, "PROJECT_BASE_PATH", "/EOLkits")
     monkeypatch.setattr(build, "API_URL", "https://eolkits.com")
@@ -166,6 +188,35 @@ def test_tracking_does_not_retain_full_referrer() -> None:
         assert "ref: ref.slice" not in html
         assert "localStorage" not in html
         assert '<meta name="referrer" content="origin">' in html
+        assert (
+            '<meta http-equiv="Content-Security-Policy" content="'
+            + build.CONTENT_SECURITY_POLICY
+            + '">'
+            in html
+        )
+        assert "stats.saiditright.com" not in html
+
+
+def test_content_security_policy_blocks_unreviewed_third_party_scripts() -> None:
+    policy = build.CONTENT_SECURITY_POLICY
+    assert "script-src 'self' 'unsafe-inline'" in policy
+    assert "connect-src 'self' https://eolkits.com" in policy
+    assert "stats.saiditright.com" not in policy
+
+    injected = build.inject_privacy_meta(
+        "<html><head><title>test</title></head><body></body></html>"
+    )
+    assert injected.count('http-equiv="Content-Security-Policy"') == 1
+    assert build.inject_privacy_meta(injected) == injected
+
+
+def test_success_page_does_not_expose_a_stripe_session_identifier() -> None:
+    success = (DOCS / "success" / "index.html").read_text(encoding="utf-8")
+    api = (ROOT / "apps" / "grace-api" / "eolkits_grace" / "app.py").read_text(encoding="utf-8")
+
+    assert "session_id" not in success
+    assert 'success_path="/success/?sku=audit"' in api
+    assert "CHECKOUT_SESSION_ID" not in api
 
 
 def test_browser_tool_privacy_copy_discloses_bounded_aggregate_telemetry() -> None:

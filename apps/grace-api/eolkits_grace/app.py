@@ -578,7 +578,7 @@ async def audit_checkout(
                 "deadline": deadline or "",
                 **attribution,
             },
-            success_path="/success/?sku=audit&session_id={CHECKOUT_SESSION_ID}",
+            success_path="/success/?sku=audit",
             cancel_path="/audit/?cancelled=1",
             idempotency_key=f"eolkits-audit-{resolved_id}",
         )

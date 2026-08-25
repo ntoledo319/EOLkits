@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta name="referrer" content="origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://eolkits.com; form-action 'self'">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Privacy Policy — EOLkits</title>
@@ -50,6 +51,7 @@
 <h2>6. Security</h2>
 <ul>
 <li>Traffic is served over HTTPS.</li>
+<li>Generated pages restrict scripts and browser network connections to reviewed first-party origins. An unreviewed hosting-layer script is treated as a deployment failure and is not an authorized analytics provider.</li>
 <li>Upload identifiers are high entropy and uploads become immutable after receipt.</li>
 <li>Archive scanning is bounded and does not extract files onto the host filesystem.</li>
 <li>Production configuration fails closed when required payment/email secrets are absent.</li>
