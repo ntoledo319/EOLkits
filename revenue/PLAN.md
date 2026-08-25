@@ -201,3 +201,35 @@ acquisition run `32597777625` still observed 0 qualified issues, 0 external
 public `@v2` references, no v2.0.0 public release, 1 star, and 0 forks. Therefore
 the next leverage remains owner HQ-2 then HQ-5; do not build another SKU or move
 the August 27 falsifier forward because of an indexing notification.
+
+Between the 2026-08-24 cycle and this one, a separate in-repo effort (commits
+`bffb335a`/`9c231b58`/`0780909c`, all dated 2026-08-22 but merged after this
+cycle's prior read) shipped a verifiable report-proof/fulfillment hardening
+pass for the Audit runner and merged it into the GRACE static feed. This cycle
+did not author or re-verify that work; it is noted here only so the next cycle
+does not mistake it for new owner action. No HQ item, gate, or ranking changes
+because of it — it is still release evidence, not fulfillment proof, until the
+owner completes HQ-2 through HQ-7.
+
+Cloud cycle 2026-08-25: another isolated cloud checkout (no VPS/local/Stripe
+access). Unlike the two prior cloud cycles, WebSearch again worked and this
+cycle's WebFetch neutral-control probe (`example.com`) again returned
+`EGRESS_BLOCKED`, so all sourcing is via cross-checked search snippets, per
+D25/D26 precedent. This cycle's highest-leverage in-jail, $0, no-human-contact
+ship was one more K1/C4 answer-backlog restock: one fresh, unique, help-first
+draft appended to `launch/distribution/repost-answers.md` (Batch 5) for a real,
+currently-search-indexed AWS re:Post thread (`QURnP8vskJREG40Ilrwx_RLQ`, a
+Lambda nodejs16.x-to-nodejs20.x runtime bump breaking Cognito login in an
+API-Gateway-developer-portal SAM app) whose existing community answer did not
+cover the two things this draft adds: the AWS-SDK-v2-bundled-on-nodejs16.x vs
+SDK-v3-bundled-on-nodejs18.x+ breaking-change diagnosis, and the fact that
+`nodejs20.x` itself is already in the 2027-02-01/2027-03-03 block cluster, so
+jumping straight to `nodejs22.x`/`nodejs24.x` avoids repeating the migration.
+Several other candidate threads found this cycle (the Lambda-runtime-dates-
+diverge-by-locale thread, a stale 2023-era .NET Core 3.1 deprecation thread, a
+CloudFront-secure-static-site nodejs20.x EOL thread) already had substantive
+community answers with no clear distinctive gap to fill, so per AGENTS.md's
+quality-over-quantity instruction they were not drafted. Owner work remains
+unchanged: HQ-2 through HQ-7 in that order, plus optionally pasting the new
+Batch 5 answer whenever convenient. Collected profit remains $0; gap remains
+$4,000.

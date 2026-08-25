@@ -190,3 +190,15 @@ No asset composition, completeness, or license fact changed this cycle (see
 D26/PLAN.md); this cycle's only ship was a content-backlog addition
 (`launch/distribution/repost-answers.md` Batch 4), which is asset #6's content
 corpus, not a new asset. Re-read for continuity only.
+
+## Cloud cycle re-read — 2026-08-25
+
+No asset composition, completeness, or license fact changed this cycle (see
+D27/PLAN.md); this cycle's only ship was another content-backlog addition
+(`launch/distribution/repost-answers.md` Batch 5), again asset #6's content
+corpus, not a new asset. Note: asset #4 (Audit v2 API and PDF runner) received
+an in-repo report-proof/fulfillment hardening pass (commits `bffb335a`/
+`9c231b58`/`0780909c`) that this cycle did not author; its completeness facts
+above are unchanged pending a dedicated re-audit, since this cycle had no
+means to independently re-verify runner behavior beyond reading the diff.
+Re-read for continuity only.

@@ -220,3 +220,57 @@ Post at: https://repost.aws/questions/QUowJJh-50R3KbxGrZ2YNsCA/python-3-9-runtim
 > free, open-source scanner that flags stale-runtime and native-dependency drift in source/IaC before it
 > causes this kind of surprise (disclosure: mine, MIT, nothing uploaded):
 > https://ntoledo319.github.io/EOLkits/fix/lambda-glibc-version-not-found/
+
+# Batch 5 — drafted 2026-08-25, fresh and ready to post
+
+Found via search this cycle; not a duplicate of Batches 1–4 (different thread, different question). Same rules
+apply: post from your own account, lead with the fix, one disclosed link, never cross-post the same text.
+WebFetch (direct page fetch) was unavailable again this cycle (`EGRESS_BLOCKED` on a neutral control,
+`example.com`); WebSearch worked and was used, cross-checked against multiple independent search-result
+snippets per claim before drafting — re-verify the thread still lacks a better answer before pasting, since
+time may have passed since drafting. The exact current block-create/block-update dates cited below
+(2027-02-01 / 2027-03-03 for the nodejs16.x/nodejs18.x/nodejs20.x/python3.8/python3.9 cluster) are AWS's own
+published runtimes table (https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html), already
+cross-verified in this repo's own prior cycles — **do not** use the various superseded 2026 dates (e.g.
+"August 31, 2026" / "September 30, 2026" / "June 1, 2026" / "July 1, 2026") that several blogs and even some
+other re:Post threads still repeat; AWS pushed those blocks back and the live table is the only source of
+truth. Link points to `https://ntoledo319.github.io/EOLkits/...` (the verified GitHub Pages build) for the
+same reason Batches 3–4 do — network egress to `eolkits.com` was unavailable this cycle to independently
+confirm it is still serving the repaired site.
+
+## 1 — API GATEWAY DEV PORTAL - Update Lambda Functions to nodejs20
+
+Post at: https://repost.aws/questions/QURnP8vskJREG40Ilrwx_RLQ/api-gateway-dev-portal-update-lambda-functions-to-nodejs20
+
+> Two separate things are colliding here, and it's worth untangling both before you pick a target runtime.
+>
+> **1. The login/auth failures after bumping the SAM-generated functions from `nodejs16.x` to `nodejs20.x` are
+> almost certainly an AWS SDK v2 → v3 breaking change, not a Node syntax issue.** The `nodejs16.x` runtime
+> bundles AWS SDK for JavaScript **v2**; starting at `nodejs18.x`, Lambda's managed runtime bundles SDK **v3**
+> instead, and v2's `require('aws-sdk')` API surface (client construction, callback-vs-promise style, error
+> shapes) is not a drop-in match for v3's modular `@aws-sdk/client-*` packages. If the portal's generated
+> Lambda code (or a dependency it pulls in, e.g. for Cognito login) still does `require('aws-sdk')` and
+> expects v2 behavior, that's the most common cause of exactly this kind of silent breakage right after a
+> runtime bump. Two ways to confirm/fix:
+>   - Grep the generated function code and its `node_modules` for `require('aws-sdk')` or `from 'aws-sdk'`.
+>     If found, either migrate that code to the modular v3 clients (`@aws-sdk/client-cognito-identity-provider`,
+>     etc. — Lambda includes v3 by default so no explicit dependency is needed), or, as a stopgap, bundle SDK
+>     v2 explicitly as a *regular* (not dev) dependency so your own pinned copy ships instead of relying on
+>     what the runtime provides.
+>   - Check CloudWatch Logs for the specific function around the failed login attempt — an SDK v2/v3 mismatch
+>     usually throws a clear `TypeError` or "is not a function" on a client method the moment it's called,
+>     which confirms this diagnosis quickly.
+>
+> **2. Don't stop at `nodejs20.x`.** As of AWS's current runtimes table, `nodejs20.x` is now in the *same*
+> deprecation cluster as `nodejs16.x`/`nodejs18.x` (along with `python3.8`/`python3.9`): Lambda blocks
+> **creating** new functions on it starting **2027-02-01** and blocks **updating** existing functions on it
+> starting **2027-03-03**. (AWS has revised these dates before — the live table is the source of truth, not
+> this comment, and definitely not the various 2026 dates still floating around some blog posts and even
+> older re:Post threads: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html.) Since you're
+> already touching this code to fix the login break, it's usually less total rework to go straight to
+> `nodejs22.x` (current LTS, SDK v3 bundled) or `nodejs24.x` rather than doing this same migration exercise
+> twice within the next year.
+>
+> If it helps, I maintain a free, open-source scanner that flags exactly this kind of stale-runtime and
+> `require('aws-sdk')`-v2-on-v3-runtime drift in source and IaC before it causes a surprise like this
+> (disclosure: mine, MIT, nothing uploaded): https://ntoledo319.github.io/EOLkits/scan/

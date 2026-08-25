@@ -17,6 +17,14 @@ this queue and made no change to it. HQ-1 through HQ-7, their order, and the
 answer (Batch 4 in `launch/distribution/repost-answers.md`) — again optional
 owner reading, not a queue item with a deadline.
 
+Cloud cycle 2026-08-25 (isolated checkout, no VPS/local/Stripe/GitHub-API
+access): re-read this queue and made no change to it. HQ-1 through HQ-7, their
+order, and the 41-minute total are unchanged. No evidence was available this
+cycle that any HQ item has been completed since 2026-08-22. That cycle's only
+ship was one more drafted answer (Batch 5 in
+`launch/distribution/repost-answers.md`) — again optional owner reading, not a
+queue item with a deadline.
+
 Do HQ-2 first because the stale GRACE API can still mint live Checkout Sessions,
 then HQ-5 because it repairs existing distribution. Complete HQ-1, HQ-3, HQ-4,
 HQ-6, and finally HQ-7. Checkout remains closed until HQ-7. No old handoff or

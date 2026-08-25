@@ -379,3 +379,25 @@ benchmarks, or unverified analytics in this ledger.
   event to record yet.
 - Paid reports delivered: 0. Collected revenue: $0. Collected profit: $0. Gap
   to $4,000 target: $4,000, unchanged.
+
+## Cloud cycle observation — 2026-08-25T00:00:00Z
+
+- Another isolated cloud checkout (no VPS/local/Stripe access). WebFetch
+  returned `EGRESS_BLOCKED` for a neutral control (`example.com`); WebSearch
+  worked and was used instead, cross-checking each specific claim against
+  multiple independent search-result snippets before drafting, per D25/D26.
+- No independent re-observation of GRACE, Stripe, the Marketplace listing,
+  GitHub Actions/release state, or `eolkits.com`'s live content was possible
+  this cycle (no `gh`/GitHub API access from this checkout); all prior
+  figures stand unverified-but-unchanged, not re-confirmed. In particular,
+  the exact Stripe-retirement run count, v2.0.0 public-release status, star/
+  fork counts, and qualified-issue count are carried forward unobserved this
+  cycle rather than re-measured.
+- Shipped: one new drafted, unposted answer appended to
+  `launch/distribution/repost-answers.md` (Batch 5) for a real,
+  search-indexed AWS re:Post thread (`QURnP8vskJREG40Ilrwx_RLQ`) found this
+  cycle, cross-checked against multiple independent search results. This is
+  backlog inventory, not a post, view, click, signup, or dollar — no external
+  event to record yet.
+- Paid reports delivered: 0. Collected revenue: $0. Collected profit: $0. Gap
+  to $4,000 target: $4,000, unchanged.

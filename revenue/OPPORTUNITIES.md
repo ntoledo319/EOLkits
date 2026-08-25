@@ -200,3 +200,12 @@ No frame ranking changed. This cycle's ship was one more C4-lane content
 addition (repost-answers.md Batch 4), not a new frame or SKU (see D26). K1
 remains first, A1 remains the only paid unit gated on the owner's HQ-2
 through HQ-7 sequence.
+
+## Cycle outcome — 2026-08-25
+
+No frame ranking changed. This cycle's ship was one more C4-lane content
+addition (repost-answers.md Batch 5), not a new frame or SKU (see D27). K1
+remains first, A1 remains the only paid unit gated on the owner's HQ-2
+through HQ-7 sequence. No new external signal was observed this cycle (no
+GitHub/Stripe/VS access from this checkout); the K1 five-day gate (2026-08-27)
+and Day-7 gate (2026-08-29) are unchanged.

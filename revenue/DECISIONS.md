@@ -504,3 +504,66 @@ way to confirm the custom domain is still serving the repaired site.
 This is one more drafted-content ship, not demand evidence. It does not
 change K1/A1's ranking, gates, or falsifiers, and adds no owner-queue item
 with a deadline. Collected revenue remains $0; gap remains $4,000.
+
+## D27 — cloud cycle, restocked the answer backlog again (Batch 5)
+
+This 2026-08-25 cycle is another isolated cloud checkout with no VPS/local/
+Stripe/GitHub-API access; same jail and ship channel as D25/D26. WebFetch
+again returned `EGRESS_BLOCKED` for a neutral control (`example.com`);
+WebSearch worked and was used, cross-checking each specific technical claim
+against multiple independent search-result snippets before drafting, per
+the same discipline as D25/D26.
+
+Between the 2026-08-24 cycle's read and this one, three same-day-dated
+(2026-08-22) commits (`bffb335a`, `9c231b58`, `0780909c`) landed on this
+branch shipping an Audit report-proof/fulfillment hardening pass, authored
+outside this cycle. This cycle did not write or independently re-verify that
+code; it is recorded in PLAN.md/ASSETS.md for continuity, not claimed as this
+cycle's work, and changes no HQ item, gate, or ranking — it is release
+evidence at most until the owner completes HQ-2 through HQ-7.
+
+Per the standing K1/C4 answer-backlog priority, appended Batch 5 to
+`launch/distribution/repost-answers.md`: one fresh, unique, help-first draft
+for a real, search-indexed AWS re:Post thread not covered by Batches 1–4
+(`QURnP8vskJREG40Ilrwx_RLQ` — "API GATEWAY DEV PORTAL - Update Lambda
+Functions to nodejs20", a SAM-generated developer-portal app whose Cognito
+login broke after bumping from `nodejs16.x` to `nodejs20.x`). The existing
+community answer (found via search) only gestured at an SDK v2/v3 concern;
+this draft adds two things it did not cover: (a) the specific, well-documented
+mechanism — `nodejs16.x` bundles AWS SDK v2, `nodejs18.x`+ bundles v3, and a
+lingering `require('aws-sdk')` v2 call is the most common cause of exactly
+this kind of post-bump breakage — corroborated via multiple independent
+search snippets (an AWS CDK GitHub issue, a re:Post thread on the same SDK
+mismatch, and a migration-guide article), not asserted from the target thread
+alone; and (b) a warning not to stop at `nodejs20.x`, since it is already in
+the same 2027-02-01/2027-03-03 block-create/block-update cluster as
+`nodejs16.x`/`nodejs18.x` per AWS's current runtimes table — recommending
+`nodejs22.x`/`nodejs24.x` instead so the asker does not repeat this migration
+within the year.
+
+This cycle's searches surfaced three other superficially promising
+candidates, each rejected under AGENTS.md's quality-over-quantity rule
+because each already had a substantive community answer with no clear
+distinctive gap: a thread about Lambda deprecation dates diverging by
+documentation locale (`QU_XgpAZ8CRdmRP17Oz8S1Aw`) whose existing answer
+already told the asker to trust the English page; a stale 2023-era .NET Core
+3.1 Lambda-deprecation-policy thread already covering the phase-1/phase-2
+policy generically; and a CloudFront-secure-static-site `nodejs20.x` EOL
+thread (`QUyHgVGQcUQyWa1bOcW7p4sQ`) whose existing answer already gave two
+concrete remediation paths. Search itself also surfaced materially
+conflicting "block" dates for `nodejs20.x` across sources (2026-08-31/
+2026-09-30 in one snippet, 2026-06-01/2026-07-01 in another, versus this
+repo's already-verified 2027-02-01/2027-03-03) — exactly the superseded-date
+confusion AGENTS.md warns about. Per D14/D23/D25/D26 precedent, this draft
+uses only the repo's already-cross-verified 2027 dates, explicitly warns
+against the various 2026 dates, and does not treat any single search snippet
+as authoritative on its own.
+
+As in Batches 3–4, the drafted link points to the verified
+`ntoledo319.github.io/EOLkits` Pages build rather than `eolkits.com`, because
+this checkout again had no way to confirm the custom domain is still serving
+the repaired site.
+
+This is one more drafted-content ship, not demand evidence. It does not
+change K1/A1's ranking, gates, or falsifiers, and adds no owner-queue item
+with a deadline. Collected revenue remains $0; gap remains $4,000.
