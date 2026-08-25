@@ -494,9 +494,9 @@ describe('exact Stripe retirement tool', () => {
     expectSanitized(raw);
   });
 
-  it('never mutates an unknown Payment Link even when it uses a target Product', async () => {
+  it('fails before every mutation when an unknown Payment Link uses a target Product', async () => {
     const targetPrice = priceObject('price_1TRoGjDL3cQl851oiIWR5JIa', true);
-    const { fetchMock, links } = stripeMock({
+    const { activePrices, fetchMock, links } = stripeMock({
       links: [
         {
           active: true,
@@ -514,9 +514,13 @@ describe('exact Stripe retirement tool', () => {
     );
     const raw = await result.text();
 
-    expect(result.status).toBe(200);
-    expect(fetchMock.mock.calls.filter((call) => call[1]?.method === 'POST')).toHaveLength(6);
+    expect(result.status).toBe(409);
+    expect(fetchMock.mock.calls.filter((call) => call[1]?.method === 'POST')).toHaveLength(0);
+    expect([...activePrices.values()].every((active) => active)).toBe(true);
     expect(links[0].active).toBe(true);
+    expect(raw).toContain('"mutation_blocked":true');
+    expect(raw).toContain('"changed_payment_links":0');
+    expect(raw).toContain('"changed_prices":[]');
     expect(raw).toContain('"unexpected_active_payment_links":1');
     expect(raw).toContain('"containment_complete":false');
     expectSanitized(raw);
