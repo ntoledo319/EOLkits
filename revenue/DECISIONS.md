@@ -577,3 +577,49 @@ an analysis-only failed cycle under the ship law. Publishing this evidence ledge
 preserves the exact resume state; it is not counted as a launch, demand, or
 revenue. Mark the persistent goal blocked, not complete. Resume on any owner
 queue result or other genuine external-state change.
+
+## D31 — contain hosting-injected analytics before checkout or recrawl
+
+The August 25 custom static deployment repaired the obsolete offer, but the host
+injected `https://stats.saiditright.com/script.js` into all five tested pages.
+The current script automatically sends full page URLs and browser metadata, can
+read local storage, and receives no query/hash exclusion attributes from the
+injected tag. That contradicts the public privacy posture and could have exposed
+future checkout-return identifiers. Treat this as a checkout and distribution
+blocker, not a cosmetic analytics choice.
+
+Inject a restrictive CSP at the start of every generated HTML head because
+GitHub Pages cannot set response headers and the GRACE host has demonstrated
+post-processing outside this repository. Permit the existing same-origin and
+inline code plus the reviewed `https://eolkits.com` API connection; do not permit
+the observed analytics origin. Remove the unused Stripe session identifier from
+both the Checkout success URL and success page because verified webhook state,
+not a browser query parameter, owns fulfillment and reconciliation.
+
+Do not submit the canonical custom host to IndexNow until the live offer has the
+CSP and no external script. Extend the bounded workflow to both hosts, but make
+the custom branch read and validate its live pages before constructing or
+sending a request. Public Pages may submit independently. This produced expected
+outcomes: Pages run `32835361747` passed; custom run `32835404486` stopped before
+notification. Search receipt remains discovery plumbing, not demand.
+
+Publish exact tree `6b0eef76` to main as `b97befa7` and join that same tree into
+the GRACE feed as `a5510969`, preserving the three intervening draft commits as
+parents/history rather than importing their stale branch tree. All triggered
+main gates passed and Pages visibly serves the CSP. This satisfies the ship law
+without pretending the custom host, backend, or checkout is repaired.
+
+## D32 — record and correct two workspace-jail process violations
+
+This resumed cycle used `/dev/null` twice as a discard sink: once during a local
+site-build check by the primary agent and once during a read-only curl probe by a
+specialist. `/dev/null` is outside WORKSPACE_ROOT, so both commands violated the
+total jail even though they neither read external data nor created persistent
+state. Record the violation plainly. All subsequent discard/capture output uses
+named files under `WORKSPACE_ROOT/tmp`; do not repeat the pattern.
+
+This is the first resumed owner-boundary audit after D30, not a new three-turn
+blocked finding. Keep the revenue objective unfinished and continue on the
+shipped security state. The actual cash boundary is unchanged: HQ-2, HQ-5, and
+HQ-6 require owner identity/credential authority, and HQ-3 must remove the live
+injection and prove closed fulfillment before HQ-7 can accept money.
