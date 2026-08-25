@@ -158,6 +158,18 @@ jobs:
             echo '::error::The authenticated live-mode Stripe preflight did not pass'
             exit 1
           fi
+          if ! jq -e '.unexpected_active_payment_links == 0' "$audit_file" >/dev/null; then
+            unexpected_links="$(jq -r '.unexpected_active_payment_links' "$audit_file")"
+            {
+              echo '## Exact legacy Stripe retirement blocked before mutation'
+              echo
+              echo "- Unexpected active Payment Links: $unexpected_links"
+              echo '- No Price or Payment Link mutation was attempted.'
+              echo '- Review and explicitly authorize every affected link before retrying.'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo '::error::Unexpected active Payment Links make Price retirement unsafe'
+            exit 1
+          fi
 
           result_file="$TMPDIR/stripe-retirement-result.json"
           result_status="$(curl --silent --show-error --max-time 90 \
