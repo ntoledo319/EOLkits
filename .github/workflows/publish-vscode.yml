@@ -69,8 +69,8 @@ jobs:
 
       - name: Verify existing Marketplace identity
         run: |
-          test "$(node -p \"require('./package.json').publisher + '.' + require('./package.json').name\")" = 'rupture.rupture-vscode'
-          test "$(node -p \"require('./package.json').version\")" = '1.1.0'
+          test "$(node -p 'require("./package.json").publisher + "." + require("./package.json").name')" = 'rupture.rupture-vscode'
+          test "$(node -p 'require("./package.json").version')" = '1.1.0'
         working-directory: apps/vscode-extension
 
       - name: Package extension

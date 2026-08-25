@@ -581,3 +581,59 @@ benchmarks, or unverified analytics in this ledger.
   collected revenue/profit remain 0 / $0 / $0. Authenticated current Stripe
   account state was not available, so this is not a claim that unseen Stripe
   charges or anomalies are absent; HQ-2 remains required. Target gap: $4,000.
+
+## Hands-off Stripe and VS execution — 2026-08-25T11:21:00Z
+
+- Safe-preflight commit `0b022b0852eb8e4b54d100cfeb82eeb7890320a2`
+  published exact verified tree `fd6652509bc2a7c621afc4ca155c720e702e7ccf`.
+  GRACE capability run `32840796298` passed and logged
+  `deploy_transport=false` / `runtime_bundle=false`. Release surfaces
+  `32840796267`, determinism `32840796230`, properties `32840796411`, legacy
+  tombstone `32840796256`, and Pages `32840795101` also passed.
+- Before that release, official Stripe behavior review found that archiving a
+  Price can deactivate Payment Links using its Product. The retirement endpoint
+  and workflow were changed to require zero unexpected active Payment Links
+  before every mutation. Worker build passed; 39 focused retirement/tombstone
+  tests passed; workflow YAML parsed; extracted Bash passed ShellCheck. This
+  prevented an unapproved link from disappearing during the final audit.
+- Exact one-use Stripe authorization commit `99e093343678c792fddcc3f0a31f98612adeff1f`
+  produced owner-attributed push run `32840968816`. Its sole `retire` job
+  `97780159651` passed every step: authorization, exact artifact verification,
+  bounded live closure, independent final verification, tombstone/secret
+  cleanup, and public fail-closed proof. Workflow success mechanically requires
+  six exact inactive live Prices; zero approved/unexpected active Payment Links;
+  zero unexpected active Product Prices; and zero matching open/recent Sessions,
+  future subscriptions, or schedules. Public Worker `/health` and `/status.json`
+  returned HTTP 200 retired tombstones afterward.
+- Stripe restoration commit `b4fb019b77b716add739db58430401fd2ba24ebf`
+  removed the one-use trigger and restored the permanent dispatch-only file.
+  No Stripe-retirement run exists on that restore head.
+- Exact one-use VS authorization commit `6bf1424f1d8c35fc9989188000bcf59b3e97e9da`
+  produced owner-attributed push run `32841331222`. Publish job `97781275922`
+  passed exact release-commit verification, dependency install, tests, stable
+  Marketplace identity/version checks, packaging, and upload. Its publisher log
+  states `Published rupture.rupture-vscode v1.1.0.`
+- Restoration commit `a8e8b45c166b5e53fb01c5f099b175992b9a4908`
+  removed the one-use VS trigger, returned the workflow to dispatch-only, and
+  retained a preflight-discovered Bash quoting repair. Its release-surfaces
+  `32841478286`, determinism `32841478250`, property `32841478272`, and Pages
+  `32841476304` runs all passed; it produced no VS publish run.
+- The official version-specific VS Marketplace package endpoint returned HTTP
+  200 for v1.1.0. Its downloadable manifest says publisher `rupture`, name
+  `rupture-vscode`, version `1.1.0`, display name `EOLkits - AWS Deprecation
+  Scanner`, and the README points at the verified EOLkits Pages Audit. At the
+  first post-release query, the Gallery latest-version index still cached v1.0.0
+  with 103 installs and 164 downloads. At `2026-08-25T11:21:39.72Z`, the
+  official Gallery index exposed v1.1.0 with 103 installs and 166 downloads.
+  That is the V1 launch baseline, not qualified demand or revenue.
+- Fresh `2026-08-25T11:25:46Z` production probes found the custom host unchanged:
+  all five HTML pages returned HTTP 200 with zero CSP markers and one injected
+  `stats.saiditright.com` script each; `/api/capabilities` and `/api/status`
+  returned 404; `/health` still reported the old filesystem/SQLite/inline
+  service. This keeps HQ-3 and checkout blocked. The GitHub Marketplace page
+  still showed v1.1.0, the public v2.0.0 release endpoint returned 404, and the
+  repository showed 1 star, 0 forks, and 0 actual issues.
+- Qualified issues: **0**. Paid reports: **0**. Workspace-observed collected
+  revenue: **$0**. Workspace-observed collected profit: **$0**. Target gap:
+  **$4,000**. Successful retirement and publication are operational evidence,
+  not dollars.

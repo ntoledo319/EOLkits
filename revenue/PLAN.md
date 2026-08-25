@@ -220,3 +220,40 @@ rotation, immediately followed by HQ-5 and HQ-6 in the same eight-minute owner
 batch. Then HQ-3 removes the injected script, deploys Audit v2 checkout-closed,
 and proves end-to-end test fulfillment. Do not enable HQ-7 or rerun custom-domain
 IndexNow until both the live CSP and absence of external scripts are verified.
+
+## Hands-off execution state — 2026-08-25T11:21:00Z
+
+The external state materially advanced. Exact Stripe retirement run
+`32840968816` is green, including the independent final containment audit and
+Worker secret/tombstone cleanup. Exact VS publication run `32841331222` is green
+and its public v1.1.0 package is downloadable. The official Gallery index
+exposed v1.1.0 at 11:21:39 UTC with a 103-install / 166-download baseline. Both
+temporary authorization triggers were removed; permanent publication workflows
+are manual-only again. Restoration head `a8e8b45c` has tree `cb5a151b`, and every
+workflow on that head passed.
+
+Workspace-observed collected profit is still **$0** and the gap is still
+**$4,000**. Checkout remains **closed**. The completed Stripe audit establishes
+the bounded catalog/session/subscription state, but the workspace still cannot
+observe account-wide charges or rotate the account key. There are still zero
+qualified Audit issues and zero paid reports. VS publication creates
+distribution, not revenue.
+
+Next actions, in leverage order:
+
+1. Measure VS listing counters and qualified VS-attributed interest from the
+   fresh 103-install / 166-download v1.1.0 baseline.
+2. Keep only the irreducible two-minute GitHub Marketplace checkbox/agreement/
+   2FA action in HQ-5; Codex already verified its canonical private draft.
+3. Rotate the retired Stripe account key in HQ-2. Codex already completed the
+   dispatch, run review, cleanup verification, and public Worker probes.
+4. Supply legal facts, remove the injected host script, deploy GRACE v2 with
+   checkout closed, and prove the complete test/refund path. Repository audit
+   `32840796298` confirms no current deploy transport or runtime bundle exists.
+5. Unpublish the false DEV corpus, then enable only the exact $299 Audit Price
+   after every checkout gate is green.
+
+The owner queue is reduced from 37 to 34 minutes and contains no monitoring or
+VS action. Bet A's checkpoint remains August 27 20:29 UTC. V1's new five-day
+checkpoint is August 30 11:15 UTC. Do not count the successful publisher run,
+extension package availability, installs, downloads, or CI as collected money.

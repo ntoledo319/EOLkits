@@ -13,6 +13,9 @@ permissions:
 jobs:
   audit:
     runs-on: ubuntu-latest
+    outputs:
+      deploy_transport: ${{ steps.capabilities.outputs.deploy_transport }}
+      runtime_bundle: ${{ steps.capabilities.outputs.runtime_bundle }}
     env:
       HAS_SSH_TARGET: ${{ (secrets.GRACE_HOST != '' || vars.GRACE_HOST != '') && 'true' || 'false' }}
       HAS_SSH_CREDENTIAL: ${{ (secrets.GRACE_SSH_KEY != '' || secrets.GRACE_SSH_PRIVATE_KEY != '' || secrets.GRACE_DEPLOY_KEY != '') && 'true' || 'false' }}
@@ -20,6 +23,7 @@ jobs:
       HAS_RUNTIME_BUNDLE: ${{ (secrets.STRIPE_KEY != '' && secrets.STRIPE_WEBHOOK_SECRET != '' && secrets.RESEND_API_KEY != '' && secrets.EOLKITS_INTERNAL_URL_SECRET != '') && 'true' || 'false' }}
     steps:
       - name: Report capability categories without secret values
+        id: capabilities
         shell: bash
         run: |
           set -euo pipefail
@@ -51,3 +55,5 @@ jobs:
 
           printf 'deploy_transport=%s\nruntime_bundle=%s\n' \
             "$deploy_transport" "$HAS_RUNTIME_BUNDLE"
+          printf 'deploy_transport=%s\nruntime_bundle=%s\n' \
+            "$deploy_transport" "$HAS_RUNTIME_BUNDLE" >> "$GITHUB_OUTPUT"

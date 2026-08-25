@@ -738,6 +738,24 @@ async function handleAdmin(request: Request, env: Env): Promise<Response> {
     if (body.confirm !== CONFIRMATION) {
       return json({ error: 'Exact confirmation required' }, 409);
     }
+    // Stripe can automatically deactivate Payment Links when a referenced
+    // Price is archived. Refuse every mutation if the read-only preflight
+    // finds an active link outside the exact URL allowlist; otherwise an
+    // unknown link could disappear during Price retirement without ever
+    // being directly mutated or remaining visible to the final audit.
+    if (before.unexpectedActivePaymentLinks > 0) {
+      return json(
+        {
+          error: 'Unexpected active Payment Links block exact Stripe retirement',
+          mode: 'deactivate',
+          mutation_blocked: true,
+          changed_payment_links: 0,
+          changed_prices: [],
+          ...publicState(before),
+        },
+        409
+      );
+    }
     let changedPaymentLinks = 0;
     const changedPrices: string[] = [];
     const mutationFailures: string[] = [];
