@@ -522,3 +522,62 @@ benchmarks, or unverified analytics in this ledger.
 - GitHub exposed 1 star, 0 forks, 0 actual issues, and 0 qualified Audit-interest
   issues. Paid reports, collected revenue, collected profit, and target gap
   remain 0 / $0 / $0 / $4,000.
+
+## Resumed live-state and privacy audit — 2026-08-25T10:07:45Z
+
+- The custom static release did move after the blocker: scheduled verifier runs
+  `32626994756`, `32705925984`, and `32825272945` passed, and the live site's
+  `Last-Modified` was `Tue, 25 Aug 2026 07:17:02 GMT`. It served the truthful
+  single-$299 Audit, closed Pack/Drift tombstones, a 51-URL custom-host sitemap,
+  and the public IndexNow key. This clears only the static-copy part of HQ-3.
+- Five custom-domain HTML probes (`/`, `/audit/`, `/pack/`, `/drift/`, and
+  `/success/`) each contained an injected
+  `https://stats.saiditright.com/script.js` tag and zero generated CSP markers.
+  The fetched script auto-tracks page URLs and browser metadata. The deployment
+  contradicted the stated no-third-party-analytics posture and remained unsafe
+  for checkout or recrawl.
+- The GRACE backend did not move: `/api/status` and `/api/capabilities` returned
+  404; `/health` remained the old filesystem/SQLite/inline-runner payload; and
+  read-only probes of the three stale checkout paths returned 405 with POST
+  allowed. This confirms route registration, not a successful Checkout Session.
+- Stripe-retirement runs remained zero, VS publish remained only the historical
+  May run `25262940459`, GitHub Marketplace remained v1.1.0 with no public
+  v2.0.0 release, and VS remained v1.0.0. The VS counters reached 103 installs /
+  164 downloads from the approximate 100 / 162 August 22 baseline; no v1.1.0
+  attribution exists.
+
+## Privacy containment published — 2026-08-25T10:07:45Z
+
+- Public main commit
+  https://github.com/ntoledo319/EOLkits/commit/b97befa7c4707c9e4c9a9c39e22871ec536fa5f9
+  and two-parent GRACE-feed commit
+  https://github.com/ntoledo319/EOLkits/commit/a5510969cf76d081afd49564bc4441cff6bb278f
+  both have exact tree `6b0eef76e1f4ac95a3d8d2c62b94623b81c3f414`,
+  matching the locally verified feature tree byte-for-byte. The feed commit
+  preserves the three intervening draft commits as history without accepting
+  their stale tree.
+- All 64 generated HTML files received the restrictive CSP; the Audit success
+  URL stopped carrying `{CHECKOUT_SESSION_ID}`. Two consecutive builds were
+  byte-identical. The full web suite passed 35 tests, the API suite passed 74
+  tests with one upstream Starlette deprecation warning, Black/Ruff passed, both
+  workflow YAML files parsed, extracted Bash passed ShellCheck, and the focused
+  specialist security review found no blocker.
+- Main release run `32835361717`, determinism `32835361744`, properties
+  `32835361827`, custom Pages `32835361707`, built-in Pages `32835360410`,
+  acquisition `32835361734`, and Pages IndexNow `32835361747` all completed
+  successfully. Pages served the release with `Last-Modified: Tue, 25 Aug 2026
+  10:05:33 GMT`; all five live Pages probes contained the CSP, no external
+  script, and no Stripe session identifier.
+- Custom-domain IndexNow run
+  https://github.com/ntoledo319/EOLkits/actions/runs/32835404486 failed before
+  notification with `Refusing to notify search engines before the privacy CSP
+  is live`. This is expected fail-closed evidence: the endpoint did not receive
+  an unsafe custom-host submission.
+- Acquisition run `32835361734` preserved 399-byte artifact ID `9558368696`
+  with digest
+  `sha256:5ced35f8404cfe9c72f41111e8770895ae747d482d98d773db177e8cf81532d5`.
+  Direct public state still showed 1 star, 0 forks, 0 actual/qualified issues,
+  and no owner Marketplace dispatch. Paid reports and workspace-observed
+  collected revenue/profit remain 0 / $0 / $0. Authenticated current Stripe
+  account state was not available, so this is not a claim that unseen Stripe
+  charges or anomalies are absent; HQ-2 remains required. Target gap: $4,000.

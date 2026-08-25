@@ -1,22 +1,18 @@
 # Batched owner queue — maximum 37 minutes
 
-Last reconciled August 22 after publishing the engine-generated sample report,
-advancing public `v2` to green product commit `9c231b58`, recovering the existing
-VS Marketplace identity, and correcting the canonical private GitHub draft.
-The Stripe workflow has not been owner-dispatched; neither Marketplace update
-is public. HQ-6 no longer requires a new publisher or credential, reducing its
-estimate by four minutes. Repository commit `a9cdcaeb` and its full release/VS
-package run `32604619029` are green; the publication workflow now requires exact
-owner identity and typed confirmation. Guard commit `32d01c2f` and its complete
-release run `32605744293` are also green.
+Last reconciled August 25 after the custom static site began serving the truthful
+single-$299 funnel, Pages deployed CSP containment, and the reviewed GRACE feed
+advanced to exact-tree commit `a5510969`. The Stripe workflow has still not been
+owner-dispatched; neither Marketplace update is public. VS remains v1.0.0 at 103
+installs / 164 downloads, and GitHub Marketplace remains v1.1.0.
 
-The autonomous goal is blocked after three consecutive live-state audits found
-the same owner identity/credential boundary. This is not a request for new
-planning. Any completed item below is a resume trigger; send its run URL or
-result back to Codex. The smallest useful batch remains HQ-2, HQ-5, and HQ-6:
-eight minutes total.
+The custom host injects `https://stats.saiditright.com/script.js` into every
+tested page and has not yet deployed the generated CSP. Custom-domain IndexNow
+run `32835404486` therefore failed closed before notification. This privacy fix
+is now part of HQ-3. The smallest useful owner batch remains HQ-2, HQ-5, and
+HQ-6: eight minutes total.
 
-Do HQ-2 first because the stale GRACE API can still mint live Checkout Sessions
+Do HQ-2 first because the stale GRACE API still exposes old POST checkout routes
 and the exact audit may stop on anomalous commerce state. Then do HQ-5 and HQ-6
 in the same sitting so the repaired, fail-closed Pages funnel starts receiving
 Marketplace distribution. Complete HQ-1, HQ-3, HQ-4, and finally HQ-7. HQ-5 and
@@ -74,25 +70,27 @@ Steps:
 
 1. Open deploy/grace/README.md in this repository and follow “Deploy checkout
    closed” exactly with EOLKITS_AUDIT_CHECKOUT_ENABLED=0.
-2. First inspect the scheduled “Verify GRACE static release” run after 07:35 UTC.
-   The still-active box-side deploy now follows final-tree feed commit
-   `0780909c`. If
-   that run passes, do not run a redundant static rsync. If it fails, use
-   `deploy/grace/ship-web.sh` with the documented `GRACE_HOST` and
-   `GRACE_WEBROOT`, inspect its dry-run, then rerun it with `--apply`. Verify
-   https://eolkits.com no longer advertises Migration Pack, Organization
-   License, Drift Watch, automatic PRs, or estimated impact.
-3. Confirm the deployed commit SHA and that public /api/capabilities reports
+2. The static product-copy repair already passed scheduled verifier runs
+   `32626994756`, `32705925984`, and `32825272945`; do not repeat that work.
+   On the GRACE host, locate the Caddy/proxy/template/post-processing rule that
+   injects `https://stats.saiditright.com/script.js` and remove it. This script
+   is not an authorized EOLkits analytics provider. Do not replace it with a
+   different third-party tag.
+3. Deploy exact feed commit `a5510969` with checkout still disabled. Verify raw
+   HTML on `/`, `/audit/`, `/pack/`, `/drift/`, and `/success/` contains the
+   generated `Content-Security-Policy` meta and contains no cross-origin script.
+   Rerun “Verify GRACE static release” and require green before continuing.
+4. Confirm the deployed commit SHA and that public /api/capabilities reports
    report_version 2.0 with checkout_enabled false.
-4. Follow “Test-mode E2E deployment” using the separate test Compose project,
+5. Follow “Test-mode E2E deployment” using the separate test Compose project,
    test Stripe keys, an operator-owned delivery email, and Stripe's test card.
-5. Capture evidence of: presign, immutable PUT, Checkout completion, verified
+6. Capture evidence of: presign, immutable PUT, Checkout completion, verified
    webhook, exactly one job, real PDF, Resend delivery, signed download, matching
    verification lookup, and source/report retention.
-6. Exercise failed fulfillment and confirm a full exact-payment refund is
+7. Exercise failed fulfillment and confirm a full exact-payment refund is
    initiated, correlated by refund ID/amount, and either succeeds or remains
    visibly pending for reconciliation.
-7. Tear down only the separate test project. Leave production checkout off.
+8. Tear down only the separate test project. Leave production checkout off.
 
 ## HQ-4 — remove false DEV promotion (10 minutes)
 
@@ -166,9 +164,11 @@ Steps:
 Why human-only: this begins accepting real customer money.
 
 Prerequisites: HQ-1 through HQ-4 complete, zero unresolved refund/fulfillment
-alerts, and the exact production commit is verified. HQ-2 intentionally leaves
-all six historical Prices inactive. HQ-5 and HQ-6 should happen immediately for
-distribution, but their public listing state does not affect checkout safety.
+alerts, the exact production commit is verified, the generated CSP is live, and
+the GRACE verifier confirms no external script injection. HQ-2 intentionally
+leaves all six historical Prices inactive. HQ-5 and HQ-6 should happen
+immediately for distribution, but their public listing state does not affect
+checkout safety.
 
 Steps:
 

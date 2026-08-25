@@ -293,3 +293,26 @@ HQ-1/HQ-3/HQ-4/HQ-7. It is fully prepared and costs eight owner minutes for the
 first containment/distribution batch, 37 minutes total. It is not autonomously
 executable under the identity/contact/credential rules. More repository work is
 now negative leverage.
+
+## Privacy-gated canonical discovery — August 25
+
+No new monetization frame enters the ranking. C4 became safer, not more
+valuable: the truthful `eolkits.com` corpus is now live with a 51-URL sitemap,
+but its hosting layer injects an unreviewed analytics script into every tested
+page. Publishing cached commercial URLs while that contradiction remains would
+compound privacy and trust risk rather than create qualified demand.
+
+The reviewed release adds a browser-enforced CSP to all 64 HTML documents and
+extends the bounded IndexNow job to the custom host. Pages submission run
+`32835361747` succeeded; custom submission run `32835404486` failed closed
+before an IndexNow request because the CSP was not yet live. Once the GRACE host
+deploys feed commit `a5510969` and removes its injected script, rerunning that
+same zero-credential path is the cheapest safe search-discovery test. It still
+cannot collect money while checkout is closed.
+
+Ranking remains K1, A1, V1, C4. VS v1.0.0 moved only from roughly 100 installs /
+162 downloads to 103 / 164 while the v1.1.0 release stayed unpublished; that is
+weak historical counter movement, not attributable demand. Qualified issues,
+paid reports, and workspace-observed collected revenue remain 0 / 0 / $0. HQ-2
+followed by HQ-5/HQ-6 remains the shortest route to commercial evidence; the
+GRACE privacy/deployment correction is now an explicit prerequisite to HQ-7.

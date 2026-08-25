@@ -9,23 +9,23 @@ All code and evidence below is inside the workspace jail.
   cited migration/error guidance without uploading code.
 - Stack: deterministic Python/Jinja/PyYAML generator producing docs/ for GitHub
   Pages; client-side scanner and first-party event beacon.
-- Completeness: 32 generated-site tests pass; the 87-file public tree is
+- Completeness: 35 generated-site tests pass; the 87-file public tree is
   byte-deterministic across consecutive builds, link/source checked, and free of
   trailing whitespace. The GitHub Pages project-path build keeps static links
   under `/EOLkits` and API calls on `eolkits.com`. Both GitHub Pages deployment
   paths now publish that same artifact, and a public probe passed at
-  https://ntoledo319.github.io/EOLkits/. The observed `eolkits.com` deployment
-  is still obsolete. An active box-side daily deploy was proved from its
-  07:17 UTC `Last-Modified` time and the immediately preceding source-branch
-  commit. Its source feed now points, without force, at the verified truthful
-  tree; the next observed run and an independent scheduled verifier must pass
-  before the custom domain is counted as repaired.
-- Search distribution: the Pages artifact exposes one valid IndexNow ownership
-  key and a 51-URL same-scope sitemap. A contents-read-only workflow now submits
-  changed/deleted HTML paths on ordinary pushes, with a bounded sitemap fallback
-  for bootstrap/manual runs. Its first public run received an IndexNow HTTP
-  200/202 success response. Receipt is not proof of indexing, ranking, visits,
-  or demand.
+  https://ntoledo319.github.io/EOLkits/. The August 25 `eolkits.com` static
+  deployment now serves the truthful single-$299 funnel and retired-product
+  tombstones, but a hosting layer injects an unreviewed cross-origin analytics
+  script into every tested page. The custom domain is therefore not checkout-
+  safe even though its product copy is repaired.
+- Search distribution: both hosts expose a valid IndexNow ownership key and a
+  51-URL same-scope sitemap. A contents-read-only workflow submits bounded Pages
+  URLs from `main`; the custom-domain path additionally verifies the live offer,
+  generated CSP, and absence of external scripts before any request. Pages run
+  `32835361747` succeeded. Custom run `32835404486` refused submission before
+  the endpoint call because the privacy CSP is not live. Receipt is not proof of
+  indexing, ranking, visits, or demand.
 - $0 deploy: GitHub Pages.
 - License/provenance: repository MIT; factual AWS claims require primary-source
   review. No buyer code leaves the browser scanner.
@@ -64,8 +64,10 @@ All code and evidence below is inside the workspace jail.
 - Buyer sentence: flag bundled AWS deprecation patterns locally on save or on
   demand in YAML, JSON/JSONC, Terraform/HCL, JavaScript/TypeScript, and Python.
 - Completeness: the exact public listing `rupture.rupture-vscode` is live at
-  v1.0.0; adjacent August 22 queries returned 100–101 on its Marketplace install
-  counter and 162 downloads, showing that the install counter is approximate.
+  v1.0.0; the August 25 counter reached 103 installs and 164 downloads from the
+  August 22 approximate 100-install/162-download baseline. That weak historical
+  movement is not attributable v1.1.0 demand because the prepared update remains
+  unpublished.
   A tested 12-file EOLkits-branded v1.1.0 in-place update preserves that stable
   identity, legacy commands/settings, and the installed base; publication is
   still owner-gated. The publish workflow now also requires the exact repository
@@ -267,3 +269,23 @@ probes return Stripe-hosted pages, but only the authenticated exact retirement
 audit can establish their catalog/session/subscription state, and Audit v2
 fulfillment is not deployed. Accepting payment through them would be unsafe and
 would not create a verified report-delivery path.
+
+## Hosting-injection containment release — August 25
+
+- Public `main` commit `b97befa7` and GRACE feed commit `a5510969` share exact
+  tree `6b0eef76`. The latter preserves the three intervening draft commits as
+  history while replacing their stale branch tree with the reviewed release.
+- All 64 generated HTML documents now place a restrictive CSP at the start of
+  the document head. It allows same-origin/inline site code and the reviewed
+  `https://eolkits.com` API connection, but it does not authorize the observed
+  `https://stats.saiditright.com` script or its cross-origin requests.
+- Pages deployed the new tree and five live-page probes found CSP on all five,
+  no external script, and no Stripe session identifier. The custom domain still
+  had zero CSP markers and the injected analytics tag on all five probes at
+  `2026-08-25T10:07Z`; its last-modified time was still 07:17 UTC.
+- Audit checkout success URLs no longer include `{CHECKOUT_SESSION_ID}`. Durable
+  fulfillment and reconciliation continue through the verified Stripe webhook
+  and server-side session record; 74 API tests cover the service and 35 web tests
+  cover the generated surface.
+- This is a security/distribution asset, not a sale. GRACE v2, Stripe retirement,
+  Marketplace publication, and checkout remain owner-gated.
