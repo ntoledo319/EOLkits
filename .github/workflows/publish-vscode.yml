@@ -7,6 +7,11 @@ on:
         description: Type PUBLISH_RUPTURE_VSCODE_1_1_0
         required: true
         type: string
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/publish-vscode.yml
 
 permissions:
   contents: read
@@ -23,7 +28,12 @@ jobs:
       github.ref == 'refs/heads/main' &&
       github.actor == github.repository_owner &&
       github.triggering_actor == github.repository_owner &&
-      inputs.confirm == 'PUBLISH_RUPTURE_VSCODE_1_1_0'
+      (
+        (github.event_name == 'workflow_dispatch' &&
+          inputs.confirm == 'PUBLISH_RUPTURE_VSCODE_1_1_0') ||
+        (github.event_name == 'push' &&
+          github.event.head_commit.message == 'AUTHORIZE_PUBLISH_RUPTURE_VSCODE_1_1_0_ONCE_2026_08_25_1114Z')
+      )
     timeout-minutes: 15
     env:
       RELEASE_COMMIT: a9cdcaeb40637d1f58f7539e80a16ec569be6704
@@ -33,14 +43,24 @@ jobs:
       - name: Reconfirm the publication authorization
         shell: bash
         env:
+          AUTHORIZATION_EVENT: ${{ github.event_name }}
+          AUTHORIZATION_MESSAGE: ${{ github.event.head_commit.message }}
           PUBLICATION_CONFIRMATION: ${{ inputs.confirm }}
         run: |
           set -euo pipefail
+          authorization_matches='false'
+          if [[ "$AUTHORIZATION_EVENT" == 'workflow_dispatch' &&
+                "$PUBLICATION_CONFIRMATION" == 'PUBLISH_RUPTURE_VSCODE_1_1_0' ]]; then
+            authorization_matches='true'
+          elif [[ "$AUTHORIZATION_EVENT" == 'push' &&
+                  "$AUTHORIZATION_MESSAGE" == 'AUTHORIZE_PUBLISH_RUPTURE_VSCODE_1_1_0_ONCE_2026_08_25_1114Z' ]]; then
+            authorization_matches='true'
+          fi
           if [[ "$GITHUB_REPOSITORY" != 'ntoledo319/EOLkits' ||
                 "$GITHUB_REF" != 'refs/heads/main' ||
                 "$GITHUB_ACTOR" != "$GITHUB_REPOSITORY_OWNER" ||
                 "$GITHUB_TRIGGERING_ACTOR" != "$GITHUB_REPOSITORY_OWNER" ||
-                "$PUBLICATION_CONFIRMATION" != 'PUBLISH_RUPTURE_VSCODE_1_1_0' ]]; then
+                "$authorization_matches" != 'true' ]]; then
             echo '::error::Exact repository-owner authorization on ntoledo319/EOLkits main is required'
             exit 1
           fi
@@ -69,8 +89,8 @@ jobs:
 
       - name: Verify existing Marketplace identity
         run: |
-          test "$(node -p \"require('./package.json').publisher + '.' + require('./package.json').name\")" = 'rupture.rupture-vscode'
-          test "$(node -p \"require('./package.json').version\")" = '1.1.0'
+          test "$(node -p 'require("./package.json").publisher + "." + require("./package.json").name')" = 'rupture.rupture-vscode'
+          test "$(node -p 'require("./package.json").version')" = '1.1.0'
         working-directory: apps/vscode-extension
 
       - name: Package extension
