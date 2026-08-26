@@ -1,5 +1,15 @@
-/home/nick/Development/active/Rupture
+/home/user/EOLkits
 # Revenue plan — reset August 22, 2026
+
+Note (2026-08-26 cloud cycle): WORKSPACE_ROOT above is corrected again from
+the stale local-machine path (`/home/nick/Development/active/Rupture`) back
+to this cycle's actual repo root. Batch 3 (2026-08-23) made this same
+correction, but a later two-parent merge (`a5510969`, see D36 in
+DECISIONS.md) took its file content from a diverged branch that still had the
+stale path, silently reverting it along with Batches 3-5 of
+`launch/distribution/repost-answers.md`. This cycle restored both. This
+session is a fresh isolated cloud checkout with no access to any local
+machine, the GRACE VPS, or local secrets.
 
 ## Reality
 
@@ -257,3 +267,41 @@ The owner queue is reduced from 37 to 34 minutes and contains no monitoring or
 VS action. Bet A's checkpoint remains August 27 20:29 UTC. V1's new five-day
 checkpoint is August 30 11:15 UTC. Do not count the successful publisher run,
 extension package availability, installs, downloads, or CI as collected money.
+
+## Repost-answers backlog recovery — 2026-08-26T06:30:00Z
+
+This isolated cloud cycle had no VPS/local/Stripe/GitHub-API access and, as in
+prior cloud cycles, `WebFetch` was `EGRESS_BLOCKED` on every host tested,
+confirmed against the neutral control `example.com` via both the WebFetch tool
+and a direct `curl` through the configured proxy (`403` on `CONNECT`). Per
+AGENTS.md's rule for this condition, no new-fact-dependent ship (a fresh
+dev.to article, or drafted answers built only on unverifiable claims) was
+attempted from scratch.
+
+Instead, auditing the last owner-facing deliverable this loop produces
+(`launch/distribution/repost-answers.md`) found it had regressed to only its
+original 3 stale, do-not-post entries, even though three prior cloud cycles
+(Batches 3-5, 2026-08-23 through 2026-08-25) had appended 211 lines of fresh,
+cross-checked, ready-to-post drafts. Git history showed why: merge commit
+`a5510969` joined two diverged branches by taking one side's tree wholesale
+(a documented pattern in this repo for reconciling diverged history, see
+D11/D20/D27/D31), which silently discarded the other side's unique additions
+to every `revenue/` file and to `repost-answers.md` specifically — the only
+file among those where the discarded side held irreplaceable, non-reproducible
+work product rather than a journal entry a later cycle could restate. See D36
+in DECISIONS.md.
+
+This cycle restored Batches 3-5 verbatim from the pre-merge tip (`7da75425`)
+and appended Batch 6: one fresh, cross-checked answer for a real, distinct
+open thread (`nodejs14.x` blocking an Amplify-generated Lambda's CloudFormation
+update, found via WebSearch and corroborated across an AWS blog post, an
+`aws-amplify/amplify-cli` GitHub issue, and a dev.to writeup of the identical
+error string — no single source was treated as sufficient on its own given
+WebFetch was unavailable to read the thread directly). The backlog is now 7
+distinct, unique, ready-to-post answers across Batches 3-6 (5 more from
+Batches 1-2 remain marked do-not-post pending fact review). This is an
+externally-relevant deliverable recovery, not a code or infrastructure change;
+it does not move collected revenue, which remains **$0**, or the **$4,000**
+gap. Highest-leverage next action for the owner is still the HQ-2/HQ-5 batch
+above; posting from the restocked backlog is optional, ungated reading with no
+deadline (see HUMAN_QUEUE.md).

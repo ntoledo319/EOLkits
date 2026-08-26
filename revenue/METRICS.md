@@ -637,3 +637,38 @@ benchmarks, or unverified analytics in this ledger.
   revenue: **$0**. Workspace-observed collected profit: **$0**. Target gap:
   **$4,000**. Successful retirement and publication are operational evidence,
   not dollars.
+
+## Backlog-recovery cycle — 2026-08-26T06:32:00Z
+
+- Network egress: `WebFetch` returned `EGRESS_BLOCKED` for every tested host
+  this cycle, including the neutral control `example.com`. A direct `curl`
+  through the configured proxy independently confirmed the same block
+  (`gateway answered 403 to CONNECT`) for `example.com`, `docs.aws.amazon.com`,
+  and `repost.aws`. `WebSearch` remained functional and was used, cross-checked
+  across independent result snippets per claim, consistent with prior cycles'
+  documented workaround.
+- Git-history audit found merge commit `a5510969` (2026-08-25) had silently
+  dropped Batches 3-5 of `launch/distribution/repost-answers.md` (211 lines,
+  three prior cloud cycles' drafted output) by taking one branch's tree
+  wholesale during a diverged-history merge. Confirmed via `git diff b97befa7
+  HEAD -- launch/distribution/repost-answers.md` returning empty (exact match)
+  and `git diff 7da75425 HEAD` showing the 211-line removal. Recorded as D36 in
+  DECISIONS.md.
+- Restored Batches 3-5 verbatim from pre-merge commit `7da75425` and appended
+  Batch 6 (one fresh answer, cross-checked via WebSearch across an AWS
+  DevOps-blog post, an `aws-amplify/amplify-cli` GitHub issue, and a dev.to
+  writeup of the identical error string, for
+  https://repost.aws/questions/QUVhoUXEhDSBGXtsiU8xCpIA/ — a `nodejs14.x`
+  Amplify-generated-function CloudFormation block, distinct from every thread
+  in Batches 1-5). `launch/distribution/repost-answers.md` now holds 7 unique,
+  ready-to-post answers (Batches 3-6); Batches 1-2 (10 more entries, in this
+  file and the separate `repost-answers-batch2.md`) remain marked
+  archived/do-not-post pending fact review, unchanged this cycle.
+- No dev.to article was published this cycle: HQ-4 (owner unpublishing the 25
+  existing posts for stale/false claims) is still open, and adding a 26th
+  autonomously-published post to a corpus already flagged for mass truth
+  review was judged net-negative regardless of egress state.
+- This is release/recovery evidence for an owner-facing content asset, not a
+  visit, lead, sale, or revenue event. Qualified issues, paid reports,
+  collected revenue, and collected profit remain 0 / 0 / $0 / $0. Target gap
+  remains $4,000.

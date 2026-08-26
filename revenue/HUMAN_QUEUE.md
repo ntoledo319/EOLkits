@@ -22,6 +22,15 @@ finally HQ-7. The VS acquisition release is complete; distribution state is not
 a checkout-safety gate, and checkout remains closed until HQ-7. No old handoff
 or launch file is authoritative.
 
+Cloud cycle 2026-08-26 (isolated checkout, no VPS/local/Stripe/GitHub-API
+access): re-read this queue and made no change to it. HQ-1 through HQ-7, their
+order, and the 34-minute total are unchanged. This cycle found and fixed a
+merge bug that had silently dropped three prior cycles' drafted re:Post
+answers (Batches 3-5) from `launch/distribution/repost-answers.md`; see D36 in
+DECISIONS.md. Restored those and added Batch 6, for 7 ready-to-post answers
+total — optional owner reading whenever convenient, not a queue item with a
+deadline, so the 34-minute total is unaffected.
+
 ## HQ-1 — supply truthful seller/legal and cost facts (3 minutes)
 
 Why human-only: only the owner knows the legal seller/controller identity,
