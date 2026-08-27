@@ -158,13 +158,15 @@ the latest capability audit remains `deploy_transport=false` /
 `runtime_bundle=false`. Do not weaken the verifier, notify IndexNow for the
 custom host, or enable payment.
 
-The next autonomous gate is publishing and validating daily exact VS telemetry
-plus qualified-interest measurement. The next owner actions, in required order,
-remain: legacy Stripe key rotation, then Marketplace publication; truthful legal
-facts; GRACE v2 checkout-closed deployment plus injection removal and complete
-test/refund E2E; DEV unpublication; then the exact $299 checkout enablement. Do
-not create another product, claim cumulative downloads as demand, or substitute
-repository polish for those cash-path gates.
+Daily exact VS telemetry plus qualified-interest measurement is now public and
+validated by run `33028483868` / artifact `9629312207`. The next autonomous gate
+is the August 30 five-full-day V1 falsifier check; daily observations continue in
+the meantime. The next owner actions, in required order, remain: legacy Stripe
+key rotation, then Marketplace publication; truthful legal facts; GRACE v2
+checkout-closed deployment plus injection removal and complete test/refund E2E;
+DEV unpublication; then the exact $299 checkout enablement. Do not create another
+product, claim cumulative downloads as demand, or substitute repository polish
+for those cash-path gates.
 
 ## Strict blocker state — 2026-08-22T23:47:26Z
 

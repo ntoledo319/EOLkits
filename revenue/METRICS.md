@@ -668,8 +668,18 @@ benchmarks, or unverified analytics in this ledger.
   This is a routing/truth correction, not traffic or revenue.
 - The acquisition workflow's exact Gallery query, identity/version guard,
   integral counter validation, baseline deltas, Bash syntax, ShellCheck, YAML
-  parse, and complete live script execution passed locally. Its artifact labels
-  cumulative counters and qualified interest separately.
+  parse, and complete live script execution passed locally. Public run
+  `33028483868` then passed at commit `2d19a797` and preserved artifact
+  `9629312207` (SHA-256
+  `5e0ff22141e28ba5639d21238d18171bf8b658cfbf9242a0d03e6b525f02b2c8`).
+  The inspected artifact observed at `2026-08-27T00:56:36Z` reports the same
+  103 installs / 183 downloads, +0 / +17 release deltas, zero qualified issues
+  or authors, zero external `@v2` references, no public v2.0.0 release, one star,
+  and zero forks. It labels cumulative counters and qualified interest separately.
+- Public commit `2d19a797` introduced exact tree `5e0fbf58` and was advanced
+  through both `main` and `marketing-machine-v2` without force. Main validation passed: release matrix
+  `33028483792` (13 jobs), determinism `33028483803`, property
+  `33028483831`, acquisition `33028483868`, and Pages `33028480182`.
 - Qualified issues: **0**. Paid reports: **0**. Workspace-observed collected
   revenue: **$0**. Workspace-observed collected profit: **$0**. Target gap:
   **$4,000**. No account-wide Stripe balance/charge connector is available, so

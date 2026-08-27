@@ -763,3 +763,20 @@ net only $3,939.25. Use a provisional 16-initial-sale target ($4,221.80 under
 that fee case), and keep checkout closed until HQ-1 confirms the account country,
 pricing agreement, currencies, and $0 hosting-cost assumption. Source reviewed
 August 27: https://stripe.com/pricing.
+
+## D41 — publish reconciled evidence only after exact-tree and green-CI gates
+
+Construct commit `2d19a797` from reviewed tree `5e0fbf58` with fresh `main`
+`04955c29` as first parent and overnight feed `ec4c9a55` as second parent. Move
+`main` with `force=false`, require every triggered check to pass, then re-read
+both refs and fast-forward `marketing-machine-v2` to the same commit with
+`force=false`. The release matrix, determinism, property, acquisition, and Pages
+runs all passed; both refs converged at that exact tree without rewriting either
+history. A later ledger-only descendant may record this evidence without changing
+the released workflow behavior.
+
+Inspect the first remote telemetry artifact rather than inferring success from a
+green badge. Run `33028483868`, artifact `9629312207`, and digest
+`5e0ff22141e28ba5639d21238d18171bf8b658cfbf9242a0d03e6b525f02b2c8`
+contain the guarded v1.1.0 counters and zero qualified interest. This validates
+measurement, not demand and not revenue.

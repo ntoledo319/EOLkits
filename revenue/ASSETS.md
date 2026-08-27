@@ -332,7 +332,8 @@ would not create a verified report-delivery path.
   Canonical private draft `375063073` remains the only draft, tagged `v2.0.0`,
   targeting `a9cdcaeb`, and still requiring the owner's Marketplace agreement,
   checkbox, and 2FA action.
-- A locally verified acquisition-workflow patch is prepared to measure the exact
-  public VS identity/version, cumulative installs/downloads, and deltas from the
-  103/166 release baseline. It is not external evidence until the patch is
-  published and its first successful artifact is inspected.
+- Public commit `2d19a797` now measures the exact VS identity/version,
+  cumulative installs/downloads, and deltas from the 103/166 release baseline.
+  Remote run `33028483868` passed and artifact `9629312207` independently
+  preserved the expected 103 installs / 183 downloads, +0 / +17 deltas, and
+  zero qualified VS-attributed authors. The counters remain non-revenue context.

@@ -8,6 +8,11 @@ exact-SHA, test, package, identity, and publication step. Both temporary
 one-shot triggers were removed immediately; the permanent workflows are again
 manual-only. No owner dispatch or run monitoring remains.
 
+Daily VS/acquisition evidence is also autonomous now. Public run `33028483868`
+passed at reconciled commit `2d19a797`; inspected artifact `9629312207` keeps
+cumulative Marketplace counters separate from qualified interest and dollars.
+No owner telemetry step is queued.
+
 The custom host still injects `https://stats.saiditright.com/script.js` into
 every tested page. The generated CSP deployed on August 26 and blocks that exact
 external script, but the raw injection remains and verifier `32946397287` is

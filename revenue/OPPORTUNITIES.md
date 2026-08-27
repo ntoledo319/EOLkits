@@ -89,7 +89,7 @@ domestic-card benchmark; it is not fee-schedule-confirmed profit.
 | K5 | 14 | 10 | P | $290.03 | M | Useful acquisition, no built-in payment |
 | K6 | — | 15 | M | $0 | H | Repackaged free code; archived |
 | K7 | — | 30 | N | $0 | H | Requires contracts and support |
-| V1 | 10 | 0 | M | $580.06 | M | v1.1.0 live; telemetry patch pending, demand unproved |
+| V1 | 10 | 0 | M | $580.06 | M | v1.1.0 live; telemetry green, demand unproved |
 | V2 | — | 25 | M | $0 | H | Entitlements/payment/support unbuilt |
 | V3 | 21 | 20 | M | $290.03 | M | Duplicates A1 at lower fidelity |
 | V4 | — | 20 | N | $0 | M | No channel or differentiated buyer |
@@ -128,8 +128,8 @@ domestic-card benchmark; it is not fee-schedule-confirmed profit.
    gate passes.
 3. V1 — keep the published free VSIX as a second contextual distribution
    surface; exact-owner/confirmation guards protect the existing publisher
-   credential. A reviewed workflow patch is ready to separate cumulative
-   counters from demand once published and validated by its first artifact.
+   credential. Public run `33028483868` and artifact `9629312207` now separate
+   cumulative counters from qualified interest and revenue.
 4. C4 — preserve only cited, useful search pages and measure them. The repaired
    51-URL Pages corpus now has a protocol-valid IndexNow submission path, but no
    crawl, rank, visit, or conversion signal has been observed.
@@ -346,11 +346,12 @@ closed GRACE proof, legal facts, DEV cleanup, and exact $299 checkout activation
 another product or channel would add identity/KYC work without removing that
 cash-path boundary.
 
-## Distribution and pending telemetry gate — August 27
+## Instrumented distribution and gate state — August 27
 
 Ranking remains K1, A1, V1, C4. V1 has produced +17 cumulative downloads but
 zero install growth since its 103-install/166-download v1.1.0 baseline, and the
-latest acquisition evidence still has zero qualified VS-attributed authors.
+latest acquisition artifact (`9629312207`) still has zero qualified
+VS-attributed authors.
 That is package/update movement, not a purchase or demonstrated buyer intent.
 The five-full-day V1 gate remains August 30 at 11:15 UTC.
 
