@@ -26,6 +26,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TMPDIR: ${{ github.workspace }}/tmp/runtime-tmp
+      VSCODE_EXTENSION_ID: rupture.rupture-vscode
+      VSCODE_RELEASE_VERSION: 1.1.0
+      VSCODE_BASELINE_INSTALLS: '103'
+      VSCODE_BASELINE_DOWNLOADS: '166'
     steps:
       - uses: actions/checkout@v6
 
@@ -65,6 +69,86 @@ jobs:
           stars="$(jq -r '.stargazers_count' <<< "$repo_json")"
           forks="$(jq -r '.forks_count' <<< "$repo_json")"
 
+          # These values are defined in the job environment above.
+          # shellcheck disable=SC2153
+          readonly vscode_expected_id="$VSCODE_EXTENSION_ID" \
+            vscode_expected_version="$VSCODE_RELEASE_VERSION" \
+            vscode_baseline_installs="$VSCODE_BASELINE_INSTALLS" \
+            vscode_baseline_downloads="$VSCODE_BASELINE_DOWNLOADS"
+          gallery_request="$(
+            jq -cn --arg extension_id "$vscode_expected_id" '
+              {
+                filters: [{criteria: [{filterType: 7, value: $extension_id}]}],
+                flags: 914
+              }
+            '
+          )"
+          gallery_json="$(
+            curl --fail --silent --show-error --max-time 20 --retry 2 \
+              --header 'Accept: application/json;api-version=7.2-preview.1;excludeUrls=true' \
+              --header 'Content-Type: application/json' \
+              --data-binary "$gallery_request" \
+              'https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery'
+          )"
+          gallery_extension_count="$(
+            jq -er '.results[0].extensions | length' <<< "$gallery_json"
+          )"
+          if [[ "$gallery_extension_count" != '1' ]]; then
+            echo "::error::Expected one exact VS Marketplace result; observed $gallery_extension_count"
+            exit 1
+          fi
+
+          vscode_extension_id="$(
+            jq -er '.results[0].extensions[0]
+              | "\(.publisher.publisherName).\(.extensionName)"' <<< "$gallery_json"
+          )"
+          vscode_version="$(
+            jq -er '.results[0].extensions[0].versions[0].version' <<< "$gallery_json"
+          )"
+          vscode_last_updated="$(
+            jq -er '.results[0].extensions[0].lastUpdated' <<< "$gallery_json"
+          )"
+          vscode_installs="$(
+            jq -er '.results[0].extensions[0].statistics
+              | map(select(.statisticName == "install"))
+              | if length == 1
+                  and (.[0].value | type) == "number"
+                  and ((.[0].value | floor) == .[0].value)
+                then (.[0].value | floor)
+                else error("missing or non-integral install counter")
+                end' \
+              <<< "$gallery_json"
+          )"
+          vscode_downloads="$(
+            jq -er '.results[0].extensions[0].statistics
+              | map(select(.statisticName == "downloadCount"))
+              | if length == 1
+                  and (.[0].value | type) == "number"
+                  and ((.[0].value | floor) == .[0].value)
+                then (.[0].value | floor)
+                else error("missing or non-integral download counter")
+                end' \
+              <<< "$gallery_json"
+          )"
+          if [[ "$vscode_extension_id" != "$vscode_expected_id" \
+            || "$vscode_version" != "$vscode_expected_version" ]]; then
+            echo "::error::VS Marketplace identity/version drifted from the measured release"
+            exit 1
+          fi
+          for counter in \
+            "$vscode_installs" \
+            "$vscode_downloads" \
+            "$vscode_baseline_installs" \
+            "$vscode_baseline_downloads"
+          do
+            if [[ ! "$counter" =~ ^[0-9]+$ ]]; then
+              echo "::error::VS Marketplace returned a non-integer counter"
+              exit 1
+            fi
+          done
+          vscode_install_delta="$((vscode_installs - vscode_baseline_installs))"
+          vscode_download_delta="$((vscode_downloads - vscode_baseline_downloads))"
+
           code_query='"ntoledo319/EOLkits@v2" -repo:ntoledo319/EOLkits'
           external_search_available=false
           external_v2_refs=0
@@ -73,11 +157,20 @@ jobs:
             external_v2_refs="$(jq -r '.total_count' <<< "$code_json")"
           fi
 
-          public_v2_release=false
-          if release_json="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/v2.0.0" 2>/dev/null)"; then
-            if [[ "$(jq -r '.draft == false' <<< "$release_json")" == true ]]; then
-              public_v2_release=true
-            fi
+          # Querying the collection makes an empty match an observed false while
+          # preserving fail-closed behavior for auth, rate-limit, network, or 5xx
+          # failures. Do not turn an unavailable API into false evidence.
+          matching_v2_releases="$(
+            gh api --paginate \
+              "repos/$GITHUB_REPOSITORY/releases?per_page=100" \
+              --jq '.[] | select(.tag_name == "v2.0.0")'
+          )"
+          public_v2_release="$(
+            jq -s 'any(.[]; .draft == false)' <<< "$matching_v2_releases"
+          )"
+          if [[ "$public_v2_release" != true && "$public_v2_release" != false ]]; then
+            echo "::error::GitHub release query returned a non-boolean result"
+            exit 1
           fi
 
           observed_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
@@ -93,6 +186,15 @@ jobs:
             --argjson public_v2_release "$public_v2_release" \
             --argjson stars "$stars" \
             --argjson forks "$forks" \
+            --arg vscode_extension_id "$vscode_extension_id" \
+            --arg vscode_version "$vscode_version" \
+            --arg vscode_last_updated "$vscode_last_updated" \
+            --argjson vscode_gallery_installs "$vscode_installs" \
+            --argjson vscode_gallery_downloads "$vscode_downloads" \
+            --argjson vscode_baseline_installs "$vscode_baseline_installs" \
+            --argjson vscode_baseline_downloads "$vscode_baseline_downloads" \
+            --argjson vscode_install_delta "$vscode_install_delta" \
+            --argjson vscode_download_delta "$vscode_download_delta" \
             '{
               observed_at: $observed_at,
               qualified_interest_issues: $qualified_interest_issues,
@@ -105,7 +207,22 @@ jobs:
               public_v2_release: $public_v2_release,
               stars: $stars,
               forks: $forks,
-              caveat: "Public lower bounds only; private repositories, unindexed use, and purchases are not observed here. Interest is not revenue."
+              vscode_gallery: {
+                extension_id: $vscode_extension_id,
+                version: $vscode_version,
+                last_updated: $vscode_last_updated,
+                installs: $vscode_gallery_installs,
+                downloads: $vscode_gallery_downloads,
+                release_baseline: {
+                  installs: $vscode_baseline_installs,
+                  downloads: $vscode_baseline_downloads
+                },
+                delta_from_release_baseline: {
+                  installs: $vscode_install_delta,
+                  downloads: $vscode_download_delta
+                }
+              },
+              caveat: "Public lower bounds only; private repositories, unindexed use, and purchases are not observed here. Marketplace downloads can include update/package fetches. Counters and interest are not revenue."
             }' > "$evidence_dir/evidence.json"
 
           {
@@ -121,8 +238,10 @@ jobs:
             echo "- Public code references to \`ntoledo319/EOLkits@v2\` outside this repository: **$external_v2_refs**"
             echo "- Code-search result available: **$external_search_available**"
             echo "- Public v2.0.0 release: **$public_v2_release**"
+            echo "- VS Marketplace v$vscode_version installs: **$vscode_installs** (**$vscode_install_delta** from the 103-install release baseline)"
+            echo "- VS Marketplace v$vscode_version downloads: **$vscode_downloads** (**$vscode_download_delta** from the 166-download release baseline)"
             echo
-            echo 'These are public lower bounds, not purchases or revenue. Private use and search-index lag are invisible.'
+            echo 'These are public lower bounds, not purchases or revenue. Private use and search-index lag are invisible. Downloads can include update/package fetches and do not establish demand.'
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Preserve the observation
