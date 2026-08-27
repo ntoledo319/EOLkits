@@ -366,3 +366,11 @@ external script, the verifier remains red, GRACE v2 capability endpoints remain
 404, and repository automation still has no deployment transport/runtime bundle.
 No new frame removes those operating gates without adding a new marketplace,
 identity, KYC, or fulfillment burden.
+
+## Cycle note — August 27 (egress-restricted)
+
+No frame ranking changes. C4 (cited search/deadline pages as the Audit funnel)
+gained one corrected entry (nodejs16.x) that the free scanner already implied
+but the public deadline tracker omitted — a completeness fix within the
+existing C4 frame, not a new frame. K1/A1/V1 remain the ranked bets and remain
+blocked on the same owner-only gates in HUMAN_QUEUE.md. See DECISIONS D42.

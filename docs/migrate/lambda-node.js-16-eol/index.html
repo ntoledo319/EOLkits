@@ -5,19 +5,19 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://eolkits.com; form-action 'self'">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lambda Node.js 18 create/update restrictions migration guide — milestone 2027-02-01 | EOLkits</title>
-    <meta name="description" content="Lambda Node.js 18 create/update restrictions: tracked milestone 2027-02-01 (more than 30 days out). AWS Lambda. 4 migration checks to verify, plus a free…">
-    <meta name="keywords" content="Lambda Node.js 18 create/update restrictions, AWS deprecation, AWS Lambda, lambda, nodejs, runtime, migration, end of life, 2027-02-01">
+    <title>Lambda Node.js 16 create/update restrictions migration guide — milestone 2027-02-01 | EOLkits</title>
+    <meta name="description" content="Lambda Node.js 16 create/update restrictions: tracked milestone 2027-02-01 (more than 30 days out). AWS Lambda. 4 migration checks to verify, plus a free…">
+    <meta name="keywords" content="Lambda Node.js 16 create/update restrictions, AWS deprecation, AWS Lambda, lambda, nodejs, runtime, migration, end of life, 2027-02-01">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-18-eol/">
+    <link rel="canonical" href="https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-16-eol/">
     <link rel="stylesheet" href="/EOLkits/style.css">
     <script defer src="/EOLkits/track.js"></script>
     <link rel="alternate" type="text/calendar" title="AWS Deprecation Deadlines (EOLkits)" href="/EOLkits/deprecations.ics">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Lambda Node.js 18 create/update restrictions — AWS deprecation migration guide (milestone 2027-02-01)">
-    <meta property="og:description" content="Node.js 18 Lambda runtime (Amazon Linux 2) deprecated 2025-09-01. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs18.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — part of the synchronized Q1-2027 runtime-block cluster.">
-    <meta property="og:url" content="https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-18-eol/">
+    <meta property="og:title" content="Lambda Node.js 16 create/update restrictions — AWS deprecation migration guide (milestone 2027-02-01)">
+    <meta property="og:description" content="Node.js 16 Lambda runtime (Amazon Linux 2) deprecated 2024-06-12. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs16.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — the same synchronized Q1-2027 block cluster as nodejs18.x, nodejs20.x, and several Python runtimes.">
+    <meta property="og:url" content="https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-16-eol/">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="EOLkits">
     <meta property="og:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
@@ -28,7 +28,7 @@
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Lambda Node.js 18 create/update restrictions — Migration Guide">
+    <meta name="twitter:title" content="Lambda Node.js 16 create/update restrictions — Migration Guide">
     <meta name="twitter:description" content="Tracked milestone 2027-02-01 (163 days from the build date). 4 bounded migration checks to verify.">
     <meta name="twitter:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
 
@@ -37,8 +37,8 @@
     {
         "@context": "https://schema.org",
         "@type": "TechArticle",
-        "headline": "Lambda Node.js 18 create/update restrictions \u2014 AWS Deprecation Migration Guide",
-        "description": "Node.js 18 Lambda runtime (Amazon Linux 2) deprecated 2025-09-01. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs18.x functions on 2027-02-01 and updating existing ones on 2027-03-03 \u2014 part of the synchronized Q1-2027 runtime-block cluster.",
+        "headline": "Lambda Node.js 16 create/update restrictions \u2014 AWS Deprecation Migration Guide",
+        "description": "Node.js 16 Lambda runtime (Amazon Linux 2) deprecated 2024-06-12. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs16.x functions on 2027-02-01 and updating existing ones on 2027-03-03 \u2014 the same synchronized Q1-2027 block cluster as nodejs18.x, nodejs20.x, and several Python runtimes.",
         "datePublished": "2026-08-22",
         "dateModified": "2026-08-22",
         "proficiencyLevel": "Expert",
@@ -55,7 +55,7 @@
             "name": "AWS Lambda",
             "applicationCategory": "CloudComputing"
         },
-        "mainEntityOfPage": "https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-18-eol/"
+        "mainEntityOfPage": "https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-16-eol/"
     }
     </script>
 
@@ -67,7 +67,7 @@
         "itemListElement": [
             { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://ntoledo319.github.io/EOLkits/" },
             { "@type": "ListItem", "position": 2, "name": "AWS deprecations", "item": "https://ntoledo319.github.io/EOLkits/migrate/" },
-            { "@type": "ListItem", "position": 3, "name": "Lambda Node.js 18 create/update restrictions", "item": "https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-18-eol/" }
+            { "@type": "ListItem", "position": 3, "name": "Lambda Node.js 16 create/update restrictions", "item": "https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-16-eol/" }
         ]
     }
     </script>
@@ -80,22 +80,22 @@
         "mainEntity": [
             {
                 "@type": "Question",
-                "name": "What is the next tracked milestone for Lambda Node.js 18 create/update restrictions?",
-                "acceptedAnswer": { "@type": "Answer", "text": "EOLkits tracks 2027-02-01 as the next published milestone. Node.js 18 Lambda runtime (Amazon Linux 2) deprecated 2025-09-01. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs18.x functions on 2027-02-01 and updating existing ones on 2027-03-03 \u2014 part of the synchronized Q1-2027 runtime-block cluster. Provider status source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html. Future dates can change." }
+                "name": "What is the next tracked milestone for Lambda Node.js 16 create/update restrictions?",
+                "acceptedAnswer": { "@type": "Answer", "text": "EOLkits tracks 2027-02-01 as the next published milestone. Node.js 16 Lambda runtime (Amazon Linux 2) deprecated 2024-06-12. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs16.x functions on 2027-02-01 and updating existing ones on 2027-03-03 \u2014 the same synchronized Q1-2027 block cluster as nodejs18.x, nodejs20.x, and several Python runtimes. Provider status source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html. Future dates can change." }
             },
             {
                 "@type": "Question",
-                "name": "What should I verify when moving away from Lambda Node.js 18 create/update restrictions?",
-                "acceptedAnswer": { "@type": "Answer", "text": "Configured migration checks to validate in your workload: Upgrade target is nodejs24.x; aws-sdk v2 not bundled (use @aws-sdk v3 modular clients); Native addons must be rebuilt and tested on the Node.js 24 ABI; OpenSSL 3 behavior changes. A listed check is not proof of impact. Provider status source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
+                "name": "What should I verify when moving away from Lambda Node.js 16 create/update restrictions?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Configured migration checks to validate in your workload: Upgrade target is nodejs24.x (multi-step: no direct nodejs16.x to nodejs24.x runtime setting); aws-sdk v2 preinstalled on nodejs16.x; nodejs18.x+ bundles AWS SDK for JavaScript v3 instead (require(\u0027aws-sdk\u0027) stops resolving); Native addons must be rebuilt and tested on the Node.js 24 ABI; OpenSSL 3 behavior changes. A listed check is not proof of impact. Provider status source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
             },
             {
                 "@type": "Question",
-                "name": "Which AWS services are affected by Lambda Node.js 18 create/update restrictions?",
+                "name": "Which AWS services are affected by Lambda Node.js 16 create/update restrictions?",
                 "acceptedAnswer": { "@type": "Answer", "text": "Affected services: AWS Lambda. Affected resource types: function. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
             },
             {
                 "@type": "Question",
-                "name": "Is there a free tool to migrate off Lambda Node.js 18 create/update restrictions?",
+                "name": "Is there a free tool to migrate off Lambda Node.js 16 create/update restrictions?",
                 "acceptedAnswer": { "@type": "Answer", "text": "Yes. lambda-lifeline is an MIT-licensed CLI with bounded static checks and targeted local change previews. The optional $299 static repository evidence report adds file-and-line evidence when its fulfillment backend is ready; EOLkits does not currently sell automated pull requests." }
             }
         ]
@@ -118,13 +118,13 @@
 
 <main class="container article">
     <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a href="/EOLkits/">Home</a> / <a href="/EOLkits/migrate/">AWS deprecations</a> / <span>Lambda Node.js 18 create/update restrictions</span>
+        <a href="/EOLkits/">Home</a> / <a href="/EOLkits/migrate/">AWS deprecations</a> / <span>Lambda Node.js 16 create/update restrictions</span>
     </nav>
 
     <article>
         <div class="deadline-banner ahead">
             <span class="severity-badge severity-high">high</span>
-            <h1>Lambda Node.js 18 create/update restrictions</h1>
+            <h1>Lambda Node.js 16 create/update restrictions</h1>
             <p class="banner-sub">AWS Lambda — published migration milestone</p>
             <div class="countdown" data-deadline="2027-02-01">2027-02-01</div>
             <p class="urgency">163 days until the 2027-02-01 deadline — enough runway to migrate safely.</p>
@@ -132,7 +132,7 @@
 
         <section>
             <h2>What is being deprecated?</h2>
-            <p>Node.js 18 Lambda runtime (Amazon Linux 2) deprecated 2025-09-01. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs18.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — part of the synchronized Q1-2027 runtime-block cluster.</p>
+            <p>Node.js 16 Lambda runtime (Amazon Linux 2) deprecated 2024-06-12. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs16.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — the same synchronized Q1-2027 block cluster as nodejs18.x, nodejs20.x, and several Python runtimes.</p>
             <table class="facts">
                 <tr><th>Next tracked milestone</th><td><strong>2027-02-01</strong> (163 days from build date 2026-08-22)</td></tr>
                 <tr><th>Service</th><td>AWS Lambda</td></tr>
@@ -149,9 +149,9 @@
             <p>When moving away from this runtime or operating-system release, verify these configured concerns in your own workload. A listed concern is not proof that every workload is affected. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[provider status source]</a></p>
             <ul>
 
-                <li>Upgrade target is nodejs24.x</li>
+                <li>Upgrade target is nodejs24.x (multi-step: no direct nodejs16.x to nodejs24.x runtime setting)</li>
 
-                <li>aws-sdk v2 not bundled (use @aws-sdk v3 modular clients)</li>
+                <li>aws-sdk v2 preinstalled on nodejs16.x; nodejs18.x+ bundles AWS SDK for JavaScript v3 instead (require('aws-sdk') stops resolving)</li>
 
                 <li>Native addons must be rebuilt and tested on the Node.js 24 ABI</li>
 
@@ -195,7 +195,7 @@ node bin/cli.mjs --help</code></pre>
                     <h3>Audit PDF</h3>
                     <div class="price">$299</div>
                     <p>Static scan of one repository ZIP or source file with exact file/line evidence, observed reach, remediation order, configured references, and explicit limitations. <strong>30-day money-back guarantee.</strong></p>
-                    <a href="/EOLkits/audit/?deadline=2027-02-01&utm_source=migrate&utm_medium=cta&utm_campaign=lambda-node.js-18-eol&kit=lambda-lifeline" class="btn-primary">Check Audit v2 availability</a>
+                    <a href="/EOLkits/audit/?deadline=2027-02-01&utm_source=migrate&utm_medium=cta&utm_campaign=lambda-node.js-16-eol&kit=lambda-lifeline" class="btn-primary">Check Audit v2 availability</a>
                     <p class="small"><a href="/EOLkits/scan/">Run the free scan first</a> · <a href="/EOLkits/audit/sample/">see a sample →</a></p>
                     <p class="small">Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
                 </div>
@@ -205,8 +205,8 @@ node bin/cli.mjs --help</code></pre>
         <section class="embed-badge">
             <h2>Embed this milestone in your README</h2>
             <p>Drop a milestone badge into a repo that needs this migration review. It links back to the provider-sourced date and bounded checks on this page.</p>
-            <p><img src="https://ntoledo319.github.io/EOLkits/badge/lambda-node.js-18-eol.svg" alt="Lambda Node.js 18 create/update restrictions milestone badge"></p>
-            <pre class="code-block"><code>[![Lambda Node.js 18 create/update restrictions milestone](https://ntoledo319.github.io/EOLkits/badge/lambda-node.js-18-eol.svg)](https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-18-eol/)</code></pre>
+            <p><img src="https://ntoledo319.github.io/EOLkits/badge/lambda-node.js-16-eol.svg" alt="Lambda Node.js 16 create/update restrictions milestone badge"></p>
+            <pre class="code-block"><code>[![Lambda Node.js 16 create/update restrictions milestone](https://ntoledo319.github.io/EOLkits/badge/lambda-node.js-16-eol.svg)](https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-16-eol/)</code></pre>
         </section>
 
 
@@ -231,7 +231,7 @@ node bin/cli.mjs --help</code></pre>
                 </li>
 
                 <li>
-                    <a href="/EOLkits/migrate/lambda-node.js-16-eol/">Lambda Node.js 16 create/update restrictions</a>
+                    <a href="/EOLkits/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 create/update restrictions</a>
                     <span class="rel-meta">— milestone <strong>2027-02-01</strong> · high · <code>lambda-lifeline</code></span>
                 </li>
 
@@ -244,11 +244,11 @@ node bin/cli.mjs --help</code></pre>
             <h2>Frequently asked questions</h2>
             <details open>
                 <summary>What is the next tracked milestone?</summary>
-                <p>2027-02-01. Node.js 18 Lambda runtime (Amazon Linux 2) deprecated 2025-09-01. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs18.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — part of the synchronized Q1-2027 runtime-block cluster. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[provider status source]</a></p>
+                <p>2027-02-01. Node.js 16 Lambda runtime (Amazon Linux 2) deprecated 2024-06-12. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs16.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — the same synchronized Q1-2027 block cluster as nodejs18.x, nodejs20.x, and several Python runtimes. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[provider status source]</a></p>
             </details>
             <details>
                 <summary>What should I verify before changing the workload?</summary>
-                <p>Validate these configured checks against your code and current upstream documentation: Upgrade target is nodejs24.x; aws-sdk v2 not bundled (use @aws-sdk v3 modular clients); Native addons must be rebuilt and tested on the Node.js 24 ABI; OpenSSL 3 behavior changes. A listed check is not proof that the workload is affected.</p>
+                <p>Validate these configured checks against your code and current upstream documentation: Upgrade target is nodejs24.x (multi-step: no direct nodejs16.x to nodejs24.x runtime setting); aws-sdk v2 preinstalled on nodejs16.x; nodejs18.x+ bundles AWS SDK for JavaScript v3 instead (require('aws-sdk') stops resolving); Native addons must be rebuilt and tested on the Node.js 24 ABI; OpenSSL 3 behavior changes. A listed check is not proof that the workload is affected.</p>
             </details>
             <details>
                 <summary>Which AWS services does this affect?</summary>

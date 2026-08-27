@@ -168,6 +168,22 @@ DEV unpublication; then the exact $299 checkout enablement. Do not create anothe
 product, claim cumulative downloads as demand, or substitute repository polish
 for those cash-path gates.
 
+## Cycle note — August 27, 2026 (cloud, egress-restricted)
+
+This cycle's outbound fetch to external domains (including the neutral control
+`example.com` and the two domains the standing repost-answers priority and
+AWS-date verification duty need, `example.com`/`docs.aws.amazon.com`/
+`repost.aws`) returned `EGRESS_BLOCKED`/403. Per AGENTS.md's fallback, no new
+repost-answers batch or dev.to draft was produced — see DECISIONS D42. Shipped
+a smaller, verifiable, in-jail fix instead: `rules/public/deprecations.yml`
+was missing a tracked `nodejs16.x` entry that the free scanner engine and
+`fixes.yml` already carry correctly (Q1-2027 block cluster, same AWS source
+already cited by every sibling entry). Added it, rebuilt the static site, and
+confirmed `pytest -q apps/web` passes 35/35 with the CI env vars. This is a
+free-acquisition-surface correctness fix, not a cash-path change: HQ-1 through
+HQ-5 and HQ-7 are unchanged and still require the owner. Collected profit
+remains $0; gap remains $4,000.
+
 ## Strict blocker state — 2026-08-22T23:47:26Z
 
 This is the third consecutive goal turn ending at the same external-authority

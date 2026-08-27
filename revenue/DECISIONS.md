@@ -780,3 +780,53 @@ green badge. Run `33028483868`, artifact `9629312207`, and digest
 `5e0ff22141e28ba5639d21238d18171bf8b658cfbf9242a0d03e6b525f02b2c8`
 contain the guarded v1.1.0 counters and zero qualified interest. This validates
 measurement, not demand and not revenue.
+
+## D42 — skip repost-answers/DEV drafting this cycle; ship a verified free-tier data gap instead
+
+This cycle's WebFetch/curl egress to external domains returned
+`EGRESS_BLOCKED`/HTTP 403 on every tested target, including the neutral control
+`example.com`, `docs.aws.amazon.com`, and `repost.aws`. WebSearch (a hosted
+Anthropic tool, not routed through this container's egress) still returned
+indexed results, but the standing repost-answers priority requires a live-thread
+check and a URL that resolves this cycle (per D36's truth bar), and the
+AWS-primary-source verification duty in AGENTS.md §2.5 requires fetching
+`docs.aws.amazon.com` directly. Neither was possible. Per AGENTS.md's explicit
+fallback ("if web search/fetch is unavailable ... skip anything needing new
+external facts and do a different in-jail ship"), no new repost-answers batch
+and no new dev.to article were drafted this cycle. This is consistent with
+D36's own caution against research that cannot be freshly verified.
+
+Instead, this cycle audited the repo's own primary-source-derived data for an
+internal inconsistency the git history already resolved for every other runtime
+in the same delayed cluster. `kits/lambda-lifeline/src/scan/index.mjs` (the free
+scanner engine) and `apps/web/content/fixes.yml` already correctly track
+nodejs16.x in the synchronized Q1-2027 block cluster (block-create 2027-02-01,
+block-update 2027-03-03, delayed with nodejs18.x/nodejs20.x/python3.8/python3.9),
+sourced from the AWS Lambda runtimes deprecation table. `rules/public/
+deprecations.yml` — the single source of truth for the public ICS calendar,
+the SEO `/migrate/<slug>/` pages, `llms.txt`, the sitemap, and the free
+browser scanner's client-side data — still only listed nodejs16 under
+`historical` with no block dates, so the free scanner UI and public deadline
+tracker omitted a runtime the underlying engine already flags. That is exactly
+the kind of visible inconsistency that undermines the "truth only" bar if a
+visitor cross-checks the scanner against the deadline pages.
+
+Added a "Lambda Node.js 16 create/update restrictions" entry to `deprecations:`
+(mirroring the existing nodejs18.x entry's shape and citing the same AWS docs
+URL already used by all sibling entries) and removed the now-redundant
+`historical` stub. Rebuilt the static site with `apps/web/build.py` under the
+same `EOLKITS_BASE_PATH`/`EOLKITS_SITE_URL`/`EOLKITS_API_URL` env vars CI uses,
+and confirmed `pytest -q apps/web` is 35/35 green (the same 3 failures appear,
+identically, against the unmodified baseline when the same env vars are not
+threaded into the pytest invocation — a local harness artifact, not a code
+regression). This generated `docs/migrate/lambda-node.js-16-eol/`, a new badge,
+and updated the ICS feed, sitemap, `llms.txt`, the migrate index, sibling
+"related deadlines" links, and the free scanner's/`eol-checker`'s embedded
+runtime tables — all committed alongside the rules-file source change so
+`git diff --exit-code -- docs` stays green in CI.
+
+No price, unit forecast, or revenue-relevant math changes. Workspace-observed
+collected profit remains $0 and the gap remains $4,000. This ships an
+externally visible correction to a free acquisition surface without touching
+checkout, Stripe, GRACE, or any owner-only credential. The blocked HQ items
+(HQ-1 through HQ-5, HQ-7) are unchanged and still require the owner.

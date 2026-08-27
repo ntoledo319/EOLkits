@@ -1,5 +1,11 @@
 # Batched owner queue — maximum 34 minutes
 
+Reconfirmed August 27 (later cycle, egress-restricted cloud environment): no
+new owner-queue item was added or resolved. This cycle's fetch/curl access to
+external domains was blocked (see revenue/DECISIONS.md D42), so it shipped an
+in-jail free-tier data-completeness fix instead of touching any HQ item below.
+The queue and its 34-minute total are unchanged from the prior reconciliation.
+
 Last reconciled August 27 after Codex used the connected repository-owner
 identity to complete the exact Stripe retirement and publish
 `rupture.rupture-vscode@1.1.0`. Stripe run `32840968816` passed every bounded

@@ -684,3 +684,37 @@ benchmarks, or unverified analytics in this ledger.
   revenue: **$0**. Workspace-observed collected profit: **$0**. Target gap:
   **$4,000**. No account-wide Stripe balance/charge connector is available, so
   these are workspace-observed figures rather than an unseen-account claim.
+
+## Free-tier data-completeness ship — August 27, 2026
+
+- Cycle-start check: WebFetch to the neutral control `example.com` returned
+  `EGRESS_BLOCKED`; the same result on `docs.aws.amazon.com` and `repost.aws`.
+  Direct `curl` through the configured proxy returned HTTP 403 (`CONNECT
+  tunnel failed`) on both. WebSearch (hosted, not routed through this
+  container's egress) still returned indexed results. Per AGENTS.md's
+  unavailable-fetch fallback, no new repost-answers batch or dev.to draft was
+  produced this cycle; see DECISIONS D42.
+- Found and fixed a real free-tier inconsistency instead: `rules/public/
+  deprecations.yml` (source of truth for the ICS calendar, SEO `/migrate/`
+  pages, `llms.txt`, sitemap, and the free browser scanner) omitted
+  `nodejs16.x` from its tracked/active list even though the free scanner
+  engine (`kits/lambda-lifeline/src/scan/index.mjs`) and `apps/web/content/
+  fixes.yml` already correctly track it in the delayed Q1-2027 block cluster
+  (block-create 2027-02-01, block-update 2027-03-03), citing
+  `docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html`.
+- Added the entry, rebuilt with `apps/web/build.py`, and ran `pytest -q
+  apps/web`: 35 passed, 0 failed, when run with the same
+  `EOLKITS_BASE_PATH`/`EOLKITS_SITE_URL`/`EOLKITS_API_URL` env vars CI sets.
+  Confirmed the 3 tests that fail without those env vars fail identically on
+  the unmodified baseline — not a regression from this change.
+- Externally visible artifacts added/updated in this commit: new page
+  `docs/migrate/lambda-node.js-16-eol/`, new badge
+  `docs/badge/lambda-node.js-16-eol.svg`, updated `docs/deprecations.ics`,
+  `docs/sitemap.xml`, `docs/llms.txt`, `docs/migrate/index.html`, sibling
+  migrate pages' "related deadlines" links, `docs/scan/index.html`, and
+  `docs/eol-checker/index.html`. These go live via the existing
+  `deploy-pages.yml` workflow on push to `main`/`marketing-machine-v2` per its
+  path triggers.
+- No Stripe, GRACE, DEV, or Marketplace state changed. Qualified issues: **0**.
+  Paid reports: **0**. Workspace-observed collected revenue: **$0**.
+  Workspace-observed collected profit: **$0**. Target gap: **$4,000**.
