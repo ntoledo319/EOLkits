@@ -17,15 +17,17 @@ All code and evidence below is inside the workspace jail.
   https://ntoledo319.github.io/EOLkits/. The August 25 `eolkits.com` static
   deployment now serves the truthful single-$299 funnel and retired-product
   tombstones, but a hosting layer injects an unreviewed cross-origin analytics
-  script into every tested page. The custom domain is therefore not checkout-
-  safe even though its product copy is repaired.
+  script into every tested page. The August 26 deployment added the generated
+  meta CSP, which blocks that exact external script, but the raw injection
+  remains and the scheduled verifier is correctly red. The custom domain is
+  therefore not checkout-safe even though its product copy is repaired.
 - Search distribution: both hosts expose a valid IndexNow ownership key and a
   51-URL same-scope sitemap. A contents-read-only workflow submits bounded Pages
   URLs from `main`; the custom-domain path additionally verifies the live offer,
   generated CSP, and absence of external scripts before any request. Pages run
   `32835361747` succeeded. Custom run `32835404486` refused submission before
-  the endpoint call because the privacy CSP is not live. Receipt is not proof of
-  indexing, ranking, visits, or demand.
+  the endpoint call; a retry remains blocked by the still-injected external
+  script. Receipt is not proof of indexing, ranking, visits, or demand.
 - $0 deploy: GitHub Pages.
 - License/provenance: repository MIT; factual AWS claims require primary-source
   review. No buyer code leaves the browser scanner.
@@ -64,17 +66,14 @@ All code and evidence below is inside the workspace jail.
 - Buyer sentence: flag bundled AWS deprecation patterns locally on save or on
   demand in YAML, JSON/JSONC, Terraform/HCL, JavaScript/TypeScript, and Python.
 - Completeness: the exact public listing `rupture.rupture-vscode` is live at
-  v1.0.0; the August 25 counter reached 103 installs and 164 downloads from the
-  August 22 approximate 100-install/162-download baseline. That weak historical
-  movement is not attributable v1.1.0 demand because the prepared update remains
-  unpublished.
-  A tested 12-file EOLkits-branded v1.1.0 in-place update preserves that stable
-  identity, legacy commands/settings, and the installed base; publication is
-  still owner-gated. The publish workflow now also requires the exact repository
-  owner as both dispatch and triggering actor plus an exact release confirmation,
-  so a collaborator cannot spend the publisher credential by dispatch or rerun.
-  It checks out and verifies green release commit `a9cdcaeb` explicitly rather
-  than publishing whatever commit happens to lead `main` when the owner clicks.
+  v1.1.0. Green run `32841331222` published the pinned candidate in place while
+  preserving the stable identity, legacy commands/settings, and installed base.
+  The official Gallery index moved from its 103-install/166-download release
+  baseline to 103 installs/183 downloads by August 27: +17 cumulative downloads
+  and zero install growth. Downloads can include update/package fetches and are
+  not qualified demand or revenue. The permanent publish workflow is again
+  dispatch-only and retains its owner, confirmation, identity, and pinned-
+  commit guards.
 - $0 deploy/distribution: Visual Studio Marketplace.
 - License/provenance: MIT; VSIX contains compiled project code, manifest, README,
   icon, and license, with no node_modules.
@@ -116,7 +115,10 @@ All code and evidence below is inside the workspace jail.
   the exact six live Price/Product/amount/currency/interval tuples, active
   Product Prices, six historical Payment Link URLs, open and recent-completed
   Checkout Sessions, subscriptions, and schedules before making only reversible
-  Price/Link changes. It is published and tested but has not been dispatched.
+  Price/Link changes. Exact owner-attributed run `32840968816` completed those
+  bounded changes and verification; all six historical Prices are inactive,
+  no approved or unexpected active Payment Links remain, and the Worker Stripe
+  binding was removed. Account-level key rotation remains external.
 - $0 deploy: the closure workflow uses the existing Cloudflare account and
   preserves only the explicit tombstone. Do not restore commerce bindings or
   deploy a new Worker product.
@@ -135,7 +137,9 @@ All code and evidence below is inside the workspace jail.
   carry an explicit do-not-publish guard. The 25 already-live DEV posts were
   observed with zero comments and still require owner unpublication because
   their scope/privacy/product claims are stale. Outreach, social, HN, Gumroad,
-  and repost material is archived and marked do-not-publish.
+  and repost material is archived and marked do-not-publish. Three merge-dropped
+  answer batches restored on August 27 plus one newly drafted batch are preserved
+  as unverified research only; none is authorized for posting.
 - $0 deploy/distribution: GitHub Pages; external platforms require owner review
   and manual approval under their current terms.
 - License/provenance: owned drafts, but technical facts and platform policy must
@@ -150,17 +154,16 @@ All code and evidence below is inside the workspace jail.
 - Revenue/demand: observed collected revenue is $0; no customer delivery proves
   willingness to pay.
 - Operations: no real Stripe test-mode end-to-end evidence has been recorded for
-  Audit v2. The formerly live Stripe-capable Cloudflare Worker is now closed;
-  the exact Stripe retirement is owner-gated and has not run, so known catalog
-  Prices/Payment Links and the stale GRACE Checkout POSTs are not yet counted as
-  closed. Historical Worker versions also require account-level key rotation.
+  Audit v2. The formerly live Stripe-capable Cloudflare Worker and its exact
+  historical Prices/Payment Links are now closed by verified run `32840968816`.
+  The stale GRACE service still has not deployed v2, and historical Worker
+  versions still require account-level key rotation.
 - Distribution: the Action v2 ref and repaired GitHub Pages fallback are public,
   and the 51 canonical Pages URLs have one accepted IndexNow submission, but the
-  GitHub Marketplace listing remains stale at v1.1.0. The VS Marketplace has a
-  real legacy-branded v1.0.0 listing and installed base, but its EOLkits v1.1.0
-  repair is not published; indexing/traffic remain unobserved, and repository
-  metadata still points at the stale custom domain with an unsupported
-  “unpatched” claim.
+  GitHub Marketplace listing remains stale at v1.1.0. The VS Marketplace repair
+  is public at v1.1.0, but its +17 downloads/zero install growth is not qualified
+  demand. Repository metadata now points to verified Pages and uses bounded AL2
+  wording; the custom host remains blocked by raw analytics injection.
 - Legal: accurate seller/controller identity, address, governing law, tax
   posture, and $0 incremental hosting confirmation are owner-only gates.
 - Remote history: origin/main accumulated synthetic status/benchmark commits and
@@ -319,3 +322,17 @@ would not create a verified report-delivery path.
   and `runtime_bundle=false`. Repository-owner GitHub authority is connected;
   GRACE/Stripe account control, legal facts, DEV control, and GitHub Marketplace
   agreement/2FA are still absent capabilities rather than missing code.
+
+## Current external distribution state — August 27
+
+- The repository description now says AL2 reached end of support rather than
+  claiming every AL2 workload is necessarily unpatched. Its homepage points to
+  the verified free-first Pages surface while GRACE remains unready.
+- Two obsolete untagged v2 release drafts were deleted after an exact preflight.
+  Canonical private draft `375063073` remains the only draft, tagged `v2.0.0`,
+  targeting `a9cdcaeb`, and still requiring the owner's Marketplace agreement,
+  checkbox, and 2FA action.
+- A locally verified acquisition-workflow patch is prepared to measure the exact
+  public VS identity/version, cumulative installs/downloads, and deltas from the
+  103/166 release baseline. It is not external evidence until the patch is
+  published and its first successful artifact is inspected.

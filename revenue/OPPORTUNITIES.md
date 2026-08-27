@@ -70,7 +70,8 @@ comes before evaluation as required.
 
 T$ = plausible days to first dollar. H = owner minutes. D = distribution:
 M marketplace, P platform/search, O owned audience, N none. R = risk. A dash in
-T$ means disqualified within this cycle.
+T$ means disqualified within this cycle. U uses the provisional $290.03 US
+domestic-card benchmark; it is not fee-schedule-confirmed profit.
 
 | Frame | T$ | H | D | U hypothesis | R | Evaluation |
 |---|---:|---:|:---:|---:|:---:|---|
@@ -81,21 +82,21 @@ T$ means disqualified within this cycle.
 | W5 | 14 | 10 | O | $290.03 | M | Widget exists, distribution does not |
 | W6 | 14 | 15 | P | $0 | H | Old Gumroad bundle lacked differentiation |
 | W7 | — | 30 | N | $0 | H | Requires sales/contract work |
-| K1 | 7 | 3 | M | $870.09 | M | Existing listing; strongest fast funnel |
+| K1 | 7 | 2 | M | $870.09 | M | Existing listing; strongest fast funnel |
 | K2 | — | 30 | N | $0 | H | Private-rule product does not exist |
 | K3 | 10 | 0 | M | $290.03 | M | Route to A1 instead of another SKU |
 | K4 | 21 | 20 | N | $0 | M | No buyer/distribution evidence |
 | K5 | 14 | 10 | P | $290.03 | M | Useful acquisition, no built-in payment |
 | K6 | — | 15 | M | $0 | H | Repackaged free code; archived |
 | K7 | — | 30 | N | $0 | H | Requires contracts and support |
-| V1 | 10 | 1 | M | $580.06 | M | Existing ~100-install listing; in-place update pending |
+| V1 | 10 | 0 | M | $580.06 | M | v1.1.0 live; telemetry patch pending, demand unproved |
 | V2 | — | 25 | M | $0 | H | Entitlements/payment/support unbuilt |
 | V3 | 21 | 20 | M | $290.03 | M | Duplicates A1 at lower fidelity |
 | V4 | — | 20 | N | $0 | M | No channel or differentiated buyer |
 | V5 | — | 20 | N | $0 | M | No channel or API contract |
 | V6 | 14 | 10 | M | $290.03 | M | Keep all tools free; monetize report |
 | V7 | — | 30 | N | $0 | H | Contract/support burden |
-| A1 | 7 | 2 | P | $2,320.24 | M | Only truthful paid offer; gated |
+| A1 | 7 | 32 | P | $2,320.24 | M | Only truthful paid offer; shared gates remain |
 | A2 | — | 30 | O | $0 | H | History/accounts/retention not built |
 | A3 | 21 | 20 | N | $580.06 | H | No API marketplace or tenant controls |
 | A4 | — | 30 | N | $0 | H | Support/security/license burden |
@@ -125,8 +126,10 @@ T$ means disqualified within this cycle.
    Action-equivalent target; publication is the remaining owner-controlled step.
 2. A1 — the sole paid fulfillment unit. It is not live until the operational
    gate passes.
-3. V1 — publish the tested free VSIX as a second contextual distribution surface;
-   exact-owner/confirmation guards now protect the existing publisher credential.
+3. V1 — keep the published free VSIX as a second contextual distribution
+   surface; exact-owner/confirmation guards protect the existing publisher
+   credential. A reviewed workflow patch is ready to separate cumulative
+   counters from demand once published and validated by its first artifact.
 4. C4 — preserve only cited, useful search pages and measure them. The repaired
    51-URL Pages corpus now has a protocol-valid IndexNow submission path, but no
    crawl, rank, visit, or conversion signal has been observed.
@@ -342,3 +345,23 @@ fastest remaining route to a first dollar is HQ-5 distribution followed by the
 closed GRACE proof, legal facts, DEV cleanup, and exact $299 checkout activation;
 another product or channel would add identity/KYC work without removing that
 cash-path boundary.
+
+## Distribution and pending telemetry gate — August 27
+
+Ranking remains K1, A1, V1, C4. V1 has produced +17 cumulative downloads but
+zero install growth since its 103-install/166-download v1.1.0 baseline, and the
+latest acquisition evidence still has zero qualified VS-attributed authors.
+That is package/update movement, not a purchase or demonstrated buyer intent.
+The five-full-day V1 gate remains August 30 at 11:15 UTC.
+
+K1 still has zero external `@v2` references and no public v2.0.0 release. Its
+two obsolete untagged drafts were removed, leaving only the exact canonical
+draft; that lowers publication-error risk but does not change K1's forecast.
+The owner-only Marketplace agreement/checkbox/2FA remains irreducible.
+
+A1 remains the only paid unit and checkout remains closed. The custom host now
+serves the generated CSP, but its hosting layer still injects an unreviewed
+external script, the verifier remains red, GRACE v2 capability endpoints remain
+404, and repository automation still has no deployment transport/runtime bundle.
+No new frame removes those operating gates without adding a new marketplace,
+identity, KYC, or fulfillment burden.

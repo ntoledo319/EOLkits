@@ -679,3 +679,87 @@ listing once propagation completes: the official index exposed v1.1.0 at
 issue authors. Auto-updates, package availability, and counter changes are not
 sales. Keep checkout closed and keep the $4,000 gap unchanged until dollars are
 actually observed.
+
+## D36 — preserve merge-dropped research without authorizing outreach
+
+Overnight feed commit `ec4c9a55` restored three hand-drafted answer batches that
+an exact-tree merge had omitted and added a fourth new batch. Hand-authored
+research is not reproducible in the way generated site output is, so preserve
+the unique work. However, that cycle could not fetch the live threads or primary
+pages and labeled the answers “ready to post” from search snippets. That is
+below this project's truth bar.
+
+Carry Batches 3–6 forward only as **unverified, do-not-post research**. A future
+human-approved send requires a fresh live-thread check, primary-source fact
+review, unique/help-first edit, and explicit owner approval. No agent posts an
+answer or contacts a thread author autonomously. Before any future exact-tree
+merge, diff hand-authored files on both parents and manually preserve unique,
+non-superseded content rather than assuming one parent's tree is complete.
+
+## D37 — remove metadata and release ambiguity with exact preflights
+
+The public repository description said every AL2 workload was “unpatched,” an
+overbroad claim because AWS documents workload-specific exceptions, including
+selected critical patching for several Lambda AL2 runtimes. Replace it with the
+bounded fact that AL2 reached end of support on June 30, 2026 and that Lambda
+block dates vary by runtime. Route the repository homepage to the verified
+free-first Pages surface while the custom host remains operationally unready.
+
+Three private releases shared the v2 name. After requiring the exact IDs, tags,
+targets, names, and draft states, delete only obsolete untagged drafts
+`374998709` and `375032399`. Keep canonical `375063073` untouched at tag
+`v2.0.0`, target `a9cdcaeb`. Re-querying both releases and metadata is a required
+postcondition. This removes a misleading owner choice without accepting the
+Marketplace agreement or publishing anything.
+
+## D38 — instrument the live VS channel without calling counters demand
+
+The v1.1.0 listing now has a stable post-release baseline, so extend the
+scheduled read-only acquisition artifact with one exact public Gallery query.
+Pin identity
+`rupture.rupture-vscode` and version `1.1.0`; reject missing, duplicate,
+non-integral, or drifted results; store installs/downloads and signed deltas from
+103/166. Keep qualified issues/authors as separate fields.
+
+The Visual Studio Marketplace Publisher Agreement defines Marketplace access
+through web portals, APIs, or other mechanisms Microsoft makes available. Use
+one bounded query per workflow run against the public Gallery endpoint; the
+normal cadence remains one scheduled run per day, with additional queries only
+on a matching source push or explicit manual dispatch. Retain only this
+publisher's aggregate listing counters, and do not redistribute raw Marketplace
+data. Source reviewed August 27:
+https://cdn.vsassets.io/v/M187_20210610.3/_content/Visual-Studio-Marketplace-Publisher-Agreement.pdf.
+Downloads can include update/package fetches and are not visits, intent, sales,
+or revenue. V1's five-day gate still requires install growth or qualified
+VS-attributed interest; cumulative download movement alone does not pass it.
+
+## D39 — treat the live meta CSP as containment, not host remediation
+
+The August 26 static deploy placed the generated meta CSP before the host's
+external script tag, so current browsers block that exact cross-origin script.
+Raw responses still contain the injected tag, scheduled verifier `32946397287`
+is correctly red, and a host-controlled inline injection could evade the meta
+policy. Do not weaken the verifier, notify custom-domain IndexNow, or open
+checkout until the hosting rule is removed and the closed GRACE v2 deployment
+passes the complete test/refund gate.
+
+GitHub Pages remains a free scanner/documentation/distribution surface, not the
+primary paid service host. GitHub's Pages limits prohibit using Pages primarily
+to facilitate commercial transactions or run SaaS. Source reviewed August 27:
+https://docs.github.com/en/enterprise-cloud@latest/pages/getting-started-with-github-pages/github-pages-limits.
+
+## D40 — fail closed on unavailable evidence and use a fee-aware sales buffer
+
+An exact release-tag request previously collapsed every GitHub API failure into
+`public_v2_release=false`. Replace it with a paginated releases query whose
+successful empty result means false and whose auth, rate-limit, network, or 5xx
+failure stops the observation. Unavailable evidence is never negative evidence.
+
+The 15-sale refund buffer also relied on unverified US domestic-card geography.
+Stripe's current US standard schedule adds 1.5% for international cards and 1%
+when currency conversion is required, while original processing/conversion fees
+are not returned after a refund. At $299, 15 such initial sales with one refund
+net only $3,939.25. Use a provisional 16-initial-sale target ($4,221.80 under
+that fee case), and keep checkout closed until HQ-1 confirms the account country,
+pricing agreement, currencies, and $0 hosting-cost assumption. Source reviewed
+August 27: https://stripe.com/pricing.

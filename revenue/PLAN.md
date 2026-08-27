@@ -10,28 +10,35 @@ repository ZIP or supported source file.
 
 The custom site observed on August 25 now closes unavailable products and serves
 the truthful single-$299 static funnel. Its hosting layer nevertheless injects
-an unreviewed analytics script into every tested page, so the domain remains
-unsafe for checkout until the new CSP deploys and the injection is removed.
-Code passing tests is not evidence that Stripe, Resend, DNS, storage, privacy,
-or refund operations work together.
+an unreviewed analytics script into every tested page. The August 26 static
+deployment added the generated meta CSP and blocks that exact external script,
+but the raw injection remains, the verifier is red, and a host-controlled inline
+injection could bypass that containment. The domain remains unsafe for checkout
+until the injection is removed. Code passing tests is not evidence that Stripe,
+Resend, DNS, storage, privacy, or refund operations work together.
 
 ## Target and arithmetic
 
 Target: $4,000 cumulative collected profit by September 19, 2026.
 
-Stripe's published US domestic online-card fee is 2.9% + $0.30. At a $299 price:
+Stripe's published US standard online-card fee is 2.9% + $0.30 for domestic
+cards, plus 1.5% for international cards and another 1% when currency conversion
+is required. At a $299 price:
 
-- processing fee per successful sale: $8.97;
-- net per sale before refunds: $290.03;
-- 14 no-refund sales: $4,060.42; and
-- 15 initial sales with one full refund: $4,051.45 because the original $8.97
-  processing fee is not returned.
+- domestic processing fee: $8.97; domestic net: $290.03;
+- international-plus-conversion fee: $16.45; conservative net: $282.55;
+- 14 no-refund domestic sales: $4,060.42;
+- 15 domestic sales with one full refund: $4,051.45, but the same mix using
+  international cards plus conversion nets only $3,939.25; and
+- 16 international-plus-conversion sales with one full refund: $4,221.80.
 
-The operating target is therefore 15 initial sales, not 14. This arithmetic is
-a target, not a forecast. It assumes the existing GRACE capacity adds $0
-incremental hosting cost; the owner must confirm that before checkout opens.
+The provisional operating target is therefore **16 initial sales**, not 15.
+This is a target, not a forecast, and still assumes a US standard-pricing Stripe
+account plus $0 incremental GRACE hosting cost. The owner must confirm account
+country, actual fee schedule, charge/settlement currency, and hosting cost before
+checkout opens; the target must be recomputed if any assumption differs.
 
-Source: https://stripe.com/pricing (checked August 22, 2026).
+Source: https://stripe.com/pricing (checked August 27, 2026).
 
 ## Portfolio
 
@@ -46,8 +53,9 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
 - Owner work: open the already-prepared private v2.0.0 draft, check the existing
   Marketplace listing, and publish it with 2FA. The tested `@v2` branch already
   works for direct installs.
-- 28-day planning hypothesis: three Audit sales = $870.09 after processing fees.
-  This is not observed demand.
+- Channel-attribution hypothesis: three of the portfolio's Audit sales arrive
+  through the Action = $870.09 net. These are a subset of Bet B's paid-unit
+  total, not additive revenue, and this is not observed demand.
 - Falsifier: after five full live days, zero external Action runs or zero
   attributable Audit page views. Reposition once; replace after four more live
   days with no signal.
@@ -59,8 +67,11 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
   order, and explicit limitations.
 - Funnel: Action, VS extension, browser scanner, and cited fix/deadline pages →
   Audit sample → capability-gated upload → Stripe → PDF/email/download.
-- 28-day planning hypothesis: eight sales = $2,320.24 net. Fourteen no-refund
-  sales clear the target; current evidence does not justify forecasting fourteen.
+- Grounded 28-day planning hypothesis: eight total sales across every channel =
+  $2,320.24 net. That leaves a $1,679.76 gap to the target. Six additional
+  domestic no-refund sales would close it; the conservative operating buffer
+  instead needs eight additional initial sales to reach 16 total. Current
+  evidence does not justify forecasting those eight.
 - Falsifier: 100 qualified Audit page views with zero checkout starts, or 20
   valid checkout starts with zero purchases. Test one price/trust change, then
   replace rather than rationalize.
@@ -74,27 +85,27 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
   relevant users to the same Audit page.
 - Funnel: VS Marketplace/editor search and organic error searches → local
   finding or answer page → Audit sample/availability.
-- Owner work: one dispatch and verification against the already-public
-  `rupture.rupture-vscode` listing; no new publisher or listing.
-- 28-day planning hypothesis: two Audit sales = $580.06 net. This is unobserved.
-- Falsifier: after five full v1.1.0 days, zero install/download growth and zero
-  external VS-attributed qualified-interest authors triggers one repositioning;
+- Distribution state: v1.1.0 is public on the existing
+  `rupture.rupture-vscode` listing; no owner action remains for this release.
+- Channel-attribution hypothesis: two of the same portfolio Audit sales arrive
+  through VS/search = $580.06 net. They are not additive to Bet B's total, and
+  this is unobserved.
+- Falsifier: after five full v1.1.0 days, zero install growth and zero external
+  VS-attributed qualified-interest authors triggers one repositioning;
   four more zero-signal days stop promotion and leave only the free utility.
 
 ## Sequence
 
 1. Keep the reviewed repository repair on main without rewriting remote history;
    synthetic commits and obsolete publishing automation are stopped.
-2. Run the owner-gated exact Stripe retirement. It validates and deactivates all
-   six historical catalog Prices—including $299 while fulfillment is closed—and
-   only the six approved Payment Link URLs; any charge/session/subscription/
-   schedule anomaly stops the containment claim. Rotate/revoke the account key
-   afterward because old Cloudflare versions retain secret snapshots. The
-   verified live `rupture-worker` itself is already a tested HTTP 410 tombstone.
-3. Keep the honest GitHub Pages fallback and tested `v2` Action branch green;
-   immediately after Stripe containment, the owner publishes the canonical
-   v2.0.0 draft into the existing Marketplace listing and dispatches the guarded
-   in-place VS update. These distribution releases do not wait for checkout.
+2. Keep the completed exact Stripe retirement closed. Workflow run `32840968816`
+   deactivated all six historical Prices, proved the bounded session/
+   subscription/schedule state, removed the current Worker binding, and left
+   the Worker as an HTTP 410 tombstone. The owner must still rotate/revoke the
+   account key because historical Cloudflare versions retain secret snapshots.
+3. Keep the honest GitHub Pages fallback, tested `v2` Action branch, and public
+   VS v1.1.0 release green. The owner publishes the sole canonical v2.0.0 draft
+   into the existing GitHub Marketplace listing; obsolete drafts are gone.
 4. Deploy Audit v2 with checkout disabled and complete the full Stripe test-mode
    operational gate. Remove the hosting-layer analytics injection, deploy the
    generated CSP, and require the custom-domain verifier to pass first.
@@ -119,72 +130,41 @@ Source: https://stripe.com/pricing (checked August 22, 2026).
 
 ## Current gap and next action
 
-Collected profit: **$0**. Gap: **$4,000**. Checkout: **closed**.
+Collected profit: **$0**. Gap: **$4,000**. Checkout: **closed**. This is the
+workspace evidence ledger, not a claim about account-wide Stripe activity that
+the workspace cannot observe.
 
-The strongest autonomous conversion repair is now public. Main contains green
-product commit `9c231b58`, and the installable `v2` ref resolves to it; the verified Pages
-funnel exposes an actual four-page report created by the paid report engine,
-its entirely fictional ZIP input, and a hash/evidence manifest:
+The exact Stripe retirement and VS v1.1.0 publication are complete. The official
+Gallery moved from the 103-install/166-download release baseline to 103 installs
+and 183 downloads by 2026-08-27T00:32Z: +17 cumulative downloads and zero
+install growth. The latest acquisition observation still shows zero qualified
+issues, zero external authors, zero VS-attributed qualified authors, zero public
+external `@v2` references, one star, and zero forks. Downloads can include
+update/package fetches; none of these values is a sale.
 
-- https://ntoledo319.github.io/EOLkits/audit/
-- https://ntoledo319.github.io/EOLkits/audit/sample/eolkits-sample-report.pdf
-- https://ntoledo319.github.io/EOLkits/audit/sample/fictional-repository.zip
-- https://ntoledo319.github.io/EOLkits/audit/sample/eolkits-sample-report.json
+GitHub Marketplace still exposes v1.1.0 and no public v2.0.0 release. Exact
+preflight cleanup removed the two obsolete untagged release drafts. Canonical
+private draft `375063073` remains the sole draft, targets `a9cdcaeb`, and
+still requires the owner's Marketplace agreement, checkbox, and 2FA. Repository
+metadata now avoids the overbroad “unpatched” claim and points its homepage to
+the verified free-first Pages surface.
 
-The public PDF is 29,392 bytes with SHA-256
-`855c793c8b2735f54fad08465f05c50943cb7908fd194b43dacf0eca9c423d9a`.
-The replacement release, determinism, property, custom Pages, and built-in Pages
-workflows passed. The first Pages attempt failed because native WeasyPrint/font
-stacks can serialize an equivalent PDF differently; the corrected gate preserves
-the published artifact's exact hash and compares every renderer-independent
-engine field. That failure is recorded, not hidden.
+The custom host deployed the static CSP at 07:17 UTC on August 26, but raw HTML
+on all five tested pages still contains the host-injected
+`stats.saiditright.com` script. Scheduled verifier `32946397287` correctly
+failed on that injection. `/api/capabilities` and `/api/status` still return
+404, `/health` still exposes the legacy filesystem/SQLite/inline service, and
+the latest capability audit remains `deploy_transport=false` /
+`runtime_bundle=false`. Do not weaken the verifier, notify IndexNow for the
+custom host, or enable payment.
 
-The current canonical private v2.0.0 Marketplace draft was created by green run
-`32604619021` at commit `a9cdcaeb`; its Action files are byte-identical to public
-`v2` at `9c231b58`. An older direct draft URL in the owner queue was stale and has
-been replaced. The Marketplace itself still advertises v1.1.0.
-The GRACE static site has now repaired the stale product copy: the August 25
-07:17 UTC release serves one $299 Audit and tombstones Migration Pack and Drift
-Watch. The backend did not move: `/api/capabilities` and `/api/status` return
-404, and the old `/health` payload still reports the filesystem/SQLite/inline-
-runner service. A hosting layer also injects `stats.saiditright.com` into every
-tested custom-domain page despite the privacy policy.
-
-Public `main` commit `b97befa7` and GRACE feed commit `a5510969` now share exact
-tree `6b0eef76`. All 64 generated HTML pages contain a browser-enforced CSP, and
-Audit success URLs no longer carry a Stripe session ID. Pages deployed that
-tree at 10:05 UTC; its five-page live probe found CSP everywhere and no external
-script. Custom-domain IndexNow run `32835404486` correctly stopped before
-submission because the current 07:17 deployment lacks the CSP. Main IndexNow
-run `32835361747` and every other triggered main workflow passed.
-
-Observed demand remains zero: 0 qualified issues, 0 paid reports, 1 repository
-star, 0 forks, and $0 collected. Bet A's first five-full-day falsifier remains
-2026-08-27 20:29 UTC; internal downloads and release probes do not move it.
-
-The strongest recovered distribution asset is the existing
-`rupture.rupture-vscode` listing: it is still v1.0.0, with 103 installs and 164
-downloads on the August 25 probe. The published version
-sends users to a dead `/Rupture/audit` URL. Repository commit `a9cdcaeb` now
-contains the fully green v1.1.0 candidate, which preserves that identity and
-legacy user settings/commands, repairs the verified Audit route, and measures
-only user-submitted, findings-qualified VS interest. Marketplace v1.1.0 is not
-public yet, and the approximate counters are not demand or revenue.
-
-Public guard commit `32d01c2f` pins publication to exact green candidate
-`a9cdcaeb`, rejects non-owner dispatch/reruns and wrong confirmation values, and
-passed release, determinism, property, and Pages CI. This closes the repository
-release gate; it does not mean v1.1.0 has been published.
-
-Highest-leverage next action is the five-minute HQ-2 exact Stripe closure/key
-rotation because the audit may expose anomalous commerce state. Immediately
-afterward, use the same owner sitting for the three-minute HQ-5/HQ-6 distribution
-batch: publish the canonical GitHub draft and dispatch the owner-guarded in-place
-VS update. Both releases route to the fail-closed Pages funnel and can start
-acquisition before commerce opens. Then complete legal facts, the closed GRACE
-fulfillment proof, and false-post removal before enabling the single $299 Price.
-Do not create another VS publisher, add a product, lower the price, or call
-installs/auto-updates demand evidence.
+The next autonomous gate is publishing and validating daily exact VS telemetry
+plus qualified-interest measurement. The next owner actions, in required order,
+remain: legacy Stripe key rotation, then Marketplace publication; truthful legal
+facts; GRACE v2 checkout-closed deployment plus injection removal and complete
+test/refund E2E; DEV unpublication; then the exact $299 checkout enablement. Do
+not create another product, claim cumulative downloads as demand, or substitute
+repository polish for those cash-path gates.
 
 ## Strict blocker state — 2026-08-22T23:47:26Z
 

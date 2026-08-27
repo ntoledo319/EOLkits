@@ -637,3 +637,40 @@ benchmarks, or unverified analytics in this ledger.
   revenue: **$0**. Workspace-observed collected profit: **$0**. Target gap:
   **$4,000**. Successful retirement and publication are operational evidence,
   not dollars.
+
+## Distribution and hosting reconciliation — August 27, 2026
+
+- At `2026-08-27T00:32:08Z`, an exact official Gallery query returned public
+  identity `rupture.rupture-vscode`, version `1.1.0`, last updated
+  `2026-08-25T11:21:39.72Z`, with 103 installs and 183 downloads. Against the
+  103-install/166-download release baseline, that is +0 installs and +17
+  cumulative downloads. Downloads can include update/package fetches and do not
+  establish qualified demand or revenue.
+- Acquisition run `32972880350` observed at `2026-08-26T13:13:10Z` preserved
+  artifact `9608277338` (SHA-256
+  `ec1a84d9d0cebb0efa83d45ba1a03e9e354125b564530d9ecbe4b81d36d31807`):
+  0 qualified issues, 0 distinct external authors, 0 VS-attributed qualified
+  issues/authors, 0 external public `@v2` references, no public v2.0.0 release,
+  1 star, and 0 forks.
+- The August 26 07:17 UTC custom-host deployment put the generated meta CSP on
+  all five tested HTML pages. All five raw responses still contain one injected
+  `https://stats.saiditright.com/script.js`; scheduled verifier `32946397287`
+  failed on that exact condition. `/api/capabilities` and `/api/status` remain
+  HTTP 404, while `/health` remains the legacy filesystem/SQLite/inline service.
+  The CSP blocks the known external script but does not remove the hostile
+  hosting behavior or prove GRACE v2 deployment.
+- An exact release preflight found three private v2 drafts: canonical
+  `375063073` plus obsolete untagged drafts `374998709` and `375032399`. Codex
+  deleted only the two exact obsolete drafts and re-queried the API: canonical
+  draft `375063073` remains `draft=true`, tag `v2.0.0`, target `a9cdcaeb`.
+- Repository metadata now uses the bounded AL2 end-of-support wording and points
+  to `https://ntoledo319.github.io/EOLkits/`, the verified free-first surface.
+  This is a routing/truth correction, not traffic or revenue.
+- The acquisition workflow's exact Gallery query, identity/version guard,
+  integral counter validation, baseline deltas, Bash syntax, ShellCheck, YAML
+  parse, and complete live script execution passed locally. Its artifact labels
+  cumulative counters and qualified interest separately.
+- Qualified issues: **0**. Paid reports: **0**. Workspace-observed collected
+  revenue: **$0**. Workspace-observed collected profit: **$0**. Target gap:
+  **$4,000**. No account-wide Stripe balance/charge connector is available, so
+  these are workspace-observed figures rather than an unseen-account claim.

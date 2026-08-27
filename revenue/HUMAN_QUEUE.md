@@ -1,6 +1,6 @@
 # Batched owner queue — maximum 34 minutes
 
-Last reconciled August 25 after Codex used the connected repository-owner
+Last reconciled August 27 after Codex used the connected repository-owner
 identity to complete the exact Stripe retirement and publish
 `rupture.rupture-vscode@1.1.0`. Stripe run `32840968816` passed every bounded
 audit, mutation, cleanup, and tombstone step. VS run `32841331222` passed every
@@ -8,12 +8,18 @@ exact-SHA, test, package, identity, and publication step. Both temporary
 one-shot triggers were removed immediately; the permanent workflows are again
 manual-only. No owner dispatch or run monitoring remains.
 
-The custom host injects `https://stats.saiditright.com/script.js` into every
-tested page and has not yet deployed the generated CSP. Custom-domain IndexNow
-run `32835404486` therefore failed closed before notification. This privacy fix
-is now part of HQ-3. The smallest useful owner batch is the residual Stripe
+The custom host still injects `https://stats.saiditright.com/script.js` into
+every tested page. The generated CSP deployed on August 26 and blocks that exact
+external script, but the raw injection remains and verifier `32946397287` is
+correctly red. Custom-domain IndexNow must remain blocked. This privacy fix is
+part of HQ-3. The smallest useful owner batch is the residual Stripe
 credential cleanup in HQ-2 plus the GitHub Marketplace UI action in HQ-5: five
 minutes total.
+
+Codex also removed two obsolete untagged v2 release drafts, retained only the
+canonical draft, corrected the repository description, and routed the repository
+homepage to the verified free-first Pages surface. No owner cleanup or metadata
+action remains for those items.
 
 Do the HQ-2 key rotation first because historical Cloudflare versions can retain
 secret snapshots. Then do HQ-5 so the repaired, fail-closed Pages funnel starts
@@ -25,16 +31,20 @@ or launch file is authoritative.
 ## HQ-1 — supply truthful seller/legal and cost facts (3 minutes)
 
 Why human-only: only the owner knows the legal seller/controller identity,
-address, governing-law choice, tax posture, and whether the shared GRACE host
-adds any incremental cost.
+address, governing-law choice, tax posture, actual Stripe account/pricing
+configuration, and whether the shared GRACE host adds any incremental cost.
 
 Steps:
 
 1. Reply to the active Codex thread with the exact seller/legal name, business
    mailing address, governing jurisdiction, support/privacy email, and whether
    EOLkits adds $0 incremental monthly cost to GRACE.
-2. If any value is unknown or the cost is above $0, say so. Checkout stays off;
-   do not guess.
+2. From https://dashboard.stripe.com/settings, report the account country,
+   standard-versus-custom pricing status, charge/presentment currency, and
+   settlement currency. Do not share keys, customer data, or screenshots.
+3. If any value is unknown or the cost is above $0, say so. Checkout stays off;
+   do not guess. Recompute the sale target from the actual fee schedule before
+   HQ-7.
 
 Direct files: legal/terms.md and legal/privacy.md.
 
@@ -73,10 +83,11 @@ Steps:
    injects `https://stats.saiditright.com/script.js` and remove it. This script
    is not an authorized EOLkits analytics provider. Do not replace it with a
    different third-party tag.
-3. Deploy exact feed commit `a5510969` with checkout still disabled. Verify raw
-   HTML on `/`, `/audit/`, `/pack/`, `/drift/`, and `/success/` contains the
-   generated `Content-Security-Policy` meta and contains no cross-origin script.
-   Rerun “Verify GRACE static release” and require green before continuing.
+3. Deploy the current reviewed `marketing-machine-v2` head with checkout still
+   disabled and require its tree to match canonical `main`. Verify raw HTML on
+   `/`, `/audit/`, `/pack/`, `/drift/`, and `/success/` contains the generated
+   `Content-Security-Policy` meta and contains no cross-origin script. Rerun
+   “Verify GRACE static release” and require green before continuing.
 4. Confirm the deployed commit SHA and that public /api/capabilities reports
    report_version 2.0 with checkout_enabled false.
 5. Follow “Test-mode E2E deployment” using the separate test Compose project,
@@ -114,8 +125,8 @@ Steps:
 
 1. After final main CI is green, open the private prepared draft directly:
    https://github.com/ntoledo319/EOLkits/releases/tag/untagged-0866963caf3f06db98a1
-   This is the canonical draft created by green run `32604619021`; do not publish
-   either older untagged draft.
+   This is the sole canonical draft created by green run `32604619021`; Codex
+   already deleted the two obsolete untagged drafts.
 2. Verify it is v2.0.0 targeting green commit `a9cdcaeb`. Public `v2` points to
    green commit `9c231b58`, whose `action.yml` and `apps/github-action/` files are
    byte-identical to the draft target. Check
@@ -125,8 +136,6 @@ Steps:
 3. Verify
    https://github.com/marketplace/actions/rupture-aws-deprecation-check shows
    v2.0.0 and the bounded release copy.
-4. On https://github.com/ntoledo319/EOLkits/settings, remove any repository
-   description claiming Amazon Linux 2 instances are necessarily “unpatched.”
 
 Official instructions:
 https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace
@@ -139,7 +148,9 @@ records `Published rupture.rupture-vscode v1.1.0.` The one-shot trigger was
 removed in remote commit `a8e8b45c`; the restored workflow is dispatch-only and
 also contains the Bash quoting repair discovered during preflight. The official
 Gallery index now reports v1.1.0 with a fresh 103-install / 166-download
-baseline. No owner action is queued.
+baseline. By August 27 it showed 103 installs / 183 downloads; the +17
+cumulative downloads and zero install growth are not qualified demand or
+revenue. No owner action is queued.
 
 ## HQ-7 — enable the only checkout (1 minute)
 
