@@ -718,3 +718,42 @@ benchmarks, or unverified analytics in this ledger.
 - No Stripe, GRACE, DEV, or Marketplace state changed. Qualified issues: **0**.
   Paid reports: **0**. Workspace-observed collected revenue: **$0**.
   Workspace-observed collected profit: **$0**. Target gap: **$4,000**.
+
+## Build-date drift correction — August 28, 2026
+
+- Cycle-start check repeated D42's egress test: WebFetch to `example.com`
+  returned `EGRESS_BLOCKED`; direct `curl` through the configured proxy to
+  `example.com` and `docs.aws.amazon.com` both returned HTTP 403 (`CONNECT
+  tunnel failed`). `curl -sS "$HTTPS_PROXY/__agentproxy/status"` confirmed the
+  proxy is up (a domain-level block, not local misconfiguration). WebSearch
+  still returned indexed results but cannot substitute for the live-thread
+  check or the direct primary-source fetch the repost-answers/DEV duties
+  require. Per AGENTS.md's fallback and D36, no new repost-answers batch or
+  dev.to draft was produced this cycle. See DECISIONS D43.
+- `apps/web/BUILD_DATE` had not been bumped since the initial 2026-08-22
+  repair commit `85c9f43e`, despite five subsequent content-changing cycles.
+  Every generated "N days until <deadline>" countdown, the ICS `DTSTAMP`, the
+  sitemap `lastmod`, and `docs/status/data.json`'s `generated_at` were
+  computed from that stale date, overstating remaining runway by 6 days
+  site-wide.
+- Confirmed `pytest -q apps/web` was 35/35 green on the stale baseline first.
+  Bumped `BUILD_DATE` to `2026-08-28`, rebuilt via `apps/web/build.py` with the
+  same `EOLKITS_BASE_PATH=/EOLkits` / `EOLKITS_SITE_URL=https://ntoledo319.
+  github.io/EOLkits` / `EOLKITS_API_URL=https://eolkits.com` env vars CI uses,
+  and re-ran the suite: 35/35 green, including determinism and link-integrity
+  cases. The diff touched 16 files (`docs/migrate/*` countdown text, `docs/
+  deprecations.ics`, `docs/feed.xml`, `docs/blog/feed.xml`, `docs/sitemap.xml`,
+  `docs/status/data.json`) and every changed line is date-derived — no price,
+  claim, or structural change (e.g. the shared `/migrate/` countdown moved
+  163→157 days, matching the 6-day bump exactly).
+- Considered adding the scanner's two "bonus" runtimes (`ruby3.2`, `dotnet6`)
+  to `rules/public/deprecations.yml` the way `nodejs16.x` was added in D42;
+  declined for now because, unlike `nodejs16.x`, they are not corroborated by
+  a second independently maintained source file and cannot be freshly verified
+  against `docs.aws.amazon.com` this cycle. Recorded as a deferred gap, not
+  shipped, to avoid publishing an unverified date.
+- These artifacts go live via the existing `deploy-pages.yml` workflow on push
+  to `main`/`marketing-machine-v2`, same as every prior content cycle. No
+  Stripe, GRACE, DEV, or Marketplace state changed. Qualified issues: **0**.
+  Paid reports: **0**. Workspace-observed collected revenue: **$0**.
+  Workspace-observed collected profit: **$0**. Target gap: **$4,000**.

@@ -1,5 +1,12 @@
 # Batched owner queue — maximum 34 minutes
 
+Reconfirmed August 28 (egress-restricted cloud environment, second consecutive
+day): no new owner-queue item was added or resolved. This cycle's fetch/curl
+access to external domains was again blocked (see revenue/DECISIONS.md D43),
+so it shipped an in-jail site-truth fix (stale `BUILD_DATE` correction)
+instead of touching any HQ item below. The queue and its 34-minute total are
+unchanged from the prior reconciliation.
+
 Reconfirmed August 27 (later cycle, egress-restricted cloud environment): no
 new owner-queue item was added or resolved. This cycle's fetch/curl access to
 external domains was blocked (see revenue/DECISIONS.md D42), so it shipped an

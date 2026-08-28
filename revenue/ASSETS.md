@@ -350,3 +350,14 @@ match the scanner engine; see DECISIONS D42 and METRICS's "Free-tier
 data-completeness ship" entry. This closes an internal-consistency gap in the
 free tier; it does not change any asset's completeness, license, or
 monetization frame.
+
+## Build-date drift correction — August 28
+
+Asset 1 (static site/browser scanner)'s generated deadline copy was computed
+from a `BUILD_DATE` fixed at 2026-08-22 across five subsequent content cycles,
+so every "days until deadline" figure on the live-eligible artifact understated
+urgency by 6 days. Bumped `apps/web/BUILD_DATE` to 2026-08-28 and rebuilt;
+`pytest -q apps/web` stayed 35/35 and the diff was entirely date-derived. See
+DECISIONS D43 and METRICS's "Build-date drift correction" entry. This is a
+truth/quality fix to an existing free asset, not a new asset, license change,
+or monetization-frame change.

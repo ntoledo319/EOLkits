@@ -830,3 +830,58 @@ collected profit remains $0 and the gap remains $4,000. This ships an
 externally visible correction to a free acquisition surface without touching
 checkout, Stripe, GRACE, or any owner-only credential. The blocked HQ items
 (HQ-1 through HQ-5, HQ-7) are unchanged and still require the owner.
+
+## D43 — bump the reproducible build date to correct site-wide countdown drift
+
+Cycle-start check repeated D42's egress test: WebFetch to the neutral control
+`example.com` returned `EGRESS_BLOCKED`, and a direct `curl` through the
+configured proxy to both `example.com` and
+`docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html` returned HTTP 403
+(`CONNECT tunnel failed`). `curl -sS "$HTTPS_PROXY/__agentproxy/status"`
+confirmed the proxy itself is up, so this is a domain-level egress block, not a
+local misconfiguration. WebSearch (hosted, not routed through this container's
+egress) still returned indexed results, but per AGENTS.md's explicit fallback
+and D36's truth bar, no new repost-answers batch or dev.to draft was produced
+this cycle — neither a live-thread check nor a direct primary-source fetch was
+possible.
+
+Also checked whether the scanner's two "bonus" runtimes (`ruby3.2`, `dotnet6`
+in `kits/lambda-lifeline/src/scan/index.mjs`'s `PHASE_DATES`) should be added
+to `rules/public/deprecations.yml` the way `nodejs16.x` was in D42. Declined:
+unlike `nodejs16.x`, which was corroborated by a second independently
+maintained file (`apps/web/content/fixes.yml`) already carrying the same
+dates, `ruby3.2`/`dotnet6` appear in only that one file, are marked "flagged
+but not our primary scope," and have no corroborating source reachable this
+cycle. Publishing them to public SEO/ICS/sitemap surfaces without being able
+to verify against `docs.aws.amazon.com` this cycle would risk exactly the kind
+of over-claimed date this project has repeatedly had to walk back (D14, D25,
+D40). Left them out of the public rules file; this is a deferred, not
+rejected, gap.
+
+Found a real, verifiable-without-fetch defect instead: `apps/web/BUILD_DATE`
+(the single source `apps/web/build.py` uses for every "N days until <deadline>"
+countdown, the ICS `DTSTAMP`, the sitemap `lastmod`, and `docs/status/data.json`'s
+`generated_at`) had never been bumped since the initial 2026-08-22 repair
+commit (`85c9f43e`), despite five subsequent daily content cycles. Every
+countdown on the live site was therefore silently overstating remaining time
+by a growing margin (6 days as of this cycle) — a truth defect on the site's
+core "how much runway do you have" claim, not a cosmetic one. `_build_date()`'s
+own docstring says "Update BUILD_DATE when public source content changes";
+nothing in the pipeline enforces that, so it had silently drifted.
+
+Confirmed 35/35 `apps/web` tests green on the stale baseline first. Bumped
+`BUILD_DATE` from `2026-08-22` to `2026-08-28`, rebuilt `docs/` with
+`apps/web/build.py` under the exact `EOLKITS_BASE_PATH`/`EOLKITS_SITE_URL`/
+`EOLKITS_API_URL` values `deploy-pages.yml`/`test.yml` use, and re-ran the
+suite: 35/35 still green, including `test_determinism.py` and `test_links.py`.
+Inspected the diff: every changed line is date-derived (163→157-day countdowns
+on `/migrate/` pages, ICS `DTSTAMP`, sitemap `lastmod`, `status/data.json`
+`generated_at`) — no structural, price, or claim-text change. CI's
+`git diff --exit-code -- docs` gate only checks that committed `docs/` matches
+`build.py`'s output for the committed `BUILD_DATE`; it does not itself detect
+staleness against real time, which is how this drifted five cycles unnoticed.
+This ships an externally visible truth correction on every deadline page
+without touching checkout, Stripe, GRACE, DEV, or any owner-only credential.
+Collected profit remains $0; the gap remains $4,000. Future cycles should keep
+bumping `BUILD_DATE` (and rebuilding) whenever a cycle ships and otherwise as a
+standing periodic check, since nothing currently alerts on drift.
