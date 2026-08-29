@@ -23,13 +23,13 @@
     <meta property="og:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="article:published_time" content="2026-08-28">
-    <meta property="article:modified_time" content="2026-08-28">
+    <meta property="article:published_time" content="2026-08-29">
+    <meta property="article:modified_time" content="2026-08-29">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Lambda Node.js 16 create/update restrictions — Migration Guide">
-    <meta name="twitter:description" content="Tracked milestone 2027-02-01 (157 days from the build date). 4 bounded migration checks to verify.">
+    <meta name="twitter:description" content="Tracked milestone 2027-02-01 (156 days from the build date). 4 bounded migration checks to verify.">
     <meta name="twitter:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
 
     <!-- Schema.org TechArticle; the provider status source is included below. -->
@@ -39,8 +39,8 @@
         "@type": "TechArticle",
         "headline": "Lambda Node.js 16 create/update restrictions \u2014 AWS Deprecation Migration Guide",
         "description": "Node.js 16 Lambda runtime (Amazon Linux 2) deprecated 2024-06-12. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs16.x functions on 2027-02-01 and updating existing ones on 2027-03-03 \u2014 the same synchronized Q1-2027 block cluster as nodejs18.x, nodejs20.x, and several Python runtimes.",
-        "datePublished": "2026-08-28",
-        "dateModified": "2026-08-28",
+        "datePublished": "2026-08-29",
+        "dateModified": "2026-08-29",
         "proficiencyLevel": "Expert",
         "keywords": "lambda, nodejs, runtime",
         "citation": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html",
@@ -86,7 +86,7 @@
             {
                 "@type": "Question",
                 "name": "What should I verify when moving away from Lambda Node.js 16 create/update restrictions?",
-                "acceptedAnswer": { "@type": "Answer", "text": "Configured migration checks to validate in your workload: Upgrade target is nodejs24.x (multi-step: no direct nodejs16.x to nodejs24.x runtime setting); aws-sdk v2 preinstalled on nodejs16.x; nodejs18.x+ bundles AWS SDK for JavaScript v3 instead (require(\u0027aws-sdk\u0027) stops resolving); Native addons must be rebuilt and tested on the Node.js 24 ABI; OpenSSL 3 behavior changes. A listed check is not proof of impact. Provider status source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
+                "acceptedAnswer": { "@type": "Answer", "text": "Configured migration checks to validate in your workload: Upgrade target is nodejs24.x; validate application and dependency compatibility before changing the function runtime; aws-sdk v2 preinstalled on nodejs16.x; nodejs18.x+ bundles AWS SDK for JavaScript v3 instead (require(\u0027aws-sdk\u0027) stops resolving); Native addons must be rebuilt and tested on the Node.js 24 ABI; OpenSSL 3 behavior changes. A listed check is not proof of impact. Provider status source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
             },
             {
                 "@type": "Question",
@@ -127,14 +127,14 @@
             <h1>Lambda Node.js 16 create/update restrictions</h1>
             <p class="banner-sub">AWS Lambda — published migration milestone</p>
             <div class="countdown" data-deadline="2027-02-01">2027-02-01</div>
-            <p class="urgency">157 days until the 2027-02-01 deadline — enough runway to migrate safely.</p>
+            <p class="urgency">156 days until the 2027-02-01 deadline — enough runway to migrate safely.</p>
         </div>
 
         <section>
             <h2>What is being deprecated?</h2>
             <p>Node.js 16 Lambda runtime (Amazon Linux 2) deprecated 2024-06-12. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs16.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — the same synchronized Q1-2027 block cluster as nodejs18.x, nodejs20.x, and several Python runtimes.</p>
             <table class="facts">
-                <tr><th>Next tracked milestone</th><td><strong>2027-02-01</strong> (157 days from build date 2026-08-28)</td></tr>
+                <tr><th>Next tracked milestone</th><td><strong>2027-02-01</strong> (156 days from build date 2026-08-29)</td></tr>
                 <tr><th>Service</th><td>AWS Lambda</td></tr>
                 <tr><th>Affected resources</th><td><code>function</code></td></tr>
                 <tr><th>Severity</th><td><span class="severity-badge severity-high">high</span></td></tr>
@@ -149,7 +149,7 @@
             <p>When moving away from this runtime or operating-system release, verify these configured concerns in your own workload. A listed concern is not proof that every workload is affected. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[provider status source]</a></p>
             <ul>
 
-                <li>Upgrade target is nodejs24.x (multi-step: no direct nodejs16.x to nodejs24.x runtime setting)</li>
+                <li>Upgrade target is nodejs24.x; validate application and dependency compatibility before changing the function runtime</li>
 
                 <li>aws-sdk v2 preinstalled on nodejs16.x; nodejs18.x+ bundles AWS SDK for JavaScript v3 instead (require('aws-sdk') stops resolving)</li>
 
@@ -248,7 +248,7 @@ node bin/cli.mjs --help</code></pre>
             </details>
             <details>
                 <summary>What should I verify before changing the workload?</summary>
-                <p>Validate these configured checks against your code and current upstream documentation: Upgrade target is nodejs24.x (multi-step: no direct nodejs16.x to nodejs24.x runtime setting); aws-sdk v2 preinstalled on nodejs16.x; nodejs18.x+ bundles AWS SDK for JavaScript v3 instead (require('aws-sdk') stops resolving); Native addons must be rebuilt and tested on the Node.js 24 ABI; OpenSSL 3 behavior changes. A listed check is not proof that the workload is affected.</p>
+                <p>Validate these configured checks against your code and current upstream documentation: Upgrade target is nodejs24.x; validate application and dependency compatibility before changing the function runtime; aws-sdk v2 preinstalled on nodejs16.x; nodejs18.x+ bundles AWS SDK for JavaScript v3 instead (require('aws-sdk') stops resolving); Native addons must be rebuilt and tested on the Node.js 24 ABI; OpenSSL 3 behavior changes. A listed check is not proof that the workload is affected.</p>
             </details>
             <details>
                 <summary>Which AWS services does this affect?</summary>

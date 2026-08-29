@@ -122,7 +122,7 @@ deprecations:
     url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
     tags: [lambda, nodejs, runtime]
     breaking_changes:
-      - "Upgrade target is nodejs24.x (multi-step: no direct nodejs16.x to nodejs24.x runtime setting)"
+      - "Upgrade target is nodejs24.x; validate application and dependency compatibility before changing the function runtime"
       - "aws-sdk v2 preinstalled on nodejs16.x; nodejs18.x+ bundles AWS SDK for JavaScript v3 instead (require('aws-sdk') stops resolving)"
       - "Native addons must be rebuilt and tested on the Node.js 24 ABI"
       - "OpenSSL 3 behavior changes"
