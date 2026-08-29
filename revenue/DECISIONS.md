@@ -885,3 +885,53 @@ without touching checkout, Stripe, GRACE, DEV, or any owner-only credential.
 Collected profit remains $0; the gap remains $4,000. Future cycles should keep
 bumping `BUILD_DATE` (and rebuilding) whenever a cycle ships and otherwise as a
 standing periodic check, since nothing currently alerts on drift.
+
+## D44 — recreate the deleted `marketing-machine-v2` branch from `main`; flag a second invented-date error in the quarantined DEV corpus
+
+Cycle start: `marketing-machine-v2` did not exist on `origin` at all (`git
+ls-remote --heads origin` and `list_branches` both showed only `main`; no open
+or closed PR had that head branch). History showed why: merged commit `0c9dfec`
+("Integrate corrected Lambda Node.js 16 lifecycle data (#24)") — whose message
+says it "Preserves unique marketing-machine-v2 data and generated surfaces" —
+already carries D42/D43's nodejs16.x and `BUILD_DATE` work into `main`, and
+`.github/workflows/deploy-pages.yml` (the workflow that actually publishes
+eolkits.com) triggers only on push to `main`; `submit-indexnow.yml` lists both
+branches but `main` is authoritative for deploys. This is the "PR for your
+designated branch already merged" case: per the runbook, recreated
+`marketing-machine-v2` from current `main` (`git checkout -B
+marketing-machine-v2 main`) rather than fabricating divergent history, and this
+cycle's work ships from there. `BUILD_DATE` was already `2026-08-29` (today) at
+cycle start via that same merge; `pytest -q apps/web` was 35/35 green and a
+full `apps/web/build.py` rebuild against the CI env vars produced a clean `git
+diff --exit-code -- docs` (no staleness to correct this cycle).
+
+Repeated the egress test done in D42/D43: `curl` through the configured proxy
+to `example.com` and `docs.aws.amazon.com` both returned HTTP 403 (`CONNECT
+tunnel failed`); `$HTTPS_PROXY/__agentproxy/status` confirmed the proxy itself
+is up. Per AGENTS.md's fallback, no new repost-answers batch or dev.to draft
+was produced this cycle.
+
+Instead, cross-checked the 25 archived/quarantined DEV.to drafts in
+`launch/distribution/devto/` (already flagged in `revenue/HUMAN_QUEUE.md` HQ-4
+for owner unpublish; every file already carries a top-of-file "do not publish
+or reuse" banner) against this repository's own already-corroborated
+lifecycle-date sources — `rules/public/deprecations.yml` and
+`kits/lambda-lifeline/src/scan/index.mjs`'s `PHASE_DATES` — for further
+verifiable-without-fetch date errors beyond the already-documented article 24
+IMDSv2 issue. Found one: article 04's ("Python 3.13 dead batteries") timeline
+table lists `python3.10` as "Deprecated 2026-03-31". Both internal sources
+agree the correct date is 2026-10-31 (`deprecations.yml`'s
+`lambda-python-3.10-eol.deprecation_date` and `PHASE_DATES['python3.10'].
+phase1`); 2026-03-31 appears nowhere else in the codebase as a python3.10 date
+but is exactly this repo's own `ruby3.2` phase-1 date, suggesting a copy/mix-up
+rather than a since-superseded AWS date. Per the existing pattern (article 24's
+note is documentation-only; the archived draft itself is left as an unedited
+mirror of what is actually still live, so the owner's manual review compares
+against reality), added a second "Known critical error" entry to
+`launch/distribution/devto/README.md` rather than editing the draft file
+itself.
+
+No price, unit forecast, checkout, Stripe, GRACE, DEV-account, or Marketplace
+state changed. Collected profit remains $0; the gap remains $4,000. HQ-1
+through HQ-5 and HQ-7 are unchanged and still require the owner; HQ-4's manual
+DEV review now has two documented critical errors to check instead of one.

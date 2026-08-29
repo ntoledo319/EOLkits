@@ -280,3 +280,27 @@ The owner queue is reduced from 37 to 34 minutes and contains no monitoring or
 VS action. Bet A's checkpoint remains August 27 20:29 UTC. V1's new five-day
 checkpoint is August 30 11:15 UTC. Do not count the successful publisher run,
 extension package availability, installs, downloads, or CI as collected money.
+
+## Cycle note — August 29, 2026 (cloud, egress-restricted)
+
+`marketing-machine-v2` was absent from `origin` at cycle start; merged commit
+`0c9dfec` had already folded its unique work into `main` (the branch
+`deploy-pages.yml` actually deploys from), so the branch was recreated from
+`main` per the runbook's already-merged-PR case. See DECISIONS D44. Main was
+already current: `BUILD_DATE` was today's date, 35/35 `apps/web` tests green,
+and a rebuild produced no `docs/` drift.
+
+Egress was blocked again (`example.com`/`docs.aws.amazon.com` both 403
+through the proxy), so no new repost-answers batch or dev.to draft was
+produced, per AGENTS.md's fallback. Shipped a second finding in the
+already-quarantined DEV corpus instead: article 04's timeline table has the
+wrong `python3.10` deprecation date (2026-03-31 instead of 2026-10-31, per
+this repo's own two already-corroborated sources). Documented it in
+`launch/distribution/devto/README.md` alongside article 24's existing note;
+did not edit the archived draft itself.
+
+No cash-path state changed. Collected profit remains **$0**; the gap remains
+**$4,000**. HQ-1 through HQ-5 and HQ-7 are unchanged and still require the
+owner. Next highest-leverage action is still the same owner batch (HQ-2 then
+HQ-5/HQ-6, then HQ-3/HQ-1/HQ-4/HQ-7) — repository work has no further
+verifiable-without-fetch truth gaps found this cycle.

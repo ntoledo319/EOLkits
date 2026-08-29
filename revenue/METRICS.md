@@ -757,3 +757,36 @@ benchmarks, or unverified analytics in this ledger.
   Stripe, GRACE, DEV, or Marketplace state changed. Qualified issues: **0**.
   Paid reports: **0**. Workspace-observed collected revenue: **$0**.
   Workspace-observed collected profit: **$0**. Target gap: **$4,000**.
+
+## Branch reconstruction and second DEV corpus error found — August 29, 2026
+
+- `marketing-machine-v2` did not exist on `origin` at cycle start (confirmed
+  via `git ls-remote --heads` and the GitHub API `list_branches`/
+  `list_pull_requests`) — merged commit `0c9dfec` ("Integrate corrected Lambda
+  Node.js 16 lifecycle data (#24)") had already carried its unique work into
+  `main`, and `deploy-pages.yml` (the actual eolkits.com publisher) triggers
+  only on `main`. Recreated the branch from current `main` per the runbook's
+  "designated branch already merged" case; see DECISIONS D44.
+- Cycle-start state on `main`: `apps/web/BUILD_DATE` already `2026-08-29`
+  (today), `pytest -q apps/web` 35/35 green, and `apps/web/build.py` rebuild
+  against CI env vars produced a clean `git diff --exit-code -- docs` — no
+  drift to correct this cycle.
+- Egress test repeated (same method as D42/D43): direct `curl` through the
+  configured proxy to `example.com` and `docs.aws.amazon.com` both returned
+  HTTP 403; proxy status endpoint confirmed the proxy itself is reachable. No
+  new repost-answers batch or dev.to draft produced this cycle per AGENTS.md's
+  fallback.
+- Cross-checked all 25 quarantined `launch/distribution/devto/*.md` drafts'
+  hard-coded lifecycle dates against `rules/public/deprecations.yml` and
+  `kits/lambda-lifeline/src/scan/index.mjs`'s `PHASE_DATES` (both already
+  internally corroborated, no external fetch needed). Found article 04's
+  timeline table lists `python3.10` "Deprecated 2026-03-31"; both internal
+  sources say 2026-10-31 (it matches `ruby3.2`'s phase-1 date instead — a
+  likely copy/mix-up). Documented as a second "Known critical error" in
+  `launch/distribution/devto/README.md`, following the existing article-24
+  pattern (README note only; the archived draft itself is left as an
+  unedited mirror of the still-live post for the owner's HQ-4 review).
+- No price, checkout, Stripe, GRACE, DEV-account, or Marketplace state
+  changed. Qualified issues: **0**. Paid reports: **0**. Workspace-observed
+  collected revenue: **$0**. Workspace-observed collected profit: **$0**.
+  Target gap: **$4,000**.
