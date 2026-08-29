@@ -1,5 +1,26 @@
 # Batched owner queue — maximum 34 minutes
 
+Reconfirmed August 29 (egress-restricted cloud environment, third consecutive
+cycle): no new owner-queue item was added or resolved and the 34-minute total
+is unchanged. This cycle's fetch/curl access was blocked again (see
+revenue/DECISIONS.md D44), so it shipped a second documented DEV-corpus date
+error (article 04, python3.10) instead of touching any HQ item below.
+
+Process note, not a queued item (0 added minutes): `marketing-machine-v2` did
+not exist on `origin` at this cycle's start — it had been deleted after its
+work was merged into `main` via PR #24 — and was recreated from `main`.
+Separately, `.github/workflows/deploy-pages.yml` (the workflow that actually
+publishes eolkits.com) triggers only on push to `main`, not
+`marketing-machine-v2`; only `submit-indexnow.yml` lists both branches. If
+that is intentional (a review gate before deploy), no action is needed beyond
+periodically merging `marketing-machine-v2` into `main`, as PR #24 already
+did. If it is not intentional, adding `marketing-machine-v2` to
+`deploy-pages.yml`'s trigger branches (matching `submit-indexnow.yml`'s
+existing pattern) would make direct pushes to that branch actually deploy, as
+the task's own "ship channel" description assumes. No agent changed this
+workflow file this cycle since the intent is ambiguous and it governs the live
+deploy pipeline; flagging for an owner decision rather than guessing.
+
 Reconfirmed August 28 (egress-restricted cloud environment, second consecutive
 day): no new owner-queue item was added or resolved. This cycle's fetch/curl
 access to external domains was again blocked (see revenue/DECISIONS.md D43),
