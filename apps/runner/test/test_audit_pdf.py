@@ -726,6 +726,7 @@ def test_real_lambda_lifecycle_labels_match_the_date_kind():
 
     assert [(item["name"], item["date"]) for item in items] == [
         ("Lambda Python 3.10 — projected deprecation", "2026-10-31"),
+        ("Lambda Node.js 16 — block new functions", "2027-02-01"),
         ("Lambda Node.js 18 — block new functions", "2027-02-01"),
         ("Lambda Node.js 20 — block new functions", "2027-02-01"),
         ("Lambda Python 3.8 — block new functions", "2027-02-01"),

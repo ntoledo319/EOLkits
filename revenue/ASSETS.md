@@ -337,3 +337,27 @@ would not create a verified report-delivery path.
   Remote run `33028483868` passed and artifact `9629312207` independently
   preserved the expected 103 installs / 183 downloads, +0 / +17 deltas, and
   zero qualified VS-attributed authors. The counters remain non-revenue context.
+
+## Free-tier data-consistency correction — August 27
+
+`kits/lambda-lifeline` (the free scanner/CLI kit) and `apps/web/content/
+fixes.yml` already tracked `nodejs16.x` correctly in the delayed Q1-2027 Lambda
+block cluster. `rules/public/deprecations.yml` — the shared source of truth for
+the ICS calendar, SEO `/migrate/` pages, `llms.txt`, sitemap, and the free
+browser scanner's embedded data — did not, listing it only as `historical`
+with no block dates. Added the missing entry so the free acquisition surfaces
+match the scanner engine; see DECISIONS D42 and METRICS's "Free-tier
+data-completeness ship" entry. This closes an internal-consistency gap in the
+free tier; it does not change any asset's completeness, license, or
+monetization frame.
+
+## Build-date drift correction — August 28
+
+Asset 1 (static site/browser scanner)'s generated deadline copy was computed
+from a `BUILD_DATE` fixed at 2026-08-22 across five subsequent content cycles,
+so every "days until deadline" figure on the live-eligible artifact understated
+urgency by 6 days. Bumped `apps/web/BUILD_DATE` to 2026-08-28 and rebuilt;
+`pytest -q apps/web` stayed 35/35 and the diff was entirely date-derived. See
+DECISIONS D43 and METRICS's "Build-date drift correction" entry. This is a
+truth/quality fix to an existing free asset, not a new asset, license change,
+or monetization-frame change.

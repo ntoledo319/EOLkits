@@ -168,6 +168,47 @@ DEV unpublication; then the exact $299 checkout enablement. Do not create anothe
 product, claim cumulative downloads as demand, or substitute repository polish
 for those cash-path gates.
 
+## Cycle note — August 27, 2026 (cloud, egress-restricted)
+
+This cycle's outbound fetch to external domains (including the neutral control
+`example.com` and the two domains the standing repost-answers priority and
+AWS-date verification duty need, `example.com`/`docs.aws.amazon.com`/
+`repost.aws`) returned `EGRESS_BLOCKED`/403. Per AGENTS.md's fallback, no new
+repost-answers batch or dev.to draft was produced — see DECISIONS D42. Shipped
+a smaller, verifiable, in-jail fix instead: `rules/public/deprecations.yml`
+was missing a tracked `nodejs16.x` entry that the free scanner engine and
+`fixes.yml` already carry correctly (Q1-2027 block cluster, same AWS source
+already cited by every sibling entry). Added it, rebuilt the static site, and
+confirmed `pytest -q apps/web` passes 35/35 with the CI env vars. This is a
+free-acquisition-surface correctness fix, not a cash-path change: HQ-1 through
+HQ-5 and HQ-7 are unchanged and still require the owner. Collected profit
+remains $0; gap remains $4,000.
+
+## Cycle note — August 28, 2026 (cloud, egress-restricted)
+
+Repeated the egress test: `WebFetch` on `example.com` and a direct proxy
+`curl` to both `example.com` and `docs.aws.amazon.com` all returned
+`EGRESS_BLOCKED`/HTTP 403, confirmed as a domain-level block (proxy itself is
+up per `$HTTPS_PROXY/__agentproxy/status`). Per AGENTS.md's fallback, no new
+repost-answers batch or dev.to draft was produced — see DECISIONS D43.
+
+Shipped a different in-jail fix: `apps/web/BUILD_DATE`, the single date every
+generated countdown/ICS-timestamp/sitemap-lastmod/status-timestamp derives
+from, had not been bumped since the initial 2026-08-22 repair commit despite
+five subsequent content cycles — every "days until deadline" on the live site
+was silently overstating runway by 6 days. Bumped it to 2026-08-28, rebuilt,
+and confirmed `pytest -q apps/web` is still 35/35 with the CI env vars; the
+diff is entirely date-derived (e.g. shared `/migrate/` countdowns moved
+163→157 days). Nothing currently alerts on this drift, so future cycles should
+keep bumping `BUILD_DATE` whenever they ship, and periodically otherwise.
+
+Also evaluated extending the nodejs16.x-style fix to the scanner's two "bonus"
+runtimes (`ruby3.2`, `dotnet6`) and declined: unlike nodejs16.x, they have no
+second corroborating source file and can't be freshly verified against
+`docs.aws.amazon.com` this cycle. Left as a deferred, recorded gap rather than
+publishing an unverified date. HQ-1 through HQ-5 and HQ-7 are unchanged and
+still require the owner. Collected profit remains $0; gap remains $4,000.
+
 ## Strict blocker state — 2026-08-22T23:47:26Z
 
 This is the third consecutive goal turn ending at the same external-authority

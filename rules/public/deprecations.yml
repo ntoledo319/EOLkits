@@ -109,6 +109,24 @@ deprecations:
       - "distutils is removed in Python 3.12"
       - "Native dependencies may need Python 3.12-compatible wheels"
 
+  - name: "Lambda Node.js 16 create/update restrictions"
+    slug: "lambda-node.js-16-eol"
+    service: "AWS Lambda"
+    resource_type: "function"
+    date: "2027-02-01"
+    block_update_date: "2027-03-03"
+    deprecation_date: "2024-06-12"
+    description: "Node.js 16 Lambda runtime (Amazon Linux 2) deprecated 2024-06-12. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs16.x functions on 2027-02-01 and updating existing ones on 2027-03-03 — the same synchronized Q1-2027 block cluster as nodejs18.x, nodejs20.x, and several Python runtimes."
+    severity: high
+    kit: lambda-lifeline
+    url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
+    tags: [lambda, nodejs, runtime]
+    breaking_changes:
+      - "Upgrade target is nodejs24.x; validate application and dependency compatibility before changing the function runtime"
+      - "aws-sdk v2 preinstalled on nodejs16.x; nodejs18.x+ bundles AWS SDK for JavaScript v3 instead (require('aws-sdk') stops resolving)"
+      - "Native addons must be rebuilt and tested on the Node.js 24 ABI"
+      - "OpenSSL 3 behavior changes"
+
   - name: "Lambda Node.js 18 create/update restrictions"
     slug: "lambda-node.js-18-eol"
     service: "AWS Lambda"
@@ -150,11 +168,5 @@ historical:
   - name: "Lambda Node.js 14"
     service: "AWS Lambda"
     date: "2023-11-27"
-    kit: null
-    tags: [lambda, nodejs, historical]
-
-  - name: "Lambda Node.js 16"
-    service: "AWS Lambda"
-    date: "2024-06-12"
     kit: null
     tags: [lambda, nodejs, historical]
