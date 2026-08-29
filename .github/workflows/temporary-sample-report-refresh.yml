@@ -1,0 +1,34 @@
+name: Temporary sample report refresh
+
+on:
+  push:
+    branches:
+      - codex/integrate-marketing-machine-v2-20260829
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Render sample with locked runner dependencies
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/tmp"
+          python -m venv "$GITHUB_WORKSPACE/tmp/sample-refresh-venv"
+          venv="$GITHUB_WORKSPACE/tmp/sample-refresh-venv"
+          "$venv/bin/pip" install --require-hashes -r apps/runner/requirements.lock
+          "$venv/bin/python" apps/runner/build_sample_report.py --write
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sample-report-refresh
+          path: |
+            docs/audit/sample/fictional-repository.zip
+            docs/audit/sample/eolkits-sample-report.pdf
+            docs/audit/sample/eolkits-sample-report.json
+          if-no-files-found: error
+          retention-days: 1
