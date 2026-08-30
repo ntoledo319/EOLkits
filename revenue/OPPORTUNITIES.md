@@ -411,3 +411,26 @@ per-transaction rounding, 5.4% + $0.30 processing, the refunded $299, and the
 additional $0.30 refund fixed fee described by Stripe's July 2026 policy. Actual
 account country, negotiated pricing, currencies, taxes, disputes, and host cost
 are unknown; this is a forecast, not observed profit.
+
+## Post-recovery opportunity state — August 30, 2026
+
+The ranking remains **K1 → A1 → V1 → C4**. Recovery execution changed readiness,
+not demand:
+
+- **K1 is release-ready:** public `@v2` and the canonical private v2.0.0 draft
+  now target the same fully green commit. Only GitHub's owner agreement,
+  Marketplace checkbox, and 2FA ceremony remain. No external v2 adoption or
+  purchase has yet been observed.
+- **A1 is code-ready but operationally closed:** the repository now fails
+  safely around state, catalog identity, and retired prices. GRACE containment,
+  deployment, injection removal, test delivery/refund proof, legal facts, and a
+  new live Product/Price remain prerequisites to accepting money.
+- **V1 is still pending its exact 11:15 UTC gate:** 103 installs, 193 cumulative
+  downloads, zero install growth, and zero qualified external authors were the
+  last observation. The scheduled measurement—not intuition—will emit the gate
+  result after the deadline.
+
+Observed paid demand remains zero, so no new SKU, higher price, or projected
+profit is justified. The shortest honest path to a first dollar is publish K1,
+finish the closed A1 operational proof, then enable only the attested $299 A1
+checkout.

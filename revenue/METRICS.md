@@ -824,3 +824,28 @@ benchmarks, or unverified analytics in this ledger.
   revenue: **$0**. Workspace-observed collected profit: **$0**. Target gap:
   **$4,000**. Stripe account-wide activity was not accessible, so this remains a
   workspace-evidence statement rather than an account-wide assertion.
+
+## Recovery merge, ref, Pages, and draft evidence — 2026-08-30T05:21:42Z
+
+- Recovery PR [#25](https://github.com/ntoledo319/EOLkits/pull/25) merged as
+  `47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`. All PR checks passed: Determinism,
+  Property-based tests, public-v2 consumer, and all 13 release-surface jobs.
+- Every observed push workflow for merge commit `47cd9eae...` completed
+  successfully: IndexNow `33294128597`, Determinism `33294128605`, acquisition
+  evidence `33294128603`, public-v2 consumer `33294128614`, Property tests
+  `33294128644`, reviewed Pages deploy `33294128599`, release surfaces
+  `33294128598`, and GitHub's Pages deployment `33294128433`.
+- Read-after-write ref verification showed `main`, `refs/heads/v2`, and
+  `refs/heads/marketing-machine-v2` all at exact `47cd9eae...`; public raw
+  `v2/action.yml` returned the expected Action definition.
+- One-use synchronization PR [#26](https://github.com/ntoledo319/EOLkits/pull/26)
+  passed all three required suites and merged as `79888beb...`. Owner-attributed
+  push run
+  [33294414373](https://github.com/ntoledo319/EOLkits/actions/runs/33294414373)
+  completed successfully. Read-after-write release verification found canonical
+  ID `375063073`, tag `v2.0.0`, target `47cd9eae...`, expected name, `draft=true`,
+  `prerelease=false`, and zero assets. All other workflows on `79888beb...` also
+  passed. The temporary trigger is removed by the finalization tree.
+- This is distribution/release evidence, not demand. Qualified issues: **0**.
+  Paid reports: **0**. Workspace-observed collected revenue: **$0**.
+  Workspace-observed collected profit: **$0**. Target gap: **$4,000**.

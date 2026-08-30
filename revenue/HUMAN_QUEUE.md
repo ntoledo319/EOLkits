@@ -104,8 +104,10 @@ select the Marketplace checkbox, and complete 2FA.
 
 Steps:
 
-1. After Codex reports the draft-synchronization run green, open the sole private
-   draft: <https://github.com/ntoledo319/EOLkits/releases/tag/untagged-0866963caf3f06db98a1>.
+1. Draft-synchronization run
+   <https://github.com/ntoledo319/EOLkits/actions/runs/33294414373> is green.
+   Open the sole private draft:
+   <https://github.com/ntoledo319/EOLkits/releases/tag/untagged-ea8be73c7a7d9b6c45e7>.
 2. Confirm the draft says v2.0.0 and targets the same green commit as public
    `v2`. Select “Publish this Action to the GitHub Marketplace,” retain the
    existing listing identity, and publish with 2FA. Do not create another draft,

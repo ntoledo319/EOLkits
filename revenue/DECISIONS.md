@@ -982,3 +982,28 @@ or qualified VS-attributed authors. Download movement is retained as context but
 cannot pass the gate. At 05:00 UTC the result is still pending; do not claim a
 failure before the deadline and do not claim demand from 193 cumulative
 downloads.
+
+## D50 — publish one immutable recovery tree, then automate only the safe draft mutation
+
+Merged the fully green recovery through PR #25 rather than rewriting remote
+history. After every merge-triggered workflow passed, fast-forwarded `v2` and
+`marketing-machine-v2` without force to exact recovery commit `47cd9eae...` and
+verified the public Action bytes. This restores the advertised consumer ref
+while preserving the audited marketing ancestry.
+
+The connected GitHub capability cannot dispatch workflows or update Releases
+directly, while asking the owner to perform a routine dispatch would waste the
+scarce human budget. PR #26 therefore introduced a deliberately one-use push
+authorization: it accepted only the owner-attributed first main update whose
+`before` SHA was exact verified recovery commit `47cd9eae...`; checked out and
+validated that immutable release tree; required public `v2` to equal it; and
+retained the canonical-ID, duplicate, public-release, and postcondition guards.
+Run `33294414373` succeeded and read-after-write API verification confirmed the
+sole private draft now targets exact public v2 with tag `v2.0.0`. Remove that
+temporary push trigger immediately in the finalization tree and retain only the
+explicit owner-confirmed dispatch path.
+
+This automates a reversible private-draft edit, not the GitHub Marketplace
+publication ceremony. The agreement, Marketplace checkbox, and 2FA remain in
+HQ-5 because they are account-holder attestations. It also does not weaken the
+commerce gate: checkout remains closed and observed revenue/profit remain $0.
