@@ -23,6 +23,8 @@ def _load_app(tmp_path, monkeypatch, **env_overrides):
         "PUBLIC_API_URL": "https://eolkits.com",
         "EOLKITS_INLINE_RUNNER": "1",
         "EOLKITS_AUDIT_CHECKOUT_ENABLED": "1",
+        "EOLKITS_AUDIT_PRICE_ID": "price_eolkits_audit_v2_test",
+        "EOLKITS_AUDIT_PRODUCT_ID": "prod_eolkits_audit_v2_test",
         "RESEND_API_KEY": "re_test",
         "LEAD_NOTIFY_TO": "",
     }
@@ -33,6 +35,8 @@ def _load_app(tmp_path, monkeypatch, **env_overrides):
         if name == "eolkits_grace" or name.startswith("eolkits_grace."):
             del sys.modules[name]
     mod = importlib.import_module("eolkits_grace.app")
+    mod.store.init()
+    mod._audit_catalog_attested = True
     return mod, TestClient(mod.app)
 
 

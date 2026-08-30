@@ -7,6 +7,8 @@ the test-mode operational gate in `deploy/grace/README.md`.
 
 - **Runtime:** FastAPI + Uvicorn (Python 3.12), container `eolkits-api`.
 - **State:** SQLite at `EOLKITS_DATA_DIR/state.sqlite3` (WAL); see `store.py`.
+- **Startup:** secret and optional live-catalog preflight completes before the
+  data directory is created or any schema/privacy migration runs.
 - **Email:** Resend (`email.py`), from `noreply@eolkits.com`.
 - **Deploy:** use `deploy/grace/docker-compose.eolkits-api.yml` and the exact
   closed-checkout rollout in `deploy/grace/README.md`.
@@ -27,6 +29,13 @@ the test-mode operational gate in `deploy/grace/README.md`.
 Migration Pack, Drift Watch, organization-license, GitHub App, and partner
 commerce routes are closed. Legacy events are retained only so stale payments
 can enter the refund/reconciliation path.
+
+Production checkout additionally requires new v2-only
+`EOLKITS_AUDIT_PRODUCT_ID` and `EOLKITS_AUDIT_PRICE_ID` values. Startup performs
+a GET-only Stripe attestation of the exact active live one-time USD $299 Price
+and its Product. Every retired v1 Price is rejected even if someone reactivates
+it. Run `python -m eolkits_grace.preflight` in the built image without mounting
+the production volume before any rollout.
 
 Browser telemetry stays dormant until `/api/capabilities` proves report version
 2.0. The API accepts only an exact CORS origin, allowlisted event names, canonical

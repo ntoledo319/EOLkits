@@ -304,3 +304,33 @@ No cash-path state changed. Collected profit remains **$0**; the gap remains
 owner. Next highest-leverage action is still the same owner batch (HQ-2 then
 HQ-5/HQ-6, then HQ-3/HQ-1/HQ-4/HQ-7) — repository work has no further
 verifiable-without-fetch truth gaps found this cycle.
+
+## Recovery cycle — August 30, 2026
+
+The from-the-top audit rejected the premise that this was already a profitable
+business. Workspace-observed revenue and profit are still **$0**, no paid report
+has been observed, and no current demand signal supports adding SKUs or raising
+the $299 price. The profit target gap remains **$4,000**.
+
+This cycle's highest-leverage recovery is:
+
+1. keep every paid route closed and immediately block the stale public upload
+   surface at Caddy;
+2. merge the fully verified recovery branch through green CI, then fast-forward
+   `main`, `marketing-machine-v2`, and public `v2` without force;
+3. synchronize the one canonical private v2.0.0 release draft to that green
+   tree, leaving only the agreement/Marketplace checkbox/2FA click to the owner;
+4. deploy Audit v2 checkout-closed only after a mutation-free image preflight
+   and stopped-volume snapshot; remove the hosting injection; run the isolated
+   real Stripe-test/Resend/refund exercise;
+5. create one new v2-only live $299 Product/Price, pass GET-only catalog
+   attestation, then enable checkout; and
+6. publish the Marketplace release, remove the false DEV corpus, and let the
+   read-only acquisition gates decide whether K1/V1 continue.
+
+The repository now contains the emergency proxy block, safe snapshot tool,
+pre-mutation startup validation, retired-Price denial, live catalog attestation,
+public-v2 consumer monitor, automatic VS falsifier, and fail-closed status
+monitor required by that sequence. GRACE access and runtime secrets are absent
+from repository automation, so deployment/identity actions remain in the Human
+Queue instead of being guessed or bypassed.

@@ -4,8 +4,25 @@ This deployment serves one paid capability: the $299 Audit v2 repository evidenc
 
 ## Safe rollout order
 
-1. Deploy the API with `EOLKITS_AUDIT_CHECKOUT_ENABLED=0`.
-2. Bootstrap the static target once, then deploy the reviewed `docs/` tree with
+1. Import `Caddyfile.eolkits-emergency-containment.block` before the existing
+   EOLKits proxy rules and reload Caddy. Prove upload GET/POST/PUT and every
+   checkout/event mutation return `503`, `/pack/install` and `/pack/setup`
+   return `410`, and `/webhook/stripe` still reaches the legacy process. This
+   immediately closes the unauthenticated legacy upload surface while preserving
+   refund/reconciliation webhooks.
+2. Build the exact reviewed image and run the mutation-free preflight without
+   mounting the production volume. With checkout closed, this validates the
+   production secret modes without contacting Stripe or touching SQLite.
+3. Run `snapshot-api-volume.sh` on GRACE. It stops the current container, archives
+   the exact read-only data volume to a mode-0600 file under
+   `/home/ubuntu/backups/eolkits`, verifies the archive contains `state.sqlite3`,
+   records a SHA-256, and restarts the prior container even on failure. Do not
+   inspect customer files. Keep the snapshot only for the bounded rollback
+   window, then delete it deliberately after v2 is stable.
+4. Deploy the API with `EOLKITS_AUDIT_CHECKOUT_ENABLED=0`. Runtime preflight now
+   completes before the application creates directories, migrates SQLite, or
+   redacts historical event payloads.
+5. Bootstrap the static target once, then deploy the reviewed `docs/` tree with
    `ship-web.sh` after inspecting its default dry-run; verify the public domain
    serves the repaired claims. The deploy script accepts only
    `/home/ubuntu/sites/eolkits-webroot`, resolves and validates that directory
@@ -21,14 +38,25 @@ This deployment serves one paid capability: the $299 Audit v2 repository evidenc
    Run those bootstrap commands as the same unprivileged `ubuntu` account used
    for deployment. The sentinel is protected from `rsync --delete`; do not copy
    it into `docs/` or reuse it for another directory.
-3. Route the API paths in `Caddyfile.eolkits-api.block` and verify `/health`, `/api/status`, and `/api/capabilities`.
-4. Run a complete Stripe **test-mode** checkout → signed webhook → real PDF render → Resend delivery → signed download → evidence lookup exercise. Do not self-charge in live mode; Stripe does not return processing fees on refunds.
-5. Archive every legacy Stripe Payment Link. The exact pre-rename Cloudflare
+6. Replace the emergency block with `Caddyfile.eolkits-api.block` only after the
+   loopback v2 probes pass. Verify `/health`, `/api/status`, and
+   `/api/capabilities`; checkout must still report disabled.
+7. Run a complete Stripe **test-mode** checkout → signed webhook → real PDF render → Resend delivery → signed download → evidence lookup exercise. Do not self-charge in live mode; Stripe does not return processing fees on refunds.
+8. Archive every legacy Stripe Payment Link. The exact pre-rename Cloudflare
    Worker already serves the tested retirement tombstone; do not restore its
    bindings or commerce code. An exact stale route may be removed later as
    hygiene, but public DNS bypasses Cloudflare and route cleanup is not a launch
    gate.
-6. Set the repository variable `AUDIT_CHECKOUT_EXPECTED=true`, change the production environment to `EOLKITS_AUDIT_CHECKOUT_ENABLED=1`, and redeploy only after the preceding gates pass.
+9. Create a new v2-only Stripe Product and one-time $299 USD Price. Never
+   reactivate or reuse the retired v1 $299 Price. Put their exact IDs into
+   `EOLKITS_AUDIT_PRODUCT_ID` and `EOLKITS_AUDIT_PRICE_ID`, set checkout to `1`,
+   and run `python -m eolkits_grace.preflight` in the image **without the data
+   volume**. The GET-only attestation requires the exact objects, active live
+   mode, one-time USD 29900 amount, and matching Product before startup can
+   mutate state or advertise readiness.
+10. Set the repository variables `AUDIT_CHECKOUT_EXPECTED=true` and the exact
+    `EOLKITS_BUILD_SHA`; redeploy and
+    reopen commerce only after every preceding gate passes.
 
 ## Required environment
 
@@ -41,6 +69,9 @@ RESEND_API_KEY=re_...
 EOLKITS_INTERNAL_URL_SECRET=<32-or-more-random-bytes>
 EOLKITS_ADMIN_TOKEN=<optional-32-or-more-random-bytes>
 EOLKITS_AUDIT_CHECKOUT_ENABLED=0
+# Required only when changing checkout to 1; both must be new v2-only objects.
+# EOLKITS_AUDIT_PRODUCT_ID=prod_...
+# EOLKITS_AUDIT_PRICE_ID=price_...
 EOLKITS_BUILD_SHA=<deployed-git-commit>
 EOLKITS_API_PORT=8120
 ```
@@ -49,14 +80,35 @@ Generate secrets on the deployment host with `openssl rand -hex 32`. GitHub App 
 
 ## Deploy checkout closed
 
-Use the checked-in compose file from a reviewed clone, then verify locally before changing Caddy:
+Use the checked-in compose file from a reviewed clone. Build and preflight the
+exact image with no production volume attached before running the snapshot:
 
 ```bash
+export EOLKITS_BUILD_SHA=<reviewed-full-commit-sha>
 docker compose -f deploy/grace/docker-compose.eolkits-api.yml \
-  --env-file deploy/grace/.env.production up -d --build
+  --env-file deploy/grace/.env.production build eolkits-api
+docker run --rm --read-only --network none \
+  --env-file deploy/grace/.env.production \
+  --env ENVIRONMENT=production \
+  --env EOLKITS_AUDIT_CHECKOUT_ENABLED=0 \
+  "eolkits-api:$EOLKITS_BUILD_SHA" python -m eolkits_grace.preflight
+bash deploy/grace/snapshot-api-volume.sh
+docker compose -f deploy/grace/docker-compose.eolkits-api.yml \
+  --env-file deploy/grace/.env.production up -d --no-build
 curl -fsS http://127.0.0.1:8120/health | jq
 curl -fsS http://127.0.0.1:8120/api/capabilities | jq -e '.audit.checkout_enabled == false and .audit.report_version == "2.0"'
 ```
+
+Expected closed-preflight output contains only mode and booleans:
+
+```json
+{"catalog_attested": false, "checkout_enabled": false, "environment": "production", "ok": true}
+```
+
+Before enabling checkout, repeat the `docker run` command with network access,
+the new v2 Product/Price variables present, and
+`EOLKITS_AUDIT_CHECKOUT_ENABLED=1`. Do not attach `eolkits_api_data` to that
+preflight container. A catalog mismatch or Stripe error must stop the rollout.
 
 Validate the final public surface:
 

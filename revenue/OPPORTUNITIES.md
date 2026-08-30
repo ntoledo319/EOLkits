@@ -374,3 +374,40 @@ gained one corrected entry (nodejs16.x) that the free scanner already implied
 but the public deadline tracker omitted — a completeness fix within the
 existing C4 frame, not a new frame. K1/A1/V1 remain the ranked bets and remain
 blocked on the same owner-only gates in HUMAN_QUEUE.md. See DECISIONS D42.
+
+## August 30 commercial re-analysis
+
+The ranking remains **K1 → A1 → V1 → C4**, but the reason is narrower than the
+old profitability narrative implied:
+
+1. **K1, free GitHub Action → Audit:** keep as the fastest built-in discovery
+   route. The missing public `@v2` ref is restored, but the Marketplace still
+   needs its v2 publication and there are still zero observed external refs.
+2. **A1, $299 Audit PDF:** keep as the only paid offer because it is the only
+   unit with implemented checkout, bounded input, deterministic evidence,
+   delivery, retention, verification, and refund handling. It remains gated off
+   until the corrected GRACE rollout and live test evidence exist.
+3. **V1, free extension → Audit:** the five-day gate is still pending until
+   `2026-08-30T11:15:00Z`, but 103 installs, cumulative download movement, and
+   zero qualified authors put it on track to fail. The acquisition workflow now
+   emits `pending`, `passed`, or `failed_reposition_required` mechanically;
+   downloads alone cannot pass.
+4. **C4, cited search pages:** retain as compounding discovery only. The clean
+   Pages origin is useful, while the injected/stale custom host remains a trust
+   and operational blocker.
+
+Current primary-source research weakens any claim that detection alone supports
+a high price: AWS already sends runtime-deprecation notices, Amazon Inspector
+scans Lambda/code, and AWS is previewing broader automated modernization.
+EOLkits can charge only for the distinct output—the source-bound, reviewable
+change-approval artifact—not for merely announcing an EOL date. This rules out
+raising the price or reopening old SKUs without buyer evidence.
+
+Provisional target math for a US standard-pricing Stripe account is now explicit
+and intentionally conservative. Fourteen domestic-card sales at $299 net about
+**$4,060.42** after 2.9% + $0.30 per transaction. Sixteen all-international,
+currency-converted sales with one full refund net about **$4,221.50** after
+per-transaction rounding, 5.4% + $0.30 processing, the refunded $299, and the
+additional $0.30 refund fixed fee described by Stripe's July 2026 policy. Actual
+account country, negotiated pricing, currencies, taxes, disputes, and host cost
+are unknown; this is a forecast, not observed profit.
