@@ -361,3 +361,38 @@ urgency by 6 days. Bumped `apps/web/BUILD_DATE` to 2026-08-28 and rebuilt;
 DECISIONS D43 and METRICS's "Build-date drift correction" entry. This is a
 truth/quality fix to an existing free asset, not a new asset, license change,
 or monetization-frame change.
+
+## From-the-top recovery audit — August 30, 2026
+
+- **Static site and free scanner:** the generated 64-page surface remains a
+  complete, deterministic acquisition asset. The clean GitHub Pages origin has
+  the reviewed CSP and no third-party script. The custom `eolkits.com` origin is
+  a separate Caddy deployment at `15.204.209.97`; it still injects
+  `stats.saiditright.com` and serves the stale pre-v2 backend. That host is not
+  launch-ready even though the CSP blocks the injected script in browsers.
+- **Audit v2 API and report engine:** this is still the only bounded paid asset.
+  The recovery branch now validates production secrets and the live Stripe
+  catalog before creating a data directory or migrating SQLite, rejects every
+  retired Price, binds checkout and webhook fulfillment to one new v2-only
+  Product/Price pair, and includes a stopped-volume rollback snapshot plus an
+  emergency Caddy deny block. It is release-ready code, not a deployed service.
+- **GitHub Action:** the advertised public `ntoledo319/EOLkits@v2` branch had
+  disappeared. It was recreated without force at fully green main commit
+  `0c9dfec25004066df2cc277f9ee1205f52e151a4`, and the public raw `action.yml`
+  resolves again. A scheduled external-consumer workflow now detects future ref
+  deletion. The Marketplace listing is still v1.1.0; v2.0.0 is not public.
+- **VS Code extension:** public v1.1.0 is functional and locally verified, but
+  the observed baseline remains 103 installs with no install growth and no
+  qualified VS-attributed author. Download growth is package/update activity,
+  not evidence that anyone will buy the report.
+- **Operational assets:** all Python, Node, Worker, API, runner, web, Action, and
+  extension tests pass; current Python and Node dependency audits report no
+  known vulnerabilities, and the Node runtime-license audit reports no missing
+  or forbidden declarations. GRACE transport/runtime credentials, seller facts,
+  Stripe account control, DEV account control, and Marketplace agreement/2FA
+  remain external authority—not missing code.
+
+Smallest sellable unit remains exactly one automated, static, source-only Audit
+v2 PDF for one repository ZIP or supported file at $299. No account inventory,
+remediation implementation, uptime result, compliance certification, or live
+AWS access is included.

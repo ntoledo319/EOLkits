@@ -2,17 +2,11 @@ name: Prepare Marketplace v2 draft
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/prepare-marketplace-v2.yml'
-      - '.github/release-notes/marketplace-v2.md'
-      - '.github/ISSUE_TEMPLATE/audit-interest.yml'
-      - 'README.md'
-      - 'action.yml'
-      - 'apps/github-action/**'
-      - 'kits/**'
-      - 'rules/public/**'
+    inputs:
+      confirmation:
+        description: Type SYNC_CANONICAL_EOLKITS_V2_DRAFT
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -25,7 +19,23 @@ jobs:
   draft:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: Authorize the exact owner-controlled draft mutation
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+          EXPECTED_OWNER: ntoledo319
+          EXPECTED_REPOSITORY: ntoledo319/EOLkits
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]
+          [[ "$GITHUB_REPOSITORY" == "$EXPECTED_REPOSITORY" ]]
+          [[ "$GITHUB_REF" == 'refs/heads/main' ]]
+          [[ "$GITHUB_ACTOR" == "$EXPECTED_OWNER" ]]
+          [[ "$GITHUB_TRIGGERING_ACTOR" == "$EXPECTED_OWNER" ]]
+          [[ "$CONFIRMATION" == 'SYNC_CANONICAL_EOLKITS_V2_DRAFT' ]]
+
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
 
       - name: Validate the release surface
         shell: bash
@@ -48,33 +58,66 @@ jobs:
             exit 1
           fi
 
-      - name: Create or synchronize the private release draft
+      - name: Synchronize the one canonical private release draft
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          release_json="$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases" \
-            --jq '.[] | select(.tag_name == "v2.0.0") | {id: .id, draft: .draft}' \
-            | head -n 1)"
-          if [[ -n "$release_json" ]]; then
-            release_id="$(jq -er '.id' <<<"$release_json")"
-            if [[ "$(jq -r '.draft' <<<"$release_json")" != true ]]; then
-              echo "::error::v2.0.0 is already public; refusing to rewrite a release"
-              exit 1
-            fi
-            jq -n \
-              --arg target "$GITHUB_SHA" \
-              --rawfile body .github/release-notes/marketplace-v2.md \
-              '{target_commitish: $target, name: "Rupture AWS Deprecation Check v2.0.0", body: $body, draft: true, prerelease: false}' \
-              | gh api --method PATCH \
-                "repos/$GITHUB_REPOSITORY/releases/$release_id" --input - >/dev/null
-            echo "Synchronized private v2.0.0 draft to commit $GITHUB_SHA."
-            exit 0
-          fi
-          gh release create v2.0.0 \
-            --draft \
-            --target "$GITHUB_SHA" \
-            --title 'Rupture AWS Deprecation Check v2.0.0' \
-            --notes-file .github/release-notes/marketplace-v2.md
-          echo "Created private v2.0.0 draft at commit $GITHUB_SHA."
+          readonly release_id='375063073'
+          readonly release_name='Rupture AWS Deprecation Check v2.0.0'
+          mkdir -p "$GITHUB_WORKSPACE/tmp/marketplace-draft"
+          releases_file="$GITHUB_WORKSPACE/tmp/marketplace-draft/releases.json"
+          gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" \
+            --slurp >"$releases_file"
+          jq -e 'flatten | type == "array"' "$releases_file" \
+            >"$GITHUB_WORKSPACE/tmp/marketplace-draft/releases-shape.txt"
+
+          canonical="$(gh api "repos/$GITHUB_REPOSITORY/releases/$release_id")"
+          jq -e --argjson id "$release_id" --arg name "$release_name" '
+            .id == $id and .draft == true and .prerelease == false and
+            .name == $name and (.assets | length) == 0
+          ' <<<"$canonical" >"$GITHUB_WORKSPACE/tmp/marketplace-draft/canonical-before.json"
+          duplicate_count="$(jq --argjson id "$release_id" --arg name "$release_name" '
+            flatten |
+            [.[] | select(
+              .id != $id and .draft == true and
+              (.name == $name or .tag_name == "v2.0.0")
+            )] | length
+          ' "$releases_file")"
+          [[ "$duplicate_count" == '0' ]] || {
+            echo "::error::Found $duplicate_count duplicate v2 draft(s); refusing mutation"
+            exit 1
+          }
+          public_count="$(jq '
+            flatten | [.[] | select(.draft == false and .tag_name == "v2.0.0")] | length
+          ' "$releases_file")"
+          [[ "$public_count" == '0' ]] || {
+            echo '::error::v2.0.0 is already public; refusing to rewrite it'
+            exit 1
+          }
+
+          public_v2_sha="$(git ls-remote --exit-code \
+            "https://github.com/$GITHUB_REPOSITORY.git" refs/heads/v2 | cut -f1)"
+          [[ "$public_v2_sha" == "$GITHUB_SHA" ]] || {
+            echo "::error::Public v2 ($public_v2_sha) does not equal selected main ($GITHUB_SHA)"
+            exit 1
+          }
+
+          jq -n \
+            --arg tag 'v2.0.0' \
+            --arg target "$GITHUB_SHA" \
+            --arg name "$release_name" \
+            --rawfile body .github/release-notes/marketplace-v2.md \
+            '{tag_name: $tag, target_commitish: $target, name: $name, body: $body, draft: true, prerelease: false}' \
+            >"$GITHUB_WORKSPACE/tmp/marketplace-draft/update.json"
+          gh api --method PATCH "repos/$GITHUB_REPOSITORY/releases/$release_id" \
+            --input "$GITHUB_WORKSPACE/tmp/marketplace-draft/update.json" \
+            >"$GITHUB_WORKSPACE/tmp/marketplace-draft/canonical-after.json"
+          jq -e --argjson id "$release_id" --arg target "$GITHUB_SHA" --arg name "$release_name" '
+            .id == $id and .tag_name == "v2.0.0" and
+            .target_commitish == $target and .name == $name and
+            .draft == true and .prerelease == false and (.assets | length) == 0
+          ' "$GITHUB_WORKSPACE/tmp/marketplace-draft/canonical-after.json" \
+            >"$GITHUB_WORKSPACE/tmp/marketplace-draft/postcondition.txt"
+          echo "Synchronized canonical private v2.0.0 draft to commit $GITHUB_SHA."

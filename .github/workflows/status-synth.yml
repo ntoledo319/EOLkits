@@ -18,22 +18,23 @@ jobs:
         env:
           SITE_URL: ${{ vars.PAGES_URL || 'https://ntoledo319.github.io/EOLkits' }}
           API_URL: ${{ vars.API_URL || 'https://eolkits.com' }}
-          API_MONITOR_ENABLED: ${{ vars.API_MONITOR_ENABLED || 'false' }}
           EXPECTED_CHECKOUT: ${{ vars.AUDIT_CHECKOUT_EXPECTED || 'false' }}
           EXPECTED_BUILD_SHA: ${{ vars.EOLKITS_BUILD_SHA || '' }}
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error --max-time 12 --output /dev/null "$SITE_URL/"
-          curl --fail --silent --show-error --max-time 12 --output /dev/null "$SITE_URL/audit/"
-          curl --fail --silent --show-error --max-time 12 --output /dev/null "$SITE_URL/status/"
-          if [[ "$API_MONITOR_ENABLED" == "true" ]]; then
-            health="$(curl --fail --silent --show-error --max-time 12 "$API_URL/health")"
-            status="$(curl --fail --silent --show-error --max-time 12 "$API_URL/api/status")"
-            capabilities="$(curl --fail --silent --show-error --max-time 12 "$API_URL/api/capabilities")"
-            jq -e '.ok == true' <<<"$health"
-            jq -e '.overall == "healthy"' <<<"$status"
-            jq -e --argjson expected "$EXPECTED_CHECKOUT" '.audit.report_version == "2.0" and .audit.checkout_enabled == $expected' <<<"$capabilities"
-            if [[ -n "$EXPECTED_BUILD_SHA" ]]; then
-              jq -e --arg sha "$EXPECTED_BUILD_SHA" '.build_sha == $sha' <<<"$health"
-            fi
+          mkdir -p "$GITHUB_WORKSPACE/tmp/status-smoke"
+          curl --fail --silent --show-error --max-time 12 \
+            --output "$GITHUB_WORKSPACE/tmp/status-smoke/home.html" "$SITE_URL/"
+          curl --fail --silent --show-error --max-time 12 \
+            --output "$GITHUB_WORKSPACE/tmp/status-smoke/audit.html" "$SITE_URL/audit/"
+          curl --fail --silent --show-error --max-time 12 \
+            --output "$GITHUB_WORKSPACE/tmp/status-smoke/status.html" "$SITE_URL/status/"
+          health="$(curl --fail --silent --show-error --max-time 12 "$API_URL/health")"
+          status="$(curl --fail --silent --show-error --max-time 12 "$API_URL/api/status")"
+          capabilities="$(curl --fail --silent --show-error --max-time 12 "$API_URL/api/capabilities")"
+          jq -e '.ok == true and .audit_report_version == "2.0"' <<<"$health"
+          jq -e '.overall == "healthy"' <<<"$status"
+          jq -e --argjson expected "$EXPECTED_CHECKOUT" '.audit.report_version == "2.0" and .audit.checkout_enabled == $expected' <<<"$capabilities"
+          if [[ -n "$EXPECTED_BUILD_SHA" ]]; then
+            jq -e --arg sha "$EXPECTED_BUILD_SHA" '.build_sha == $sha' <<<"$health"
           fi

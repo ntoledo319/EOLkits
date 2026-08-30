@@ -1,9 +1,9 @@
-"""Canonical pricing loaded from the repo-root pricing.yml.
+"""Canonical offer amounts loaded from the repo-root pricing.yml.
 
-This is the single source of truth for SKU -> Stripe Price IDs and amounts.
-Audit uses one price: charging more for identical automated output based on a
-buyer-entered date was removed. Both checkout and webhook validation use this
-file so the displayed and charged amount stay aligned.
+The repository owns the amount and product scope. The production Stripe Price
+and Product IDs are deployment configuration because retired IDs must never be
+made chargeable by a rollback. Checkout and webhook validation bind the runtime
+IDs to the amount in this file.
 """
 
 from __future__ import annotations
@@ -19,6 +19,7 @@ import yaml
 # history. They are recognized only so paid sessions can enter the durable refund
 # path; they are never accepted by ``allowed_price_ids`` for fulfillment.
 RETIRED_PRICE_SKUS = {
+    "price_1TRoGjDL3cQl851oiIWR5JIa": "audit",  # retired $299 v1 price
     "price_1TRoEZDL3cQl851o9DFh1DIz": "audit",  # former $599 surge tier
     "price_1TRoGiDL3cQl851ouqnljzMx": "audit",  # former $399 surge tier
 }
@@ -59,16 +60,20 @@ def _standard_tier() -> dict[str, Any]:
     return tiers[-1]
 
 
-def audit_price_for_deadline(deadline: str | None) -> dict[str, Any]:
+def audit_price_for_deadline(
+    deadline: str | None, *, stripe_price_id: str | None = None
+) -> dict[str, Any]:
     # Deadline remains report context, never a customer-controlled price lever.
-    return _standard_tier()
+    tier = dict(_standard_tier())
+    tier["stripe_price_id"] = stripe_price_id
+    return tier
 
 
-def allowed_price_ids(sku: str) -> set[str]:
+def allowed_price_ids(sku: str, *, active_audit_price_id: str | None = None) -> set[str]:
     """The set of Stripe Price IDs that are legitimate for a given SKU."""
     skus = _skus()
     if sku == "audit":
-        return {t["stripe_price_id"] for t in audit_tiers() if t.get("stripe_price_id")}
+        return {active_audit_price_id} if active_audit_price_id else set()
     entry = skus.get(sku, {})
     pid = entry.get("stripe_price_id")
     return {pid} if pid else set()
@@ -82,21 +87,24 @@ def product_for_sku(sku: str) -> str | None:
     return _skus().get(sku, {}).get("stripe_product")
 
 
-def expected_amount_cents(sku: str, price_id: str | None = None) -> int | None:
+def expected_amount_cents(
+    sku: str,
+    price_id: str | None = None,
+    *,
+    active_audit_price_id: str | None = None,
+) -> int | None:
     """Expected charge amount in cents for validation."""
     if sku == "audit":
-        for tier in audit_tiers():
-            if tier.get("stripe_price_id") == price_id:
-                return int(tier["price_usd"]) * 100
-        return None
+        if not active_audit_price_id or price_id != active_audit_price_id:
+            return None
+        return int(_standard_tier()["price_usd"]) * 100
     usd = _skus().get(sku, {}).get("price_usd")
     return int(usd) * 100 if usd is not None else None
 
 
-def sku_for_price_id(price_id: str) -> str | None:
-    for tier in audit_tiers():
-        if tier.get("stripe_price_id") == price_id:
-            return "audit"
+def sku_for_price_id(price_id: str, *, active_audit_price_id: str | None = None) -> str | None:
+    if active_audit_price_id and price_id == active_audit_price_id:
+        return "audit"
     for sku, entry in _skus().items():
         if entry.get("stripe_price_id") == price_id:
             return sku

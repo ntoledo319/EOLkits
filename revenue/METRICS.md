@@ -790,3 +790,37 @@ benchmarks, or unverified analytics in this ledger.
   changed. Qualified issues: **0**. Paid reports: **0**. Workspace-observed
   collected revenue: **$0**. Workspace-observed collected profit: **$0**.
   Target gap: **$4,000**.
+
+## From-the-top recovery evidence — 2026-08-30T05:00:57Z
+
+- Public `refs/heads/v2` was recreated without force at exact fully green main
+  commit `0c9dfec25004066df2cc277f9ee1205f52e151a4`; public raw `action.yml`
+  resolves. This is restored distribution infrastructure, not an external use
+  or sale.
+- `https://eolkits.com/` returned HTTP 200 from Caddy at `15.204.209.97` and
+  still contained one injected `https://stats.saiditright.com/script.js` tag.
+  `https://ntoledo319.github.io/EOLkits/` returned the clean generated document
+  without that tag. The custom host's CSP currently blocks the script; the raw
+  host configuration is still unremediated.
+- Live GRACE remained pre-v2: capability/status routes were unavailable and the
+  old public upload service remained reachable during the audit. Checkout stays
+  closed. An emergency Caddy deny block and stopped-volume safe-rollout path are
+  prepared but cannot be installed without GRACE access.
+- Local verification: al2023-gate **49**, python-pivot **50**, Lambda kit **28**,
+  Worker **39**, GRACE API **78**, runner **33**, and web **35** tests passed.
+  VS Code compile/lint/rules/package, Worker TypeScript, Ruff, Black, mypy,
+  sample-PDF verification, 16 workflow YAML parses, snapshot ShellCheck, and a
+  repeat generated-site hash comparison all passed.
+- Current dependency evidence: four locked Python graphs reported no known
+  vulnerabilities; three Node production audits reported zero vulnerabilities;
+  98 non-dev Node package records had no forbidden or missing license
+  declarations. Container builds remain delegated to GitHub CI because local
+  Docker would violate the workspace-jail operating decision.
+- VS v1.1.0 public evidence observed during the audit: **103 installs**, **193
+  downloads**, **0 install growth** from baseline, and **0 qualified external
+  authors**. The gate deadline is `2026-08-30T11:15:00Z`, so the result remains
+  pending rather than being called early.
+- Qualified issues: **0**. Paid reports: **0**. Workspace-observed collected
+  revenue: **$0**. Workspace-observed collected profit: **$0**. Target gap:
+  **$4,000**. Stripe account-wide activity was not accessible, so this remains a
+  workspace-evidence statement rather than an account-wide assertion.

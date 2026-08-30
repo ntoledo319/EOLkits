@@ -935,3 +935,50 @@ No price, unit forecast, checkout, Stripe, GRACE, DEV-account, or Marketplace
 state changed. Collected profit remains $0; the gap remains $4,000. HQ-1
 through HQ-5 and HQ-7 are unchanged and still require the owner; HQ-4's manual
 DEV review now has two documented critical errors to check instead of one.
+
+## D45 — treat the live GRACE upload service as an incident, not a launch candidate
+
+The public custom host serves a stale backend with an unauthenticated upload
+allocation/PUT path and no v2 capability/status contract. Checkout being closed
+does not contain memory, disk, or uploaded-data exposure. Keep commerce closed,
+install the exact emergency Caddy block first, preserve `/webhook/stripe` for
+reconciliation, and deploy nothing against the production data volume until a
+consistent stopped-volume snapshot exists.
+
+## D46 — make validation precede every persistent-state mutation
+
+Previously, importing the app initialized/migrated/redacted SQLite before
+production secret validation. The app now constructs Store without side effects,
+runs a mutation-free runtime/catalog preflight, and only then creates directories
+or calls `store.init()`. The rollout runs this preflight in the built image with
+no production volume. A failed secret or catalog check therefore cannot mutate
+the only production database before aborting.
+
+## D47 — permanently retire the old $299 identity and require a new v2 catalog
+
+Do not reactivate `price_1TRoGjDL3cQl851oiIWR5JIa`. It belongs to the retired v1
+surface and rollback history. Production checkout now requires runtime-supplied
+new v2-only Product and Price IDs and GET-only attestation of exact identity,
+object types, active/live state, one-time USD 29900 amount, and expanded active
+live Product. Checkout and webhook fulfillment bind to the same attested Price;
+all historical Prices are refund-recognition-only.
+
+## D48 — protect distribution refs and production workflows from ambient pushes
+
+The advertised public `@v2` ref had been deleted, so it was restored without
+force at the exact green main commit and is now exercised by a scheduled real
+consumer workflow. The Cloudflare retirement workflow no longer runs a
+production-credential mutation on ordinary source pushes. Marketplace draft
+synchronization is owner-confirmed, updates only canonical release `375063073`,
+rejects duplicates/public releases, and requires public `v2` to equal selected
+main. The status monitor can no longer be disabled into a false green while the
+API is stale.
+
+## D49 — automate the VS falsifier and do not confuse downloads with demand
+
+The five-day v1.1.0 gate is `2026-08-30T11:15:00Z`. The acquisition workflow now
+computes `pending`, `passed`, or `failed_reposition_required` from install growth
+or qualified VS-attributed authors. Download movement is retained as context but
+cannot pass the gate. At 05:00 UTC the result is still pending; do not claim a
+failure before the deadline and do not claim demand from 193 cumulative
+downloads.

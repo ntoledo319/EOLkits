@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlparse
+
+from .pricing import RETIRED_PRICE_SKUS
 
 
 def _bool_env(name: str, default: bool = False) -> bool:
@@ -82,6 +85,10 @@ class Settings:
     # switch is intentionally server-side so an operator can stop new charges
     # without waiting for a static-site deploy.
     audit_checkout_enabled: bool = _bool_env("EOLKITS_AUDIT_CHECKOUT_ENABLED", False)
+    # A new v2-only Product/Price pair is supplied at deployment time. Keeping
+    # retired IDs out of the repository prevents a rollback from reviving them.
+    audit_price_id: str = os.environ.get("EOLKITS_AUDIT_PRICE_ID", "")
+    audit_product_id: str = os.environ.get("EOLKITS_AUDIT_PRODUCT_ID", "")
     build_sha: str = os.environ.get("EOLKITS_BUILD_SHA", "unknown")[:64]
 
     @property
@@ -126,7 +133,27 @@ class Settings:
             missing.append("RUNNER_URL (must use HTTPS in production)")
         if self.admin_token and len(self.admin_token.encode("utf-8")) < 32:
             missing.append("EOLKITS_ADMIN_TOKEN (minimum 32 bytes when configured)")
+        if self.audit_checkout_enabled:
+            missing.extend(self.audit_price_configuration_errors())
         return missing
+
+    def audit_price_configuration_errors(self) -> list[str]:
+        """Reject missing, malformed, or retired production catalog identities."""
+        if not self.audit_checkout_enabled:
+            return []
+        errors: list[str] = []
+        if not re.fullmatch(r"price_[A-Za-z0-9_]{8,}", self.audit_price_id):
+            errors.append("EOLKITS_AUDIT_PRICE_ID (new v2-only Stripe Price required)")
+        elif self.audit_price_id in RETIRED_PRICE_SKUS:
+            errors.append("EOLKITS_AUDIT_PRICE_ID (retired Stripe Price is forbidden)")
+        if not re.fullmatch(r"prod_[A-Za-z0-9_]{8,}", self.audit_product_id):
+            errors.append("EOLKITS_AUDIT_PRODUCT_ID (new v2-only Stripe Product required)")
+        return errors
+
+    def require_audit_price_configuration(self) -> None:
+        errors = self.audit_price_configuration_errors()
+        if errors:
+            raise RuntimeError("Refusing to enable Audit checkout: " + ", ".join(errors))
 
     def require_runtime_secrets(self) -> None:
         """Fail closed: abort startup in production when live secrets are absent."""

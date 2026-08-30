@@ -30,6 +30,7 @@ jobs:
       VSCODE_RELEASE_VERSION: 1.1.0
       VSCODE_BASELINE_INSTALLS: '103'
       VSCODE_BASELINE_DOWNLOADS: '166'
+      VSCODE_SIGNAL_GATE_AT: '2026-08-30T11:15:00Z'
     steps:
       - uses: actions/checkout@v6
 
@@ -74,7 +75,8 @@ jobs:
           readonly vscode_expected_id="$VSCODE_EXTENSION_ID" \
             vscode_expected_version="$VSCODE_RELEASE_VERSION" \
             vscode_baseline_installs="$VSCODE_BASELINE_INSTALLS" \
-            vscode_baseline_downloads="$VSCODE_BASELINE_DOWNLOADS"
+            vscode_baseline_downloads="$VSCODE_BASELINE_DOWNLOADS" \
+            vscode_signal_gate_at="$VSCODE_SIGNAL_GATE_AT"
           gallery_request="$(
             jq -cn --arg extension_id "$vscode_expected_id" '
               {
@@ -148,6 +150,15 @@ jobs:
           done
           vscode_install_delta="$((vscode_installs - vscode_baseline_installs))"
           vscode_download_delta="$((vscode_downloads - vscode_baseline_downloads))"
+          observed_epoch="$(date -u +'%s')"
+          gate_epoch="$(date -u -d "$vscode_signal_gate_at" +'%s')"
+          if (( vscode_install_delta > 0 || vscode_author_count > 0 )); then
+            vscode_signal_gate='passed'
+          elif (( observed_epoch < gate_epoch )); then
+            vscode_signal_gate='pending'
+          else
+            vscode_signal_gate='failed_reposition_required'
+          fi
 
           code_query='"ntoledo319/EOLkits@v2" -repo:ntoledo319/EOLkits'
           external_search_available=false
@@ -195,6 +206,8 @@ jobs:
             --argjson vscode_baseline_downloads "$vscode_baseline_downloads" \
             --argjson vscode_install_delta "$vscode_install_delta" \
             --argjson vscode_download_delta "$vscode_download_delta" \
+            --arg vscode_signal_gate_at "$vscode_signal_gate_at" \
+            --arg vscode_signal_gate "$vscode_signal_gate" \
             '{
               observed_at: $observed_at,
               qualified_interest_issues: $qualified_interest_issues,
@@ -220,7 +233,9 @@ jobs:
                 delta_from_release_baseline: {
                   installs: $vscode_install_delta,
                   downloads: $vscode_download_delta
-                }
+                },
+                signal_gate_at: $vscode_signal_gate_at,
+                signal_gate: $vscode_signal_gate
               },
               caveat: "Public lower bounds only; private repositories, unindexed use, and purchases are not observed here. Marketplace downloads can include update/package fetches. Counters and interest are not revenue."
             }' > "$evidence_dir/evidence.json"
@@ -240,6 +255,7 @@ jobs:
             echo "- Public v2.0.0 release: **$public_v2_release**"
             echo "- VS Marketplace v$vscode_version installs: **$vscode_installs** (**$vscode_install_delta** from the 103-install release baseline)"
             echo "- VS Marketplace v$vscode_version downloads: **$vscode_downloads** (**$vscode_download_delta** from the 166-download release baseline)"
+            echo "- VS five-day signal gate: **$vscode_signal_gate** (deadline: \`$vscode_signal_gate_at\`)"
             echo
             echo 'These are public lower bounds, not purchases or revenue. Private use and search-index lag are invisible. Downloads can include update/package fetches and do not establish demand.'
           } >> "$GITHUB_STEP_SUMMARY"

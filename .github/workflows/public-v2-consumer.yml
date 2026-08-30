@@ -1,0 +1,61 @@
+name: Verify public v2 consumer
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '41 13 * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/public-v2-consumer.yml'
+      - 'action.yml'
+      - 'apps/github-action/**'
+      - 'kits/**'
+      - 'rules/public/**'
+  pull_request:
+    paths:
+      - '.github/workflows/public-v2-consumer.yml'
+      - 'action.yml'
+      - 'apps/github-action/**'
+      - 'kits/**'
+      - 'rules/public/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-v2-consumer-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  consume:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      # This intentionally resolves the public major branch over GitHub instead
+      # of using `./`. It fails at workflow setup when the advertised ref is gone.
+      - name: Consume the advertised public v2 ref
+        id: scan
+        uses: ntoledo319/EOLkits@v2
+        with:
+          kit: lambda-lifeline
+          path: apps/github-action/test/fixtures/findings
+          fail-on: none
+          comment-pr: false
+
+      - name: Validate public action outputs
+        env:
+          REPORT_PATH: ${{ steps.scan.outputs.report_path }}
+          HAS_FINDINGS: ${{ steps.scan.outputs.has_findings }}
+          SHOULD_FAIL: ${{ steps.scan.outputs.should_fail }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$HAS_FINDINGS" == 'true' ]]
+          [[ "$SHOULD_FAIL" == 'false' ]]
+          [[ "$REPORT_PATH" == "$GITHUB_WORKSPACE/"* ]]
+          [[ -f "$REPORT_PATH" ]]
+          grep -Fq 'one-repository evidence report ($299)' "$REPORT_PATH"

@@ -8,14 +8,15 @@ skus:
   audit:
     name: Audit PDF
     description: Repository evidence report with file/line findings and source citations
-    stripe_product: prod_UQfZgo3c4gEjGT
+    stripe_product: null
     available: true
     tiers:
       - name: standard
         max_days: 9999
         price_usd: 299
         description: One repository archive or supported source file
-        stripe_price_id: price_1TRoGjDL3cQl851oiIWR5JIa
+        stripe_price_id: null
+        runtime_price_env: EOLKITS_AUDIT_PRICE_ID
     delivery: Email after automated processing; delays are possible
   migration_pack:
     name: Migration Pack

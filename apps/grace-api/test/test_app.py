@@ -31,6 +31,8 @@ def _load_app(tmp_path, monkeypatch, **env_overrides):
         "EOLKITS_INTERNAL_URL_SECRET": "test-internal-secret",
         "EOLKITS_INLINE_RUNNER": "1",
         "EOLKITS_AUDIT_CHECKOUT_ENABLED": "1",
+        "EOLKITS_AUDIT_PRICE_ID": "price_eolkits_audit_v2_test",
+        "EOLKITS_AUDIT_PRODUCT_ID": "prod_eolkits_audit_v2_test",
         "RESEND_API_KEY": "re_test",
         "LEAD_NOTIFY_TO": "",
     }
@@ -42,6 +44,10 @@ def _load_app(tmp_path, monkeypatch, **env_overrides):
         if name == "eolkits_grace" or name.startswith("eolkits_grace."):
             del sys.modules[name]
     mod = importlib.import_module("eolkits_grace.app")
+    # Most unit tests exercise route logic without ASGI lifespan. Initialize the
+    # isolated test store explicitly; startup/preflight behavior has dedicated tests.
+    mod.store.init()
+    mod._audit_catalog_attested = True
     return mod, TestClient(mod.app)
 
 
@@ -158,6 +164,94 @@ def test_production_startup_fails_closed_without_secrets(tmp_path, monkeypatch):
         settings.require_runtime_secrets()
 
 
+def test_app_import_and_failed_preflight_do_not_touch_production_state(tmp_path, monkeypatch):
+    """Invalid production configuration must fail before creating or migrating a DB."""
+    monkeypatch.setenv("ENVIRONMENT", "production")
+    monkeypatch.setenv("EOLKITS_DATA_DIR", str(tmp_path / "live-data"))
+    monkeypatch.setenv("STRIPE_KEY", "sk_test_wrong_mode")
+    monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", "whsec_test")
+    monkeypatch.setenv("EOLKITS_AUDIT_CHECKOUT_ENABLED", "0")
+    for name in list(sys.modules):
+        if name == "eolkits_grace" or name.startswith("eolkits_grace."):
+            del sys.modules[name]
+
+    mod = importlib.import_module("eolkits_grace.app")
+
+    assert not mod.settings.data_dir.exists()
+    with pytest.raises(RuntimeError, match="Refusing to start"):
+        mod.initialize_runtime_state()
+    assert not mod.settings.data_dir.exists()
+
+
+def test_checkout_configuration_forbids_the_retired_v1_price(monkeypatch):
+    monkeypatch.setenv("ENVIRONMENT", "test")
+    monkeypatch.setenv("EOLKITS_AUDIT_CHECKOUT_ENABLED", "1")
+    monkeypatch.setenv("EOLKITS_AUDIT_PRICE_ID", "price_1TRoGjDL3cQl851oiIWR5JIa")
+    monkeypatch.setenv("EOLKITS_AUDIT_PRODUCT_ID", "prod_eolkits_audit_v2_test")
+    for name in ("eolkits_grace.config",):
+        sys.modules.pop(name, None)
+    cfg = importlib.import_module("eolkits_grace.config")
+
+    with pytest.raises(RuntimeError, match="retired Stripe Price is forbidden"):
+        cfg.Settings().require_audit_price_configuration()
+
+
+def test_live_catalog_attestation_checks_mode_amount_product_and_activity(monkeypatch):
+    from eolkits_grace import stripe_client
+    from eolkits_grace.config import Settings
+
+    runtime = Settings(
+        environment="production",
+        audit_checkout_enabled=True,
+        audit_price_id="price_eolkits_audit_v2_live",
+        audit_product_id="prod_eolkits_audit_v2_live",
+    )
+    valid = {
+        "id": runtime.audit_price_id,
+        "object": "price",
+        "active": True,
+        "livemode": True,
+        "currency": "usd",
+        "unit_amount": 29900,
+        "type": "one_time",
+        "recurring": None,
+        "product": {
+            "id": runtime.audit_product_id,
+            "object": "product",
+            "active": True,
+            "livemode": True,
+        },
+    }
+    monkeypatch.setattr(stripe_client, "stripe_get", lambda *a, **k: valid)
+    assert stripe_client.attest_live_audit_price(runtime)["ok"] is True
+
+    for field, value, message in (
+        ("object", "checkout.session", "unexpected catalog object"),
+        ("active", False, "price inactive"),
+        ("livemode", False, "price is not live mode"),
+        ("unit_amount", 29899, "price amount"),
+        ("currency", "eur", "price currency"),
+        ("type", "recurring", "price is recurring"),
+        ("recurring", {"interval": "month"}, "price is recurring"),
+    ):
+        broken = {**valid, field: value}
+        monkeypatch.setattr(stripe_client, "stripe_get", lambda *a, _b=broken, **k: _b)
+        with pytest.raises(RuntimeError, match=message):
+            stripe_client.attest_live_audit_price(runtime)
+
+    for product, message in (
+        (runtime.audit_product_id, "product was not expanded"),
+        ({**valid["product"], "object": "customer"}, "unexpected product object"),
+        ({**valid["product"], "id": "prod_wrong_audit_v2"}, "product identity mismatch"),
+        ({**valid["product"], "active": False}, "product inactive"),
+        ({**valid["product"], "livemode": False}, "product is not live mode"),
+    ):
+        broken = {**valid, "product": product}
+        monkeypatch.setattr(stripe_client, "stripe_get", lambda *a, _b=broken, **k: _b)
+        with pytest.raises(RuntimeError, match=message):
+            stripe_client.attest_live_audit_price(runtime)
+
+
 def test_audit_checkout_defaults_closed(monkeypatch):
     monkeypatch.delenv("EOLKITS_AUDIT_CHECKOUT_ENABLED", raising=False)
     for name in list(sys.modules):
@@ -199,9 +293,9 @@ def test_stripe_webhook_is_idempotent_and_validates(tmp_path, monkeypatch):
             "sku": "audit",
             "upload_id": upload_id,
             "upload_sha256": upload_sha,
-            "price_id": "price_1TRoGjDL3cQl851oiIWR5JIa",
+            "price_id": "price_eolkits_audit_v2_test",
         },
-        "line_items": {"data": [{"price": {"id": "price_1TRoGjDL3cQl851oiIWR5JIa"}}]},
+        "line_items": {"data": [{"price": {"id": "price_eolkits_audit_v2_test"}}]},
     }
     monkeypatch.setattr(mod, "retrieve_checkout_session", lambda settings, sid: paid_session)
     monkeypatch.setattr(mod, "verify_stripe_signature", lambda *a, **k: True)
@@ -323,11 +417,11 @@ def test_audit_price_is_stable_across_deadlines(tmp_path, monkeypatch):
     from eolkits_grace import pricing
 
     tiers = [
-        pricing.audit_price_for_deadline(deadline)
+        pricing.audit_price_for_deadline(deadline, stripe_price_id="price_eolkits_audit_v2_test")
         for deadline in (None, "2020-01-01", "2026-08-22", "2035-12-31", "invalid")
     ]
     assert {tier["price_usd"] for tier in tiers} == {299}
-    assert {tier["stripe_price_id"] for tier in tiers} == {"price_1TRoGjDL3cQl851oiIWR5JIa"}
+    assert {tier["stripe_price_id"] for tier in tiers} == {"price_eolkits_audit_v2_test"}
 
 
 def test_only_audit_is_an_active_paid_sku(tmp_path, monkeypatch):
@@ -396,9 +490,9 @@ def test_paid_audit_with_missing_upload_is_durably_refunded(tmp_path, monkeypatc
             "project": "eolkits",
             "sku": "audit",
             "upload_id": "gone",
-            "price_id": "price_1TRoGjDL3cQl851oiIWR5JIa",
+            "price_id": "price_eolkits_audit_v2_test",
         },
-        "line_items": {"data": [{"price": {"id": "price_1TRoGjDL3cQl851oiIWR5JIa"}}]},
+        "line_items": {"data": [{"price": {"id": "price_eolkits_audit_v2_test"}}]},
     }
     monkeypatch.setattr(mod, "retrieve_checkout_session", lambda settings, sid: paid_session)
     mod._ingest_paid_session("cs_missing_upload", BackgroundTasks())
@@ -414,6 +508,7 @@ def test_paid_audit_with_missing_upload_is_durably_refunded(tmp_path, monkeypatc
 @pytest.mark.parametrize(
     ("price_id", "amount"),
     [
+        ("price_1TRoGjDL3cQl851oiIWR5JIa", 29900),
         ("price_1TRoEZDL3cQl851o9DFh1DIz", 59900),
         ("price_1TRoGiDL3cQl851ouqnljzMx", 39900),
     ],
@@ -785,7 +880,7 @@ def test_failed_automatic_refund_stays_visible_for_owner(tmp_path, monkeypatch):
         payment_intent="pi_refund_failure",
         sku="audit",
         email="buyer@example.com",
-        price_id="price_1TRoGjDL3cQl851oiIWR5JIa",
+        price_id="price_eolkits_audit_v2_test",
         amount=29900,
         currency="usd",
         livemode=False,
@@ -915,7 +1010,7 @@ def test_pending_refund_reconciles_exact_full_refund_and_ignores_other_events(
         payment_intent="pi_pending",
         sku="audit",
         email="buyer@example.com",
-        price_id="price_1TRoGjDL3cQl851oiIWR5JIa",
+        price_id="price_eolkits_audit_v2_test",
         amount=29900,
         currency="usd",
         livemode=False,
@@ -972,7 +1067,7 @@ def test_refund_retry_get_closes_webhook_before_bind_race(tmp_path, monkeypatch)
         payment_intent="pi_race",
         sku="audit",
         email="buyer@example.com",
-        price_id="price_1TRoGjDL3cQl851oiIWR5JIa",
+        price_id="price_eolkits_audit_v2_test",
         amount=29900,
         currency="usd",
         livemode=False,
@@ -1058,7 +1153,7 @@ def test_atomic_purchase_heals_legacy_missing_job_and_blocks_cross_session_pi(
         payment_intent="pi_legacy_gap",
         sku="audit",
         email="buyer@example.com",
-        price_id="price_1TRoGjDL3cQl851oiIWR5JIa",
+        price_id="price_eolkits_audit_v2_test",
         amount=29900,
         currency="usd",
         livemode=False,
@@ -1068,7 +1163,7 @@ def test_atomic_purchase_heals_legacy_missing_job_and_blocks_cross_session_pi(
         payment_intent="pi_legacy_gap",
         sku="audit",
         email="buyer@example.com",
-        price_id="price_1TRoGjDL3cQl851oiIWR5JIa",
+        price_id="price_eolkits_audit_v2_test",
         amount=29900,
         currency="usd",
         livemode=False,
@@ -1134,7 +1229,7 @@ def test_terminal_compensation_is_one_way_and_idempotent(tmp_path, monkeypatch):
         payment_intent="pi_terminal",
         sku="audit",
         email="buyer@example.com",
-        price_id="price_1TRoGjDL3cQl851oiIWR5JIa",
+        price_id="price_eolkits_audit_v2_test",
         amount=29900,
         currency="usd",
         livemode=False,
@@ -1222,7 +1317,7 @@ def test_matching_failed_refund_requires_owner_but_unrelated_failure_is_ignored(
         payment_intent="pi_refund_event_failure",
         sku="audit",
         email="buyer@example.com",
-        price_id="price_1TRoGjDL3cQl851oiIWR5JIa",
+        price_id="price_eolkits_audit_v2_test",
         amount=29900,
         currency="usd",
         livemode=False,
@@ -1322,7 +1417,7 @@ def test_real_test_mode_checkout_uses_inline_price_and_validates_webhook(tmp_pat
         mod.settings,
         sku="audit",
         email="buyer@example.com",
-        price_id="price_1TRoGjDL3cQl851oiIWR5JIa",
+        price_id="price_eolkits_audit_v2_test",
         price_usd=299,
         metadata={"upload_id": "upload1"},
         success_path="/success",
@@ -1346,7 +1441,7 @@ def test_real_test_mode_checkout_uses_inline_price_and_validates_webhook(tmp_pat
             "metadata": {
                 "project": "eolkits",
                 "sku": "audit",
-                "price_id": "price_1TRoGjDL3cQl851oiIWR5JIa",
+                "price_id": "price_eolkits_audit_v2_test",
                 "pricing_mode": "inline_test",
             },
             "line_items": {"data": [{"price": {"id": "price_dynamic_test"}}]},

@@ -24,10 +24,10 @@ def _trunc(value: Any, limit: int = 120) -> str | None:
 
 
 class Store:
-    def __init__(self, db_path: Path):
+    def __init__(self, db_path: Path, *, initialize: bool = True):
         self.db_path = db_path
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        self.init()
+        if initialize:
+            self.init()
 
     @contextmanager
     def connect(self) -> Iterator[sqlite3.Connection]:
@@ -53,6 +53,7 @@ class Store:
             conn.close()
 
     def init(self) -> None:
+        self.db_path.parent.mkdir(parents=True, exist_ok=True)
         with self.connect() as conn:
             conn.executescript(
                 """
