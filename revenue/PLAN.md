@@ -30,7 +30,8 @@ is required. At a $299 price:
 - 14 no-refund domestic sales: $4,060.42;
 - 15 domestic sales with one full refund: $4,051.45, but the same mix using
   international cards plus conversion nets only $3,939.25; and
-- 16 international-plus-conversion sales with one full refund: $4,221.80.
+- 16 international-plus-conversion sales with one full refund: $4,221.50,
+  including the additional $0.30 refund fixed fee in Stripe's July 2026 policy.
 
 The provisional operating target is therefore **16 initial sales**, not 15.
 This is a target, not a forecast, and still assumes a US standard-pricing Stripe
@@ -357,3 +358,27 @@ public-v2 consumer monitor, automatic VS falsifier, and fail-closed status
 monitor required by that sequence. GRACE access and runtime secrets are absent
 from repository automation, so deployment/identity actions remain in the Human
 Queue instead of being guessed or bypassed.
+
+## Recovery ship result — 2026-08-30T05:21:42Z
+
+Recovery PR [#25](https://github.com/ntoledo319/EOLkits/pull/25) merged as
+`47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`. Its full pull-request suite and
+all merge-triggered release, deterministic, property, public-consumer, and Pages
+checks passed. `main`, `marketing-machine-v2`, and public `v2` were then
+fast-forwarded without force to that exact commit; raw public `@v2/action.yml`
+resolves.
+
+One-use draft run
+[33294414373](https://github.com/ntoledo319/EOLkits/actions/runs/33294414373)
+passed. Canonical release `375063073` is the only v2 draft, now has tag
+`v2.0.0`, targets exact public-v2 commit `47cd9eae...`, is private/non-prerelease,
+and has zero assets. The one-use push trigger is removed in this finalization
+tree, restoring owner-confirmed manual dispatch only.
+
+Collected revenue and profit remain **$0**; the gap remains **$4,000**; checkout
+remains **closed**. Repository work is no longer the launch blocker. The owner
+must now execute `HUMAN_QUEUE.md`, beginning with the three-minute emergency
+GRACE containment. Marketplace publication needs only the required agreement,
+checkbox, and 2FA ceremony; live checkout stays forbidden until the closed v2
+deploy, injected-script removal, full test/refund proof, legal facts, DEV cleanup,
+and new catalog attestation pass.

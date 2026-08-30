@@ -104,8 +104,9 @@ select the Marketplace checkbox, and complete 2FA.
 
 Steps:
 
-1. After Codex reports the draft-synchronization run green, open the sole private
-   draft (release id `375063073`) at
+1. Draft-synchronization run
+   <https://github.com/ntoledo319/EOLkits/actions/runs/33294414373> is green.
+   Open the sole private draft (release id `375063073`) at
    <https://github.com/ntoledo319/EOLkits/releases/tag/untagged-ea8be73c7a7d9b6c45e7>.
    GitHub regenerates this `untagged-<hex>` slug every time the draft is
    resynced by `prepare-marketplace-v2.yml` (it already changed once between

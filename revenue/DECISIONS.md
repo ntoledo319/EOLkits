@@ -983,7 +983,32 @@ cannot pass the gate. At 05:00 UTC the result is still pending; do not claim a
 failure before the deadline and do not claim demand from 193 cumulative
 downloads.
 
-## D50 — repair the stale HQ-5 release link before the owner could hit a 404
+## D50 — publish one immutable recovery tree, then automate only the safe draft mutation
+
+Merged the fully green recovery through PR #25 rather than rewriting remote
+history. After every merge-triggered workflow passed, fast-forwarded `v2` and
+`marketing-machine-v2` without force to exact recovery commit `47cd9eae...` and
+verified the public Action bytes. This restores the advertised consumer ref
+while preserving the audited marketing ancestry.
+
+The connected GitHub capability cannot dispatch workflows or update Releases
+directly, while asking the owner to perform a routine dispatch would waste the
+scarce human budget. PR #26 therefore introduced a deliberately one-use push
+authorization: it accepted only the owner-attributed first main update whose
+`before` SHA was exact verified recovery commit `47cd9eae...`; checked out and
+validated that immutable release tree; required public `v2` to equal it; and
+retained the canonical-ID, duplicate, public-release, and postcondition guards.
+Run `33294414373` succeeded and read-after-write API verification confirmed the
+sole private draft now targets exact public v2 with tag `v2.0.0`. Remove that
+temporary push trigger immediately in the finalization tree and retain only the
+explicit owner-confirmed dispatch path.
+
+This automates a reversible private-draft edit, not the GitHub Marketplace
+publication ceremony. The agreement, Marketplace checkbox, and 2FA remain in
+HQ-5 because they are account-holder attestations. It also does not weaken the
+commerce gate: checkout remains closed and observed revenue/profit remain $0.
+
+## D51 — reconcile a parallel `marketing-machine-v2` fix for the same stale HQ-5 link, then merge branches
 
 Cycle-start egress test repeated the standing method: direct `curl` through the
 configured proxy to `example.com` and `docs.aws.amazon.com` both returned HTTP
@@ -1003,35 +1028,32 @@ for ISO and prose (`Month Day, Year` / `Month Year`) dates against those same
 two corroborated internal sources: no further errors beyond the two already
 recorded in `launch/distribution/devto/README.md`.
 
-Found a different, live defect instead, using `api.github.com`/`github.com`
-reads scoped to this repo (reachable even while `example.com` and
-`docs.aws.amazon.com` are blocked): `revenue/HUMAN_QUEUE.md`'s HQ-5 step 1
-pointed the owner at
+This cycle started from `origin/marketing-machine-v2` at `47cd9ea` (per the
+standing "fetch/checkout/pull first" step) and, before pulling `main`,
+independently found the same defect D50 above had already fixed on `main`:
+`revenue/HUMAN_QUEUE.md`'s HQ-5 step 1 pointed the owner at
 `https://github.com/ntoledo319/EOLkits/releases/tag/untagged-0866963caf3f06db98a1`,
-written at the prior cycle's `01:09:09-04:00` (`90722cd`). Nine minutes later,
-PR #26's "Prepare Marketplace v2 draft" run (`33294414373`, commit
-`79888beb`) resynced the same draft release (id `375063073` — confirmed
-unchanged) and GitHub regenerated its `untagged-<hex>` slug to
-`untagged-ea8be73c7a7d9b6c45e7`; `get_release_by_tag` on the old slug now
-404s. The owner's next click on the irreducible HQ-5 action — the fastest
-remaining route to a first dollar per `OPPORTUNITIES.md` — would have hit a
-dead link inside their tightly-budgeted 60-minute queue. Verified via the
-GitHub API that the current draft still says `v2.0.0`, still targets
-`47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`, and that both the `v2` and
-`marketing-machine-v2` branch heads equal that same commit, so HQ-5's
-"same green commit" precondition holds. Corrected the link, noted the id
-(`375063073`) as the durable identifier, and added a fallback instruction
-(open the Releases list and pick the one draft named "Rupture AWS
-Deprecation Check v2.0.0") since this slug will keep regenerating on every
-future resync and a single corrected link is not durable against that.
-
-Historical mentions of the old slug in `DECISIONS.md` and `METRICS.md` are
-timestamped ledger entries describing what was true at the time and were left
-unedited; only the live instruction file was stale and in need of a fix.
+written at `01:09:09-04:00` (`90722cd`, `marketing-machine-v2`'s tip at the
+time). Nine minutes later, PR #26's "Prepare Marketplace v2 draft" run
+(`33294414373`, commit `79888beb`, `main`-only) resynced the same draft
+release (id `375063073`) and GitHub regenerated its `untagged-<hex>` slug to
+`untagged-ea8be73c7a7d9b6c45e7`, but `main`'s fix had not yet reached
+`marketing-machine-v2`, which had continued on its own line through PR #25's
+merge commit `47cd9ea` without picking up `main`'s 4 subsequent commits.
+Independently corrected the same link on `marketing-machine-v2` (matching
+`main`'s value), then discovered the divergence when pulling `main` for this
+entry: `47cd9ea` is the true common ancestor, and both onward lines are pure
+additions to `revenue/*.md` and unrelated `.github/workflows/*` changes — no
+destructive rewrite on either side. Merged `origin/main` into
+`marketing-machine-v2` (not rebase, to keep both commit lines intact),
+renumbered this branch's `D50` to `D51` to avoid colliding with `main`'s `D50`
+above, and kept both `HUMAN_QUEUE.md` improvements: `main`'s corrected URL plus
+this branch's added durable-release-id note and Releases-list fallback (the
+slug will keep regenerating on every future resync).
 
 No price, checkout, Stripe, GRACE, DEV-account, or Marketplace-publication
-state changed — HQ-5 itself is still an owner-only 2FA/agreement action. But
-the instructions the owner will actually follow are now correct, which is the
-externally-relevant surface an autonomous cycle controls here. Collected
-profit remains $0; the gap remains $4,000. HQ-0 through HQ-4, the corrected
-HQ-5, and HQ-6/HQ-7 are otherwise unchanged and still require the owner.
+state changed. Collected profit remains $0; the gap remains $4,000. HQ-0
+through HQ-4, the corrected HQ-5, and HQ-6/HQ-7 are otherwise unchanged and
+still require the owner. Future cycles should pull `main` before diagnosing
+`marketing-machine-v2`-only state, since the two branches can now silently
+diverge on ordinary pushes to either one.

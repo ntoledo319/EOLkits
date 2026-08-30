@@ -825,7 +825,32 @@ benchmarks, or unverified analytics in this ledger.
   **$4,000**. Stripe account-wide activity was not accessible, so this remains a
   workspace-evidence statement rather than an account-wide assertion.
 
-## Stale HQ-5 release link repaired — 2026-08-30T06:16:56Z
+## Recovery merge, ref, Pages, and draft evidence — 2026-08-30T05:21:42Z
+
+- Recovery PR [#25](https://github.com/ntoledo319/EOLkits/pull/25) merged as
+  `47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`. All PR checks passed: Determinism,
+  Property-based tests, public-v2 consumer, and all 13 release-surface jobs.
+- Every observed push workflow for merge commit `47cd9eae...` completed
+  successfully: IndexNow `33294128597`, Determinism `33294128605`, acquisition
+  evidence `33294128603`, public-v2 consumer `33294128614`, Property tests
+  `33294128644`, reviewed Pages deploy `33294128599`, release surfaces
+  `33294128598`, and GitHub's Pages deployment `33294128433`.
+- Read-after-write ref verification showed `main`, `refs/heads/v2`, and
+  `refs/heads/marketing-machine-v2` all at exact `47cd9eae...`; public raw
+  `v2/action.yml` returned the expected Action definition.
+- One-use synchronization PR [#26](https://github.com/ntoledo319/EOLkits/pull/26)
+  passed all three required suites and merged as `79888beb...`. Owner-attributed
+  push run
+  [33294414373](https://github.com/ntoledo319/EOLkits/actions/runs/33294414373)
+  completed successfully. Read-after-write release verification found canonical
+  ID `375063073`, tag `v2.0.0`, target `47cd9eae...`, expected name, `draft=true`,
+  `prerelease=false`, and zero assets. All other workflows on `79888beb...` also
+  passed. The temporary trigger is removed by the finalization tree.
+- This is distribution/release evidence, not demand. Qualified issues: **0**.
+  Paid reports: **0**. Workspace-observed collected revenue: **$0**.
+  Workspace-observed collected profit: **$0**. Target gap: **$4,000**.
+
+## Stale HQ-5 release link repaired, branches reconciled — 2026-08-30T06:16:56Z
 
 - Egress test repeated (fourth consecutive cycle): `curl` through the
   configured proxy to `example.com` and `docs.aws.amazon.com` both returned
@@ -853,7 +878,13 @@ benchmarks, or unverified analytics in this ledger.
   would have 404'd. Corrected the link in `revenue/HUMAN_QUEUE.md` to the
   current `untagged-ea8be73c7a7d9b6c45e7` slug, recorded the durable release id
   (`375063073`), and added a Releases-list fallback since the slug will keep
-  regenerating on future resyncs. See DECISIONS D50.
+  regenerating on future resyncs.
+- Discovered mid-cycle that `main` had already fixed the same link (its own
+  entry immediately above, via PR #26) through 4 commits `marketing-machine-v2`
+  had not yet merged since diverging at `47cd9ea`. Merged `origin/main` into
+  `marketing-machine-v2` — a pure-addition merge on both sides, no destructive
+  rewrite — and kept both fixes' value (main's corrected URL, this branch's
+  durable-id note and fallback). See DECISIONS D51.
 - No price, checkout, Stripe, GRACE, DEV-account, or Marketplace-publication
   state changed. Qualified issues: **0**. Paid reports: **0**.
   Workspace-observed collected revenue: **$0**. Workspace-observed collected
