@@ -2,11 +2,11 @@ name: Retire legacy Cloudflare commerce
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - .github/workflows/retire-legacy-cloudflare.yml
-      - apps/worker/**
+    inputs:
+      confirmation:
+        description: Type RETIRE_EXACT_LEGACY_CLOUDFLARE_WORKER
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -25,8 +25,24 @@ jobs:
     env:
       WRANGLER_SEND_METRICS: 'false'
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - name: Authorize the production credential operation
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+          EXPECTED_OWNER: ntoledo319
+          EXPECTED_REPOSITORY: ntoledo319/EOLkits
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]
+          [[ "$GITHUB_REPOSITORY" == "$EXPECTED_REPOSITORY" ]]
+          [[ "$GITHUB_REF" == 'refs/heads/main' ]]
+          [[ "$GITHUB_ACTOR" == "$EXPECTED_OWNER" ]]
+          [[ "$GITHUB_TRIGGERING_ACTOR" == "$EXPECTED_OWNER" ]]
+          [[ "$CONFIRMATION" == 'RETIRE_EXACT_LEGACY_CLOUDFLARE_WORKER' ]]
+
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '24'
 
@@ -34,6 +50,7 @@ jobs:
         working-directory: apps/worker
         run: |
           set -euo pipefail
+          mkdir -p "$GITHUB_WORKSPACE/tmp/legacy-worker-proof"
           # Assigned by the workflow-level environment.
           # shellcheck disable=SC2154
           mkdir -p "$TMPDIR" "$npm_config_cache"
@@ -70,7 +87,7 @@ jobs:
             if jq -e \
               '.ok == false and .retired == true and
                .replacement == "https://eolkits.com/api/capabilities"' \
-              <<<"$health" >/dev/null 2>&1; then
+              <<<"$health" >"$GITHUB_WORKSPACE/tmp/legacy-worker-proof/health-attempt.json" 2>&1; then
               break
             fi
             sleep 5
@@ -79,7 +96,7 @@ jobs:
           jq -e \
             '.ok == false and .retired == true and
              .replacement == "https://eolkits.com/api/capabilities"' \
-            <<<"$health" >/dev/null
+            <<<"$health" >"$GITHUB_WORKSPACE/tmp/legacy-worker-proof/health-final.json"
 
           for path in checkout api/checkout pack/install webhook/stripe; do
             status=''
@@ -87,7 +104,8 @@ jobs:
             while (( attempt < 12 )); do
               attempt=$((attempt + 1))
               status="$(curl --silent --show-error --max-time 20 \
-                --output /dev/null --write-out '%{http_code}' \
+                --output "$GITHUB_WORKSPACE/tmp/legacy-worker-proof/${path//\//-}.body" \
+                --write-out '%{http_code}' \
                 "$LEGACY_WORKER_URL/$path")"
               if [[ "$status" == '410' ]]; then
                 break
@@ -165,7 +183,8 @@ jobs:
               echo '- Route cleanup: exact route found, but deletion was not permitted.' >> "$GITHUB_STEP_SUMMARY"
               exit 0
             fi
-            jq -e '.success == true' <<<"$deletion" >/dev/null
+            jq -e '.success == true' <<<"$deletion" \
+              >"$GITHUB_WORKSPACE/tmp/legacy-worker-proof/route-$route_id.json"
             removed=$((removed + 1))
           done
 

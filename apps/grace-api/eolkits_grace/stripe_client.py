@@ -7,6 +7,7 @@ import requests
 from .config import Settings
 
 STRIPE_API_BASE = "https://api.stripe.com"
+AUDIT_PRICE_CENTS = 29_900
 
 
 def _auth_headers(settings: Settings, *, idempotency_key: str | None = None) -> dict[str, str]:
@@ -47,6 +48,56 @@ def stripe_get(settings: Settings, path: str, params: dict | None = None) -> dic
     if not response.ok:
         raise RuntimeError(f"Stripe API error ({response.status_code}): {response.text}")
     return response.json()
+
+
+def attest_live_audit_price(settings: Settings) -> dict[str, str | int | bool]:
+    """Read and validate the exact live v2 catalog objects before any charge.
+
+    This is deliberately a GET-only preflight. It neither creates nor activates
+    catalog objects, and it never treats possession of a live key as proof that
+    the configured Price is usable.
+    """
+    settings.require_audit_price_configuration()
+    price = stripe_get(
+        settings,
+        f"/v1/prices/{settings.audit_price_id}",
+        params={"expand[]": ["product"]},
+    )
+    product = price.get("product")
+    failures: list[str] = []
+    if price.get("id") != settings.audit_price_id:
+        failures.append("price identity mismatch")
+    if price.get("object") != "price":
+        failures.append("unexpected catalog object")
+    if price.get("active") is not True:
+        failures.append("price inactive")
+    if price.get("livemode") is not True:
+        failures.append("price is not live mode")
+    if str(price.get("currency") or "").lower() != "usd":
+        failures.append("price currency is not usd")
+    if price.get("unit_amount") != AUDIT_PRICE_CENTS:
+        failures.append("price amount is not 29900 cents")
+    if price.get("type") != "one_time" or price.get("recurring") is not None:
+        failures.append("price is recurring")
+    if not isinstance(product, dict):
+        failures.append("product was not expanded")
+    elif product.get("object") != "product":
+        failures.append("unexpected product object")
+    elif product.get("id") != settings.audit_product_id:
+        failures.append("product identity mismatch")
+    else:
+        if product.get("active") is not True:
+            failures.append("product inactive")
+        if product.get("livemode") is not True:
+            failures.append("product is not live mode")
+    if failures:
+        raise RuntimeError("Audit v2 Stripe catalog attestation failed: " + "; ".join(failures))
+    return {
+        "ok": True,
+        "amount": AUDIT_PRICE_CENTS,
+        "currency": "usd",
+        "livemode": True,
+    }
 
 
 def create_checkout_session(

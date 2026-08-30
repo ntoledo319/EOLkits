@@ -757,3 +757,70 @@ benchmarks, or unverified analytics in this ledger.
   Stripe, GRACE, DEV, or Marketplace state changed. Qualified issues: **0**.
   Paid reports: **0**. Workspace-observed collected revenue: **$0**.
   Workspace-observed collected profit: **$0**. Target gap: **$4,000**.
+
+## Branch reconstruction and second DEV corpus error found — August 29, 2026
+
+- `marketing-machine-v2` did not exist on `origin` at cycle start (confirmed
+  via `git ls-remote --heads` and the GitHub API `list_branches`/
+  `list_pull_requests`) — merged commit `0c9dfec` ("Integrate corrected Lambda
+  Node.js 16 lifecycle data (#24)") had already carried its unique work into
+  `main`, and `deploy-pages.yml` (the actual eolkits.com publisher) triggers
+  only on `main`. Recreated the branch from current `main` per the runbook's
+  "designated branch already merged" case; see DECISIONS D44.
+- Cycle-start state on `main`: `apps/web/BUILD_DATE` already `2026-08-29`
+  (today), `pytest -q apps/web` 35/35 green, and `apps/web/build.py` rebuild
+  against CI env vars produced a clean `git diff --exit-code -- docs` — no
+  drift to correct this cycle.
+- Egress test repeated (same method as D42/D43): direct `curl` through the
+  configured proxy to `example.com` and `docs.aws.amazon.com` both returned
+  HTTP 403; proxy status endpoint confirmed the proxy itself is reachable. No
+  new repost-answers batch or dev.to draft produced this cycle per AGENTS.md's
+  fallback.
+- Cross-checked all 25 quarantined `launch/distribution/devto/*.md` drafts'
+  hard-coded lifecycle dates against `rules/public/deprecations.yml` and
+  `kits/lambda-lifeline/src/scan/index.mjs`'s `PHASE_DATES` (both already
+  internally corroborated, no external fetch needed). Found article 04's
+  timeline table lists `python3.10` "Deprecated 2026-03-31"; both internal
+  sources say 2026-10-31 (it matches `ruby3.2`'s phase-1 date instead — a
+  likely copy/mix-up). Documented as a second "Known critical error" in
+  `launch/distribution/devto/README.md`, following the existing article-24
+  pattern (README note only; the archived draft itself is left as an
+  unedited mirror of the still-live post for the owner's HQ-4 review).
+- No price, checkout, Stripe, GRACE, DEV-account, or Marketplace state
+  changed. Qualified issues: **0**. Paid reports: **0**. Workspace-observed
+  collected revenue: **$0**. Workspace-observed collected profit: **$0**.
+  Target gap: **$4,000**.
+
+## From-the-top recovery evidence — 2026-08-30T05:00:57Z
+
+- Public `refs/heads/v2` was recreated without force at exact fully green main
+  commit `0c9dfec25004066df2cc277f9ee1205f52e151a4`; public raw `action.yml`
+  resolves. This is restored distribution infrastructure, not an external use
+  or sale.
+- `https://eolkits.com/` returned HTTP 200 from Caddy at `15.204.209.97` and
+  still contained one injected `https://stats.saiditright.com/script.js` tag.
+  `https://ntoledo319.github.io/EOLkits/` returned the clean generated document
+  without that tag. The custom host's CSP currently blocks the script; the raw
+  host configuration is still unremediated.
+- Live GRACE remained pre-v2: capability/status routes were unavailable and the
+  old public upload service remained reachable during the audit. Checkout stays
+  closed. An emergency Caddy deny block and stopped-volume safe-rollout path are
+  prepared but cannot be installed without GRACE access.
+- Local verification: al2023-gate **49**, python-pivot **50**, Lambda kit **28**,
+  Worker **39**, GRACE API **78**, runner **33**, and web **35** tests passed.
+  VS Code compile/lint/rules/package, Worker TypeScript, Ruff, Black, mypy,
+  sample-PDF verification, 16 workflow YAML parses, snapshot ShellCheck, and a
+  repeat generated-site hash comparison all passed.
+- Current dependency evidence: four locked Python graphs reported no known
+  vulnerabilities; three Node production audits reported zero vulnerabilities;
+  98 non-dev Node package records had no forbidden or missing license
+  declarations. Container builds remain delegated to GitHub CI because local
+  Docker would violate the workspace-jail operating decision.
+- VS v1.1.0 public evidence observed during the audit: **103 installs**, **193
+  downloads**, **0 install growth** from baseline, and **0 qualified external
+  authors**. The gate deadline is `2026-08-30T11:15:00Z`, so the result remains
+  pending rather than being called early.
+- Qualified issues: **0**. Paid reports: **0**. Workspace-observed collected
+  revenue: **$0**. Workspace-observed collected profit: **$0**. Target gap:
+  **$4,000**. Stripe account-wide activity was not accessible, so this remains a
+  workspace-evidence statement rather than an account-wide assertion.

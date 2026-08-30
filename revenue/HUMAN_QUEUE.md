@@ -1,196 +1,156 @@
-# Batched owner queue — maximum 34 minutes
+# Batched owner queue — authoritative August 30, 2026 — maximum 43 minutes
 
-Reconfirmed August 28 (egress-restricted cloud environment, second consecutive
-day): no new owner-queue item was added or resolved. This cycle's fetch/curl
-access to external domains was again blocked (see revenue/DECISIONS.md D43),
-so it shipped an in-jail site-truth fix (stale `BUILD_DATE` correction)
-instead of touching any HQ item below. The queue and its 34-minute total are
-unchanged from the prior reconciliation.
+Codex owns the repository, CI, branch synchronization, release-draft
+preparation, monitoring, and evidence review. The items below are the only
+remaining actions because they require production-host credentials, legal facts,
+account ownership, a platform agreement/2FA ceremony, or communication as the
+owner. Do them in order. Do not use any older launch handoff.
 
-Reconfirmed August 27 (later cycle, egress-restricted cloud environment): no
-new owner-queue item was added or resolved. This cycle's fetch/curl access to
-external domains was blocked (see revenue/DECISIONS.md D42), so it shipped an
-in-jail free-tier data-completeness fix instead of touching any HQ item below.
-The queue and its 34-minute total are unchanged from the prior reconciliation.
+## HQ-0 — contain the public stale upload service now (3 minutes)
 
-Last reconciled August 27 after Codex used the connected repository-owner
-identity to complete the exact Stripe retirement and publish
-`rupture.rupture-vscode@1.1.0`. Stripe run `32840968816` passed every bounded
-audit, mutation, cleanup, and tombstone step. VS run `32841331222` passed every
-exact-SHA, test, package, identity, and publication step. Both temporary
-one-shot triggers were removed immediately; the permanent workflows are again
-manual-only. No owner dispatch or run monitoring remains.
-
-Daily VS/acquisition evidence is also autonomous now. Public run `33028483868`
-passed at reconciled commit `2d19a797`; inspected artifact `9629312207` keeps
-cumulative Marketplace counters separate from qualified interest and dollars.
-No owner telemetry step is queued.
-
-The custom host still injects `https://stats.saiditright.com/script.js` into
-every tested page. The generated CSP deployed on August 26 and blocks that exact
-external script, but the raw injection remains and verifier `32946397287` is
-correctly red. Custom-domain IndexNow must remain blocked. This privacy fix is
-part of HQ-3. The smallest useful owner batch is the residual Stripe
-credential cleanup in HQ-2 plus the GitHub Marketplace UI action in HQ-5: five
-minutes total.
-
-Codex also removed two obsolete untagged v2 release drafts, retained only the
-canonical draft, corrected the repository description, and routed the repository
-homepage to the verified free-first Pages surface. No owner cleanup or metadata
-action remains for those items.
-
-Do the HQ-2 key rotation first because historical Cloudflare versions can retain
-secret snapshots. Then do HQ-5 so the repaired, fail-closed Pages funnel starts
-receiving GitHub Marketplace distribution. Complete HQ-1, HQ-3, HQ-4, and
-finally HQ-7. The VS acquisition release is complete; distribution state is not
-a checkout-safety gate, and checkout remains closed until HQ-7. No old handoff
-or launch file is authoritative.
-
-## HQ-1 — supply truthful seller/legal and cost facts (3 minutes)
-
-Why human-only: only the owner knows the legal seller/controller identity,
-address, governing-law choice, tax posture, actual Stripe account/pricing
-configuration, and whether the shared GRACE host adds any incremental cost.
+Why human-only: no GRACE SSH/control credential is available locally or in the
+repository's GitHub Actions secrets.
 
 Steps:
 
-1. Reply to the active Codex thread with the exact seller/legal name, business
+1. On the GRACE host, open the reviewed checkout of this repository.
+2. Install `deploy/grace/Caddyfile.eolkits-emergency-containment.block` before
+   the existing EOLkits proxy rules and reload Caddy using the host's existing
+   unprivileged deployment procedure.
+3. Run the first verification block in `deploy/grace/README.md`. Require upload
+   GET/POST/PUT and checkout/event mutations to return 503, obsolete App routes
+   to return 410, and the Stripe webhook route to remain proxied.
+4. Leave checkout off. Stop and report only the failing route/status if any
+   postcondition differs; do not improvise a broader firewall rule.
+
+## HQ-1 — provide seller, legal, and actual-cost facts (3 minutes)
+
+Why human-only: only the owner can attest to identity, address, jurisdiction,
+tax/cost posture, and the account's negotiated Stripe pricing.
+
+Steps:
+
+1. Reply in this Codex thread with the legal seller/controller name, business
    mailing address, governing jurisdiction, support/privacy email, and whether
-   EOLkits adds $0 incremental monthly cost to GRACE.
-2. From https://dashboard.stripe.com/settings, report the account country,
-   standard-versus-custom pricing status, charge/presentment currency, and
-   settlement currency. Do not share keys, customer data, or screenshots.
-3. If any value is unknown or the cost is above $0, say so. Checkout stays off;
-   do not guess. Recompute the sale target from the actual fee schedule before
-   HQ-7.
+   EOLkits adds exactly $0 incremental monthly cost to GRACE.
+2. In <https://dashboard.stripe.com/settings>, check account country,
+   standard-versus-custom pricing, presentment currency, and settlement
+   currency. Report only those facts—never keys, customer data, or screenshots.
+3. If any fact is unknown or cost is nonzero, say so. Checkout remains off and
+   the target math will be recomputed.
 
-Direct files: legal/terms.md and legal/privacy.md.
+## HQ-2 — revoke the retired production credential (3 minutes)
 
-## HQ-2 — finish retired Stripe credential cleanup (3 minutes)
-
-Why human-only: Codex completed and verified the exact catalog closure, but no
-connected Stripe account tool can rotate keys or edit webhook endpoints.
+Why human-only: key rotation and webhook ownership require Stripe account
+control. The exact catalog retirement itself is already green in run
+<https://github.com/ntoledo319/EOLkits/actions/runs/32840968816>.
 
 Steps:
 
-1. Evidence is already green at
-   https://github.com/ntoledo319/EOLkits/actions/runs/32840968816. Do not rerun
-   the retirement workflow: its exact six Prices and approved Payment Links are
-   inactive, settlement/subscription/schedule checks are clear, and the current
-   Worker Stripe binding was removed.
-2. Open https://dashboard.stripe.com/apikeys and rotate/revoke
-   the legacy live key used by the old Worker/GRACE deployment. Historical
-   Cloudflare versions retain old secret snapshots, so deleting the current
-   Worker binding is not account-level revocation. Keep transaction history.
-   Create/configure a distinct least-privilege production key only during HQ-3.
-3. In https://dashboard.stripe.com/webhooks, remove only the endpoint pointing
-   to the retired Cloudflare Worker after HQ-3 proves the replacement test
-   webhook. Do not remove unrelated endpoints.
+1. Open <https://dashboard.stripe.com/apikeys> and revoke/rotate the legacy live
+   key used by the retired Worker or stale GRACE service. Historical Cloudflare
+   versions can retain secret snapshots; removing a current binding was not
+   account-level revocation.
+2. Keep all transaction history. Do not reactivate any old Price or Payment Link.
+3. After HQ-3 proves the replacement test webhook, remove only the webhook
+   endpoint that targets the retired Cloudflare Worker at
+   <https://dashboard.stripe.com/webhooks>. Do not remove unrelated endpoints.
 
-## HQ-3 — deploy Audit v2 closed and prove test fulfillment (15 minutes)
+## HQ-3 — deploy Audit v2 closed and prove fulfillment (16 minutes)
 
-Why human-only: GRACE SSH access plus Stripe/Resend secrets and test Checkout UI.
+Why human-only: this needs GRACE access and private Stripe-test/Resend values;
+the repository capability audit found neither deploy transport nor a complete
+runtime bundle.
 
 Steps:
 
-1. Open deploy/grace/README.md in this repository and follow “Deploy checkout
-   closed” exactly with EOLKITS_AUDIT_CHECKOUT_ENABLED=0.
-2. The static product-copy repair already passed scheduled verifier runs
-   `32626994756`, `32705925984`, and `32825272945`; do not repeat that work.
-   On the GRACE host, locate the Caddy/proxy/template/post-processing rule that
-   injects `https://stats.saiditright.com/script.js` and remove it. This script
-   is not an authorized EOLkits analytics provider. Do not replace it with a
-   different third-party tag.
-3. Deploy the current reviewed `marketing-machine-v2` head with checkout still
-   disabled and require its tree to match canonical `main`. Verify raw HTML on
-   `/`, `/audit/`, `/pack/`, `/drift/`, and `/success/` contains the generated
-   `Content-Security-Policy` meta and contains no cross-origin script. Rerun
-   “Verify GRACE static release” and require green before continuing.
-4. Confirm the deployed commit SHA and that public /api/capabilities reports
-   report_version 2.0 with checkout_enabled false.
-5. Follow “Test-mode E2E deployment” using the separate test Compose project,
-   test Stripe keys, an operator-owned delivery email, and Stripe's test card.
-6. Capture evidence of: presign, immutable PUT, Checkout completion, verified
-   webhook, exactly one job, real PDF, Resend delivery, signed download, matching
-   verification lookup, and source/report retention.
-7. Exercise failed fulfillment and confirm a full exact-payment refund is
-   initiated, correlated by refund ID/amount, and either succeeds or remains
-   visibly pending for reconciliation.
-8. Tear down only the separate test project. Leave production checkout off.
+1. Follow `deploy/grace/README.md` from “Safe rollout order” through the complete
+   checkout-closed deployment. Use the final green main tree only.
+2. Build the image and run `python -m eolkits_grace.preflight` without the
+   production volume. Then run `bash deploy/grace/snapshot-api-volume.sh`; it
+   stops the exact old container, creates a restricted SHA-256-checked snapshot,
+   and restarts it on failure.
+3. Deploy with `EOLKITS_AUDIT_CHECKOUT_ENABLED=0`. Replace the emergency block
+   with `Caddyfile.eolkits-api.block` only after loopback health, status, and
+   capability probes prove Audit report version 2.0 and checkout false.
+4. Remove the Caddy/template/post-processing rule that injects
+   `https://stats.saiditright.com/script.js`. Do not replace it with another
+   third-party tag. Deploy the reviewed static tree and require raw HTML on `/`,
+   `/audit/`, `/pack/`, `/drift/`, and `/success/` to contain the generated CSP
+   and no cross-origin script.
+5. Use the separate test Compose project and Stripe test card to prove presign,
+   immutable PUT, signed webhook, exactly one job, real PDF, Resend delivery,
+   signed download, matching verification lookup, retention, and full-refund
+   handling on forced failure. Tear down only the test project.
+6. Leave production checkout off and report the deployed full commit SHA plus
+   pass/fail only; never post hostnames, tokens, customer data, or secret values.
 
-## HQ-4 — remove false DEV promotion (10 minutes)
+## HQ-4 — unpublish the false DEV corpus (10 minutes)
 
-Why human-only: platform posting/editing is a communication as the owner.
+Why human-only: unpublishing is communication as the owner.
 
 Steps:
 
-1. Open https://dev.to/dashboard.
-2. Unpublish all 25 EOLkits posts as one batch. The repository copies are now
-   individually quarantined, but that does not alter the already-live DEV posts.
-   The corpus contains unqualified account-wide/zero-telemetry/closed-product
-   claims and obsolete `eolkits.com` canonicals; article 24 additionally invents
-   a universal December 31, 2025 IMDSv2 enforcement deadline.
-3. Do not edit or republish during this batch. A later post may return only after
-   its dates and scope match current primary sources and its links point to the
-   verified Pages funnel.
-4. Do not add new promotional posts in this batch.
+1. Open <https://dev.to/dashboard>.
+2. Unpublish all 25 EOLkits posts. The local copies are quarantined, but the live
+   corpus still contains unsupported telemetry/account-wide claims, obsolete
+   links, and at least two documented lifecycle-date errors.
+3. Do not edit, replace, or publish a new promotional post in this batch.
 
-## HQ-5 — publish the prepared GitHub Marketplace draft (2 minutes)
+## HQ-5 — publish the canonical GitHub Marketplace v2 release (2 minutes)
 
-Why human-only: Marketplace developer agreement, 2FA, and release checkbox.
+Why human-only: GitHub requires the owner to accept the developer agreement,
+select the Marketplace checkbox, and complete 2FA.
 
 Steps:
 
-1. After final main CI is green, open the private prepared draft directly:
-   https://github.com/ntoledo319/EOLkits/releases/tag/untagged-0866963caf3f06db98a1
-   This is the sole canonical draft created by green run `32604619021`; Codex
-   already deleted the two obsolete untagged drafts.
-2. Verify it is v2.0.0 targeting green commit `a9cdcaeb`. Public `v2` points to
-   green commit `9c231b58`, whose `action.yml` and `apps/github-action/` files are
-   byte-identical to the draft target. Check
-   “Publish this Action to the GitHub Marketplace,” keep the existing
-   Marketplace identity, and publish with 2FA. Do not create a second listing
-   or a second release. Stop if its Action files differ from public `v2`.
-3. Verify
-   https://github.com/marketplace/actions/rupture-aws-deprecation-check shows
-   v2.0.0 and the bounded release copy.
+1. After Codex reports the draft-synchronization run green, open the sole private
+   draft: <https://github.com/ntoledo319/EOLkits/releases/tag/untagged-0866963caf3f06db98a1>.
+2. Confirm the draft says v2.0.0 and targets the same green commit as public
+   `v2`. Select “Publish this Action to the GitHub Marketplace,” retain the
+   existing listing identity, and publish with 2FA. Do not create another draft,
+   release, or listing.
+3. Confirm <https://github.com/marketplace/actions/rupture-aws-deprecation-check>
+   shows v2.0.0. Stop if the commit identities differ.
 
-Official instructions:
-https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace
+## HQ-6 — remove repository configuration races (3 minutes)
 
-## Completed automatically — HQ-6 VS listing update (0 minutes)
-
-Codex published the exact `rupture.rupture-vscode@1.1.0` candidate from pinned
-commit `a9cdcaeb` in green owner-attributed run `32841331222`. The publisher log
-records `Published rupture.rupture-vscode v1.1.0.` The one-shot trigger was
-removed in remote commit `a8e8b45c`; the restored workflow is dispatch-only and
-also contains the Bash quoting repair discovered during preflight. The official
-Gallery index now reports v1.1.0 with a fresh 103-install / 166-download
-baseline. By August 27 it showed 103 installs / 183 downloads; the +17
-cumulative downloads and zero install growth are not qualified demand or
-revenue. No owner action is queued.
-
-## HQ-7 — enable the only checkout (1 minute)
-
-Why human-only: this begins accepting real customer money.
-
-Prerequisites: HQ-1 through HQ-4 complete, zero unresolved refund/fulfillment
-alerts, the exact production commit is verified, the generated CSP is live, and
-the GRACE verifier confirms no external script injection. HQ-2 has left all six
-historical Prices inactive, and HQ-6 is complete. HQ-5 should still happen for
-distribution, but its public listing state does not affect checkout safety.
+Why human-only: the connected GitHub integration can update code/refs but does
+not have repository-administration permission for Pages or rulesets.
 
 Steps:
 
-1. Reactivate only the canonical $299 Audit Price
-   `price_1TRoGjDL3cQl851oiIWR5JIa`; do not reactivate any other Price and do not
-   create a public Payment Link.
-2. Set EOLKITS_AUDIT_CHECKOUT_ENABLED=1 in the reviewed production environment.
-3. Redeploy only the Audit service and set repository variable
-   AUDIT_CHECKOUT_EXPECTED=true.
-4. Verify /api/capabilities reports Audit 2.0 ready, then confirm the static form
-   appears and creates one $299 input-bound Checkout Session.
+1. At <https://github.com/ntoledo319/EOLkits/settings/pages>, set Build and
+   deployment Source to **GitHub Actions** so the legacy `main/docs` publisher
+   cannot race the reviewed Pages workflow.
+2. At <https://github.com/ntoledo319/EOLkits/settings/rules>, create one active
+   branch ruleset targeting the default branch and `v2`; block branch deletion
+   and force pushes. Do not require a paid GitHub feature or change visibility.
 
-Estimated current owner total: 34 minutes. This leaves a 26-minute reserve for
-unrecorded prior owner work or one failed authentication attempt; do not exceed
-60 minutes without changing the plan.
+## HQ-7 — create the new catalog and enable the only checkout (3 minutes)
+
+Why human-only: this creates a live Stripe catalog object and begins accepting
+real customer money.
+
+Prerequisites: HQ-0 through HQ-4 are complete; no refund/fulfillment alert is
+open; raw custom-host HTML is injection-free; Audit 2.0 test delivery and refund
+evidence are green. HQ-5/HQ-6 improve distribution and resilience but are not
+allowed to weaken these safety gates.
+
+Steps:
+
+1. In Stripe live mode, create one new Product named for **EOLkits Audit v2** and
+   one active, one-time **USD $299.00** Price. Do not reuse/reactivate
+   `price_1TRoGjDL3cQl851oiIWR5JIa` or any other retired Price. Do not create a
+   public Payment Link.
+2. Put only the new exact IDs into `EOLKITS_AUDIT_PRODUCT_ID` and
+   `EOLKITS_AUDIT_PRICE_ID`; set `EOLKITS_AUDIT_CHECKOUT_ENABLED=1`.
+3. Run the documented no-volume, network-enabled preflight. It must attest exact
+   identity, object types, live/active state, one-time USD 29900 amount, and the
+   expanded Product. Redeploy only if it passes.
+4. Set repository variable `AUDIT_CHECKOUT_EXPECTED=true`; verify health/status,
+   `/api/capabilities`, the public form, and one $299 input-bound Checkout
+   Session. Do not self-charge in live mode.
+
+Estimated owner labor: **43 minutes**, leaving 17 minutes within the 60-minute
+cap for one failed login or host-specific reload step.

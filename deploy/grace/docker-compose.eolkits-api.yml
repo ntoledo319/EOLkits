@@ -1,5 +1,6 @@
 services:
   eolkits-api:
+    image: "eolkits-api:${EOLKITS_BUILD_SHA:-local}"
     build:
       context: /home/ubuntu/sites/eolkits-api
       dockerfile: apps/grace-api/Dockerfile

@@ -29,6 +29,7 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Resp
 from . import pricing
 from .config import settings
 from .email import EmailDeliveryError, render_audit_delivery_email, send_email
+from .preflight import validate_runtime_preflight
 from .security import sha256_hex, verify_stripe_signature
 from .store import Store
 from .stripe_client import (
@@ -89,9 +90,10 @@ _SITE_ORIGINS = (
     "https://ai.toledotechnologies.com",
 )
 
-store = Store(settings.db_path)
+store = Store(settings.db_path, initialize=False)
 logger = logging.getLogger("eolkits_grace")
 _PREFLIGHT_SLOTS = threading.BoundedSemaphore(settings.preflight_concurrency)
+_audit_catalog_attested = False
 
 
 class BoundedRequestBodyMiddleware:
@@ -179,10 +181,7 @@ class BoundedRequestBodyMiddleware:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Fail closed: refuse to run in production without live secrets.
-    settings.require_runtime_secrets()
-    settings.uploads_dir.mkdir(parents=True, exist_ok=True)
-    settings.reports_dir.mkdir(parents=True, exist_ok=True)
+    initialize_runtime_state()
     drain_task: asyncio.Task | None = None
     # Drain any jobs that were durably queued but not completed before a restart.
     if settings.environment.strip().lower() != "test":
@@ -198,6 +197,16 @@ async def lifespan(app: FastAPI):
     finally:
         if drain_task:
             drain_task.cancel()
+
+
+def initialize_runtime_state() -> None:
+    """Validate the runtime completely before touching the persistent volume."""
+    global _audit_catalog_attested
+    result = validate_runtime_preflight(settings)
+    _audit_catalog_attested = bool(result["catalog_attested"])
+    settings.uploads_dir.mkdir(parents=True, exist_ok=True)
+    settings.reports_dir.mkdir(parents=True, exist_ok=True)
+    store.init()
 
 
 app = FastAPI(title="EOLkits GRACE API", version="1.0.0", lifespan=lifespan)
@@ -243,6 +252,8 @@ def _audit_readiness() -> tuple[bool, str]:
         return False, "transactional email unavailable"
     if settings.is_production and not settings.stripe_is_live:
         return False, "payment processor unavailable"
+    if not _audit_catalog_attested:
+        return False, "payment catalog not attested"
     if not settings.data_dir.exists() or not os.access(settings.data_dir, os.W_OK):
         return False, "artifact storage unavailable"
     commerce = store.commerce_counts(7)
@@ -561,7 +572,7 @@ async def audit_checkout(
             status_code=409, detail="checkout session is being created; retry shortly"
         )
 
-    tier = pricing.audit_price_for_deadline(deadline)
+    tier = pricing.audit_price_for_deadline(deadline, stripe_price_id=settings.audit_price_id)
     price_id = tier["stripe_price_id"]
     price = int(tier["price_usd"])
     attribution = _attribution(source, utm_source, utm_medium, utm_campaign, kit)
@@ -1503,7 +1514,11 @@ def _validate_paid_session(
     price_id = _session_price_id(session) or metadata.get("price_id")
     # Historical raw Payment Links omitted metadata[sku]. Recover only from an
     # exact configured Price ID; never guess from amount or product copy.
-    sku = metadata.get("sku") or (pricing.sku_for_price_id(price_id) if price_id else None)
+    sku = metadata.get("sku") or (
+        pricing.sku_for_price_id(price_id, active_audit_price_id=settings.audit_price_id)
+        if price_id
+        else None
+    )
     if not sku:
         raise HTTPException(status_code=400, detail="missing or unrecognized sku")
     if expected_sku and sku != expected_sku:
@@ -1515,7 +1530,7 @@ def _validate_paid_session(
     if settings.is_production and livemode is False:
         raise HTTPException(status_code=400, detail="test-mode session rejected in production")
 
-    allowed = pricing.allowed_price_ids(sku)
+    allowed = pricing.allowed_price_ids(sku, active_audit_price_id=settings.audit_price_id)
     configured_price_id = metadata.get("price_id")
     inline_test_price = (
         not settings.is_production
@@ -1527,7 +1542,9 @@ def _validate_paid_session(
         raise HTTPException(status_code=400, detail="price id not recognized for sku")
     amount_total = session.get("amount_total")
     expected_amount = pricing.expected_amount_cents(
-        sku, configured_price_id if inline_test_price else price_id
+        sku,
+        configured_price_id if inline_test_price else price_id,
+        active_audit_price_id=settings.audit_price_id,
     )
     if expected_amount is None or amount_total is None or amount_total != expected_amount:
         raise HTTPException(status_code=400, detail="amount mismatch")
@@ -1596,7 +1613,11 @@ def _ingest_paid_session(session_id: str, background_tasks: BackgroundTasks) -> 
         payment_intent = _payment_intent_id(session)
         subscription_id = _subscription_id(session)
         price_id = _session_price_id(session) or metadata.get("price_id")
-        known_sku = pricing.sku_for_price_id(price_id) if price_id else None
+        known_sku = (
+            pricing.sku_for_price_id(price_id, active_audit_price_id=settings.audit_price_id)
+            if price_id
+            else None
+        )
         if (
             (metadata.get("project") == "eolkits" or known_sku is not None)
             and session.get("status") in (None, "complete")
@@ -1720,7 +1741,9 @@ def _ingest_paid_invoice(invoice: dict[str, Any], background_tasks: BackgroundTa
     price_id = None
     sku = None
     for candidate in _invoice_price_ids(invoice):
-        candidate_sku = pricing.sku_for_price_id(candidate)
+        candidate_sku = pricing.sku_for_price_id(
+            candidate, active_audit_price_id=settings.audit_price_id
+        )
         if candidate_sku in {"org_license", "drift_watch"}:
             price_id, sku = candidate, candidate_sku
             break
