@@ -982,3 +982,56 @@ or qualified VS-attributed authors. Download movement is retained as context but
 cannot pass the gate. At 05:00 UTC the result is still pending; do not claim a
 failure before the deadline and do not claim demand from 193 cumulative
 downloads.
+
+## D50 — repair the stale HQ-5 release link before the owner could hit a 404
+
+Cycle-start egress test repeated the standing method: direct `curl` through the
+configured proxy to `example.com` and `docs.aws.amazon.com` both returned HTTP
+403 (`CONNECT tunnel failed`); `$HTTPS_PROXY/__agentproxy/status` confirmed the
+proxy itself is reachable and logged both as `connect_rejected`. This is the
+fourth consecutive cycle with this exact domain-level block. Per AGENTS.md's
+fallback, no new repost-answers batch or dev.to draft was produced this cycle.
+
+`apps/web/BUILD_DATE` was already `2026-08-30` (today) at cycle start;
+`pytest -q apps/web` was 35/35 green and a full `apps/web/build.py` rebuild
+against the CI env vars produced a clean `git diff --exit-code -- docs` — no
+staleness to correct this cycle. Cross-checked `rules/public/deprecations.yml`
+against `kits/lambda-lifeline/src/scan/index.mjs`'s `PHASE_DATES` and
+`apps/web/content/fixes.yml` entry-by-entry (not just the runtimes touched by
+D42/D44) and scanned every quarantined `launch/distribution/devto/*.md` draft
+for ISO and prose (`Month Day, Year` / `Month Year`) dates against those same
+two corroborated internal sources: no further errors beyond the two already
+recorded in `launch/distribution/devto/README.md`.
+
+Found a different, live defect instead, using `api.github.com`/`github.com`
+reads scoped to this repo (reachable even while `example.com` and
+`docs.aws.amazon.com` are blocked): `revenue/HUMAN_QUEUE.md`'s HQ-5 step 1
+pointed the owner at
+`https://github.com/ntoledo319/EOLkits/releases/tag/untagged-0866963caf3f06db98a1`,
+written at the prior cycle's `01:09:09-04:00` (`90722cd`). Nine minutes later,
+PR #26's "Prepare Marketplace v2 draft" run (`33294414373`, commit
+`79888beb`) resynced the same draft release (id `375063073` — confirmed
+unchanged) and GitHub regenerated its `untagged-<hex>` slug to
+`untagged-ea8be73c7a7d9b6c45e7`; `get_release_by_tag` on the old slug now
+404s. The owner's next click on the irreducible HQ-5 action — the fastest
+remaining route to a first dollar per `OPPORTUNITIES.md` — would have hit a
+dead link inside their tightly-budgeted 60-minute queue. Verified via the
+GitHub API that the current draft still says `v2.0.0`, still targets
+`47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`, and that both the `v2` and
+`marketing-machine-v2` branch heads equal that same commit, so HQ-5's
+"same green commit" precondition holds. Corrected the link, noted the id
+(`375063073`) as the durable identifier, and added a fallback instruction
+(open the Releases list and pick the one draft named "Rupture AWS
+Deprecation Check v2.0.0") since this slug will keep regenerating on every
+future resync and a single corrected link is not durable against that.
+
+Historical mentions of the old slug in `DECISIONS.md` and `METRICS.md` are
+timestamped ledger entries describing what was true at the time and were left
+unedited; only the live instruction file was stale and in need of a fix.
+
+No price, checkout, Stripe, GRACE, DEV-account, or Marketplace-publication
+state changed — HQ-5 itself is still an owner-only 2FA/agreement action. But
+the instructions the owner will actually follow are now correct, which is the
+externally-relevant surface an autonomous cycle controls here. Collected
+profit remains $0; the gap remains $4,000. HQ-0 through HQ-4, the corrected
+HQ-5, and HQ-6/HQ-7 are otherwise unchanged and still require the owner.

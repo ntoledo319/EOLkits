@@ -105,11 +105,19 @@ select the Marketplace checkbox, and complete 2FA.
 Steps:
 
 1. After Codex reports the draft-synchronization run green, open the sole private
-   draft: <https://github.com/ntoledo319/EOLkits/releases/tag/untagged-0866963caf3f06db98a1>.
+   draft (release id `375063073`) at
+   <https://github.com/ntoledo319/EOLkits/releases/tag/untagged-ea8be73c7a7d9b6c45e7>.
+   GitHub regenerates this `untagged-<hex>` slug every time the draft is
+   resynced by `prepare-marketplace-v2.yml` (it already changed once between
+   the prior batch and this one), so if that exact link 404s, instead open
+   <https://github.com/ntoledo319/EOLkits/releases> and click the one draft
+   titled "Rupture AWS Deprecation Check v2.0.0" — do not open any other
+   release or draft.
 2. Confirm the draft says v2.0.0 and targets the same green commit as public
-   `v2`. Select “Publish this Action to the GitHub Marketplace,” retain the
-   existing listing identity, and publish with 2FA. Do not create another draft,
-   release, or listing.
+   `v2` (currently `47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`). Select “Publish
+   this Action to the GitHub Marketplace,” retain the existing listing
+   identity, and publish with 2FA. Do not create another draft, release, or
+   listing.
 3. Confirm <https://github.com/marketplace/actions/rupture-aws-deprecation-check>
    shows v2.0.0. Stop if the commit identities differ.
 

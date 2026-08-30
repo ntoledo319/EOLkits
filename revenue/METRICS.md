@@ -824,3 +824,37 @@ benchmarks, or unverified analytics in this ledger.
   revenue: **$0**. Workspace-observed collected profit: **$0**. Target gap:
   **$4,000**. Stripe account-wide activity was not accessible, so this remains a
   workspace-evidence statement rather than an account-wide assertion.
+
+## Stale HQ-5 release link repaired — 2026-08-30T06:16:56Z
+
+- Egress test repeated (fourth consecutive cycle): `curl` through the
+  configured proxy to `example.com` and `docs.aws.amazon.com` both returned
+  HTTP 403; `$HTTPS_PROXY/__agentproxy/status` confirmed the proxy is up. No
+  new repost-answers batch or dev.to draft produced this cycle, per AGENTS.md's
+  fallback. `api.github.com`/`github.com` reads scoped to this repo remained
+  reachable throughout.
+- `apps/web/BUILD_DATE` was already `2026-08-30` at cycle start; `pytest -q
+  apps/web` 35/35 green; a full rebuild against CI env vars produced a clean
+  `git diff --exit-code -- docs`. No content drift to correct this cycle.
+- Entry-by-entry cross-check of `rules/public/deprecations.yml` against
+  `kits/lambda-lifeline/src/scan/index.mjs`'s `PHASE_DATES` and `apps/web/
+  content/fixes.yml`, plus an ISO- and prose-date scan of all 25 quarantined
+  `launch/distribution/devto/*.md` drafts against those same corroborated
+  sources: no new date errors found beyond the two already recorded in
+  `launch/distribution/devto/README.md`.
+- Found via `mcp__github__list_releases` / `get_release_by_tag`: the sole
+  private Marketplace draft (release id `375063073`) still says `v2.0.0` and
+  targets `47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`, matching both the `v2`
+  and `marketing-machine-v2` branch heads — but its `untagged-<hex>` URL slug
+  had silently changed (GitHub regenerates it on every draft resync) since
+  `revenue/HUMAN_QUEUE.md` was last written this cycle, nine minutes before
+  PR #26's `prepare-marketplace-v2.yml` run `33294414373` last touched it. The
+  owner's next click on HQ-5 — the fastest remaining route to a first dollar —
+  would have 404'd. Corrected the link in `revenue/HUMAN_QUEUE.md` to the
+  current `untagged-ea8be73c7a7d9b6c45e7` slug, recorded the durable release id
+  (`375063073`), and added a Releases-list fallback since the slug will keep
+  regenerating on future resyncs. See DECISIONS D50.
+- No price, checkout, Stripe, GRACE, DEV-account, or Marketplace-publication
+  state changed. Qualified issues: **0**. Paid reports: **0**.
+  Workspace-observed collected revenue: **$0**. Workspace-observed collected
+  profit: **$0**. Target gap: **$4,000**.

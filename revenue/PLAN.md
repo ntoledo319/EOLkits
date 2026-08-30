@@ -305,6 +305,29 @@ owner. Next highest-leverage action is still the same owner batch (HQ-2 then
 HQ-5/HQ-6, then HQ-3/HQ-1/HQ-4/HQ-7) — repository work has no further
 verifiable-without-fetch truth gaps found this cycle.
 
+## Cycle note — August 30, 2026, 06:16 UTC (cloud, egress-restricted)
+
+Egress was blocked for the fourth consecutive cycle (`example.com` and
+`docs.aws.amazon.com` both 403 through the configured proxy; proxy status
+confirmed up). Per AGENTS.md's fallback, no new repost-answers batch or dev.to
+draft was produced. `BUILD_DATE` was already current and a full rebuild showed
+no drift; an entry-by-entry cross-check of `deprecations.yml` against
+`PHASE_DATES`/`fixes.yml` and a fresh date scan of all 25 quarantined DEV
+drafts found no further date errors beyond the two already logged.
+
+Shipped instead: `revenue/HUMAN_QUEUE.md`'s HQ-5 release link had gone stale
+within the same recovery cycle — a `prepare-marketplace-v2.yml` resync nine
+minutes after HUMAN_QUEUE.md was last written regenerated the draft's
+`untagged-<hex>` URL slug, so the owner's next click on the irreducible HQ-5
+action (the fastest remaining route to a first dollar) would have 404'd.
+Verified via the GitHub API that the draft (id `375063073`) still says v2.0.0
+and targets `47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`, matching both `v2` and
+`marketing-machine-v2`; corrected the link, recorded the durable release id,
+and added a Releases-list fallback since the slug will keep regenerating on
+future resyncs. See DECISIONS D50. No cash-path state changed. Collected
+profit remains $0; the gap remains $4,000. HQ-0 through HQ-4, the now-corrected
+HQ-5, and HQ-6/HQ-7 are otherwise unchanged and still require the owner.
+
 ## Recovery cycle — August 30, 2026
 
 The from-the-top audit rejected the premise that this was already a profitable
