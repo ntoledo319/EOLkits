@@ -396,3 +396,23 @@ Smallest sellable unit remains exactly one automated, static, source-only Audit
 v2 PDF for one repository ZIP or supported file at $299. No account inventory,
 remediation implementation, uptime result, compliance certification, or live
 AWS access is included.
+
+## Verified recovery publication state — August 30, 2026
+
+- Recovery PR [#25](https://github.com/ntoledo319/EOLkits/pull/25) merged as
+  `47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8` after every local and remote gate
+  passed. The same immutable tree is now public at `refs/heads/v2`; the Action
+  consumer surface resolves and is monitored.
+- `marketing-machine-v2` was fast-forwarded without force to the same recovery
+  commit. Main later receives only the one-use draft-trigger cleanup and durable
+  revenue-ledger record; neither changes the v2 release payload.
+- Owner-attributed one-use run
+  [33294414373](https://github.com/ntoledo319/EOLkits/actions/runs/33294414373)
+  synchronized canonical private release `375063073` to tag `v2.0.0` and target
+  `47cd9eae...`. The postcondition proved it remains a private non-prerelease
+  with zero assets and no duplicate/public v2 release. This finalization tree
+  removes the temporary trigger and restores the guarded manual-only workflow.
+- The repository and release artifact are ready. The paid service is not:
+  production GRACE is still the stale upload service, checkout remains closed,
+  and the custom host still needs owner-side containment, v2 deployment, and
+  injection removal before a new live catalog may be created or used.
