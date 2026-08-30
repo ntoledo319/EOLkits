@@ -1,13 +1,6 @@
 name: Prepare Marketplace v2 draft
 
 on:
-  # One-use recovery trigger. It is valid only for the first main update after
-  # the already-verified recovery commit and is removed after the green run.
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/prepare-marketplace-v2.yml
   workflow_dispatch:
     inputs:
       confirmation:
@@ -27,40 +20,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Authorize the exact owner-controlled draft mutation
-        id: authorize
         env:
           CONFIRMATION: ${{ inputs.confirmation }}
-          EVENT_BEFORE: ${{ github.event.before }}
           EXPECTED_OWNER: ntoledo319
           EXPECTED_REPOSITORY: ntoledo319/EOLkits
-          ONE_SHOT_BASE_SHA: 47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8
         run: |
           set -euo pipefail
+          [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]
           [[ "$GITHUB_REPOSITORY" == "$EXPECTED_REPOSITORY" ]]
           [[ "$GITHUB_REF" == 'refs/heads/main' ]]
           [[ "$GITHUB_ACTOR" == "$EXPECTED_OWNER" ]]
           [[ "$GITHUB_TRIGGERING_ACTOR" == "$EXPECTED_OWNER" ]]
-
-          case "$GITHUB_EVENT_NAME" in
-            workflow_dispatch)
-              [[ "$CONFIRMATION" == 'SYNC_CANONICAL_EOLKITS_V2_DRAFT' ]]
-              target_sha="$GITHUB_SHA"
-              ;;
-            push)
-              [[ "$EVENT_BEFORE" == "$ONE_SHOT_BASE_SHA" ]]
-              target_sha="$ONE_SHOT_BASE_SHA"
-              ;;
-            *)
-              echo "::error::Unsupported event: $GITHUB_EVENT_NAME"
-              exit 1
-              ;;
-          esac
-          echo "target_sha=$target_sha" >>"$GITHUB_OUTPUT"
+          [[ "$CONFIRMATION" == 'SYNC_CANONICAL_EOLKITS_V2_DRAFT' ]]
 
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
-          ref: ${{ steps.authorize.outputs.target_sha }}
 
       - name: Validate the release surface
         shell: bash
@@ -87,7 +62,6 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TARGET_SHA: ${{ steps.authorize.outputs.target_sha }}
         run: |
           set -euo pipefail
           readonly release_id='375063073'
@@ -125,14 +99,14 @@ jobs:
 
           public_v2_sha="$(git ls-remote --exit-code \
             "https://github.com/$GITHUB_REPOSITORY.git" refs/heads/v2 | cut -f1)"
-          [[ "$public_v2_sha" == "$RELEASE_TARGET_SHA" ]] || {
-            echo "::error::Public v2 ($public_v2_sha) does not equal selected release ($RELEASE_TARGET_SHA)"
+          [[ "$public_v2_sha" == "$GITHUB_SHA" ]] || {
+            echo "::error::Public v2 ($public_v2_sha) does not equal selected main ($GITHUB_SHA)"
             exit 1
           }
 
           jq -n \
             --arg tag 'v2.0.0' \
-            --arg target "$RELEASE_TARGET_SHA" \
+            --arg target "$GITHUB_SHA" \
             --arg name "$release_name" \
             --rawfile body .github/release-notes/marketplace-v2.md \
             '{tag_name: $tag, target_commitish: $target, name: $name, body: $body, draft: true, prerelease: false}' \
@@ -140,10 +114,10 @@ jobs:
           gh api --method PATCH "repos/$GITHUB_REPOSITORY/releases/$release_id" \
             --input "$GITHUB_WORKSPACE/tmp/marketplace-draft/update.json" \
             >"$GITHUB_WORKSPACE/tmp/marketplace-draft/canonical-after.json"
-          jq -e --argjson id "$release_id" --arg target "$RELEASE_TARGET_SHA" --arg name "$release_name" '
+          jq -e --argjson id "$release_id" --arg target "$GITHUB_SHA" --arg name "$release_name" '
             .id == $id and .tag_name == "v2.0.0" and
             .target_commitish == $target and .name == $name and
             .draft == true and .prerelease == false and (.assets | length) == 0
           ' "$GITHUB_WORKSPACE/tmp/marketplace-draft/canonical-after.json" \
             >"$GITHUB_WORKSPACE/tmp/marketplace-draft/postcondition.txt"
-          echo "Synchronized canonical private v2.0.0 draft to commit $RELEASE_TARGET_SHA."
+          echo "Synchronized canonical private v2.0.0 draft to commit $GITHUB_SHA."
