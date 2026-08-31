@@ -2,7 +2,7 @@
 <meta name="referrer" content="origin">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://eolkits.com; form-action 'self'"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Status — EOLkits</title>
 <style>body{font-family:system-ui,sans-serif;max-width:900px;margin:0 auto;padding:2rem;line-height:1.6}.brand{color:#2563eb;font-weight:600}.svc{display:flex;justify-content:space-between;align-items:center;border:1px solid #e5e7eb;border-radius:8px;padding:1rem;margin:.5rem 0}.dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:8px;background:#9ca3af}.dot.green{background:#10b981}.dot.red{background:#ef4444}.muted{color:#6b7280;font-size:.85rem}.notice{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:1rem}</style>
-</head><body><a href="/EOLkits/" class="brand">← EOLkits</a><h1>System Status</h1>
+</head><body><a href="/" class="brand">← EOLkits</a><h1>System Status</h1>
 <p class="muted">Live backend readiness only. Low-volume funnel, commerce, and order details are private operator data. This is not an end-to-end synthetic purchase test.</p>
 <p id="feedState" class="notice">Loading the live API status…</p>
 <div id="services"><div class="svc"><span><span class="dot" id="dot-storage"></span>Upload/report storage</span><span id="t-storage">unknown</span></div>
@@ -21,4 +21,4 @@ fetch('https://eolkits.com/api/status',{cache:'no-store'}).then(r=>r.ok?r.json()
   list('capabilities',d.capabilities);
 }).catch(e=>{document.getElementById('feedState').textContent='Live status unavailable; all component states remain unknown. '+e.message;list('capabilities',{});});
 </script>
-<footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/EOLkits/">Home</a></footer></body></html>
+<footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a></footer></body></html>

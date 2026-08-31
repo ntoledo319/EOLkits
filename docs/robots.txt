@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ntoledo319.github.io/EOLkits/sitemap.xml
+Sitemap: https://eolkits.com/sitemap.xml

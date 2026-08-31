@@ -1,6 +1,9 @@
 # Data Processing Addendum Status — EOLkits
 
-**Last updated:** August 21, 2026
+**Last updated:** August 31, 2026
+
+EOLkits is operated by Toledo Technologies LLC, based in Connecticut, United
+States.
 
 EOLkits does not currently offer an Organization License, enterprise account, or
 pre-executed Data Processing Addendum (DPA). This page is informational and does
