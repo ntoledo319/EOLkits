@@ -1,12 +1,23 @@
-# EOLkits — AWS Deprecation Scanner for VS Code
+# AWS Lambda EOL Scanner — EOLkits for VS Code
 
-**Catch AWS runtime & OS end-of-life risks the moment you write them — right in the editor, offline, with nothing uploaded.**
+**Find deprecated Lambda runtimes, Amazon Linux 2 references, and AWS SDK v2 compatibility risks before the next runtime change reaches production.**
 
-AWS retires runtimes and operating systems on published schedules. EOLkits scans your infrastructure-as-code and application source as you work and flags references that need review before AWS applies runtime create/update restrictions or an operating-system migration becomes urgent.
+EOLkits scans Terraform, SAM/CloudFormation, and application source as you work. It flags exact file and line references that need review against AWS's published runtime schedules. It does not need AWS credentials or an AWS account connection.
 
 > Free and MIT-licensed. It runs entirely on your machine — no account, no telemetry, no code leaves your editor.
 
 ---
+
+## Run your first scan
+
+1. Open a repository containing Terraform, SAM/CloudFormation, JavaScript,
+   TypeScript, Python, YAML, or JSON.
+2. Run **EOLkits: Scan Workspace for Deprecations** from the Command Palette, or
+   right-click a folder and choose the same command.
+3. Review inline findings, the Problems panel, or the **AWS Deprecations** view
+   in Explorer.
+
+No AWS login or extension configuration is required.
 
 ## What it does
 
@@ -19,10 +30,12 @@ AWS retires runtimes and operating systems on published schedules. EOLkits scans
 
 | Signal | Where | Severity |
 |---|---|---|
-| Lambda `nodejs20.x` runtime | CloudFormation / SAM | Critical |
+| Lambda `nodejs18.x`, `nodejs20.x`, or `nodejs22.x` runtime | CloudFormation / SAM | High / Medium |
 | Lambda `python3.9` / `3.10` / `3.11` | CloudFormation / SAM | High / Medium |
 | Amazon Linux 2 AMIs (`amazonlinux2`, `AL2`) | CloudFormation / Terraform | High |
 | Amazon Linux 2 image references | `*.tf` / `*.hcl` | High |
+| Bundled AWS SDK for JavaScript v2 assumptions | JavaScript / TypeScript | Medium |
+| Removed or moved Python APIs (`distutils`, `imp`, `collections.Mapping`) | Python | Medium / Low |
 
 Date-bearing findings identify the AWS schedule used by that bundled extension version. Recheck the linked EOLkits/AWS sources before production planning.
 

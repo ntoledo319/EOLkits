@@ -30,7 +30,11 @@ const manifest = JSON.parse(fs.readFileSync(path.join(extensionRoot, 'package.js
 const compiledExtension = fs.readFileSync(path.join(extensionRoot, 'out', 'extension.js'), 'utf8');
 const verifiedSite = 'https://ntoledo319.github.io/EOLkits/';
 assert.equal(`${manifest.publisher}.${manifest.name}`, 'rupture.rupture-vscode');
-assert.equal(manifest.version, '1.1.0');
+assert.equal(manifest.version, '1.2.0');
+assert.equal(manifest.displayName, 'AWS Lambda EOL Scanner — EOLkits');
+assert.match(manifest.description, /Terraform, SAM\/CloudFormation/);
+assert.ok(manifest.keywords.includes('nodejs20'));
+assert.ok(manifest.keywords.includes('aws sdk v2'));
 assert.ok(manifest.activationEvents.includes('onCommand:rupture.scanWorkspace'));
 assert.equal(manifest.homepage, verifiedSite);
 assert.ok(manifest.sponsor.url.startsWith(`${verifiedSite}audit/`));

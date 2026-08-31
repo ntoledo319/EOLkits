@@ -1,8 +1,8 @@
 {
   "name": "rupture-vscode",
-  "displayName": "EOLkits - AWS Deprecation Scanner",
-  "description": "Find AWS runtime & OS end-of-life risks (Lambda Node/Python, Amazon Linux 2) in your IaC and code, right in the editor — offline, nothing uploaded.",
-  "version": "1.1.0",
+  "displayName": "AWS Lambda EOL Scanner — EOLkits",
+  "description": "Find deprecated AWS Lambda runtimes, Amazon Linux 2, and AWS SDK v2 risks in Terraform, SAM/CloudFormation, and source. Local; no AWS credentials.",
+  "version": "1.2.0",
   "publisher": "rupture",
   "icon": "icon.png",
   "galleryBanner": {
@@ -39,7 +39,13 @@
     "python",
     "serverless",
     "devops",
-    "sre"
+    "sre",
+    "runtime upgrade",
+    "nodejs20",
+    "nodejs18",
+    "python3.9",
+    "aws sdk v2",
+    "sam"
   ],
   "activationEvents": [
     "onLanguage:yaml",

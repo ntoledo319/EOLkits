@@ -1,8 +1,11 @@
 # Terms of Service — EOLkits
 
-**Last updated:** August 22, 2026
+**Last updated:** August 31, 2026
 
 ## 1. Acceptance
+
+EOLkits is operated by Toledo Technologies LLC, based in Connecticut, United
+States ("EOLkits," "we," or "us").
 
 By using EOLkits, you agree to these Terms. If you do not agree, do not use the
 service.
