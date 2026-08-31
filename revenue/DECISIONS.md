@@ -1007,3 +1007,45 @@ This automates a reversible private-draft edit, not the GitHub Marketplace
 publication ceremony. The agreement, Marketplace checkbox, and 2FA remain in
 HQ-5 because they are account-holder attestations. It also does not weaken the
 commerce gate: checkout remains closed and observed revenue/profit remain $0.
+
+## D51 — honor the failed VS gate with one focused reposition
+
+The exact v1.1.0 gate failed: installs did not increase and no qualified
+VS-attributed external author appeared. Cumulative downloads increased, but the
+workflow intentionally treats them as context rather than purchase intent.
+Used the policy's one reposition on discoverability and activation—not a new
+SKU or inflated promise: renamed the listing around the concrete Lambda EOL
+job, added Terraform/SAM/CloudFormation and runtime keywords, made the first
+scan path explicit, and published v1.2.0 from exact green commit `23762f3f...`.
+Reset the baseline only after the official public surface showed v1.2.0.
+
+## D52 — automate authorized account operations only through validated authority
+
+The owner authorized every previously listed operation except retired Stripe
+credential rotation. A one-use workflow therefore checked only recognized DEV
+and GitHub-admin secret names, validated identity/repository access before use,
+bounded every mutation to exact known targets, printed no credential, and
+destroyed transient response/token files. It was tied to the first
+owner-attributed push after exact base `23762f3f...`.
+
+The safe attempt did not produce authority that does not exist: no DEV key was
+configured, public DEV state remains 25 posts, the ruleset list remains empty,
+and legacy dynamic Pages still ran. Do not bypass those boundaries, scrape
+browser sessions, exploit the host, or reinterpret broad authorization as
+permission to invent seller/payment facts. Remove the one-use workflow after
+its terminal run.
+
+## D53 — publish the free surface, keep the paid surface fail-closed
+
+Publishing tested VS v1.2.0 is reversible distribution work with no customer
+charge. Creating a live Stripe catalog and opening checkout is materially
+different: current GRACE still lacks the v2 capability/status contract, exposes
+the stale install surface, and injects an unreviewed script. The fulfillment,
+delivery, refund, retention, legal, and actual-fee/cost gates also remain
+unproven. Therefore ship the free acquisition improvement now, but create no
+live payment objects and keep checkout closed until every recorded prerequisite
+passes.
+
+The retired Stripe credential rotation/revocation is explicitly out of scope at
+the owner's direction. That records a deferred risk; it is not evidence that
+the credential is safe, revoked, or reusable.

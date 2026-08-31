@@ -86,14 +86,15 @@ Source: https://stripe.com/pricing (checked August 27, 2026).
   relevant users to the same Audit page.
 - Funnel: VS Marketplace/editor search and organic error searches → local
   finding or answer page → Audit sample/availability.
-- Distribution state: v1.1.0 is public on the existing
+- Distribution state: v1.2.0 is public on the existing
   `rupture.rupture-vscode` listing; no owner action remains for this release.
 - Channel-attribution hypothesis: two of the same portfolio Audit sales arrive
   through VS/search = $580.06 net. They are not additive to Bet B's total, and
   this is unobserved.
-- Falsifier: after five full v1.1.0 days, zero install growth and zero external
-  VS-attributed qualified-interest authors triggers one repositioning;
-  four more zero-signal days stop promotion and leave only the free utility.
+- Falsifier: the v1.1.0 gate failed and its one reposition is public as v1.2.0.
+  Zero install growth and zero external VS-attributed qualified-interest
+  authors at `2026-09-05T23:27:55Z` stops promotion and leaves only the free
+  utility.
 
 ## Sequence
 
@@ -102,10 +103,10 @@ Source: https://stripe.com/pricing (checked August 27, 2026).
 2. Keep the completed exact Stripe retirement closed. Workflow run `32840968816`
    deactivated all six historical Prices, proved the bounded session/
    subscription/schedule state, removed the current Worker binding, and left
-   the Worker as an HTTP 410 tombstone. The owner must still rotate/revoke the
-   account key because historical Cloudflare versions retain secret snapshots.
+   the Worker as an HTTP 410 tombstone. Retired-key rotation/revocation is
+   explicitly deferred at the owner's direction and is not in the active queue.
 3. Keep the honest GitHub Pages fallback, tested `v2` Action branch, and public
-   VS v1.1.0 release green. The owner publishes the sole canonical v2.0.0 draft
+   VS v1.2.0 release green. The owner publishes the sole canonical v2.0.0 draft
    into the existing GitHub Marketplace listing; obsolete drafts are gone.
 4. Deploy Audit v2 with checkout disabled and complete the full Stripe test-mode
    operational gate. Remove the hosting-layer analytics injection, deploy the
@@ -129,7 +130,7 @@ Source: https://stripe.com/pricing (checked August 27, 2026).
 - Day 28 — September 19: report collected profit, processor fees, refunds, and
   incremental costs only.
 
-## Current gap and next action
+## Historical checkpoint — August 27
 
 Collected profit: **$0**. Gap: **$4,000**. Checkout: **closed**. This is the
 workspace evidence ledger, not a claim about account-wide Stripe activity that
@@ -359,3 +360,42 @@ GRACE containment. Marketplace publication needs only the required agreement,
 checkbox, and 2FA ceremony; live checkout stays forbidden until the closed v2
 deploy, injected-script removal, full test/refund proof, legal facts, DEV cleanup,
 and new catalog attestation pass.
+
+## Authorized execution cycle — August 31, 2026
+
+The v1.1 VS gate failed on evidence, so the permitted reposition was built,
+tested, merged, and published. Public Marketplace state now shows
+`rupture.rupture-vscode@1.2.0` as **AWS Lambda EOL Scanner — EOLkits** with a
+103-install / 199-download baseline. The acquisition workflow now measures this
+version and will emit its next exact five-day result after
+`2026-09-05T23:27:55Z`.
+
+The operator identity was added to the legal surfaces without inventing the
+missing address, contract jurisdiction, payment-account facts, or hosting cost.
+A one-use, owner-attributed workflow then attempted the authorized DEV, Pages,
+and ruleset operations using only recognized, validated credentials. It found
+no DEV owner key; scoped GitHub authority could not change repository-admin
+settings. Independent reads still show 25 public DEV posts, zero rulesets, and
+the legacy dynamic Pages publisher. The one-use workflow and VS push trigger
+are removed in this cycle's cleanup tree.
+
+Item 3 from the owner's prior list—the retired Stripe credential
+revocation/rotation—was explicitly excluded and was not attempted. That
+exclusion does not authorize reuse of any retired Price and does not weaken the
+checkout gate.
+
+Current execution order is therefore:
+
+1. owner contains the stale GRACE routes;
+2. owner supplies the four missing commercial facts while deploying Audit v2
+   checkout-closed and proving delivery/refund behavior;
+3. owner unpublishes the false DEV corpus and completes the GitHub
+   Marketplace/Pages/ruleset ceremonies;
+4. only after every commerce prerequisite is green, owner creates one new
+   v2-only $299 live catalog pair and enables the attested checkout; and
+5. Codex reads the automated acquisition/commerce evidence and pivots at the
+   recorded gates.
+
+Collected revenue: **$0**. Collected profit: **$0**. Gap: **$4,000**. Checkout:
+**closed**. The exact remaining owner batch is the authoritative
+`revenue/HUMAN_QUEUE.md` and totals at most 40 minutes.
