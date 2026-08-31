@@ -1,5 +1,10 @@
 # Batched owner queue — authoritative August 30, 2026 — maximum 43 minutes
 
+_Re-verified August 31, 2026: HQ-5's release-draft link (id `375063073`, tag
+`v2.0.0`, slug `untagged-ea8be73c7a7d9b6c45e7`) was checked against the live
+GitHub API and is still current — no repair needed this cycle. No other item
+below changed._
+
 Codex owns the repository, CI, branch synchronization, release-draft
 preparation, monitoring, and evidence review. The items below are the only
 remaining actions because they require production-host credentials, legal facts,

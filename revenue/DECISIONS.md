@@ -1057,3 +1057,73 @@ through HQ-4, the corrected HQ-5, and HQ-6/HQ-7 are otherwise unchanged and
 still require the owner. Future cycles should pull `main` before diagnosing
 `marketing-machine-v2`-only state, since the two branches can now silently
 diverge on ordinary pushes to either one.
+
+## D52 — fix a real false-negative in the free scanner's Python runtime detection; bump BUILD_DATE
+
+Cycle-start egress test repeated the standing method (fifth consecutive
+cycle): direct `curl` through the configured proxy to `example.com` and
+`docs.aws.amazon.com` both returned HTTP 403 (`CONNECT tunnel failed`);
+`$HTTPS_PROXY/__agentproxy/status` confirmed the proxy itself is reachable
+and logged both as `connect_rejected`. Per AGENTS.md's fallback, no new
+repost-answers batch or dev.to draft was produced this cycle. `main` was
+confirmed an ancestor of `marketing-machine-v2` (no repeat of D51's silent
+divergence).
+
+`apps/web/BUILD_DATE` was one day stale (`2026-08-30` against today's
+`2026-08-31`). Rebuilt `docs/` with `apps/web/build.py` under the CI env
+vars after confirming 35/35 `apps/web` tests green on the stale baseline
+first; the bumped rebuild stayed 35/35 green and the diff was entirely
+date-derived (countdowns, ICS `DTSTAMP`, sitemap `lastmod`,
+`status/data.json` `generated_at`) — no structural or claim change.
+
+Found a materially more significant defect while re-verifying the
+scanner/deprecations cross-check this cycle habitually performs: the free
+`lambda-lifeline` scanner engine's `AT_RISK_RUNTIMES` set and `PHASE_DATES`
+table (`kits/lambda-lifeline/src/scan/index.mjs`) had no entry for
+`python3.8` at all, even though `rules/public/deprecations.yml` (the public
+SEO/scanner-data source of truth) has carried a full `lambda-python-3.8-eol`
+entry since the original repair, and the sibling `python-pivot` kit's
+`RUNTIME_TABLE` (`kits/python-pivot/src/python_pivot/runtimes.py`) already
+has the identical dates (deprecation 2024-10-14, block-create 2027-02-01,
+block-update 2027-03-03). Both independent internal sources agree exactly,
+satisfying this project's own corroboration bar for adding a public
+lifecycle date (the same bar D42 used for nodejs16.x and D43 declined for
+ruby3.2/dotnet6 for lacking a second source).
+
+The practical effect: `lambda-lifeline scan` against a live AWS account (the
+kit's primary live-scan mode, not just its Node-focused IaC/codemod
+commands) would silently report a Lambda function running `python3.8` as
+`eol: false` / severity `'ok'` — a false negative for one of the exact
+runtimes EOLkits exists to catch, and inconsistent with the site's own
+`/migrate/lambda-python-3.8-eol/` page describing the same runtime as
+already past its deprecation date and heading into the same Q1-2027 block
+cluster as python3.9/3.10. This is a correctness bug in the core detection
+product distributed via the GitHub Marketplace Action, npm package, and (by
+shared rule behavior) the VS Code extension — a stronger finding than prior
+cycles' SEO-page-only gaps (D42) because it affects live-scan output
+strangers would actually read, not just static content.
+
+Added `python3.8` to `AT_RISK_RUNTIMES`, `PHASE_DATES`
+(`phase1: 2024-10-14, block_create: 2027-02-01, block_update: 2027-03-03`),
+and `UPGRADE_TARGETS` (`python3.12`) in `index.mjs`, matching both
+corroborating sources exactly. Added a new fixture function
+(`invoice-etl-batch`, `python3.8`) to
+`kits/lambda-lifeline/test/fixtures/lambda-inventory.json` so the fix is
+exercised by a real regression test rather than only by table edits, and
+updated `test/scan.test.mjs` (8 functions / 7 at risk, plus explicit
+`python3.8` field assertions on the new fixture entry) and the README's
+sample-output block to match. `node --test test/*.test.mjs` passed 28/28
+(unchanged count; two prior assertions were widened, one fixture-specific
+assertion block added), and the Python `hypothesis` property suite
+(`tests/test_properties.py`) stayed 3/3 green, unaffected since it only
+exercises Node runtimes. `npm pack --dry-run` still reports exactly 24
+release files (fixtures/tests remain excluded from the shipped package,
+matching the existing baseline). No other kit, the GitHub Action, or the VS
+extension references the fixture's function/at-risk counts.
+
+No price, checkout, Stripe, GRACE, DEV-account, or Marketplace-publication
+state changed. Collected profit remains $0; the gap remains $4,000. HQ-0
+through HQ-7 are unchanged and still require the owner; HQ-5's release link
+was re-verified this cycle via `list_releases` (id `375063073`, tag
+`v2.0.0`, slug `untagged-ea8be73c7a7d9b6c45e7`) and matches
+`HUMAN_QUEUE.md` exactly — no repair needed this time.

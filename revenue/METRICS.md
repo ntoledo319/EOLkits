@@ -889,3 +889,51 @@ benchmarks, or unverified analytics in this ledger.
   state changed. Qualified issues: **0**. Paid reports: **0**.
   Workspace-observed collected revenue: **$0**. Workspace-observed collected
   profit: **$0**. Target gap: **$4,000**.
+
+## Scanner false-negative fix and build-date correction — August 31, 2026
+
+- Cycle-start egress test (fifth consecutive cycle): `curl` through the
+  configured proxy to `example.com` and `docs.aws.amazon.com` both returned
+  HTTP 403 (`CONNECT tunnel failed`); proxy status endpoint confirmed the
+  proxy itself is up. No new repost-answers batch or dev.to draft produced
+  this cycle, per AGENTS.md's fallback. Confirmed via `git merge-base
+  --is-ancestor` that `origin/main` is an ancestor of `marketing-machine-v2`
+  (no repeat of the D51 silent-divergence pattern).
+- `apps/web/BUILD_DATE` bumped `2026-08-30` → `2026-08-31`. Local venv built
+  from `apps/web/requirements-dev.lock` (hash-verified, matching CI's exact
+  install command). `pytest -q apps/web` was 35/35 green on the stale
+  baseline first, then 35/35 green again after the bump; `git diff --stat --
+  docs` showed exactly 15 files changed, every line date-derived (countdowns,
+  ICS `DTSTAMP`, sitemap `lastmod`, `status/data.json` `generated_at`).
+- Found and fixed a live-scan correctness defect in `kits/lambda-lifeline`
+  (the free Node-focused scanner kit that also does bonus live-AWS scanning
+  across all runtimes): its `AT_RISK_RUNTIMES`/`PHASE_DATES`/`UPGRADE_TARGETS`
+  tables had no `python3.8` entry, so a real scan of a Lambda function
+  running `python3.8` would report `eol: false`, severity `'ok'` — a false
+  negative. Two independent internal sources already agreed on the correct
+  dates: `kits/python-pivot/src/python_pivot/runtimes.py`'s `RUNTIME_TABLE`
+  and `rules/public/deprecations.yml`'s `lambda-python-3.8-eol` entry (both:
+  deprecated 2024-10-14, block-create 2027-02-01, block-update 2027-03-03,
+  citing the AWS Lambda runtimes deprecation table).
+- Added the corroborated `python3.8` entry to all three `lambda-lifeline`
+  tables; added fixture function `invoice-etl-batch` (`Runtime: python3.8`)
+  to `test/fixtures/lambda-inventory.json` so the fix is exercised by a real
+  test rather than only by table edits; updated `test/scan.test.mjs` (8
+  functions / 7 at risk, explicit `python3.8` field assertions on the new
+  entry) and `README.md`'s sample-output block to match.
+- Verification: `node --test test/*.test.mjs` passed **28/28**; Python
+  `hypothesis` property suite `tests/test_properties.py` stayed **3/3**
+  green (unaffected — Node-only); `npm pack --dry-run` still reports exactly
+  **24** release files (fixtures/tests excluded from the shipped package,
+  matching the existing baseline); a repo-wide grep confirmed no other kit,
+  the GitHub Action, or the VS extension references the fixture's
+  function/at-risk counts.
+- Re-verified HQ-5's release-draft link via `mcp__github__list_releases`:
+  release id `375063073`, tag `v2.0.0`, slug
+  `untagged-ea8be73c7a7d9b6c45e7` — matches `HUMAN_QUEUE.md` exactly, no
+  repair needed this cycle (unlike D50/D51's two prior stale-link repairs).
+- These artifacts go live via the existing `deploy-pages.yml` (static site)
+  and existing kit-test CI on push to `main`/`marketing-machine-v2`. No
+  Stripe, GRACE, DEV, or Marketplace state changed. Qualified issues: **0**.
+  Paid reports: **0**. Workspace-observed collected revenue: **$0**.
+  Workspace-observed collected profit: **$0**. Target gap: **$4,000**.

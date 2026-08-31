@@ -382,3 +382,32 @@ GRACE containment. Marketplace publication needs only the required agreement,
 checkbox, and 2FA ceremony; live checkout stays forbidden until the closed v2
 deploy, injected-script removal, full test/refund proof, legal facts, DEV cleanup,
 and new catalog attestation pass.
+
+## Cycle note — August 31, 2026 (cloud, egress-restricted)
+
+Egress was blocked for the fifth consecutive cycle (`example.com` and
+`docs.aws.amazon.com` both 403 through the configured proxy; proxy status
+confirmed up). Per AGENTS.md's fallback, no new repost-answers batch or dev.to
+draft was produced. `main` was confirmed an ancestor of `marketing-machine-v2`
+(no repeat of the prior silent-divergence pattern). `BUILD_DATE` was one day
+stale; bumped and rebuilt, 35/35 `apps/web` tests green, diff entirely
+date-derived.
+
+Shipped the highest-leverage in-jail fix found this cycle: `kits/lambda-lifeline`'s
+live-scan runtime tables had no `python3.8` entry, so scanning a real AWS
+account with a Lambda function on that runtime would falsely report it as
+healthy. Two independent internal sources (python-pivot's `RUNTIME_TABLE` and
+`rules/public/deprecations.yml`'s existing entry) already agreed on the exact
+dates, meeting this project's own corroboration bar. Fixed with a new
+regression-test fixture case; 28/28 Node tests and 3/3 property tests stayed
+green; `npm pack --dry-run` still reports 24 release files. This is a
+correctness fix to the free product's actual detection logic (K1's underlying
+engine), not a documentation- or SEO-page-only change — see DECISIONS D52.
+
+HQ-5's release-draft link was re-verified via the GitHub API and still matches
+`HUMAN_QUEUE.md` exactly (no repair needed, unlike the prior two cycles). No
+cash-path state changed. Collected profit remains $0; the gap remains $4,000.
+HQ-0 through HQ-7 are unchanged and still require the owner. Next
+highest-leverage action remains the same owner batch (HQ-0 through HQ-7 in
+order) — no further verifiable-without-fetch correctness gap was found this
+cycle beyond what was shipped.

@@ -15,20 +15,26 @@ function run(args) {
 test('scan --fixture prints a summary with at-risk counts', () => {
   const r = run(['scan', '--fixture', FIXTURE]);
   assert.equal(r.status, 0, r.stderr || r.stdout);
-  assert.match(r.stdout, /Scanned 7 functions/);
-  assert.match(r.stdout, /6 at risk/);   // 3 Node past deprecation + Node 22 upcoming + Python 3.10 + Ruby 3.2
+  assert.match(r.stdout, /Scanned 8 functions/);
+  assert.match(r.stdout, /7 at risk/);   // 3 Node past deprecation + Node 22 upcoming + Python 3.8 + Python 3.10 + Ruby 3.2
   assert.match(r.stdout, /nodejs20\.x/);
   assert.match(r.stdout, /nodejs18\.x/);
   assert.match(r.stdout, /nodejs16\.x/);
+  assert.match(r.stdout, /python3\.8/);
 });
 
 test('scan --fixture --json emits well-formed JSON', () => {
   const r = run(['scan', '--fixture', FIXTURE, '--json']);
   assert.equal(r.status, 0, r.stderr);
   const data = JSON.parse(r.stdout);
-  assert.equal(data.length, 7);
+  assert.equal(data.length, 8);
   const eol = data.filter(d => d.eol);
-  assert.equal(eol.length, 6);
+  assert.equal(eol.length, 7);
+  const etl = data.find(d => d.function_name === 'invoice-etl-batch');
+  assert.equal(etl.runtime, 'python3.8');
+  assert.equal(etl.eol, true);
+  assert.equal(etl.recommended_target, 'python3.12');
+  assert.equal(etl.deprecation_dates.block_update, '2027-03-03');
   const orders = data.find(d => d.function_name === 'api-orders-ingest');
   assert.equal(orders.runtime, 'nodejs20.x');
   assert.equal(orders.recommended_target, 'nodejs24.x');

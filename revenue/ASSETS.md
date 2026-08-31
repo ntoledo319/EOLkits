@@ -46,6 +46,14 @@ All code and evidence below is inside the workspace jail.
   pass, along with real Action fixtures, three property cases, and deterministic
   scanner checks. Node runtime and IaC paths now include nodejs22.x and target
   nodejs24.x. Commands remain dry-run unless an apply flag is supplied.
+- August 31 correction: `lambda-lifeline`'s live-scan runtime tables were
+  missing `python3.8` entirely, so a real scan of a Lambda function on that
+  runtime would have reported it as healthy (a false negative) instead of at
+  risk. Fixed using two already-corroborating internal sources
+  (`python-pivot`'s `RUNTIME_TABLE` and `rules/public/deprecations.yml`'s
+  existing `lambda-python-3.8-eol` entry) and covered by a new fixture case;
+  see DECISIONS D52. This closes a real detection gap in the free product
+  buyers evaluate before purchasing Audit, not a documentation-only fix.
 - $0 deploy/distribution: public GitHub repository and the existing GitHub
   Marketplace Action listing.
 - Distribution state: the tested `v2` release branch is public and resolves to

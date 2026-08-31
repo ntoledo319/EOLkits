@@ -12,7 +12,7 @@ import { writeFileSync, readFileSync } from 'node:fs';
 
 const AT_RISK_RUNTIMES = new Set([
   'nodejs14.x', 'nodejs16.x', 'nodejs18.x', 'nodejs20.x', 'nodejs22.x',
-  'python3.9', 'python3.10',                    // bonus: flagged but not our primary scope
+  'python3.8', 'python3.9', 'python3.10',       // bonus: flagged but not our primary scope
   'ruby3.2',                                    // bonus
   'dotnet6',
   'java8.al2',
@@ -27,6 +27,7 @@ const PHASE_DATES = {
   'nodejs18.x': { phase1: '2025-09-01', block_create: '2027-02-01', block_update: '2027-03-03' },
   'nodejs20.x': { phase1: '2026-04-30', block_create: '2027-02-01', block_update: '2027-03-03' },
   'nodejs22.x': { phase1: '2027-04-30', block_create: '2027-06-01', block_update: '2027-07-01' },
+  'python3.8':  { phase1: '2024-10-14', block_create: '2027-02-01', block_update: '2027-03-03' },
   'python3.9':  { phase1: '2025-12-15', block_create: '2027-02-01', block_update: '2027-03-03' },
   'python3.10': { phase1: '2026-10-31', block_create: '2027-02-01', block_update: '2027-03-03' },
   'ruby3.2':    { phase1: '2026-03-31', block_create: '2027-02-01', block_update: '2027-03-03' },
@@ -39,6 +40,7 @@ const UPGRADE_TARGETS = {
   'nodejs18.x': 'nodejs24.x',
   'nodejs20.x': 'nodejs24.x',
   'nodejs22.x': 'nodejs24.x',
+  'python3.8':  'python3.12',
   'python3.9':  'python3.12',
   'python3.10': 'python3.12',
   'ruby3.2':    'ruby3.4',

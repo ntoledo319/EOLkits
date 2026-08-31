@@ -434,3 +434,13 @@ Observed paid demand remains zero, so no new SKU, higher price, or projected
 profit is justified. The shortest honest path to a first dollar is publish K1,
 finish the closed A1 operational proof, then enable only the attested $299 A1
 checkout.
+
+## Correctness note — August 31, 2026
+
+Ranking remains **K1 → A1 → V1 → C4**. K1's underlying free scanner
+(`lambda-lifeline`) had a live-scan false negative for `python3.8` Lambda
+functions, fixed this cycle (see ASSETS.md and DECISIONS D52). This raises
+K1's product quality — a stranger evaluating the free tool before considering
+Audit would have gotten a wrong "healthy" result for that runtime — but it is
+a defect repair, not new demand evidence, and does not change any frame's
+score or the ranking.
