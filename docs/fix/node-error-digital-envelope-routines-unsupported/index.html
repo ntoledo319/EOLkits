@@ -7,20 +7,20 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Error: error:0308010C:digital envelope routines::unsupported — cause &amp; fix (Node.js 18+ (OpenSSL 3)) | EOLkits</title>
 <meta name="description" content="Node.js 17+ ships OpenSSL 3, which rejects the legacy hashing some older build tools rely on. Durable fix: upgrade the offending tooling to an OpenSSL-3-sa">
-<link rel="canonical" href="https://eolkits.com/fix/node-error-digital-envelope-routines-unsupported/">
-<link rel="stylesheet" href="/style.css">
-<script defer src="/track.js"></script>
-<meta property="og:image" content="https://eolkits.com/og-default.png">
+<link rel="canonical" href="https://ntoledo319.github.io/EOLkits/fix/node-error-digital-envelope-routines-unsupported/">
+<link rel="stylesheet" href="/EOLkits/style.css">
+<script defer src="/EOLkits/track.js"></script>
+<meta property="og:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://eolkits.com/og-default.png">
+<meta name="twitter:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
 <style>.fix-err{background:#0f172a;color:#e2e8f0;padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem}.fix-steps li{margin:.35rem 0}.fix-cta{display:inline-block;margin-top:1rem;padding:.7rem 1.2rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}.fix-rel{background:#fff7ed;border:1px solid #fed7aa;padding:.6rem .8rem;border-radius:8px}</style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does \"Error: error:0308010C:digital envelope routines::unsupported\" mean?", "acceptedAnswer": {"@type": "Answer", "text": "Node.js 17+ ships OpenSSL 3, which rejects the legacy hashing some older build tools rely on. OpenSSL 3 disables legacy algorithms (e.g. the MD4-based hashing webpack 4 uses by default). Upgrading a Lambda or container to a Node 18/20/22 runtime surfaces this during a build or in crypto calls."}}, {"@type": "Question", "name": "How do I fix \"Error: error:0308010C:digital envelope routines::unsupported\"?", "acceptedAnswer": {"@type": "Answer", "text": "Durable fix: upgrade the offending tooling to an OpenSSL-3-safe version (e.g. webpack 5, react-scripts 5+). Stopgap only: set `NODE_OPTIONS=--openssl-legacy-provider` to re-enable the legacy provider \u2014 this re-enables weak crypto, so treat it as temporary. In your own code, replace deprecated hashes (md4/md5 used for security) with sha256. Rebuild and redeploy on the target Node version. Source: https://nodejs.org/api/cli.html#--openssl-legacy-provider"}}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Fix: Error: error:0308010C:digital envelope routines::unsupported", "step": [{"@type": "HowToStep", "position": 1, "text": "Durable fix: upgrade the offending tooling to an OpenSSL-3-safe version (e.g. webpack 5, react-scripts 5+)."}, {"@type": "HowToStep", "position": 2, "text": "Stopgap only: set `NODE_OPTIONS=--openssl-legacy-provider` to re-enable the legacy provider \u2014 this re-enables weak crypto, so treat it as temporary."}, {"@type": "HowToStep", "position": 3, "text": "In your own code, replace deprecated hashes (md4/md5 used for security) with sha256."}, {"@type": "HowToStep", "position": 4, "text": "Rebuild and redeploy on the target Node version."}], "citation": "https://nodejs.org/api/cli.html#--openssl-legacy-provider"}</script>
 </head>
 <body class="container article">
-<nav class="breadcrumb"><a href="/">Home</a> / <a href="/fix/">Fixes</a> / <span>Node.js 18+ (OpenSSL 3)</span></nav>
+<nav class="breadcrumb"><a href="/EOLkits/">Home</a> / <a href="/EOLkits/fix/">Fixes</a> / <span>Node.js 18+ (OpenSSL 3)</span></nav>
 <p class="muted">Node.js 18+ (OpenSSL 3)</p>
 <h1>Error: error:0308010C:digital envelope routines::unsupported</h1>
 <pre class="fix-err"><code>Error: error:0308010C:digital envelope routines::unsupported</code></pre>
@@ -30,11 +30,11 @@
 <p>OpenSSL 3 disables legacy algorithms (e.g. the MD4-based hashing webpack 4 uses by default). Upgrading a Lambda or container to a Node 18/20/22 runtime surfaces this during a build or in crypto calls.</p>
 <h2>How to fix it</h2>
 <ol class="fix-steps"><li>Durable fix: upgrade the offending tooling to an OpenSSL-3-safe version (e.g. webpack 5, react-scripts 5+).</li><li>Stopgap only: set `NODE_OPTIONS=--openssl-legacy-provider` to re-enable the legacy provider — this re-enables weak crypto, so treat it as temporary.</li><li>In your own code, replace deprecated hashes (md4/md5 used for security) with sha256.</li><li>Rebuild and redeploy on the target Node version.</li></ol>
-<p class="fix-rel">Related deadline: <a href="/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 create/update restrictions</a> — <strong>2027-02-01</strong>.</p>
+<p class="fix-rel">Related deadline: <a href="/EOLkits/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 create/update restrictions</a> — <strong>2027-02-01</strong>.</p>
 <h2>Check configured patterns in your project</h2>
-<p>The free <a href="/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>
-<p>Prefer a 10-second check? Paste your config into the <a href="/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
+<p>The free <a href="/EOLkits/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>
+<p>Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
 <p>Primary source: <a href="https://nodejs.org/api/cli.html#--openssl-legacy-provider" target="_blank" rel="noopener nofollow">https://nodejs.org/api/cli.html#--openssl-legacy-provider</a></p>
-<p><a class="fix-cta" href="/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-error-digital-envelope-routines-unsupported&deadline=2027-02-01&kit=lambda-lifeline">Inspect the $299 report sample and availability &rarr;</a></p>
+<p><a class="fix-cta" href="/EOLkits/audit/?source=fix&utm_source=fix&utm_medium=content&utm_campaign=node-error-digital-envelope-routines-unsupported&deadline=2027-02-01&kit=lambda-lifeline">Inspect the $299 report sample and availability &rarr;</a></p>
 </body>
 </html>
