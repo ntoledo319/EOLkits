@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       confirm:
-        description: Type PUBLISH_RUPTURE_VSCODE_1_1_0
+        description: Type PUBLISH_RUPTURE_VSCODE_1_2_0
         required: true
         type: string
 
@@ -23,10 +23,10 @@ jobs:
       github.ref == 'refs/heads/main' &&
       github.actor == github.repository_owner &&
       github.triggering_actor == github.repository_owner &&
-      inputs.confirm == 'PUBLISH_RUPTURE_VSCODE_1_1_0'
+      inputs.confirm == 'PUBLISH_RUPTURE_VSCODE_1_2_0'
     timeout-minutes: 15
     env:
-      RELEASE_COMMIT: a9cdcaeb40637d1f58f7539e80a16ec569be6704
+      RELEASE_COMMIT: 23762f3f7a8e7ccc61b76c7fef4a00d1fa7fec99
       TMPDIR: ${{ github.workspace }}/tmp/runtime-tmp
       npm_config_cache: ${{ github.workspace }}/tmp/npm-cache
     steps:
@@ -40,7 +40,7 @@ jobs:
                 "$GITHUB_REF" != 'refs/heads/main' ||
                 "$GITHUB_ACTOR" != "$GITHUB_REPOSITORY_OWNER" ||
                 "$GITHUB_TRIGGERING_ACTOR" != "$GITHUB_REPOSITORY_OWNER" ||
-                "$PUBLICATION_CONFIRMATION" != 'PUBLISH_RUPTURE_VSCODE_1_1_0' ]]; then
+                "$PUBLICATION_CONFIRMATION" != 'PUBLISH_RUPTURE_VSCODE_1_2_0' ]]; then
             echo '::error::Exact repository-owner authorization on ntoledo319/EOLkits main is required'
             exit 1
           fi
@@ -70,7 +70,7 @@ jobs:
       - name: Verify existing Marketplace identity
         run: |
           test "$(node -p 'require("./package.json").publisher + "." + require("./package.json").name')" = 'rupture.rupture-vscode'
-          test "$(node -p 'require("./package.json").version')" = '1.1.0'
+          test "$(node -p 'require("./package.json").version')" = '1.2.0'
         working-directory: apps/vscode-extension
 
       - name: Package extension

@@ -937,3 +937,53 @@ benchmarks, or unverified analytics in this ledger.
   Stripe, GRACE, DEV, or Marketplace state changed. Qualified issues: **0**.
   Paid reports: **0**. Workspace-observed collected revenue: **$0**.
   Workspace-observed collected profit: **$0**. Target gap: **$4,000**.
+
+## v1.1 gate, v1.2 publication, and platform-operation evidence — 2026-08-31T23:29:34Z
+
+- Latest exact acquisition artifact before repositioning (run
+  `33428734416`, artifact `9771735945`) observed: 0 qualified interest
+  issues; 0 distinct external authors; 0 VS-qualified issues/authors; 0 public
+  external `@v2` code references; no public v2.0.0 release; one star; zero
+  forks; VS v1.1.0 at 103 installs / 197 downloads versus 103 / 166 baseline.
+  The 2026-08-30T11:15:00Z gate emitted
+  `failed_reposition_required`. Download growth alone did not pass it.
+- Reposition PR [#28](https://github.com/ntoledo319/EOLkits/pull/28) merged as
+  `23762f3f7a8e7ccc61b76c7fef4a00d1fa7fec99` after Determinism
+  `33449780627`, Property `33449780633`, and release-surface
+  `33449780615` passed. All seven observed merge workflows passed. The release
+  tree changed the VS name/search/first-run copy, moved it to v1.2.0, and added
+  the publicly supported operator identity to legal surfaces.
+- Authorized operations PR
+  [#29](https://github.com/ntoledo319/EOLkits/pull/29) merged exact reviewed head
+  `130f316e...` as `5cce3bb909689bbed8f0752312d0a84fbe4c89f7`; all three
+  PR suites and all six observed merge workflows passed.
+- VS publication run
+  [33450455161](https://github.com/ntoledo319/EOLkits/actions/runs/33450455161)
+  tested, packaged, and reported
+  `Published rupture.rupture-vscode v1.2.0`. The public Marketplace page and
+  cache-busted official Gallery API then independently showed display name
+  **AWS Lambda EOL Scanner — EOLkits**, version 1.2.0, last update
+  `2026-08-31T23:27:54.62Z`, 103 installs, and 199 downloads. New gate:
+  `2026-09-05T23:27:55Z`.
+- Bounded platform run
+  [33450455146](https://github.com/ntoledo319/EOLkits/actions/runs/33450455146)
+  passed its safety controls but had no DEV owner key. Independent public reads
+  after the run found 25 live DEV posts and an empty ruleset list. The same
+  merge triggered legacy dynamic Pages run `33450454076`, confirming the
+  repository-admin race was not removed.
+- Fresh production read-only probes: `/health` 200,
+  `/api/capabilities` 404, `/api/status` 404, stale `/pack/install` 200,
+  one raw `https://stats.saiditright.com/script.js` injection, and HTTP 000
+  timeouts for both direct Caddy-admin routes. No deployment or mutation was
+  attempted without authority.
+- Retired Stripe credential rotation/revocation was expressly excluded by the
+  owner and was not attempted. No Product, Price, Payment Link, checkout,
+  customer record, or live charge was created or changed.
+- Cleanup-tree verification: all 16 remaining workflow YAML files parsed; every
+  acquisition/publication shell block passed `bash -n` and ShellCheck; VS
+  compile/lint/rule tests passed with zero production audit findings; the
+  generated web build passed 35 tests and produced no `docs/` drift; and
+  `git diff --check` passed.
+- Qualified issues: **0**. Paid reports: **0**. Workspace-observed collected
+  revenue: **$0**. Workspace-observed collected profit: **$0**. Target gap:
+  **$4,000**.

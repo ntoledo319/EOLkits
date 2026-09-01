@@ -1127,3 +1127,57 @@ through HQ-7 are unchanged and still require the owner; HQ-5's release link
 was re-verified this cycle via `list_releases` (id `375063073`, tag
 `v2.0.0`, slug `untagged-ea8be73c7a7d9b6c45e7`) and matches
 `HUMAN_QUEUE.md` exactly — no repair needed this time.
+
+## D53 — honor the failed VS gate with one focused reposition
+
+(Renumbered from `origin/main`'s independent D51 to avoid colliding with this
+branch's own D51 above; both were shipped in parallel Aug 31 cycles on
+diverging branches — this branch's cycles continued on
+`marketing-machine-v2` while a separate concurrent cycle worked directly on
+`main`. Reconciled by the September 1 merge; see D56 below.)
+
+The exact v1.1.0 gate failed: installs did not increase and no qualified
+VS-attributed external author appeared. Cumulative downloads increased, but the
+workflow intentionally treats them as context rather than purchase intent.
+Used the policy's one reposition on discoverability and activation—not a new
+SKU or inflated promise: renamed the listing around the concrete Lambda EOL
+job, added Terraform/SAM/CloudFormation and runtime keywords, made the first
+scan path explicit, and published v1.2.0 from exact green commit `23762f3f...`.
+Reset the baseline only after the official public surface showed v1.2.0.
+
+## D54 — automate authorized account operations only through validated authority
+
+(Renumbered from `origin/main`'s independent D52 for the same reason as D53
+above.)
+
+The owner authorized every previously listed operation except retired Stripe
+credential rotation. A one-use workflow therefore checked only recognized DEV
+and GitHub-admin secret names, validated identity/repository access before use,
+bounded every mutation to exact known targets, printed no credential, and
+destroyed transient response/token files. It was tied to the first
+owner-attributed push after exact base `23762f3f...`.
+
+The safe attempt did not produce authority that does not exist: no DEV key was
+configured, public DEV state remains 25 posts, the ruleset list remains empty,
+and legacy dynamic Pages still ran. Do not bypass those boundaries, scrape
+browser sessions, exploit the host, or reinterpret broad authorization as
+permission to invent seller/payment facts. Remove the one-use workflow after
+its terminal run.
+
+## D55 — publish the free surface, keep the paid surface fail-closed
+
+(Renumbered from `origin/main`'s independent D53 for the same reason as D53/D54
+above.)
+
+Publishing tested VS v1.2.0 is reversible distribution work with no customer
+charge. Creating a live Stripe catalog and opening checkout is materially
+different: current GRACE still lacks the v2 capability/status contract, exposes
+the stale install surface, and injects an unreviewed script. The fulfillment,
+delivery, refund, retention, legal, and actual-fee/cost gates also remain
+unproven. Therefore ship the free acquisition improvement now, but create no
+live payment objects and keep checkout closed until every recorded prerequisite
+passes.
+
+The retired Stripe credential rotation/revocation is explicitly out of scope at
+the owner's direction. That records a deferred risk; it is not evidence that
+the credential is safe, revoked, or reusable.

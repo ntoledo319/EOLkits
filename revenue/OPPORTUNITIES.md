@@ -444,3 +444,29 @@ K1's product quality — a stranger evaluating the free tool before considering
 Audit would have gotten a wrong "healthy" result for that runtime — but it is
 a defect repair, not new demand evidence, and does not change any frame's
 score or the ranking.
+
+## August 31 gate result and authorized execution
+
+The ranking remains **K1 → A1 → V1 → C4**; the evidence changed V1's lifecycle,
+not the portfolio's revenue forecast.
+
+1. **K1:** direct public `@v2` consumption works and the one canonical
+   v2.0.0 draft is exact, but the Marketplace still displays v1.1.0 until the
+   owner completes GitHub's agreement/checkbox/2FA publication ceremony.
+2. **A1:** remains the only revenue-bearing unit and remains correctly closed.
+   The production host is still pre-v2 and injected; there is no verified
+   delivery/refund exercise, exact seller/account-cost facts, or new attested
+   live catalog.
+3. **V1:** the old gate failed with 103 installs (zero growth), 197 downloads
+   (+31 context-only), zero qualified VS-attributed external authors, and zero
+   qualified interest issues. Per the gate policy, its single reposition was
+   shipped as public v1.2.0 with a Lambda-specific name, search vocabulary, and
+   first-scan path. Its clean baseline is 103 installs / 199 downloads and its
+   new falsifier is 2026-09-05T23:27:55Z.
+4. **C4:** the reviewed Pages origin remains useful, but the custom domain
+   cannot be a paid funnel until the stale API and host injection are removed.
+
+This work creates a better free acquisition surface, not evidence for a higher
+price or another product. Qualified buyers, purchases, collected revenue, and
+collected profit remain zero. The conservative target remains 16 initial $299
+sales under the provisional fee assumptions already recorded above.

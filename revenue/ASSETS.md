@@ -424,3 +424,35 @@ AWS access is included.
   production GRACE is still the stale upload service, checkout remains closed,
   and the custom host still needs owner-side containment, v2 deployment, and
   injection removal before a new live catalog may be created or used.
+
+## Authorized execution and v1.2 reposition — August 31, 2026
+
+- **VS Code extension:** the evidence gate for v1.1.0 failed exactly as
+  designed: install growth and qualified VS-attributed authors were both zero.
+  The one permitted reposition is now public as
+  `rupture.rupture-vscode@1.2.0`, named **AWS Lambda EOL Scanner — EOLkits**.
+  The Marketplace showed 103 installs and 199 downloads when v1.2.0 became
+  publicly observable at 2026-08-31T23:27:54Z. A fresh five-day gate ends
+  2026-09-05T23:27:55Z; publication is distribution, not paid demand.
+- **Seller identity and legal surfaces:** the generated site now identifies
+  Toledo Technologies LLC, based in Connecticut, with
+  `hello@toledotechnologies.com` as support contact. Terms, privacy, DPA, and
+  build date were rebuilt from the same reviewed tree. Mailing address, chosen
+  governing jurisdiction, actual Stripe account/currency facts, and incremental
+  GRACE cost remain unknown and are not guessed.
+- **GitHub Action:** public `@v2` and the canonical private v2.0.0 draft remain
+  aligned to `47cd9eae...`. GitHub's Marketplace agreement, listing checkbox,
+  and 2FA ceremony still have no supported API substitute.
+- **Audit v2 / custom host:** a fresh read-only probe still returned health 200,
+  capabilities 404, status 404, and stale `/pack/install` 200, with one raw
+  `stats.saiditright.com/script.js` injection. Both Caddy-admin routes timed
+  out. Checkout remains closed and no live Product/Price was created.
+- **Administrative/distribution hygiene:** the exact 25 DEV posts are still
+  public because no DEV owner key or connector exists. GitHub's public ruleset
+  list remains empty, and the authorized merge still triggered the legacy
+  dynamic Pages publisher because connected authority lacks repository
+  administration.
+
+The smallest sellable unit is unchanged: one automated, static, source-only
+Audit v2 PDF for one repository ZIP or supported source file at $299. Public
+distribution improved; observed paid demand and collected revenue did not.
