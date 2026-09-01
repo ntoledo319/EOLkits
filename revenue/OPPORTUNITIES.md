@@ -470,3 +470,14 @@ This work creates a better free acquisition surface, not evidence for a higher
 price or another product. Qualified buyers, purchases, collected revenue, and
 collected profit remain zero. The conservative target remains 16 initial $299
 sales under the provisional fee assumptions already recorded above.
+
+## Branch reconciliation note — September 1, 2026
+
+Ranking remains **K1 → A1 → V1 → C4**; nothing here moves it. This cycle
+reconciled a real branch divergence (`marketing-machine-v2` vs `origin/main`,
+three merged PRs) and fixed a second `lambda-lifeline` live-scan false
+negative (`python3.11`, same class as D52's `python3.8` fix). K1's product
+quality improves again; V1's public state is now confirmed at v1.2.0 with
+its five-day gate at `2026-09-05T23:27:55Z` (unchanged from `main`'s prior
+observation, just now visible on this branch). No new demand evidence, no
+frame score change.

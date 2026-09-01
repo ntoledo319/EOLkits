@@ -987,3 +987,56 @@ benchmarks, or unverified analytics in this ledger.
 - Qualified issues: **0**. Paid reports: **0**. Workspace-observed collected
   revenue: **$0**. Workspace-observed collected profit: **$0**. Target gap:
   **$4,000**.
+
+## Branch reconciliation and second live-scan false-negative fix (python3.11) — September 1, 2026
+
+- `marketing-machine-v2` and `origin/main` had genuinely diverged at shared
+  base `47cd9eae` (confirmed via failed `git merge-base --is-ancestor`), not
+  a repeat of D44's already-merged case. `origin/main` carried three merged
+  PRs (#28 VS v1.2 reposition, #29 authorized platform operations, #30
+  evidence finalization) not yet on this branch. Merged without force,
+  preserving both commit lines; commit `68652e3`. All non-`revenue/` files
+  auto-merged with zero conflicts; `revenue/*.md` conflicts were pure
+  trailing-append collisions, resolved by concatenating both histories in
+  chronological order (see DECISIONS D56 for the full renumbering map).
+- Post-merge state: VS Code extension `apps/vscode-extension/package.json`
+  now `1.2.0`; public Marketplace previously observed (per `main`'s own
+  evidence) at `rupture.rupture-vscode@1.2.0`, "AWS Lambda EOL Scanner —
+  EOLkits", 103 installs / 199 downloads, five-day gate
+  `2026-09-05T23:27:55Z`. Legal pages (`legal/*.md`, `docs/legal/*.html`)
+  now identify Toledo Technologies LLC / Connecticut /
+  `hello@toledotechnologies.com`.
+- `pytest -q apps/web` was 35/35 green on the merged tree before any further
+  change (proves the merge itself is not a regression). `apps/web/BUILD_DATE`
+  was then bumped `2026-08-31` → `2026-09-01`; rebuild stayed 35/35 green;
+  diff was 15 files, entirely date-derived.
+- Egress test repeated the standing method (sixth consecutive cycle): `curl`
+  through the configured proxy to `example.com` and `docs.aws.amazon.com`
+  both returned HTTP 403; `WebFetch` to `docs.aws.amazon.com` returned
+  `EGRESS_BLOCKED`; proxy status endpoint confirmed the proxy itself is up.
+  No new repost-answers batch or dev.to draft produced this cycle.
+- Found and fixed a second live-scan false negative in `kits/lambda-lifeline`,
+  same class as D52's `python3.8` fix: `rules/public/deprecations.yml`
+  (`date`/block-create `2027-07-31`, `block_update_date` `2027-08-31`,
+  `deprecation_date` `2027-06-30`) and `kits/python-pivot`'s `RUNTIME_TABLE`
+  (identical three dates) already agreed on `python3.11`, but
+  `kits/lambda-lifeline/src/scan/index.mjs`'s `AT_RISK_RUNTIMES`/
+  `PHASE_DATES`/`UPGRADE_TARGETS` had no `python3.11` entry — a real scan of
+  a `python3.11` Lambda function would report `eol: false` / `'ok'`.
+- Added the corroborated `python3.11` entry (matching both sources exactly)
+  to all three tables; added fixture function `ml-inference-endpoint` to
+  `test/fixtures/lambda-inventory.json`; updated `test/scan.test.mjs` (9
+  functions / 8 at risk, explicit `python3.11` assertions) and the README's
+  sample-output block to match.
+- Verification: `node --test test/*.test.mjs` passed **28/28**; the Python
+  `hypothesis` property suite stayed **3/3** green (Node-only change,
+  unaffected); `npm pack --dry-run` still reports exactly **24** release
+  files. Confirmed `ruby3.2`/`dotnet6` remain correctly excluded from the
+  public rules file (no second corroborating source, per D43, not
+  re-litigated this cycle). Grepped the GitHub Action and VS extension for
+  any reference to the fixture's counts: none found.
+- No price, checkout, Stripe, GRACE, DEV-account, or Marketplace-publication
+  state changed. Qualified issues: **0**. Paid reports: **0**.
+  Workspace-observed collected revenue: **$0**. Workspace-observed collected
+  profit: **$0**. Target gap: **$4,000**. The authoritative owner queue is
+  now `revenue/HUMAN_QUEUE.md`'s HQ-A through HQ-G (40 minutes).

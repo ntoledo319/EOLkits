@@ -456,3 +456,29 @@ AWS access is included.
 The smallest sellable unit is unchanged: one automated, static, source-only
 Audit v2 PDF for one repository ZIP or supported source file at $299. Public
 distribution improved; observed paid demand and collected revenue did not.
+
+## Branch reconciliation and second scanner correctness fix — September 1, 2026
+
+- Reconciled `marketing-machine-v2` with `origin/main`'s three merged PRs
+  (#28-#30: VS v1.2.0 reposition/publication, operator legal identity,
+  authorized-ops attempt). See METRICS.md and DECISIONS D56 for the full
+  merge/renumbering record.
+- Asset 2 (local kits and GitHub Action) correction: `lambda-lifeline`'s
+  live-scan runtime tables were missing `python3.11` entirely, the same
+  defect class as the `python3.8` gap fixed in D52. Two already-corroborating
+  internal sources (`rules/public/deprecations.yml`'s existing
+  `lambda-python-3.11-eol` entry and `python-pivot`'s `RUNTIME_TABLE`) agreed
+  on identical dates. Fixed with a new regression-test fixture case; 28/28
+  Node tests and 3/3 property tests stayed green; `npm pack --dry-run` still
+  reports 24 release files. This closes a second real detection gap in the
+  free product buyers evaluate before purchasing Audit.
+- Asset 3 (VS Code extension): now confirmed at public `1.2.0`,
+  "AWS Lambda EOL Scanner — EOLkits", per the merged `main` evidence
+  (103 installs / 199 downloads baseline, five-day gate
+  `2026-09-05T23:27:55Z`).
+- Asset 6 (content/legal): legal pages now identify Toledo Technologies LLC,
+  Connecticut, `hello@toledotechnologies.com`. Business mailing address,
+  governing jurisdiction, actual Stripe account facts, and incremental
+  hosting cost remain unknown and are not guessed.
+- No asset's completeness, license, or monetization frame changed beyond
+  these correctness/identity facts. Collected revenue remains $0.

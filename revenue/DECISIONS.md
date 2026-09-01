@@ -1181,3 +1181,78 @@ passes.
 The retired Stripe credential rotation/revocation is explicitly out of scope at
 the owner's direction. That records a deferred risk; it is not evidence that
 the credential is safe, revoked, or reusable.
+
+## D56 — reconcile the parallel `main`/`marketing-machine-v2` divergence; fix a second live-scan false negative (python3.11)
+
+Cycle start: `marketing-machine-v2` and `origin/main` had diverged at shared
+base `47cd9eae` — this branch continued daily maintenance cycles (D51/D52
+above), while a separate concurrent cycle worked directly on `main` through
+PRs #28-#30 (VS v1.2.0 reposition/publication, operator legal identity,
+authorized DEV/Pages/ruleset attempt; that cycle's own D51-D53 as recorded
+in `main`'s history). `git merge-base --is-ancestor origin/main
+marketing-machine-v2` failed, confirming real divergence rather than a
+repeat of D44's already-merged case. Merged `origin/main` into
+`marketing-machine-v2` (not rebase, preserving both commit lines, matching
+the D50/D51 precedent). All non-`revenue/` files (VS extension v1.2.0, legal
+pages, workflow YAML) auto-merged with zero conflicts. `revenue/*.md`
+conflicted only in trailing append blocks; resolved by keeping both
+histories in chronological order and renumbering collisions: this branch's
+D51/D52 kept their numbers, `main`'s independent D51-D53 became D53-D55
+here; `HUMAN_QUEUE.md`'s old HQ-0..HQ-7 numbering is superseded by `main`'s
+newer, more complete HQ-A..HQ-G (this branch's durable-release-id/fallback
+note for the Marketplace draft link was preserved inside `main`'s HQ-E
+step).
+
+`apps/web/BUILD_DATE` was one day stale (`2026-08-31` against today's
+`2026-09-01`) on the merged tree. Confirmed `pytest -q apps/web` 35/35 green
+on the merged tree first (proving the merge itself didn't regress anything),
+then bumped and rebuilt: 35/35 stayed green, diff was 15 files, entirely
+date-derived (countdowns, ICS `DTSTAMP`, sitemap `lastmod`,
+`status/data.json` `generated_at`).
+
+Egress test repeated the standing method (sixth consecutive cycle): direct
+`curl` through the configured proxy to `example.com` and
+`docs.aws.amazon.com` both returned HTTP 403 (`CONNECT tunnel failed`); a
+`WebFetch` to `docs.aws.amazon.com` also returned `EGRESS_BLOCKED`;
+`$HTTPS_PROXY/__agentproxy/status` confirmed the proxy itself is reachable
+and logged both as `connect_rejected`. Per AGENTS.md's fallback, no new
+repost-answers batch or dev.to draft was produced this cycle.
+
+Repeated the standing scanner/deprecations cross-check (the same one that
+found D42's nodejs16.x gap and D52's python3.8 gap) and found a second
+instance of the identical defect class: `rules/public/deprecations.yml`
+carries a full "Lambda Python 3.11 projected create/update restrictions"
+entry (`date`/block-create `2027-07-31`, `block_update_date` `2027-08-31`,
+`deprecation_date` `2027-06-30`), and `kits/python-pivot`'s `RUNTIME_TABLE`
+independently agrees on the identical three dates for `python3.11` — the
+same two-source corroboration bar D52 used for `python3.8`. But
+`kits/lambda-lifeline/src/scan/index.mjs`'s `AT_RISK_RUNTIMES` set and
+`PHASE_DATES` table had no `python3.11` entry at all (only `python3.10` had
+been added, apparently in a cycle not captured in this branch's own
+DECISIONS history). A real `lambda-lifeline scan` against an AWS account
+running a `python3.11` Lambda function would therefore report `eol: false`
+/ severity `'ok'` — a false negative for a runtime the site's own
+`/migrate/lambda-python-3.11-eol/` page already tracks, identical in kind
+to D52's python3.8 finding and D42's nodejs16.x finding.
+
+Added `python3.11` to `AT_RISK_RUNTIMES`, `PHASE_DATES`
+(`phase1: 2027-06-30, block_create: 2027-07-31, block_update: 2027-08-31`),
+and `UPGRADE_TARGETS` (`python3.12`) in `index.mjs`, matching both
+corroborating sources exactly. Confirmed `ruby3.2`/`dotnet6` remain
+correctly excluded from the public rules file per D43's still-valid
+reasoning (no second corroborating source; not re-litigated this cycle).
+Added fixture function `ml-inference-endpoint` (`python3.11`) to
+`test/fixtures/lambda-inventory.json`; updated `test/scan.test.mjs` (9
+functions / 8 at risk, explicit `python3.11` field assertions) and the
+README's sample-output block to match. `node --test test/*.test.mjs`
+passed 28/28 (unchanged count); the `hypothesis` property suite stayed
+3/3 green (Node-only change, unaffected); `npm pack --dry-run` still
+reports exactly 24 release files. Grepped the GitHub Action and VS
+extension for any reference to the fixture's counts: none found, so no
+other package needed updating.
+
+No price, checkout, Stripe, GRACE, DEV-account, or Marketplace-publication
+state changed. Collected profit remains $0; the gap remains $4,000. The
+authoritative owner queue is now `revenue/HUMAN_QUEUE.md`'s HQ-A through
+HQ-G (40 minutes); do not use the superseded HQ-0..HQ-7 numbering from
+before this merge.

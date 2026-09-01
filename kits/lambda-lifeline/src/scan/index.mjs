@@ -12,7 +12,7 @@ import { writeFileSync, readFileSync } from 'node:fs';
 
 const AT_RISK_RUNTIMES = new Set([
   'nodejs14.x', 'nodejs16.x', 'nodejs18.x', 'nodejs20.x', 'nodejs22.x',
-  'python3.8', 'python3.9', 'python3.10',       // bonus: flagged but not our primary scope
+  'python3.8', 'python3.9', 'python3.10', 'python3.11', // bonus: flagged but not our primary scope
   'ruby3.2',                                    // bonus
   'dotnet6',
   'java8.al2',
@@ -30,6 +30,7 @@ const PHASE_DATES = {
   'python3.8':  { phase1: '2024-10-14', block_create: '2027-02-01', block_update: '2027-03-03' },
   'python3.9':  { phase1: '2025-12-15', block_create: '2027-02-01', block_update: '2027-03-03' },
   'python3.10': { phase1: '2026-10-31', block_create: '2027-02-01', block_update: '2027-03-03' },
+  'python3.11': { phase1: '2027-06-30', block_create: '2027-07-31', block_update: '2027-08-31' },
   'ruby3.2':    { phase1: '2026-03-31', block_create: '2027-02-01', block_update: '2027-03-03' },
   'dotnet6':    { phase1: '2024-12-20', block_create: '2027-02-01', block_update: '2027-03-03' },
 };
@@ -43,6 +44,7 @@ const UPGRADE_TARGETS = {
   'python3.8':  'python3.12',
   'python3.9':  'python3.12',
   'python3.10': 'python3.12',
+  'python3.11': 'python3.12',
   'ruby3.2':    'ruby3.4',
   'dotnet6':    'dotnet8',
   'java8.al2':  'java21',

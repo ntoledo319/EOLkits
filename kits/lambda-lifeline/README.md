@@ -85,7 +85,7 @@ so it is shown as `…` below:
 
 ```
 $ lambda-lifeline scan --fixture test/fixtures/lambda-inventory.json
-ℹ Scanned 8 functions · 1 healthy · 7 at risk
+ℹ Scanned 9 functions · 1 healthy · 8 at risk
 
 Function                             Runtime        Region         Severity           Days   Target
 ---------------------------------------------------------------------------------------------------
@@ -96,6 +96,7 @@ events-api-current                   nodejs22.x     us-east-1      medium       
 report-generator                     python3.10     us-east-1      medium             …      python3.12
 ruby-legacy-processor                ruby3.2        us-east-1      high               …      ruby3.4
 invoice-etl-batch                    python3.8      us-east-1      high               …      python3.12
+ml-inference-endpoint                python3.11     us-east-1      medium             …      python3.12
 ```
 
 ```
