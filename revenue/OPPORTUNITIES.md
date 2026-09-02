@@ -481,3 +481,14 @@ quality improves again; V1's public state is now confirmed at v1.2.0 with
 its five-day gate at `2026-09-05T23:27:55Z` (unchanged from `main`'s prior
 observation, just now visible on this branch). No new demand evidence, no
 frame score change.
+
+## Maintenance-only note — September 2, 2026
+
+Ranking remains **K1 → A1 → V1 → C4**. Egress was blocked for the seventh
+consecutive cycle (now confirmed a general organization-policy block, not a
+two-domain denylist — see DECISIONS D57), so no new C4 content or K1/V1
+correctness gap could be researched externally. A full internal re-sweep of
+the lambda-lifeline/deprecations.yml/python-pivot cross-check found no new
+K1 product defect beyond the already-fixed python3.8/python3.11 cases. V1's
+five-day gate (`2026-09-05T23:27:55Z`) remains pending. No frame score
+change; no new demand evidence.

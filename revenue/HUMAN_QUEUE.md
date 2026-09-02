@@ -1,5 +1,11 @@
 # Batched owner queue — authoritative August 31, 2026 — maximum 40 minutes
 
+_Re-verified unchanged on September 2, 2026: HQ-E's release link (id
+`375063073`, tag `v2.0.0`, slug `untagged-ea8be73c7a7d9b6c45e7`) still
+matches exactly via `mcp__github__list_releases`. No other item's
+external state has been observed to change; do not treat this note as new
+owner action._
+
 _September 1, 2026: reconciled two parallel cycles' queues (one on
 `marketing-machine-v2`, one on `main`) after they diverged from the same
 August 30 recovery base. `main`'s HQ-A..HQ-G renumbering and VS v1.2.0

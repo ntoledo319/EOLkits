@@ -1040,3 +1040,46 @@ benchmarks, or unverified analytics in this ledger.
   Workspace-observed collected revenue: **$0**. Workspace-observed collected
   profit: **$0**. Target gap: **$4,000**. The authoritative owner queue is
   now `revenue/HUMAN_QUEUE.md`'s HQ-A through HQ-G (40 minutes).
+
+## Seventh consecutive egress-blocked cycle; build-date maintenance only — September 2, 2026
+
+- Cycle-start check: `git merge-base --is-ancestor origin/main
+  marketing-machine-v2` succeeded (no divergence this cycle); `git pull
+  --rebase` was a no-op.
+- Egress test (seventh consecutive cycle): direct `curl` through the
+  configured proxy to `example.com` and `docs.aws.amazon.com` both returned
+  HTTP 403 (`CONNECT tunnel failed`); `$HTTPS_PROXY/__agentproxy/status`
+  confirmed the proxy itself is reachable, logging both as
+  `connect_rejected`. A signed Azure Blob Storage download URL for the
+  latest scheduled `acquisition-evidence.yml` artifact (obtained via the
+  GitHub Actions API, run `33532642787`) also returned `connect_rejected`
+  through the same proxy — this container's general HTTPS egress is
+  blocked at the organization-policy level, not only for the two standing
+  test domains. No new repost-answers batch or dev.to draft was produced;
+  no new acquisition-artifact evidence could be pulled beyond confirming
+  that run `33532642787` (2026-09-01T16:35:05Z, artifact ID `9810335292`,
+  digest `sha256:7986950bc9ccf21f421d9b5c3955c51d9b6c70fee9078875735ef4d39fb26874`)
+  exists and completed successfully, via the GitHub Actions API (which
+  does not require this container's own egress).
+- Re-verified `revenue/HUMAN_QUEUE.md`'s HQ-E release link via
+  `mcp__github__list_releases`: release id `375063073`, tag `v2.0.0`, slug
+  `untagged-ea8be73c7a7d9b6c45e7` — matches exactly, no repair needed.
+- Repeated the standing correctness sweep (`kits/lambda-lifeline`'s runtime
+  tables vs. `rules/public/deprecations.yml` and `kits/python-pivot`'s
+  `RUNTIME_TABLE`; the 25 quarantined DEV drafts' dates): no new gap found.
+  python3.8 (D52) and python3.11 (D56) remain correctly present;
+  `nodejs14.x`/`java8.al2`/`provided.al2` remain intentionally excluded from
+  `PHASE_DATES` (already fully past block dates, or no second corroborating
+  source), consistent with existing design.
+- `apps/web/BUILD_DATE` was one day stale (`2026-09-01` vs. today's
+  `2026-09-02`). Confirmed `pytest -q apps/web` 35/35 green on the stale
+  baseline first (project-local venv under gitignored `tmp/`), bumped and
+  rebuilt: 35/35 stayed green; `git diff --stat -- docs` showed exactly 15
+  files changed, all date-derived (sitemap/feed `lastmod`, ICS `DTSTAMP`,
+  `/migrate/` countdowns, `status/data.json` `generated_at`) — no
+  structural or claim-text change.
+- No price, checkout, Stripe, GRACE, DEV-account, or Marketplace-publication
+  state changed. Qualified issues: **0**. Paid reports: **0**.
+  Workspace-observed collected revenue: **$0**. Workspace-observed collected
+  profit: **$0**. Target gap: **$4,000**. VS v1.2.0's five-day gate
+  (`2026-09-05T23:27:55Z`) has not yet arrived.

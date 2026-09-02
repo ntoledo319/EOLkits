@@ -1256,3 +1256,65 @@ state changed. Collected profit remains $0; the gap remains $4,000. The
 authoritative owner queue is now `revenue/HUMAN_QUEUE.md`'s HQ-A through
 HQ-G (40 minutes); do not use the superseded HQ-0..HQ-7 numbering from
 before this merge.
+
+## D57 — seventh consecutive egress-blocked cycle; bump BUILD_DATE only after finding no new correctness gap
+
+Cycle start: `origin/main` confirmed an ancestor of `marketing-machine-v2`
+(`git merge-base --is-ancestor`) — `git pull --rebase` on the branch was a
+no-op, so no repeat of D44/D51/D56's divergence patterns this cycle.
+
+Egress test repeated the standing method (seventh consecutive cycle): direct
+`curl` through the configured proxy to `example.com` and
+`docs.aws.amazon.com` both returned HTTP 403 (`CONNECT tunnel failed`);
+`$HTTPS_PROXY/__agentproxy/status` confirmed the proxy itself is reachable
+and logged both as `connect_rejected`. Also attempted, as a new check this
+cycle, to read the latest scheduled `acquisition-evidence.yml` artifact
+(run `33532642787`, 2026-09-01) via its signed Azure Blob Storage download
+URL obtained through the GitHub API (a different path than a direct
+`docs.aws.amazon.com`/`example.com` fetch, since the GitHub API itself
+remains reachable through the connected GitHub MCP tools). That download
+also returned `connect_rejected` through the same proxy, confirming this is
+an organization-policy-level block on general HTTPS egress from this
+container, not a per-domain denylist limited to the two standing test
+domains. Per AGENTS.md's fallback, no new repost-answers batch or dev.to
+draft was produced this cycle, and this cycle could not refresh METRICS.md
+with a new acquisition-artifact observation beyond what was already
+recorded from run `33532642787`'s existence (visible via the GitHub Actions
+API, which does not require this container's own egress).
+
+Before falling back to the routine BUILD_DATE maintenance fix, re-ran the
+full standing correctness sweep to check whether a new gap had appeared
+since D56: `kits/lambda-lifeline/src/scan/index.mjs`'s `AT_RISK_RUNTIMES`/
+`PHASE_DATES`/`UPGRADE_TARGETS` tables now carry corroborated entries for
+every runtime `rules/public/deprecations.yml` and `kits/python-pivot`'s
+`RUNTIME_TABLE` track (nodejs16.x/18.x/20.x/22.x, python3.8/3.9/3.10/3.11,
+ruby3.2, dotnet6) — python3.8 (D52) and python3.11 (D56) are confirmed
+present and correct. `nodejs14.x`, `java8.al2`, and `provided.al2` remain
+intentionally absent from `PHASE_DATES` (each already fully past its block
+dates or lacking a second corroborating source), matching the same
+`severity()` fallback-to-`critical-eol` design already used for those
+entries; this is consistent, not a bug. `apps/web/content/fixes.yml`'s
+python3.12/3.13 guidance is consistent with both tables treating those as
+supported upgrade targets, not deprecated runtimes. No new date error was
+found in the 25 quarantined `launch/distribution/devto/*.md` drafts beyond
+the two already recorded in that directory's `README.md`.
+
+Found no new correctness gap this cycle. `apps/web/BUILD_DATE` was one day
+stale (`2026-09-01` against today's `2026-09-02`). Built a project-local
+venv from `apps/web/requirements-dev.lock` (kept under `tmp/`, gitignored)
+and confirmed `pytest -q apps/web` was 35/35 green on the stale baseline
+first; bumped `BUILD_DATE` to `2026-09-02`, rebuilt via `apps/web/build.py`
+under the exact `EOLKITS_BASE_PATH`/`EOLKITS_SITE_URL`/`EOLKITS_API_URL`
+env vars CI uses, and re-ran the suite: 35/35 still green. `git diff --stat
+-- docs` showed exactly 15 files changed; inspected the full diff and
+confirmed every changed line is date-derived (sitemap/feed `lastmod`, ICS
+`DTSTAMP`, `/migrate/` countdown text, `status/data.json` `generated_at`) —
+no structural, price, or claim-text change.
+
+No price, checkout, Stripe, GRACE, DEV-account, or Marketplace-publication
+state changed. Collected profit remains $0; the gap remains $4,000. The
+authoritative owner queue remains `revenue/HUMAN_QUEUE.md`'s HQ-A through
+HQ-G (40 minutes) — HQ-E's release link (id `375063073`, slug
+`untagged-ea8be73c7a7d9b6c45e7`) was re-verified via `list_releases` this
+cycle and still matches `HUMAN_QUEUE.md` exactly, no repair needed. The VS
+v1.2.0 five-day gate (`2026-09-05T23:27:55Z`) has not yet arrived.
