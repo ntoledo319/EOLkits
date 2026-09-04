@@ -596,3 +596,14 @@ $0.
 - The smallest sellable unit remains one automated, source-only Audit v2 PDF at
   $299. No asset became purchasable in this cycle; observed revenue and profit
   remain $0.
+
+## Final merged asset state — September 4, 2026
+
+The discovery audit is merged on `main` at `734b2d007e890fb0e2c53bdc746ce144dcfdefe2`
+with all PR and merge-SHA product gates green. The static deployment branch
+resolves to the same commit, the public repository retains 20 topics including
+`github-actions`, and Action release draft `375063073` still targets protected
+`v2` exactly. The later cleanup containment failure changed no product asset;
+its deleted feature-branch commits remain in `main`. The $299 Audit remains the
+smallest sellable unit and remains unavailable until the owner-only launch gates
+pass.

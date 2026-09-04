@@ -601,3 +601,12 @@ closed-deploy/E2E/catalog sequence. V1 remains a useful acquisition surface, not
 a proved sales channel. RapidAPI remains queued behind real checkout evidence;
 building it now would create another account/payment dependency rather than a
 faster first dollar.
+
+## Post-merge ranking — September 4, 2026
+
+PR #56 and the exact merge-SHA suites make the discovery record durable but add
+no customer signal. The subsequent cleanup containment failure also changes no
+market fact. Ranking remains **A1 cash path → V1 acquisition → K1 acquisition →
+A3 queued**. Do not interpret the new GitHub topic, green checks, merged state,
+or branch alignment as a sale, and do not add a substitute SKU while A1 remains
+closed on owner-only production/payment gates.

@@ -1,5 +1,11 @@
 # Batched owner queue — authoritative September 4, 2026 — maximum 38 minutes
 
+_PR #56 is merged and green at exact `main` SHA
+`734b2d007e890fb0e2c53bdc746ce144dcfdefe2`; the static branch matches it.
+The later feature-branch cleanup containment failure changed no queue item or
+commercial prerequisite. The total remains 38 minutes, and the retired Stripe
+credential action remains excluded._
+
 _A resumed discovery-boundary audit at `2026-09-04T12:30:43Z` added the one
 missing exact repository topic (`github-actions`) and reverified the same draft
 target. VS search position, repository metadata, connected hosting inventory,

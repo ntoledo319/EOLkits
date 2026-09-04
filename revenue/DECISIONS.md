@@ -1593,3 +1593,17 @@ credentials or durable evidence and were immediately deleted with
 `apply_patch`. This did not violate the workspace boundary or mutate external
 state, but shell redirection was the wrong file-edit mechanism. Record it and
 keep all later assertions in process.
+
+## D76 — preserve the final merge, disclose the root cleanup violation
+
+Merge PR #56 only after all 20 contexts pass, then require the three exact
+merge-SHA suites and fast-forward the strictly ancestral static branch without
+force. Those postconditions passed at `734b2d00`. A later cleanup command then
+used `/dev/stdout` for a branch-existence probe and deleted the already-merged
+feature branch in the same compound command. Treat the device target as a jail
+violation and the subsequent deletion as a prohibited post-violation public
+mutation even though no content or secret persisted outside the jail and all
+deleted-branch commits remain on `main`. Terminate that cycle; resume only after
+fresh jail validation and another read of all six state files. Do not roll back
+the valid merge or recreate the disposable feature branch, because neither
+would repair the process failure or advance revenue.

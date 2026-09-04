@@ -740,3 +740,26 @@ demand, checkout readiness, or revenue. The remaining owner-only batch stays at
 Workspace-observed revenue and profit remain **$0**; gap remains **$4,000**;
 checkout remains **closed**. The excluded retired Stripe credential action was
 not attempted.
+
+## Final merge evidence and second containment stop — September 4, 2026
+
+PR #56 merged the aborted-cycle record plus discovery-boundary audit as exact
+`main` SHA `734b2d007e890fb0e2c53bdc746ce144dcfdefe2`. All 20 PR contexts passed;
+the merge SHA then passed determinism run `33873507318`, property run
+`33873507327`, and release-surface run `33873507329`. The strictly ancestral
+`marketing-machine-v2` ref was fast-forwarded without force to that same SHA.
+
+The subsequent feature-branch cleanup cycle failed containment: the root agent
+sent `git ls-remote` output through `/dev/stdout`, which is outside the workspace
+jail, and the same compound command then deleted the already-merged remote
+feature branch. The device write persisted no file or secret, and the deleted
+branch's commits remain reachable through PR #56 and `main`, but both the path
+target and the public mutation after it violated the operating rules. Stop that
+cycle. This fresh record began only after revalidating the exact jail and reading
+all six state files again.
+
+No commercial conclusion changes. Main and `marketing-machine-v2` remain equal,
+the 20-topic public discovery state remains live, and the private v2 Action
+draft remains exact. Checkout is **closed**; workspace-observed revenue and
+profit remain **$0**; the gap remains **$4,000**; the owner-only queue remains
+**38 minutes**. The excluded retired Stripe credential action was not attempted.
