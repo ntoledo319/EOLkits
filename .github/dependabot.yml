@@ -8,7 +8,7 @@ updates:
     directory: "/kits/python-pivot"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "pip"
+  - package-ecosystem: "npm"
     directory: "/kits/lambda-lifeline"
     schedule:
       interval: "weekly"

@@ -1250,3 +1250,35 @@ benchmarks, or unverified analytics in this ledger.
   performed. Qualified-interest issues: **0**. Purchases: **0**. Paid reports:
   **0**. Workspace-observed collected revenue: **$0**. Workspace-observed
   collected profit: **$0**. Gap: **$4,000**. Checkout: **closed**.
+
+## Closed-deployment release shipped — September 4, 2026
+
+- PR <https://github.com/ntoledo319/EOLkits/pull/44> merged reviewed head
+  `250ad3df46c1594324750f7be7208e2aea73fe31` as exact `main` SHA
+  `5bbf5a949148cd9f359d07aad03f649358c37e8c`. All 20 PR contexts passed. Test
+  run `33870492622` included both real image builds, numeric-user/entrypoint/
+  umask checks, deployment-contract validation, dependency vulnerability and
+  license audits, GRACE, runner, web, kits, Action, Worker, and VS tests;
+  determinism `33870492665` and property run `33870492654` also passed.
+- Every triggered product/release workflow on the merge SHA passed: release
+  surfaces `33870623128`, determinism `33870623134`, property tests
+  `33870623085`, acquisition evidence `33870623114`, Pages deployment
+  `33870623034`, and IndexNow submission `33870623031`.
+- Live Pages assertions proved the September 4 Toledo Technologies LLC address,
+  Connecticut-law text, and legal-page sitemap dates. The unchanged root still
+  reports its August 31 last-modified baseline; no whole-corpus date churn was
+  reintroduced.
+- Acquisition run `33870623114` observed five install samples all at **104**;
+  download samples were **226, 226, 226, 235, 226**. The conservative lower
+  bounds remain 104 installs / 226 downloads, or +1 / +27 from baseline, and
+  the download replicas are now inconsistent. Qualified-interest issues,
+  distinct external authors, public external `@v2` references, purchases, and
+  paid reports all remain **0**. Counters are not dollars.
+- The Dependabot refresh exposed one pre-existing ecosystem error in run
+  `33870629602`: `/kits/lambda-lifeline` was declared as pip even though its
+  lockfile is npm. This state follow-up corrects that entry to npm. No product
+  regression or vulnerable dependency was reported by that failed refresh.
+- Workspace-observed collected revenue: **$0**. Workspace-observed collected
+  profit: **$0**. Gap: **$4,000**. Checkout: **closed**. No production host,
+  Stripe catalog, DEV post, Marketplace release, or excluded credential action
+  was mutated.

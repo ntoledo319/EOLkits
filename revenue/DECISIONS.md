@@ -1534,3 +1534,13 @@ successful run `33867109854` at exact main SHA `4f51c770...`. This removes HQ-F
 and three estimated owner minutes. GitHub Marketplace publication remains
 human-only because its agreement, checkbox, and 2FA are account-holder
 attestations; no repository API may bypass them.
+
+## D71 — correct the updater ecosystem exposed by the release
+
+Merging the new Docker updater entries caused GitHub to refresh every configured
+Dependabot ecosystem. Run `33870629602` proved the existing
+`/kits/lambda-lifeline` entry was impossible: it asked the pip updater to find
+Python dependency files in a Node/npm package. Change only that entry to npm;
+keep the now-green Docker entries for both deployable images. This repairs
+maintenance automation and does not change the revenue ranking or count as
+demand.

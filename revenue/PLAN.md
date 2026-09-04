@@ -631,7 +631,7 @@ excluded. Collected revenue: **$0**. Collected profit: **$0**. Gap:
 ## Launch hardening and repository-admin completion — September 4, 2026
 
 Fresh launch-path review found work that was still autonomous and materially
-closer to safe collection. The release candidate now rejects arbitrary local
+closer to safe collection. The merged `main` release now rejects arbitrary local
 paths from the runner's HTTP boundary, requires a strong bearer token, avoids
 logging signed request URLs, applies private runtime-data modes, runs both
 containers as a numeric non-root user on read-only filesystems with all
@@ -656,6 +656,14 @@ Connecticut law while preserving non-waivable consumer protections. Only those
 three materially changed legal URLs receive a September 4 sitemap date; the
 global August 31 publication baseline remains intact. HQ-B is narrowed to the
 private Stripe fee/currency facts and incremental host cost.
+
+PR #44 merged this work as `5bbf5a949148cd9f359d07aad03f649358c37e8c`.
+All 20 PR contexts passed, including both real container builds, dependency and
+license audits, and the deployment-contract assertions. The exact merge SHA
+then passed release surfaces `33870623128`, determinism `33870623134`, property
+tests `33870623085`, acquisition evidence `33870623114`, Pages deployment
+`33870623034`, and IndexNow submission `33870623031`. Live Pages probes proved
+the new address/law text and page-specific sitemap dates.
 
 Pending owner labor is now at most **38 minutes**; the direct commerce critical
 path excluding optional Marketplace publication is **36 minutes**. Checkout
