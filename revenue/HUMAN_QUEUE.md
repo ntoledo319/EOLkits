@@ -1,10 +1,12 @@
 # Batched owner queue — authoritative September 4, 2026 — maximum 38 minutes
 
-_Re-verified unchanged on September 4, 2026: HQ-E's release link (id
-`375063073`, tag `v2.0.0`, slug `untagged-ea8be73c7a7d9b6c45e7`) still
-matches exactly via `mcp__github__list_releases`. No other item's
-external state has been observed to change; do not treat this note as new
-owner action._
+_Re-verified through GitHub's live API on September 4, 2026: HQ-E's release
+link (id `375063073`, tag `v2.0.0`, slug
+`untagged-ea8be73c7a7d9b6c45e7`) remains the sole canonical private draft. Its
+exact 40-character target is
+`47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`, which equals the protected public
+`v2` branch. No other item's external state has been observed to change; do not
+treat this note as new owner action._
 
 _September 1, 2026: reconciled two parallel cycles' queues (one on
 `marketing-machine-v2`, one on `main`) after they diverged from the same
@@ -137,7 +139,7 @@ Steps:
    titled "Rupture AWS Deprecation Check v2.0.0" (release id `375063073`) —
    do not open any other release or draft.
 2. Confirm tag `v2.0.0`, target
-   `47cd9eae77c5a9ddfdbb33206efe8f60b907d8`, no assets, and the existing
+   `47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`, no assets, and the existing
    release notes. Select “Publish this Action to the GitHub Marketplace,” keep
    the existing listing identity, accept the agreement if shown, and publish
    with 2FA. Do not create another release or listing.

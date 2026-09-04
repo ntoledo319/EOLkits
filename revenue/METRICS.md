@@ -1282,3 +1282,39 @@ benchmarks, or unverified analytics in this ledger.
   profit: **$0**. Gap: **$4,000**. Checkout: **closed**. No production host,
   Stripe catalog, DEV post, Marketplace release, or excluded credential action
   was mutated.
+
+## Final repository and authority boundary — September 4, 2026
+
+- PR <https://github.com/ntoledo319/EOLkits/pull/50> merged reviewed head
+  `6fe521a9a7ede6460a0abbb00aa8067fa8e8160b` as exact `main` SHA
+  `18f8b608a33032f4604cfe375271c82a54c307eb`. All 20 PR contexts passed. On
+  the merge SHA, release surfaces `33871323878`, determinism `33871323802`, and
+  property tests `33871323754` all passed.
+- All eight refreshed Dependabot ecosystems passed on the merge SHA. The
+  corrected `npm_and_yarn in /kits/lambda-lifeline` run `33871330443` passed,
+  replacing the impossible pip configuration exposed by failed run
+  `33870629602`. Both Docker image update jobs passed as well.
+- `marketing-machine-v2` was verified as a strict ancestor of `main` and
+  fast-forwarded without force from `4f51c770ebe7d9b8b6d8fbd3429727f7a5e83271`
+  to `18f8b608a33032f4604cfe375271c82a54c307eb`. Remote fetch then proved both
+  refs equal.
+- GitHub's live admin APIs re-proved Pages `build_type=workflow`, status
+  `built`, and active ruleset `22266277` with deletion/non-fast-forward rules,
+  no bypass actors, and default-branch/`v2` scope. Live Terms, Privacy, and
+  sitemap assertions passed.
+- Private release `375063073` remains `draft=true`, tag `v2.0.0`, zero assets,
+  and target `47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`; a remote fetch proved that
+  target exactly equals protected `origin/v2`. The owner queue's formerly
+  truncated target was corrected before handoff.
+- The repository has only Cloudflare and VS Code publisher secret names, no
+  repository variables, and no GRACE, Stripe, Resend, or DEV credentials.
+  Read-only workflow `33871692575` independently reported
+  `deploy_transport=false` and `runtime_bundle=false` without exposing values.
+- Fresh public probes returned custom-host `/` **200**, `/health` **200**,
+  `/api/status` **404**, and `/api/capabilities` **404**. The root still injects
+  `stats.saiditright.com/script.js`; the DEV public-author API still returns 25
+  articles. These observations preserve HQ-A/HQ-C/HQ-D as owner-only blockers.
+- Qualified-interest issues: **0**. Purchases: **0**. Paid reports: **0**.
+  Workspace-observed collected revenue: **$0**. Workspace-observed collected
+  profit: **$0**. Gap: **$4,000**. Checkout: **closed**. The retired Stripe
+  credential rotation/revocation remains excluded and was not attempted.
