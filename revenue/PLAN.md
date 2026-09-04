@@ -706,3 +706,37 @@ was changed after the violation. Fresh GitHub traffic and VS search-position
 observations gathered beforehand are preserved in `METRICS.md`; they do not
 change the $299 Audit ranking or establish demand. The next cycle must begin
 with a clean jail revalidation and the same checkout-closed, $0-revenue state.
+
+## Resumed discovery-boundary cycle — September 4, 2026
+
+The cycle resumed only after revalidating the exact workspace jail and reading
+all six revenue state files. Fresh evidence does not support another product or
+keyword-only release. Public VS Marketplace searches already place the existing
+extension first for five tested deprecation/EOL phrases, second for two more,
+and seventh for the broad `aws lambda` phrase. Meanwhile the qualified-interest
+issue count and purchases remain zero. The limiting evidence is therefore
+low/unknown qualified demand and a closed cash path, not missing VS keywords.
+
+One bounded public distribution improvement was still justified: the repository
+had 19 strong product topics but omitted the exact `github-actions` ecosystem
+topic for its existing Action. The owner API added that topic while preserving
+all 19 existing topics; a fresh read at `2026-09-04T12:30:43Z` returned exactly
+20 topics including `github-actions`. Repository description, homepage, issues,
+and discussions were already configured and were left unchanged.
+
+Three tempting alternatives were rejected after checking their actual boundary:
+an OpenAI Site would create a second beta host without supplying the missing
+GRACE, Stripe, Resend, refund, or fulfillment authority; a paid-audit
+`FUNDING.yml` link would misuse GitHub's sponsor surface as advertising; and a
+VS v1.3.1 keyword release would spend release attention despite already-strong
+search position and no evidence that ranking is the bottleneck. GitHub Action
+Marketplace publication still requires the account-holder agreement, checkbox,
+and 2FA ceremony recorded in HQ-E.
+
+The externally visible result of this cycle is the added `github-actions`
+repository topic. It improves exact-ecosystem discovery but is not traffic,
+demand, checkout readiness, or revenue. The remaining owner-only batch stays at
+**38 minutes** (**36 minutes** without optional Marketplace publication).
+Workspace-observed revenue and profit remain **$0**; gap remains **$4,000**;
+checkout remains **closed**. The excluded retired Stripe credential action was
+not attempted.
