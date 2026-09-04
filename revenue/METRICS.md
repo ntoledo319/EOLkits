@@ -1372,3 +1372,25 @@ benchmarks, or unverified analytics in this ledger.
   **$0**. Collected profit: **$0**. Gap: **$4,000**. Checkout: **closed**.
   Retired Stripe credential rotation/revocation remains excluded and was not
   attempted.
+
+## Discovery audit merge and containment evidence — September 4, 2026
+
+- PR <https://github.com/ntoledo319/EOLkits/pull/56> merged exact reviewed head
+  `d638f4be59b596899a40d3feb0e3c4c54144e05f` as `main` SHA
+  `734b2d007e890fb0e2c53bdc746ce144dcfdefe2`. All 20 PR contexts passed.
+- The exact merge SHA passed determinism run `33873507318`, property run
+  `33873507327`, and release-surface run `33873507329`, including both real
+  container builds and the dependency/license gate.
+- A fresh API read proved `main` and `marketing-machine-v2` both resolve to
+  `734b2d007e890fb0e2c53bdc746ce144dcfdefe2`; the public repository still has
+  exactly 20 topics including `github-actions`; private release `375063073`
+  remains a draft at exact target
+  `47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`.
+- Process failure: a later cleanup command targeted `/dev/stdout` outside the
+  workspace for `git ls-remote` output, then deleted the already-merged feature
+  branch in the same compound command. No file or secret persisted there, and
+  the commits remain on `main`, but the target and post-violation mutation are
+  recorded failures. A fresh cycle revalidated the jail before this entry.
+- Purchases: **0**. Paid reports: **0**. Collected revenue: **$0**. Collected
+  profit: **$0**. Gap: **$4,000**. Checkout: **closed**. The excluded retired
+  Stripe credential action remains untouched.
