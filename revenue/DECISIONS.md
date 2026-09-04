@@ -1558,3 +1558,38 @@ host still lacks v2 status/capabilities and injects an unreviewed script, and 25
 false DEV posts remain public. Keep the 38-minute human-only batch intact and
 correct its truncated Marketplace target SHA. The owner's excluded retired-key
 action remains untouched.
+
+## D73 — terminate the cycle on a subordinate jail violation
+
+During the next distribution/deployment review, the technical specialist sent a
+read-only GitHub Actions probe to `curl --output /dev/null`. The HTTP request
+returned 403 and no persistent data or secret was written, but `/dev/null` is
+outside `WORKSPACE_ROOT`; targeting it violates the total workspace jail. Stop
+that specialist and the other parallel reviews immediately. Record the cycle as
+failed and perform no public metadata, release, checkout, host, payment, DEV, or
+credential mutation afterward. A fresh cycle may resume from the evidence files
+only after revalidating containment.
+
+## D74 — use one exact ecosystem topic; reject distribution theater
+
+After a fresh jail revalidation, preserve all existing repository topics and add
+only `github-actions`, because the repository already ships a GitHub Action but
+omitted that exact ecosystem discovery label. Do not issue a VS v1.3.1 merely
+for keywords: point-in-time Marketplace searches already rank the extension
+first or second for nearly every tested high-intent phrase, while qualified
+interest and purchases remain zero. Do not create a duplicate OpenAI Site: its
+public-beta hosting does not supply GRACE transport, payment credentials,
+fulfillment proof, or a zero-incremental-cost attestation. Do not advertise the
+$299 Audit through `FUNDING.yml`; GitHub documents custom sponsor links as
+financial-support links rather than advertising. Keep Marketplace v2 in HQ-E
+because GitHub requires the account holder's agreement, listing checkbox, and
+2FA. These findings leave the opportunity rank and checkout gate unchanged.
+
+## D75 — record and correct an in-jail file-edit process slip
+
+During topic verification, the root agent redirected two boolean `jq` results
+to task-created temporary files inside WORKSPACE_ROOT. The files contained no
+credentials or durable evidence and were immediately deleted with
+`apply_patch`. This did not violate the workspace boundary or mutate external
+state, but shell redirection was the wrong file-edit mechanism. Record it and
+keep all later assertions in process.

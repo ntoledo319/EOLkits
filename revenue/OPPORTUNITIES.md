@@ -584,3 +584,20 @@ Former HQ-F is complete, HQ-B is narrowed by official seller-address and
 governing-law evidence, and the pending owner ceiling falls from 42 to 38
 minutes. Checkout is still closed, so A1's five-day purchase falsifier has not
 started. No product or channel is promoted on operational polish alone.
+
+## Discovery-saturation check — September 4, 2026
+
+Fresh marketplace and repository evidence does not change the ranking. V1
+already ranks first or second for seven high-intent AWS deprecation/EOL search
+phrases and seventh for broad `aws lambda`, yet has zero qualified issues and
+zero attributable purchases. Add the one missing exact GitHub ecosystem topic
+for K1, then stop treating metadata churn as distribution. A duplicate hosted
+site, sponsor-button promotion, and a keyword-only VS patch all fail to improve
+built-in payment or unlock A1 fulfillment.
+
+K1 remains the fastest listed channel but still needs HQ-E's account-holder
+Marketplace ceremony for v2. A1 remains the only paid unit and still needs the
+closed-deploy/E2E/catalog sequence. V1 remains a useful acquisition surface, not
+a proved sales channel. RapidAPI remains queued behind real checkout evidence;
+building it now would create another account/payment dependency rather than a
+faster first dollar.

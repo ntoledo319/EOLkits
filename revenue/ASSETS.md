@@ -579,3 +579,20 @@ error; they are not demand. They are merged on `main` through PR #44 at
 `5bbf5a949148cd9f359d07aad03f649358c37e8c`, with both real container builds
 green. Checkout remains closed, and workspace-observed revenue/profit remain
 $0.
+
+## Repository-discovery boundary — September 4, 2026
+
+- The public repository now has 20 preserved, product-specific topics including
+  the newly added `github-actions` label for the already-shipped Action. Its
+  truthful description, Pages homepage, issues, and discussions were already
+  configured; they did not need another rewrite.
+- The VS asset already appears first or second for seven tested high-intent AWS
+  deprecation/EOL searches and seventh for broad `aws lambda`. Another
+  keyword-only package is not a new sellable unit and has no evidence-backed
+  acquisition advantage.
+- No EOLkits instance exists in the connected Sites inventory. A second beta
+  host would duplicate the static surface while leaving the actual paid
+  deployment, payment, delivery, refund, and retention gates closed.
+- The smallest sellable unit remains one automated, source-only Audit v2 PDF at
+  $299. No asset became purchasable in this cycle; observed revenue and profit
+  remain $0.
