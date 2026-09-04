@@ -1455,3 +1455,35 @@ workspace `TMPDIR`; every Git call uses `GIT_CONFIG_NOSYSTEM=1` plus the
 workspace-local empty global config. Docker builds are left to CI rather than
 mutating the local daemon. Item 3 (retired Stripe credential rotation/revocation)
 remains excluded exactly as directed.
+
+## D64 — ship v1.3 as correctness, retain the original evidence baseline
+
+Publish `rupture.rupture-vscode` v1.3.0 because it fixes demonstrable
+CloudFormation/SAM and Terraform false negatives and puts the attributed $299
+Audit route at the moment of a real finding. Do not reset the 103-install /
+199-download v1.2 baseline or the `2026-09-05T23:27:55Z` gate: correctness work
+does not erase cumulative evidence. Five stable public samples at 104 installs
+produce a conservative +1 lower-bound signal and a mechanical pass. The +27
+download movement is not interpreted as 27 users, and none of it is revenue.
+
+## D65 — isolate npm audit as a mandatory, modern, fail-closed gate
+
+The first two operations heads failed when npm 10 fell back to the retired
+quick-audit endpoint (HTTP 400 and 503); application tests were not the cause.
+Run the dedicated production dependency audit with Node 24/npm 11,
+`--package-lock-only --omit=dev --audit-level=high`, three bounded retries, and
+a 120-second ceiling. Disable npm's incidental install-time audits in ordinary
+CI installs so one obsolete endpoint cannot make unrelated suites flaky. This
+does not weaken security: the dedicated audit remains a required failing gate
+and passed on the final tree.
+
+## D66 — consume the automatic publisher exactly once, then close it
+
+The temporary main-push trigger was authorized solely to publish v1.3.0 from
+exact reviewed commit `44e0425f...`; run `33864097060` completed successfully
+and the public package was independently verified. Remove that push trigger
+immediately and restore the workflow to explicit owner `workflow_dispatch`
+confirmation only. Pin acquisition measurement to public v1.3.0. Do not open
+Audit checkout or request custom-host reindexing: GRACE v2, raw injection,
+delivery, refund/retention, legal/commercial facts, and catalog gates remain
+unproved. The excluded retired Stripe credential task remains untouched.
