@@ -8,7 +8,6 @@ checks and writes a bounded Markdown report to the job summary.
 ```yaml
 permissions:
   contents: read
-  pull-requests: write # omit when comment-pr is false
 
 steps:
   - uses: actions/checkout@v6
@@ -16,13 +15,16 @@ steps:
     with:
       kit: auto
       path: .
-      fail-on: any
-      comment-pr: true
+      fail-on: none
 ```
 
 Inputs are documented in the root [`action.yml`](../../action.yml). The `path`
 must resolve inside `GITHUB_WORKSPACE`; missing paths, traversal, and external
 absolute paths fail closed.
+
+The first-run example is read-only and reports findings without blocking the
+build. Once the output is understood, set `fail-on: any` to enforce the check.
+Add `comment-pr: true` and `pull-requests: write` only if a PR comment is wanted.
 
 ## Boundaries
 

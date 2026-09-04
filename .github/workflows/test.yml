@@ -119,7 +119,7 @@ jobs:
       - name: Reject stale or unrendered commerce output
         run: |
           set -euo pipefail
-          if grep -REn '\{API_URL\}|\{\{|\}\}' \
+          if grep -REn '\{API_URL\}|\{SITE_URL\}|\{\{|\}\}' \
             docs/audit/index.html docs/pack/index.html docs/license/index.html docs/partners/index.html; then
             echo "::error::Unrendered placeholder found"; exit 1
           fi
@@ -188,6 +188,8 @@ jobs:
             echo "::error::Action report points at the obsolete custom-domain funnel"
             exit 1
           fi
+      - name: Test acquisition evidence reduction
+        run: node --test scripts/vscode-gallery-evidence.test.mjs
 
   containers:
     runs-on: ubuntu-latest

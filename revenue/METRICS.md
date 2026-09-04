@@ -850,6 +850,94 @@ benchmarks, or unverified analytics in this ledger.
   Paid reports: **0**. Workspace-observed collected revenue: **$0**.
   Workspace-observed collected profit: **$0**. Target gap: **$4,000**.
 
+## Stale HQ-5 release link repaired, branches reconciled — 2026-08-30T06:16:56Z
+
+- Egress test repeated (fourth consecutive cycle): `curl` through the
+  configured proxy to `example.com` and `docs.aws.amazon.com` both returned
+  HTTP 403; `$HTTPS_PROXY/__agentproxy/status` confirmed the proxy is up. No
+  new repost-answers batch or dev.to draft produced this cycle, per AGENTS.md's
+  fallback. `api.github.com`/`github.com` reads scoped to this repo remained
+  reachable throughout.
+- `apps/web/BUILD_DATE` was already `2026-08-30` at cycle start; `pytest -q
+  apps/web` 35/35 green; a full rebuild against CI env vars produced a clean
+  `git diff --exit-code -- docs`. No content drift to correct this cycle.
+- Entry-by-entry cross-check of `rules/public/deprecations.yml` against
+  `kits/lambda-lifeline/src/scan/index.mjs`'s `PHASE_DATES` and `apps/web/
+  content/fixes.yml`, plus an ISO- and prose-date scan of all 25 quarantined
+  `launch/distribution/devto/*.md` drafts against those same corroborated
+  sources: no new date errors found beyond the two already recorded in
+  `launch/distribution/devto/README.md`.
+- Found via `mcp__github__list_releases` / `get_release_by_tag`: the sole
+  private Marketplace draft (release id `375063073`) still says `v2.0.0` and
+  targets `47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`, matching both the `v2`
+  and `marketing-machine-v2` branch heads — but its `untagged-<hex>` URL slug
+  had silently changed (GitHub regenerates it on every draft resync) since
+  `revenue/HUMAN_QUEUE.md` was last written this cycle, nine minutes before
+  PR #26's `prepare-marketplace-v2.yml` run `33294414373` last touched it. The
+  owner's next click on HQ-5 — the fastest remaining route to a first dollar —
+  would have 404'd. Corrected the link in `revenue/HUMAN_QUEUE.md` to the
+  current `untagged-ea8be73c7a7d9b6c45e7` slug, recorded the durable release id
+  (`375063073`), and added a Releases-list fallback since the slug will keep
+  regenerating on future resyncs.
+- Discovered mid-cycle that `main` had already fixed the same link (its own
+  entry immediately above, via PR #26) through 4 commits `marketing-machine-v2`
+  had not yet merged since diverging at `47cd9ea`. Merged `origin/main` into
+  `marketing-machine-v2` — a pure-addition merge on both sides, no destructive
+  rewrite — and kept both fixes' value (main's corrected URL, this branch's
+  durable-id note and fallback). See DECISIONS D51.
+- No price, checkout, Stripe, GRACE, DEV-account, or Marketplace-publication
+  state changed. Qualified issues: **0**. Paid reports: **0**.
+  Workspace-observed collected revenue: **$0**. Workspace-observed collected
+  profit: **$0**. Target gap: **$4,000**.
+
+## Scanner false-negative fix and build-date correction — August 31, 2026
+
+- Cycle-start egress test (fifth consecutive cycle): `curl` through the
+  configured proxy to `example.com` and `docs.aws.amazon.com` both returned
+  HTTP 403 (`CONNECT tunnel failed`); proxy status endpoint confirmed the
+  proxy itself is up. No new repost-answers batch or dev.to draft produced
+  this cycle, per AGENTS.md's fallback. Confirmed via `git merge-base
+  --is-ancestor` that `origin/main` is an ancestor of `marketing-machine-v2`
+  (no repeat of the D51 silent-divergence pattern).
+- `apps/web/BUILD_DATE` bumped `2026-08-30` → `2026-08-31`. Local venv built
+  from `apps/web/requirements-dev.lock` (hash-verified, matching CI's exact
+  install command). `pytest -q apps/web` was 35/35 green on the stale
+  baseline first, then 35/35 green again after the bump; `git diff --stat --
+  docs` showed exactly 15 files changed, every line date-derived (countdowns,
+  ICS `DTSTAMP`, sitemap `lastmod`, `status/data.json` `generated_at`).
+- Found and fixed a live-scan correctness defect in `kits/lambda-lifeline`
+  (the free Node-focused scanner kit that also does bonus live-AWS scanning
+  across all runtimes): its `AT_RISK_RUNTIMES`/`PHASE_DATES`/`UPGRADE_TARGETS`
+  tables had no `python3.8` entry, so a real scan of a Lambda function
+  running `python3.8` would report `eol: false`, severity `'ok'` — a false
+  negative. Two independent internal sources already agreed on the correct
+  dates: `kits/python-pivot/src/python_pivot/runtimes.py`'s `RUNTIME_TABLE`
+  and `rules/public/deprecations.yml`'s `lambda-python-3.8-eol` entry (both:
+  deprecated 2024-10-14, block-create 2027-02-01, block-update 2027-03-03,
+  citing the AWS Lambda runtimes deprecation table).
+- Added the corroborated `python3.8` entry to all three `lambda-lifeline`
+  tables; added fixture function `invoice-etl-batch` (`Runtime: python3.8`)
+  to `test/fixtures/lambda-inventory.json` so the fix is exercised by a real
+  test rather than only by table edits; updated `test/scan.test.mjs` (8
+  functions / 7 at risk, explicit `python3.8` field assertions on the new
+  entry) and `README.md`'s sample-output block to match.
+- Verification: `node --test test/*.test.mjs` passed **28/28**; Python
+  `hypothesis` property suite `tests/test_properties.py` stayed **3/3**
+  green (unaffected — Node-only); `npm pack --dry-run` still reports exactly
+  **24** release files (fixtures/tests excluded from the shipped package,
+  matching the existing baseline); a repo-wide grep confirmed no other kit,
+  the GitHub Action, or the VS extension references the fixture's
+  function/at-risk counts.
+- Re-verified HQ-5's release-draft link via `mcp__github__list_releases`:
+  release id `375063073`, tag `v2.0.0`, slug
+  `untagged-ea8be73c7a7d9b6c45e7` — matches `HUMAN_QUEUE.md` exactly, no
+  repair needed this cycle (unlike D50/D51's two prior stale-link repairs).
+- These artifacts go live via the existing `deploy-pages.yml` (static site)
+  and existing kit-test CI on push to `main`/`marketing-machine-v2`. No
+  Stripe, GRACE, DEV, or Marketplace state changed. Qualified issues: **0**.
+  Paid reports: **0**. Workspace-observed collected revenue: **$0**.
+  Workspace-observed collected profit: **$0**. Target gap: **$4,000**.
+
 ## v1.1 gate, v1.2 publication, and platform-operation evidence — 2026-08-31T23:29:34Z
 
 - Latest exact acquisition artifact before repositioning (run
@@ -899,3 +987,191 @@ benchmarks, or unverified analytics in this ledger.
 - Qualified issues: **0**. Paid reports: **0**. Workspace-observed collected
   revenue: **$0**. Workspace-observed collected profit: **$0**. Target gap:
   **$4,000**.
+
+## Branch reconciliation and second live-scan false-negative fix (python3.11) — September 1, 2026
+
+- `marketing-machine-v2` and `origin/main` had genuinely diverged at shared
+  base `47cd9eae` (confirmed via failed `git merge-base --is-ancestor`), not
+  a repeat of D44's already-merged case. `origin/main` carried three merged
+  PRs (#28 VS v1.2 reposition, #29 authorized platform operations, #30
+  evidence finalization) not yet on this branch. Merged without force,
+  preserving both commit lines; commit `68652e3`. All non-`revenue/` files
+  auto-merged with zero conflicts; `revenue/*.md` conflicts were pure
+  trailing-append collisions, resolved by concatenating both histories in
+  chronological order (see DECISIONS D56 for the full renumbering map).
+- Post-merge state: VS Code extension `apps/vscode-extension/package.json`
+  now `1.2.0`; public Marketplace previously observed (per `main`'s own
+  evidence) at `rupture.rupture-vscode@1.2.0`, "AWS Lambda EOL Scanner —
+  EOLkits", 103 installs / 199 downloads, five-day gate
+  `2026-09-05T23:27:55Z`. Legal pages (`legal/*.md`, `docs/legal/*.html`)
+  now identify Toledo Technologies LLC / Connecticut /
+  `hello@toledotechnologies.com`.
+- `pytest -q apps/web` was 35/35 green on the merged tree before any further
+  change (proves the merge itself is not a regression). `apps/web/BUILD_DATE`
+  was then bumped `2026-08-31` → `2026-09-01`; rebuild stayed 35/35 green;
+  diff was 15 files, entirely date-derived.
+- Egress test repeated the standing method (sixth consecutive cycle): `curl`
+  through the configured proxy to `example.com` and `docs.aws.amazon.com`
+  both returned HTTP 403; `WebFetch` to `docs.aws.amazon.com` returned
+  `EGRESS_BLOCKED`; proxy status endpoint confirmed the proxy itself is up.
+  No new repost-answers batch or dev.to draft produced this cycle.
+- Found and fixed a second live-scan false negative in `kits/lambda-lifeline`,
+  same class as D52's `python3.8` fix: `rules/public/deprecations.yml`
+  (`date`/block-create `2027-07-31`, `block_update_date` `2027-08-31`,
+  `deprecation_date` `2027-06-30`) and `kits/python-pivot`'s `RUNTIME_TABLE`
+  (identical three dates) already agreed on `python3.11`, but
+  `kits/lambda-lifeline/src/scan/index.mjs`'s `AT_RISK_RUNTIMES`/
+  `PHASE_DATES`/`UPGRADE_TARGETS` had no `python3.11` entry — a real scan of
+  a `python3.11` Lambda function would report `eol: false` / `'ok'`.
+- Added the corroborated `python3.11` entry (matching both sources exactly)
+  to all three tables; added fixture function `ml-inference-endpoint` to
+  `test/fixtures/lambda-inventory.json`; updated `test/scan.test.mjs` (9
+  functions / 8 at risk, explicit `python3.11` assertions) and the README's
+  sample-output block to match.
+- Verification: `node --test test/*.test.mjs` passed **28/28**; the Python
+  `hypothesis` property suite stayed **3/3** green (Node-only change,
+  unaffected); `npm pack --dry-run` still reports exactly **24** release
+  files. Confirmed `ruby3.2`/`dotnet6` remain correctly excluded from the
+  public rules file (no second corroborating source, per D43, not
+  re-litigated this cycle). Grepped the GitHub Action and VS extension for
+  any reference to the fixture's counts: none found.
+- No price, checkout, Stripe, GRACE, DEV-account, or Marketplace-publication
+  state changed. Qualified issues: **0**. Paid reports: **0**.
+  Workspace-observed collected revenue: **$0**. Workspace-observed collected
+  profit: **$0**. Target gap: **$4,000**. The authoritative owner queue is
+  now `revenue/HUMAN_QUEUE.md`'s HQ-A through HQ-G (40 minutes).
+
+## Seventh consecutive egress-blocked cycle; build-date maintenance only — September 2, 2026
+
+- Cycle-start check: `git merge-base --is-ancestor origin/main
+  marketing-machine-v2` succeeded (no divergence this cycle); `git pull
+  --rebase` was a no-op.
+- Egress test (seventh consecutive cycle): direct `curl` through the
+  configured proxy to `example.com` and `docs.aws.amazon.com` both returned
+  HTTP 403 (`CONNECT tunnel failed`); `$HTTPS_PROXY/__agentproxy/status`
+  confirmed the proxy itself is reachable, logging both as
+  `connect_rejected`. A signed Azure Blob Storage download URL for the
+  latest scheduled `acquisition-evidence.yml` artifact (obtained via the
+  GitHub Actions API, run `33532642787`) also returned `connect_rejected`
+  through the same proxy — this container's general HTTPS egress is
+  blocked at the organization-policy level, not only for the two standing
+  test domains. No new repost-answers batch or dev.to draft was produced;
+  no new acquisition-artifact evidence could be pulled beyond confirming
+  that run `33532642787` (2026-09-01T16:35:05Z, artifact ID `9810335292`,
+  digest `sha256:7986950bc9ccf21f421d9b5c3955c51d9b6c70fee9078875735ef4d39fb26874`)
+  exists and completed successfully, via the GitHub Actions API (which
+  does not require this container's own egress).
+- Re-verified `revenue/HUMAN_QUEUE.md`'s HQ-E release link via
+  `mcp__github__list_releases`: release id `375063073`, tag `v2.0.0`, slug
+  `untagged-ea8be73c7a7d9b6c45e7` — matches exactly, no repair needed.
+- Repeated the standing correctness sweep (`kits/lambda-lifeline`'s runtime
+  tables vs. `rules/public/deprecations.yml` and `kits/python-pivot`'s
+  `RUNTIME_TABLE`; the 25 quarantined DEV drafts' dates): no new gap found.
+  python3.8 (D52) and python3.11 (D56) remain correctly present;
+  `nodejs14.x`/`java8.al2`/`provided.al2` remain intentionally excluded from
+  `PHASE_DATES` (already fully past block dates, or no second corroborating
+  source), consistent with existing design.
+- `apps/web/BUILD_DATE` was one day stale (`2026-09-01` vs. today's
+  `2026-09-02`). Confirmed `pytest -q apps/web` 35/35 green on the stale
+  baseline first (project-local venv under gitignored `tmp/`), bumped and
+  rebuilt: 35/35 stayed green; `git diff --stat -- docs` showed exactly 15
+  files changed, all date-derived (sitemap/feed `lastmod`, ICS `DTSTAMP`,
+  `/migrate/` countdowns, `status/data.json` `generated_at`) — no
+  structural or claim-text change.
+- No price, checkout, Stripe, GRACE, DEV-account, or Marketplace-publication
+  state changed. Qualified issues: **0**. Paid reports: **0**.
+  Workspace-observed collected revenue: **$0**. Workspace-observed collected
+  profit: **$0**. Target gap: **$4,000**. VS v1.2.0's five-day gate
+  (`2026-09-05T23:27:55Z`) has not yet arrived.
+
+## Ninth+ consecutive egress-blocked cycle; build-date maintenance only — September 4, 2026
+
+- Cycle-start check: `git merge-base --is-ancestor origin/main
+  marketing-machine-v2` succeeded (no divergence); `git pull --rebase` was a
+  no-op. No cycle ran September 3 (no commit exists between September 2's
+  `ee11bbc` and this cycle's start).
+- Egress test: direct `curl` through the configured proxy to `example.com`
+  and `docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html` both
+  returned HTTP 403 (`CONNECT tunnel failed`); `$HTTPS_PROXY/__agentproxy/
+  status` confirmed the proxy is up and logged both as `connect_rejected`.
+  `WebFetch` to `example.com` and to a `repost.aws` thread URL both returned
+  `EGRESS_BLOCKED` directly. `WebSearch` (hosted, egress-exempt) still
+  returns indexed results but its blog/community sources are disqualified
+  for AWS runtime-date claims (AGENTS.md §2.5) and cannot substitute for the
+  live-thread fetch a repost-answers batch requires (D36). No new
+  repost-answers batch or dev.to draft was produced; see DECISIONS D58.
+- Full correctness sweep repeated: `kits/lambda-lifeline`'s `PHASE_DATES`/
+  `AT_RISK_RUNTIMES` vs. `kits/python-pivot`'s `RUNTIME_TABLE` (all four
+  shared Python entries match exactly) vs. `rules/public/deprecations.yml`
+  (8 tracked runtimes, all present and dated identically) vs.
+  `apps/web/content/fixes.yml` (no ruby3.2/dotnet6, consistent) vs.
+  `kits/al2023-gate`'s `AL2_EOL` (2026-06-30, matches D37, already past).
+  No new gap found; python3.8 (D52) and python3.11 (D56) remain correct;
+  `ruby3.2`/`dotnet6` remain the same deliberately deferred gap since D43.
+- `apps/web/BUILD_DATE` was two days stale (`2026-09-02` vs. today's
+  `2026-09-04`). Confirmed `pytest -q apps/web` 35/35 green on the stale
+  baseline first, bumped and rebuilt: 35/35 stayed green; `git diff --stat
+  -- docs` showed exactly 16 files changed, all date-derived (152→150-day
+  countdowns, ICS `DTSTAMP`, sitemap/feed `lastmod`, `status/data.json`
+  `generated_at`) — matches the 2-day bump exactly, no structural or
+  claim-text change. `kits/lambda-lifeline`'s Node suite also re-verified
+  at **28/28** green as an independent regression check.
+- Checked live state via the connected GitHub API (unaffected by the egress
+  block): `list_issues` returned 0 open issues; `list_releases` showed the
+  canonical v2.0.0 draft (id `375063073`) unchanged at `draft=true`, same
+  slug `untagged-ea8be73c7a7d9b6c45e7` — matches `HUMAN_QUEUE.md`'s HQ-E
+  exactly, no repair needed, no owner action taken since D57.
+- No price, checkout, Stripe, GRACE, DEV-account, or Marketplace-publication
+  state changed. Qualified issues: **0**. Paid reports: **0**.
+  Workspace-observed collected revenue: **$0**. Workspace-observed collected
+  profit: **$0**. Target gap: **$4,000**. VS v1.2.0's five-day gate
+  (`2026-09-05T23:27:55Z`) has not yet arrived — one day out, the next
+  autonomous checkpoint.
+
+## Ground-up local and public observation — September 4, 2026
+
+- Fresh live probes around `2026-09-04T09:01Z`: Pages `/`, `/scan/`, and
+  `/audit/` returned 200. Custom GRACE `/health` returned 200 while
+  `/api/capabilities` and `/api/status` returned 404, stale `/pack/install`
+  returned 200, and raw HTML still contained one
+  `https://stats.saiditright.com/script.js` injection. Checkout remained
+  closed; no paid readiness was inferred.
+- Public distribution: 25 DEV posts remained public with seven reactions and
+  zero comments combined; public GitHub v2.0.0 releases remained zero; the
+  Marketplace Action page still showed v1.1.0; the exact `@v2` ref remained
+  consumable; repository state remained one star / zero forks / zero qualified
+  Audit-interest issues / zero observed external `@v2` refs.
+- VS Gallery cache-busted exact-ID sampling produced alternating install values
+  of **103 and 104** across nine near-simultaneous reads; every read reported
+  **223 downloads**, v1.2.0, and the same `lastUpdated`. Marketplace HTML showed
+  104. This is replica/cache disagreement—not defensible +1 demand—and no gate
+  pass is recorded.
+- Search discovery observed EOLkits first or second for several VS Marketplace
+  queries around AWS Lambda EOL/deprecation, and the public Lambda schedule page
+  directly behind AWS for one 2026–2027 schedule query. Search position is
+  acquisition opportunity, not a visit, lead, or sale. Search snippets for the
+  custom host still exposed retired $1,499/“email in 5 minutes” copy even though
+  live generated pages no longer make those claims.
+- Release-candidate verification: Lambda Lifeline **29/29**; Worker build +
+  **39/39**; VS extension compile/lint/rule test + v1.3 VSIX package; AL2023 Gate
+  **49/49**; Python Pivot **50/50**; GRACE **78/78**; report runner **33/33** plus
+  sample artifact check; web **39/39** plus byte-stable rebuild; Ruff, Black,
+  mypy, workflow YAML parse, 98-record Node production-license audit, and six
+  Gallery-reduction/gate tests all passed. Docker image builds remain delegated
+  to the repository CI because the workspace jail forbids mutating the local
+  Docker daemon.
+- Evidence-quality implementation: acquisition now stores all five install and
+  download samples, min/max, sample count, and replica-consistency state. The
+  gate uses the minimum; after its deadline, `max > baseline` with
+  `min <= baseline` is explicitly inconclusive. No Gallery counter is recorded
+  as revenue.
+- Containment transparency: one technical-review subagent's first Node test
+  allowed `node:os.tmpdir()` to resolve to `/tmp`; it cleaned those fixtures and
+  no persistent repository change resulted. The root agent also ran one
+  read-only Git command before restoring the required repository-local global
+  config override, so it may have consulted user-level Git config. All
+  subsequent commands pinned temporary paths and Git config inside
+  `WORKSPACE_ROOT`. These are recorded process failures, not erased by green
+  tests.
+- Qualified interest issues: **0**. Paid reports: **0**. Collected revenue:
+  **$0**. Collected profit: **$0**. Gap: **$4,000**.

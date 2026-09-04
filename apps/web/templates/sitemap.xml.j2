@@ -2,35 +2,35 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
     <!-- Core pages (root-relative to the canonical host) -->
-    <url><loc>{{ site_url }}/</loc><lastmod>{{ now }}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-    <url><loc>{{ site_url }}/migrate/</loc><lastmod>{{ now }}</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-    <url><loc>{{ site_url }}/eol-checker/</loc><lastmod>{{ now }}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-    <url><loc>{{ site_url }}/lambda-runtime-deprecation-schedule/</loc><lastmod>{{ now }}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-    <url><loc>{{ site_url }}/amazon-linux-2-eol-checklist/</loc><lastmod>{{ now }}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-    <url><loc>{{ site_url }}/amazon-linux-2-vs-amazon-linux-2023/</loc><lastmod>{{ now }}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-    <url><loc>{{ site_url }}/audit/</loc><lastmod>{{ now }}</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-    <url><loc>{{ site_url }}/vs/</loc><lastmod>{{ now }}</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>{{ site_url }}/</loc><lastmod>{{ lastmod('index.html') }}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+    <url><loc>{{ site_url }}/migrate/</loc><lastmod>{{ lastmod('migrate/index.html') }}</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
+    <url><loc>{{ site_url }}/eol-checker/</loc><lastmod>{{ lastmod('eol-checker/index.html') }}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+    <url><loc>{{ site_url }}/lambda-runtime-deprecation-schedule/</loc><lastmod>{{ lastmod('lambda-runtime-deprecation-schedule/index.html') }}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+    <url><loc>{{ site_url }}/amazon-linux-2-eol-checklist/</loc><lastmod>{{ lastmod('amazon-linux-2-eol-checklist/index.html') }}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+    <url><loc>{{ site_url }}/amazon-linux-2-vs-amazon-linux-2023/</loc><lastmod>{{ lastmod('amazon-linux-2-vs-amazon-linux-2023/index.html') }}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+    <url><loc>{{ site_url }}/audit/</loc><lastmod>{{ lastmod('audit/index.html') }}</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+    <url><loc>{{ site_url }}/vs/</loc><lastmod>{{ lastmod('vs/index.html') }}</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
 
     <!-- Deprecation migration guides (one per cited deprecation in deprecations.yml) -->
     {% for dep in deprecations -%}
-    <url><loc>{{ site_url }}/migrate/{{ dep.slug }}/</loc><lastmod>{{ now }}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+    <url><loc>{{ site_url }}/migrate/{{ dep.slug }}/</loc><lastmod>{{ lastmod('migrate/' ~ dep.slug ~ '/index.html') }}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
     {%- endfor %}
 
     <!-- Free tools + verbatim-error fixes (M1/M2 cold-reach surfaces) -->
-    <url><loc>{{ site_url }}/scan/</loc><lastmod>{{ now }}</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-    <url><loc>{{ site_url }}/fix/</loc><lastmod>{{ now }}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+    <url><loc>{{ site_url }}/scan/</loc><lastmod>{{ lastmod('scan/index.html') }}</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+    <url><loc>{{ site_url }}/fix/</loc><lastmod>{{ lastmod('fix/index.html') }}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
     {% for slug in fixes -%}
-    <url><loc>{{ site_url }}/fix/{{ slug }}/</loc><lastmod>{{ now }}</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>{{ site_url }}/fix/{{ slug }}/</loc><lastmod>{{ lastmod('fix/' ~ slug ~ '/index.html') }}</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
     {%- endfor %}
 
     <!-- Content + system pages -->
-    <url><loc>{{ site_url }}/blog/</loc><lastmod>{{ now }}</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-    <url><loc>{{ site_url }}/status/</loc><lastmod>{{ now }}</lastmod><changefreq>hourly</changefreq><priority>0.6</priority></url>
+    <url><loc>{{ site_url }}/blog/</loc><lastmod>{{ lastmod('blog/index.html') }}</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+    <url><loc>{{ site_url }}/status/</loc><lastmod>{{ lastmod('status/index.html') }}</lastmod><changefreq>hourly</changefreq><priority>0.6</priority></url>
 
     <!-- Legal (served as real HTML files) -->
-    <url><loc>{{ site_url }}/legal/terms.html</loc><lastmod>{{ now }}</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>
-    <url><loc>{{ site_url }}/legal/privacy.html</loc><lastmod>{{ now }}</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>
-    <url><loc>{{ site_url }}/legal/dpa.html</loc><lastmod>{{ now }}</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>
-    <url><loc>{{ site_url }}/legal/SECURITY.html</loc><lastmod>{{ now }}</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>
+    <url><loc>{{ site_url }}/legal/terms.html</loc><lastmod>{{ lastmod('legal/terms.html') }}</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>
+    <url><loc>{{ site_url }}/legal/privacy.html</loc><lastmod>{{ lastmod('legal/privacy.html') }}</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>
+    <url><loc>{{ site_url }}/legal/dpa.html</loc><lastmod>{{ lastmod('legal/dpa.html') }}</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>
+    <url><loc>{{ site_url }}/legal/SECURITY.html</loc><lastmod>{{ lastmod('legal/SECURITY.html') }}</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>
 
 </urlset>

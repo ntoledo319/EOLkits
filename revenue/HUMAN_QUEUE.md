@@ -1,8 +1,22 @@
-# Batched owner queue — authoritative August 31, 2026 — maximum 40 minutes
+# Batched owner queue — authoritative September 4, 2026 — maximum 42 minutes
 
-Codex completed every operation reachable through the repository and connected
-GitHub authority. VS Code v1.2.0 is public. The exact v2 GitHub release draft is
-ready. The remaining actions require production-host access, owner account
+_Re-verified unchanged on September 4, 2026: HQ-E's release link (id
+`375063073`, tag `v2.0.0`, slug `untagged-ea8be73c7a7d9b6c45e7`) still
+matches exactly via `mcp__github__list_releases`. No other item's
+external state has been observed to change; do not treat this note as new
+owner action._
+
+_September 1, 2026: reconciled two parallel cycles' queues (one on
+`marketing-machine-v2`, one on `main`) after they diverged from the same
+August 30 recovery base. `main`'s HQ-A..HQ-G renumbering and VS v1.2.0
+publication are newer and authoritative for overall state; this branch's
+release-link durable-ID/fallback note is preserved in HQ-E below since the
+`untagged-<hex>` slug has already regenerated twice on ordinary resyncs._
+
+Codex completed every operation currently reachable through the repository and
+connected GitHub authority. VS Code v1.2.0 is public and the tested v1.3.0
+correctness release is being handled through the existing exact-SHA publication
+path. The exact v2 GitHub release draft is ready. The remaining actions require production-host access, owner account
 attestations, DEV author authority, repository-administration permission, or
 payment-account control that is not present in the workspace or connected
 tools. Do them in this order; do not use an older handoff.
@@ -48,7 +62,7 @@ Steps:
 3. State whether EOLkits adds exactly $0 of monthly cost to the existing GRACE
    host. If not, provide only the incremental monthly amount.
 
-## HQ-C — deploy Audit v2 closed and prove fulfillment (16 minutes)
+## HQ-C — deploy Audit v2 closed, prove fulfillment, and repair indexing (18 minutes)
 
 Why human-only: this requires GRACE access and private Stripe-test/Resend
 values. The repository capability audit found neither deploy transport nor a
@@ -77,6 +91,12 @@ Steps:
    full-refund handling on forced failure. Tear down only the test project.
 6. Leave production checkout off. Reply with the deployed full commit SHA and
    pass/fail only—never host credentials, tokens, or customer data.
+7. Only after the injected script is absent and the reviewed custom-host sitemap
+   is live, open Google Search Console for `eolkits.com`, resubmit
+   `https://eolkits.com/sitemap.xml`, and request reindexing for `/audit/` and
+   `/lambda-runtime-deprecation-schedule/`. This is needed because public search
+   still shows retired $1,499 and “email in 5 minutes” snippets. Do not request
+   indexing while the host fails its injection gate.
 
 ## HQ-D — unpublish the 25 false DEV posts (10 minutes)
 
@@ -100,10 +120,17 @@ does not perform those account-holder attestations.
 
 Steps:
 
-1. Open the sole private draft:
+1. Open the sole private draft (release id `375063073`, currently at slug
+   `untagged-ea8be73c7a7d9b6c45e7`):
    <https://github.com/ntoledo319/EOLkits/releases/tag/untagged-ea8be73c7a7d9b6c45e7>.
+   GitHub regenerates this `untagged-<hex>` slug every time the draft is
+   resynced by `prepare-marketplace-v2.yml` (it has already changed twice
+   across prior cycles), so if that exact link 404s, instead open
+   <https://github.com/ntoledo319/EOLkits/releases> and click the one draft
+   titled "Rupture AWS Deprecation Check v2.0.0" (release id `375063073`) —
+   do not open any other release or draft.
 2. Confirm tag `v2.0.0`, target
-   `47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`, no assets, and the existing
+   `47cd9eae77c5a9ddfdbb33206efe8f60b907d8`, no assets, and the existing
    release notes. Select “Publish this Action to the GitHub Marketplace,” keep
    the existing listing identity, accept the agreement if shown, and publish
    with 2FA. Do not create another release or listing.
@@ -154,6 +181,6 @@ Steps:
    status, `/api/capabilities`, the public form, and one input-bound $299
    Checkout Session. Do not self-charge in live mode.
 
-Estimated owner labor: **40 minutes**, leaving 20 minutes within the 60-minute
+Estimated owner labor: **42 minutes**, leaving 18 minutes within the 60-minute
 cap. Completed repository work and public VS Code v1.2 publication require no
 owner time.

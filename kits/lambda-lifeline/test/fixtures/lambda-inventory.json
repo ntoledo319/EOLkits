@@ -75,6 +75,26 @@
       "LastModified": "2024-12-01T00:00:00Z",
       "Region": "us-east-1",
       "AccountId": "111122223333"
+    },
+    {
+      "FunctionName": "invoice-etl-batch",
+      "FunctionArn": "arn:aws:lambda:us-east-1:111122223333:function:invoice-etl-batch",
+      "Runtime": "python3.8",
+      "Handler": "etl.lambda_handler",
+      "MemorySize": 1024,
+      "LastModified": "2024-09-10T00:00:00Z",
+      "Region": "us-east-1",
+      "AccountId": "111122223333"
+    },
+    {
+      "FunctionName": "ml-inference-endpoint",
+      "FunctionArn": "arn:aws:lambda:us-east-1:111122223333:function:ml-inference-endpoint",
+      "Runtime": "python3.11",
+      "Handler": "infer.lambda_handler",
+      "MemorySize": 2048,
+      "LastModified": "2026-07-01T00:00:00Z",
+      "Region": "us-east-1",
+      "AccountId": "111122223333"
     }
   ]
 }

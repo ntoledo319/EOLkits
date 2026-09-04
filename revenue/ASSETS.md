@@ -46,6 +46,14 @@ All code and evidence below is inside the workspace jail.
   pass, along with real Action fixtures, three property cases, and deterministic
   scanner checks. Node runtime and IaC paths now include nodejs22.x and target
   nodejs24.x. Commands remain dry-run unless an apply flag is supplied.
+- August 31 correction: `lambda-lifeline`'s live-scan runtime tables were
+  missing `python3.8` entirely, so a real scan of a Lambda function on that
+  runtime would have reported it as healthy (a false negative) instead of at
+  risk. Fixed using two already-corroborating internal sources
+  (`python-pivot`'s `RUNTIME_TABLE` and `rules/public/deprecations.yml`'s
+  existing `lambda-python-3.8-eol` entry) and covered by a new fixture case;
+  see DECISIONS D52. This closes a real detection gap in the free product
+  buyers evaluate before purchasing Audit, not a documentation-only fix.
 - $0 deploy/distribution: public GitHub repository and the existing GitHub
   Marketplace Action listing.
 - Distribution state: the tested `v2` release branch is public and resolves to
@@ -448,3 +456,68 @@ AWS access is included.
 The smallest sellable unit is unchanged: one automated, static, source-only
 Audit v2 PDF for one repository ZIP or supported source file at $299. Public
 distribution improved; observed paid demand and collected revenue did not.
+
+## Branch reconciliation and second scanner correctness fix — September 1, 2026
+
+- Reconciled `marketing-machine-v2` with `origin/main`'s three merged PRs
+  (#28-#30: VS v1.2.0 reposition/publication, operator legal identity,
+  authorized-ops attempt). See METRICS.md and DECISIONS D56 for the full
+  merge/renumbering record.
+- Asset 2 (local kits and GitHub Action) correction: `lambda-lifeline`'s
+  live-scan runtime tables were missing `python3.11` entirely, the same
+  defect class as the `python3.8` gap fixed in D52. Two already-corroborating
+  internal sources (`rules/public/deprecations.yml`'s existing
+  `lambda-python-3.11-eol` entry and `python-pivot`'s `RUNTIME_TABLE`) agreed
+  on identical dates. Fixed with a new regression-test fixture case; 28/28
+  Node tests and 3/3 property tests stayed green; `npm pack --dry-run` still
+  reports 24 release files. This closes a second real detection gap in the
+  free product buyers evaluate before purchasing Audit.
+- Asset 3 (VS Code extension): now confirmed at public `1.2.0`,
+  "AWS Lambda EOL Scanner — EOLkits", per the merged `main` evidence
+  (103 installs / 199 downloads baseline, five-day gate
+  `2026-09-05T23:27:55Z`).
+- Asset 6 (content/legal): legal pages now identify Toledo Technologies LLC,
+  Connecticut, `hello@toledotechnologies.com`. Business mailing address,
+  governing jurisdiction, actual Stripe account facts, and incremental
+  hosting cost remain unknown and are not guessed.
+- No asset's completeness, license, or monetization frame changed beyond
+  these correctness/identity facts. Collected revenue remains $0.
+
+## Full local/public re-analysis and release candidate — September 4, 2026
+
+- **Public web acquisition:** the clean Pages origin, browser scanner, Audit
+  scope/sample, and schedule page all return 200. The Audit page previously
+  buried its readiness gate and called `eolkitsTrack` without loading
+  `track.js`; the source now places the price/readiness decision block before
+  long-form proof, loads first-party tracking, adds canonical/social metadata,
+  uses mobile-safe inputs, and routes the search-visible Lambda schedule page
+  to a source-linked $299 Audit/sample card. Only those two materially changed
+  URLs receive a September 4 sitemap `lastmod`; the false whole-site
+  September 2/4 publication churn is reversed.
+- **VS Code acquisition:** public v1.2.0 remains the last externally observed
+  version while v1.3.0 is prepared. The candidate closes real false negatives:
+  CloudFormation/SAM now include Node.js 16 and Python 3.8, and literal
+  runtimes inside `aws_lambda_function` Terraform blocks are scanned without
+  treating unrelated Terraform `runtime` variables/resources as Lambda. A
+  finding now offers a direct, attributed $299-report path. The extension
+  still runs locally with no telemetry or AWS credentials.
+- **Local kit / Action:** `lambda-lifeline` machine output now distinguishes
+  `at_risk` from actual `eol` and reports an explicit lifecycle. Future
+  Node/Python/Java dates are no longer mislabeled already EOL; the previously
+  missing `provided.al2` and `java8.al2` phase dates now match AWS's current
+  table. A cross-stack test enforces exact date parity among the public YAML,
+  Lambda Lifeline, and Python Pivot. The Action's first-run example is now
+  read-only and nonblocking; enforcement and PR comments are deliberate
+  follow-up choices.
+- **Evidence system:** Microsoft's public Gallery API returned alternating 103
+  and 104 install values in near-simultaneous cache-busted reads. The prepared
+  workflow therefore takes five samples, records every value, uses the minimum
+  as its lower bound, and treats post-gate replica disagreement as
+  inconclusive—not demand. This repairs the stale hard-coded 166-download
+  baseline text as well.
+- **Paid asset:** the smallest sellable unit remains one automated, static,
+  source-only Audit v2 PDF for one repository ZIP or supported source file at
+  $299. Its code is complete; its public money path remains intentionally
+  closed until the owner-only GRACE, legal, catalog, delivery, refund,
+  retention, and host-injection gates in `HUMAN_QUEUE.md` pass. Observed
+  revenue and profit remain $0.

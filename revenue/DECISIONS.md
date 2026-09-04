@@ -1008,7 +1008,133 @@ publication ceremony. The agreement, Marketplace checkbox, and 2FA remain in
 HQ-5 because they are account-holder attestations. It also does not weaken the
 commerce gate: checkout remains closed and observed revenue/profit remain $0.
 
-## D51 — honor the failed VS gate with one focused reposition
+## D51 — reconcile a parallel `marketing-machine-v2` fix for the same stale HQ-5 link, then merge branches
+
+Cycle-start egress test repeated the standing method: direct `curl` through the
+configured proxy to `example.com` and `docs.aws.amazon.com` both returned HTTP
+403 (`CONNECT tunnel failed`); `$HTTPS_PROXY/__agentproxy/status` confirmed the
+proxy itself is reachable and logged both as `connect_rejected`. This is the
+fourth consecutive cycle with this exact domain-level block. Per AGENTS.md's
+fallback, no new repost-answers batch or dev.to draft was produced this cycle.
+
+`apps/web/BUILD_DATE` was already `2026-08-30` (today) at cycle start;
+`pytest -q apps/web` was 35/35 green and a full `apps/web/build.py` rebuild
+against the CI env vars produced a clean `git diff --exit-code -- docs` — no
+staleness to correct this cycle. Cross-checked `rules/public/deprecations.yml`
+against `kits/lambda-lifeline/src/scan/index.mjs`'s `PHASE_DATES` and
+`apps/web/content/fixes.yml` entry-by-entry (not just the runtimes touched by
+D42/D44) and scanned every quarantined `launch/distribution/devto/*.md` draft
+for ISO and prose (`Month Day, Year` / `Month Year`) dates against those same
+two corroborated internal sources: no further errors beyond the two already
+recorded in `launch/distribution/devto/README.md`.
+
+This cycle started from `origin/marketing-machine-v2` at `47cd9ea` (per the
+standing "fetch/checkout/pull first" step) and, before pulling `main`,
+independently found the same defect D50 above had already fixed on `main`:
+`revenue/HUMAN_QUEUE.md`'s HQ-5 step 1 pointed the owner at
+`https://github.com/ntoledo319/EOLkits/releases/tag/untagged-0866963caf3f06db98a1`,
+written at `01:09:09-04:00` (`90722cd`, `marketing-machine-v2`'s tip at the
+time). Nine minutes later, PR #26's "Prepare Marketplace v2 draft" run
+(`33294414373`, commit `79888beb`, `main`-only) resynced the same draft
+release (id `375063073`) and GitHub regenerated its `untagged-<hex>` slug to
+`untagged-ea8be73c7a7d9b6c45e7`, but `main`'s fix had not yet reached
+`marketing-machine-v2`, which had continued on its own line through PR #25's
+merge commit `47cd9ea` without picking up `main`'s 4 subsequent commits.
+Independently corrected the same link on `marketing-machine-v2` (matching
+`main`'s value), then discovered the divergence when pulling `main` for this
+entry: `47cd9ea` is the true common ancestor, and both onward lines are pure
+additions to `revenue/*.md` and unrelated `.github/workflows/*` changes — no
+destructive rewrite on either side. Merged `origin/main` into
+`marketing-machine-v2` (not rebase, to keep both commit lines intact),
+renumbered this branch's `D50` to `D51` to avoid colliding with `main`'s `D50`
+above, and kept both `HUMAN_QUEUE.md` improvements: `main`'s corrected URL plus
+this branch's added durable-release-id note and Releases-list fallback (the
+slug will keep regenerating on every future resync).
+
+No price, checkout, Stripe, GRACE, DEV-account, or Marketplace-publication
+state changed. Collected profit remains $0; the gap remains $4,000. HQ-0
+through HQ-4, the corrected HQ-5, and HQ-6/HQ-7 are otherwise unchanged and
+still require the owner. Future cycles should pull `main` before diagnosing
+`marketing-machine-v2`-only state, since the two branches can now silently
+diverge on ordinary pushes to either one.
+
+## D52 — fix a real false-negative in the free scanner's Python runtime detection; bump BUILD_DATE
+
+Cycle-start egress test repeated the standing method (fifth consecutive
+cycle): direct `curl` through the configured proxy to `example.com` and
+`docs.aws.amazon.com` both returned HTTP 403 (`CONNECT tunnel failed`);
+`$HTTPS_PROXY/__agentproxy/status` confirmed the proxy itself is reachable
+and logged both as `connect_rejected`. Per AGENTS.md's fallback, no new
+repost-answers batch or dev.to draft was produced this cycle. `main` was
+confirmed an ancestor of `marketing-machine-v2` (no repeat of D51's silent
+divergence).
+
+`apps/web/BUILD_DATE` was one day stale (`2026-08-30` against today's
+`2026-08-31`). Rebuilt `docs/` with `apps/web/build.py` under the CI env
+vars after confirming 35/35 `apps/web` tests green on the stale baseline
+first; the bumped rebuild stayed 35/35 green and the diff was entirely
+date-derived (countdowns, ICS `DTSTAMP`, sitemap `lastmod`,
+`status/data.json` `generated_at`) — no structural or claim change.
+
+Found a materially more significant defect while re-verifying the
+scanner/deprecations cross-check this cycle habitually performs: the free
+`lambda-lifeline` scanner engine's `AT_RISK_RUNTIMES` set and `PHASE_DATES`
+table (`kits/lambda-lifeline/src/scan/index.mjs`) had no entry for
+`python3.8` at all, even though `rules/public/deprecations.yml` (the public
+SEO/scanner-data source of truth) has carried a full `lambda-python-3.8-eol`
+entry since the original repair, and the sibling `python-pivot` kit's
+`RUNTIME_TABLE` (`kits/python-pivot/src/python_pivot/runtimes.py`) already
+has the identical dates (deprecation 2024-10-14, block-create 2027-02-01,
+block-update 2027-03-03). Both independent internal sources agree exactly,
+satisfying this project's own corroboration bar for adding a public
+lifecycle date (the same bar D42 used for nodejs16.x and D43 declined for
+ruby3.2/dotnet6 for lacking a second source).
+
+The practical effect: `lambda-lifeline scan` against a live AWS account (the
+kit's primary live-scan mode, not just its Node-focused IaC/codemod
+commands) would silently report a Lambda function running `python3.8` as
+`eol: false` / severity `'ok'` — a false negative for one of the exact
+runtimes EOLkits exists to catch, and inconsistent with the site's own
+`/migrate/lambda-python-3.8-eol/` page describing the same runtime as
+already past its deprecation date and heading into the same Q1-2027 block
+cluster as python3.9/3.10. This is a correctness bug in the core detection
+product distributed via the GitHub Marketplace Action, npm package, and (by
+shared rule behavior) the VS Code extension — a stronger finding than prior
+cycles' SEO-page-only gaps (D42) because it affects live-scan output
+strangers would actually read, not just static content.
+
+Added `python3.8` to `AT_RISK_RUNTIMES`, `PHASE_DATES`
+(`phase1: 2024-10-14, block_create: 2027-02-01, block_update: 2027-03-03`),
+and `UPGRADE_TARGETS` (`python3.12`) in `index.mjs`, matching both
+corroborating sources exactly. Added a new fixture function
+(`invoice-etl-batch`, `python3.8`) to
+`kits/lambda-lifeline/test/fixtures/lambda-inventory.json` so the fix is
+exercised by a real regression test rather than only by table edits, and
+updated `test/scan.test.mjs` (8 functions / 7 at risk, plus explicit
+`python3.8` field assertions on the new fixture entry) and the README's
+sample-output block to match. `node --test test/*.test.mjs` passed 28/28
+(unchanged count; two prior assertions were widened, one fixture-specific
+assertion block added), and the Python `hypothesis` property suite
+(`tests/test_properties.py`) stayed 3/3 green, unaffected since it only
+exercises Node runtimes. `npm pack --dry-run` still reports exactly 24
+release files (fixtures/tests remain excluded from the shipped package,
+matching the existing baseline). No other kit, the GitHub Action, or the VS
+extension references the fixture's function/at-risk counts.
+
+No price, checkout, Stripe, GRACE, DEV-account, or Marketplace-publication
+state changed. Collected profit remains $0; the gap remains $4,000. HQ-0
+through HQ-7 are unchanged and still require the owner; HQ-5's release link
+was re-verified this cycle via `list_releases` (id `375063073`, tag
+`v2.0.0`, slug `untagged-ea8be73c7a7d9b6c45e7`) and matches
+`HUMAN_QUEUE.md` exactly — no repair needed this time.
+
+## D53 — honor the failed VS gate with one focused reposition
+
+(Renumbered from `origin/main`'s independent D51 to avoid colliding with this
+branch's own D51 above; both were shipped in parallel Aug 31 cycles on
+diverging branches — this branch's cycles continued on
+`marketing-machine-v2` while a separate concurrent cycle worked directly on
+`main`. Reconciled by the September 1 merge; see D56 below.)
 
 The exact v1.1.0 gate failed: installs did not increase and no qualified
 VS-attributed external author appeared. Cumulative downloads increased, but the
@@ -1019,7 +1145,10 @@ job, added Terraform/SAM/CloudFormation and runtime keywords, made the first
 scan path explicit, and published v1.2.0 from exact green commit `23762f3f...`.
 Reset the baseline only after the official public surface showed v1.2.0.
 
-## D52 — automate authorized account operations only through validated authority
+## D54 — automate authorized account operations only through validated authority
+
+(Renumbered from `origin/main`'s independent D52 for the same reason as D53
+above.)
 
 The owner authorized every previously listed operation except retired Stripe
 credential rotation. A one-use workflow therefore checked only recognized DEV
@@ -1035,7 +1164,10 @@ browser sessions, exploit the host, or reinterpret broad authorization as
 permission to invent seller/payment facts. Remove the one-use workflow after
 its terminal run.
 
-## D53 — publish the free surface, keep the paid surface fail-closed
+## D55 — publish the free surface, keep the paid surface fail-closed
+
+(Renumbered from `origin/main`'s independent D53 for the same reason as D53/D54
+above.)
 
 Publishing tested VS v1.2.0 is reversible distribution work with no customer
 charge. Creating a live Stripe catalog and opening checkout is materially
@@ -1049,3 +1181,277 @@ passes.
 The retired Stripe credential rotation/revocation is explicitly out of scope at
 the owner's direction. That records a deferred risk; it is not evidence that
 the credential is safe, revoked, or reusable.
+
+## D56 — reconcile the parallel `main`/`marketing-machine-v2` divergence; fix a second live-scan false negative (python3.11)
+
+Cycle start: `marketing-machine-v2` and `origin/main` had diverged at shared
+base `47cd9eae` — this branch continued daily maintenance cycles (D51/D52
+above), while a separate concurrent cycle worked directly on `main` through
+PRs #28-#30 (VS v1.2.0 reposition/publication, operator legal identity,
+authorized DEV/Pages/ruleset attempt; that cycle's own D51-D53 as recorded
+in `main`'s history). `git merge-base --is-ancestor origin/main
+marketing-machine-v2` failed, confirming real divergence rather than a
+repeat of D44's already-merged case. Merged `origin/main` into
+`marketing-machine-v2` (not rebase, preserving both commit lines, matching
+the D50/D51 precedent). All non-`revenue/` files (VS extension v1.2.0, legal
+pages, workflow YAML) auto-merged with zero conflicts. `revenue/*.md`
+conflicted only in trailing append blocks; resolved by keeping both
+histories in chronological order and renumbering collisions: this branch's
+D51/D52 kept their numbers, `main`'s independent D51-D53 became D53-D55
+here; `HUMAN_QUEUE.md`'s old HQ-0..HQ-7 numbering is superseded by `main`'s
+newer, more complete HQ-A..HQ-G (this branch's durable-release-id/fallback
+note for the Marketplace draft link was preserved inside `main`'s HQ-E
+step).
+
+`apps/web/BUILD_DATE` was one day stale (`2026-08-31` against today's
+`2026-09-01`) on the merged tree. Confirmed `pytest -q apps/web` 35/35 green
+on the merged tree first (proving the merge itself didn't regress anything),
+then bumped and rebuilt: 35/35 stayed green, diff was 15 files, entirely
+date-derived (countdowns, ICS `DTSTAMP`, sitemap `lastmod`,
+`status/data.json` `generated_at`).
+
+Egress test repeated the standing method (sixth consecutive cycle): direct
+`curl` through the configured proxy to `example.com` and
+`docs.aws.amazon.com` both returned HTTP 403 (`CONNECT tunnel failed`); a
+`WebFetch` to `docs.aws.amazon.com` also returned `EGRESS_BLOCKED`;
+`$HTTPS_PROXY/__agentproxy/status` confirmed the proxy itself is reachable
+and logged both as `connect_rejected`. Per AGENTS.md's fallback, no new
+repost-answers batch or dev.to draft was produced this cycle.
+
+Repeated the standing scanner/deprecations cross-check (the same one that
+found D42's nodejs16.x gap and D52's python3.8 gap) and found a second
+instance of the identical defect class: `rules/public/deprecations.yml`
+carries a full "Lambda Python 3.11 projected create/update restrictions"
+entry (`date`/block-create `2027-07-31`, `block_update_date` `2027-08-31`,
+`deprecation_date` `2027-06-30`), and `kits/python-pivot`'s `RUNTIME_TABLE`
+independently agrees on the identical three dates for `python3.11` — the
+same two-source corroboration bar D52 used for `python3.8`. But
+`kits/lambda-lifeline/src/scan/index.mjs`'s `AT_RISK_RUNTIMES` set and
+`PHASE_DATES` table had no `python3.11` entry at all (only `python3.10` had
+been added, apparently in a cycle not captured in this branch's own
+DECISIONS history). A real `lambda-lifeline scan` against an AWS account
+running a `python3.11` Lambda function would therefore report `eol: false`
+/ severity `'ok'` — a false negative for a runtime the site's own
+`/migrate/lambda-python-3.11-eol/` page already tracks, identical in kind
+to D52's python3.8 finding and D42's nodejs16.x finding.
+
+Added `python3.11` to `AT_RISK_RUNTIMES`, `PHASE_DATES`
+(`phase1: 2027-06-30, block_create: 2027-07-31, block_update: 2027-08-31`),
+and `UPGRADE_TARGETS` (`python3.12`) in `index.mjs`, matching both
+corroborating sources exactly. Confirmed `ruby3.2`/`dotnet6` remain
+correctly excluded from the public rules file per D43's still-valid
+reasoning (no second corroborating source; not re-litigated this cycle).
+Added fixture function `ml-inference-endpoint` (`python3.11`) to
+`test/fixtures/lambda-inventory.json`; updated `test/scan.test.mjs` (9
+functions / 8 at risk, explicit `python3.11` field assertions) and the
+README's sample-output block to match. `node --test test/*.test.mjs`
+passed 28/28 (unchanged count); the `hypothesis` property suite stayed
+3/3 green (Node-only change, unaffected); `npm pack --dry-run` still
+reports exactly 24 release files. Grepped the GitHub Action and VS
+extension for any reference to the fixture's counts: none found, so no
+other package needed updating.
+
+No price, checkout, Stripe, GRACE, DEV-account, or Marketplace-publication
+state changed. Collected profit remains $0; the gap remains $4,000. The
+authoritative owner queue is now `revenue/HUMAN_QUEUE.md`'s HQ-A through
+HQ-G (40 minutes); do not use the superseded HQ-0..HQ-7 numbering from
+before this merge.
+
+## D57 — seventh consecutive egress-blocked cycle; bump BUILD_DATE only after finding no new correctness gap
+
+Cycle start: `origin/main` confirmed an ancestor of `marketing-machine-v2`
+(`git merge-base --is-ancestor`) — `git pull --rebase` on the branch was a
+no-op, so no repeat of D44/D51/D56's divergence patterns this cycle.
+
+Egress test repeated the standing method (seventh consecutive cycle): direct
+`curl` through the configured proxy to `example.com` and
+`docs.aws.amazon.com` both returned HTTP 403 (`CONNECT tunnel failed`);
+`$HTTPS_PROXY/__agentproxy/status` confirmed the proxy itself is reachable
+and logged both as `connect_rejected`. Also attempted, as a new check this
+cycle, to read the latest scheduled `acquisition-evidence.yml` artifact
+(run `33532642787`, 2026-09-01) via its signed Azure Blob Storage download
+URL obtained through the GitHub API (a different path than a direct
+`docs.aws.amazon.com`/`example.com` fetch, since the GitHub API itself
+remains reachable through the connected GitHub MCP tools). That download
+also returned `connect_rejected` through the same proxy, confirming this is
+an organization-policy-level block on general HTTPS egress from this
+container, not a per-domain denylist limited to the two standing test
+domains. Per AGENTS.md's fallback, no new repost-answers batch or dev.to
+draft was produced this cycle, and this cycle could not refresh METRICS.md
+with a new acquisition-artifact observation beyond what was already
+recorded from run `33532642787`'s existence (visible via the GitHub Actions
+API, which does not require this container's own egress).
+
+Before falling back to the routine BUILD_DATE maintenance fix, re-ran the
+full standing correctness sweep to check whether a new gap had appeared
+since D56: `kits/lambda-lifeline/src/scan/index.mjs`'s `AT_RISK_RUNTIMES`/
+`PHASE_DATES`/`UPGRADE_TARGETS` tables now carry corroborated entries for
+every runtime `rules/public/deprecations.yml` and `kits/python-pivot`'s
+`RUNTIME_TABLE` track (nodejs16.x/18.x/20.x/22.x, python3.8/3.9/3.10/3.11,
+ruby3.2, dotnet6) — python3.8 (D52) and python3.11 (D56) are confirmed
+present and correct. `nodejs14.x`, `java8.al2`, and `provided.al2` remain
+intentionally absent from `PHASE_DATES` (each already fully past its block
+dates or lacking a second corroborating source), matching the same
+`severity()` fallback-to-`critical-eol` design already used for those
+entries; this is consistent, not a bug. `apps/web/content/fixes.yml`'s
+python3.12/3.13 guidance is consistent with both tables treating those as
+supported upgrade targets, not deprecated runtimes. No new date error was
+found in the 25 quarantined `launch/distribution/devto/*.md` drafts beyond
+the two already recorded in that directory's `README.md`.
+
+Found no new correctness gap this cycle. `apps/web/BUILD_DATE` was one day
+stale (`2026-09-01` against today's `2026-09-02`). Built a project-local
+venv from `apps/web/requirements-dev.lock` (kept under `tmp/`, gitignored)
+and confirmed `pytest -q apps/web` was 35/35 green on the stale baseline
+first; bumped `BUILD_DATE` to `2026-09-02`, rebuilt via `apps/web/build.py`
+under the exact `EOLKITS_BASE_PATH`/`EOLKITS_SITE_URL`/`EOLKITS_API_URL`
+env vars CI uses, and re-ran the suite: 35/35 still green. `git diff --stat
+-- docs` showed exactly 15 files changed; inspected the full diff and
+confirmed every changed line is date-derived (sitemap/feed `lastmod`, ICS
+`DTSTAMP`, `/migrate/` countdown text, `status/data.json` `generated_at`) —
+no structural, price, or claim-text change.
+
+No price, checkout, Stripe, GRACE, DEV-account, or Marketplace-publication
+state changed. Collected profit remains $0; the gap remains $4,000. The
+authoritative owner queue remains `revenue/HUMAN_QUEUE.md`'s HQ-A through
+HQ-G (40 minutes) — HQ-E's release link (id `375063073`, slug
+`untagged-ea8be73c7a7d9b6c45e7`) was re-verified via `list_releases` this
+cycle and still matches `HUMAN_QUEUE.md` exactly, no repair needed. The VS
+v1.2.0 five-day gate (`2026-09-05T23:27:55Z`) has not yet arrived.
+
+## D58 — ninth+ consecutive egress-blocked cycle; routine BUILD_DATE bump only
+
+No cycle ran on September 3 (git history has no commit between `ee11bbc`
+2026-09-02 and this one); `marketing-machine-v2` was confirmed not diverged
+from `origin/main` (`git merge-base --is-ancestor origin/main
+marketing-machine-v2` passed, `git pull --rebase` a no-op) before starting
+work.
+
+Cycle-start egress test repeated the standing method: direct `curl` through
+the configured proxy to `example.com` and
+`docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html` both returned
+HTTP 403 (`CONNECT tunnel failed`); `$HTTPS_PROXY/__agentproxy/status`
+confirmed the proxy itself is up and logged both rejections
+(`connect_rejected`, "gateway answered 403 to CONNECT"). `WebFetch` to
+`example.com` and to a specific `repost.aws` thread URL both returned
+`EGRESS_BLOCKED` directly (not merely a curl-level 403), closing the gap
+between the two measurement methods used in prior cycles. `WebSearch`
+(hosted, not routed through this container's egress) still returned
+indexed blog/community results, but per AGENTS.md §2.5 those are
+explicitly disqualified as sources for AWS runtime dates ("never blogs"),
+and per D36's truth bar a repost-answers batch also requires a live-thread
+fetch, not a search snippet. Per AGENTS.md's fallback, no new
+repost-answers batch or dev.to draft was produced this cycle — the ninth
+consecutive cycle blocked this way (D42-D44, D57 and the unlabeled Aug
+30/31 cycle notes in PLAN.md are the prior instances).
+
+Ran a fresh full correctness sweep before defaulting to the date bump, to
+avoid rubber-stamping "nothing to find": compared `kits/lambda-lifeline`'s
+`PHASE_DATES`/`AT_RISK_RUNTIMES` against `kits/python-pivot`'s
+`RUNTIME_TABLE` (all four shared Python entries — 3.8/3.9/3.10/3.11 — match
+exactly), against `rules/public/deprecations.yml` (8 tracked runtimes, all
+present and dated identically; `ruby3.2`/`dotnet6` remain the same
+deliberately deferred gap from D43 — still only one internal source, still
+unverifiable against the primary doc this cycle), against
+`apps/web/content/fixes.yml` (no ruby3.2/dotnet6 entries either, consistent
+non-claim), and against `kits/al2023-gate`'s `AL2_EOL = 2026-06-30`
+(matches D37's already-corroborated fact, already in the past). Found no
+new gap.
+
+Confirmed `pytest -q apps/web` was 35/35 green on the stale `BUILD_DATE`
+(`2026-09-02`, now 2 days stale) before touching anything. Bumped to
+`2026-09-04`, rebuilt via `apps/web/build.py` under the exact
+`EOLKITS_BASE_PATH=/EOLkits` / `EOLKITS_SITE_URL=https://ntoledo319.
+github.io/EOLkits` / `EOLKITS_API_URL=https://eolkits.com` env vars CI
+uses, and re-ran the suite: 35/35 still green. `git diff --stat -- docs`
+showed exactly 16 files changed; inspected a representative diff
+(`docs/migrate/lambda-python-3.9-eol/index.html`) and confirmed every
+changed line is date-derived (152→150-day countdown, `datePublished`/
+`dateModified`, ICS `DTSTAMP`, sitemap/feed `lastmod`, `status/data.json`
+`generated_at`) — matches the 2-day bump exactly, no structural, price, or
+claim-text change. Also ran `kits/lambda-lifeline`'s Node test suite
+(28/28 green) as an independent regression check since its runtime tables
+were touched by D52/D56.
+
+Checked live external state through the connected GitHub API (not general
+web egress, so unaffected by the block): `list_issues` still returns 0 open
+issues (0 qualified `$299 Audit interest` submissions); `list_releases`
+still shows the canonical v2.0.0 draft (id `375063073`) as `draft=true` at
+unchanged slug `untagged-ea8be73c7a7d9b6c45e7`, matching
+`HUMAN_QUEUE.md`'s HQ-E exactly — no repair needed, no owner action taken
+since D57. No price, checkout, Stripe, GRACE, DEV-account, or
+Marketplace-publication state changed. Collected profit remains $0; the
+gap remains $4,000. HQ-A through HQ-G are unchanged and still require the
+owner. The VS v1.2.0 five-day gate (`2026-09-05T23:27:55Z`) still has not
+arrived — do not call it early; it is the next autonomous checkpoint.
+
+## D59 — reverse false publication churn; dates describe content, not build activity
+
+Fresh technical review invalidated D57/D58's routine BUILD_DATE policy. Updating
+one global date changed unchanged articles' first-publication timestamps, every
+sitemap `lastmod`, RSS publication dates, ICS stamps, and status generation time.
+That is not a meaningful public-content update and conflicts with the builder's
+own determinism comment and search-engine guidance. Reverted the September 2/4
+date-only output to the August 31 source baseline. Added explicit per-page
+sitemap overrides so only the materially changed Audit and Lambda schedule URLs
+carry `2026-09-04`. Future cycles must not bump BUILD_DATE merely because a day
+passed.
+
+## D60 — use conservative marketplace evidence and ship correctness without resetting the gate
+
+Nine exact-ID Gallery requests alternated between 103 and 104 installs while
+agreeing on 223 downloads and v1.2.0. A single read can therefore randomly pass
+or fail the acquisition gate. The workflow now takes five cache-busted samples,
+validates every identity/version/counter, stores the arrays and bounds, and uses
+the minimum. Post-deadline replica disagreement is inconclusive. Six pure Node
+tests cover malformed samples, identity drift, lower-bound reduction, pending,
+pass, inconclusive, and failure outcomes. The stale summary's literal
+166-download baseline was replaced with the configured value.
+
+This evidence defect does not justify waiting on known product bugs. VS v1.3 is
+a correctness/conversion release: it adds the omitted Node.js 16/Python 3.8
+structured rules, scopes Terraform runtime detection to literal values inside
+`aws_lambda_function`, tests unrelated-resource false positives, and offers the
+attributed $299-report path directly from the findings warning. It does not
+reset the cumulative 103-install baseline or September 5 gate and is not a
+second “reposition” of the listing.
+
+## D61 — preserve one automated cash unit; queue RapidAPI, park Contra
+
+Fresh official-policy research found no currently available marketplace that
+combines a $299 custom report, built-in discovery/payment, and truly hands-off
+fulfillment. Contra is commission-free and supports fixed-price services, but
+its inquiry/contract/private-input/delivery flow and per-write MCP confirmations
+reintroduce owner labor and customer communication. Do not publish a service we
+cannot fulfill through the platform automatically.
+
+RapidAPI does combine discovery, subscriptions/usage billing, four public plans,
+and a provider proxy secret, at a documented 20% share. Keep it as Bet C only
+after Audit is live and free-tier capacity is measured; 34 × $150 × 80% = $4,080
+is plausible arithmetic, not a 28-day forecast. The fastest money path remains
+the already-built $299 Audit fed by VS, GitHub Action, and cited search pages.
+
+## D62 — lifecycle fields must not call future supported runtimes EOL
+
+`lambda-lifeline` used `eol: true` as an alias for “tracked at risk,” causing
+future supported runtimes such as Node.js 22, Python 3.11, and `java8.al2` to be
+machine-labeled already EOL. It also assigned `java8.al2` a fallback
+`critical-eol` severity because phase dates were absent. Machine output now
+separates `at_risk`, `lifecycle`, and actual `eol`; `provided.al2` and
+`java8.al2` carry the current AWS phase dates. Rendering/strict mode continues
+to act on `at_risk`, preserving risk detection. A new parity test executes the
+Node scanner and imports Python Pivot, requiring both to match the cited public
+YAML exactly.
+
+## D63 — record containment failures and tighten the remainder of the run
+
+The technical-review subagent's first test created transient fixtures through
+`node:os.tmpdir()` at `/tmp`, outside WORKSPACE_ROOT, then cleaned them. The root
+agent also issued one read-only Git status/diff command without the mandatory
+workspace-local global-config override, which may have read user-level config.
+Neither changed persistent external or repository state, but both violate the
+workspace-jail process and are recorded as failures. Every later test uses a
+workspace `TMPDIR`; every Git call uses `GIT_CONFIG_NOSYSTEM=1` plus the
+workspace-local empty global config. Docker builds are left to CI rather than
+mutating the local daemon. Item 3 (retired Stripe credential rotation/revocation)
+remains excluded exactly as directed.
