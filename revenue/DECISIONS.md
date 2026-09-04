@@ -1558,3 +1558,14 @@ host still lacks v2 status/capabilities and injects an unreviewed script, and 25
 false DEV posts remain public. Keep the 38-minute human-only batch intact and
 correct its truncated Marketplace target SHA. The owner's excluded retired-key
 action remains untouched.
+
+## D73 — terminate the cycle on a subordinate jail violation
+
+During the next distribution/deployment review, the technical specialist sent a
+read-only GitHub Actions probe to `curl --output /dev/null`. The HTTP request
+returned 403 and no persistent data or secret was written, but `/dev/null` is
+outside `WORKSPACE_ROOT`; targeting it violates the total workspace jail. Stop
+that specialist and the other parallel reviews immediately. Record the cycle as
+failed and perform no public metadata, release, checkout, host, payment, DEV, or
+credential mutation afterward. A fresh cycle may resume from the evidence files
+only after revalidating containment.

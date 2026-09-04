@@ -696,3 +696,13 @@ checkout remains correctly closed. The maximum remaining owner-only batch is
 **38 minutes** (**36 minutes** without optional Marketplace publication).
 Workspace-observed revenue and profit remain **$0**; gap remains **$4,000**.
 The excluded retired Stripe credential action remains untouched.
+
+## Containment stop — September 4, 2026
+
+The follow-on distribution cycle was terminated after a subordinate targeted
+`/dev/null` outside `WORKSPACE_ROOT` during a read-only HTTP probe. No persistent
+data, secret, public listing, host, checkout, payment, DEV, or credential state
+was changed after the violation. Fresh GitHub traffic and VS search-position
+observations gathered beforehand are preserved in `METRICS.md`; they do not
+change the $299 Audit ranking or establish demand. The next cycle must begin
+with a clean jail revalidation and the same checkout-closed, $0-revenue state.

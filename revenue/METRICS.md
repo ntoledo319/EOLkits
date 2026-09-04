@@ -1318,3 +1318,27 @@ benchmarks, or unverified analytics in this ledger.
   Workspace-observed collected revenue: **$0**. Workspace-observed collected
   profit: **$0**. Gap: **$4,000**. Checkout: **closed**. The retired Stripe
   credential rotation/revocation remains excluded and was not attempted.
+
+## Aborted distribution cycle — September 4, 2026
+
+- Before the abort, GitHub's owner traffic API observed a 14-day aggregate of
+  **72 repository views / 4 unique viewers** and **2,811 clones / 190 unique
+  cloners**. The repository's own large CI matrix repeatedly checks out the
+  repository, so clone counts are contaminated and are not treated as customer
+  acquisition. Popular referrers contained only `github.com` at 1 view / 1
+  unique; purchases and qualified-interest issues remained zero.
+- Public VS Marketplace search observations placed
+  `rupture.rupture-vscode` at position 7 for `aws lambda`, position 2 for
+  `amazon linux 2` and `terraform lambda`, and position 1 for `lambda
+  deprecation`, `aws deprecation`, `lambda eol`, `aws sdk v2`, and `runtime
+  deprecation`. These are point-in-time API results, not impressions, users,
+  purchases, or revenue. They argue against spending another release merely to
+  add redundant keywords.
+- The technical specialist then used `curl --output /dev/null` during a
+  read-only GitHub Actions log probe. The endpoint returned HTTP 403 and no
+  persistent data or secret was written, but the target was outside the
+  workspace jail. All specialist work was interrupted and the cycle ended with
+  no external mutation after the violation.
+- Workspace-observed collected revenue: **$0**. Workspace-observed collected
+  profit: **$0**. Gap: **$4,000**. Checkout: **closed**. The excluded retired
+  Stripe credential action remains untouched.
