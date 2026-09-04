@@ -1,18 +1,46 @@
-# Batched owner queue — authoritative September 4, 2026 — maximum 38 minutes
+# Batched owner queue — authoritative September 4, 2026 — maximum 40 minutes
 
-_PR #56 is merged and green at exact `main` SHA
-`734b2d007e890fb0e2c53bdc746ce144dcfdefe2`; the static branch matches it.
-The later feature-branch cleanup containment failure changed no queue item or
-commercial prerequisite. The total remains 38 minutes, and the retired Stripe
-credential action remains excluded._
+_The owner reports that drive-local env files may contain most missing
+authority. The jail forbids Codex from reading their current location. HQ-0 is a
+two-minute secure file-copy step into the existing ignored inbox. The prior
+queue was 38 minutes; the nominal ceiling is now 40, but usable imported
+credentials should replace—not duplicate—most relevant later steps._
+
+_PR #57 is merged and green at exact `main` SHA
+`1476920a323ed63bd7311e6a9b2947e8e10ccf62`; the static branch matches it.
+The recorded feature-branch cleanup containment failure changed no queue item or
+commercial prerequisite. The pre-import total was 38 minutes, and the retired
+Stripe credential action remains excluded._
 
 _A resumed discovery-boundary audit at `2026-09-04T12:30:43Z` added the one
 missing exact repository topic (`github-actions`) and reverified the same draft
 target. VS search position, repository metadata, connected hosting inventory,
 GitHub sponsor policy, and Marketplace publication requirements exposed no
 additional autonomous path to payment. No queue item was completed or added;
-the maximum remains 38 minutes. The excluded retired-credential action remains
-outside this queue._
+the pre-import maximum remained 38 minutes. The excluded retired-credential
+action remains outside this queue._
+
+## HQ-0 — import the existing env files into the workspace jail (2 minutes)
+
+Why human-only: the files are elsewhere on the drive, and WORKSPACE_ROOT
+explicitly forbids Codex from reading or copying anything outside this project.
+The destination is already created and ignored by Git.
+
+Steps:
+
+1. In Dolphin, enable hidden files with `Ctrl+H` and locate the existing
+   EOLkits/GRACE `.env` or deployment environment files.
+2. Copy them—without opening or editing them—to
+   `/home/nick/Development/active/Rupture/tmp/owner-env-import/`. If an env file
+   explicitly references a separate SSH/private credential file, copy that
+   referenced file into the same directory too. Files must be copies, not
+   symlinks.
+3. Do not copy, rotate, revoke, reactivate, or relabel the excluded retired
+   Stripe credential. Do not paste any secret into chat. Reply only `imported`.
+
+Codex will then classify and validate the imported capabilities without
+printing values, execute every safe supported operation they unlock, and
+recompute the remaining queue.
 
 _Re-verified through GitHub's live API on September 4, 2026: HQ-E's release
 link (id `375063073`, tag `v2.0.0`, slug
@@ -188,7 +216,9 @@ Steps:
    status, `/api/capabilities`, the public form, and one input-bound $299
    Checkout Session. Do not self-charge in live mode.
 
-Estimated owner labor: **38 minutes**, leaving 22 minutes within the 60-minute
-cap. Completed repository work and public VS Code v1.3 publication require no
-owner time. No owner action in this queue asks for the excluded retired Stripe
-credential rotation/revocation.
+Estimated owner labor before the new import: **38 minutes**. HQ-0 makes the
+nominal maximum **40 minutes**, leaving 20 minutes within the 60-minute cap; a
+successful import is expected to replace relevant host/account steps and reduce
+the actual total. Completed repository work and public VS Code v1.3 publication
+require no owner time. No owner action in this queue asks for the excluded
+retired Stripe credential rotation/revocation.

@@ -610,3 +610,13 @@ market fact. Ranking remains **A1 cash path → V1 acquisition → K1 acquisitio
 A3 queued**. Do not interpret the new GitHub topic, green checks, merged state,
 or branch alignment as a sale, and do not add a substitute SKU while A1 remains
 closed on owner-only production/payment gates.
+
+## Environment-recovery checkpoint — September 4, 2026
+
+The workspace-local env scan does not change the opportunity ranking because it
+recovered no usable authority. If the owner-reported external envs are copied
+into the prepared ignored inbox, valid GRACE transport plus Stripe-test/Resend
+credentials could collapse most A1 deployment work; a valid DEV key could also
+remove the false corpus through its supported API. Those are conditional
+capabilities, not current assets or demand. A1 remains first, and no credential
+may weaken the closed-checkout, E2E, refund, cost, or truth gates.

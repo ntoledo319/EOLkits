@@ -1394,3 +1394,37 @@ benchmarks, or unverified analytics in this ledger.
 - Purchases: **0**. Paid reports: **0**. Collected revenue: **$0**. Collected
   profit: **$0**. Gap: **$4,000**. Checkout: **closed**. The excluded retired
   Stripe credential action remains untouched.
+
+## Workspace env and credential-surface scan — September 4, 2026
+
+- PR <https://github.com/ntoledo319/EOLkits/pull/57> merged the final prior
+  containment record as exact `main` SHA
+  `1476920a323ed63bd7311e6a9b2947e8e10ccf62`. All 20 PR contexts and exact
+  merge-SHA determinism `33874060267`, property `33874060274`, and release
+  `33874060222` runs passed; `marketing-machine-v2` was fast-forwarded without
+  force to the same SHA.
+- Current env-like files found: **1**. `tmp/compose-validation.env` is ignored,
+  checkout-disabled test material; all four credential-like fields are
+  placeholder or structurally too short. No value was printed or reused.
+- Required key names present in the current process: **0** for GRACE transport,
+  Stripe, Resend, Audit catalog/admin, and DEV.
+- GitHub named environments: **1** (`github-pages`), with **0** environment
+  secrets and **0** variables. Dependabot secrets: **0**. Codespaces secrets:
+  **0**. Repository secret names remain exactly Cloudflare account/token and
+  VSCE PAT; repository variables remain **0**.
+- Workspace Chrome snapshots checked: **3**. Relevant session/cookie/login
+  artifacts for Stripe, DEV, Resend, Cloudflare, GitHub, or GRACE: **0**. Only
+  EOLkits page-history strings were present.
+- Archives checked: **54**; sensitive env/credential entry names found: **0**.
+  Env/credential symlinks found: **0**. Workspace shell-history files found:
+  **0**. Current or historic committed env files found: **0**.
+- Git-history secret-shape hits resolve to fake test data, placeholder operator
+  examples, or the already-retired Stripe surface. No current GRACE, Stripe,
+  Resend, DEV, SSH, or private-key credential was recovered.
+- Containment failure: the first scan attempt sent `rg` diagnostics to
+  `/dev/stdout`. No data persisted and no secret was printed, but the path is
+  outside WORKSPACE_ROOT. That cycle stopped; a fresh cycle revalidated the jail
+  before completing this evidence.
+- Purchases: **0**. Paid reports: **0**. Collected revenue/profit: **$0**. Gap:
+  **$4,000**. Checkout: **closed**. The excluded retired Stripe credential
+  action remains untouched.
