@@ -521,3 +521,26 @@ distribution improved; observed paid demand and collected revenue did not.
   closed until the owner-only GRACE, legal, catalog, delivery, refund,
   retention, and host-injection gates in `HUMAN_QUEUE.md` pass. Observed
   revenue and profit remain $0.
+
+## Public v1.3 and live acquisition surfaces — September 4, 2026
+
+- **VS Code extension:** v1.3.0 is now public on the existing
+  `rupture.rupture-vscode` identity. The public package manifest was verified
+  from the version-specific Marketplace package endpoint, and five subsequent
+  exact-ID Gallery samples agreed on v1.3.0, 104 installs, and 226 downloads.
+  That is a one-install lower-bound increase over the retained 103-install
+  baseline, not revenue. The one-use automatic publisher has been removed;
+  future publication again requires the explicit owner-dispatch confirmation.
+- **Static acquisition surfaces:** the rebuilt Pages Audit and Lambda schedule
+  URLs return HTTP 200 and contain the reviewed first-party tracker path,
+  pre-upload assurances, qualified $299-interest path, and source attribution.
+  They are usable acquisition assets, but neither traffic nor a purchase has
+  yet been observed from them.
+- **Release integrity:** the repair tree passed every repository PR gate and
+  all seven `main` workflows. The dedicated dependency audit was moved to
+  Node 24/npm 11 and package-lock-only mode after npm 10's retired quick-audit
+  path failed; ordinary installs disable incidental audit calls while the
+  fail-closed security job remains mandatory.
+- **Paid asset state:** Audit v2 remains code-complete but not sellable until
+  the GRACE, injection, delivery, refund, retention, legal/facts, and new-catalog
+  gates in `HUMAN_QUEUE.md` pass. Collected revenue and profit remain $0.

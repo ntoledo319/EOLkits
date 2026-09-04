@@ -14,9 +14,9 @@ release-link durable-ID/fallback note is preserved in HQ-E below since the
 `untagged-<hex>` slug has already regenerated twice on ordinary resyncs._
 
 Codex completed every operation currently reachable through the repository and
-connected GitHub authority. VS Code v1.2.0 is public and the tested v1.3.0
-correctness release is being handled through the existing exact-SHA publication
-path. The exact v2 GitHub release draft is ready. The remaining actions require production-host access, owner account
+connected GitHub authority. VS Code v1.3.0 is public, its exact package and
+five-sample Gallery evidence are verified, and its publisher is manual-only
+again. The exact v2 GitHub release draft is ready. The remaining actions require production-host access, owner account
 attestations, DEV author authority, repository-administration permission, or
 payment-account control that is not present in the workspace or connected
 tools. Do them in this order; do not use an older handoff.
@@ -182,5 +182,6 @@ Steps:
    Checkout Session. Do not self-charge in live mode.
 
 Estimated owner labor: **42 minutes**, leaving 18 minutes within the 60-minute
-cap. Completed repository work and public VS Code v1.2 publication require no
-owner time.
+cap. Completed repository work and public VS Code v1.3 publication require no
+owner time. No owner action in this queue asks for the excluded retired Stripe
+credential rotation/revocation.
