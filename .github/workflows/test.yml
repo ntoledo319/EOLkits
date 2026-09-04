@@ -210,7 +210,7 @@ jobs:
           python-version: '3.12'
       - uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
       - name: Audit locked Python graphs and Node runtime licenses
         run: |
           mkdir -p "$TMPDIR" "$PIP_CACHE_DIR"
@@ -225,10 +225,29 @@ jobs:
             kits/lambda-lifeline/package-lock.json \
             apps/worker/package-lock.json \
             apps/vscode-extension/package-lock.json
-          npm audit --package-lock-only --omit=dev --audit-level=high \
-            --prefix kits/lambda-lifeline
-          npm audit --package-lock-only --omit=dev --audit-level=high \
-            --prefix apps/worker
+          npm_major="$(npm --version | cut -d. -f1)"
+          if (( npm_major < 11 )); then
+            echo "::error::npm 11+ is required; older clients fall back to the retired quick-audit endpoint"
+            exit 1
+          fi
+          audit_lockfile() {
+            local prefix="$1"
+            local attempt
+            for attempt in 1 2 3; do
+              if timeout 120s npm audit --package-lock-only --omit=dev \
+                --audit-level=high --prefix "$prefix"; then
+                return 0
+              fi
+              if (( attempt == 3 )); then
+                echo "::error::npm audit failed after $attempt attempts for $prefix"
+                return 1
+              fi
+              echo "::warning::npm audit attempt $attempt failed for $prefix; retrying"
+              sleep "$((attempt * 5))"
+            done
+          }
+          audit_lockfile kits/lambda-lifeline
+          audit_lockfile apps/worker
 
   lint:
     runs-on: ubuntu-latest
