@@ -86,15 +86,16 @@ Source: https://stripe.com/pricing (checked August 27, 2026).
   relevant users to the same Audit page.
 - Funnel: VS Marketplace/editor search and organic error searches → local
   finding or answer page → Audit sample/availability.
-- Distribution state: v1.2.0 is public on the existing
+- Distribution state: v1.3.0 is public on the existing
   `rupture.rupture-vscode` listing; no owner action remains for this release.
 - Channel-attribution hypothesis: two of the same portfolio Audit sales arrive
   through VS/search = $580.06 net. They are not additive to Bet B's total, and
   this is unobserved.
-- Falsifier: the v1.1.0 gate failed and its one reposition is public as v1.2.0.
-  Zero install growth and zero external VS-attributed qualified-interest
-  authors at `2026-09-05T23:27:55Z` stops promotion and leaves only the free
-  utility.
+- Falsifier: the v1.1.0 gate failed and its one positioning change shipped as
+  v1.2.0. The v1.3.0 correctness release did not reset the baseline or gate.
+  Its five-sample public lower bound is now 104 versus the 103 baseline, so the
+  acquisition-signal gate passed; this is one install, not a sale or proof that
+  the channel can close the revenue gap.
 
 ## Sequence
 
@@ -106,7 +107,7 @@ Source: https://stripe.com/pricing (checked August 27, 2026).
    the Worker as an HTTP 410 tombstone. Retired-key rotation/revocation is
    explicitly deferred at the owner's direction and is not in the active queue.
 3. Keep the honest GitHub Pages fallback, tested `v2` Action branch, and public
-   VS v1.2.0 release green. The owner publishes the sole canonical v2.0.0 draft
+   VS v1.3.0 release green. The owner publishes the sole canonical v2.0.0 draft
    into the existing GitHub Marketplace listing; obsolete drafts are gone.
 4. Deploy Audit v2 with checkout disabled and complete the full Stripe test-mode
    operational gate. Remove the hosting-layer analytics injection, deploy the
@@ -564,11 +565,11 @@ All have a tested release candidate; none is counted as demand or revenue.
 
 ### Current portfolio
 
-- **Bet A — free marketplace acquisition (VS v1.3 + Action v2):** publish the
-  correctness release without resetting v1.2's cumulative 103-install baseline
-  or `2026-09-05T23:27:55Z` signal gate. Pass requires a five-sample Gallery
-  lower bound above 103 or a distinct qualified external author. Replica split
-  after the deadline is `inconclusive_gallery_replication`, not a pass.
+- **Bet A — free marketplace acquisition (VS v1.3 + Action v2):** VS v1.3.0 is
+  public and its five cache-busted samples converged at 104 installs / 226
+  downloads. Against the retained v1.2 baseline of 103 / 199, the mechanical
+  lower-bound gate passed at +1 install. Downloads are not qualified demand;
+  neither counter is revenue. Action v2 remains ready but owner-published.
 - **Bet B — $299 automated Audit:** 14 US domestic-card sales provisionally
   close the target; 16 sales remain the conservative international/refund
   scenario already modeled. Traffic comes from exact VS findings, Action
@@ -583,9 +584,9 @@ All have a tested release candidate; none is counted as demand or revenue.
 
 ### Highest-leverage execution order
 
-1. Merge the fully verified source tree and publish the exact v1.3 VSIX through
-   the existing owner-scoped, exact-SHA workflow; then restore the workflow to
-   manual-only and sample the public Gallery five times.
+1. Keep the merged, fully verified v1.3 source and exact public VSIX green;
+   preserve its publisher as manual-only and continue daily five-sample Gallery
+   evidence without resetting the original acquisition baseline.
 2. Fast-forward the auto-deployed `marketing-machine-v2` branch to the same
    reviewed tree, while its IndexNow safety gate continues to reject the
    injected custom host.
@@ -600,3 +601,28 @@ All have a tested release candidate; none is counted as demand or revenue.
 Observed collected revenue: **$0**. Observed collected profit: **$0**. Gap:
 **$4,000**. Retired Stripe credential revocation/rotation remains explicitly
 excluded and was not attempted.
+
+## Public release and cleanup checkpoint — September 4, 2026
+
+PR #41 merged the ground-up product and acquisition repair at
+`44e0425f3b94b085835c85a2e0dbf28642914973`; all four required PR checks and
+passed. The clean Pages Audit and Lambda schedule surfaces are live at HTTP 200
+with the reviewed tracking, conversion, and attribution changes.
+
+PR #42 then published the exact v1.3.0 VSIX through one bounded owner-attributed
+push run; its four PR checks and all seven resulting `main` workflows passed.
+Publisher run `33864097060` passed, the version-specific Marketplace package
+endpoint served v1.3.0, and the exact-ID Gallery converged across five
+cache-busted observations at 104 installs / 226 downloads. The retained baseline
+is 103 / 199, so the acquisition gate records a conservative +1 install and
+passes. The +27 package downloads are not interpreted as people, leads, or
+revenue. The publication trigger is restored to manual-only in the final
+cleanup, and the evidence workflow now requires public v1.3.0.
+
+The only cash path remains the $299 automated Audit. Checkout stays closed
+because GRACE v2 deployment, host injection removal, fulfillment/delivery,
+refund/retention, truthful commercial facts, and the new catalog have not been
+proved. Owner work is the 42-minute HQ-A through HQ-G batch in
+`revenue/HUMAN_QUEUE.md`; retired Stripe credential rotation/revocation is
+excluded. Collected revenue: **$0**. Collected profit: **$0**. Gap:
+**$4,000**.

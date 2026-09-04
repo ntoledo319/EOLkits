@@ -550,3 +550,21 @@ Primary policy references checked this cycle:
 - <https://docs.rapidapi.com/v2.0/docs/additional-request-headers>
 - <https://docs.rapidapi.com/docs/hub-listing-monetize-tab>
 - <https://help.contra.com/en/articles/9322412-how-to-add-services-to-your-contra-profile>
+
+## Public-signal ranking checkpoint — September 4, 2026
+
+Ranking remains **A1 cash path → V1 acquisition → K1 acquisition → A3 queued**.
+The public v1.3.0 Gallery evidence changes V1 from “pending/inconclusive” to a
+mechanical signal pass: five samples consistently report 104 installs versus
+the retained 103 baseline. This is the smallest possible positive install
+signal and validates continuing the channel; it does not validate the $299
+offer, estimate conversion, or reduce the $4,000 cash gap. The accompanying
+download movement from 199 to 226 is not treated as 27 people.
+
+A1 remains the only unit capable of collecting near-term money: one automated,
+source-only $299 report, provisionally 14 domestic no-refund sales or the
+existing 16-sale conservative buffer. K1 still needs the owner-held Marketplace
+publication ceremony. A3 remains behind the Audit launch because building a
+second payment surface before the existing fulfillment path is proven would
+delay first revenue. No frame is promoted on the basis of commits, workflow
+runs, Marketplace counters, or search rank alone.

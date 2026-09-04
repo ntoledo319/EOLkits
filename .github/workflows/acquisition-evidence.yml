@@ -27,7 +27,7 @@ jobs:
     env:
       TMPDIR: ${{ github.workspace }}/tmp/runtime-tmp
       VSCODE_EXTENSION_ID: rupture.rupture-vscode
-      VSCODE_RELEASE_VERSION: 1.2.0
+      VSCODE_RELEASE_VERSION: 1.3.0
       VSCODE_BASELINE_INSTALLS: '103'
       VSCODE_BASELINE_DOWNLOADS: '199'
       VSCODE_SIGNAL_GATE_AT: '2026-09-05T23:27:55Z'

@@ -1175,3 +1175,48 @@ benchmarks, or unverified analytics in this ledger.
   tests.
 - Qualified interest issues: **0**. Paid reports: **0**. Collected revenue:
   **$0**. Collected profit: **$0**. Gap: **$4,000**.
+
+## Ground-up repair merged, VS v1.3 public, first conservative acquisition signal — September 4, 2026
+
+- Product/acquisition PR: <https://github.com/ntoledo319/EOLkits/pull/41>,
+  merged as `44e0425f3b94b085835c85a2e0dbf28642914973`. Required PR runs all passed:
+  determinism `33860135020`, public v2 consumer `33860135033`, property
+  `33860135048`, and release surfaces `33860135115`.
+- Public web verification: Pages Audit and Lambda schedule returned HTTP 200.
+  Audit rendered `/EOLkits/track.js`, the “Before you upload” assurances, and
+  qualified $299-interest path; the schedule rendered the attributed
+  `source=lambda_schedule&utm_source=organic` route. An initial assertion
+  incorrectly expected root `/track.js`; the corrected project-base assertion
+  passed. No custom-host reindex request was sent because its injection gate is
+  still red.
+- VS publication/operations PR: <https://github.com/ntoledo319/EOLkits/pull/42>,
+  merged as `b72c58e2ab14dc2c23e87aa752062e34bbde7bce`. Its final PR runs all
+  passed: release surfaces `33863794219`, determinism `33863794249`, property
+  `33863794214`, and public v2 consumer `33863794220`. All seven merge-push
+  workflows then passed: public consumer `33864097232`, acquisition
+  `33864097145`, property `33864097152`, determinism `33864096972`, legacy
+  Pages `33864095981`, publisher `33864097060`, and release surfaces
+  `33864097098`. Publisher run `33864097060` checked out exact release source
+  `44e0425f...`, packaged 12 files / 22.59 KB, and reported publication of
+  `rupture.rupture-vscode@1.3.0`.
+- Propagation evidence: the Gallery's latest-version query initially still
+  returned v1.2.0, while the version-specific public package endpoint returned
+  HTTP 200 and its package manifest proved publisher `rupture`, extension
+  `rupture-vscode`, version `1.3.0`. The exact-ID Gallery later converged with
+  `lastUpdated=2026-09-04T10:41:26.573Z`. Five cache-busted samples all read
+  version 1.3.0, 104 installs, and 226 downloads; replica consistency was true.
+- Acquisition gate: retained baseline 103 installs / 199 downloads, current
+  five-sample lower bound 104 / 226, delta +1 / +27, original gate instant
+  `2026-09-05T23:27:55Z`, result `passed`. Only +1 install is recorded as the
+  conservative external acquisition signal. Downloads may be package/update
+  fetches; neither value is a lead, customer, or dollar.
+- CI repair evidence: two intermediate operations heads exposed npm 10's
+  failing retired quick-audit path (HTTP 400, then HTTP 503). The final job uses
+  Node 24/npm 11, package-lock-only production audit, three bounded fail-closed
+  retries, and a 120-second ceiling; its final dependency audit and all four PR
+  gates passed. Ordinary dependency installs skip incidental audit calls, not
+  the mandatory security gate.
+- Qualified-interest issues: **0**. Purchases: **0**. Paid reports: **0**.
+  Collected revenue: **$0**. Collected profit: **$0**. Gap: **$4,000**.
+  Checkout: **closed**. Retired Stripe credential rotation/revocation: excluded
+  by owner direction and not attempted.
