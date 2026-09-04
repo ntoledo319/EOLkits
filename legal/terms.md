@@ -1,11 +1,11 @@
 # Terms of Service — EOLkits
 
-**Last updated:** August 31, 2026
+**Last updated:** September 4, 2026
 
 ## 1. Acceptance
 
-EOLkits is operated by Toledo Technologies LLC, based in Connecticut, United
-States ("EOLkits," "we," or "us").
+EOLkits is operated by Toledo Technologies LLC, 2389 Main St. STE 100,
+Glastonbury, CT 06033, United States ("EOLkits," "we," or "us").
 
 By using EOLkits, you agree to these Terms. If you do not agree, do not use the
 service.
@@ -102,7 +102,15 @@ incidental, special, consequential, or lost-profit damages arising from use of
 the service. Nothing in these Terms excludes liability that cannot legally be
 excluded.
 
-## 8. Changes and Contact
+## 8. Governing Law
+
+These Terms are governed by the laws of the State of Connecticut, without
+regard to its conflict-of-law rules. This does not limit mandatory consumer
+protections that apply in your place of residence.
+
+## 9. Changes and Contact
 
 Material changes will be published here with a new update date. Questions and
-refund requests: `hello@toledotechnologies.com`.
+refund requests: `hello@toledotechnologies.com`. Postal correspondence may be
+sent to Toledo Technologies LLC, 2389 Main St. STE 100, Glastonbury, CT 06033,
+United States.

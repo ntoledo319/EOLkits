@@ -3,10 +3,12 @@ from __future__ import annotations
 import hashlib
 import hmac
 import importlib
+import stat
 import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 from starlette.requests import Request
 
@@ -48,6 +50,47 @@ def _force_running(store, job_id, *, attempts=0, updated_at="2000-01-01T00:00:00
             "UPDATE jobs SET status='running', attempts=?, updated_at=? WHERE id=?",
             (attempts, updated_at, job_id),
         )
+
+
+def test_runtime_tightens_customer_data_permissions(tmp_path, monkeypatch):
+    mod, _ = _load_app(tmp_path, monkeypatch)
+    tmp_path.chmod(0o755)
+    mod.settings.uploads_dir.mkdir(mode=0o755)
+    mod.settings.reports_dir.mkdir(mode=0o755)
+
+    mod.initialize_runtime_state()
+
+    for directory in (tmp_path, mod.settings.uploads_dir, mod.settings.reports_dir):
+        assert stat.S_IMODE(directory.stat().st_mode) == 0o700
+    assert stat.S_IMODE(mod.settings.db_path.stat().st_mode) == 0o600
+
+    report = mod.settings.reports_dir / "report.pdf"
+    mod._atomic_write_bytes(report, b"%PDF-private")
+    assert stat.S_IMODE(report.stat().st_mode) == 0o600
+
+
+def test_runtime_rejects_a_symlinked_customer_data_directory(tmp_path, monkeypatch):
+    mod, _ = _load_app(tmp_path, monkeypatch)
+    real_directory = tmp_path / "real"
+    real_directory.mkdir()
+    link = tmp_path / "linked"
+    link.symlink_to(real_directory, target_is_directory=True)
+
+    with pytest.raises(RuntimeError, match="symlinked data directory"):
+        mod._ensure_private_directory(link)
+
+
+def test_runtime_rejects_a_database_symlink_before_sqlite_opens_it(tmp_path, monkeypatch):
+    mod, _ = _load_app(tmp_path, monkeypatch)
+    mod.settings.db_path.unlink()
+    target = tmp_path / "do-not-open"
+    target.write_bytes(b"unchanged")
+    mod.settings.db_path.symlink_to(target)
+
+    with pytest.raises(RuntimeError, match="unsafe database path: state.sqlite3"):
+        mod.initialize_runtime_state()
+
+    assert target.read_bytes() == b"unchanged"
 
 
 def test_reaper_recovers_job_orphaned_in_running(tmp_path, monkeypatch):

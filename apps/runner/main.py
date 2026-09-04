@@ -22,6 +22,13 @@ def _positive_int_env(name: str, default: int) -> int:
 
 RUNNER_SLOTS = threading.BoundedSemaphore(_positive_int_env("RUNNER_CONCURRENCY", 2))
 RUNNER_READ_TIMEOUT_SECONDS = _positive_int_env("RUNNER_READ_TIMEOUT_SECONDS", 30)
+RUNNER_MIN_TOKEN_BYTES = 32
+
+
+def _configured_runner_token() -> bytes | None:
+    """Return a production-strength HTTP token, or fail the HTTP surface closed."""
+    token = (os.environ.get("RUNNER_TOKEN") or "").encode("utf-8")
+    return token if len(token) >= RUNNER_MIN_TOKEN_BYTES else None
 
 
 def run_job(job: dict) -> dict:
@@ -62,12 +69,12 @@ class RunnerHandler(BaseHTTPRequestHandler):
             self._write_json(404, {"error": "not_found"})
             return
 
-        token = os.environ.get("RUNNER_TOKEN")
+        token = _configured_runner_token()
         if not token:
             self._write_json(503, {"error": "runner_not_configured"})
             return
-        supplied = self.headers.get("Authorization") or ""
-        if not hmac.compare_digest(supplied, f"Bearer {token}"):
+        supplied = (self.headers.get("Authorization") or "").encode("latin-1", errors="replace")
+        if not hmac.compare_digest(supplied, b"Bearer " + token):
             self._write_json(401, {"error": "unauthorized"})
             return
 
@@ -81,20 +88,36 @@ class RunnerHandler(BaseHTTPRequestHandler):
                 self._write_json(413, {"error": "invalid_job_size"})
                 return
             job = json.loads(self.rfile.read(length) or b"{}")
+            if not isinstance(job, dict) or job.get("type") != "audit_pdf":
+                self._write_json(400, {"error": "invalid_job"})
+                return
+            # Local paths are valid only for the inline/stdin runner. Accepting
+            # one from an HTTP caller would let it read any container-readable
+            # file. Remote jobs must use the API-generated, signed upload URL.
+            if "upload_path" in job:
+                self._write_json(400, {"error": "local_input_forbidden"})
+                return
+            if not job.get("upload_url") and not job.get("uploadUrl"):
+                self._write_json(400, {"error": "remote_upload_required"})
+                return
             result = run_job(job)
             self._write_json(200, {"success": True, "result": result})
         except (socket.timeout, TimeoutError):
             self._write_json(408, {"error": "request_timeout"})
-        except Exception as e:
-            self._write_json(
-                500,
-                {"success": False, "error": str(e), "error_type": type(e).__name__},
-            )
+        except (json.JSONDecodeError, UnicodeDecodeError, ValueError):
+            self._write_json(400, {"error": "invalid_job"})
+        except Exception as exc:
+            # Do not reflect provider responses, signed URLs, or local paths to
+            # an HTTP client. Operators get only the exception class locally.
+            print(f"runner job failed: {type(exc).__name__}", file=sys.stderr)
+            self._write_json(500, {"success": False, "error": "job_failed"})
         finally:
             RUNNER_SLOTS.release()
 
     def log_message(self, format, *args):
-        print(f"runner: {format % args}", file=sys.stderr)
+        # BaseHTTPRequestHandler's default line contains the full request URI.
+        # Signed URLs and caller-supplied query strings must never reach logs.
+        return
 
     def _write_json(self, status: int, payload: dict):
         data = json.dumps(payload).encode("utf-8")
@@ -108,10 +131,17 @@ class RunnerHandler(BaseHTTPRequestHandler):
 
 
 def serve():
+    if not _configured_runner_token():
+        raise RuntimeError(
+            f"RUNNER_TOKEN must contain at least {RUNNER_MIN_TOKEN_BYTES} UTF-8 bytes"
+        )
     port = int(os.environ.get("PORT", "8080"))
-    server = ThreadingHTTPServer(("0.0.0.0", port), RunnerHandler)
+    bind = (os.environ.get("RUNNER_BIND") or "127.0.0.1").strip()
+    if not bind:
+        raise RuntimeError("RUNNER_BIND must not be blank")
+    server = ThreadingHTTPServer((bind, port), RunnerHandler)
     server.daemon_threads = True
-    print(f"EOLkits runner listening on :{port}", flush=True)
+    print(f"EOLkits runner listening on {bind}:{port}", flush=True)
     server.serve_forever()
 
 

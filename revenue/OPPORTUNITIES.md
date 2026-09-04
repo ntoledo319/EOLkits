@@ -568,3 +568,19 @@ publication ceremony. A3 remains behind the Audit launch because building a
 second payment surface before the existing fulfillment path is proven would
 delay first revenue. No frame is promoted on the basis of commits, workflow
 runs, Marketplace counters, or search rank alone.
+
+## Launch-path review checkpoint — September 4, 2026
+
+Ranking remains **A1 cash path → V1 acquisition → K1 acquisition → A3 queued**.
+Publishing the API image to GHCR was rejected: the production host must still
+build or pull, preflight, snapshot, deploy, and verify, so a registry image
+removes zero documented owner minutes while adding another mutable release
+surface and credential/pull path. The guarded host wrapper improves the actual
+deployment boundary instead.
+
+Security, legal, and repository-admin work lower execution and loss risk; they
+do not add traffic, validate willingness to pay, or change any revenue score.
+Former HQ-F is complete, HQ-B is narrowed by official seller-address and
+governing-law evidence, and the pending owner ceiling falls from 42 to 38
+minutes. Checkout is still closed, so A1's five-day purchase falsifier has not
+started. No product or channel is promoted on operational polish alone.

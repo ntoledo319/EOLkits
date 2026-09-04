@@ -1,13 +1,13 @@
 # Privacy Policy — EOLkits
 
-**Last updated:** August 31, 2026
+**Last updated:** September 4, 2026
 
 ## 1. Scope
 
-EOLkits is operated by Toledo Technologies LLC, based in Connecticut, United
-States. Toledo Technologies LLC is the controller of personal data described in
-this policy unless a provider acts as an independent controller under its own
-terms.
+EOLkits is operated by Toledo Technologies LLC, 2389 Main St. STE 100,
+Glastonbury, CT 06033, United States. Toledo Technologies LLC is the controller
+of personal data described in this policy unless a provider acts as an
+independent controller under its own terms.
 
 This policy describes data used by the EOLkits website, free browser tools, paid
 repository evidence report, and product-research forms. The Migration Pack,
@@ -113,7 +113,8 @@ needed to resolve a transaction may be retained as required.
 Email `hello@toledotechnologies.com` from the address associated with the data
 and use the subject `EOLkits Privacy Request`. You may also open a private contact
 request through the operator's GitHub profile; do not put sensitive data in a
-public issue or discussion.
+public issue or discussion. Postal requests may be sent to Toledo Technologies
+LLC, 2389 Main St. STE 100, Glastonbury, CT 06033, United States.
 
 ## 8. International Processing and Children
 

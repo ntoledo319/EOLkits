@@ -1,4 +1,4 @@
-# Batched owner queue — authoritative September 4, 2026 — maximum 42 minutes
+# Batched owner queue — authoritative September 4, 2026 — maximum 38 minutes
 
 _Re-verified unchanged on September 4, 2026: HQ-E's release link (id
 `375063073`, tag `v2.0.0`, slug `untagged-ea8be73c7a7d9b6c45e7`) still
@@ -16,10 +16,13 @@ release-link durable-ID/fallback note is preserved in HQ-E below since the
 Codex completed every operation currently reachable through the repository and
 connected GitHub authority. VS Code v1.3.0 is public, its exact package and
 five-sample Gallery evidence are verified, and its publisher is manual-only
-again. The exact v2 GitHub release draft is ready. The remaining actions require production-host access, owner account
-attestations, DEV author authority, repository-administration permission, or
-payment-account control that is not present in the workspace or connected
-tools. Do them in this order; do not use an older handoff.
+again. The exact v2 GitHub release draft is ready. Repository Pages now uses
+GitHub Actions, and active ruleset `22266277` blocks default-branch/`v2`
+deletion and force pushes; former HQ-F is complete with no owner labor. The
+remaining actions require production-host access, owner account attestations,
+DEV author authority, or payment-account control that is not present in the
+workspace or connected tools. Do them in this order; do not use an older
+handoff.
 
 The retired Stripe credential revocation/rotation action is explicitly excluded
 at the owner's direction. It was not attempted, is not included in the time
@@ -45,41 +48,45 @@ Steps:
 4. Leave checkout off. If a postcondition differs, report only the route and
    status; do not improvise a broader firewall rule.
 
-## HQ-B — supply the four missing commercial facts (3 minutes)
+## HQ-B — supply the remaining commercial facts (2 minutes)
 
-Why human-only: public sources establish Toledo Technologies LLC, Connecticut,
-and `hello@toledotechnologies.com`; they do not establish a business mailing
-address, the contract's chosen governing jurisdiction, the account's actual
-Stripe fee/currency facts, or incremental GRACE cost.
+Why human-only: Connecticut's official business registry establishes Toledo
+Technologies LLC's public mailing address, and the terms now use Connecticut
+law while preserving mandatory consumer protections. Public sources cannot
+establish the Stripe account's actual fee/currency facts or incremental GRACE
+cost.
 
 Steps:
 
-1. Reply in this Codex thread with the business mailing address and the state or
-   country that should govern the EOLkits terms.
-2. Open <https://dashboard.stripe.com/settings>. Report the account country,
+1. Open <https://dashboard.stripe.com/settings>. Report the account country,
    standard-versus-custom pricing, presentment currency, and settlement
    currency. Never send a key, customer record, callback URL, or screenshot.
-3. State whether EOLkits adds exactly $0 of monthly cost to the existing GRACE
+2. State whether EOLkits adds exactly $0 of monthly cost to the existing GRACE
    host. If not, provide only the incremental monthly amount.
 
 ## HQ-C — deploy Audit v2 closed, prove fulfillment, and repair indexing (18 minutes)
 
 Why human-only: this requires GRACE access and private Stripe-test/Resend
-values. The repository capability audit found neither deploy transport nor a
-complete runtime bundle.
+values. No host transport or host-management capability is available to the
+workspace or connected tools; the guarded runtime bundle is now complete.
 
 Steps:
 
-1. Follow `deploy/grace/README.md` from “Safe rollout order” through the
-   checkout-closed deployment, using the final green `main` commit.
-2. Build the image and run `python -m eolkits_grace.preflight` without the
-   production volume. Then run
-   `bash deploy/grace/snapshot-api-volume.sh`; it stops the exact old
-   container, creates a restricted SHA-256-checked snapshot, and restarts the
-   old container on failure.
-3. Deploy with `EOLKITS_AUDIT_CHECKOUT_ENABLED=0`. Replace the emergency block
-   with `deploy/grace/Caddyfile.eolkits-api.block` only after loopback health,
-   status, and capability probes prove report version 2.0 and checkout false.
+1. In the clean host checkout at `/home/ubuntu/sites/eolkits-api`, check out the
+   final green `main` commit. Run
+   `deploy/grace/deploy-api-closed.sh --sha <full-green-main-sha>` without
+   `--apply`. Require the guarded dry-run to pass and review its bounded plan.
+2. Repeat the exact command with `--apply`. It pins the reviewed SHA, validates
+   the current deployment and private env file, builds the digest-pinned image,
+   runs the no-volume checkout-closed preflight, snapshots the exact production
+   volume, deploys with checkout forced off, verifies all loopback capability
+   gates, and restores the prior image automatically if a post-deploy gate
+   fails. Do not restore a volume automatically.
+3. Replace the emergency block with
+   `deploy/grace/Caddyfile.eolkits-api.block` only after the wrapper proves
+   report version 2.0, exact build SHA, healthy dependencies, and checkout
+   false. Validate the complete Caddy config with Caddy 2.8 or newer before
+   reload; the reviewed block suppresses signed-upload URLs from access logs.
 4. Remove the host rule that injects
    `https://stats.saiditright.com/script.js`. Do not replace it with another
    third-party tag. Require raw HTML on `/`, `/audit/`, `/pack/`,
@@ -138,22 +145,6 @@ Steps:
    <https://github.com/marketplace/actions/rupture-aws-deprecation-check>
    shows v2.0.0. Stop if the target commit differs.
 
-## HQ-F — remove the two GitHub configuration races (3 minutes)
-
-Why human-only: the connected GitHub integration and scoped workflow token can
-change repository content but have no repository-administration authority.
-The bounded API attempt made no changes: the public ruleset list remains empty,
-and the merge still triggered GitHub's legacy dynamic Pages build.
-
-Steps:
-
-1. At <https://github.com/ntoledo319/EOLkits/settings/pages>, set Build and
-   deployment Source to **GitHub Actions**.
-2. At <https://github.com/ntoledo319/EOLkits/settings/rules>, create one active
-   branch ruleset targeting the default branch and `v2`; block branch deletion
-   and force pushes. Do not change repository visibility or enable a paid
-   feature.
-
 ## HQ-G — create the new catalog and enable the only checkout (3 minutes)
 
 Why human-only: this creates live payment objects and begins accepting customer
@@ -162,8 +153,8 @@ money. No connected Stripe authority exists.
 Prerequisites: HQ-A through HQ-D are complete; legal/cost math is updated from
 HQ-B; the custom host is injection-free; Audit v2 capability, delivery, refund,
 and retention evidence is green; and no fulfillment/refund alert is open.
-HQ-E and HQ-F improve distribution and resilience but cannot weaken these
-commerce gates.
+HQ-E improves distribution but cannot weaken these commerce gates. Repository
+Pages and release-branch protections are already complete.
 
 Steps:
 
@@ -181,7 +172,7 @@ Steps:
    status, `/api/capabilities`, the public form, and one input-bound $299
    Checkout Session. Do not self-charge in live mode.
 
-Estimated owner labor: **42 minutes**, leaving 18 minutes within the 60-minute
+Estimated owner labor: **38 minutes**, leaving 22 minutes within the 60-minute
 cap. Completed repository work and public VS Code v1.3 publication require no
 owner time. No owner action in this queue asks for the excluded retired Stripe
 credential rotation/revocation.

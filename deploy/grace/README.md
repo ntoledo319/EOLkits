@@ -10,18 +10,25 @@ This deployment serves one paid capability: the $299 Audit v2 repository evidenc
    return `410`, and `/webhook/stripe` still reaches the legacy process. This
    immediately closes the unauthenticated legacy upload surface while preserving
    refund/reconciliation webhooks.
-2. Build the exact reviewed image and run the mutation-free preflight without
-   mounting the production volume. With checkout closed, this validates the
-   production secret modes without contacting Stripe or touching SQLite.
-3. Run `snapshot-api-volume.sh` on GRACE. It stops the current container, archives
-   the exact read-only data volume to a mode-0600 file under
+2. Run `deploy-api-closed.sh --sha <reviewed-full-commit-sha>` first. Its default
+   dry-run refuses the wrong path, user, tree, SHA, env-file permissions,
+   Compose identity, image, volume, loopback binding, security settings, or
+   checkout state. It preserves the exact live Compose project label so an
+   older directory-derived deployment is adopted and rolled back under its own
+   identity. Review the bounded plan, then repeat with `--apply`. It builds the
+   digest-pinned image and runs the mutation-free preflight without mounting the
+   production volume.
+3. The guarded deployment script invokes `snapshot-api-volume.sh` before replacing
+   the container. That helper stops the current container, archives the exact
+   read-only data volume to a mode-0600 file under
    `/home/ubuntu/backups/eolkits`, verifies the archive contains `state.sqlite3`,
    records a SHA-256, and restarts the prior container even on failure. Do not
    inspect customer files. Keep the snapshot only for the bounded rollback
    window, then delete it deliberately after v2 is stable.
-4. Deploy the API with `EOLKITS_AUDIT_CHECKOUT_ENABLED=0`. Runtime preflight now
-   completes before the application creates directories, migrates SQLite, or
-   redacts historical event payloads.
+4. The script deploys with `EOLKITS_AUDIT_CHECKOUT_ENABLED=0`, verifies the exact
+   build SHA plus all three loopback endpoints, and recreates the prior image if
+   a gate fails. It deliberately does not restore a volume automatically:
+   restoring old SQLite after a new payment could discard customer state.
 5. Bootstrap the static target once, then deploy the reviewed `docs/` tree with
    `ship-web.sh` after inspecting its default dry-run; verify the public domain
    serves the repaired claims. The deploy script accepts only
@@ -39,8 +46,10 @@ This deployment serves one paid capability: the $299 Audit v2 repository evidenc
    for deployment. The sentinel is protected from `rsync --delete`; do not copy
    it into `docs/` or reuse it for another directory.
 6. Replace the emergency block with `Caddyfile.eolkits-api.block` only after the
-   loopback v2 probes pass. Verify `/health`, `/api/status`, and
-   `/api/capabilities`; checkout must still report disabled.
+   loopback v2 probes pass. Validate the complete Caddyfile before reloading;
+   the reviewed block uses Caddy 2.8+'s `log_skip` to prevent bearer-equivalent
+   upload/report query values from entering access logs. Verify `/health`,
+   `/api/status`, and `/api/capabilities`; checkout must still report disabled.
 7. Run a complete Stripe **test-mode** checkout → signed webhook → real PDF render → Resend delivery → signed download → evidence lookup exercise. Do not self-charge in live mode; Stripe does not return processing fees on refunds.
 8. Archive every legacy Stripe Payment Link. The exact pre-rename Cloudflare
    Worker already serves the tested retirement tombstone; do not restore its
@@ -80,14 +89,25 @@ Generate secrets on the deployment host with `openssl rand -hex 32`. GitHub App 
 
 ## Deploy checkout closed
 
-Use the checked-in compose file from a reviewed clone. Build and preflight the
-exact image with no production volume attached before running the snapshot:
+Use the checked-in compose file from a reviewed clone. The normal path is the
+guarded dry-run followed by the same command with `--apply`:
 
 ```bash
 export EOLKITS_BUILD_SHA=<reviewed-full-commit-sha>
+deploy/grace/deploy-api-closed.sh --sha "$EOLKITS_BUILD_SHA"
+deploy/grace/deploy-api-closed.sh --sha "$EOLKITS_BUILD_SHA" --apply
+```
+
+The wrapper consolidates and verifies the following underlying sequence. These
+commands are documented for incident diagnosis, not as an alternate unchecked
+rollout:
+
+```bash
 docker compose -f deploy/grace/docker-compose.eolkits-api.yml \
   --env-file deploy/grace/.env.production build eolkits-api
 docker run --rm --read-only --network none \
+  --cap-drop ALL --security-opt no-new-privileges --pids-limit 64 --memory 512m \
+  --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m,mode=1777 \
   --env-file deploy/grace/.env.production \
   --env ENVIRONMENT=production \
   --env EOLKITS_AUDIT_CHECKOUT_ENABLED=0 \
@@ -98,6 +118,12 @@ docker compose -f deploy/grace/docker-compose.eolkits-api.yml \
 curl -fsS http://127.0.0.1:8120/health | jq
 curl -fsS http://127.0.0.1:8120/api/capabilities | jq -e '.audit.checkout_enabled == false and .audit.report_version == "2.0"'
 ```
+
+The Compose service runs as numeric UID/GID 10001, with a read-only root
+filesystem, all capabilities dropped, `no-new-privileges`, bounded resources,
+a private temporary filesystem, and loopback-only publication. Customer-data
+directories are tightened to mode 0700 and SQLite/uploads/reports to mode 0600.
+Do not relax those settings to make a failed rollout start.
 
 Expected closed-preflight output contains only mode and booleans:
 

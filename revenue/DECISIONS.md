@@ -1487,3 +1487,50 @@ confirmation only. Pin acquisition measurement to public v1.3.0. Do not open
 Audit checkout or request custom-host reindexing: GRACE v2, raw injection,
 delivery, refund/retention, legal/commercial facts, and catalog gates remain
 unproved. The excluded retired Stripe credential task remains untouched.
+
+## D67 — reject registry theater; improve the host boundary that remains
+
+Do not add a GHCR publishing pipeline. The GRACE host would still need to pull
+or build, preflight, snapshot, deploy, and verify the same release, so a remote
+image removes zero documented owner minutes while adding registry credentials,
+retention, provenance, and another mutable tag surface. Keep one inline API
+deployment and use the repository's digest-pinned Dockerfiles plus CI build
+checks. Revisit a registry only after measured build time or multi-host rollout
+proves a real bottleneck.
+
+## D68 — harden the closed cash path and automate only reversible deployment
+
+The network runner accepted arbitrary local paths, request targets could expose
+signed URLs in logs, fulfillment files inherited permissive modes, and the
+containers lacked a consistent least-privilege boundary. Fix those defects
+before money: require URL-only HTTP inputs and a strong token, suppress target
+and API access logs, enforce 0700/0600 runtime modes, use numeric non-root users,
+read-only filesystems, no capabilities, bounded resources, and explicit base
+image digests. The guarded rollout must dry-run, attest exact host/tree/SHA and
+current volume, preflight without production data, snapshot, deploy with
+checkout forced closed, verify exact capabilities, and restore only the prior
+image on failure. It must never auto-restore data, edit Caddy, create payment
+objects, or enable checkout.
+
+## D69 — use official public seller facts without falsely re-dating the corpus
+
+Connecticut's official registry establishes Toledo Technologies LLC's public
+business/mailing address, so use it on Terms, Privacy, and DPA instead of asking
+the owner to restate a public fact. Select Connecticut law because the seller is
+a Connecticut entity and the owner delegated the choice, while preserving all
+mandatory consumer protections and avoiding an invented exclusive forum. Mark
+only the three changed legal URLs September 4 in the sitemap; keep the global
+August 31 build date so unchanged guides, feeds, calendar events, and status
+data are not falsely republished. HQ-B now contains only private Stripe and host
+cost facts.
+
+## D70 — spend authenticated repository-admin authority, not owner minutes
+
+Fresh `gh` verification showed authenticated owner scope and a live admin API,
+contrary to the prior capability conclusion. Set Pages to workflow builds,
+create active ruleset `22266277` blocking deletion/non-fast-forward updates on
+the default branch and `v2`, verify both settings, and prove Pages with
+successful run `33867109854` at exact main SHA `4f51c770...`. This removes HQ-F
+and three estimated owner minutes. GitHub Marketplace publication remains
+human-only because its agreement, checkbox, and 2FA are account-holder
+attestations; no repository API may bypass them.

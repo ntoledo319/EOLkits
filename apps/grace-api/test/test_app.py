@@ -6,6 +6,7 @@ import hashlib
 import hmac
 import importlib
 import json
+import stat
 import sys
 from pathlib import Path
 
@@ -461,6 +462,9 @@ def test_upload_is_immutable_and_get_requires_short_lived_signature(tmp_path, mo
     assert client.put(f"/upload/{upload_id}", content=b"first").status_code == 403
     assert client.put(upload_path, content=b"first").status_code == 200
     assert client.put(upload_path, content=b"other").status_code == 409
+    stored_upload = mod._upload_path(upload_id)
+    assert stat.S_IMODE(stored_upload.parent.stat().st_mode) == 0o700
+    assert stat.S_IMODE(stored_upload.stat().st_mode) == 0o600
     assert client.get(f"/upload/{upload_id}").status_code == 403
 
     signed = mod._signed_upload_url(upload_id)

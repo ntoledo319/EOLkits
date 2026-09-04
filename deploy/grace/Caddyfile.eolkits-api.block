@@ -1,4 +1,10 @@
 @eolkitsApi path /health /api/* /upload/* /webhook/stripe /verify/* /admin/reconcile-refund
+@eolkitsSignedDownloads path /upload/*
+
+# Presigned source/report URLs carry bearer-equivalent values in their query
+# strings. Keep those complete request targets out of Caddy access logs.
+log_skip @eolkitsSignedDownloads
+
 handle @eolkitsApi {
     reverse_proxy 127.0.0.1:8120
 }

@@ -544,3 +544,36 @@ distribution improved; observed paid demand and collected revenue did not.
 - **Paid asset state:** Audit v2 remains code-complete but not sellable until
   the GRACE, injection, delivery, refund, retention, legal/facts, and new-catalog
   gates in `HUMAN_QUEUE.md` pass. Collected revenue and profit remain $0.
+
+## Closed-deployment hardening and resolved seller identity — September 4, 2026
+
+- **Audit runner boundary:** stdin/inline execution still supports a reviewed
+  local path, but the network-facing runner now accepts only `audit_pdf`,
+  requires a signed upload URL, rejects every client-supplied local path, binds
+  to loopback by default, requires a 32-byte-or-longer bearer token, suppresses
+  request-target logging, and returns no exception internals to clients.
+- **Private fulfillment data:** GRACE rejects unsafe data-directory/database
+  path types, forces runtime directories to mode 0700 and database/upload/report
+  files to mode 0600, and creates report temporaries under an owner-only umask.
+- **Container/deploy surface:** the API and runner use explicit digest-pinned
+  Python 3.12.14 bookworm images, numeric non-root users, read-only filesystems,
+  no Linux capabilities, `no-new-privileges`, bounded processes/CPU/memory, and
+  a noexec temporary filesystem. The reviewed Caddy block omits signed-upload
+  requests from access logs. A guarded checkout-closed deploy wrapper verifies
+  the exact host/tree/SHA/current volume, preflights without the data volume,
+  snapshots before mutation, verifies post-deploy capabilities, and restores
+  the prior image on failure without ever opening checkout or restoring data.
+- **Seller/legal facts:** Connecticut's official registry establishes Toledo
+  Technologies LLC at 2389 Main St. STE 100, Glastonbury, CT 06033, United
+  States. Terms, privacy, and DPA now use that public business/mailing address;
+  the terms select Connecticut law subject to mandatory consumer protections.
+  Stripe account pricing/currencies and incremental GRACE cost remain private
+  facts in HQ-B.
+- **Repository administration:** Pages now uses GitHub Actions exclusively;
+  active ruleset `22266277` blocks deletion and non-fast-forward updates on the
+  default branch and `v2`. The former three-minute HQ-F is complete.
+
+The smallest sellable unit and ranking are unchanged: one automated,
+source-only Audit v2 PDF at $299. These changes reduce launch risk and owner
+error; they are not demand. Checkout remains closed, and workspace-observed
+revenue/profit remain $0.
