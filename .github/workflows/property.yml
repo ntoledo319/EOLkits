@@ -32,7 +32,7 @@ jobs:
           venv="$GITHUB_WORKSPACE/tmp/property-venv"
           if [ "${{ matrix.kit }}" = "lambda-lifeline" ]; then
             cd kits/lambda-lifeline
-            npm ci
+            npm ci --no-audit
           elif [ -f kits/${{ matrix.kit }}/pyproject.toml ] || [ -f kits/${{ matrix.kit }}/setup.py ]; then
             "$venv/bin/pip" install -e "kits/${{ matrix.kit }}[dev]"
           fi

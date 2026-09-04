@@ -59,7 +59,7 @@ jobs:
         run: |
           mkdir -p "$TMPDIR" "$npm_config_cache" "$GITHUB_WORKSPACE/tmp/determinism"
           cd kits/lambda-lifeline
-          npm ci
+          npm ci --no-audit
       - name: Run kit twice on same fixture
         run: |
           cd kits/lambda-lifeline

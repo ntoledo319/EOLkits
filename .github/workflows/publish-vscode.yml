@@ -83,7 +83,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: mkdir -p "$TMPDIR" "$npm_config_cache" && npm ci
+        run: mkdir -p "$TMPDIR" "$npm_config_cache" && npm ci --no-audit
         working-directory: apps/vscode-extension
 
       - name: Test extension

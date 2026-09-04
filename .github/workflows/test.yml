@@ -47,7 +47,7 @@ jobs:
         with:
           node-version: '24'
       - run: mkdir -p "$TMPDIR" "$npm_config_cache"
-      - run: npm ci && npm test
+      - run: npm ci --no-audit && npm test
         working-directory: kits/lambda-lifeline
 
   worker:
@@ -58,7 +58,7 @@ jobs:
         with:
           node-version: '20'
       - run: mkdir -p "$TMPDIR" "$npm_config_cache"
-      - run: npm ci && npm run build && npm test
+      - run: npm ci --no-audit && npm run build && npm test
         working-directory: apps/worker
 
   grace-api:
@@ -142,7 +142,7 @@ jobs:
         with:
           node-version: '20'
       - run: mkdir -p "$TMPDIR" "$npm_config_cache"
-      - run: npm ci && npm test && npm run package
+      - run: npm ci --no-audit && npm test && npm run package
         working-directory: apps/vscode-extension
 
   github-action:
