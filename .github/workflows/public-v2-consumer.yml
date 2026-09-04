@@ -30,6 +30,11 @@ concurrency:
 jobs:
   consume:
     runs-on: ubuntu-latest
+    env:
+      # This job validates public Action behavior. Dependency vulnerability
+      # enforcement lives in test.yml's fail-closed dedicated audit job.
+      npm_config_audit: 'false'
+      npm_config_cache: ${{ github.workspace }}/tmp/npm-cache
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
