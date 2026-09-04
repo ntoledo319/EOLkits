@@ -95,12 +95,12 @@ install_python_kits() {
 
 install_node_kit() {
   if [[ -f "$RUPTURE_ROOT/kits/lambda-lifeline/package-lock.json" ]]; then
-    (cd "$RUPTURE_ROOT/kits/lambda-lifeline" && npm ci --omit=dev --quiet) || {
+    (cd "$RUPTURE_ROOT/kits/lambda-lifeline" && npm ci --omit=dev --quiet --no-audit) || {
       echo "::error::Failed to install lambda-lifeline dependencies."
       exit 1
     }
   else
-    (cd "$RUPTURE_ROOT/kits/lambda-lifeline" && npm install --omit=dev --quiet) || {
+    (cd "$RUPTURE_ROOT/kits/lambda-lifeline" && npm install --omit=dev --quiet --no-audit) || {
       echo "::error::Failed to install lambda-lifeline dependencies."
       exit 1
     }
