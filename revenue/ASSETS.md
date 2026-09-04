@@ -575,5 +575,7 @@ distribution improved; observed paid demand and collected revenue did not.
 
 The smallest sellable unit and ranking are unchanged: one automated,
 source-only Audit v2 PDF at $299. These changes reduce launch risk and owner
-error; they are not demand. Checkout remains closed, and workspace-observed
-revenue/profit remain $0.
+error; they are not demand. They are merged on `main` through PR #44 at
+`5bbf5a949148cd9f359d07aad03f649358c37e8c`, with both real container builds
+green. Checkout remains closed, and workspace-observed revenue/profit remain
+$0.
