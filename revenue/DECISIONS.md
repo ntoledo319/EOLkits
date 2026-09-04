@@ -1607,3 +1607,26 @@ deleted-branch commits remain on `main`. Terminate that cycle; resume only after
 fresh jail validation and another read of all six state files. Do not roll back
 the valid merge or recreate the disposable feature branch, because neither
 would repair the process failure or advance revenue.
+
+## D77 — treat drive-local envs as unobserved until imported into the jail
+
+The owner's report that other drive-local env files exist is credible but does
+not override the workspace jail. Exhaust the current workspace without exposing
+values: ignored env/secret-like names, current process keys, archives, Git
+history, non-followed symlinks, Chrome-profile session metadata, repository and
+GitHub Environment secrets, Dependabot/Codespaces inventories, and action
+artifacts. The sole env file is synthetic checkout-disabled Compose validation;
+no usable GRACE, Stripe, Resend, DEV, catalog, or admin authority is present.
+Historical credential-shaped strings are tests/placeholders or retired material
+and must not be reused. Create a git-ignored `tmp/owner-env-import/` inbox and
+queue a two-minute file copy rather than reading outside WORKSPACE_ROOT. Never
+print imported values; classify and validate capabilities in process.
+
+## D78 — stop the first env scan on another device-path violation
+
+The first env-scan cycle routed one `rg` diagnostic stream to `/dev/stdout`.
+That device is outside WORKSPACE_ROOT, so the target is forbidden even though it
+persisted nothing and revealed no value. Stop the cycle, interrupt the security
+specialist, revalidate the exact jail, reread all six state files, and restart
+without device-path redirection. Record the failure; do not erase it because the
+subsequent bounded scan succeeded.

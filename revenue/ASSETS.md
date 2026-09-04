@@ -607,3 +607,17 @@ resolves to the same commit, the public repository retains 20 topics including
 its deleted feature-branch commits remain in `main`. The $299 Audit remains the
 smallest sellable unit and remains unavailable until the owner-only launch gates
 pass.
+
+## Environment-asset recovery result — September 4, 2026
+
+No usable environment or credential asset exists inside the current workspace.
+The sole `.env`-style file is a synthetic, checkout-disabled Compose-validation
+fixture. GitHub Environments, Dependabot, Codespaces, ignored files, archives,
+Git history, current process variables, and workspace-local Chrome snapshots add
+no GRACE, Stripe, Resend, DEV, catalog, or admin authority. Historical secret
+shapes are tests/placeholders or retired Stripe material and are not assets.
+
+A git-ignored secure inbox at `tmp/owner-env-import/` is ready for copies of the
+owner-reported external env files. Until that import happens, Audit v2 remains
+code-complete but operationally unavailable; the sellable unit and $0 observed
+revenue are unchanged.

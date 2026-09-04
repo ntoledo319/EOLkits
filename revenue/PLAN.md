@@ -763,3 +763,42 @@ the 20-topic public discovery state remains live, and the private v2 Action
 draft remains exact. Checkout is **closed**; workspace-observed revenue and
 profit remain **$0**; the gap remains **$4,000**; the owner-only queue remains
 **38 minutes**. The excluded retired Stripe credential action was not attempted.
+
+## Workspace environment recovery scan — September 4, 2026
+
+The owner reported that existing drive-local environment files may clear most
+launch blockers. The workspace jail forbids searching the rest of the drive, so
+this cycle exhaustively scanned the current workspace, ignored files, archives,
+Git history, current process environment, workspace-local Chrome snapshots, and
+all GitHub repository/environment secret inventories without printing values.
+The scan starts from fully green PR #57 merge SHA
+`1476920a323ed63bd7311e6a9b2947e8e10ccf62`, which is also the current static
+branch target.
+
+No usable production authority was found. The only current env file is ignored
+`tmp/compose-validation.env`; it contains synthetic validation values: a
+placeholder Stripe key, undersized webhook/Resend strings, a placeholder
+internal token, checkout disabled, a build SHA, and a port. The current process
+has none of the required GRACE, Stripe, Resend, Audit catalog/admin, or DEV key
+names. GitHub has only its `github-pages` environment with no secrets or
+variables; repository secret names remain Cloudflare account/token and VSCE PAT;
+Dependabot and Codespaces inventories are empty. Three workspace Chrome-profile
+snapshots contain no relevant Stripe, DEV, Resend, Cloudflare, GitHub, or GRACE
+session artifacts. No archive contains an env/credential entry, and no env-like
+symlink or credential store exists inside the jail.
+
+Historical matches are test/placeholders or the already-retired Stripe surface;
+they are not valid launch credentials and will not be reused. Therefore no
+existing blocker can be cleared from the current workspace. A git-ignored local
+inbox now exists at `tmp/owner-env-import/`; HQ-0 asks the owner to copy the
+claimed env files there without exposing their contents. Nominal owner time is
+now at most **40 minutes**, but a valid import could replace most of HQ-A/HQ-C/
+HQ-D/HQ-G rather than add to them. Checkout remains closed; workspace-observed
+revenue/profit remain **$0**; the excluded retired Stripe credential action
+remains untouched.
+
+The first attempted scan in this sequence improperly routed `rg` diagnostics to
+`/dev/stdout`, outside the jail. Nothing persisted and no value was printed, but
+the path target was a containment violation. That cycle stopped immediately;
+the specialist was interrupted; this scan resumed only after a fresh exact-jail
+validation and reread of all six state files.
