@@ -13,6 +13,14 @@
 
 AWS marks future runtime dates as subject to change. Recheck the linked table before scheduling a production migration.
 
+Machine-readable scan output separates `at_risk` (a tracked runtime with a
+published or projected migration timeline), `lifecycle` (`supported`,
+`deprecated`, `create-blocked`, or `update-blocked`), and `eol` (the deprecation
+milestone has begun). This prevents future-but-at-risk runtimes from being
+misreported as already end-of-life. The inventory scanner also carries AWS's
+published phase dates for its bonus `provided.al2` and `java8.al2` checks; the
+migration commands below remain Node.js-specific.
+
 ---
 
 ## What this kit does
@@ -80,8 +88,8 @@ npm ci        # only needed for scan (live mode), certs, deploy, rollback
 
 ## Sample output
 
-Run against the included fixture. The `Days` value is computed from the run date,
-so it is shown as `…` below:
+Run against the included fixture. Severity and `Days` are computed from the run
+date; this severity snapshot is dated 2026-09-04 and `Days` is shown as `…`:
 
 ```
 $ lambda-lifeline scan --fixture test/fixtures/lambda-inventory.json
@@ -93,7 +101,7 @@ api-orders-ingest                    nodejs20.x     us-east-1      high         
 billing-webhook-processor            nodejs18.x     us-east-1      high               …      nodejs24.x
 legacy-cron-cleanup                  nodejs16.x     us-west-2      high               …      nodejs24.x
 events-api-current                   nodejs22.x     us-east-1      medium             …      nodejs24.x
-report-generator                     python3.10     us-east-1      medium             …      python3.12
+report-generator                     python3.10     us-east-1      high               …      python3.12
 ruby-legacy-processor                ruby3.2        us-east-1      high               …      ruby3.4
 invoice-etl-batch                    python3.8      us-east-1      high               …      python3.12
 ml-inference-endpoint                python3.11     us-east-1      medium             …      python3.12

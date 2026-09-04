@@ -56,6 +56,14 @@ CONTENT_SECURITY_POLICY = (
     "form-action 'self'"
 )
 
+# BUILD_DATE is the stable default publication date for the existing generated
+# corpus. Record only materially changed pages here so a release does not falsely
+# rewrite every sitemap lastmod (or every article's first-publication date).
+PAGE_LASTMOD_OVERRIDES = {
+    "audit/index.html": "2026-09-04",
+    "lambda-runtime-deprecation-schedule/index.html": "2026-09-04",
+}
+
 
 def _interpolate_api(html):
     """Render a commerce-page template string.
@@ -63,13 +71,14 @@ def _interpolate_api(html):
     These page builders write ``{API_URL}`` for the API origin and double their
     in-script JS object braces (``{{`` / ``}}``). The page is NOT an f-string and
     its CSS uses single braces, so a plain ``.format()`` would crash on the CSS.
-    We interpolate explicitly: substitute the API origin, then collapse the
-    doubled JS braces back to singles, leaving single-brace CSS untouched. The
-    result has zero ``{API_URL}`` / ``{{`` / ``}}`` left — which the CI gate and
-    the deploy gate both enforce.
+    We interpolate explicitly: substitute the API and canonical site origins,
+    then collapse the doubled JS braces back to singles, leaving single-brace
+    CSS untouched. The result has zero commerce placeholders or doubled braces
+    left — which the CI gate and deploy gate both enforce.
     """
     return (
         html.replace("{API_URL}", API_URL)
+        .replace("{SITE_URL}", SITE_URL)
         .replace("{AUDIT_INTEREST_URL}", AUDIT_INTEREST_URL)
         .replace("{{", "{")
         .replace("}}", "}")
@@ -226,14 +235,23 @@ def get_surge_price(base_price, days_until):
 
 def build_audit_page(pricing):
     """Build the audit checkout page."""
-    html = """<!DOCTYPE html>
+    html = (
+        """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AWS deprecation evidence report | EOLkits</title>
 <meta name="description" content="A static repository evidence report for AWS runtime and Amazon Linux migration risks: exact file/line evidence, remediation, and configured rule or package references.">
-<style>
+<link rel="canonical" href="{SITE_URL}/audit/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AWS deprecation evidence report | EOLkits">
+<meta property="og:description" content="A fixed-price static repository report with exact file/line evidence, remediation notes, and explicit scope limits.">
+<meta property="og:url" content="{SITE_URL}/audit/">
+<script defer src="/track.js"></script>
+"""
+        + _og_image_meta()
+        + """<style>
 body{font-family:system-ui,-apple-system,sans-serif;max-width:820px;margin:0 auto;padding:2rem;line-height:1.6;color:#111827}
 .brand{color:#2563eb;font-weight:600}
 h1{margin-top:.3rem}
@@ -263,6 +281,9 @@ h1{margin-top:.3rem}
 button{background:#2563eb;color:white;border:none;padding:0.75rem 1.5rem;border-radius:6px;font-size:1rem;cursor:pointer}
 button:hover{background:#1d4ed8}
 form#auditForm{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:1.5rem;margin:1rem 0}
+form#auditForm input{box-sizing:border-box;max-width:100%;width:100%;padding:.65rem}
+.assurances{background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:1rem 1.25rem;margin:1rem 0}
+.assurances ul{margin:.5rem 0 0;padding-left:1.2rem}
 footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
 </style>
 </head>
@@ -291,6 +312,35 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
   <div class="tiers"><div class="tier"><strong>One repository</strong><div class="price">$299</div><p>ZIP archive or one supported source file · one fixed price</p></div></div>
   <p class="reassure">A target date may be included as planning context. It never changes the price or scan results.</p>
 </div>
+
+<div class="assurances">
+  <strong>Before you upload:</strong>
+  <ul>
+    <li>No AWS credentials or AWS account access are requested.</li>
+    <li>Successfully processed source is deleted immediately; checkout-bound uploads expire within 48 hours and generated reports within 30 days.</li>
+    <li><a href="/audit/sample/">Inspect the fictional input, engine-generated PDF, and hash manifest</a> before deciding.</li>
+  </ul>
+</div>
+
+<div id="auditGate" class="callout"><strong>Checkout safety check:</strong> waiting for the v2 fulfillment backend. Checkout stays closed unless the live API confirms report engine 2.0.</div>
+<div id="auditInterest" class="callout">
+  <strong>Found a relevant issue in a real project?</strong>
+  Checkout is paused while fulfillment is verified. If this exact one-repository
+  report would be worth $299 to you, record a public, no-obligation demand signal.
+  It is not an order, reservation, waitlist, or promise of a reply.
+  <p><a class="cta secondary" href="{AUDIT_INTEREST_URL}" target="_blank" rel="noopener">Record qualified $299 interest on GitHub</a></p>
+  <p class="reassure">GitHub publishes your username and submission. Do not include repository names, filenames, code, secrets, security details, company information, or personal data.</p>
+</div>
+<form id="auditForm" hidden>
+  <h3>Start Audit</h3>
+  <p><input type="email" id="auditEmail" name="email" placeholder="your@email.com" required></p>
+  <p><input type="date" id="auditDeadline" name="deadline" aria-label="Deadline date"></p>
+  <p><input type="file" id="auditFile" name="file" required accept=".zip,.yaml,.yml,.json,.tf,.tfvars,.js,.ts,.tsx,.py,.toml,.lock,.sh,.txt"></p>
+  <p class="reassure">Upload limits: 10 MiB input; ZIPs may contain at most 2,000 entries and 25 MiB expanded text. Analysis is also bounded to 500,000 decoded lines, 100,000 mapping records per file, 10,000 Lambda resources per file, 10,000 retained evidence records, and 1 MiB per dependency manifest. Binary archive members are skipped; standalone binary inputs and archives with no supported text are rejected. Encrypted, ambiguous-path, path-traversing, over-complex, and suspiciously compressed archives are rejected before checkout. Do not upload secrets or unrelated personal data.</p>
+  <button id="auditSubmit" type="submit">Upload and Proceed to Checkout</button>
+  <p class="reassure">By continuing, you authorize this upload to be scanned and agree to the <a href="/legal/terms.html">Terms</a> and <a href="/legal/privacy.html">Privacy Policy</a>. Stripe Checkout shows the final $299 price before payment.</p>
+  <p id="auditStatus" style="color:#6b7280;font-size:.875rem"></p>
+</form>
 
 <div class="valuebox">
   <strong>What this buys:</strong> a reviewable change-approval artifact your team can check against the uploaded repository and the linked rule or package references. No speculative downtime-dollar estimate is included.
@@ -324,26 +374,6 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 </ol>
 
 <p class="reassure">When the readiness gate opens: Stripe checkout · automated delivery with durable retries · 30-day money-back guarantee</p>
-
-<div id="auditGate" class="callout"><strong>Checkout safety check:</strong> waiting for the v2 fulfillment backend. Checkout stays closed unless the live API confirms report engine 2.0.</div>
-<div id="auditInterest" class="callout">
-  <strong>Found a relevant issue in a real project?</strong>
-  Checkout is paused while fulfillment is verified. If this exact one-repository
-  report would be worth $299 to you, record a public, no-obligation demand signal.
-  It is not an order, reservation, waitlist, or promise of a reply.
-  <p><a class="cta secondary" href="{AUDIT_INTEREST_URL}" target="_blank" rel="noopener">Record qualified $299 interest on GitHub</a></p>
-  <p class="reassure">GitHub publishes your username and submission. Do not include repository names, filenames, code, secrets, security details, company information, or personal data.</p>
-</div>
-<form id="auditForm" hidden>
-  <h3>Start Audit</h3>
-  <p><input type="email" id="auditEmail" name="email" placeholder="your@email.com" required style="padding:0.5rem;width:300px"></p>
-  <p><input type="date" id="auditDeadline" name="deadline" style="padding:0.5rem;width:300px" aria-label="Deadline date"></p>
-  <p><input type="file" id="auditFile" name="file" required accept=".zip,.yaml,.yml,.json,.tf,.tfvars,.js,.ts,.tsx,.py,.toml,.lock,.sh,.txt"></p>
-  <p class="reassure">Upload limits: 10 MiB input; ZIPs may contain at most 2,000 entries and 25 MiB expanded text. Analysis is also bounded to 500,000 decoded lines, 100,000 mapping records per file, 10,000 Lambda resources per file, 10,000 retained evidence records, and 1 MiB per dependency manifest. Binary archive members are skipped; standalone binary inputs and archives with no supported text are rejected. Encrypted, ambiguous-path, path-traversing, over-complex, and suspiciously compressed archives are rejected before checkout. Do not upload secrets or unrelated personal data.</p>
-  <button id="auditSubmit" type="submit">Upload and Proceed to Checkout</button>
-  <p class="reassure">By continuing, you authorize this upload to be scanned and agree to the <a href="/legal/terms.html">Terms</a> and <a href="/legal/privacy.html">Privacy Policy</a>. Stripe Checkout shows the final $299 price before payment.</p>
-  <p id="auditStatus" style="color:#6b7280;font-size:.875rem"></p>
-</form>
 
 <script>
 const API = '{API_URL}';
@@ -462,6 +492,7 @@ auditForm.addEventListener('submit', async (event) => {{
 </footer>
 </body>
 </html>"""
+    )
     return _interpolate_api(html)
 
 
@@ -797,7 +828,7 @@ def build_sitemap(deprecations):
     return template.render(
         deprecations=deprecations.get("deprecations", []),
         fixes=[f["slug"] for f in load_fixes()],
-        now=_build_date(),
+        lastmod=lambda path: PAGE_LASTMOD_OVERRIDES.get(path, _build_date()),
         site_url=SITE_URL,
     )
 
@@ -947,7 +978,7 @@ def build_lambda_schedule_page(deprecations, pricing_view):
         '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
         "<title>AWS Lambda runtime deprecation schedule (2026–2027) | EOLkits</title>\n"
-        '<meta name="description" content="Tracked AWS Lambda runtime deprecation dates for python3.9-3.11 and nodejs18/20/22, including published create/update block dates, EOLkits bounded targets, and AWS source links.">\n'
+        '<meta name="description" content="Tracked AWS Lambda runtime deprecation dates for python3.8-3.11 and nodejs16/18/20/22, including published create/update block dates, EOLkits bounded targets, and AWS source links.">\n'
         '<link rel="canonical" href="' + SITE_URL + '/lambda-runtime-deprecation-schedule/">\n'
         '<link rel="stylesheet" href="/style.css">\n'
         '<script defer src="/track.js"></script>\n'
@@ -956,6 +987,8 @@ def build_lambda_schedule_page(deprecations, pricing_view):
         ".sched th,.sched td{border:1px solid #e5e7eb;padding:.5rem .6rem;text-align:left}"
         ".sched th{background:#f3f4f6}.sched .sev{font-weight:700}"
         ".sev-critical{color:#dc2626}.sev-high{color:#ea580c}.sev-medium{color:#ca8a04}"
+        ".audit-card{background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;padding:1rem 1.25rem;margin:1.5rem 0}"
+        ".audit-card h2{margin:.1rem 0 .35rem}.audit-card .cta{margin:.5rem 0}"
         ".cta{display:inline-block;margin:1rem 0;padding:.7rem 1.2rem;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600}</style>\n"
         "</head>\n"
         '<body class="container article">\n'
@@ -968,6 +1001,12 @@ def build_lambda_schedule_page(deprecations, pricing_view):
         + rows
         + "\n</tbody></table>\n"
         '<p class="muted">Functions keep running after deprecation, but become unpatched and — after the block-update date — unmodifiable. Dates reflect the AWS-published schedule and can shift; the linked AWS page is authoritative.</p>\n'
+        '<div class="audit-card"><h2>Need archive-wide source evidence?</h2>'
+        "<p>The fixed $"
+        + str(audit_base)
+        + " report scans supported source and IaC in one uploaded archive without AWS credentials, then returns exact observed file/line evidence, configured references, scope limits, and a remediation order. Inspect the fictional engine output before deciding.</p>"
+        '<p><a class="cta" href="/audit/?source=lambda_schedule&amp;utm_source=organic&amp;utm_medium=schedule&amp;utm_campaign=repo_audit">Inspect the sample and report availability →</a></p>'
+        '<p class="muted">Schedule source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">AWS Lambda runtimes</a>. Future dates can change.</p></div>\n'
         "<h2>Fixing the upgrade</h2>\n"
         '<p>The upgrade can surface specific errors — removed stdlib modules, the unbundled AWS SDK v2 on Node 18+, native-wheel/ABI breaks. See <a href="/fix/">common migration error fixes</a>, or check the <a href="/audit/">repository evidence report ($'
         + str(audit_base)

@@ -482,3 +482,42 @@ distribution improved; observed paid demand and collected revenue did not.
   hosting cost remain unknown and are not guessed.
 - No asset's completeness, license, or monetization frame changed beyond
   these correctness/identity facts. Collected revenue remains $0.
+
+## Full local/public re-analysis and release candidate — September 4, 2026
+
+- **Public web acquisition:** the clean Pages origin, browser scanner, Audit
+  scope/sample, and schedule page all return 200. The Audit page previously
+  buried its readiness gate and called `eolkitsTrack` without loading
+  `track.js`; the source now places the price/readiness decision block before
+  long-form proof, loads first-party tracking, adds canonical/social metadata,
+  uses mobile-safe inputs, and routes the search-visible Lambda schedule page
+  to a source-linked $299 Audit/sample card. Only those two materially changed
+  URLs receive a September 4 sitemap `lastmod`; the false whole-site
+  September 2/4 publication churn is reversed.
+- **VS Code acquisition:** public v1.2.0 remains the last externally observed
+  version while v1.3.0 is prepared. The candidate closes real false negatives:
+  CloudFormation/SAM now include Node.js 16 and Python 3.8, and literal
+  runtimes inside `aws_lambda_function` Terraform blocks are scanned without
+  treating unrelated Terraform `runtime` variables/resources as Lambda. A
+  finding now offers a direct, attributed $299-report path. The extension
+  still runs locally with no telemetry or AWS credentials.
+- **Local kit / Action:** `lambda-lifeline` machine output now distinguishes
+  `at_risk` from actual `eol` and reports an explicit lifecycle. Future
+  Node/Python/Java dates are no longer mislabeled already EOL; the previously
+  missing `provided.al2` and `java8.al2` phase dates now match AWS's current
+  table. A cross-stack test enforces exact date parity among the public YAML,
+  Lambda Lifeline, and Python Pivot. The Action's first-run example is now
+  read-only and nonblocking; enforcement and PR comments are deliberate
+  follow-up choices.
+- **Evidence system:** Microsoft's public Gallery API returned alternating 103
+  and 104 install values in near-simultaneous cache-busted reads. The prepared
+  workflow therefore takes five samples, records every value, uses the minimum
+  as its lower bound, and treats post-gate replica disagreement as
+  inconclusive—not demand. This repairs the stale hard-coded 166-download
+  baseline text as well.
+- **Paid asset:** the smallest sellable unit remains one automated, static,
+  source-only Audit v2 PDF for one repository ZIP or supported source file at
+  $299. Its code is complete; its public money path remains intentionally
+  closed until the owner-only GRACE, legal, catalog, delivery, refund,
+  retention, and host-injection gates in `HUMAN_QUEUE.md` pass. Observed
+  revenue and profit remain $0.

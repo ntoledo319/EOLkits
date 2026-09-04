@@ -1384,3 +1384,74 @@ Marketplace-publication state changed. Collected profit remains $0; the
 gap remains $4,000. HQ-A through HQ-G are unchanged and still require the
 owner. The VS v1.2.0 five-day gate (`2026-09-05T23:27:55Z`) still has not
 arrived — do not call it early; it is the next autonomous checkpoint.
+
+## D59 — reverse false publication churn; dates describe content, not build activity
+
+Fresh technical review invalidated D57/D58's routine BUILD_DATE policy. Updating
+one global date changed unchanged articles' first-publication timestamps, every
+sitemap `lastmod`, RSS publication dates, ICS stamps, and status generation time.
+That is not a meaningful public-content update and conflicts with the builder's
+own determinism comment and search-engine guidance. Reverted the September 2/4
+date-only output to the August 31 source baseline. Added explicit per-page
+sitemap overrides so only the materially changed Audit and Lambda schedule URLs
+carry `2026-09-04`. Future cycles must not bump BUILD_DATE merely because a day
+passed.
+
+## D60 — use conservative marketplace evidence and ship correctness without resetting the gate
+
+Nine exact-ID Gallery requests alternated between 103 and 104 installs while
+agreeing on 223 downloads and v1.2.0. A single read can therefore randomly pass
+or fail the acquisition gate. The workflow now takes five cache-busted samples,
+validates every identity/version/counter, stores the arrays and bounds, and uses
+the minimum. Post-deadline replica disagreement is inconclusive. Six pure Node
+tests cover malformed samples, identity drift, lower-bound reduction, pending,
+pass, inconclusive, and failure outcomes. The stale summary's literal
+166-download baseline was replaced with the configured value.
+
+This evidence defect does not justify waiting on known product bugs. VS v1.3 is
+a correctness/conversion release: it adds the omitted Node.js 16/Python 3.8
+structured rules, scopes Terraform runtime detection to literal values inside
+`aws_lambda_function`, tests unrelated-resource false positives, and offers the
+attributed $299-report path directly from the findings warning. It does not
+reset the cumulative 103-install baseline or September 5 gate and is not a
+second “reposition” of the listing.
+
+## D61 — preserve one automated cash unit; queue RapidAPI, park Contra
+
+Fresh official-policy research found no currently available marketplace that
+combines a $299 custom report, built-in discovery/payment, and truly hands-off
+fulfillment. Contra is commission-free and supports fixed-price services, but
+its inquiry/contract/private-input/delivery flow and per-write MCP confirmations
+reintroduce owner labor and customer communication. Do not publish a service we
+cannot fulfill through the platform automatically.
+
+RapidAPI does combine discovery, subscriptions/usage billing, four public plans,
+and a provider proxy secret, at a documented 20% share. Keep it as Bet C only
+after Audit is live and free-tier capacity is measured; 34 × $150 × 80% = $4,080
+is plausible arithmetic, not a 28-day forecast. The fastest money path remains
+the already-built $299 Audit fed by VS, GitHub Action, and cited search pages.
+
+## D62 — lifecycle fields must not call future supported runtimes EOL
+
+`lambda-lifeline` used `eol: true` as an alias for “tracked at risk,” causing
+future supported runtimes such as Node.js 22, Python 3.11, and `java8.al2` to be
+machine-labeled already EOL. It also assigned `java8.al2` a fallback
+`critical-eol` severity because phase dates were absent. Machine output now
+separates `at_risk`, `lifecycle`, and actual `eol`; `provided.al2` and
+`java8.al2` carry the current AWS phase dates. Rendering/strict mode continues
+to act on `at_risk`, preserving risk detection. A new parity test executes the
+Node scanner and imports Python Pivot, requiring both to match the cited public
+YAML exactly.
+
+## D63 — record containment failures and tighten the remainder of the run
+
+The technical-review subagent's first test created transient fixtures through
+`node:os.tmpdir()` at `/tmp`, outside WORKSPACE_ROOT, then cleaned them. The root
+agent also issued one read-only Git status/diff command without the mandatory
+workspace-local global-config override, which may have read user-level config.
+Neither changed persistent external or repository state, but both violate the
+workspace-jail process and are recorded as failures. Every later test uses a
+workspace `TMPDIR`; every Git call uses `GIT_CONFIG_NOSYSTEM=1` plus the
+workspace-local empty global config. Docker builds are left to CI rather than
+mutating the local daemon. Item 3 (retired Stripe credential rotation/revocation)
+remains excluded exactly as directed.

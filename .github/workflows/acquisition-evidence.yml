@@ -33,6 +33,9 @@ jobs:
       VSCODE_SIGNAL_GATE_AT: '2026-09-05T23:27:55Z'
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
 
       - name: Measure public lower bounds
         shell: bash
@@ -85,61 +88,52 @@ jobs:
               }
             '
           )"
-          gallery_json="$(
+          gallery_samples="$evidence_dir/vscode-gallery-samples.ndjson"
+          : > "$gallery_samples"
+          for sample_index in 1 2 3 4 5; do
+            cache_buster="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${sample_index}-$(date +%s%N)"
+            gallery_sample="$evidence_dir/vscode-gallery-sample-$sample_index.json"
             curl --fail --silent --show-error --max-time 20 --retry 2 \
               --header 'Accept: application/json;api-version=7.2-preview.1;excludeUrls=true' \
+              --header 'Cache-Control: no-cache' \
               --header 'Content-Type: application/json' \
               --data-binary "$gallery_request" \
-              'https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery'
-          )"
-          gallery_extension_count="$(
-            jq -er '.results[0].extensions | length' <<< "$gallery_json"
-          )"
-          if [[ "$gallery_extension_count" != '1' ]]; then
-            echo "::error::Expected one exact VS Marketplace result; observed $gallery_extension_count"
-            exit 1
-          fi
+              "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery?cache_buster=$cache_buster" \
+              --output "$gallery_sample"
+            jq -c . "$gallery_sample" >> "$gallery_samples"
+          done
+          jq -s '.' "$gallery_samples" > "$evidence_dir/vscode-gallery-samples.json"
+          observed_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          VSCODE_EXTERNAL_AUTHORS="$vscode_author_count" \
+            VSCODE_OBSERVED_AT="$observed_at" \
+            node scripts/vscode-gallery-evidence.mjs \
+            "$evidence_dir/vscode-gallery-samples.json" \
+            > "$evidence_dir/vscode-gallery-summary.json"
 
-          vscode_extension_id="$(
-            jq -er '.results[0].extensions[0]
-              | "\(.publisher.publisherName).\(.extensionName)"' <<< "$gallery_json"
-          )"
-          vscode_version="$(
-            jq -er '.results[0].extensions[0].versions[0].version' <<< "$gallery_json"
-          )"
-          vscode_last_updated="$(
-            jq -er '.results[0].extensions[0].lastUpdated' <<< "$gallery_json"
-          )"
-          vscode_installs="$(
-            jq -er '.results[0].extensions[0].statistics
-              | map(select(.statisticName == "install"))
-              | if length == 1
-                  and (.[0].value | type) == "number"
-                  and ((.[0].value | floor) == .[0].value)
-                then (.[0].value | floor)
-                else error("missing or non-integral install counter")
-                end' \
-              <<< "$gallery_json"
-          )"
-          vscode_downloads="$(
-            jq -er '.results[0].extensions[0].statistics
-              | map(select(.statisticName == "downloadCount"))
-              | if length == 1
-                  and (.[0].value | type) == "number"
-                  and ((.[0].value | floor) == .[0].value)
-                then (.[0].value | floor)
-                else error("missing or non-integral download counter")
-                end' \
-              <<< "$gallery_json"
-          )"
-          if [[ "$vscode_extension_id" != "$vscode_expected_id" \
-            || "$vscode_version" != "$vscode_expected_version" ]]; then
-            echo "::error::VS Marketplace identity/version drifted from the measured release"
+          vscode_extension_id="$(jq -er '.extension_id' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_version="$(jq -er '.version' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_last_updated="$(jq -er '.last_updated' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_gallery_sample_count="$(jq -er '.sample_count' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_replication_consistent="$(jq -r '.replication_consistent' "$evidence_dir/vscode-gallery-summary.json")"
+          if [[ "$vscode_replication_consistent" != true \
+            && "$vscode_replication_consistent" != false ]]; then
+            echo "::error::VS Gallery consistency result is not boolean"
             exit 1
           fi
+          vscode_install_samples="$(jq -cer '.samples.installs' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_download_samples="$(jq -cer '.samples.downloads' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_installs="$(jq -er '.lower_bound.installs' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_downloads="$(jq -er '.lower_bound.downloads' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_installs_max="$(jq -er '.upper_bound.installs' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_downloads_max="$(jq -er '.upper_bound.downloads' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_install_delta="$(jq -er '.delta_from_release_baseline.installs' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_download_delta="$(jq -er '.delta_from_release_baseline.downloads' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_signal_gate="$(jq -er '.signal_gate' "$evidence_dir/vscode-gallery-summary.json")"
           for counter in \
             "$vscode_installs" \
             "$vscode_downloads" \
+            "$vscode_installs_max" \
+            "$vscode_downloads_max" \
             "$vscode_baseline_installs" \
             "$vscode_baseline_downloads"
           do
@@ -148,18 +142,6 @@ jobs:
               exit 1
             fi
           done
-          vscode_install_delta="$((vscode_installs - vscode_baseline_installs))"
-          vscode_download_delta="$((vscode_downloads - vscode_baseline_downloads))"
-          observed_epoch="$(date -u +'%s')"
-          gate_epoch="$(date -u -d "$vscode_signal_gate_at" +'%s')"
-          if (( vscode_install_delta > 0 || vscode_author_count > 0 )); then
-            vscode_signal_gate='passed'
-          elif (( observed_epoch < gate_epoch )); then
-            vscode_signal_gate='pending'
-          else
-            vscode_signal_gate='failed_reposition_required'
-          fi
-
           code_query='"ntoledo319/EOLkits@v2" -repo:ntoledo319/EOLkits'
           external_search_available=false
           external_v2_refs=0
@@ -184,7 +166,6 @@ jobs:
             exit 1
           fi
 
-          observed_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           jq -n \
             --arg observed_at "$observed_at" \
             --argjson qualified_interest_issues "$issue_count" \
@@ -202,6 +183,12 @@ jobs:
             --arg vscode_last_updated "$vscode_last_updated" \
             --argjson vscode_gallery_installs "$vscode_installs" \
             --argjson vscode_gallery_downloads "$vscode_downloads" \
+            --argjson vscode_gallery_installs_max "$vscode_installs_max" \
+            --argjson vscode_gallery_downloads_max "$vscode_downloads_max" \
+            --argjson vscode_gallery_sample_count "$vscode_gallery_sample_count" \
+            --argjson vscode_replication_consistent "$vscode_replication_consistent" \
+            --argjson vscode_install_samples "$vscode_install_samples" \
+            --argjson vscode_download_samples "$vscode_download_samples" \
             --argjson vscode_baseline_installs "$vscode_baseline_installs" \
             --argjson vscode_baseline_downloads "$vscode_baseline_downloads" \
             --argjson vscode_install_delta "$vscode_install_delta" \
@@ -226,6 +213,22 @@ jobs:
                 last_updated: $vscode_last_updated,
                 installs: $vscode_gallery_installs,
                 downloads: $vscode_gallery_downloads,
+                measurement: {
+                  sample_count: $vscode_gallery_sample_count,
+                  replication_consistent: $vscode_replication_consistent,
+                  samples: {
+                    installs: $vscode_install_samples,
+                    downloads: $vscode_download_samples
+                  },
+                  conservative_lower_bound: {
+                    installs: $vscode_gallery_installs,
+                    downloads: $vscode_gallery_downloads
+                  },
+                  observed_upper_bound: {
+                    installs: $vscode_gallery_installs_max,
+                    downloads: $vscode_gallery_downloads_max
+                  }
+                },
                 release_baseline: {
                   installs: $vscode_baseline_installs,
                   downloads: $vscode_baseline_downloads
@@ -253,8 +256,9 @@ jobs:
             echo "- Public code references to \`ntoledo319/EOLkits@v2\` outside this repository: **$external_v2_refs**"
             echo "- Code-search result available: **$external_search_available**"
             echo "- Public v2.0.0 release: **$public_v2_release**"
-            echo "- VS Marketplace v$vscode_version installs: **$vscode_installs** (**$vscode_install_delta** from the 103-install release baseline)"
-            echo "- VS Marketplace v$vscode_version downloads: **$vscode_downloads** (**$vscode_download_delta** from the 166-download release baseline)"
+            echo "- VS Marketplace v$vscode_version installs (five-sample lower bound): **$vscode_installs** (**$vscode_install_delta** from the $vscode_baseline_installs-install release baseline; observed max **$vscode_installs_max**)"
+            echo "- VS Marketplace v$vscode_version downloads (five-sample lower bound): **$vscode_downloads** (**$vscode_download_delta** from the $vscode_baseline_downloads-download release baseline; observed max **$vscode_downloads_max**)"
+            echo "- VS Gallery replicas consistent: **$vscode_replication_consistent** (samples: installs $vscode_install_samples; downloads $vscode_download_samples)"
             echo "- VS five-day signal gate: **$vscode_signal_gate** (deadline: \`$vscode_signal_gate_at\`)"
             echo
             echo 'These are public lower bounds, not purchases or revenue. Private use and search-index lag are invisible. Downloads can include update/package fetches and do not establish demand.'

@@ -27,7 +27,6 @@ Add the free repository check to a workflow:
 ```yaml
 permissions:
   contents: read
-  pull-requests: write # only needed when comment-pr is true
 
 steps:
   - uses: actions/checkout@v6
@@ -35,13 +34,14 @@ steps:
     with:
       kit: auto
       path: .
-      fail-on: any
-      comment-pr: true
+      fail-on: none
 ```
 
 The action installs the three local kits, scans only the selected workspace path,
-and writes a job summary. Pull-request comments are off by default; enable
-`comment-pr: true` only when the caller deliberately grants write permission.
+and writes a job summary. This read-only first run reports findings without
+blocking the build. After reviewing its output, set `fail-on: any` to enforce the
+check. Pull-request comments are off by default; enable `comment-pr: true` only
+when the caller deliberately grants `pull-requests: write` permission.
 
 ## Paid repository evidence report
 

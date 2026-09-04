@@ -33,6 +33,8 @@ const PHASE_DATES = {
   'python3.11': { phase1: '2027-06-30', block_create: '2027-07-31', block_update: '2027-08-31' },
   'ruby3.2':    { phase1: '2026-03-31', block_create: '2027-02-01', block_update: '2027-03-03' },
   'dotnet6':    { phase1: '2024-12-20', block_create: '2027-02-01', block_update: '2027-03-03' },
+  'java8.al2':  { phase1: '2027-06-30', block_create: '2027-07-31', block_update: '2027-08-31' },
+  'provided.al2': { phase1: '2026-07-31', block_create: '2027-02-01', block_update: '2027-03-03' },
 };
 
 const UPGRADE_TARGETS = {
@@ -51,16 +53,29 @@ const UPGRADE_TARGETS = {
   'provided.al2': 'provided.al2023',
 };
 
-function daysUntil(isoDate) {
+function daysUntil(isoDate, now = Date.now()) {
   const target = new Date(isoDate + 'T00:00:00Z').getTime();
-  const now = Date.now();
   return Math.floor((target - now) / (1000 * 60 * 60 * 24));
 }
 
-function severity(runtime) {
+export function runtimeLifecycle(runtime, now = Date.now()) {
+  if (!AT_RISK_RUNTIMES.has(runtime)) return 'supported';
+  const dates = PHASE_DATES[runtime];
+  // The only tracked entries without dates are legacy runtimes whose published
+  // deprecation milestone is already past.
+  if (!dates) return 'deprecated';
+
+  const atOrAfter = isoDate => now >= new Date(isoDate + 'T00:00:00Z').getTime();
+  if (atOrAfter(dates.block_update)) return 'update-blocked';
+  if (atOrAfter(dates.block_create)) return 'create-blocked';
+  if (atOrAfter(dates.phase1)) return 'deprecated';
+  return 'supported';
+}
+
+function severity(runtime, now = Date.now()) {
   const dates = PHASE_DATES[runtime];
   if (!dates) return 'critical-eol';
-  const d = daysUntil(dates.block_update);
+  const d = daysUntil(dates.block_update, now);
   if (d <= 0) return 'critical-blocked';
   if (d <= 60) return 'critical';
   if (d <= 180) return 'high';
@@ -118,6 +133,9 @@ async function scanFixture(file) {
 }
 
 function normalizeFunction(fn, accountId, region) {
+  const atRisk = AT_RISK_RUNTIMES.has(fn.Runtime);
+  const observedAt = Date.now();
+  const lifecycle = runtimeLifecycle(fn.Runtime, observedAt);
   return {
     account_id: accountId,
     region,
@@ -130,12 +148,14 @@ function normalizeFunction(fn, accountId, region) {
     package_type: fn.PackageType || 'Zip',
     architectures: fn.Architectures || ['x86_64'],
     code_size: fn.CodeSize,
-    eol: AT_RISK_RUNTIMES.has(fn.Runtime),
-    severity: AT_RISK_RUNTIMES.has(fn.Runtime) ? severity(fn.Runtime) : 'ok',
+    at_risk: atRisk,
+    lifecycle,
+    eol: atRisk && lifecycle !== 'supported',
+    severity: atRisk ? severity(fn.Runtime, observedAt) : 'ok',
     recommended_target: UPGRADE_TARGETS[fn.Runtime] || null,
     deprecation_dates: PHASE_DATES[fn.Runtime] || null,
     days_until_block_update: PHASE_DATES[fn.Runtime]
-      ? daysUntil(PHASE_DATES[fn.Runtime].block_update)
+      ? daysUntil(PHASE_DATES[fn.Runtime].block_update, observedAt)
       : null,
   };
 }
@@ -145,10 +165,10 @@ function renderTable(rows) {
     log.ok('No functions were returned by the selected scan.');
     return;
   }
-  const eol = rows.filter(r => r.eol);
-  const ok = rows.length - eol.length;
-  log.info(`Scanned ${rows.length} functions · ${color.green(ok + ' healthy')} · ${color.red(eol.length + ' at risk')}`);
-  if (eol.length === 0) return;
+  const atRisk = rows.filter(r => r.at_risk);
+  const ok = rows.length - atRisk.length;
+  log.info(`Scanned ${rows.length} functions · ${color.green(ok + ' healthy')} · ${color.red(atRisk.length + ' at risk')}`);
+  if (atRisk.length === 0) return;
 
   console.log();
   const widths = { fn: 36, rt: 14, region: 14, sev: 18, days: 6, tgt: 14 };
@@ -162,7 +182,7 @@ function renderTable(rows) {
   ].join(' ');
   console.log(color.bold(hdr));
   console.log(color.gray('-'.repeat(hdr.length)));
-  for (const r of eol) {
+  for (const r of atRisk) {
     const sevColor = r.severity.startsWith('critical') ? color.red : color.yellow;
     console.log([
       r.function_name.slice(0, widths.fn - 1).padEnd(widths.fn),
@@ -180,7 +200,7 @@ function renderTable(rows) {
 function toCSV(rows) {
   const cols = [
     'account_id','region','function_name','runtime','severity',
-    'days_until_block_update','recommended_target','arn',
+    'at_risk','lifecycle','eol','days_until_block_update','recommended_target','arn',
   ];
   const esc = v => {
     if (v == null) return '';
@@ -193,22 +213,22 @@ function toCSV(rows) {
 }
 
 function toMarkdown(rows) {
-  const eol = rows.filter(r => r.eol);
+  const atRisk = rows.filter(r => r.at_risk);
   const lines = [
     '# Lambda Lifeline — scan report',
     '',
     `**Scanned:** ${new Date().toISOString()}  `,
     `**Total functions:** ${rows.length}  `,
-    `**At-risk functions:** ${eol.length}`,
+    `**At-risk functions:** ${atRisk.length}`,
     '',
   ];
-  if (eol.length === 0) {
-    lines.push('✅ No functions using EOL runtimes.');
+  if (atRisk.length === 0) {
+    lines.push('✅ No functions using tracked deprecated or approaching-deprecation runtimes.');
     return lines.join('\n');
   }
   lines.push('| Function | Runtime | Region | Severity | Days → block_update | Target |');
   lines.push('|---|---|---|---|---|---|');
-  for (const r of eol) {
+  for (const r of atRisk) {
     lines.push(`| \`${r.function_name}\` | ${r.runtime} | ${r.region} | ${r.severity} | ${r.days_until_block_update ?? '?'} | ${r.recommended_target ?? '-'} |`);
   }
   lines.push('', '## Primary source', 'https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html');
@@ -251,6 +271,6 @@ export async function scanCommand(argv) {
     if (outPath) { writeFileSync(outPath, JSON.stringify(rows, null, 2)); log.ok(`Wrote ${outPath}`); }
   }
 
-  const atRisk = rows.filter(r => r.eol).length;
+  const atRisk = rows.filter(r => r.at_risk).length;
   if (flags.strict && atRisk > 0) process.exit(1);
 }
