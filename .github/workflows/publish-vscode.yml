@@ -1,10 +1,16 @@
 name: Publish VS Code Extension
 
 on:
+  # One-use owner-attributed trigger for the v1.3 correctness release. Remove
+  # this trigger immediately after the publication run reaches a terminal state.
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-vscode.yml'
   workflow_dispatch:
     inputs:
       confirm:
-        description: Type PUBLISH_RUPTURE_VSCODE_1_2_0
+        description: Type PUBLISH_RUPTURE_VSCODE_1_3_0
         required: true
         type: string
 
@@ -23,10 +29,13 @@ jobs:
       github.ref == 'refs/heads/main' &&
       github.actor == github.repository_owner &&
       github.triggering_actor == github.repository_owner &&
-      inputs.confirm == 'PUBLISH_RUPTURE_VSCODE_1_2_0'
+      ((github.event_name == 'workflow_dispatch' &&
+        inputs.confirm == 'PUBLISH_RUPTURE_VSCODE_1_3_0') ||
+       (github.event_name == 'push' &&
+        github.event.before == '44e0425f3b94b085835c85a2e0dbf28642914973'))
     timeout-minutes: 15
     env:
-      RELEASE_COMMIT: 23762f3f7a8e7ccc61b76c7fef4a00d1fa7fec99
+      RELEASE_COMMIT: 44e0425f3b94b085835c85a2e0dbf28642914973
       TMPDIR: ${{ github.workspace }}/tmp/runtime-tmp
       npm_config_cache: ${{ github.workspace }}/tmp/npm-cache
     steps:
@@ -34,16 +43,30 @@ jobs:
         shell: bash
         env:
           PUBLICATION_CONFIRMATION: ${{ inputs.confirm }}
+          EVENT_BEFORE: ${{ github.event.before }}
+          ONE_SHOT_BASE_SHA: 44e0425f3b94b085835c85a2e0dbf28642914973
         run: |
           set -euo pipefail
           if [[ "$GITHUB_REPOSITORY" != 'ntoledo319/EOLkits' ||
                 "$GITHUB_REF" != 'refs/heads/main' ||
                 "$GITHUB_ACTOR" != "$GITHUB_REPOSITORY_OWNER" ||
-                "$GITHUB_TRIGGERING_ACTOR" != "$GITHUB_REPOSITORY_OWNER" ||
-                "$PUBLICATION_CONFIRMATION" != 'PUBLISH_RUPTURE_VSCODE_1_2_0' ]]; then
+                "$GITHUB_TRIGGERING_ACTOR" != "$GITHUB_REPOSITORY_OWNER" ]]; then
             echo '::error::Exact repository-owner authorization on ntoledo319/EOLkits main is required'
             exit 1
           fi
+
+          case "$GITHUB_EVENT_NAME" in
+            workflow_dispatch)
+              [[ "$PUBLICATION_CONFIRMATION" == 'PUBLISH_RUPTURE_VSCODE_1_3_0' ]]
+              ;;
+            push)
+              [[ "$EVENT_BEFORE" == "$ONE_SHOT_BASE_SHA" ]]
+              ;;
+            *)
+              echo "::error::Unsupported publication event: $GITHUB_EVENT_NAME"
+              exit 1
+              ;;
+          esac
 
       - uses: actions/checkout@v6
         with:
@@ -70,7 +93,7 @@ jobs:
       - name: Verify existing Marketplace identity
         run: |
           test "$(node -p 'require("./package.json").publisher + "." + require("./package.json").name')" = 'rupture.rupture-vscode'
-          test "$(node -p 'require("./package.json").version')" = '1.2.0'
+          test "$(node -p 'require("./package.json").version')" = '1.3.0'
         working-directory: apps/vscode-extension
 
       - name: Package extension
