@@ -492,3 +492,61 @@ the lambda-lifeline/deprecations.yml/python-pivot cross-check found no new
 K1 product defect beyond the already-fixed python3.8/python3.11 cases. V1's
 five-day gate (`2026-09-05T23:27:55Z`) remains pending. No frame score
 change; no new demand evidence.
+
+## Fresh marketplace/channel ranking — September 4, 2026
+
+Current official platform rules and fresh public discovery checks change the
+execution order, but not the fact that only fulfilled purchases count:
+
+1. **V1 (VS extension → A1) is the strongest observed acquisition surface.**
+   It appears first or second for several high-intent Marketplace searches
+   including “AWS Lambda EOL” and “AWS deprecation.” VS extensions support only
+   Free/Trial pricing, so v1.3 remains a free, local scanner that routes a real
+   finding to Audit; it is not itself forecast as revenue. The original
+   103-install baseline and September 5 gate are not reset by a correctness
+   release.
+2. **A1 ($299 automated Audit) remains the only fast cash unit.** Fourteen
+   domestic-card sales would provisionally net about $4,060.42 under the
+   previously recorded 2.9% + $0.30 assumption. Actual account fees/currency,
+   refunds, tax, and incremental host cost remain unknown until HQ-B; this is
+   arithmetic, not evidence. Search already places the cited Lambda schedule
+   page directly behind AWS for at least one relevant schedule query, so the
+   new contextual card is the cheapest owned path to test once checkout opens.
+3. **K1 (GitHub Action → A1) remains the second free marketplace funnel.**
+   GitHub Actions have built-in discovery but no native paid plan. The public
+   `@v2` ref works; the v2 Marketplace release still needs the account holder's
+   agreement/checkbox/2FA ceremony. Read-only, nonblocking first use now lowers
+   trial friction.
+4. **A3 on RapidAPI becomes the only credible compounding candidate with both
+   discovery and payment.** Official docs allow up to four public plans and
+   add `X-RapidAPI-Proxy-Secret` to provider requests; RapidAPI's documented
+   provider share is 80%. Thirty-four $150 customer-months would yield $4,080
+   before payout/tax effects. It is not the fast bet: a bounded endpoint,
+   measured free-tier capacity, seller/KYC/PayPal setup, and a live listing are
+   still absent. Do not divert the GRACE launch to build it first.
+5. **C4 (source-linked search pages → A1) stays the no-cost compounding funnel.**
+   The custom host's stale indexed snippets and injected script make recrawling
+   unsafe until HQ-C; Pages remains the clean canonical fallback.
+
+Contra is deliberately **parked**, despite attractive discovery and
+commission-free seller earnings. Contra supports fixed-price services and a
+$299 listing would require 14 sales to gross $4,186, but inquiries, contracts,
+private-file handoff, project delivery, and every MCP write confirmation retain
+the exact human element this operating model is removing. It becomes viable
+only if a supported platform integration can hand a paid buyer directly into
+the already-automated Audit flow without double charging or manual delivery.
+
+Deprioritized after official-policy review: AWS Marketplace (onboarding/review
+and buyer-response burden), Gumroad/Payhip/Lemon Squeezy marketplaces (prior
+sales/review or service restrictions), Fiverr/Upwork (manual service work and
+automation limits), Polar (no service marketplace discovery), and GitHub
+Sponsors (support, not disguised Audit checkout). No asking price or platform
+marketing claim is recorded as demand.
+
+Primary policy references checked this cycle:
+
+- <https://code.visualstudio.com/api/working-with-extensions/publishing-extension>
+- <https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace>
+- <https://docs.rapidapi.com/v2.0/docs/additional-request-headers>
+- <https://docs.rapidapi.com/docs/hub-listing-monetize-tab>
+- <https://help.contra.com/en/articles/9322412-how-to-add-services-to-your-contra-profile>

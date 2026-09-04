@@ -553,3 +553,50 @@ HQ-G are unchanged and still require the owner — this is the sole remaining
 path to a first dollar. The VS v1.2.0 five-day falsifier gate
 (`2026-09-05T23:27:55Z`) has not yet arrived; do not call it early — it is
 the next autonomous checkpoint, one day out.
+
+## Ground-up recovery cycle — September 4, 2026
+
+The prior “nothing left but owner work” conclusion was falsified by fresh local
+and public evidence. This cycle found a fluctuating Marketplace counter,
+missed extension detections, a dead Audit click tracker, buried conversion
+controls, false whole-site publication dates, and misleading lifecycle JSON.
+All have a tested release candidate; none is counted as demand or revenue.
+
+### Current portfolio
+
+- **Bet A — free marketplace acquisition (VS v1.3 + Action v2):** publish the
+  correctness release without resetting v1.2's cumulative 103-install baseline
+  or `2026-09-05T23:27:55Z` signal gate. Pass requires a five-sample Gallery
+  lower bound above 103 or a distinct qualified external author. Replica split
+  after the deadline is `inconclusive_gallery_replication`, not a pass.
+- **Bet B — $299 automated Audit:** 14 US domestic-card sales provisionally
+  close the target; 16 sales remain the conservative international/refund
+  scenario already modeled. Traffic comes from exact VS findings, Action
+  reports/Marketplace, and cited schedule/search pages. The falsifier is zero
+  purchases after checkout has been genuinely live for five full days with
+  measured qualified visits; a closed checkout starts no clock.
+- **Bet C — RapidAPI scanner (queued, not built):** built-in distribution and
+  billing justify a later bounded text/IaC endpoint. Target arithmetic is 34
+  $150 customer-months × 80% = $4,080. Kill it if free-tier capacity, seller
+  setup, or early usage cannot support a low-touch plan without competing with
+  Audit fulfillment.
+
+### Highest-leverage execution order
+
+1. Merge the fully verified source tree and publish the exact v1.3 VSIX through
+   the existing owner-scoped, exact-SHA workflow; then restore the workflow to
+   manual-only and sample the public Gallery five times.
+2. Fast-forward the auto-deployed `marketing-machine-v2` branch to the same
+   reviewed tree, while its IndexNow safety gate continues to reject the
+   injected custom host.
+3. Complete only the remaining owner-authority queue: contain/deploy GRACE,
+   supply seller facts, remove injected analytics and false DEV posts, publish
+   Action v2 with the required attestations, fix Pages/rulesets, then create the
+   new v2 Stripe catalog and open Audit only after E2E/refund proof.
+4. After checkout is live, measure first-party views → findings → checkout →
+   delivered reports → refunds → collected profit. Only then build/list the
+   RapidAPI compounding endpoint.
+
+Observed collected revenue: **$0**. Observed collected profit: **$0**. Gap:
+**$4,000**. Retired Stripe credential revocation/rotation remains explicitly
+excluded and was not attempted.

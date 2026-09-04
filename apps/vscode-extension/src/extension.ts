@@ -7,6 +7,11 @@ import { resolveSetting } from './settings';
 let scanner: EOLkitsScanner;
 let diagnostics: EOLkitsDiagnostics;
 let treeProvider: EOLkitsTreeProvider;
+const AUDIT_URL = 'https://ntoledo319.github.io/EOLkits/audit/?utm_source=vscode&utm_medium=extension&source=vscode';
+
+function openAudit(): Thenable<boolean> {
+    return vscode.env.openExternal(vscode.Uri.parse(AUDIT_URL));
+}
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('EOLkits extension activated');
@@ -31,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
             showReport();
         }),
         vscode.commands.registerCommand('eolkits.getAudit', () => {
-            vscode.env.openExternal(vscode.Uri.parse('https://ntoledo319.github.io/EOLkits/audit/?utm_source=vscode&utm_medium=extension&source=vscode'));
+            return openAudit();
         }),
         vscode.commands.registerCommand('rupture.scanWorkspace', (resource?: vscode.Uri) => {
             void scanWorkspace(resource);
@@ -40,7 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
             showReport();
         }),
         vscode.commands.registerCommand('rupture.getAudit', () => {
-            vscode.env.openExternal(vscode.Uri.parse('https://ntoledo319.github.io/EOLkits/audit/?utm_source=vscode&utm_medium=extension&source=vscode'));
+            return openAudit();
         })
     );
 
@@ -98,10 +103,13 @@ async function scanWorkspace(resource?: vscode.Uri) {
         if (count > 0) {
             vscode.window.showWarningMessage(
                 `EOLkits found ${count} potential deprecation issue${count === 1 ? '' : 's'}.`,
-                'View Report'
+                'View Report',
+                'See $299 Report'
             ).then(selection => {
                 if (selection === 'View Report') {
                     showReport();
+                } else if (selection === 'See $299 Report') {
+                    void openAudit();
                 }
             });
         } else {

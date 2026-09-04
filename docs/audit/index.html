@@ -7,6 +7,17 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AWS deprecation evidence report | EOLkits</title>
 <meta name="description" content="A static repository evidence report for AWS runtime and Amazon Linux migration risks: exact file/line evidence, remediation, and configured rule or package references.">
+<link rel="canonical" href="https://ntoledo319.github.io/EOLkits/audit/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AWS deprecation evidence report | EOLkits">
+<meta property="og:description" content="A fixed-price static repository report with exact file/line evidence, remediation notes, and explicit scope limits.">
+<meta property="og:url" content="https://ntoledo319.github.io/EOLkits/audit/">
+<script defer src="/EOLkits/track.js"></script>
+<meta property="og:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
 <style>
 body{font-family:system-ui,-apple-system,sans-serif;max-width:820px;margin:0 auto;padding:2rem;line-height:1.6;color:#111827}
 .brand{color:#2563eb;font-weight:600}
@@ -37,6 +48,9 @@ h1{margin-top:.3rem}
 button{background:#2563eb;color:white;border:none;padding:0.75rem 1.5rem;border-radius:6px;font-size:1rem;cursor:pointer}
 button:hover{background:#1d4ed8}
 form#auditForm{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:1.5rem;margin:1rem 0}
+form#auditForm input{box-sizing:border-box;max-width:100%;width:100%;padding:.65rem}
+.assurances{background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:1rem 1.25rem;margin:1rem 0}
+.assurances ul{margin:.5rem 0 0;padding-left:1.2rem}
 footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
 </style>
 </head>
@@ -65,6 +79,35 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
   <div class="tiers"><div class="tier"><strong>One repository</strong><div class="price">$299</div><p>ZIP archive or one supported source file · one fixed price</p></div></div>
   <p class="reassure">A target date may be included as planning context. It never changes the price or scan results.</p>
 </div>
+
+<div class="assurances">
+  <strong>Before you upload:</strong>
+  <ul>
+    <li>No AWS credentials or AWS account access are requested.</li>
+    <li>Successfully processed source is deleted immediately; checkout-bound uploads expire within 48 hours and generated reports within 30 days.</li>
+    <li><a href="/EOLkits/audit/sample/">Inspect the fictional input, engine-generated PDF, and hash manifest</a> before deciding.</li>
+  </ul>
+</div>
+
+<div id="auditGate" class="callout"><strong>Checkout safety check:</strong> waiting for the v2 fulfillment backend. Checkout stays closed unless the live API confirms report engine 2.0.</div>
+<div id="auditInterest" class="callout">
+  <strong>Found a relevant issue in a real project?</strong>
+  Checkout is paused while fulfillment is verified. If this exact one-repository
+  report would be worth $299 to you, record a public, no-obligation demand signal.
+  It is not an order, reservation, waitlist, or promise of a reply.
+  <p><a class="cta secondary" href="https://github.com/ntoledo319/EOLkits/issues/new?template=audit-interest.yml" target="_blank" rel="noopener">Record qualified $299 interest on GitHub</a></p>
+  <p class="reassure">GitHub publishes your username and submission. Do not include repository names, filenames, code, secrets, security details, company information, or personal data.</p>
+</div>
+<form id="auditForm" hidden>
+  <h3>Start Audit</h3>
+  <p><input type="email" id="auditEmail" name="email" placeholder="your@email.com" required></p>
+  <p><input type="date" id="auditDeadline" name="deadline" aria-label="Deadline date"></p>
+  <p><input type="file" id="auditFile" name="file" required accept=".zip,.yaml,.yml,.json,.tf,.tfvars,.js,.ts,.tsx,.py,.toml,.lock,.sh,.txt"></p>
+  <p class="reassure">Upload limits: 10 MiB input; ZIPs may contain at most 2,000 entries and 25 MiB expanded text. Analysis is also bounded to 500,000 decoded lines, 100,000 mapping records per file, 10,000 Lambda resources per file, 10,000 retained evidence records, and 1 MiB per dependency manifest. Binary archive members are skipped; standalone binary inputs and archives with no supported text are rejected. Encrypted, ambiguous-path, path-traversing, over-complex, and suspiciously compressed archives are rejected before checkout. Do not upload secrets or unrelated personal data.</p>
+  <button id="auditSubmit" type="submit">Upload and Proceed to Checkout</button>
+  <p class="reassure">By continuing, you authorize this upload to be scanned and agree to the <a href="/EOLkits/legal/terms.html">Terms</a> and <a href="/EOLkits/legal/privacy.html">Privacy Policy</a>. Stripe Checkout shows the final $299 price before payment.</p>
+  <p id="auditStatus" style="color:#6b7280;font-size:.875rem"></p>
+</form>
 
 <div class="valuebox">
   <strong>What this buys:</strong> a reviewable change-approval artifact your team can check against the uploaded repository and the linked rule or package references. No speculative downtime-dollar estimate is included.
@@ -98,26 +141,6 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 </ol>
 
 <p class="reassure">When the readiness gate opens: Stripe checkout · automated delivery with durable retries · 30-day money-back guarantee</p>
-
-<div id="auditGate" class="callout"><strong>Checkout safety check:</strong> waiting for the v2 fulfillment backend. Checkout stays closed unless the live API confirms report engine 2.0.</div>
-<div id="auditInterest" class="callout">
-  <strong>Found a relevant issue in a real project?</strong>
-  Checkout is paused while fulfillment is verified. If this exact one-repository
-  report would be worth $299 to you, record a public, no-obligation demand signal.
-  It is not an order, reservation, waitlist, or promise of a reply.
-  <p><a class="cta secondary" href="https://github.com/ntoledo319/EOLkits/issues/new?template=audit-interest.yml" target="_blank" rel="noopener">Record qualified $299 interest on GitHub</a></p>
-  <p class="reassure">GitHub publishes your username and submission. Do not include repository names, filenames, code, secrets, security details, company information, or personal data.</p>
-</div>
-<form id="auditForm" hidden>
-  <h3>Start Audit</h3>
-  <p><input type="email" id="auditEmail" name="email" placeholder="your@email.com" required style="padding:0.5rem;width:300px"></p>
-  <p><input type="date" id="auditDeadline" name="deadline" style="padding:0.5rem;width:300px" aria-label="Deadline date"></p>
-  <p><input type="file" id="auditFile" name="file" required accept=".zip,.yaml,.yml,.json,.tf,.tfvars,.js,.ts,.tsx,.py,.toml,.lock,.sh,.txt"></p>
-  <p class="reassure">Upload limits: 10 MiB input; ZIPs may contain at most 2,000 entries and 25 MiB expanded text. Analysis is also bounded to 500,000 decoded lines, 100,000 mapping records per file, 10,000 Lambda resources per file, 10,000 retained evidence records, and 1 MiB per dependency manifest. Binary archive members are skipped; standalone binary inputs and archives with no supported text are rejected. Encrypted, ambiguous-path, path-traversing, over-complex, and suspiciously compressed archives are rejected before checkout. Do not upload secrets or unrelated personal data.</p>
-  <button id="auditSubmit" type="submit">Upload and Proceed to Checkout</button>
-  <p class="reassure">By continuing, you authorize this upload to be scanned and agree to the <a href="/EOLkits/legal/terms.html">Terms</a> and <a href="/EOLkits/legal/privacy.html">Privacy Policy</a>. Stripe Checkout shows the final $299 price before payment.</p>
-  <p id="auditStatus" style="color:#6b7280;font-size:.875rem"></p>
-</form>
 
 <script>
 const API = 'https://eolkits.com';

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { join, dirname } from 'node:path';
+import { runtimeLifecycle } from '../src/scan/index.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CLI = join(__dirname, '..', 'bin', 'cli.mjs');
@@ -28,16 +29,19 @@ test('scan --fixture --json emits well-formed JSON', () => {
   assert.equal(r.status, 0, r.stderr);
   const data = JSON.parse(r.stdout);
   assert.equal(data.length, 9);
-  const eol = data.filter(d => d.eol);
-  assert.equal(eol.length, 8);
+  const atRisk = data.filter(d => d.at_risk);
+  assert.equal(atRisk.length, 8);
   const etl = data.find(d => d.function_name === 'invoice-etl-batch');
   assert.equal(etl.runtime, 'python3.8');
   assert.equal(etl.eol, true);
+  assert.notEqual(etl.lifecycle, 'supported');
   assert.equal(etl.recommended_target, 'python3.12');
   assert.equal(etl.deprecation_dates.block_update, '2027-03-03');
   const mlInfer = data.find(d => d.function_name === 'ml-inference-endpoint');
   assert.equal(mlInfer.runtime, 'python3.11');
-  assert.equal(mlInfer.eol, true);
+  assert.equal(mlInfer.eol, false);
+  assert.equal(mlInfer.at_risk, true);
+  assert.equal(mlInfer.lifecycle, 'supported');
   assert.equal(mlInfer.recommended_target, 'python3.12');
   assert.equal(mlInfer.deprecation_dates.phase1, '2027-06-30');
   assert.equal(mlInfer.deprecation_dates.block_update, '2027-08-31');
@@ -53,6 +57,18 @@ test('scan --fixture --json emits well-formed JSON', () => {
   assert.equal(current.recommended_target, 'nodejs24.x');
   assert.equal(current.deprecation_dates.phase1, '2027-04-30');
   assert.equal(current.severity, 'medium');
+  assert.equal(current.eol, false);
+  assert.equal(current.lifecycle, 'supported');
+});
+
+test('lifecycle distinguishes supported at-risk runtimes from deprecated ones', () => {
+  const observedAt = Date.parse('2026-09-04T12:00:00Z');
+  assert.equal(runtimeLifecycle('java8.al2', observedAt), 'supported');
+  assert.equal(runtimeLifecycle('provided.al2', observedAt), 'deprecated');
+  assert.equal(runtimeLifecycle('nodejs24.x', observedAt), 'supported');
+  assert.equal(runtimeLifecycle('nodejs20.x', observedAt), 'deprecated');
+  assert.equal(runtimeLifecycle('nodejs20.x', Date.parse('2027-02-15T00:00:00Z')), 'create-blocked');
+  assert.equal(runtimeLifecycle('nodejs20.x', Date.parse('2027-03-03T00:00:00Z')), 'update-blocked');
 });
 
 test('scan --fixture --format csv emits CSV header', () => {

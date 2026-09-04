@@ -30,14 +30,18 @@ No AWS login or extension configuration is required.
 
 | Signal | Where | Severity |
 |---|---|---|
-| Lambda `nodejs18.x`, `nodejs20.x`, or `nodejs22.x` runtime | CloudFormation / SAM | High / Medium |
-| Lambda `python3.9` / `3.10` / `3.11` | CloudFormation / SAM | High / Medium |
+| Lambda `nodejs16.x`, `nodejs18.x`, `nodejs20.x`, or `nodejs22.x` runtime | CloudFormation / SAM / Terraform | High / Medium |
+| Lambda `python3.8` / `3.9` / `3.10` / `3.11` | CloudFormation / SAM / Terraform | High / Medium |
 | Amazon Linux 2 AMIs (`amazonlinux2`, `AL2`) | CloudFormation / Terraform | High |
 | Amazon Linux 2 image references | `*.tf` / `*.hcl` | High |
 | Bundled AWS SDK for JavaScript v2 assumptions | JavaScript / TypeScript | Medium |
 | Removed or moved Python APIs (`distutils`, `imp`, `collections.Mapping`) | Python | Medium / Low |
 
 Date-bearing findings identify the AWS schedule used by that bundled extension version. Recheck the linked EOLkits/AWS sources before production planning.
+
+Terraform runtime findings are limited to literal `runtime` values inside
+`aws_lambda_function` resource blocks. Variables and computed expressions are not
+resolved.
 
 ## Commands
 

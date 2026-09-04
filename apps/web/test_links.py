@@ -74,6 +74,19 @@ def test_sitemap_locations_use_the_canonical_host() -> None:
     assert all(location and location.startswith(f"{build.SITE_URL}/") for location in locations)
 
 
+def test_sitemap_dates_change_only_for_materially_updated_pages() -> None:
+    root = ElementTree.parse(DOCS / "sitemap.xml").getroot()
+    namespace = "{http://www.sitemaps.org/schemas/sitemap/0.9}"
+    observed = {
+        item.findtext(f"{namespace}loc"): item.findtext(f"{namespace}lastmod")
+        for item in root.findall(f"{namespace}url")
+    }
+
+    assert observed[f"{build.SITE_URL}/"] == "2026-08-31"
+    assert observed[f"{build.SITE_URL}/audit/"] == "2026-09-04"
+    assert observed[f"{build.SITE_URL}/lambda-runtime-deprecation-schedule/"] == "2026-09-04"
+
+
 def test_indexnow_key_verifies_the_entire_sitemap_scope() -> None:
     candidates = [
         path

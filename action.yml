@@ -1,5 +1,5 @@
 name: "Rupture AWS Deprecation Check"
-description: "Check source and IaC for AWS runtime deprecation risks before they hit production"
+description: "Scan source and IaC for AWS Lambda runtime deprecation and Amazon Linux 2 EOL risks"
 author: "EOLkits"
 branding:
   icon: "alert-triangle"

@@ -1127,3 +1127,51 @@ benchmarks, or unverified analytics in this ledger.
   profit: **$0**. Target gap: **$4,000**. VS v1.2.0's five-day gate
   (`2026-09-05T23:27:55Z`) has not yet arrived — one day out, the next
   autonomous checkpoint.
+
+## Ground-up local and public observation — September 4, 2026
+
+- Fresh live probes around `2026-09-04T09:01Z`: Pages `/`, `/scan/`, and
+  `/audit/` returned 200. Custom GRACE `/health` returned 200 while
+  `/api/capabilities` and `/api/status` returned 404, stale `/pack/install`
+  returned 200, and raw HTML still contained one
+  `https://stats.saiditright.com/script.js` injection. Checkout remained
+  closed; no paid readiness was inferred.
+- Public distribution: 25 DEV posts remained public with seven reactions and
+  zero comments combined; public GitHub v2.0.0 releases remained zero; the
+  Marketplace Action page still showed v1.1.0; the exact `@v2` ref remained
+  consumable; repository state remained one star / zero forks / zero qualified
+  Audit-interest issues / zero observed external `@v2` refs.
+- VS Gallery cache-busted exact-ID sampling produced alternating install values
+  of **103 and 104** across nine near-simultaneous reads; every read reported
+  **223 downloads**, v1.2.0, and the same `lastUpdated`. Marketplace HTML showed
+  104. This is replica/cache disagreement—not defensible +1 demand—and no gate
+  pass is recorded.
+- Search discovery observed EOLkits first or second for several VS Marketplace
+  queries around AWS Lambda EOL/deprecation, and the public Lambda schedule page
+  directly behind AWS for one 2026–2027 schedule query. Search position is
+  acquisition opportunity, not a visit, lead, or sale. Search snippets for the
+  custom host still exposed retired $1,499/“email in 5 minutes” copy even though
+  live generated pages no longer make those claims.
+- Release-candidate verification: Lambda Lifeline **29/29**; Worker build +
+  **39/39**; VS extension compile/lint/rule test + v1.3 VSIX package; AL2023 Gate
+  **49/49**; Python Pivot **50/50**; GRACE **78/78**; report runner **33/33** plus
+  sample artifact check; web **39/39** plus byte-stable rebuild; Ruff, Black,
+  mypy, workflow YAML parse, 98-record Node production-license audit, and six
+  Gallery-reduction/gate tests all passed. Docker image builds remain delegated
+  to the repository CI because the workspace jail forbids mutating the local
+  Docker daemon.
+- Evidence-quality implementation: acquisition now stores all five install and
+  download samples, min/max, sample count, and replica-consistency state. The
+  gate uses the minimum; after its deadline, `max > baseline` with
+  `min <= baseline` is explicitly inconclusive. No Gallery counter is recorded
+  as revenue.
+- Containment transparency: one technical-review subagent's first Node test
+  allowed `node:os.tmpdir()` to resolve to `/tmp`; it cleaned those fixtures and
+  no persistent repository change resulted. The root agent also ran one
+  read-only Git command before restoring the required repository-local global
+  config override, so it may have consulted user-level Git config. All
+  subsequent commands pinned temporary paths and Git config inside
+  `WORKSPACE_ROOT`. These are recorded process failures, not erased by green
+  tests.
+- Qualified interest issues: **0**. Paid reports: **0**. Collected revenue:
+  **$0**. Collected profit: **$0**. Gap: **$4,000**.
