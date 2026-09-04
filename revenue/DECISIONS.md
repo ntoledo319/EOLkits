@@ -1544,3 +1544,17 @@ Python dependency files in a Node/npm package. Change only that entry to npm;
 keep the now-green Docker entries for both deployable images. This repairs
 maintenance automation and does not change the revenue ranking or count as
 demand.
+
+## D72 — close the autonomous boundary, not the safety gates
+
+Merge the updater correction only after the complete PR matrix passes, require
+all three merge-SHA product suites and all eight refreshed ecosystems to finish
+green, then fast-forward the strictly ancestral `marketing-machine-v2` branch
+without force. Re-probe repository settings, the release draft, public pages,
+the custom host, secret-name categories, and deployment capability before
+handoff. Those checks prove repository work is shipped but do not justify
+opening checkout: GRACE transport/runtime credentials are absent, the custom
+host still lacks v2 status/capabilities and injects an unreviewed script, and 25
+false DEV posts remain public. Keep the 38-minute human-only batch intact and
+correct its truncated Marketplace target SHA. The owner's excluded retired-key
+action remains untouched.
