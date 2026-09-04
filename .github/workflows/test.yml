@@ -225,8 +225,10 @@ jobs:
             kits/lambda-lifeline/package-lock.json \
             apps/worker/package-lock.json \
             apps/vscode-extension/package-lock.json
-          npm audit --omit=dev --audit-level=high --prefix kits/lambda-lifeline
-          npm audit --omit=dev --audit-level=high --prefix apps/worker
+          npm audit --package-lock-only --omit=dev --audit-level=high \
+            --prefix kits/lambda-lifeline
+          npm audit --package-lock-only --omit=dev --audit-level=high \
+            --prefix apps/worker
 
   lint:
     runs-on: ubuntu-latest
