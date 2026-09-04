@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.12.14-slim-bookworm@sha256:782412e85d0f0984994c290652577d4018aff08145c85b262bb63dc0c7522254
 
 WORKDIR /app
 
@@ -19,13 +19,24 @@ COPY apps/runner/main.py /app/main.py
 COPY apps/runner/audit_pdf.py /app/audit_pdf.py
 COPY rules/public/deprecations.yml /app/rules/public/deprecations.yml
 COPY rules/public/dependency-compatibility.json /app/rules/public/dependency-compatibility.json
+COPY deploy/grace/container-entrypoint.sh /usr/local/bin/eolkits-container-entrypoint
+
+RUN chmod 0555 /usr/local/bin/eolkits-container-entrypoint
 
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV HOME=/tmp
+ENV TMPDIR=/tmp
+ENV XDG_CACHE_HOME=/tmp/.cache
 ENV RUNNER_HTTP=1
+# Containers deliberately opt into their network namespace; direct execution
+# stays loopback-only unless an operator makes the same explicit choice.
+ENV RUNNER_BIND=0.0.0.0
 ENV EOLKITS_DEPRECATIONS_FILE=/app/rules/public/deprecations.yml
 ENV EOLKITS_DEPENDENCY_RULES_FILE=/app/rules/public/dependency-compatibility.json
 ENV EOLKITS_ALLOWED_UPLOAD_ORIGIN=https://eolkits.com
 
-USER runner
+USER 10001:10001
 EXPOSE 8080
-ENTRYPOINT ["python", "/app/main.py"]
+ENTRYPOINT ["/usr/local/bin/eolkits-container-entrypoint"]
+CMD ["python", "/app/main.py"]

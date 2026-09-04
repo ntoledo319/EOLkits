@@ -4,6 +4,7 @@ import base64
 import hashlib
 import importlib.util
 import io
+import json
 import socket
 import zipfile
 from datetime import UTC, datetime
@@ -800,7 +801,30 @@ def test_runner_http_auth_rejects_bad_token(monkeypatch):
     handler.path = "/job"
     handler.headers = {"Authorization": "Bearer wrong", "Content-Length": "2"}
     handler.rfile = BytesIO(b"{}")
-    monkeypatch.setenv("RUNNER_TOKEN", "expected")
+    monkeypatch.setenv("RUNNER_TOKEN", "e" * 32)
+    monkeypatch.setattr(handler, "send_response", lambda status: writes.append(("status", status)))
+    monkeypatch.setattr(handler, "send_header", lambda key, value: None)
+    monkeypatch.setattr(handler, "end_headers", lambda: None)
+    handler.wfile = type(
+        "Writer", (), {"write": lambda _self, data: writes.append(("body", data))}
+    )()
+
+    handler.do_POST()
+
+    assert ("status", 401) in writes
+    assert b"unauthorized" in dict(writes)["body"]
+
+
+def test_runner_http_auth_rejects_non_ascii_without_crashing(monkeypatch):
+    from io import BytesIO
+
+    runner = _load("main")
+    writes: list[tuple[str, object]] = []
+    handler = object.__new__(runner.RunnerHandler)
+    handler.path = "/job"
+    handler.headers = {"Authorization": "Bearer é", "Content-Length": "2"}
+    handler.rfile = BytesIO(b"{}")
+    monkeypatch.setenv("RUNNER_TOKEN", "e" * 32)
     monkeypatch.setattr(handler, "send_response", lambda status: writes.append(("status", status)))
     monkeypatch.setattr(handler, "send_header", lambda key, value: None)
     monkeypatch.setattr(handler, "end_headers", lambda: None)
@@ -837,6 +861,157 @@ def test_runner_http_requires_a_configured_token(monkeypatch):
     assert b"runner_not_configured" in dict(writes)["body"]
 
 
+def test_runner_http_rejects_a_short_token(monkeypatch):
+    from io import BytesIO
+
+    runner = _load("main")
+    writes: list[tuple[str, object]] = []
+    handler = object.__new__(runner.RunnerHandler)
+    handler.path = "/job"
+    handler.headers = {"Authorization": "Bearer short", "Content-Length": "2"}
+    handler.rfile = BytesIO(b"{}")
+    monkeypatch.setenv("RUNNER_TOKEN", "short")
+    monkeypatch.setattr(handler, "send_response", lambda status: writes.append(("status", status)))
+    monkeypatch.setattr(handler, "send_header", lambda key, value: None)
+    monkeypatch.setattr(handler, "end_headers", lambda: None)
+    handler.wfile = type(
+        "Writer", (), {"write": lambda _self, data: writes.append(("body", data))}
+    )()
+
+    handler.do_POST()
+
+    assert ("status", 503) in writes
+    assert b"runner_not_configured" in dict(writes)["body"]
+
+
+def test_runner_http_rejects_local_upload_paths(monkeypatch):
+    from io import BytesIO
+
+    runner = _load("main")
+    token = "e" * 32
+    body = json.dumps(
+        {"type": "audit_pdf", "upload_path": "/etc/passwd", "email": "buyer@example.com"}
+    ).encode()
+    writes: list[tuple[str, object]] = []
+    handler = object.__new__(runner.RunnerHandler)
+    handler.path = "/job"
+    handler.headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Length": str(len(body)),
+    }
+    handler.rfile = BytesIO(body)
+    handler.wfile = type(
+        "Writer", (), {"write": lambda _self, data: writes.append(("body", data))}
+    )()
+    monkeypatch.setenv("RUNNER_TOKEN", token)
+    monkeypatch.setattr(handler, "send_response", lambda status: writes.append(("status", status)))
+    monkeypatch.setattr(handler, "send_header", lambda key, value: None)
+    monkeypatch.setattr(handler, "end_headers", lambda: None)
+    monkeypatch.setattr(
+        runner,
+        "run_job",
+        lambda _job: pytest.fail("a local-path HTTP job must never be dispatched"),
+    )
+
+    handler.do_POST()
+
+    assert ("status", 400) in writes
+    assert b"local_input_forbidden" in dict(writes)["body"]
+
+
+def test_runner_http_accepts_a_url_only_audit_job(monkeypatch):
+    from io import BytesIO
+
+    runner = _load("main")
+    token = "e" * 32
+    job = {
+        "type": "audit_pdf",
+        "upload_url": "https://eolkits.com/upload/example?signature=test",
+        "email": "buyer@example.com",
+    }
+    body = json.dumps(job).encode()
+    writes: list[tuple[str, object]] = []
+    handler = object.__new__(runner.RunnerHandler)
+    handler.path = "/job"
+    handler.headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Length": str(len(body)),
+    }
+    handler.rfile = BytesIO(body)
+    handler.wfile = type(
+        "Writer", (), {"write": lambda _self, data: writes.append(("body", data))}
+    )()
+    monkeypatch.setenv("RUNNER_TOKEN", token)
+    monkeypatch.setattr(handler, "send_response", lambda status: writes.append(("status", status)))
+    monkeypatch.setattr(handler, "send_header", lambda key, value: None)
+    monkeypatch.setattr(handler, "end_headers", lambda: None)
+    monkeypatch.setattr(runner, "run_job", lambda received: {"type": received["type"]})
+
+    handler.do_POST()
+
+    assert ("status", 200) in writes
+    response = json.loads(dict(writes)["body"])
+    assert response == {"success": True, "result": {"type": "audit_pdf"}}
+
+
+def test_runner_http_does_not_reflect_job_exception_details(monkeypatch, capsys):
+    from io import BytesIO
+
+    runner = _load("main")
+    token = "e" * 32
+    secret_marker = "signed-value-must-not-leak"
+    body = json.dumps(
+        {
+            "type": "audit_pdf",
+            "upload_url": f"https://eolkits.com/upload/example?signature={secret_marker}",
+        }
+    ).encode()
+    writes: list[tuple[str, object]] = []
+    handler = object.__new__(runner.RunnerHandler)
+    handler.path = "/job"
+    handler.headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Length": str(len(body)),
+    }
+    handler.rfile = BytesIO(body)
+    handler.wfile = type(
+        "Writer", (), {"write": lambda _self, data: writes.append(("body", data))}
+    )()
+    monkeypatch.setenv("RUNNER_TOKEN", token)
+    monkeypatch.setattr(handler, "send_response", lambda status: writes.append(("status", status)))
+    monkeypatch.setattr(handler, "send_header", lambda key, value: None)
+    monkeypatch.setattr(handler, "end_headers", lambda: None)
+
+    def fail(_job):
+        raise RuntimeError(f"provider failure at {secret_marker}")
+
+    monkeypatch.setattr(runner, "run_job", fail)
+
+    handler.do_POST()
+
+    assert ("status", 500) in writes
+    assert json.loads(dict(writes)["body"]) == {"success": False, "error": "job_failed"}
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err == "runner job failed: RuntimeError\n"
+    assert secret_marker not in captured.err
+
+
+def test_runner_http_server_refuses_to_start_without_a_strong_token(monkeypatch):
+    runner = _load("main")
+    monkeypatch.setenv("RUNNER_TOKEN", "short")
+    with pytest.raises(RuntimeError, match="at least 32"):
+        runner.serve()
+
+
+def test_runner_http_server_refuses_a_blank_bind(monkeypatch):
+    runner = _load("main")
+    monkeypatch.setenv("RUNNER_TOKEN", "e" * 32)
+    monkeypatch.setenv("RUNNER_BIND", "   ")
+    with pytest.raises(RuntimeError, match="must not be blank"):
+        runner.serve()
+
+
 def test_runner_http_rejects_work_above_capacity(monkeypatch):
     from io import BytesIO
 
@@ -844,12 +1019,13 @@ def test_runner_http_rejects_work_above_capacity(monkeypatch):
     writes: list[tuple[str, object]] = []
     handler = object.__new__(runner.RunnerHandler)
     handler.path = "/job"
-    handler.headers = {"Authorization": "Bearer expected", "Content-Length": "2"}
+    token = "e" * 32
+    handler.headers = {"Authorization": f"Bearer {token}", "Content-Length": "2"}
     handler.rfile = BytesIO(b"{}")
     handler.wfile = type(
         "Writer", (), {"write": lambda _self, data: writes.append(("body", data))}
     )()
-    monkeypatch.setenv("RUNNER_TOKEN", "expected")
+    monkeypatch.setenv("RUNNER_TOKEN", token)
     monkeypatch.setattr(
         runner,
         "RUNNER_SLOTS",

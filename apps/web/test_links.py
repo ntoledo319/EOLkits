@@ -85,6 +85,10 @@ def test_sitemap_dates_change_only_for_materially_updated_pages() -> None:
     assert observed[f"{build.SITE_URL}/"] == "2026-08-31"
     assert observed[f"{build.SITE_URL}/audit/"] == "2026-09-04"
     assert observed[f"{build.SITE_URL}/lambda-runtime-deprecation-schedule/"] == "2026-09-04"
+    assert observed[f"{build.SITE_URL}/legal/dpa.html"] == "2026-09-04"
+    assert observed[f"{build.SITE_URL}/legal/privacy.html"] == "2026-09-04"
+    assert observed[f"{build.SITE_URL}/legal/terms.html"] == "2026-09-04"
+    assert observed[f"{build.SITE_URL}/legal/SECURITY.html"] == "2026-08-31"
 
 
 def test_indexnow_key_verifies_the_entire_sitemap_scope() -> None:

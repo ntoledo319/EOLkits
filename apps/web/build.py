@@ -62,6 +62,9 @@ CONTENT_SECURITY_POLICY = (
 PAGE_LASTMOD_OVERRIDES = {
     "audit/index.html": "2026-09-04",
     "lambda-runtime-deprecation-schedule/index.html": "2026-09-04",
+    "legal/dpa.html": "2026-09-04",
+    "legal/privacy.html": "2026-09-04",
+    "legal/terms.html": "2026-09-04",
 }
 
 

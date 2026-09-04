@@ -204,9 +204,29 @@ def initialize_runtime_state() -> None:
     global _audit_catalog_attested
     result = validate_runtime_preflight(settings)
     _audit_catalog_attested = bool(result["catalog_attested"])
-    settings.uploads_dir.mkdir(parents=True, exist_ok=True)
-    settings.reports_dir.mkdir(parents=True, exist_ok=True)
+    _ensure_private_directory(settings.data_dir)
+    _ensure_private_directory(settings.uploads_dir)
+    _ensure_private_directory(settings.reports_dir)
+    database_files = [Path(str(settings.db_path) + suffix) for suffix in ("", "-wal", "-shm")]
+    # Reject links and non-files before sqlite has an opportunity to follow or
+    # open them. Broken symlinks deliberately fail too (`exists()` is false).
+    for database_file in database_files:
+        if database_file.is_symlink() or (database_file.exists() and not database_file.is_file()):
+            raise RuntimeError(f"refusing unsafe database path: {database_file.name}")
     store.init()
+    for database_file in database_files:
+        if database_file.exists():
+            database_file.chmod(0o600)
+
+
+def _ensure_private_directory(path: Path) -> None:
+    """Create or tighten a customer-data directory without following a leaf symlink."""
+    if path.is_symlink():
+        raise RuntimeError(f"refusing symlinked data directory: {path.name}")
+    path.mkdir(parents=True, mode=0o700, exist_ok=True)
+    if not path.is_dir():
+        raise RuntimeError(f"data path is not a directory: {path.name}")
+    path.chmod(0o700)
 
 
 app = FastAPI(title="EOLkits GRACE API", version="1.0.0", lifespan=lifespan)
@@ -386,7 +406,7 @@ async def upload_presign(request: Request) -> dict[str, Any]:
 
     upload_id = secrets.token_urlsafe(18).replace("-", "").replace("_", "")[:24]
     upload_token = secrets.token_urlsafe(32)
-    settings.uploads_dir.mkdir(parents=True, exist_ok=True)
+    _ensure_private_directory(settings.uploads_dir)
     if shutil.disk_usage(settings.uploads_dir).free - size < settings.min_free_disk_bytes:
         raise HTTPException(status_code=503, detail="upload storage temporarily unavailable")
     if not store.reserve_upload(
@@ -435,11 +455,12 @@ async def upload_file(upload_id: str, request: Request, token: str = "") -> dict
         except ValueError as exc:
             raise HTTPException(status_code=400, detail="invalid content length") from exc
     path = _upload_path(upload_id)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    _ensure_private_directory(path.parent)
     digest = hashlib.sha256()
     received = 0
     try:
         with path.open("xb") as handle:
+            os.fchmod(handle.fileno(), 0o600)
             async for chunk in request.stream():
                 received += len(chunk)
                 if received > settings.max_upload_bytes:
@@ -2298,7 +2319,7 @@ def _fulfill_audit(result: dict[str, Any], job: dict[str, Any]) -> None:
         hashlib.sha256,
     ).hexdigest()
     report_path = settings.reports_dir / f"{report_id}.pdf"
-    report_path.parent.mkdir(parents=True, exist_ok=True)
+    _ensure_private_directory(report_path.parent)
     pdf_sha256 = hashlib.sha256(pdf_bytes).hexdigest()
     _atomic_write_bytes(report_path, pdf_bytes)
     store.put_json(
@@ -2393,6 +2414,7 @@ def _atomic_write_bytes(path: Path, content: bytes) -> None:
     temporary = path.with_name(f".{path.name}.{secrets.token_hex(8)}.tmp")
     try:
         with temporary.open("xb") as handle:
+            os.fchmod(handle.fileno(), 0o600)
             handle.write(content)
             handle.flush()
             os.fsync(handle.fileno())

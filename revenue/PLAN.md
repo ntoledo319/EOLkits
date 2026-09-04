@@ -587,13 +587,14 @@ All have a tested release candidate; none is counted as demand or revenue.
 1. Keep the merged, fully verified v1.3 source and exact public VSIX green;
    preserve its publisher as manual-only and continue daily five-sample Gallery
    evidence without resetting the original acquisition baseline.
-2. Fast-forward the auto-deployed `marketing-machine-v2` branch to the same
-   reviewed tree, while its IndexNow safety gate continues to reject the
-   injected custom host.
+2. Keep `main` and the auto-deployed `marketing-machine-v2` branch aligned;
+   they currently resolve to the same reviewed tree, while the IndexNow safety
+   gate continues to reject the injected custom host.
 3. Complete only the remaining owner-authority queue: contain/deploy GRACE,
    supply seller facts, remove injected analytics and false DEV posts, publish
-   Action v2 with the required attestations, fix Pages/rulesets, then create the
-   new v2 Stripe catalog and open Audit only after E2E/refund proof.
+   Action v2 with the required attestations, then create the new v2 Stripe
+   catalog and open Audit only after E2E/refund proof. Pages/rulesets are
+   already complete through the authenticated repository-admin API.
 4. After checkout is live, measure first-party views → findings → checkout →
    delivered reports → refunds → collected profit. Only then build/list the
    RapidAPI compounding endpoint.
@@ -605,7 +606,7 @@ excluded and was not attempted.
 ## Public release and cleanup checkpoint — September 4, 2026
 
 PR #41 merged the ground-up product and acquisition repair at
-`44e0425f3b94b085835c85a2e0dbf28642914973`; all four required PR checks and
+`44e0425f3b94b085835c85a2e0dbf28642914973`; all four required PR checks
 passed. The clean Pages Audit and Lambda schedule surfaces are live at HTTP 200
 with the reviewed tracking, conversion, and attribution changes.
 
@@ -622,7 +623,42 @@ cleanup, and the evidence workflow now requires public v1.3.0.
 The only cash path remains the $299 automated Audit. Checkout stays closed
 because GRACE v2 deployment, host injection removal, fulfillment/delivery,
 refund/retention, truthful commercial facts, and the new catalog have not been
-proved. Owner work is the 42-minute HQ-A through HQ-G batch in
+proved. Owner work is the 38-minute pending batch in
 `revenue/HUMAN_QUEUE.md`; retired Stripe credential rotation/revocation is
 excluded. Collected revenue: **$0**. Collected profit: **$0**. Gap:
 **$4,000**.
+
+## Launch hardening and repository-admin completion — September 4, 2026
+
+Fresh launch-path review found work that was still autonomous and materially
+closer to safe collection. The release candidate now rejects arbitrary local
+paths from the runner's HTTP boundary, requires a strong bearer token, avoids
+logging signed request URLs, applies private runtime-data modes, runs both
+containers as a numeric non-root user on read-only filesystems with all
+capabilities dropped, and pins both Python base images to the current explicit
+manifest digest. A guarded host wrapper dry-runs first, forces checkout closed,
+attests the exact reviewed SHA and existing deployment, builds and preflights
+without the production volume, snapshots the exact data volume, verifies every
+loopback capability after deployment, and restores the prior image if a gate
+fails. It never edits Caddy, restores a volume, creates a Stripe object, or
+opens checkout.
+
+Authenticated owner-level GitHub authority was available after all. Pages is
+now Actions-only, active ruleset `22266277` blocks deletion and non-fast-forward
+updates for the default branch and `v2`, and Pages workflow run `33867109854`
+successfully deployed exact main SHA
+`4f51c770ebe7d9b8b6d8fbd3429727f7a5e83271`. Former HQ-F is complete and costs
+zero owner minutes.
+
+Connecticut's official registry supplies Toledo Technologies LLC's public
+business/mailing address. The legal pages now identify that address and use
+Connecticut law while preserving non-waivable consumer protections. Only those
+three materially changed legal URLs receive a September 4 sitemap date; the
+global August 31 publication baseline remains intact. HQ-B is narrowed to the
+private Stripe fee/currency facts and incremental host cost.
+
+Pending owner labor is now at most **38 minutes**; the direct commerce critical
+path excluding optional Marketplace publication is **36 minutes**. Checkout
+remains **closed**. Workspace-observed collected revenue is **$0**,
+workspace-observed collected profit is **$0**, and the gap remains **$4,000**.
+The retired Stripe credential action remains excluded and untouched.

@@ -1220,3 +1220,33 @@ benchmarks, or unverified analytics in this ledger.
   Collected revenue: **$0**. Collected profit: **$0**. Gap: **$4,000**.
   Checkout: **closed**. Retired Stripe credential rotation/revocation: excluded
   by owner direction and not attempted.
+
+## Launch hardening and repository-admin evidence — September 4, 2026
+
+- GitHub Pages repository settings now report `build_type=workflow`; the prior
+  legacy branch-source configuration is gone. Manual Pages workflow run
+  `33867109854` built and deployed exact main SHA
+  `4f51c770ebe7d9b8b6d8fbd3429727f7a5e83271` successfully.
+- Active repository ruleset `22266277`, `Protect release branches`, targets the
+  default branch and `refs/heads/v2` and contains both `deletion` and
+  `non_fast_forward` rules with no bypass. This closes former HQ-F; it is an
+  operational external change, not demand.
+- Local release-candidate verification passed: runner **40/40**, GRACE
+  **81/81**, web **39/39**, Ruff, Black, shell syntax, ShellCheck warning
+  severity, workflow YAML parsing, production/test Compose rendering, exact
+  loopback/checkout/security assertions, and `git diff --check`. The first
+  GRACE invocation selected a stale local environment missing `httpx2` and
+  failed during collection; rerunning in the correct repository verification
+  environment passed all 81 tests. During final self-review, the new symlink
+  fixture initially attempted to replace its helper's already-created database,
+  and the first web command omitted the CI base-path variables; the corrected
+  fixture and exact CI environment passed. No Docker daemon was mutated locally.
+- Official Connecticut registry data establishes Toledo Technologies LLC's
+  public business and mailing address as 2389 Main St. STE 100, Glastonbury,
+  CT 06033, United States. This supports the legal/controller text and
+  Connecticut governing-law choice; it is not a visit, lead, or sale.
+- No production host deployment, Caddy reload, Stripe catalog mutation,
+  checkout enablement, DEV unpublication, or GitHub Marketplace attestation was
+  performed. Qualified-interest issues: **0**. Purchases: **0**. Paid reports:
+  **0**. Workspace-observed collected revenue: **$0**. Workspace-observed
+  collected profit: **$0**. Gap: **$4,000**. Checkout: **closed**.

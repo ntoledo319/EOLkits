@@ -25,6 +25,10 @@ updates:
     schedule:
       interval: "weekly"
   - package-ecosystem: "docker"
+    directory: "/apps/grace-api"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
     directory: "/apps/runner"
     schedule:
       interval: "weekly"

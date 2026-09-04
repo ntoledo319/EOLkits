@@ -199,7 +199,17 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Build ${{ matrix.dockerfile }}
-        run: docker build --file "${{ matrix.dockerfile }}" .
+        run: |
+          set -euo pipefail
+          dockerfile='${{ matrix.dockerfile }}'
+          image_ref="eolkits-ci:$(basename "$(dirname "$dockerfile")")"
+          docker build --tag "$image_ref" --file "$dockerfile" .
+          test "$(docker image inspect --format '{{.Config.User}}' "$image_ref")" = \
+            '10001:10001'
+          test "$(docker image inspect --format '{{index .Config.Entrypoint 0}}' "$image_ref")" = \
+            '/usr/local/bin/eolkits-container-entrypoint'
+          test "$(docker run --rm --entrypoint /usr/local/bin/eolkits-container-entrypoint \
+            "$image_ref" sh -c umask)" = '0077'
 
   dependency-audit:
     runs-on: ubuntu-latest
@@ -270,3 +280,42 @@ jobs:
             echo "::error::Distribution copy points at the obsolete custom-domain funnel"
             exit 1
           fi
+      - name: Validate the fail-closed GRACE deployment contract
+        run: |
+          set -euo pipefail
+          mkdir -p "$TMPDIR"
+          shellcheck --severity=warning \
+            deploy/grace/container-entrypoint.sh \
+            deploy/grace/deploy-api-closed.sh \
+            deploy/grace/ship-web.sh \
+            deploy/grace/snapshot-api-volume.sh
+          env_file="$TMPDIR/compose-validation.env"
+          printf '%s\n' \
+            'STRIPE_KEY=sk_test_dummy' \
+            'STRIPE_WEBHOOK_SECRET=whsec_test' \
+            'RESEND_API_KEY=re_test' \
+            'EOLKITS_INTERNAL_URL_SECRET=validation-only-32-byte-secret-value' \
+            'EOLKITS_AUDIT_CHECKOUT_ENABLED=0' \
+            'EOLKITS_API_PORT=8120' > "$env_file"
+          chmod 0600 "$env_file"
+          reviewed_sha='0123456789abcdef0123456789abcdef01234567'
+          rendered="$(
+            EOLKITS_ENV_FILE="$env_file" \
+            EOLKITS_BUILD_SHA="$reviewed_sha" \
+            EOLKITS_AUDIT_CHECKOUT_ENABLED=0 \
+              docker compose --project-name eolkits-api \
+              --file deploy/grace/docker-compose.eolkits-api.yml \
+              --env-file "$env_file" config --format json
+          )"
+          jq -e --arg sha "$reviewed_sha" '
+            (.name == "eolkits-api") and
+            (.services["eolkits-api"] as $service |
+              $service.image == ("eolkits-api:" + $sha) and
+              $service.user == "10001:10001" and
+              $service.read_only == true and
+              ($service.cap_drop | index("ALL")) != null and
+              ($service.security_opt | index("no-new-privileges:true")) != null and
+              $service.environment.EOLKITS_AUDIT_CHECKOUT_ENABLED == "0" and
+              any($service.ports[];
+                .host_ip == "127.0.0.1" and .published == "8120" and .target == 8080))
+          ' <<< "$rendered"

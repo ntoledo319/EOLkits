@@ -1,3 +1,5 @@
+name: eolkits-api
+
 services:
   eolkits-api:
     image: "eolkits-api:${EOLKITS_BUILD_SHA:-local}"
@@ -5,7 +7,18 @@ services:
       context: /home/ubuntu/sites/eolkits-api
       dockerfile: apps/grace-api/Dockerfile
     container_name: eolkits-api
+    init: true
     restart: unless-stopped
+    user: "10001:10001"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 1g
+    cpus: 1.0
+    stop_grace_period: 30s
     env_file:
       - ${EOLKITS_ENV_FILE:-.env.production}
     environment:
@@ -20,6 +33,20 @@ services:
       - "127.0.0.1:${EOLKITS_API_PORT:-8120}:8080"
     volumes:
       - eolkits_api_data:/data/eolkits
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=128m,mode=1777
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >-
+          import json, urllib.request;
+          assert json.load(urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=3))['ok'] is True
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     logging:
       driver: json-file
       options:
