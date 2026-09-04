@@ -1318,3 +1318,69 @@ HQ-G (40 minutes) — HQ-E's release link (id `375063073`, slug
 `untagged-ea8be73c7a7d9b6c45e7`) was re-verified via `list_releases` this
 cycle and still matches `HUMAN_QUEUE.md` exactly, no repair needed. The VS
 v1.2.0 five-day gate (`2026-09-05T23:27:55Z`) has not yet arrived.
+
+## D58 — ninth+ consecutive egress-blocked cycle; routine BUILD_DATE bump only
+
+No cycle ran on September 3 (git history has no commit between `ee11bbc`
+2026-09-02 and this one); `marketing-machine-v2` was confirmed not diverged
+from `origin/main` (`git merge-base --is-ancestor origin/main
+marketing-machine-v2` passed, `git pull --rebase` a no-op) before starting
+work.
+
+Cycle-start egress test repeated the standing method: direct `curl` through
+the configured proxy to `example.com` and
+`docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html` both returned
+HTTP 403 (`CONNECT tunnel failed`); `$HTTPS_PROXY/__agentproxy/status`
+confirmed the proxy itself is up and logged both rejections
+(`connect_rejected`, "gateway answered 403 to CONNECT"). `WebFetch` to
+`example.com` and to a specific `repost.aws` thread URL both returned
+`EGRESS_BLOCKED` directly (not merely a curl-level 403), closing the gap
+between the two measurement methods used in prior cycles. `WebSearch`
+(hosted, not routed through this container's egress) still returned
+indexed blog/community results, but per AGENTS.md §2.5 those are
+explicitly disqualified as sources for AWS runtime dates ("never blogs"),
+and per D36's truth bar a repost-answers batch also requires a live-thread
+fetch, not a search snippet. Per AGENTS.md's fallback, no new
+repost-answers batch or dev.to draft was produced this cycle — the ninth
+consecutive cycle blocked this way (D42-D44, D57 and the unlabeled Aug
+30/31 cycle notes in PLAN.md are the prior instances).
+
+Ran a fresh full correctness sweep before defaulting to the date bump, to
+avoid rubber-stamping "nothing to find": compared `kits/lambda-lifeline`'s
+`PHASE_DATES`/`AT_RISK_RUNTIMES` against `kits/python-pivot`'s
+`RUNTIME_TABLE` (all four shared Python entries — 3.8/3.9/3.10/3.11 — match
+exactly), against `rules/public/deprecations.yml` (8 tracked runtimes, all
+present and dated identically; `ruby3.2`/`dotnet6` remain the same
+deliberately deferred gap from D43 — still only one internal source, still
+unverifiable against the primary doc this cycle), against
+`apps/web/content/fixes.yml` (no ruby3.2/dotnet6 entries either, consistent
+non-claim), and against `kits/al2023-gate`'s `AL2_EOL = 2026-06-30`
+(matches D37's already-corroborated fact, already in the past). Found no
+new gap.
+
+Confirmed `pytest -q apps/web` was 35/35 green on the stale `BUILD_DATE`
+(`2026-09-02`, now 2 days stale) before touching anything. Bumped to
+`2026-09-04`, rebuilt via `apps/web/build.py` under the exact
+`EOLKITS_BASE_PATH=/EOLkits` / `EOLKITS_SITE_URL=https://ntoledo319.
+github.io/EOLkits` / `EOLKITS_API_URL=https://eolkits.com` env vars CI
+uses, and re-ran the suite: 35/35 still green. `git diff --stat -- docs`
+showed exactly 16 files changed; inspected a representative diff
+(`docs/migrate/lambda-python-3.9-eol/index.html`) and confirmed every
+changed line is date-derived (152→150-day countdown, `datePublished`/
+`dateModified`, ICS `DTSTAMP`, sitemap/feed `lastmod`, `status/data.json`
+`generated_at`) — matches the 2-day bump exactly, no structural, price, or
+claim-text change. Also ran `kits/lambda-lifeline`'s Node test suite
+(28/28 green) as an independent regression check since its runtime tables
+were touched by D52/D56.
+
+Checked live external state through the connected GitHub API (not general
+web egress, so unaffected by the block): `list_issues` still returns 0 open
+issues (0 qualified `$299 Audit interest` submissions); `list_releases`
+still shows the canonical v2.0.0 draft (id `375063073`) as `draft=true` at
+unchanged slug `untagged-ea8be73c7a7d9b6c45e7`, matching
+`HUMAN_QUEUE.md`'s HQ-E exactly — no repair needed, no owner action taken
+since D57. No price, checkout, Stripe, GRACE, DEV-account, or
+Marketplace-publication state changed. Collected profit remains $0; the
+gap remains $4,000. HQ-A through HQ-G are unchanged and still require the
+owner. The VS v1.2.0 five-day gate (`2026-09-05T23:27:55Z`) still has not
+arrived — do not call it early; it is the next autonomous checkpoint.

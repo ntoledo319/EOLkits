@@ -1083,3 +1083,47 @@ benchmarks, or unverified analytics in this ledger.
   Workspace-observed collected revenue: **$0**. Workspace-observed collected
   profit: **$0**. Target gap: **$4,000**. VS v1.2.0's five-day gate
   (`2026-09-05T23:27:55Z`) has not yet arrived.
+
+## Ninth+ consecutive egress-blocked cycle; build-date maintenance only — September 4, 2026
+
+- Cycle-start check: `git merge-base --is-ancestor origin/main
+  marketing-machine-v2` succeeded (no divergence); `git pull --rebase` was a
+  no-op. No cycle ran September 3 (no commit exists between September 2's
+  `ee11bbc` and this cycle's start).
+- Egress test: direct `curl` through the configured proxy to `example.com`
+  and `docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html` both
+  returned HTTP 403 (`CONNECT tunnel failed`); `$HTTPS_PROXY/__agentproxy/
+  status` confirmed the proxy is up and logged both as `connect_rejected`.
+  `WebFetch` to `example.com` and to a `repost.aws` thread URL both returned
+  `EGRESS_BLOCKED` directly. `WebSearch` (hosted, egress-exempt) still
+  returns indexed results but its blog/community sources are disqualified
+  for AWS runtime-date claims (AGENTS.md §2.5) and cannot substitute for the
+  live-thread fetch a repost-answers batch requires (D36). No new
+  repost-answers batch or dev.to draft was produced; see DECISIONS D58.
+- Full correctness sweep repeated: `kits/lambda-lifeline`'s `PHASE_DATES`/
+  `AT_RISK_RUNTIMES` vs. `kits/python-pivot`'s `RUNTIME_TABLE` (all four
+  shared Python entries match exactly) vs. `rules/public/deprecations.yml`
+  (8 tracked runtimes, all present and dated identically) vs.
+  `apps/web/content/fixes.yml` (no ruby3.2/dotnet6, consistent) vs.
+  `kits/al2023-gate`'s `AL2_EOL` (2026-06-30, matches D37, already past).
+  No new gap found; python3.8 (D52) and python3.11 (D56) remain correct;
+  `ruby3.2`/`dotnet6` remain the same deliberately deferred gap since D43.
+- `apps/web/BUILD_DATE` was two days stale (`2026-09-02` vs. today's
+  `2026-09-04`). Confirmed `pytest -q apps/web` 35/35 green on the stale
+  baseline first, bumped and rebuilt: 35/35 stayed green; `git diff --stat
+  -- docs` showed exactly 16 files changed, all date-derived (152→150-day
+  countdowns, ICS `DTSTAMP`, sitemap/feed `lastmod`, `status/data.json`
+  `generated_at`) — matches the 2-day bump exactly, no structural or
+  claim-text change. `kits/lambda-lifeline`'s Node suite also re-verified
+  at **28/28** green as an independent regression check.
+- Checked live state via the connected GitHub API (unaffected by the egress
+  block): `list_issues` returned 0 open issues; `list_releases` showed the
+  canonical v2.0.0 draft (id `375063073`) unchanged at `draft=true`, same
+  slug `untagged-ea8be73c7a7d9b6c45e7` — matches `HUMAN_QUEUE.md`'s HQ-E
+  exactly, no repair needed, no owner action taken since D57.
+- No price, checkout, Stripe, GRACE, DEV-account, or Marketplace-publication
+  state changed. Qualified issues: **0**. Paid reports: **0**.
+  Workspace-observed collected revenue: **$0**. Workspace-observed collected
+  profit: **$0**. Target gap: **$4,000**. VS v1.2.0's five-day gate
+  (`2026-09-05T23:27:55Z`) has not yet arrived — one day out, the next
+  autonomous checkpoint.

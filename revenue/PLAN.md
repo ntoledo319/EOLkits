@@ -521,3 +521,35 @@ HQ-G are unchanged and still require the owner — this is the sole remaining
 path to a first dollar; no further verifiable-without-fetch correctness gap
 exists in the repository at this time. The VS v1.2.0 five-day falsifier gate
 (`2026-09-05T23:27:55Z`) has not yet arrived; do not call it early.
+
+## Cycle note — September 4, 2026 (cloud, egress-restricted, ninth+ consecutive cycle)
+
+No cycle ran September 3; `marketing-machine-v2` was confirmed not diverged
+from `origin/main` before starting. Egress remained blocked: both `curl`
+through the configured proxy and direct `WebFetch` calls to `example.com`
+and a `repost.aws` thread returned `EGRESS_BLOCKED`/403; the proxy status
+endpoint confirmed the proxy itself is up. `WebSearch` (hosted, egress-
+exempt) still works but its blog/community results are disqualified for
+AWS runtime dates (AGENTS.md §2.5) and cannot substitute for the
+live-thread fetch a repost-answers batch requires (D36). No new
+repost-answers batch or dev.to draft was produced this cycle; see
+DECISIONS D58.
+
+A fresh full correctness sweep (lambda-lifeline `PHASE_DATES` vs.
+python-pivot `RUNTIME_TABLE` vs. `deprecations.yml` vs. `fixes.yml` vs.
+al2023-gate's `AL2_EOL`) found no new gap — the python3.8 (D52), python3.11
+(D56), and nodejs16.x (D42) fixes remain complete; `ruby3.2`/`dotnet6`
+remain the same deliberately deferred, still-unverifiable gap since D43.
+Shipped the routine `apps/web/BUILD_DATE` bump (2026-09-02 → 2026-09-04)
+after confirming 35/35 `apps/web` tests green both before and after, plus
+28/28 `kits/lambda-lifeline` Node tests green; the resulting 16-file
+`docs/` diff is entirely date-derived. Checked live GitHub state via the
+connected API (unaffected by the egress block): 0 open issues, and HQ-E's
+release draft (id `375063073`) unchanged at `draft=true`, same slug — no
+repair needed, no owner action taken since D57.
+
+Collected profit remains **$0**; the gap remains **$4,000**. HQ-A through
+HQ-G are unchanged and still require the owner — this is the sole remaining
+path to a first dollar. The VS v1.2.0 five-day falsifier gate
+(`2026-09-05T23:27:55Z`) has not yet arrived; do not call it early — it is
+the next autonomous checkpoint, one day out.

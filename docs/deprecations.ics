@@ -7,7 +7,7 @@ X-WR-CALNAME:AWS Deprecation Deadlines (EOLkits)
 X-WR-TIMEZONE:UTC
 BEGIN:VEVENT
 UID:lambda-node.js-20-phase-1@eolkits
-DTSTAMP:20260902T000000Z
+DTSTAMP:20260904T000000Z
 DTSTART;VALUE=DATE:20270201
 DTEND;VALUE=DATE:20270202
 SUMMARY:Lambda Node.js 20 create/update restrictions
@@ -16,7 +16,7 @@ URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 BEGIN:VEVENT
 UID:lambda-node.js-22-phase-1@eolkits
-DTSTAMP:20260902T000000Z
+DTSTAMP:20260904T000000Z
 DTSTART;VALUE=DATE:20270601
 DTEND;VALUE=DATE:20270602
 SUMMARY:Lambda Node.js 22 projected create/update restrictions
@@ -25,7 +25,7 @@ URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 BEGIN:VEVENT
 UID:amazon-linux-2-eol@eolkits
-DTSTAMP:20260902T000000Z
+DTSTAMP:20260904T000000Z
 DTSTART;VALUE=DATE:20260630
 DTEND;VALUE=DATE:20260701
 SUMMARY:Amazon Linux 2 EOL
@@ -34,7 +34,7 @@ URL:https://aws.amazon.com/blogs/aws/update-on-amazon-linux-2-end-of-life/
 END:VEVENT
 BEGIN:VEVENT
 UID:lambda-python-3.9-eol@eolkits
-DTSTAMP:20260902T000000Z
+DTSTAMP:20260904T000000Z
 DTSTART;VALUE=DATE:20270201
 DTEND;VALUE=DATE:20270202
 SUMMARY:Lambda Python 3.9 create/update restrictions
@@ -43,7 +43,7 @@ URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 BEGIN:VEVENT
 UID:lambda-python-3.10-eol@eolkits
-DTSTAMP:20260902T000000Z
+DTSTAMP:20260904T000000Z
 DTSTART;VALUE=DATE:20270201
 DTEND;VALUE=DATE:20270202
 SUMMARY:Lambda Python 3.10 projected create/update restrictions
@@ -52,7 +52,7 @@ URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 BEGIN:VEVENT
 UID:lambda-python-3.11-eol@eolkits
-DTSTAMP:20260902T000000Z
+DTSTAMP:20260904T000000Z
 DTSTART;VALUE=DATE:20270731
 DTEND;VALUE=DATE:20270801
 SUMMARY:Lambda Python 3.11 projected create/update restrictions
@@ -61,7 +61,7 @@ URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 BEGIN:VEVENT
 UID:lambda-node.js-16-eol@eolkits
-DTSTAMP:20260902T000000Z
+DTSTAMP:20260904T000000Z
 DTSTART;VALUE=DATE:20270201
 DTEND;VALUE=DATE:20270202
 SUMMARY:Lambda Node.js 16 create/update restrictions
@@ -70,7 +70,7 @@ URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 BEGIN:VEVENT
 UID:lambda-node.js-18-eol@eolkits
-DTSTAMP:20260902T000000Z
+DTSTAMP:20260904T000000Z
 DTSTART;VALUE=DATE:20270201
 DTEND;VALUE=DATE:20270202
 SUMMARY:Lambda Node.js 18 create/update restrictions
@@ -79,7 +79,7 @@ URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 BEGIN:VEVENT
 UID:lambda-python-3.8-eol@eolkits
-DTSTAMP:20260902T000000Z
+DTSTAMP:20260904T000000Z
 DTSTART;VALUE=DATE:20270201
 DTEND;VALUE=DATE:20270202
 SUMMARY:Lambda Python 3.8 create/update restrictions
