@@ -1,0 +1,188 @@
+# Provenance registry for the EOLkits history. Every source examined during the 2026-09-04
+# reconstruction, with access status and evidence class. Absolute local paths are given for
+# related repositories so that cited SHAs can be resolved against them.
+# evidence_class: direct | contemporaneous | retrospective | behavioral | derived
+# access: accessible | inaccessible | partial
+sources:
+  - id: SRC-repo-git
+    kind: git-repository
+    locator: /home/nick/Development/active/Rupture (remote https://github.com/ntoledo319/EOLkits.git, formerly ntoledo319/Rupture)
+    evidence_class: direct
+    access: accessible
+    retrieved: 2026-09-04
+    note: Live working copy, HEAD 71c78a1192ce8e83f955f3b53f1595449d4c9ff7 on codex/workspace-env-scan-20260904; read with git log/show/diff only. 3,599 commits reachable from all refs; 19 remote-only commits not fetched.
+  - id: SRC-repo-tree-head
+    kind: files-at-revision
+    locator: /home/nick/Development/active/Rupture working tree at HEAD (README.md, AGENTS.md, HANDOFF.md, RULES.md, SECURITY.md, pricing.yml, revenue/, launch/, legal/, deploy/grace/, .github/workflows/)
+    evidence_class: direct
+    access: accessible
+    retrieved: 2026-09-04
+    note: Present-tense documents; used for orientation, never as evidence of earlier belief.
+  - id: SRC-repo-deleted-docs
+    kind: files-at-historical-revision
+    locator: /home/nick/Development/active/Rupture — deleted documents recovered via git show (HANDOFF-2026-06-08.md@d845545808d55e1d18a86fdfa0a38240295d8fd3, SEO-GRACE-HANDOFF.md@a65387ec7eea937954c7db9ad231e127ab58f877, AUTOPSY-AND-14-DAY-REVENUE-PLAN.md@71d0ab8784ec4528bdbc0762dc4fa6960ad0f126, PROFIT-PROJECTIONS.md@dfa294ec3ab6c4185f2af7398469042c1f35e9f7, HANDOFF-2026-06-23.md@528e6bbdb4e54d1f09002ef47acdc45f392a04f6, HANDOFF-2026-07-15.md@d772637a8df2fca900550a3de650a4a9af702b5d^, updateplan.md and OPERATOR_DECISIONS.md@910795704f6829f054bf43cf2135c8e143bbbf99, ledger/*@d2c6632fbe8dc9fba4373e6ca4331f99c7005db0)
+    evidence_class: contemporaneous
+    access: accessible
+    retrieved: 2026-09-04
+    note: The current tree is not the whole project; these files carried most of the stated intent.
+  - id: SRC-commit-index
+    kind: derived-index
+    locator: scratchpad commits.tsv built from `git log --all --topo-order --numstat` (3,599 rows) and era batch files; not committed
+    evidence_class: derived
+    access: accessible
+    retrieved: 2026-09-04
+    note: Machine index used for classification and coverage counts; every row derives from SRC-repo-git.
+  - id: SRC-github-api
+    kind: github-rest-api
+    locator: gh api repos/ntoledo319/EOLkits, repos/ntoledo319/EOLkits/activity (3,585 rows), repos/ntoledo319/EOLkits/events (60 rows), git ls-remote origin (112 refs)
+    evidence_class: direct
+    access: accessible
+    retrieved: 2026-09-04
+    note: Read-only; repository metadata, force-push and branch lifecycle evidence.
+  - id: SRC-github-prs
+    kind: github-pull-requests
+    locator: gh pr list --repo ntoledo319/EOLkits --state all (58 PRs, bodies and timelines read); 0 issues
+    evidence_class: contemporaneous
+    access: accessible
+    retrieved: 2026-09-04
+    note: PR bodies are agent-authored statements of intent; merge dates are GitHub-recorded.
+  - id: SRC-github-releases
+    kind: github-releases
+    locator: gh release view v1.0.0 / v1 / v1.1.0 / v2.0.0 (draft) --repo ntoledo319/EOLkits; tag objects 4d834b80c2567740c178cfc0dc61bbdce12620b7, c00f505dbd5f7f44b19ebe54532981b23bc29778, f3d3dea620d22ffffd5606c7623c4e18b642f195
+    evidence_class: direct
+    access: accessible
+    retrieved: 2026-09-04
+    note: Release timestamps and asset lists; signature validity not checked.
+  - id: SRC-aider-untracked
+    kind: untracked-local-file
+    locator: /home/nick/Development/active/Rupture/.aider.chat.history.md and .aider.input.history (untracked, gitignored, mtime 2026-04-30)
+    evidence_class: contemporaneous
+    access: accessible
+    retrieved: 2026-09-04
+    note: Tool session logs; contains a credential-shaped value that was not reproduced anywhere in this history.
+  - id: SRC-tc-master-portfolio
+    kind: owner-portfolio-document
+    locator: /home/nick/Development/toledo-command/MASTER-PORTFOLIO.md (section "EOLkits"; compiled 2026-06-22, updated 2026-06-23)
+    evidence_class: contemporaneous
+    access: accessible
+    retrieved: 2026-09-04
+    note: Contemporaneous for June 2026 state; retrospective for earlier events.
+  - id: SRC-tc-truth-register
+    kind: owner-portfolio-document
+    locator: /home/nick/Development/toledo-command/TRUTH-REGISTER.md (as of 2026-06-22; one item amended 2026-08-06)
+    evidence_class: contemporaneous
+    access: accessible
+    retrieved: 2026-09-04
+  - id: SRC-tc-doc-index
+    kind: owner-portfolio-document
+    locator: /home/nick/Development/toledo-command/DOC-INDEX.md (2026-06-16)
+    evidence_class: contemporaneous
+    access: accessible
+    retrieved: 2026-09-04
+  - id: SRC-tc-truth-audit
+    kind: owner-portfolio-document
+    locator: /home/nick/Development/toledo-command/TRUTH-AND-CONSOLIDATION-AUDIT-2026-06-22.md
+    evidence_class: contemporaneous
+    access: accessible
+    retrieved: 2026-09-04
+  - id: SRC-tc-registry
+    kind: machine-inventory
+    locator: /home/nick/Development/toledo-command/workspace/registry.json (generated 2026-09-01T04:12:55Z; projects[40] id eolkits)
+    evidence_class: contemporaneous
+    access: accessible
+    retrieved: 2026-09-04
+  - id: SRC-marketing-arm
+    kind: owner-strategy-documents
+    locator: /home/nick/Development/marketing-arm/arms/EOLkits/arm.yml, portfolio.yml (2026-06-17), KILL-LIST.md, VALIDATION.md (2026-06-20), PLAN.md (2026-06-19), _FROZEN.md (2026-07-15)
+    evidence_class: contemporaneous
+    access: accessible
+    retrieved: 2026-09-04
+    note: Agent-generated strategy artifacts under the owner's direction; not market tests.
+  - id: SRC-outreach-al2
+    kind: owner-campaign-records
+    locator: /home/nick/Development/outreach-contacts/campaigns/al2-eolkits/ (STATUS.md, BOARD-VERDICT-2026-06-29.md, two shelving scripts read for mechanism only) and ../README.md (safety override 2026-07-23)
+    evidence_class: contemporaneous
+    access: partial
+    retrieved: 2026-09-04
+    note: Contact data deliberately not read; only campaign intent, dates, counts and verdicts.
+  - id: SRC-bizops-audit-service
+    kind: owner-business-documents
+    locator: /home/nick/Development/business-ops/revenue-ready-services/eolkits-aws-migration-audit/ (8 files, all 2026-06-05)
+    evidence_class: contemporaneous
+    access: accessible
+    retrieved: 2026-09-04
+  - id: SRC-bizops-root
+    kind: owner-business-documents
+    locator: /home/nick/Development/business-ops/*.md (ACTION-LOG, DECISION-LOG, RUN-STATE, NEXT-ACTIONS, FINAL-VERIFICATION, SYSTEM-OF-RECORD and others; 2026-06-05..2026-06-23)
+    evidence_class: contemporaneous
+    access: accessible
+    retrieved: 2026-09-04
+    note: EOLkits mentions only; unrelated projects skipped.
+  - id: SRC-openclaw-launch
+    kind: agent-workspace
+    locator: /home/nick/.openclaw/workspace/eolkits-launch/ (_GROUND-TRUTH-SCAN.tsv 2026-08-01, al2-eol-migration-guide.md and publish_devto.py 2026-07-23, _inv/_gh-repos.json)
+    evidence_class: contemporaneous
+    access: accessible
+    retrieved: 2026-09-04
+    note: Script read for mechanism only, never executed; token handling is environment-variable only.
+  - id: SRC-allocation-brief
+    kind: owner-portfolio-document
+    locator: /home/nick/Development/active/LAUNCHED_PRODUCTS_MARKETING_RESOURCE_ALLOCATION_BRIEF.md (generated 2026-06-26)
+    evidence_class: contemporaneous
+    access: accessible
+    retrieved: 2026-09-04
+  - id: SRC-mind-status-docs
+    kind: owner-notes
+    locator: "/home/nick/Development/active/Mind/60 Sources/" — iCloud "TTLLC Status docs" (maintained as of 2026-05-28, entries to 2026-05-31; DOMAIN_STRATEGY, PRODUCT_CATALOG, DECISION_LOG, PRICING_MATRIX, REVENUE_FORECAST, 10_DAY_SPRINT_TRACKER, MASTER_PORTFOLIO_TRACKER) and two Apple Notes (2026-05-05, 2026-05-27)
+    evidence_class: contemporaneous
+    access: partial
+    retrieved: 2026-09-04
+    note: Only project facts extracted; private message hits (non-project sense of the word) and family-facing files skipped by rule.
+  - id: SRC-purge-report
+    kind: security-operations-report
+    locator: /home/nick/Development/SECURITY_CLEANUP_REPORT.md (2026-09-02, addendum 2026-09-04) and /home/nick/Development/GITHUB_SUPPORT_HISTORY_PURGE.md (2026-09-02)
+    evidence_class: contemporaneous
+    access: accessible
+    retrieved: 2026-09-04
+    note: Lists the repositories whose histories were rewritten; EOLkits/Rupture is absent from every list.
+  - id: SRC-purge-ledgers
+    kind: security-operations-ledgers
+    locator: /home/nick/Development/.unlazy/credential-cleanup/ (discovery/repositories.md, discovery/history.md, discovery/access.md, verification/history-remediation.json histories[33], verification/history-pattern-final-classification.json, project-env-map.tsv, PLAN.md, GATES.md, status.log)
+    evidence_class: contemporaneous
+    access: accessible
+    retrieved: 2026-09-04
+    note: Only sanitised fields read; no matched values, patterns or file contents from the vault were opened.
+  - id: SRC-purge-memory
+    kind: agent-memory-note
+    locator: /home/nick/.claude/projects/-home-nick/memory/credential-cleanup-audit-2026-09.md (2026-09-03/04)
+    evidence_class: retrospective
+    access: accessible
+    retrieved: 2026-09-04
+  - id: SRC-historian
+    kind: historian-inference
+    locator: This reconstruction (leaf 1.1, 2026-09-04) — inferences drawn from the sources above
+    evidence_class: derived
+    access: accessible
+    retrieved: 2026-09-04
+    note: Used only for claims whose evidence_type is inferred; never for facts.
+  - id: SRC-remote-only-commits
+    kind: git-objects-not-fetched
+    locator: 19 commits referenced by origin refs but absent locally (newer dependabot branches, refs/pull/14,15,24,31,32 heads/merges; listed in scratchpad ls-remote comparison)
+    evidence_class: direct
+    access: inaccessible
+    retrieved: 2026-09-04
+    note: Not fetched because the audit was read-only; all are dependency-bump or PR-head objects whose merged content is reachable via main.
+  - id: SRC-marketplaces
+    kind: external-web-surface
+    locator: GitHub Marketplace listing for the Action; VS Code Marketplace listing rupture.rupture-vscode; eolkits.com live pages; web archives
+    evidence_class: contemporaneous
+    access: inaccessible
+    retrieved: null
+    note: Browser use was prohibited for this audit; marketplace and live-site facts are taken from the repository's own evidence ledgers and are marked reported.
+  - id: SRC-actions-logs
+    kind: ci-run-logs
+    locator: GitHub Actions run logs referenced by run id in revenue/METRICS.md and revenue/DECISIONS.md
+    evidence_class: contemporaneous
+    access: inaccessible
+    retrieved: null
+    note: Not retrieved; workflow definitions at revision were read instead. Run outcomes are ledger-reported.

@@ -1,0 +1,235 @@
+# Versioned principles of the EOLkits (formerly Rupture) project. Reconstructed 2026-09-04.
+#
+# A principle is a rule the project actually defended in code, configuration, process or copy,
+# not a slogan. Each version is its own entry: id (P-nn for the first version, P-nn.k for later
+# versions), version, statement, status (active | weakened | superseded | retired), since (date
+# first evidenced), supersedes (id of the version it replaced, or null), claim_ids, and notes on
+# where it was affirmed, breached or challenged. Drift is recorded as a new version, never by
+# editing an old statement. "weakened" means the principle is still declared but the evidence
+# shows it was not consistently enforced.
+principles:
+  - id: P-01
+    version: 1
+    statement: "Zero seed money: every cent spent must come from revenue that has already landed; free tiers only."
+    status: active
+    since: 2026-04-28
+    supersedes: null
+    claim_ids: [CLM-E1-003, CLM-E1-017, CLM-E3-004]
+    origin: "Mission ledger 2026-04-28 ($0 seed); runbook §0 2026-04-29; AGENTS.md §2.2 2026-07-13 ($0 budget)."
+    notes: "Never breached in evidence; it shaped every hosting choice (vendor-hosted landing, Cloudflare free tier, the owner's own VPS) and ruled out paid ads and paid legal tooling."
+  - id: P-02
+    version: 1
+    statement: "Fully autonomous fulfilment: every SKU terminates in a webhook, not a human; if a step needs a human, it does not exist."
+    status: superseded
+    since: 2026-04-29
+    supersedes: null
+    claim_ids: [CLM-E1-017, CLM-E1-018, CLM-E1-028, CLM-E1-043]
+    origin: "updateplan.md §0/§9, 2026-04-29."
+    notes: "Governed product design (self-serve SKUs, refund automation, opt-in bot) but never the launch path, which was operator-only from the first handoff (CON-001). Superseded by the bounded-owner-labour rule of July."
+  - id: P-02.2
+    version: 2
+    statement: "Owner labour is a budget, not a prohibition: at most ~60 minutes across a run, every human step recorded in a Human Queue with a time estimate, and nothing that can be automated safely is left to the owner."
+    status: active
+    since: 2026-07-13
+    supersedes: P-02
+    claim_ids: [CLM-E3-003, CLM-E3-057, CLM-E4B-060]
+    origin: "AGENTS.md §2.3 and §3 (HUMAN_QUEUE.md), 2026-07-13; restated in every 2026-08/09 queue header."
+    notes: "The queue was reported unactioned for 32–39 days in July–August and stood at ~40 minutes on 2026-09-04; the principle describes the agents' discipline, not the owner's throughput."
+  - id: P-03
+    version: 1
+    statement: "If a deprecation rule cannot cite a public source, it does not ship."
+    status: superseded
+    since: 2026-04-29
+    supersedes: null
+    claim_ids: [CLM-E1-021, CLM-E2-065, CLM-E2-035]
+    origin: "RULES.md 2026-04-29; feed/publish.py validation; fixes.yml header 2026-06-16."
+    notes: "Declared from day two but not verified against AWS until 2026-07-13; the first rules file already contained date errors (CON-003)."
+  - id: P-03.2
+    version: 2
+    statement: "Dates come only from the AWS source, never from blogs; a new lifecycle row needs two corroborating sources and a cross-implementation parity test before it ships."
+    status: active
+    since: 2026-07-13
+    supersedes: P-03
+    claim_ids: [CLM-E3-006, CLM-E3-007, CLM-E4B-019, CLM-E4B-034]
+    origin: "HANDOFF-2026-07-15 §2.3 ('the #1 landmine'); D52/D56/D62 in 2026-08-31..09-04; tests/test_runtime_parity.py."
+    notes: "The sweeps of July–August and the python3.8/3.11 fixes are the enforcement record; ruby3.2/dotnet6 were deliberately deferred for lack of a second source."
+  - id: P-04
+    version: 1
+    statement: "Legal and platform-ToS absolutism on every platform touched: no vote rings, no spam bots, no gray areas 'for now'."
+    status: active
+    since: 2026-04-29
+    supersedes: null
+    claim_ids: [CLM-E1-017, CLM-E1-025, CLM-E3-004, CLM-E2-052]
+    origin: "updateplan.md §0; opt-in-only PR bot with throttle and .no-rupture opt-out; AGENTS.md §2.1."
+    notes: "Consistently enforced: Show HN was never gamed after two policy rejections, Reddit was ruled 'policy-dead', cold email was dropped for deliverability, and the 2026-08-31 authorised-ops run refused to scrape sessions or exploit the host."
+  - id: P-05
+    version: 1
+    statement: "Verifiability as reputation substitute: every trust signal terminates in a verifiable hash (signed releases, SBOMs, determinism, public benchmark, status page)."
+    status: superseded
+    since: 2026-04-29
+    supersedes: null
+    claim_ids: [CLM-E1-024, CLM-E1-036, CLM-E2-029, CLM-E2-030]
+    origin: "updateplan.md §9; release.yml, property.yml, mutation.yml, benchmark.yml, status-synth.yml."
+    notes: "Installed as intent; several signals were placeholders or counted empty output as success (CON-004). The status synth alone produced ~2,949 commits, which is the clearest revealed priority of the era: visible motion over verified truth."
+  - id: P-05.2
+    version: 2
+    statement: "Tests and commits are release evidence, not market signal; only observed dollars, deliveries, checkout starts, qualified interest issues and install deltas count, and unavailable evidence is never negative evidence."
+    status: active
+    since: 2026-08-22
+    supersedes: P-05
+    claim_ids: [CLM-E4A-060, CLM-E4A-059, CLM-E4A-032, CLM-E4B-032]
+    origin: "revenue/METRICS.md at d772637a; D40 (2026-08-26); acquisition-evidence.yml."
+    notes: "Replaced hard-coded zero counters with explicit null/unknown and the benchmark with a read-only evidence gate; the surviving trust signals (Sigstore, SBOM) were kept but no longer advertised as proof of anything commercial."
+  - id: P-06
+    version: 1
+    statement: "Safe by default for the stranger's infrastructure: dry-run unless --apply, everything ambiguous flagged for human review rather than auto-changed, PR bot opt-in only, no telemetry, no storage of buyer code beyond delivery."
+    status: active
+    since: 2026-04-28
+    supersedes: null
+    claim_ids: [CLM-E1-008, CLM-E1-025, CLM-E1-064, CLM-E4A-057, CLM-E4B-042]
+    origin: "kits/*/README 'Safety' 2026-04-28; updateplan.md Task 4.1; Action README; 2026-08-22 retention limits; PR #44 runner hardening."
+    notes: "The longest-lived unbroken principle; every hardening pass (06-08 fail-closed uploads, 08-22 retention and rate limits, 09-04 local-path rejection and non-root containers) extended rather than contradicted it."
+  - id: P-07
+    version: 1
+    statement: "No fabricated operator history or testimonials in public copy."
+    status: superseded
+    since: 2026-04-29
+    supersedes: null
+    claim_ids: [CLM-E1-060, CLM-E1-059, CLM-E2-024]
+    origin: "updateplan.md 'Hard removals' 2026-04-29 (removing day-one 'lived through these migrations' copy)."
+    notes: "Declared and immediately strained: the 05-04 reply playbook made technical claims the code did not support, corrected 06-11."
+  - id: P-07.2
+    version: 2
+    statement: "Truth only: no fabricated testimonials, user counts, metrics or capabilities; every claim on every page must be demonstrable today; honestly own missed windows and superseded facts."
+    status: superseded
+    since: 2026-07-13
+    supersedes: P-07
+    claim_ids: [CLM-E3-004, CLM-E3-021, CLM-E3-009, CLM-E2-001]
+    origin: "AGENTS.md §2.5, 2026-07-13; 'honestly own the missed window' 2026-05-21 as precursor."
+    notes: "Enforced as a stream of 'truth fixes' (fabricated tiers, stale countdowns, superseded dates) rather than as a gate; the routine kept finding the same class of error one layer deeper."
+  - id: P-07.3
+    version: 3
+    statement: "Truthful by construction: sell only what can be made truthful and bounded today (one static evidence report), publish an explicit not-for-sale list, and fail closed before money can move."
+    status: active
+    since: 2026-08-22
+    supersedes: P-07.2
+    claim_ids: [CLM-E4A-011, CLM-E4A-014, CLM-E4A-015, CLM-E4B-069]
+    origin: "d772637a README/HANDOFF/SECURITY/legal; D1/D2; PR #25 preflight."
+    notes: "The same statement (§2.5) remains in AGENTS.md; what changed is that the catalogue was cut to what the statement could cover."
+  - id: P-08
+    version: 1
+    statement: "Do no harm: reversible changes only, branch rather than trash, never fake-fulfil a paid order, and never let a stranger be charged for something the system cannot deliver."
+    status: active
+    since: 2026-07-13
+    supersedes: null
+    claim_ids: [CLM-E3-004, CLM-E3-022, CLM-E3-024, CLM-E3-034, CLM-E3-031]
+    origin: "AGENTS.md §2.7; app.py at cdb460ec ('NEVER fake-fulfill'); Drift Watch withdrawal 2026-07-16; 410 on 2026-08-14."
+    notes: "Retroactively, this principle indicts the April–July catalogue, which sold two SKUs with stub fulfilment for eleven weeks; no charge is evidenced, but the exposure was real."
+  - id: P-09
+    version: 1
+    statement: "No autonomous contact with real humans: outreach is drafted, never posted; every send goes to the Human Queue; the owner posts."
+    status: weakened
+    since: 2026-07-13
+    supersedes: null
+    claim_ids: [CLM-E3-004, CLM-E3-013, CLM-E3-020, CLM-E4A-044]
+    origin: "AGENTS.md §2.4/§9; re:Post 'draft-never-post' 2026-07-15; D36 do-not-post 2026-08-26."
+    notes: "Weakened by the July dev.to auto-publisher, which the routine treated as own-content publishing (CON-013); the August regime deleted the publisher and quarantined the corpus, restoring the strict reading."
+  - id: P-10
+    version: 1
+    statement: "Containment outranks the mission: the workspace jail is total, reading outside it is as forbidden as writing, and one command outside the jail is a worse outcome than earning $0."
+    status: active
+    since: 2026-07-13
+    supersedes: null
+    claim_ids: [CLM-E4B-003, CLM-E4A-042, CLM-E4B-050, CLM-E4B-054, CLM-E4B-055]
+    origin: "AGENTS.md §1/§12; self-disclosed violations 2026-08-22; three cycle terminations on 2026-09-04 over /dev/null, /dev/stdout and /tmp."
+    notes: "Enforced to the letter by the Codex line, including terminating productive cycles; it also explains the repeated 'no credential in the jail' blockers and the GitHub object-API publishing transport."
+  - id: P-11
+    version: 1
+    statement: "Evidence hierarchy: dollars > signups > visits > stars; if a number was not observed it is not in the ledger; plans, prototypes and potential score zero."
+    status: active
+    since: 2026-07-13
+    supersedes: null
+    claim_ids: [CLM-E3-005, CLM-E3-003, CLM-E4B-061, CLM-E4B-002]
+    origin: "AGENTS.md §0/§8; METRICS.md headers."
+    notes: "The reason every ledger entry from July to September repeats '$0 collected'; it converted the project's own optimism into a daily admission."
+  - id: P-12
+    version: 1
+    statement: "Deadline-tiered, never discount-tiered: prices surge as the AWS deadline approaches, a passed deadline is charged at standard, and the displayed price always equals the charged price."
+    status: superseded
+    since: 2026-04-29
+    supersedes: null
+    claim_ids: [CLM-E1-018, CLM-E1-061, CLM-E2-064, CLM-E2-037, CLM-E2-047]
+    origin: "updateplan.md SKU ladder; pricing.py docstring 2026-06-08; surge-collapse fix 2026-06-17; 'never discount' 2026-06-22."
+    notes: "The surge rule made the product's price a function of the date corpus, so date errors were pricing errors (CLM-E1-061)."
+  - id: P-12.2
+    version: 2
+    statement: "One paid artifact, one price, one fulfilment gate; free tools are distribution, not SKUs; no new SKU or price rise without buyer evidence."
+    status: active
+    since: 2026-08-22
+    supersedes: P-12
+    claim_ids: [CLM-E4A-009, CLM-E4A-015, CLM-E4A-016, CLM-E4B-064]
+    origin: "D2/D7/D15 at d772637a; OPPORTUNITIES 2026-08-30..09-04."
+    notes: "Surge tiers were rejected as customer-controlled; the 42-frame scoring that preceded the cut is the era's most explicit alternatives analysis."
+  - id: P-13
+    version: 1
+    statement: "Faceless and proof-led: no founder identity in the funnel, full findings free before any payment, trust earned by verifiable output rather than by a person."
+    status: active
+    since: 2026-06-22
+    supersedes: null
+    claim_ids: [CLM-E2-047, CLM-E2-030, CLM-E4A-032]
+    origin: "AUTOPSY 'Faceless Conversion System' 2026-06-22; /scan free findings; sample report generated by the production path 2026-08-22."
+    notes: "The 2026-08-31 legal pages name a business entity as operator, which the historian reads as compatible (an operator, not a founder persona). Challenged by the 06-29 external board, which held that a no-reference operator cannot sell this way."
+  - id: P-14
+    version: 1
+    statement: "Material decisions are recorded as event capsules with distinct occurred/decided/merged/released/recorded dates; backfills are labelled; closed events are append-mostly; the history tool assembles and checks but never authors interpretation."
+    status: active
+    since: 2026-09-04
+    supersedes: null
+    claim_ids: [CLM-E4A-055, CLM-EXT-039]
+    origin: "This history system (AGENTS.md §14, .project-history/policy.yml)."
+    notes: "Introduced by the 2026-09-04 bootstrap; its precursor was the agents' own revenue/DECISIONS.md ledger, whose unstable numbering (CON-019) is one reason stable ids are required here."
+  - id: P-15
+    version: 1
+    statement: "Preserve history: no force pushes, advance refs only by fast-forward or explicit merges, retire rather than rewrite, and record one-use authorisations as one-use."
+    status: active
+    since: 2026-08-22
+    supersedes: null
+    claim_ids: [CLM-E4A-020, CLM-E4A-039, CLM-E4B-006, CLM-E4B-040, CLM-EXT-033]
+    origin: "D11 'ours' merge over synthetic main 2026-08-22; D33 one-use push authorisation; PR #25 'preserve the audited marketing history'; ruleset forbidding non-fast-forward 2026-09-04."
+    notes: "GitHub's activity log shows no force push by any non-dependabot actor in the repository's life, which corroborates the rule beyond the agents' own statements."
+  - id: P-16
+    version: 1
+    statement: "Fail closed in production: missing secrets abort, checkout sessions are validated against the price file before fulfilment, webhooks are deduplicated, refunds are idempotent."
+    status: superseded
+    since: 2026-06-08
+    supersedes: null
+    claim_ids: [CLM-E2-010, CLM-E2-014, CLM-E2-042, CLM-E2-043]
+    origin: "apps/grace-api config.py/store.py at 3c5b48f5; lead-notify hardening 2026-06-20/21."
+    notes: "Version 1 failed closed on configuration but still trusted its own success signals (CON-007)."
+  - id: P-16.2
+    version: 2
+    statement: "Fail closed before money: checkout is off by default behind a server-side switch, a mutation-free preflight attests secrets and the Stripe catalogue before any state changes, a seven-step test-mode gate must be green on the real deployment, and deployment scripts refuse to open checkout or edit the host."
+    status: active
+    since: 2026-08-22
+    supersedes: P-16
+    claim_ids: [CLM-E4A-007, CLM-E4A-010, CLM-E4B-007, CLM-E4B-043]
+    origin: "EOLKITS_AUDIT_CHECKOUT_ENABLED at d772637a; HANDOFF gate; PR #25 preflight; PR #44 deploy-api-closed.sh."
+    notes: "The gate has never been executed because it requires owner steps; the principle is enforced by absence of sales, which the ledgers acknowledge."
+  - id: P-17
+    version: 1
+    statement: "Open core: the CLIs, Action and extension are free and MIT-licensed; anything paid sits on top and never gates the free tools' correctness."
+    status: active
+    since: 2026-04-29
+    supersedes: null
+    claim_ids: [CLM-E1-018, CLM-E3-055, CLM-E4A-028, CLM-E4B-019]
+    origin: "Free CLI tier 2026-04-29; MIT LICENSE 2026-07-21; D7 'free tools are distribution' 2026-08-22."
+    notes: "Reinforced by the external 06-29 verdict that only the free CLI survives as a $0 funnel; the September scanner-correctness fixes shipped to the free surfaces first."
+  - id: P-18
+    version: 1
+    statement: "Public content is deterministic and sourced: no LLM-generated text on SEO pages, every fact rendered from the rules file with a source URL, real error strings only, byte-identical rebuilds."
+    status: active
+    since: 2026-05-31
+    supersedes: null
+    claim_ids: [CLM-E2-004, CLM-E2-035, CLM-E2-044, CLM-E2-049, CLM-E4B-035]
+    origin: "Deprecation-SEO renderer 2026-05-31; fixes.yml header 2026-06-16; deterministic build 2026-06-21; BUILD_DATE churn reversal 2026-09-04."
+    notes: "The one principle that was strengthened rather than weakened over time; the dev.to article corpus (agent-written prose) is the exception that was eventually quarantined."

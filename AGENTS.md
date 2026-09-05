@@ -237,3 +237,41 @@ These read `AGENTS.md` too, so the operating doc carries over unchanged. Their g
 3. Re-run that exact line for every cycle — manually or in a shell loop. Sessions are disposable; `revenue/` is the brain, so you can even alternate harnesses between cycles.
 4. Your entire job: check `HUMAN_QUEUE.md` every day or two and burn down the batch. Do the payment/KYC items first — verification latency silently eats Week 1.
 5. Honest calibration: this doc maximizes shots on goal and forbids stalling. It cannot make strangers buy. If Day 14 metrics show real signal, ride it; if they show nothing across multiple repositioned bets, the portfolio needs a distribution-side intervention no autonomous agent can perform alone.
+---
+
+## 14. PROJECT HISTORY — continuity contract (all agents, all harnesses)
+
+This repository keeps a living, evidence-linked history under `docs/history/` and
+`.project-history/`, assembled into `PROJECT_HISTORY.md`. It exists so that no session
+has to rediscover why EOLkits is shaped the way it is. The instructions in §0–§13 above
+are unchanged; this section adds the history obligation to them.
+
+> At task start, read `docs/history/ORIENTATION.md`, the relevant current goals and
+> principles (`.project-history/doctrine/goals.yml`, `.project-history/doctrine/principles.yml`),
+> and the history surfaced for the paths or component you will touch
+> (`python3 scripts/project_history.py context <paths>`). At task completion, run the
+> history-impact assessment (`python3 scripts/project_history.py assess`) and declare exactly
+> one of: `history:recorded <event-id>`, `history:none — <specific reason>`, or
+> `history:defer — <issue, owner, and deadline>`. If the work is material, add or amend the
+> event capsule (copy `.project-history/templates/event.md` into `.project-history/events/YYYY/`),
+> update affected goal/principle lifecycle records, patch the relevant curated narrative
+> sections, render deterministic views (`python3 scripts/project_history.py render`), and
+> validate (`python3 scripts/project_history.py validate`). If it is immaterial, do not create
+> history noise. Emergency rollback, incident containment, or security hotfix work may defer
+> prose, but the deferral must remain attributable (`.project-history/deferrals.yml`) and expire.
+
+Rules that keep the record honest:
+
+- Closed events are append-mostly. Never rewrite an uncomfortable capsule to make the present
+  look inevitable; add a `revision_notes` entry or a linked amending event instead.
+- Backfilled records carry `recorded_at` later than `occurred_at`. Never let a reconstruction
+  masquerade as contemporaneous documentation.
+- The tool assembles and indexes; it never authors interpretation. Do not generate narrative
+  prose from commit logs.
+- Keep four categories distinct in prose: what participants said, what the system did, what
+  outcome followed, what the historian infers. "No evidence found" is not "did not happen".
+- Never put secrets, tokens, env values, private messages or personal data in history
+  artifacts; `validate` secret-scans them and CI fails on a hit.
+- Commands (from the repository root; also listed in `.project-history/policy.yml`):
+  `python3 scripts/project_history.py assess` · `context [paths]` · `validate` · `render` ·
+  `audit --full` · `audit --since <anchor>` · `python3 -m unittest -q tests/test_project_history.py`.

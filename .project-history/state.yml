@@ -1,0 +1,201 @@
+# Audit anchors and reproducibility metadata for the EOLkits history system.
+# Update anchors and counts whenever a full or incremental audit is completed.
+repository: ntoledo319/EOLkits
+local_path: /home/nick/Development/active/Rupture
+prior_remote_name: ntoledo319/Rupture
+audit_date: 2026-09-04
+reconstruction_completed: 2026-09-05
+audited_branch: codex/workspace-env-scan-20260904
+full_audit_anchor: 71c78a1192ce8e83f955f3b53f1595449d4c9ff7
+incremental_anchor: 71c78a1192ce8e83f955f3b53f1595449d4c9ff7
+origin_main_at_audit: 55b61830a2cfa16b0b0cf3228d8df57b1d995e99
+local_main_at_audit: a297ea4a18c535a27b6bcad1c4a40d4ed08b974e
+root_commit: 05435fd26157dd1bd763e6e9fb1b4ecd39a7cecb
+reachable_commit_count: 3599
+head_reachable_commit_count: 3503
+tool_versions:
+  git: system git on the audit host
+  python: 3.12.3
+  node: v24.18.0
+clone_shape: full clone, not shallow, not partial; no submodules, no worktrees, no stashes, no git notes
+refs_counts:
+  local_branches: 18
+  remote_tracking: 28
+  tags: 3
+  remote_refs_via_ls_remote: 112
+  remote_commits_absent_locally: 19
+refs_examined:
+  - name: refs/heads/codex/audit-launch-hardening-20260904
+    tip: 250ad3df46c1594324750f7be7208e2aea73fe31
+  - name: refs/heads/codex/authorized-platform-ops-20260831
+    tip: 1f48d4fe354f369899548caf2e81b34d739a62bd
+  - name: refs/heads/codex/final-handoff-evidence-20260904
+    tip: bd1086de4d31ac31f25246e2a7fdf609eda394f9
+  - name: refs/heads/codex/finalize-audit-hardening-20260904
+    tip: 6fe521a9a7ede6460a0abbb00aa8067fa8e8160b
+  - name: refs/heads/codex/finalize-recovery-ledgers-20260830
+    tip: ba1953a01a4a0d10440786048539f0b7c4a8e0ef
+  - name: refs/heads/codex/legal-vscode-reposition-20260831
+    tip: 0290f490cf62f185121991580a05c21e779eee2a
+  - name: refs/heads/codex/post-ops-cleanup-20260831
+    tip: 88b3249952e09f5f612e44bd58e343ebae7ba9b4
+  - name: refs/heads/codex/record-jail-failure-20260904
+    tip: d638f4be59b596899a40d3feb0e3c4c54144e05f
+  - name: refs/heads/codex/record-root-jail-failure-20260904
+    tip: 0e65921c2fdf41c8d7120472ebb5944d6ef116ea
+  - name: refs/heads/codex/revenue-cycle-20260904
+    tip: c9727fae1730f6bf601971685e4831c6d9cf659e
+  - name: refs/heads/codex/sync-marketplace-draft-once-20260830
+    tip: 94934b97c268680161cad527adedbf62905f67db
+  - name: refs/heads/codex/unfuck-eolkits-20260830
+    tip: 172161d8164940ac62940a75a27ac741db3ba86f
+  - name: refs/heads/codex/workspace-env-scan-20260904
+    tip: 71c78a1192ce8e83f955f3b53f1595449d4c9ff7
+  - name: refs/heads/feat/deprecation-seo
+    tip: 3c5b48f5f7f530456272ed83c7a13c157eca5691
+  - name: refs/heads/fix/eolkits-billing-honesty
+    tip: cdb460ecc96a1da59735eb4dd9ab44c8bad9c1d7
+  - name: refs/heads/main
+    tip: a297ea4a18c535a27b6bcad1c4a40d4ed08b974e
+  - name: refs/heads/marketing-machine-v2
+    tip: 1918eb8f861bf5519353551cf40b95eca8d33468
+  - name: refs/heads/merge/billing-honesty-2026-08-10
+    tip: 587d5d4d6a7d95167c455cb24cdae524bc283fd1
+  - name: refs/remotes/origin/HEAD
+    tip: 55b61830a2cfa16b0b0cf3228d8df57b1d995e99
+  - name: refs/remotes/origin/codex/audit-launch-hardening-20260904
+    tip: 250ad3df46c1594324750f7be7208e2aea73fe31
+  - name: refs/remotes/origin/codex/final-handoff-evidence-20260904
+    tip: bd1086de4d31ac31f25246e2a7fdf609eda394f9
+  - name: refs/remotes/origin/codex/finalize-audit-hardening-20260904
+    tip: 6fe521a9a7ede6460a0abbb00aa8067fa8e8160b
+  - name: refs/remotes/origin/codex/record-root-jail-failure-20260904
+    tip: 0e65921c2fdf41c8d7120472ebb5944d6ef116ea
+  - name: refs/remotes/origin/codex/workspace-env-scan-20260904
+    tip: 71c78a1192ce8e83f955f3b53f1595449d4c9ff7
+  - name: refs/remotes/origin/dependabot/docker/apps/runner/python-3.14-slim
+    tip: e98a8a868f2a78710ba290f5e92bf2de8ace7800
+  - name: refs/remotes/origin/dependabot/github_actions/actions/checkout-7
+    tip: cd840c095c4c98979e4e856af5dfe6d62be4c4e8
+  - name: refs/remotes/origin/dependabot/github_actions/actions/setup-node-7
+    tip: d960bccd84f25e811f0f1f7ea2370e36648488ca
+  - name: refs/remotes/origin/dependabot/github_actions/actions/setup-python-7
+    tip: f9e50d53e3e21682ab8ea503030059412f86d5f8
+  - name: refs/remotes/origin/dependabot/github_actions/codecov/codecov-action-7
+    tip: 060dd5b498e2e9fec3b5a408420cb647f02c10d7
+  - name: refs/remotes/origin/dependabot/github_actions/softprops/action-gh-release-3
+    tip: e8bf4f2010bcc34ec17a6a4f143683555539f903
+  - name: refs/remotes/origin/dependabot/npm_and_yarn/apps/vscode-extension/eslint-10.2.1
+    tip: 3b1e5b00f2b7b56e1ea6477c0fb3ad8bfeca4f2c
+  - name: refs/remotes/origin/dependabot/npm_and_yarn/apps/vscode-extension/types/node-25.6.0
+    tip: e8da93f1ef176d01be42612e3bd513de49b8c72c
+  - name: refs/remotes/origin/dependabot/npm_and_yarn/apps/vscode-extension/typescript-6.0.3
+    tip: 42de3db8e4b746c02637e492fcfc9672e84a2947
+  - name: refs/remotes/origin/dependabot/npm_and_yarn/apps/vscode-extension/typescript-eslint/eslint-plugin-8.59.1
+    tip: a16ee71f3009d6a68e6eb8ccb90ac7b5aec774bf
+  - name: refs/remotes/origin/dependabot/npm_and_yarn/apps/vscode-extension/vscode/vsce-3.9.1
+    tip: bb03bcbabdcb31110b67df58c83ec35bc6fb0124
+  - name: refs/remotes/origin/dependabot/npm_and_yarn/apps/worker/cloudflare/workers-types-4.20260527.1
+    tip: 7cf96a2a5fe543bcae8c6dcc85762880d98eb5cc
+  - name: refs/remotes/origin/dependabot/npm_and_yarn/apps/worker/stripe-22.1.1
+    tip: fbcd87f572289b34f3ed05aa4a6fd51f6bdfbb7b
+  - name: refs/remotes/origin/dependabot/npm_and_yarn/apps/worker/types/node-25.9.1
+    tip: a5c19ff28bf1553cffa8f4c24acb26962f9689f7
+  - name: refs/remotes/origin/dependabot/npm_and_yarn/apps/worker/typescript-6.0.3
+    tip: 0340f8db32806c6581522f9398f53188ef001ceb
+  - name: refs/remotes/origin/dependabot/npm_and_yarn/apps/worker/vitest-4.1.7
+    tip: dd979ae35ae8da1a6168b25682df6ac3b7ed103b
+  - name: refs/remotes/origin/feat/deprecation-seo
+    tip: 6741fd3e494a9662f8debed0a99811d916fedc86
+  - name: refs/remotes/origin/fix/eolkits-billing-honesty
+    tip: cdb460ecc96a1da59735eb4dd9ab44c8bad9c1d7
+  - name: refs/remotes/origin/main
+    tip: 55b61830a2cfa16b0b0cf3228d8df57b1d995e99
+  - name: refs/remotes/origin/marketing-machine-v2
+    tip: 55b61830a2cfa16b0b0cf3228d8df57b1d995e99
+  - name: refs/remotes/origin/v2
+    tip: 47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8
+  - name: refs/remotes/origin/vps-live-state-20260621
+    tip: f033a400d020149490368bb41468fe007640b972
+  - name: refs/tags/v1
+    tip: c00f505dbd5f7f44b19ebe54532981b23bc29778
+  - name: refs/tags/v1.0.0
+    tip: 4d834b80c2567740c178cfc0dc61bbdce12620b7
+  - name: refs/tags/v1.1.0
+    tip: f3d3dea620d22ffffd5606c7623c4e18b642f195
+exclusion_counts:
+  rupture-bot synthetic status checks (docs/status/data.json only): 2949
+  rupture-bot nightly SEO regeneration (docs/vs, sitemap.xml, deprecations.ics): 40
+  rupture-bot weekly blog entries (docs/blog): 16
+  github-actions benchmark refresh (BENCHMARK.md + docs): 115
+  github-actions deprecations.ics refresh: 114
+  dependabot dependency bumps (branches, mostly never merged): 19
+  total classified as automation noise: 3253
+deep_review:
+  non-bot commits mechanically indexed: 346
+  non-bot commits read (message plus substantive diff) by era sub-reviews: 346
+  of which substantive: 166
+  of which ledger or evidence-only (launch/, revenue/, research/, tmp/): 101
+  of which merges: 46
+  of which micro (<=2 files, <=10 lines): 31
+  root commit: 1
+  pull requests read: 58 (bodies), of which 20 merged, 22 closed unmerged, 16 open
+  releases read: 4 (v1.0.0, v1, v1.1.0, v2.0.0 draft)
+  never-merged branches inspected: feat/deprecation-seo, fix/eolkits-billing-honesty, merge/billing-honesty-2026-08-10, marketing-machine-v2 (local), vps-live-state-20260621, dependabot/*
+coverage_matrix:
+  - era: E0 prehistory (before 2026-04-28)
+    git: none (single root commit imports work)
+    repo_docs: untracked aider chat log (project facts only)
+    github: repo created 2026-04-28
+    owner_records: portfolio docs (retrospective)
+    depth: thin
+  - era: E1 Rupture origin (2026-04-28 to 2026-05-15)
+    git: 34 non-bot commits, all read
+    repo_docs: README, kits docs, launch/ at revision
+    github: PRs 1-11, releases v1.0.0 and v1
+    owner_records: retrospective only
+    depth: full
+  - era: E2 rename and GRACE (2026-05-16 to 2026-06-30)
+    git: 54 non-bot commits, all read
+    repo_docs: HANDOFF-2026-06-08, SEO-GRACE-HANDOFF recovered from history
+    github: PRs 12-21, release v1.1.0
+    owner_records: contemporaneous and retrospective
+    depth: full
+  - era: E3 revenue loop and billing honesty (2026-07-01 to 2026-08-14)
+    git: 74 non-bot commits, all read
+    repo_docs: AGENTS.md, launch/distribution, revenue/ at revision
+    github: PRs 22-23
+    owner_records: contemporaneous and retrospective
+    depth: full
+  - era: E4 truthful rebuild and fail-closed relaunch (2026-08-15 to 2026-09-04)
+    git: 184 non-bot commits, all read
+    repo_docs: HANDOFF, revenue/, legal/, deploy/grace at revision
+    github: PRs 24-58, release v2.0.0 draft
+    owner_records: contemporaneous and retrospective
+    depth: full
+source_classes:
+  direct (git objects, files at revision): primary
+  contemporaneous (PR bodies, releases, handoffs, revenue ledgers, owner records written at the time): secondary
+  retrospective (portfolio and truth-register summaries written later): tertiary
+  behavioral (workflow behaviour, tests, defaults): used for what the system did
+  inferred (historian reasoning): always labelled
+inaccessible_sources:
+  - 19 commits referenced by remote refs (newer dependabot branches, PR heads 14/15/24/31/32) are absent locally; no fetch was performed (read-only audit); listed in sources.yml
+  - GitHub Marketplace and VS Code Marketplace listing pages (browser use prohibited); marketplace facts come from repo evidence ledgers and gh API only
+  - GitHub Actions run logs were not retrieved (rate and scope); workflow definitions at revision were read instead
+  - Stripe, Resend, Cloudflare and GRACE host dashboards (out of scope; no credentials used)
+  - Web archives of ntoledo319.github.io/Rupture or eolkits.com prior states (no network browsing)
+evidence_gaps:
+  - Owner intent before the first commit is known only from an untracked chat log and later summaries
+  - Traffic, install and revenue numbers exist only as agent-reported ledger entries; no independent financial record was examined
+  - Commit authorship names (Claude, Codex, Eve, EOLkits Agent, Rupture Ops) do not identify which harness or prompt produced each change
+  - Whether the two credential-shaped patterns flagged by the September 2026 sweep were live secrets remains unconfirmed in the sweep's own record
+rewritten_history:
+  status: "no"
+  note: >-
+    The September 2026 credential purge inventoried this repository (classification
+    EXACT_SOURCE_MATCH_UNCONFIRMED, 72 unvalidated pattern events, plan NO_REWRITE_YET as of
+    2026-09-02). Every GitHub-recorded pull-request merge commit still resolves and is reachable
+    from origin/main, the root commit is unchanged, and local/remote branch-tip differences are
+    identity re-commits with identical trees. No rewrite of this repository's ancestry was found.
+    Anchors above should be re-checked by `audit --full` after any future rewrite.

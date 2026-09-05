@@ -1,0 +1,151 @@
+# Versioned goal lifecycle for the EOLkits (formerly Rupture) project. Reconstructed 2026-09-04.
+#
+# Fields: id, version, statement, status (proposed | active | measured | narrowed | expanded |
+# blocked | achieved | abandoned | superseded), proposed (date), supersedes (id or null),
+# claim_ids, definition_of_success (as stated at the time), review_by (date the audit should
+# re-check, or null), outcome (what the evidence shows), notes. A goal's definition of success
+# is never edited after the fact; a changed definition is a new goal that supersedes the old one.
+goals:
+  - id: G-01
+    version: 1
+    statement: "Ship a Migration Script Kit per AWS deadline and earn $25k in seven days from panic buyers."
+    status: abandoned
+    proposed: 2026-04-28
+    supersedes: null
+    claim_ids: [CLM-E1-003, CLM-E1-005, CLM-E1-006, CLM-E1-012]
+    definition_of_success: "Floor: one sale of any kind within 48 hours. Target: $25,000 within seven days."
+    review_by: null
+    outcome: "Replaced the next day by the five-SKU runbook; no sale was ever recorded."
+    notes: "Agent-stated target; the owner's brief is not in evidence."
+  - id: G-02
+    version: 1
+    statement: "Run a fully autonomous five-SKU webhook business (free CLI, Audit, Migration Pack, Org License, Drift Watch) with CI trust signals and a Show HN launch."
+    status: superseded
+    proposed: 2026-04-29
+    supersedes: G-01
+    claim_ids: [CLM-E1-018, CLM-E1-019, CLM-E1-034, CLM-E1-051]
+    definition_of_success: "Fifteen acceptance items green (four live checkout flows, nightly benchmark, valid ICS, determinism/property/mutation gates, signed release, App-opened PR, Marketplace Action, VS Code extension, green status page, Show HN submitted); week-one revenue $9k–$22k realistic."
+    review_by: null
+    outcome: "Signed v1.0.0 and a Marketplace tag shipped on 2026-05-02; checkout declared live; Show HN never submitted; $0. Superseded by the AL2 reframe."
+    notes: "The acceptance list measured shipped surfaces, not buyers."
+  - id: G-03
+    version: 1
+    statement: "Post a Show HN inside a deadline window and let it drive the first sales."
+    status: abandoned
+    proposed: 2026-05-02
+    supersedes: null
+    claim_ids: [CLM-E1-044, CLM-E2-002, CLM-E2-031, CLM-E2-036, CLM-E4A-058]
+    definition_of_success: "A Show HN URL recorded in launch/launched.txt during the target window (2026-05-05; then 06-02/03; then 06-09/10; then 06-12; then 06-17)."
+    review_by: null
+    outcome: "Window slipped at least six times; two submissions (06-12, 06-17) were rejected by HN's new-account policy; drafts declared stale 06-22 and archived as 'not approved for publication' on 2026-08-22."
+    notes: "The single-channel dependence is the autopsy's Finding 1."
+  - id: G-04
+    version: 1
+    statement: "Sell deadline-priced audits before the Amazon Linux 2 end-of-support date (2026-06-30)."
+    status: abandoned
+    proposed: 2026-05-21
+    supersedes: G-02
+    claim_ids: [CLM-E2-001, CLM-E2-062, CLM-E2-063, CLM-EXT-037]
+    definition_of_success: "One paid audit before the cliff; 27–28 days of live urgency copy; surge tiers active."
+    review_by: null
+    outcome: "Disowned on 2026-06-21 ('demand arrives in 9-day spikes separated by multi-month deserts is not a business'); the date passed with $0 and the copy was reframed to post-EOL in stages through 08-12."
+    notes: "The deadline thesis was the founding premise (G-01) restated for a second date."
+  - id: G-05
+    version: 1
+    statement: "Fourteen-day faceless conversion sprint after the autopsy."
+    status: abandoned
+    proposed: 2026-06-21
+    supersedes: G-04
+    claim_ids: [CLM-E2-046, CLM-E2-047, CLM-E2-051, CLM-E2-056]
+    definition_of_success: "Day 14: $300–$3,000 (1–6 audits), 50+ leads, at least one Drift Watch subscription; stretch $5k; first checkout_click on /status as leading indicator."
+    review_by: null
+    outcome: "No revenue or lead numbers were ever recorded against it; the handoff ended on an unanswered owner question and the July regime replaced the plan."
+    notes: "PROFIT-PROJECTIONS gave a ~40%-likely $0 case at the same time."
+  - id: G-06
+    version: 1
+    statement: "Revenue Loop v2: $4,000 cumulative collected profit by Day 28 (Day 0 = 2026-07-13) at $0 spend and at most 60 owner-minutes."
+    status: superseded
+    proposed: 2026-07-13
+    supersedes: G-05
+    claim_ids: [CLM-E3-003, CLM-E3-008, CLM-E3-012, CLM-E3-030, CLM-E3-054]
+    definition_of_success: "$4,000 collected (not booked) by 2026-08-10; first external dollar by Day 7; only live, listed, purchasable things count."
+    review_by: null
+    outcome: "$0 at every ledger entry; re-forecast to '$0–600' on 07-14 when the owner ruled out Upwork/Fiverr; the Day-28 window closed formally on 08-10 with 'no natural stop condition'."
+    notes: "The loop's own diagnosis: every payment-enabled channel was KYC-gated behind owner steps."
+  - id: G-07
+    version: 1
+    statement: "Eve's four-week revenue sprint: $4,000 collected by 2026-08-19 through a loud launch plus fix-first outreach."
+    status: abandoned
+    proposed: 2026-07-22
+    supersedes: null
+    claim_ids: [CLM-E3-032, CLM-E3-037, CLM-E3-038, CLM-E3-049]
+    definition_of_success: "$4,000 collected by 2026-08-19; billing-honesty fixes deployed first so nothing blows up on traffic."
+    review_by: null
+    outcome: "No activity after 07-22; the branch was merged only into a local orphan on 08-10 and never deployed; superseded in practice by the 08-22 rebuild."
+    notes: "A parallel goal on a parallel branch; it never competed with G-06 in the ledgers."
+  - id: G-08
+    version: 1
+    statement: "Sell one truthful product: fifteen $299 static repository evidence reports for $4,000 cumulative collected profit by 2026-09-19."
+    status: blocked
+    proposed: 2026-08-22
+    supersedes: G-06
+    claim_ids: [CLM-E4A-017, CLM-E4B-062, CLM-E4B-061, CLM-E4B-063]
+    definition_of_success: "$4,000 collected profit by 2026-09-19 (14 net sales after one refund at Stripe's fee), with Day-7/14/21/28 falsifier gates on 08-29, 09-05, 09-12, 09-19 and per-bet falsifiers."
+    review_by: 2026-09-19
+    outcome: "Checkout closed by design pending the owner's seven-step gate; purchases 0 at HEAD; Bet B's falsifier 'starts no clock' while checkout is closed."
+    notes: "Same dollar target as G-06 with a restarted clock (CON-027)."
+  - id: G-09
+    version: 1
+    statement: "Prove the paid path before opening it: the seven-step Stripe test-mode gate green on the real deployment."
+    status: blocked
+    proposed: 2026-08-22
+    supersedes: null
+    claim_ids: [CLM-E4A-010, CLM-E4A-054, CLM-E4B-060, CLM-E4B-065]
+    definition_of_success: "Immutable upload and preflight; checkout with verified webhook; one job producing a real PDF; Resend delivery; signed download; refund path; evidence recorded — all in Stripe test mode on eolkits.com."
+    review_by: 2026-09-19
+    outcome: "Never executed; the live host still ran the pre-v2 backend on 2026-09-04 and the deployment script awaits the owner (HQ-A/HQ-C)."
+    notes: "This goal is the operational form of principle P-16.2."
+  - id: G-10
+    version: 1
+    statement: "Earn evidence of demand on the free surfaces: VS Code install growth, external Action runs, and qualified '[Audit interest]' issues."
+    status: measured
+    proposed: 2026-08-22
+    supersedes: null
+    claim_ids: [CLM-E4A-032, CLM-E4B-011, CLM-E4B-020, CLM-E4B-039, CLM-E4B-063]
+    definition_of_success: "Per-bet falsifiers: five live days with zero external Action runs or zero attributable views fails Bet A; install delta ≤ 0 with no qualified VS-attributed author fails Bet C; one reposition allowed, then replacement."
+    review_by: 2026-09-05
+    outcome: "V1 gate failed on 08-30 (103 installs, +0); the one reposition (v1.2.0) was spent 08-31; the 09-04 gate passed mechanically on +1 install against a counter that flickers by 1 (CON-024); zero qualified interest issues."
+    notes: "The next gate is due 2026-09-05T23:27Z; first data point for the next era."
+  - id: G-11
+    version: 1
+    statement: "External re-appraisal gates for the free CLI set by the owner's 2026-06-29 board."
+    status: active
+    proposed: 2026-06-29
+    supersedes: null
+    claim_ids: [CLM-EXT-021, CLM-EXT-023]
+    definition_of_success: "Within ~90 days: 25+ GitHub stars, or 10+ genuine installs, or 1+ unsolicited inbound; otherwise the paid arm stays shelved."
+    review_by: 2026-09-27
+    outcome: "No external record of measurement; the repository shows 1 star and ~104 extension installs on 2026-09-04, which would satisfy the install clause only if the installs are treated as genuine."
+    notes: "Owner-side goal; the repository's agents never referenced it."
+  - id: G-12
+    version: 1
+    statement: "Verify one real $299 purchase end to end before driving any traffic."
+    status: blocked
+    proposed: 2026-06-05
+    supersedes: null
+    claim_ids: [CLM-EXT-008, CLM-EXT-019, CLM-E2-017, CLM-E3-011]
+    definition_of_success: "A completed purchase whose audit PDF is delivered by email, then refunded."
+    review_by: 2026-09-19
+    outcome: "Never performed in any era; the closest evidence is a live Checkout URL on 2026-07-15 and a generated sample PDF on 2026-08-22."
+    notes: "Named as the standing blocker by four owner documents and by the repository's own handoffs; subsumed operationally by G-09."
+  - id: G-13
+    version: 1
+    statement: "Keep a living, evidence-linked history so that no agent session rediscovers the project from scratch."
+    status: active
+    proposed: 2026-09-04
+    supersedes: null
+    claim_ids: [CLM-E4A-055, CLM-E4B-005]
+    definition_of_success: "validate, render (byte-stable), audit and the independent verifier pass; every material change carries a history declaration; the monthly gardener finds no unrecorded material work."
+    review_by: 2026-10-04
+    outcome: "Installed 2026-09-04; CI not yet exercised (activates on push)."
+    notes: "Owned by whoever runs the next cycle; see docs/history/ORIENTATION.md."
