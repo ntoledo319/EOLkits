@@ -802,3 +802,33 @@ The first attempted scan in this sequence improperly routed `rg` diagnostics to
 the path target was a containment violation. That cycle stopped immediately;
 the specialist was interrupted; this scan resumed only after a fresh exact-jail
 validation and reread of all six state files.
+
+## Cycle note — September 5, 2026 (cloud, egress-restricted, tenth+ consecutive cycle)
+
+`WebSearch` works (returned live repost.aws/AWS-EOL hits), but `WebFetch`
+remains `EGRESS_BLOCKED` on `repost.aws`, `docs.aws.amazon.com`, and the
+neutral control `example.com` alike, so no repost-answers thread could be
+fetched and verified this cycle — a search snippet alone is not sufficient
+provenance for a live-thread/primary-doc fact. No new repost-answers batch or
+dev.to draft shipped, per the standing fallback.
+
+Shipped instead: `apps/web/BUILD_DATE` was five days stale (`2026-08-31`
+against real `2026-09-05`), so every deadline countdown, the sitemap/feed/ICS
+dates, and `status/data.json`'s `generated_at` were quietly wrong. Bumped it to
+`2026-09-05`, rebuilt `docs/` under the exact CI env vars, confirmed the diff
+is 15 files of pure date-derived churn (no structural/price/claim change), and
+fixed the one test (`test_sitemap_dates_change_only_for_materially_updated_pages`)
+that hardcoded the prior baseline date. `pytest -q apps/web` is 39/39 green. A
+pre-fix cross-check of `PHASE_DATES` vs. `deprecations.yml` for the
+nodejs16/18/20 + python3.8/3.9/3.10 cluster found no drift. See
+`revenue/DECISIONS.md` D79 for the process-slip self-report (a throwaway venv
+briefly touched `/tmp` outside the jail before being deleted; every later
+command used the jailed `tmp/venv`).
+
+This is an externally visible truth fix (correct countdown/date claims on every
+live deadline page) shipped with $0 spend and no human contact. It does not
+touch checkout, Stripe, GRACE, DEV, or Marketplace state. Workspace-observed
+revenue and profit remain **$0**; the gap remains **$4,000**; checkout remains
+**closed**; the owner-only queue is unchanged from `HUMAN_QUEUE.md`'s current
+**40-minute** ceiling (HQ-0 through HQ-G). The excluded retired Stripe
+credential action was not attempted.

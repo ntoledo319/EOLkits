@@ -1630,3 +1630,67 @@ persisted nothing and revealed no value. Stop the cycle, interrupt the security
 specialist, revalidate the exact jail, reread all six state files, and restart
 without device-path redirection. Record the failure; do not erase it because the
 subsequent bounded scan succeeded.
+
+## D79 — tenth+ consecutive egress-blocked cycle; routine BUILD_DATE bump plus one process slip
+
+Started from a clean `git fetch && checkout marketing-machine-v2 && pull --rebase`
+(no-op; already level with `origin`) and read all six `revenue/*.md` files before
+touching anything.
+
+`WebSearch` returned live indexed results this cycle (repost.aws and AWS-EOL
+queries both came back with real, current-looking hits), so the search
+capability itself is up. But `WebFetch` to a specific `repost.aws` question
+thread, to `docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html`, and to
+the neutral control `example.com` all returned `EGRESS_BLOCKED` directly. Per
+AGENTS.md §2.5/§7, a repost-answers entry requires the actual thread page (to
+confirm current thread state, that the URL resolves, and that no answer
+already covers it) and the primary AWS doc table, not a search snippet — a
+search result alone is not sufficient provenance for a fact that must be
+verified against a live primary source. So, per the standing fallback (D42,
+D44, D51, D58 and others), no new repost-answers batch or dev.to draft was
+produced this cycle. This is at least the tenth consecutive cycle blocked this
+way.
+
+Process failure, self-reported: before running the test suite, `python3 -m
+venv` was first invoked against `/tmp/eolkits-venv-check`, outside
+WORKSPACE_ROOT. No file was written outside the jail beyond that throwaway venv
+directory, nothing there depended on repository state, and it was deleted with
+`rm -rf` in the same cycle before any further command used it. Every
+subsequent Python invocation this cycle used a venv under the jailed
+`tmp/venv` (git-ignored) with `TMPDIR=$WORKSPACE_ROOT/tmp` and
+`GIT_CONFIG_NOSYSTEM=1`, matching the D63 pattern. Recorded per the standing
+rule that in-jail process slips are logged, not hidden, even when reversible
+and non-persistent.
+
+Ran a correctness sweep before defaulting to the date bump: compared
+`kits/lambda-lifeline/src/scan/index.mjs`'s `PHASE_DATES` for the synchronized
+nodejs16.x/18.x/20.x + python3.8/3.9/3.10 cluster (all `block_create
+2027-02-01` / `block_update 2027-03-03`) against `rules/public/deprecations.yml`
+entry-by-entry — exact match, no drift. `apps/web/BUILD_DATE` was `2026-08-31`
+against a real date of `2026-09-05`, five days stale, so every countdown
+("N days until <deadline>"), the sitemap/feed/ICS dates, and
+`docs/status/data.json`'s `generated_at` were quietly wrong by five days.
+Bumped `BUILD_DATE` to `2026-09-05` and rebuilt `docs/` with the exact
+`EOLKITS_BASE_PATH=/EOLkits` / `EOLKITS_SITE_URL=https://ntoledo319.github.io/EOLkits`
+/ `EOLKITS_API_URL=https://eolkits.com` values `test.yml`/`deploy-pages.yml`
+use. `git diff -- docs` touched exactly 15 generated files and every changed
+line is date-derived (published/modified meta, countdown day-counts, sitemap
+`lastmod`, feed `pubDate`/`updated`, ICS `DTSTAMP`, `status/data.json`
+`generated_at`) — no structural, price, or claim-text change.
+
+`pytest -q apps/web` under those same CI env vars was 38/39 green before any
+test edit; the one failure,
+`test_sitemap_dates_change_only_for_materially_updated_pages`, hardcodes the
+prior `BUILD_DATE` (`2026-08-31`) as the expected `lastmod` for pages with no
+`PAGE_LASTMOD_OVERRIDES` entry (the homepage and `legal/SECURITY.html`).
+Updated those two hardcoded literals to `2026-09-05` to match the new
+baseline — this is the same test-maintenance step D42/D43 established, not a
+weakening of the assertion (it still fails if an unlisted page's date moves
+independently of `BUILD_DATE`, or if a listed page's override date doesn't
+match). Full suite is 39/39 green after that edit.
+
+No price, unit forecast, checkout, Stripe, GRACE, DEV-account, or Marketplace
+state changed. Collected revenue and profit remain **$0**; the gap remains
+**$4,000**; checkout remains **closed**. The excluded retired Stripe credential
+action was not attempted. HQ-0 through HQ-G are unchanged and still require the
+owner.

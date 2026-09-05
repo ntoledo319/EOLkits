@@ -1428,3 +1428,32 @@ benchmarks, or unverified analytics in this ledger.
 - Purchases: **0**. Paid reports: **0**. Collected revenue/profit: **$0**. Gap:
   **$4,000**. Checkout: **closed**. The excluded retired Stripe credential
   action remains untouched.
+
+## BUILD_DATE staleness correction — September 5, 2026
+
+- `WebSearch` returned live results this cycle; `WebFetch` to `repost.aws`,
+  `docs.aws.amazon.com`, and the neutral control `example.com` all returned
+  `EGRESS_BLOCKED`. Tenth+ consecutive cycle unable to fetch a live thread or
+  primary doc page, so no repost-answers batch or dev.to draft shipped.
+- `apps/web/BUILD_DATE` was **2026-08-31** at cycle start against a real date
+  of **2026-09-05** — 5 days stale. Every deadline countdown, sitemap/feed/ICS
+  date, and `docs/status/data.json` `generated_at` were computed from the
+  stale date.
+- Correctness sweep: `kits/lambda-lifeline` `PHASE_DATES` vs.
+  `rules/public/deprecations.yml` for the nodejs16.x/18.x/20.x +
+  python3.8/3.9/3.10 cluster — exact match (`block_create 2027-02-01`,
+  `block_update 2027-03-03`), no drift found.
+  Bumped `BUILD_DATE` to **2026-09-05**, rebuilt `docs/` under
+  `EOLKITS_BASE_PATH=/EOLkits` / `EOLKITS_SITE_URL=https://ntoledo319.github.io/EOLkits`
+  / `EOLKITS_API_URL=https://eolkits.com` (the exact `test.yml`/`deploy-pages.yml`
+  values). `git diff -- docs` touched 15 files, all pure date-derived churn.
+- `pytest -q apps/web`: 38/39 green before any test edit; the one failure
+  hardcoded the prior `BUILD_DATE` as the expected sitemap `lastmod` for pages
+  with no `PAGE_LASTMOD_OVERRIDES` entry. Updated those two literals to
+  `2026-09-05`; full suite is **39/39 green**.
+- Process note: a throwaway `python3 -m venv` briefly targeted `/tmp` outside
+  WORKSPACE_ROOT before being deleted in the same cycle; every subsequent
+  command used the jailed `tmp/venv`. See `revenue/DECISIONS.md` D79.
+- Purchases: **0**. Paid reports: **0**. Collected revenue/profit: **$0**. Gap:
+  **$4,000**. Checkout: **closed**. The excluded retired Stripe credential
+  action remains untouched.
