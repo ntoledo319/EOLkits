@@ -1694,3 +1694,52 @@ state changed. Collected revenue and profit remain **$0**; the gap remains
 **$4,000**; checkout remains **closed**. The excluded retired Stripe credential
 action was not attempted. HQ-0 through HQ-G are unchanged and still require the
 owner.
+## D80 — eleventh+ consecutive egress-blocked cycle; routine BUILD_DATE bump
+
+Cycle-start checks: `origin/main` confirmed an ancestor of `marketing-machine-v2`
+(`git merge-base --is-ancestor` passed; no divergence to reconcile). The only
+open PRs on the repository are 16 routine Dependabot dependency bumps
+(`@aws-sdk/*`, TypeScript/ESLint tooling, Python base images, Wrangler,
+`@types/*`) — no unmerged feature or content work is waiting to be folded in.
+
+Repeated the standing egress test: `curl` through the configured proxy to the
+neutral control `example.com` and to `docs.aws.amazon.com` both returned
+`CONNECT tunnel failed, response 403`; `$HTTPS_PROXY/__agentproxy/status`
+confirmed the proxy itself is up (`"enabled": true`), so this is the same
+domain-level organization-policy block recorded in D42/D57/D58/D79, now an
+eleventh+ consecutive cycle. Per AGENTS.md's fallback, no new repost-answers
+batch or dev.to draft was produced this cycle.
+
+`apps/web/BUILD_DATE` was `2026-09-05` against a real date of `2026-09-06` —
+one day stale. Confirmed `pytest -q apps/web` was 39/39 green on the stale
+baseline first (using a jailed venv under `tmp/venv`, project-local
+`TMPDIR=$WORKSPACE_ROOT/tmp`, no `/tmp` or system Python touched). Bumped
+`BUILD_DATE` to `2026-09-06` and rebuilt `docs/` with the exact
+`EOLKITS_BASE_PATH=/EOLkits` / `EOLKITS_SITE_URL=https://ntoledo319.github.io/EOLkits`
+/ `EOLKITS_API_URL=https://eolkits.com` values CI uses. `git diff --stat --
+docs` touched exactly 15 generated files (feeds, ICS, sitemap, the nine
+`/migrate/*` countdown pages, `status/data.json`); a line-by-line check of the
+sitemap diff confirmed every changed `lastmod` is a page with no
+`PAGE_LASTMOD_OVERRIDES` entry (moved 2026-09-05→2026-09-06), while the
+materially-pinned pages (`/audit/`, `/lambda-runtime-deprecation-schedule/`,
+`/legal/{terms,privacy,dpa}.html`) correctly stayed at `2026-09-04` — no
+structural, price, or claim-text change.
+
+`test_sitemap_dates_change_only_for_materially_updated_pages` hardcodes the
+prior `BUILD_DATE` baseline for the two unlisted pages (homepage and
+`legal/SECURITY.html`); updated both literals from `2026-09-05` to
+`2026-09-06`, the same test-maintenance step established in D42/D43/D57/D58/D79.
+Full suite is 39/39 green after that edit. Also ran
+`kits/lambda-lifeline`'s Node test suite as a fast correctness spot-check
+(29/29 green, no drift found) rather than a full sweep, since the last several
+consecutive cycles (D57, D58, D79) already re-verified the
+`PHASE_DATES`/`deprecations.yml`/`fixes.yml` cluster with no gap found and
+nothing in this cycle's diff touches rule data.
+
+Live GitHub state re-checked via the connected API (unaffected by the egress
+block): 0 open issues. No price, unit forecast, checkout, Stripe, GRACE,
+DEV-account, or Marketplace state changed. Collected revenue and profit remain
+**$0**; the gap remains **$4,000**; checkout remains **closed**. The excluded
+retired Stripe credential action was not attempted. HQ-0 through HQ-G are
+unchanged and still require the owner.
+

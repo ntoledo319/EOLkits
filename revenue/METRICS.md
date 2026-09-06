@@ -1457,3 +1457,53 @@ benchmarks, or unverified analytics in this ledger.
 - Purchases: **0**. Paid reports: **0**. Collected revenue/profit: **$0**. Gap:
   **$4,000**. Checkout: **closed**. The excluded retired Stripe credential
   action remains untouched.
+
+## BUILD_DATE staleness correction — September 6, 2026
+
+- No branch divergence (`origin/main` an ancestor of `marketing-machine-v2`).
+  Open PRs: 16, all routine Dependabot dependency bumps — no unmerged feature
+  work pending.
+- Egress test repeated: `curl` through the configured proxy to `example.com`
+  and `docs.aws.amazon.com` both returned `CONNECT tunnel failed, response
+  403`; proxy status endpoint confirmed the proxy itself is up. Eleventh+
+  consecutive cycle blocked; no repost-answers batch or dev.to draft shipped.
+- `apps/web/BUILD_DATE` was **2026-09-05** at cycle start against a real date
+  of **2026-09-06** — 1 day stale. Bumped to **2026-09-06**, rebuilt `docs/`
+  under the exact CI env vars. `git diff --stat -- docs` touched 15 files; a
+  line-by-line sitemap check confirmed the materially-pinned pages
+  (`/audit/`, `/lambda-runtime-deprecation-schedule/`, `legal/{terms,privacy,
+  dpa}.html`) held their `2026-09-04` dates while every unpinned page moved to
+  `2026-09-06` — no structural/price/claim change.
+- `pytest -q apps/web`: 39/39 green on the stale baseline; the same recurring
+  hardcoded-date test (`test_sitemap_dates_change_only_for_materially_updated_pages`)
+  needed its two literals bumped to `2026-09-06`; 39/39 green after the edit.
+  `kits/lambda-lifeline` Node suite: 29/29 green (fast spot-check, no drift).
+- Live GitHub state: 0 open issues (unchanged). See `revenue/DECISIONS.md` D80.
+- Purchases: **0**. Paid reports: **0**. Collected revenue/profit: **$0**. Gap:
+  **$4,000**. Checkout: **closed**. The excluded retired Stripe credential
+  action remains untouched.
+
+## HQ-E release-draft target re-verified — September 6, 2026
+
+- Sanity-checked `HUMAN_QUEUE.md`/`revenue/PLAN.md`'s claim that private draft
+  release `375063073` (tag `v2.0.0`) targets commit
+  `47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`. The GitHub MCP tools available
+  (`list_releases`, `get_release_by_tag`) don't surface a draft's
+  `target_commitish` field directly (`get_release_by_tag` 404s for an
+  unpublished tag), so this required reading the workflow source instead of a
+  direct field read.
+- A first pass assumed `.github/workflows/prepare-marketplace-v2.yml` always
+  sets `target_commitish=$GITHUB_SHA` and, since the last successful run
+  touching this release (`33294414373`, 2026-08-30, a `push` event) executed
+  at head SHA `79888beb5e9753def6ed85853d0dcdeb434a052e`, wrongly concluded the
+  draft might target `79888beb` instead of `47cd9eae`.
+- Reading the actual workflow source at that commit
+  (`git show 79888beb:.github/workflows/prepare-marketplace-v2.yml`) corrected
+  this: the authorize step branches on event type — `workflow_dispatch` uses
+  `target_sha="$GITHUB_SHA"`, but `push` (what actually fired) uses
+  `target_sha="$ONE_SHOT_BASE_SHA"`, a fixed env var hardcoded to
+  `47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`. So the run's own recorded target
+  is `47cd9eae...`, exactly matching `HUMAN_QUEUE.md`'s existing claim. No
+  correction needed; the initial discrepancy was a mistaken inference, not a
+  real one. Recorded here only to document the check and the reasoning error,
+  not because any owner-facing text changed.

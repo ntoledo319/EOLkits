@@ -803,6 +803,37 @@ the path target was a containment violation. That cycle stopped immediately;
 the specialist was interrupted; this scan resumed only after a fresh exact-jail
 validation and reread of all six state files.
 
+## Cycle note — September 6, 2026 (cloud, egress-restricted, eleventh+ consecutive cycle)
+
+No branch divergence this cycle (`origin/main` confirmed an ancestor of
+`marketing-machine-v2`). The only open PRs are 16 routine Dependabot
+dependency bumps; no unmerged feature work needed folding in. Egress remained
+blocked for the eleventh+ consecutive cycle: `curl` through the configured
+proxy to `example.com` and `docs.aws.amazon.com` both returned `CONNECT
+tunnel failed, response 403`; the proxy status endpoint confirmed the proxy
+itself is up. No new repost-answers batch or dev.to draft was produced this
+cycle, per the standing fallback.
+
+`apps/web/BUILD_DATE` was one day stale (`2026-09-05` against real
+`2026-09-06`). Bumped it, rebuilt `docs/` under the exact CI env vars, and
+confirmed the diff is 15 files of pure date-derived churn — a line-by-line
+sitemap check confirmed materially-pinned pages (`/audit/`,
+`/lambda-runtime-deprecation-schedule/`, the three `legal/*.html` pages)
+correctly held their `2026-09-04` dates while every other page moved to
+`2026-09-06`. Fixed the one test
+(`test_sitemap_dates_change_only_for_materially_updated_pages`) that
+hardcoded the prior baseline date, same as every prior BUILD_DATE cycle.
+`pytest -q apps/web` is 39/39 green; `kits/lambda-lifeline`'s Node suite
+(29/29) was also re-run as a fast correctness spot-check and stayed green. See
+`revenue/DECISIONS.md` D80.
+
+This is a routine truth-maintenance ship (correct countdown/date claims on
+every live deadline page), not a cash-path change. Workspace-observed revenue
+and profit remain **$0**; the gap remains **$4,000**; checkout remains
+**closed**; the owner-only queue is unchanged from `HUMAN_QUEUE.md`'s current
+ceiling (HQ-0 through HQ-G). The excluded retired Stripe credential action was
+not attempted.
+
 ## Cycle note — September 5, 2026 (cloud, egress-restricted, tenth+ consecutive cycle)
 
 `WebSearch` works (returned live repost.aws/AWS-EOL hits), but `WebFetch`
