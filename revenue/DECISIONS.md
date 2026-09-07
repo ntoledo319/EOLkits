@@ -1743,3 +1743,81 @@ DEV-account, or Marketplace state changed. Collected revenue and profit remain
 retired Stripe credential action was not attempted. HQ-0 through HQ-G are
 unchanged and still require the owner.
 
+## D81 — thirteenth+ consecutive egress-blocked cycle; repaired a concurrent cycle's test regression and a truth gap it introduced
+
+Cycle-start checks: `origin/main` confirmed an ancestor of `marketing-machine-v2`
+(no divergence). Open PRs: 16, all routine Dependabot bumps — no unmerged
+feature work pending. GitHub issues: 0 open. Release draft `375063073` (tag
+`v2.0.0`, target `47cd9eae...`) unchanged since D80 — no owner action taken.
+
+Egress test repeated: direct `curl` through the configured proxy to
+`example.com` and `docs.aws.amazon.com` both returned `CONNECT tunnel failed,
+response 403`; `WebFetch` to `example.com` returned `EGRESS_BLOCKED` directly;
+the proxy status endpoint confirmed the proxy itself is up. `WebSearch`
+returned live, current-looking repost.aws/AWS-EOL hits, but per D79/D42/§2.5 a
+search snippet alone cannot verify a live thread's current state or substitute
+for the primary AWS doc table, so no new repost-answers batch or dev.to draft
+was produced from search results this cycle.
+
+Between the September 6 cycle (D80) and this one, a separate concurrent
+session (Claude-Session `session_01MQ6GtV6MivhqEoA9MvexTL`, commit `4fa7323`)
+had pushed a genuinely new, never-published dev.to draft — article 26,
+`launch/distribution/devto/26-collections-has-no-attribute-mapping.md`,
+covering the `AttributeError: module 'collections' has no attribute
+'Mapping'` break on the python3.9→python3.12 Lambda jump — directly to
+`marketing-machine-v2`. This cycle found and fixed two problems in that
+inherited state before shipping anything new of its own:
+
+1. **Truth gap in the article itself.** It claimed "Lambda runtimes
+   `python3.9`, `python3.10`, and `python3.11` are all deprecated." Checked
+   against this repo's own corroborated `rules/public/deprecations.yml`:
+   only python3.9 is actually deprecated today (2025-12-15, past); python3.10's
+   deprecation is AWS's *current projection* of 2026-10-31 (54 days out from
+   today, 2026-09-07) and python3.11's is 2027-06-30 — both future, both
+   explicitly marked by AWS as subject to change. Calling all three
+   "deprecated" today is false. Rewrote the sentence to state python3.9's
+   deprecation as fact and python3.10/3.11's as AWS's current projection,
+   preserving the (correct, cross-checked) block-create/block-update dates
+   unchanged. Also added the "I maintain it" ownership disclosure to the CTA,
+   matching the house style every other article in the corpus already uses
+   (articles 01-25) — the concurrent session's version omitted it.
+2. **Broke the DEV-quarantine regression test.** `apps/web/test_links.py`'s
+   `test_already_published_dev_drafts_are_individually_quarantined` globbed
+   every `[0-9][0-9]-*.md` file in the devto folder and asserted exactly 25,
+   each carrying the `> [!CAUTION] Archived launch copy — do not publish or
+   reuse` banner (per `launch/distribution/devto/README.md`, that banner
+   correctly applies only to the 25 drafts mirroring already-published,
+   now-quarantined DEV posts predating the current scanner/telemetry/pricing
+   state — it does not describe article 26, a fresh draft written against
+   current site state that was never published anywhere). Adding a 26th
+   numbered file without a banner correctly failed the count assertion
+   (`pytest -q apps/web` was 38/39, not the 39/39 every prior cycle recorded).
+   The test's glob was scoped to files numbered ≤25 for the archived-banner
+   check, and a new companion test
+   (`test_new_dev_drafts_are_not_mislabeled_as_archived`) asserts any file
+   numbered >25 does *not* carry the "do not publish or reuse" banner, so a
+   future genuinely-new draft can't be silently mislabeled as archived either.
+   `pytest -q apps/web` is **40/40 green** (39 prior + 1 new test) after this
+   fix; `kits/lambda-lifeline`'s Node suite is a re-confirmed **29/29 green**
+   (fast spot-check, no drift).
+
+Routine maintenance: `apps/web/BUILD_DATE` was one day stale (`2026-09-06`
+against real `2026-09-07`). Bumped and rebuilt `docs/` under the exact
+`EOLKITS_BASE_PATH=/EOLkits` / `EOLKITS_SITE_URL=https://ntoledo319.github.io/EOLkits`
+/ `EOLKITS_API_URL=https://eolkits.com` CI values. `git diff --stat -- docs`
+touched exactly 15 files; a line-by-line sitemap check confirmed the
+materially-pinned pages (`/audit/`, `/lambda-runtime-deprecation-schedule/`,
+`legal/{terms,privacy,dpa}.html`) correctly held `2026-09-04` while every
+unpinned page (including the two `test_sitemap_dates_change_only_for_
+materially_updated_pages` literals, updated the same way as every prior
+BUILD_DATE cycle) moved `2026-09-06`→`2026-09-07`.
+
+Article 26's factual and disclosure fixes are the externally-visible ship this
+cycle: a genuinely new, non-duplicative, now fully accurate dev.to draft sits
+ready in the reviewed repository for the owner to post at their discretion
+(AGENTS.md §2.4 forbids autonomous posting to the owner's DEV account). No
+price, checkout, Stripe, GRACE, DEV-account, or Marketplace state changed.
+Collected revenue and profit remain **$0**; the gap remains **$4,000**;
+checkout remains **closed**. The excluded retired Stripe credential action was
+not attempted. HQ-0 through HQ-G are unchanged and still require the owner.
+

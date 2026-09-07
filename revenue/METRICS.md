@@ -1507,3 +1507,36 @@ benchmarks, or unverified analytics in this ledger.
   correction needed; the initial discrepancy was a mistaken inference, not a
   real one. Recorded here only to document the check and the reasoning error,
   not because any owner-facing text changed.
+
+## Article 26 truth/regression repair and BUILD_DATE correction — September 7, 2026
+
+- No branch divergence (`origin/main` an ancestor of `marketing-machine-v2`).
+  Open PRs: 16, all routine Dependabot bumps. Open issues: **0**. Release
+  draft `375063073` unchanged since D80.
+- Egress test repeated: `curl` through the configured proxy to `example.com`
+  and `docs.aws.amazon.com` both returned `CONNECT tunnel failed, response
+  403`; direct `WebFetch` to `example.com` returned `EGRESS_BLOCKED`. Proxy
+  status confirmed up. Thirteenth+ consecutive blocked cycle; `WebSearch`
+  results alone were not treated as sufficient provenance for a new
+  repost-answers batch or dev.to draft, per the standing fallback.
+- A concurrent session's commit `4fa7323` (between the September 6 and this
+  cycle) had added dev.to draft 26 without the accurate-today deprecation
+  framing or the corpus's standard "I maintain it" disclosure, and without
+  updating the test that counts the 25 archived/quarantined drafts —
+  `pytest -q apps/web` had regressed to 38/39. Fixed the article's date claim
+  (python3.9 is deprecated today; python3.10/3.11 are AWS's current, still-future
+  *projected* dates, not yet deprecated), added the disclosure, and rescoped
+  `test_already_published_dev_drafts_are_individually_quarantined` to the 25
+  archived files plus a new companion test guarding future drafts against the
+  same mislabeling. See `revenue/DECISIONS.md` D81 for full detail.
+- `apps/web/BUILD_DATE` was **2026-09-06** at cycle start against a real date
+  of **2026-09-07** — 1 day stale. Bumped to **2026-09-07**, rebuilt `docs/`
+  under the exact CI env vars. `git diff --stat -- docs` touched 15 files; the
+  materially-pinned pages (`/audit/`, `/lambda-runtime-deprecation-schedule/`,
+  `legal/{terms,privacy,dpa}.html`) held `2026-09-04` while every unpinned page
+  moved `2026-09-06`→`2026-09-07`.
+- `pytest -q apps/web`: **40/40 green** (39 baseline + 1 new guard test).
+  `kits/lambda-lifeline` Node suite: **29/29 green** (spot-check, no drift).
+- Purchases: **0**. Paid reports: **0**. Collected revenue/profit: **$0**. Gap:
+  **$4,000**. Checkout: **closed**. The excluded retired Stripe credential
+  action remains untouched.

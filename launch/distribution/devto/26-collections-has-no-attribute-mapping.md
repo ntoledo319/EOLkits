@@ -93,11 +93,11 @@ The next cold start will log a full stack trace pointing to the exact file and l
 
 ## The broader context: python3.12 is the migration target
 
-Lambda runtimes `python3.9`, `python3.10`, and `python3.11` are all deprecated. AWS begins blocking *create* calls for these runtimes on **2027-02-01** (python3.9, 3.10) and **2027-07-31** (python3.11), and blocks *updates* shortly after each. The `python3.12` runtime — based on Amazon Linux 2023 — is the recommended migration target.
+Lambda's `python3.9` runtime is already deprecated (no further security patches since 2025-12-15). `python3.10` and `python3.11` are not deprecated yet — AWS currently projects those dates for 2026-10-31 and 2027-06-30 respectively, and marks future runtime dates as subject to change. All three share the same downstream consequence: AWS begins blocking *create* calls on **2027-02-01** (python3.9, 3.10) and **2027-07-31** (python3.11), and blocks *updates* shortly after each. The `python3.12` runtime — based on Amazon Linux 2023 — is the recommended migration target.
 
 The `collections` alias removal is one of a cluster of cleanups that land when you cross from 3.9 to 3.12: `distutils` removed, `imp` removed, `asyncore`/`asynchat` removed, and `datetime.utcnow()` deprecated (with removal coming). Fixing pinned dependencies now rather than at the deadline means you catch all of these in a single upgrade sweep.
 
 ---
 
 **Discovering deprecated runtimes across your whole AWS account?**  
-[Run a free EOL scan at eolkits.com/scan](https://eolkits.com/scan) — paste your Terraform, SAM, CDK, or Serverless config and get a severity-sorted list of every deprecated runtime, AMI, and OS in under 60 seconds.
+The free **[EOLkits scanner](https://eolkits.com/scan)** — which I maintain — checks your Terraform, SAM, CDK, or Serverless config and returns a severity-sorted list of every deprecated runtime, AMI, and OS in under 60 seconds. Nothing is uploaded.

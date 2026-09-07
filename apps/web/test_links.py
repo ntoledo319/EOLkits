@@ -82,13 +82,13 @@ def test_sitemap_dates_change_only_for_materially_updated_pages() -> None:
         for item in root.findall(f"{namespace}url")
     }
 
-    assert observed[f"{build.SITE_URL}/"] == "2026-09-06"
+    assert observed[f"{build.SITE_URL}/"] == "2026-09-07"
     assert observed[f"{build.SITE_URL}/audit/"] == "2026-09-04"
     assert observed[f"{build.SITE_URL}/lambda-runtime-deprecation-schedule/"] == "2026-09-04"
     assert observed[f"{build.SITE_URL}/legal/dpa.html"] == "2026-09-04"
     assert observed[f"{build.SITE_URL}/legal/privacy.html"] == "2026-09-04"
     assert observed[f"{build.SITE_URL}/legal/terms.html"] == "2026-09-04"
-    assert observed[f"{build.SITE_URL}/legal/SECURITY.html"] == "2026-09-06"
+    assert observed[f"{build.SITE_URL}/legal/SECURITY.html"] == "2026-09-07"
 
 
 def test_indexnow_key_verifies_the_entire_sitemap_scope() -> None:
@@ -183,13 +183,22 @@ def test_retired_generated_surfaces_are_not_publishable() -> None:
 
 
 def test_already_published_dev_drafts_are_individually_quarantined() -> None:
-    drafts = sorted((ROOT / "launch" / "distribution" / "devto").glob("[0-9][0-9]-*.md"))
-    assert len(drafts) == 25
-    for draft in drafts:
+    all_drafts = sorted((ROOT / "launch" / "distribution" / "devto").glob("[0-9][0-9]-*.md"))
+    archived = [d for d in all_drafts if int(d.name[:2]) <= 25]
+    assert len(archived) == 25
+    for draft in archived:
         opening = "\n".join(draft.read_text(encoding="utf-8").splitlines()[:16])
         assert "> [!CAUTION]" in opening, draft.name
         assert "Archived launch copy — do not publish or reuse" in opening, draft.name
         assert "claims and `eolkits.com` links below may be false or stale" in opening, draft.name
+
+
+def test_new_dev_drafts_are_not_mislabeled_as_archived() -> None:
+    all_drafts = sorted((ROOT / "launch" / "distribution" / "devto").glob("[0-9][0-9]-*.md"))
+    fresh = [d for d in all_drafts if int(d.name[:2]) > 25]
+    for draft in fresh:
+        opening = "\n".join(draft.read_text(encoding="utf-8").splitlines()[:16])
+        assert "Archived launch copy — do not publish or reuse" not in opening, draft.name
 
 
 def test_tracking_does_not_retain_full_referrer() -> None:

@@ -863,3 +863,32 @@ revenue and profit remain **$0**; the gap remains **$4,000**; checkout remains
 **closed**; the owner-only queue is unchanged from `HUMAN_QUEUE.md`'s current
 **40-minute** ceiling (HQ-0 through HQ-G). The excluded retired Stripe
 credential action was not attempted.
+
+## Cycle note — September 7, 2026 (cloud, egress-restricted, thirteenth+ consecutive cycle)
+
+No branch divergence (`origin/main` an ancestor of `marketing-machine-v2`); no
+new issues; release draft `375063073` unchanged since D80. Egress remained
+blocked: `curl` through the configured proxy and direct `WebFetch` to
+`example.com`/`docs.aws.amazon.com` all failed (`403`/`EGRESS_BLOCKED`);
+`WebSearch` alone is not sufficient provenance for a live thread or a primary
+AWS doc table (D79/§2.5), so no new repost-answers batch or dev.to draft was
+produced from scratch.
+
+This cycle instead repaired inherited state from a concurrent session's
+same-day push (commit `4fa7323`, dev.to draft 26 on the python3.9→3.12
+`collections.Mapping` break): that draft falsely called python3.10/3.11
+"deprecated" today when AWS's own table (already corroborated in this repo)
+puts both dates in the future, and its addition had silently broken
+`apps/web`'s DEV-quarantine regression test (38/39, first red suite recorded
+in this ledger's cycle history). Fixed the article's date framing, added the
+corpus's standard maintainer disclosure, and rescoped the test plus added a
+guard against the same mislabeling recurring — see DECISIONS D81. Also bumped
+the one-day-stale `BUILD_DATE` (2026-09-06→2026-09-07) and rebuilt; `pytest -q
+apps/web` is 40/40 green, `kits/lambda-lifeline` Node suite 29/29 green.
+
+Collected revenue and profit remain **$0**; the gap remains **$4,000**;
+checkout remains **closed**; the owner-only queue is unchanged from
+`HUMAN_QUEUE.md`'s current **40-minute** ceiling (HQ-0 through HQ-G). The
+excluded retired Stripe credential action was not attempted. Article 26 is
+now accurate and ready for the owner's discretionary posting, same as the
+rest of the reviewed repository — no autonomous DEV posting occurred.
