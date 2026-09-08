@@ -1540,3 +1540,36 @@ benchmarks, or unverified analytics in this ledger.
 - Purchases: **0**. Paid reports: **0**. Collected revenue/profit: **$0**. Gap:
   **$4,000**. Checkout: **closed**. The excluded retired Stripe credential
   action remains untouched.
+
+## Routine BUILD_DATE bump — September 8, 2026
+
+- No branch divergence (`origin/main` an ancestor of `marketing-machine-v2`).
+  Open PRs: 16, all routine Dependabot bumps. Open issues: **0**. Release
+  draft `375063073` (slug `untagged-ea8be73c7a7d9b6c45e7`, tag `v2.0.0`,
+  target `47cd9eae7...`) re-verified via the GitHub releases API and
+  unchanged since D80.
+- Egress test repeated: `curl` through the configured proxy to
+  `example.com`, `docs.aws.amazon.com`, and `repost.aws` all returned
+  `CONNECT tunnel failed, response 403`; direct `WebFetch` to `example.com`
+  returned `EGRESS_BLOCKED`; proxy status confirmed up. Fourteenth+
+  consecutive blocked cycle. `WebSearch` still returns indexed results but
+  is not sufficient provenance for a repost-answers live thread or a
+  primary AWS doc table per D36/D79/§2.5; no new repost-answers batch or
+  dev.to draft was produced.
+- `apps/web/BUILD_DATE` was **2026-09-07** at cycle start against a real
+  date of **2026-09-08** — 1 day stale. Bumped to **2026-09-08**, rebuilt
+  `docs/` under the exact CI env vars. `git diff --stat -- docs` touched 15
+  files; the materially-pinned pages (`/audit/`,
+  `/lambda-runtime-deprecation-schedule/`, `legal/{terms,privacy,dpa}.html`)
+  held `2026-09-04` while every unpinned page (including `legal/
+  SECURITY.html`, which is not materially pinned) moved
+  `2026-09-07`→`2026-09-08`.
+- Fixed the recurring hardcoded-baseline-date test
+  (`test_sitemap_dates_change_only_for_materially_updated_pages`), same
+  pattern as every prior BUILD_DATE cycle. `pytest -q apps/web`: **40/40
+  green**. `kits/lambda-lifeline` Node suite: **29/29 green** (spot-check).
+  A fresh `deprecations.yml`-vs.-`PHASE_DATES` cross-check found no new
+  date drift beyond the already-fixed nodejs16.x/python3.8/python3.11 gaps.
+- Purchases: **0**. Paid reports: **0**. Collected revenue/profit: **$0**.
+  Gap: **$4,000**. Checkout: **closed**. The excluded retired Stripe
+  credential action remains untouched.

@@ -1821,3 +1821,64 @@ Collected revenue and profit remain **$0**; the gap remains **$4,000**;
 checkout remains **closed**. The excluded retired Stripe credential action was
 not attempted. HQ-0 through HQ-G are unchanged and still require the owner.
 
+## D82 — routine BUILD_DATE bump, fourteenth+ consecutive egress-blocked cycle
+
+Cycle start: no branch divergence (`origin/main` confirmed an ancestor of
+`marketing-machine-v2`; `git pull --rebase` was a no-op). Working tree was
+already clean at merged commit `6713ce7`. No new issues (0 open); the only
+open PRs are 16 routine Dependabot dependency bumps, none of which needed
+folding in. The release draft (id `375063073`, slug
+`untagged-ea8be73c7a7d9b6c45e7`, tag `v2.0.0`, target `47cd9eae7...`) was
+re-verified via the GitHub releases API and still matches `HUMAN_QUEUE.md`
+exactly — no repair needed this cycle.
+
+Egress test repeated the standard method: `curl` through the configured
+proxy to `example.com`, `docs.aws.amazon.com`, and `repost.aws` all returned
+`CONNECT tunnel failed, response 403`; `WebFetch` to `example.com` returned
+`EGRESS_BLOCKED`; `$HTTPS_PROXY/__agentproxy/status` confirmed the proxy
+itself is up (a domain-level block, not local misconfiguration). `WebSearch`
+(hosted, egress-exempt) still returned indexed results for an AWS re:Post
+query, but per D36/D79/AGENTS.md §2.5 a search snippet alone is not
+sufficient provenance for a live-thread repost-answers batch or a primary
+AWS doc table fetch. Per the standing fallback, no new repost-answers batch
+or dev.to draft was produced this cycle.
+
+Shipped the routine truth-maintenance fix instead: `apps/web/BUILD_DATE` was
+one day stale (`2026-09-07` against real `2026-09-08`). Built a fresh
+project-local venv at `tmp/venv` (jailed; nothing installed outside
+WORKSPACE_ROOT), confirmed `pytest -q apps/web` was 40/40 green on the stale
+baseline under the exact CI env vars
+(`EOLKITS_BASE_PATH=/EOLkits`/`EOLKITS_SITE_URL=https://ntoledo319.github.io/EOLkits`/
+`EOLKITS_API_URL=https://eolkits.com`), bumped `BUILD_DATE` to `2026-09-08`,
+and rebuilt. `git diff --stat -- docs` touched exactly 15 files, all
+date-derived (countdown day-counts, ICS `DTSTAMP`, sitemap `lastmod`,
+`status/data.json` `generated_at`) — confirmed by inspecting the AL2 migrate
+page's diff line-by-line: no structural, price, or claim-text change. The
+materially-pinned pages (`/audit/`, `/lambda-runtime-deprecation-schedule/`,
+`legal/{terms,privacy,dpa}.html`) correctly held `2026-09-04`, matching every
+prior BUILD_DATE cycle's pattern.
+
+Fixed the one recurring test that hardcodes the prior baseline date
+(`test_sitemap_dates_change_only_for_materially_updated_pages` in
+`apps/web/test_links.py`), updating both its unpinned literals (`/` and
+`legal/SECURITY.html`, which — unlike the other three legal pages — is not
+materially pinned and moves with the general date) from `2026-09-07` to
+`2026-09-08`. `pytest -q apps/web` is 40/40 green after the fix; a second
+`build.py` run produced no further diff (rebuild is idempotent).
+`kits/lambda-lifeline`'s Node suite was re-run as a fast correctness
+spot-check and stayed 29/29 green.
+
+Also ran a full runtime-date cross-check (`rules/public/deprecations.yml`
+vs. `kits/lambda-lifeline`'s `PHASE_DATES`) via a one-off Python/YAML parse:
+every tracked runtime's date agrees between the two files (nodejs16/18/20/22,
+python3.8/3.9/3.10/3.11, plus the AL2 entry under its differently-named
+`date` key). No new drift found beyond the already-fixed nodejs16.x (D42),
+python3.8 (D52), and python3.11 (D56) gaps; `ruby3.2`/`dotnet6` remain the
+same deliberately deferred, still-unverifiable-without-fetch gap since D43.
+
+This is a routine truth-maintenance ship (correct countdown/date claims on
+every live deadline page), not a cash-path change. Collected profit remains
+$0; the gap remains $4,000; checkout remains closed; the owner-only queue is
+unchanged from `HUMAN_QUEUE.md`'s current 40-minute ceiling (HQ-0 through
+HQ-G). The excluded retired Stripe credential action was not attempted.
+
