@@ -1573,3 +1573,36 @@ benchmarks, or unverified analytics in this ledger.
 - Purchases: **0**. Paid reports: **0**. Collected revenue/profit: **$0**.
   Gap: **$4,000**. Checkout: **closed**. The excluded retired Stripe
   credential action remains untouched.
+
+## Routine BUILD_DATE bump — September 9, 2026
+
+- No branch divergence (`origin/main` an ancestor of `marketing-machine-v2`).
+  Open PRs: 16, all routine Dependabot bumps. Open issues: **0**. Release
+  draft `375063073` (slug `untagged-ea8be73c7a7d9b6c45e7`, tag `v2.0.0`,
+  draft state) re-verified via `list_releases` and unchanged.
+- Egress test repeated: `curl` through the configured proxy to
+  `example.com` and `docs.aws.amazon.com` both returned `CONNECT tunnel
+  failed, response 403`; direct `WebFetch` to `docs.aws.amazon.com` returned
+  `EGRESS_BLOCKED`; proxy status endpoint confirmed up. Fifteenth+
+  consecutive blocked cycle. `WebSearch` returned indexed results, but its
+  top hit for a python3.9 query cited block-create/block-update dates of
+  2026-01-15/2026-02-15 — a blog-superseded 2026 date directly contradicting
+  this repo's corroborated Q1-2027 primary-source dates. This is fresh,
+  concrete evidence for why D36/§2.5 disqualify search snippets as sole
+  provenance; no new repost-answers batch or dev.to draft was produced.
+- `apps/web/BUILD_DATE` was **2026-09-08** at cycle start against a real
+  date of **2026-09-09** — 1 day stale. Bumped to **2026-09-09**, rebuilt
+  `docs/` under the exact CI env vars. `git diff --stat -- docs` touched 15
+  files; the materially-pinned pages (`/audit/`,
+  `/lambda-runtime-deprecation-schedule/`, `legal/{terms,privacy,dpa}.html`)
+  held `2026-09-04` while every unpinned page (including `legal/
+  SECURITY.html`) moved `2026-09-08`→`2026-09-09`.
+- Fixed the recurring hardcoded-baseline-date test
+  (`test_sitemap_dates_change_only_for_materially_updated_pages`), same
+  pattern as every prior BUILD_DATE cycle. `pytest -q apps/web`: **40/40
+  green**. `kits/lambda-lifeline` Node suite: **29/29 green** (spot-check).
+  A fresh `deprecations.yml`-vs.-`PHASE_DATES` cross-check (including
+  python3.11's distinct block-create/block-update pair) found no date drift.
+- Purchases: **0**. Paid reports: **0**. Collected revenue/profit: **$0**.
+  Gap: **$4,000**. Checkout: **closed**. The excluded retired Stripe
+  credential action remains untouched.

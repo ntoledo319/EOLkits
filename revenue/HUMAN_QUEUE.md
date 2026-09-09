@@ -1,3 +1,8 @@
+_Re-verified September 9, 2026: HQ-E's release draft (id `375063073`, tag
+`v2.0.0`, slug `untagged-ea8be73c7a7d9b6c45e7`) is unchanged and still the
+sole private draft. No item's external state changed; the queue below is
+still authoritative and no owner action was taken by this cycle._
+
 # Batched owner queue — authoritative September 4, 2026 — maximum 40 minutes
 
 _The owner reports that drive-local env files may contain most missing

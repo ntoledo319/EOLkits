@@ -893,6 +893,43 @@ excluded retired Stripe credential action was not attempted. Article 26 is
 now accurate and ready for the owner's discretionary posting, same as the
 rest of the reviewed repository — no autonomous DEV posting occurred.
 
+## Cycle note — September 9, 2026 (cloud, egress-restricted, fifteenth+ consecutive cycle)
+
+No branch divergence (`origin/main` confirmed an ancestor of
+`marketing-machine-v2`); 0 open issues; 16 open PRs, all routine Dependabot
+dependency bumps, none needing folding in; release draft `375063073`
+re-verified unchanged (tag `v2.0.0`, slug `untagged-ea8be73c7a7d9b6c45e7`,
+still the sole draft) and still matches `HUMAN_QUEUE.md` exactly. Egress
+remained blocked for the fifteenth+ consecutive cycle: direct `curl` through
+the configured proxy to `example.com` and `docs.aws.amazon.com` both returned
+HTTP 403 (`CONNECT tunnel failed`); `WebFetch` to `docs.aws.amazon.com` also
+returned `EGRESS_BLOCKED`; the proxy status endpoint confirmed the proxy
+itself is up. `WebSearch` worked and returned indexed AWS/re:Post results,
+but its top python3.9 result cited block-create/block-update dates of
+2026-01-15/2026-02-15 — exactly the kind of blog-superseded 2026 date this
+project's own corroborated primary-source data (Q1-2027 cluster) has
+repeatedly had to correct (D14, D25, D40, D43). This is fresh evidence
+confirming D36/§2.5's rule that a search snippet alone is not sufficient
+provenance for an AWS runtime date or a live repost.aws thread; no new
+repost-answers batch or dev.to draft was produced this cycle.
+
+Shipped the routine `apps/web/BUILD_DATE` bump (`2026-09-08`→`2026-09-09`)
+after confirming 40/40 `apps/web` tests green both before and after (fixing
+the one recurring hardcoded-baseline-date test, same as every prior cycle) —
+a line-by-line sitemap check confirmed the materially-pinned pages (`/audit/`,
+`/lambda-runtime-deprecation-schedule/`, the three `legal/*.html` pages)
+correctly held their `2026-09-04` dates while home and `SECURITY.html` moved
+to `2026-09-09`. Re-ran `kits/lambda-lifeline`'s Node suite (29/29 green) as
+the standard cross-correctness spot-check. A fresh cross-check of
+`rules/public/deprecations.yml` vs. `PHASE_DATES` (nodejs16/18/20 +
+python3.8/3.9/3.10/3.11, including python3.11's distinct block-create/update
+pair) found no drift — all dates match exactly.
+
+Collected revenue and profit remain **$0**; the gap remains **$4,000**;
+checkout remains **closed**; the owner-only queue is unchanged from
+`HUMAN_QUEUE.md`'s current **40-minute** ceiling (HQ-0 through HQ-G). The
+excluded retired Stripe credential action was not attempted.
+
 ## Cycle note — September 8, 2026 (cloud, egress-restricted, fourteenth+ consecutive cycle)
 
 No branch divergence (`origin/main` confirmed an ancestor of

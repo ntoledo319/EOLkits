@@ -1882,3 +1882,74 @@ $0; the gap remains $4,000; checkout remains closed; the owner-only queue is
 unchanged from `HUMAN_QUEUE.md`'s current 40-minute ceiling (HQ-0 through
 HQ-G). The excluded retired Stripe credential action was not attempted.
 
+## D83 — fifteenth+ consecutive egress-blocked cycle; routine BUILD_DATE bump; WebSearch's own output corroborates D36/§2.5's provenance rule
+
+Cycle start: `origin/main` confirmed an ancestor of `marketing-machine-v2`
+(no repeat of the D44 divergence pattern). Open issues: 0. Open PRs: 16, all
+routine Dependabot dependency bumps, none needing folding in. Release draft
+`375063073` re-verified via `list_releases` — still the sole draft, tag
+`v2.0.0`, draft state true, slug unchanged — and still matches
+`HUMAN_QUEUE.md`'s HQ-E link exactly.
+
+Repeated the standing egress test: direct `curl` through the configured
+proxy to `example.com` and `docs.aws.amazon.com` both returned `CONNECT
+tunnel failed, response 403`; `WebFetch` to `docs.aws.amazon.com` returned
+`EGRESS_BLOCKED`; `$HTTPS_PROXY/__agentproxy/status` confirmed the proxy
+itself is up (a policy denial, not local misconfiguration) and logged both
+rejections in `recentRelayFailures`. `WebSearch` (hosted, egress-exempt)
+worked and returned real indexed AWS re:Post/docs results, but its own
+top synthesized answer for a python3.9 Lambda deprecation query cited
+block-create 2026-01-15 and block-update 2026-02-15 — dates that directly
+contradict this repository's already-corroborated primary-source dates
+(block-create 2027-02-01, block-update 2027-03-03, per
+`rules/public/deprecations.yml` and `PHASE_DATES`, both citing
+`docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html`). This is a
+concrete, cycle-fresh demonstration of exactly the failure mode D36/§2.5
+already guard against: a search snippet/summary is not sufficient
+provenance for an AWS runtime date or a live repost.aws thread, because
+search results can themselves surface superseded blog-era dates. No new
+repost-answers batch or dev.to draft was produced this cycle; using the
+WebSearch result to write one would have shipped a false date.
+
+Shipped the routine ship instead: `apps/web/BUILD_DATE` was one day stale
+(`2026-09-08` against real `2026-09-09`). Confirmed `pytest -q apps/web` was
+40/40 green on the stale baseline first, bumped `BUILD_DATE` to
+`2026-09-09`, and rebuilt under the exact CI env vars
+(`EOLKITS_BASE_PATH=/EOLkits`/`EOLKITS_SITE_URL=https://ntoledo319.github.io/EOLkits`/
+`EOLKITS_API_URL=https://eolkits.com`). `git diff --stat -- docs` touched 15
+files, all date-derived (countdown day-counts, ICS `DTSTAMP`, sitemap
+`lastmod`, `status/data.json` `generated_at`) — confirmed by inspecting a
+sample diff (`docs/status/data.json`, `docs/migrate/lambda-python-3.9-eol/index.html`)
+line-by-line: no structural, price, or claim-text change. A direct sitemap
+read confirmed the materially-pinned pages (`/audit/`,
+`/lambda-runtime-deprecation-schedule/`, `legal/{terms,privacy,dpa}.html`)
+correctly held `2026-09-04` while `/` and `legal/SECURITY.html` (which is
+not materially pinned) moved `2026-09-08`→`2026-09-09`, matching every
+prior BUILD_DATE cycle's pattern exactly.
+
+Fixed the one recurring test that hardcodes the prior baseline date
+(`test_sitemap_dates_change_only_for_materially_updated_pages` in
+`apps/web/test_links.py`), updating its two unpinned literals (`/` and
+`legal/SECURITY.html`) from `2026-09-08` to `2026-09-09`. `pytest -q
+apps/web` is 40/40 green after the fix. `kits/lambda-lifeline`'s Node suite
+was re-run as the standard fast correctness spot-check and stayed 29/29
+green (installing its locked `node_modules` fresh into the jailed
+checkout).
+
+Also ran a fresh runtime-date cross-check (`rules/public/deprecations.yml`
+vs. `kits/lambda-lifeline`'s `PHASE_DATES`), this time explicitly including
+python3.11's distinct block-create/block-update pair (2027-07-31/2027-08-31,
+as opposed to the 2027-02-01/2027-03-03 pair shared by nodejs16/18/20 and
+python3.8/3.9/3.10): every date agrees between the two files. No new drift
+found beyond the already-fixed nodejs16.x (D42), python3.8 (D52), and
+python3.11 (D56) gaps; `ruby3.2`/`dotnet6` remain the same deliberately
+deferred, still-unverifiable-without-fetch gap since D43.
+
+This is a routine truth-maintenance ship (correct countdown/date claims on
+every live deadline page) plus a documented, evidence-backed reaffirmation
+of the standing egress-fallback policy — not a cash-path change. Collected
+profit remains $0; the gap remains $4,000; checkout remains closed; the
+owner-only queue is unchanged from `HUMAN_QUEUE.md`'s current 40-minute
+ceiling (HQ-0 through HQ-G). The excluded retired Stripe credential action
+was not attempted.
+
