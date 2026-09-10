@@ -5,12 +5,13 @@ Safe, narrow rewrites only. Anything ambiguous is flagged for human review.
 """
 
 from __future__ import annotations
+
 import argparse
 import re
 from pathlib import Path
 from typing import List, Tuple
-from . import util
 
+from . import util
 
 # (pattern, replacement, description)
 REWRITES: List[Tuple[re.Pattern, str, str]] = [
@@ -125,9 +126,7 @@ def run(args: argparse.Namespace) -> int:
                     f"{util.color.green('[rewrite]')} {f} · {e['rule']} · {e['count']} hit(s)"
                 )
             else:
-                util.info(
-                    f"{util.color.yellow('[lint]')}    {f}:{e['line']} · {e['rule']}"
-                )
+                util.info(f"{util.color.yellow('[lint]')}    {f}:{e['line']} · {e['rule']}")
         if apply_mode and new != original:
             f.write_text(new)
 

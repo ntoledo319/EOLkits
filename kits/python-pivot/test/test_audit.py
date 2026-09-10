@@ -1,10 +1,11 @@
 """Test native-wheel audit."""
 
+import builtins
 import json
 from argparse import Namespace
 from pathlib import Path
 
-
+import pytest
 from python_pivot import audit
 
 FIXTURE = Path(__file__).parent / "fixtures" / "requirements.txt"
@@ -29,12 +30,12 @@ def test_detects_outdated_numpy():
     assert numpy_finding["severity"] == "high"
 
 
-def test_detects_dead_python_snappy():
+def test_detects_outdated_python_snappy():
     pkgs = audit.parse_requirements(FIXTURE)
     findings = audit.audit_packages(pkgs)
     snappy = next((f for f in findings if f["package"] == "python-snappy"), None)
     assert snappy is not None
-    assert snappy["severity"] == "critical"
+    assert snappy["severity"] == "high"
 
 
 def test_ignores_clean_requests():
@@ -79,3 +80,129 @@ dependencies = [
     names = [n for n, _ in pkgs]
     assert "numpy" in names
     assert "requests" in names
+
+
+@pytest.mark.parametrize(
+    "declaration",
+    [
+        "[project]\ndependencies = ['numpy==1.24.0']\n",
+        '[project]\ndependencies = ["numpy==1.24.0"]\n',
+        "[project.optional-dependencies]\nscience = ['numpy==1.24.0']\n",
+        "[project]\ndependencies = [\"numpy[array-api]==1.24.0; python_version < '3.13'\"]\n",
+    ],
+)
+def test_pyproject_all_supported_declarations_are_strict_findings(tmp_path, capsys, declaration):
+    path = tmp_path / "pyproject.toml"
+    path.write_text(declaration)
+    assert audit.run(_args(path, fmt="json", strict=True)) == 1
+    result = json.loads(capsys.readouterr().out)
+    assert [(item["package"], item["severity"]) for item in result] == [("numpy", "high")]
+
+
+def test_pyproject_ignores_build_and_unrelated_tool_dependencies(tmp_path):
+    path = tmp_path / "pyproject.toml"
+    path.write_text(
+        """[build-system]
+requires = ['numpy==1.24.0']
+[project]
+dependencies = ['numpy==1.26.1']
+[tool.example]
+dependencies = ['pandas==1.0.0']
+"""
+    )
+    assert audit.parse_pyproject(path) == [("numpy", "==1.26.1")]
+    assert audit.run(_args(path, strict=True)) == 0
+
+
+def test_pipfile_packages_dev_groups_inline_versions_and_normalized_names(tmp_path, capsys):
+    path = tmp_path / "Pipfile"
+    path.write_text(
+        """[packages]
+numpy = '==1.24.0'
+requests = '*'
+[dev-packages]
+Pillow = {version = "==9.5.0", markers = "python_version >= '3.9'"}
+scikit_learn = {version = '==1.2.0', extras = ['extra']}
+"""
+    )
+    assert audit.run(_args(path, fmt="json", strict=True)) == 1
+    assert {item["package"] for item in json.loads(capsys.readouterr().out)} == {
+        "numpy",
+        "pillow",
+        "scikit-learn",
+    }
+
+
+@pytest.mark.parametrize(
+    "filename,content",
+    [
+        ("pyproject.toml", "[project]\ndependencies = ['numpy==1.24.0'"),
+        ("pyproject.toml", "[project]\ndependencies = 'numpy==1.24.0'"),
+        ("pyproject.toml", "[project]\ndynamic = ['dependencies']"),
+        ("pyproject.toml", "[project]\ndynamic = 'dependencies'"),
+        ("pyproject.toml", "[tool.poetry.dependencies]\nnumpy = '==1.24.0'"),
+        ("Pipfile", "[packages]\nnumpy = 24"),
+        ("requirements.txt", "-r requirements-prod.txt\n"),
+        ("requirements.txt", "numpy==1.24.0 \\\n+ --hash=sha256:fixture\n"),
+    ],
+)
+def test_unsupported_or_malformed_manifests_are_errors_not_clean_json(
+    tmp_path, capsys, filename, content
+):
+    path = tmp_path / filename
+    path.write_text(content)
+    assert audit.run(_args(path, fmt="json", strict=True)) == 2
+    output = capsys.readouterr()
+    assert output.out == ""
+    assert "Cannot audit" in output.err
+
+
+def test_requirements_markers_and_comments_do_not_hide_or_inflate_versions(tmp_path):
+    path = tmp_path / "requirements.txt"
+    path.write_text("numpy==1.24.0; python_version < '3.13' # target\nPillow==10.1.0 # current\n")
+    assert audit.parse_requirements(path) == [("numpy", "==1.24.0"), ("pillow", "==10.1.0")]
+    assert [item["package"] for item in audit.audit_packages(audit.parse_requirements(path))] == [
+        "numpy"
+    ]
+
+
+def test_unknown_packages_do_not_produce_a_universal_compatibility_claim(tmp_path, capsys):
+    path = tmp_path / "requirements.txt"
+    path.write_text("unknown-package==0.1.0\n")
+    assert audit.run(_args(path, strict=True)) == 0
+    assert "outside the curated table are not checked" in capsys.readouterr().out
+
+
+def test_short_release_versions_and_parenthesized_requirements(tmp_path):
+    path = tmp_path / "requirements.txt"
+    path.write_text("numpy (==1.26)\nPillow>=10.1\n")
+    assert audit.run(_args(path, strict=True)) == 0
+    assert audit.audit_packages([("numpy", "==1.26.0rc1")])[0]["severity"] == "low"
+
+
+def test_toml_parser_missing_is_an_actionable_error_without_breaking_requirements(
+    tmp_path, monkeypatch, capsys
+):
+    original_import = builtins.__import__
+
+    def without_toml(name, *args, **kwargs):
+        if name in {"tomllib", "tomli"}:
+            raise ImportError(name)
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", without_toml)
+    path = tmp_path / "pyproject.toml"
+    path.write_text("[project]\ndependencies = ['numpy==1.24.0']\n")
+    assert audit.run(_args(path, fmt="json")) == 2
+    assert "Python 3.11+" in capsys.readouterr().err
+    flat = tmp_path / "requirements.txt"
+    flat.write_text("numpy==1.24.0\n")
+    assert audit.run(_args(flat, fmt="json", strict=True)) == 1
+
+
+def test_direct_reference_contents_are_not_printed_in_audit_findings():
+    finding = audit.audit_packages(
+        [("numpy", "@ https://fixture-user:fixture-password@example.invalid/archive.zip")]
+    )[0]
+    assert finding["declared"] == "(direct reference)"
+    assert "fixture-password" not in json.dumps(finding)

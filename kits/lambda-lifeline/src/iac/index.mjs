@@ -6,21 +6,33 @@ import { parseArgs, isDryRun, list } from '../util/args.mjs';
 import { log, color } from '../util/log.mjs';
 import { readFileSync, writeFileSync, statSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
-import { join, extname, basename, relative } from 'node:path';
+import { join, basename, relative } from 'node:path';
+import { patchManifest } from './manifest.mjs';
+import { patchTerraform } from './terraform.mjs';
 
 const IGNORE_DIRS = new Set(['node_modules', '.git', 'dist', 'build', '.aws-sam', 'cdk.out', '.terraform', 'coverage']);
 
-const DEFAULT_FROM = ['nodejs16.x', 'nodejs18.x', 'nodejs20.x'];
-const DEFAULT_TO = 'nodejs22.x';
+const DEFAULT_FROM = ['nodejs14.x', 'nodejs16.x', 'nodejs18.x', 'nodejs20.x', 'nodejs22.x'];
+const DEFAULT_TO = 'nodejs24.x';
 
 // File-type detectors
 function isSAM(file, content) {
-  if (!/\.(ya?ml)$/.test(file)) return false;
-  return /AWS::Serverless::/.test(content) || /Transform:\s*AWS::Serverless-/.test(content);
+  if (!/\.(ya?ml|json)$/.test(file)) return false;
+  return /AWS::Serverless(?:::|-)/.test(content);
 }
 function isCloudFormation(file, content) {
   if (!/\.(ya?ml|json)$/.test(file)) return false;
-  return /AWS::Lambda::Function/.test(content);
+  if (file.endsWith('.json') || content.trimStart().startsWith('{')) {
+    try {
+      const root = JSON.parse(content);
+      return root !== null && typeof root === 'object'
+        && ('Resources' in root || ('Globals' in root && 'Transform' in root));
+    } catch {
+      // Known template structure must surface its parse error, never a clean scan.
+      return /"Resources"\s*:|AWS::(?:Lambda|Serverless)/.test(content) || basename(file) === 'template.json';
+    }
+  }
+  return /AWS::Lambda::Function|^\s*['"]?Resources['"]?\s*:/m.test(content);
 }
 function isCDK(file, content) {
   if (!/\.(ts|js|mjs)$/.test(file)) return false;
@@ -30,19 +42,7 @@ function isTerraform(file) {
   return /\.(tf|tf\.json)$/.test(file);
 }
 
-// SAM / CloudFormation YAML/JSON: `Runtime: nodejs20.x`
-function patchSAM(content, from, to) {
-  let changed = content;
-  const hits = [];
-  const re = new RegExp(`(\\bRuntime\\s*:\\s*['"]?)(${from.join('|')})(['"]?)`, 'g');
-  changed = changed.replace(re, (m, pre, runtime, post) => {
-    hits.push(runtime);
-    return `${pre}${to}${post}`;
-  });
-  return { changed, hits };
-}
-
-// CDK: lambda.Runtime.NODEJS_22_X → lambda.Runtime.NODEJS_22_X
+// CDK: lambda.Runtime.NODEJS_20_X → lambda.Runtime.NODEJS_24_X
 function patchCDK(content, from, to) {
   const fromVers = from.map(r => r.match(/nodejs(\d+)/)[1]);
   const toVer = to.match(/nodejs(\d+)/)[1];
@@ -55,30 +55,6 @@ function patchCDK(content, from, to) {
       return `${pre}${toVer}${suf}`;
     });
   }
-  return { changed, hits };
-}
-
-// Terraform: runtime = "nodejs20.x"
-function patchTerraform(content, from, to) {
-  let changed = content;
-  const hits = [];
-  const re = new RegExp(`(\\bruntime\\s*=\\s*")(${from.join('|')})(")`, 'g');
-  changed = changed.replace(re, (m, pre, runtime, post) => {
-    hits.push(runtime);
-    return `${pre}${to}${post}`;
-  });
-  return { changed, hits };
-}
-
-// Serverless Framework: runtime: nodejs20.x
-function patchServerless(content, from, to) {
-  const re = new RegExp(`(\\bruntime\\s*:\\s*['"]?)(${from.join('|')})(['"]?)`, 'g');
-  let changed = content;
-  const hits = [];
-  changed = changed.replace(re, (m, pre, runtime, post) => {
-    hits.push(runtime);
-    return `${pre}${to}${post}`;
-  });
   return { changed, hits };
 }
 
@@ -99,6 +75,9 @@ export async function iacCommand(argv) {
   const apply = !isDryRun(flags);
   const fromRuntimes = list(flags.from).length ? list(flags.from) : DEFAULT_FROM;
   const toRuntime = flags.to || DEFAULT_TO;
+  if (![...fromRuntimes, toRuntime].every(runtime => /^nodejs\d+\.x$/.test(runtime))) {
+    throw new Error('--from and --to must be literal Node.js Lambda runtimes, such as nodejs20.x.');
+  }
 
   log.hdr(`IaC patcher · ${path} · ${fromRuntimes.join(',')} → ${toRuntime} · ${apply ? color.red('APPLY') : color.yellow('DRY-RUN')}`);
 
@@ -108,24 +87,32 @@ export async function iacCommand(argv) {
 
   let totalHits = 0;
   let filesChanged = 0;
+  const pending = [];
 
   for (const file of relevant) {
     const original = readFileSync(file, 'utf8');
     let result = { changed: original, hits: [] };
     let kind = null;
 
-    if (isSAM(file, original) || isCloudFormation(file, original)) {
-      result = patchSAM(original, fromRuntimes, toRuntime);
-      kind = 'SAM/CFN';
-    } else if (isCDK(file, original)) {
-      result = patchCDK(original, fromRuntimes, toRuntime);
-      kind = 'CDK';
-    } else if (isTerraform(file)) {
-      result = patchTerraform(original, fromRuntimes, toRuntime);
-      kind = 'Terraform';
-    } else if (/serverless\.(ya?ml|ts|js)$/.test(basename(file)) || /serverless/.test(original) && /\.(ya?ml)$/.test(file)) {
-      result = patchServerless(original, fromRuntimes, toRuntime);
-      kind = 'Serverless';
+    try {
+      if (/\.tf\.json$/.test(file)) {
+        result = patchManifest(original, { json: true, terraform: true, from: fromRuntimes, to: toRuntime });
+        kind = 'Terraform';
+      } else if (/^serverless\.(ya?ml|json)$/.test(basename(file))) {
+        result = patchManifest(original, { json: file.endsWith('.json'), serverless: true, from: fromRuntimes, to: toRuntime });
+        kind = 'Serverless';
+      } else if (isSAM(file, original) || isCloudFormation(file, original)) {
+        result = patchManifest(original, { json: file.endsWith('.json'), from: fromRuntimes, to: toRuntime });
+        kind = 'SAM/CFN';
+      } else if (isCDK(file, original)) {
+        result = patchCDK(original, fromRuntimes, toRuntime);
+        kind = 'CDK';
+      } else if (isTerraform(file)) {
+        result = patchTerraform(original, fromRuntimes, toRuntime);
+        kind = 'Terraform';
+      }
+    } catch (error) {
+      throw new Error(`${file}: ${error.message}`);
     }
 
     if (result.hits.length) {
@@ -133,9 +120,12 @@ export async function iacCommand(argv) {
       totalHits += result.hits.length;
       const rel = relative(process.cwd(), file);
       log.info(`${color.green('[' + kind + ']')} ${rel} · ${result.hits.length} runtime ref(s): ${result.hits.join(', ')}`);
-      if (apply) writeFileSync(file, result.changed);
+      pending.push({ file, changed: result.changed });
     }
   }
+  // Parse the whole batch first, so a malformed later template cannot leave an
+  // earlier one changed. Review remains required before infrastructure deploys.
+  if (apply) for (const { file, changed } of pending) writeFileSync(file, changed);
 
   console.log();
   if (filesChanged === 0) {

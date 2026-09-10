@@ -1,0 +1,634 @@
+# Monetization divergence and ranking — August 22, 2026
+
+No frame below is treated as demand evidence. U is an explicit 28-day planning
+hypothesis after estimated Stripe fees, not observed revenue. The enumeration
+comes before evaluation as required.
+
+## Frame enumeration
+
+### W — static site/browser scanner
+
+1. W1 sell access to a hosted scanner workspace.
+2. W2 sell a monitored SaaS dashboard around repeated scans.
+3. W3 sell the scanner's one-time evidence output.
+4. W4 sell the deterministic site/scanner code as a template.
+5. W5 sell/embed the browser scanner component.
+6. W6 bundle scanner, kits, calendar, and guide.
+7. W7 white-label the scanner and content for consultancies.
+
+### K — local kits and GitHub Action
+
+1. K1 use the free existing Marketplace Action as the Audit funnel.
+2. K2 sell premium CLI access or private rules.
+3. K3 sell a shareable report generated from CI findings.
+4. K4 sell the cited rules/scanner component.
+5. K5 publish free per-kit registry packages as acquisition surfaces.
+6. K6 sell a kit/playbook bundle through a digital marketplace.
+7. K7 white-label the checks for an engineering platform.
+
+### V — VS Code extension
+
+1. V1 publish a free extension that routes relevant findings to Audit.
+2. V2 sell a paid/premium extension tier.
+3. V3 sell exportable workspace evidence output.
+4. V4 sell the extension code as a scanner template.
+5. V5 sell its rule/evaluator component.
+6. V6 bundle extension, Action, and CLIs.
+7. V7 white-label the extension for a consultancy or platform.
+
+### A — Audit v2 engine/report
+
+1. A1 sell one $299 static repository evidence report.
+2. A2 sell subscription access to report history/dashboard.
+3. A3 sell a hosted scanning API.
+4. A4 sell a self-hosted commercial code license.
+5. A5 sell the bounded PDF/evidence engine as a component.
+6. A6 sell a human-reviewed productized migration audit.
+7. A7 white-label report fulfillment.
+
+### L — legacy App and multi-SKU concepts
+
+1. L1 sell the $1,499 Migration Pack.
+2. L2 sell GitHub App access.
+3. L3 sell Drift Watch as a subscription.
+4. L4 sell an Organization License/private feed.
+5. L5 sell the PR-generation engine as a component.
+6. L6 sell a managed migration service.
+7. L7 white-label the complete migration platform.
+
+### C — content and launch corpus
+
+1. C1 sell an ebook/playbook.
+2. C2 sell a paid deadline newsletter.
+3. C3 sell sponsorship/placement.
+4. C4 use cited search pages as the Audit funnel.
+5. C5 syndicate reviewed articles on a developer platform.
+6. C6 sell checklists/templates as a digital bundle.
+7. C7 white-label migration documentation.
+
+## Scoring
+
+T$ = plausible days to first dollar. H = owner minutes. D = distribution:
+M marketplace, P platform/search, O owned audience, N none. R = risk. A dash in
+T$ means disqualified within this cycle. U uses the provisional $290.03 US
+domestic-card benchmark; it is not fee-schedule-confirmed profit.
+
+| Frame | T$ | H | D | U hypothesis | R | Evaluation |
+|---|---:|---:|:---:|---:|:---:|---|
+| W1 | 21 | 20 | O | $0 | H | Rebuilds access control with no demand proof |
+| W2 | — | 30 | O | $0 | H | New SaaS and recurring obligations |
+| W3 | 7 | 0 | O | $290.03 | M | Converges on A1; do not duplicate |
+| W4 | 21 | 20 | N | $0 | M | No suitable built-in channel observed |
+| W5 | 14 | 10 | O | $290.03 | M | Widget exists, distribution does not |
+| W6 | 14 | 15 | P | $0 | H | Old Gumroad bundle lacked differentiation |
+| W7 | — | 30 | N | $0 | H | Requires sales/contract work |
+| K1 | 7 | 2 | M | $870.09 | M | Existing listing; strongest fast funnel |
+| K2 | — | 30 | N | $0 | H | Private-rule product does not exist |
+| K3 | 10 | 0 | M | $290.03 | M | Route to A1 instead of another SKU |
+| K4 | 21 | 20 | N | $0 | M | No buyer/distribution evidence |
+| K5 | 14 | 10 | P | $290.03 | M | Useful acquisition, no built-in payment |
+| K6 | — | 15 | M | $0 | H | Repackaged free code; archived |
+| K7 | — | 30 | N | $0 | H | Requires contracts and support |
+| V1 | 10 | 0 | M | $580.06 | M | v1.1.0 live; telemetry green, demand unproved |
+| V2 | — | 25 | M | $0 | H | Entitlements/payment/support unbuilt |
+| V3 | 21 | 20 | M | $290.03 | M | Duplicates A1 at lower fidelity |
+| V4 | — | 20 | N | $0 | M | No channel or differentiated buyer |
+| V5 | — | 20 | N | $0 | M | No channel or API contract |
+| V6 | 14 | 10 | M | $290.03 | M | Keep all tools free; monetize report |
+| V7 | — | 30 | N | $0 | H | Contract/support burden |
+| A1 | 7 | 32 | P | $2,320.24 | M | Only truthful paid offer; shared gates remain |
+| A2 | — | 30 | O | $0 | H | History/accounts/retention not built |
+| A3 | 21 | 20 | N | $580.06 | H | No API marketplace or tenant controls |
+| A4 | — | 30 | N | $0 | H | Support/security/license burden |
+| A5 | — | 25 | N | $0 | M | No component buyer evidence |
+| A6 | — | 60+ | P | $0 | H | Violates owner-labor constraint |
+| A7 | — | 30 | N | $0 | H | Partner settlement/branding unbuilt |
+| L1 | — | 60+ | O | $0 | H | App, preflight, PR, CI/refund proof absent |
+| L2 | — | 45 | M | $0 | H | Public App and operating proof absent |
+| L3 | — | 45 | O | $0 | H | Recurring scanner/role flow absent |
+| L4 | — | 45 | O | $0 | H | Feed, entitlements, controls absent |
+| L5 | — | 30 | N | $0 | H | Dormant engine removed from runtime |
+| L6 | — | 60+ | P | $0 | H | Labor/commitment violates constraints |
+| L7 | — | 60+ | N | $0 | H | Entire platform unproved |
+| C1 | — | 20 | M | $0 | H | Old bundle archived; no paid differentiation |
+| C2 | — | 30 | O | $0 | H | Audience and recurring value absent |
+| C3 | — | 30 | O | $0 | H | No audience metrics |
+| C4 | 14 | 0 | P | $580.06 | M | Keep cited pages; measure qualified visits |
+| C5 | 14 | 14 | P | $0 | M | Manual review only; prior signal weak |
+| C6 | — | 20 | M | $0 | H | Same weak repackaging problem |
+| C7 | — | 30 | N | $0 | H | Requires customer acquisition/contracts |
+
+## Rank
+
+1. K1 — repair/update the already-listed GitHub Action; fastest built-in
+   distribution and lowest owner time. Its tested v2 branch is installable and
+   its canonical private v2.0.0 Marketplace draft is prepared at a verified
+   Action-equivalent target; publication is the remaining owner-controlled step.
+2. A1 — the sole paid fulfillment unit. It is not live until the operational
+   gate passes.
+3. V1 — keep the published free VSIX as a second contextual distribution
+   surface; exact-owner/confirmation guards protect the existing publisher
+   credential. Public run `33028483868` and artifact `9629312207` now separate
+   cumulative counters from qualified interest and revenue.
+4. C4 — preserve only cited, useful search pages and measure them. The repaired
+   51-URL Pages corpus now has a protocol-valid IndexNow submission path, but no
+   crawl, rank, visit, or conversion signal has been observed.
+5. K5 — registry packaging only after the first four show external signal.
+
+No current frame combines strong built-in distribution and built-in payment.
+That absence is the main commercial weakness. Opening more SKUs would increase
+risk without fixing it.
+
+## Cycle outcome — August 22
+
+The technical truth pass did not change the rank. It strengthened K1/A1/V1 by
+moving the Node path to nodejs24.x, tracking nodejs22.x without calling it
+deprecated today, and retiring a false universal IMDSv1 deadline. It also
+removed the speculative Drift pitch and closed the Migration Pack, organization,
+partner, and generic scanner research-list branches. None of those changes is
+demand evidence. Publishing main and obtaining green CI/Pages builds are release
+evidence only. The repaired project-path Pages fallback is publicly reachable,
+and the Action's tested `@v2` ref now resolves publicly with its report link
+pointing to that verified funnel. Repository, kit, and future VS acquisition
+links use the same surface. The Marketplace listing itself remains on stale
+v1.1.0 pending the prepared draft's owner publication. Collected revenue and
+delivered paid reports remain zero. The previously overlooked GRACE static
+auto-deploy was observed running daily from `marketing-machine-v2`; that feed is
+now converged on the verified main tree and has a scheduled post-run truth gate.
+This reduces launch labor if the next public probe passes, but is not traffic,
+demand, payment, or proof that the API can fulfill an order. The live
+Stripe-capable `rupture-worker` was subsequently replaced with the tested
+fail-closed tombstone and its public commerce/webhook paths now return 410.
+That removes a dangerous bypass and three owner minutes; it does not improve a
+frame's demand score or make A1 purchasable.
+
+The subsequent Stripe-account pass also leaves the ranking unchanged. Main now
+contains a manual, repository-owner-only workflow that can archive the six exact
+historical Prices and only the six approved Payment Link URLs after auditing
+unexpected Product Prices, open/recent-completed Checkout Sessions, recurring
+subscriptions, and schedules. Transition-race regressions and 39 Worker cases
+pass, but the production workflow has not run. This is prerequisite containment,
+not distribution, purchasability, or demand. K1 remains the fastest external
+signal, while A1 remains the only paid unit after its deployment/E2E gate.
+
+## Qualified-signal refinement — August 22
+
+K1 remains first, but its falsifier is now observable without trusting the stale
+backend. A scanner finding or Action finding can open a GitHub-authenticated,
+price-qualified public issue; a daily read-only workflow counts only external
+human authors and separately measures public `ntoledo319/EOLkits@v2` references.
+The baseline is zero. This does not increase K1's U hypothesis and does not count
+interest as a sale. It shortens the time needed to distinguish “nobody reached a
+finding” from “a finding occurred but $299 is not compelling.” A1 remains gated
+until real fulfillment and payment operations pass; no substitute SKU is opened.
+
+The K1 price-qualified surface became public at 2026-08-22 20:29 UTC. Its first
+five-full-day gate is therefore 2026-08-27 20:29 UTC; the broader Day-7 gate
+remains August 29. Do not move either gate earlier based on internal probes.
+
+## Search-distribution activation — August 22
+
+C4 gained one bounded autonomous distribution mechanism without becoming a new
+bet or paid SKU. Official IndexNow documentation permits up to 10,000 same-host
+URLs per batch, supports a non-root ownership key via `keyLocation`, and defines
+HTTP 200/202 as receipt. The shipped workflow validates the public key, exact
+Pages prefix, URL count, and malformed input; normal pushes map only changed or
+deleted HTML paths, while the bootstrap run used the current 51-URL sitemap.
+Run `32597777674` succeeded. This improves discovery opportunity but does not
+change the revenue hypothesis or falsifier: acceptance is not indexing, and
+the simultaneous acquisition observation remained zero-signal.
+
+## Verifiable-proof release — August 22
+
+A1 is materially easier to evaluate but does not move in rank or forecast. The
+public sample is no longer a hand-maintained HTML facsimile: it is a four-page
+PDF produced by the paid report engine from a downloadable fictional ZIP, with
+an exact artifact/input/evidence manifest. This removes the largest autonomous
+trust objection for an engineering manager or security reviewer who reaches the
+offer. It does not create distribution, payment readiness, or willingness to
+pay, so A1's U hypothesis remains $2,320.24 and observed revenue remains $0.
+
+K1 remains the fastest bet. Public `v2` now points to fully green commit
+`9c231b58`, and its report funnel can show the real artifact. The Marketplace
+listing itself still reports v1.1.0, so the existing built-in distribution is
+not repaired until HQ-5 publishes the prepared draft. V1 remains third, but the
+exact-ID audit corrected the prior search inference: `rupture.rupture-vscode`
+is public at v1.0.0 with an approximately 100-install counter and 162 downloads.
+Its tested in-place v1.1.0 update is not public yet. C4 remains fourth;
+another accepted IndexNow notification is release/discovery opportunity, not a
+visit or conversion.
+
+The portfolio falsifiers do not move: K1's first five-full-day checkpoint stays
+2026-08-27 20:29 UTC. At the release probe there were 0 qualified issues, 0
+paid reports, 1 star, 0 forks, and $0 collected. Do not open another SKU or
+infer demand from sample downloads, CI probes, IndexNow receipt, or internal
+artifact inspection.
+
+## Existing VS distribution recovery — August 22
+
+V1 is stronger than previously recorded but does not move above K1 or A1. The
+project already owns a public `rupture.rupture-vscode` listing with an
+approximately 100-install counter and 162 downloads; the EOLkits rename changed
+the technical identity and therefore hid, rather than migrated, that channel.
+The published v1.0.0 also sends its Audit link to a current HTTP 404.
+
+Preserve the stable identity and publish an EOLkits-branded v1.1.0 update through
+the existing credential. The candidate preserves legacy commands and settings,
+repairs all paid-funnel links, and exposes a findings-only qualified-interest
+form whose VS source is counted separately. This shrinks estimated owner labor
+from five minutes of publisher/credential setup to one workflow dispatch and
+verification; it does not authorize an autonomous Marketplace post.
+
+The observed 100–101 install-counter range and 162 downloads establish a
+distribution asset only. Set a fresh V1 baseline when v1.1.0 publishes. After
+five full days, zero counter growth and zero external VS-attributed
+qualified-interest authors kills the extension-as-revenue-channel hypothesis;
+retain the free utility without further promotion. Do not count auto-updates,
+existing installs, or owner probes as demand.
+
+Repository commit `a9cdcaeb` now contains the exact locally verified v1.1.0
+candidate, and its full release/VS package, determinism, property, Pages,
+Marketplace-draft, and acquisition workflows passed. This removes the technical
+release risk but does not start V1's clock: the public listing still serves
+v1.0.0 until HQ-6.
+
+## Owner-gate reconciliation — August 22
+
+The ranking remains K1, A1, V1, C4. A prebuilt GHCR image does not outrank any
+of them. GitHub supports anonymous pulls for public containers and repository
+permission inheritance when a package is linked correctly before publication,
+but this repository has neither the OCI source link nor a package workflow.
+Creating that new public package is also a new owner-authorized external release.
+It would not remove the SSH, secrets, Caddy, Stripe test UI, delivery, or refund
+proof that dominate HQ-3. Do not spend the launch window on container-registry
+hardening. Source checked August 22:
+https://docs.github.com/en/packages/learn-github-packages/about-permissions-for-github-packages
+
+K1 and V1 can safely publish while checkout is closed because every repaired
+link ends at the capability-gated Pages funnel. Still, the five-minute Stripe
+audit comes first because it may expose anomalous commerce state; their
+three-minute owner batch follows immediately. The GRACE operational gate remains
+before the $299 checkout. This ordering does not alter revenue estimates or
+count an unpublished artifact as signal.
+
+## Third-cycle blocker audit — August 22
+
+No new frame enters the ranking. The goal behind every route is collected money
+from a truthful, fulfilled offer. Seven alternatives were rechecked:
+
+1. use the prepared Stripe/GRACE Audit path — blocked by owner Stripe authority,
+   GRACE credentials, legal facts, and the real fulfillment/refund exercise;
+2. publish the Action or VS update — blocked by owner agreement/2FA or publisher
+   identity and prohibited autonomous posting;
+3. reuse a historical Stripe Payment Link — rejected because authenticated
+   commerce state and v2 fulfillment are unproved;
+4. deploy on another free host — does not supply payment/KYC, email credentials,
+   durable report operations, or permission to publish under the owner;
+5. list a code/report product on another marketplace — adds seller identity,
+   KYC, agreement, public listing, and usually a new unproved fulfillment path;
+6. sell a service/license directly — requires prohibited customer contact,
+   commitments, and payment coordination; and
+7. add SEO, samples, telemetry, registries, sponsorships, or ads — cannot collect
+   money while every payment rail is closed and adds no observed buyer signal.
+
+The cheapest legal route remains HQ-2 followed immediately by HQ-5/HQ-6, then
+HQ-1/HQ-3/HQ-4/HQ-7. It is fully prepared and costs eight owner minutes for the
+first containment/distribution batch, 37 minutes total. It is not autonomously
+executable under the identity/contact/credential rules. More repository work is
+now negative leverage.
+
+## Privacy-gated canonical discovery — August 25
+
+No new monetization frame enters the ranking. C4 became safer, not more
+valuable: the truthful `eolkits.com` corpus is now live with a 51-URL sitemap,
+but its hosting layer injects an unreviewed analytics script into every tested
+page. Publishing cached commercial URLs while that contradiction remains would
+compound privacy and trust risk rather than create qualified demand.
+
+The reviewed release adds a browser-enforced CSP to all 64 HTML documents and
+extends the bounded IndexNow job to the custom host. Pages submission run
+`32835361747` succeeded; custom submission run `32835404486` failed closed
+before an IndexNow request because the CSP was not yet live. Once the GRACE host
+deploys feed commit `a5510969` and removes its injected script, rerunning that
+same zero-credential path is the cheapest safe search-discovery test. It still
+cannot collect money while checkout is closed.
+
+Ranking remains K1, A1, V1, C4. VS v1.0.0 moved only from roughly 100 installs /
+162 downloads to 103 / 164 while the v1.1.0 release stayed unpublished; that is
+weak historical counter movement, not attributable demand. Qualified issues,
+paid reports, and workspace-observed collected revenue remain 0 / 0 / $0. HQ-2
+followed by HQ-5/HQ-6 remains the shortest route to commercial evidence; the
+GRACE privacy/deployment correction is now an explicit prerequisite to HQ-7.
+
+## Hands-off distribution activation — August 25
+
+Ranking remains K1, A1, V1, C4, but two execution facts changed. The legacy
+Stripe surfaces are now exactly retired, so anomalous stale commerce no longer
+precedes distribution; residual key rotation is credential hygiene, not a
+catalog-closure blocker. K1 still needs the two-minute GitHub Marketplace UI
+publication and still has no paid checkout, so its revenue forecast does not
+move.
+
+V1 is now launched through the existing built-in distribution channel. Green
+run `32841331222` published exact identity `rupture.rupture-vscode` at v1.1.0
+from pinned commit `a9cdcaeb`; the version-specific public package is already
+downloadable and contains the repaired, findings-qualified Audit path. The
+Gallery latest-version query initially served cached v1.0.0, then exposed
+v1.1.0 at 11:21:39 UTC. The release clock starts at the publisher's successful
+2026-08-25 11:15 UTC result; its five-full-day falsifier is August 30 at 11:15
+UTC. Fresh baseline counters are 103 installs and 166 downloads. Counter
+movement alone is not revenue or qualified demand.
+
+No price, unit forecast, or target math changes. Qualified issues, paid reports,
+workspace-observed collected revenue, and profit remain 0 / 0 / $0 / $0. The
+fastest remaining route to a first dollar is HQ-5 distribution followed by the
+closed GRACE proof, legal facts, DEV cleanup, and exact $299 checkout activation;
+another product or channel would add identity/KYC work without removing that
+cash-path boundary.
+
+## Instrumented distribution and gate state — August 27
+
+Ranking remains K1, A1, V1, C4. V1 has produced +17 cumulative downloads but
+zero install growth since its 103-install/166-download v1.1.0 baseline, and the
+latest acquisition artifact (`9629312207`) still has zero qualified
+VS-attributed authors.
+That is package/update movement, not a purchase or demonstrated buyer intent.
+The five-full-day V1 gate remains August 30 at 11:15 UTC.
+
+K1 still has zero external `@v2` references and no public v2.0.0 release. Its
+two obsolete untagged drafts were removed, leaving only the exact canonical
+draft; that lowers publication-error risk but does not change K1's forecast.
+The owner-only Marketplace agreement/checkbox/2FA remains irreducible.
+
+A1 remains the only paid unit and checkout remains closed. The custom host now
+serves the generated CSP, but its hosting layer still injects an unreviewed
+external script, the verifier remains red, GRACE v2 capability endpoints remain
+404, and repository automation still has no deployment transport/runtime bundle.
+No new frame removes those operating gates without adding a new marketplace,
+identity, KYC, or fulfillment burden.
+
+## Cycle note — August 27 (egress-restricted)
+
+No frame ranking changes. C4 (cited search/deadline pages as the Audit funnel)
+gained one corrected entry (nodejs16.x) that the free scanner already implied
+but the public deadline tracker omitted — a completeness fix within the
+existing C4 frame, not a new frame. K1/A1/V1 remain the ranked bets and remain
+blocked on the same owner-only gates in HUMAN_QUEUE.md. See DECISIONS D42.
+
+## August 30 commercial re-analysis
+
+The ranking remains **K1 → A1 → V1 → C4**, but the reason is narrower than the
+old profitability narrative implied:
+
+1. **K1, free GitHub Action → Audit:** keep as the fastest built-in discovery
+   route. The missing public `@v2` ref is restored, but the Marketplace still
+   needs its v2 publication and there are still zero observed external refs.
+2. **A1, $299 Audit PDF:** keep as the only paid offer because it is the only
+   unit with implemented checkout, bounded input, deterministic evidence,
+   delivery, retention, verification, and refund handling. It remains gated off
+   until the corrected GRACE rollout and live test evidence exist.
+3. **V1, free extension → Audit:** the five-day gate is still pending until
+   `2026-08-30T11:15:00Z`, but 103 installs, cumulative download movement, and
+   zero qualified authors put it on track to fail. The acquisition workflow now
+   emits `pending`, `passed`, or `failed_reposition_required` mechanically;
+   downloads alone cannot pass.
+4. **C4, cited search pages:** retain as compounding discovery only. The clean
+   Pages origin is useful, while the injected/stale custom host remains a trust
+   and operational blocker.
+
+Current primary-source research weakens any claim that detection alone supports
+a high price: AWS already sends runtime-deprecation notices, Amazon Inspector
+scans Lambda/code, and AWS is previewing broader automated modernization.
+EOLkits can charge only for the distinct output—the source-bound, reviewable
+change-approval artifact—not for merely announcing an EOL date. This rules out
+raising the price or reopening old SKUs without buyer evidence.
+
+Provisional target math for a US standard-pricing Stripe account is now explicit
+and intentionally conservative. Fourteen domestic-card sales at $299 net about
+**$4,060.42** after 2.9% + $0.30 per transaction. Sixteen all-international,
+currency-converted sales with one full refund net about **$4,221.50** after
+per-transaction rounding, 5.4% + $0.30 processing, the refunded $299, and the
+additional $0.30 refund fixed fee described by Stripe's July 2026 policy. Actual
+account country, negotiated pricing, currencies, taxes, disputes, and host cost
+are unknown; this is a forecast, not observed profit.
+
+## Post-recovery opportunity state — August 30, 2026
+
+The ranking remains **K1 → A1 → V1 → C4**. Recovery execution changed readiness,
+not demand:
+
+- **K1 is release-ready:** public `@v2` and the canonical private v2.0.0 draft
+  now target the same fully green commit. Only GitHub's owner agreement,
+  Marketplace checkbox, and 2FA ceremony remain. No external v2 adoption or
+  purchase has yet been observed.
+- **A1 is code-ready but operationally closed:** the repository now fails
+  safely around state, catalog identity, and retired prices. GRACE containment,
+  deployment, injection removal, test delivery/refund proof, legal facts, and a
+  new live Product/Price remain prerequisites to accepting money.
+- **V1 is still pending its exact 11:15 UTC gate:** 103 installs, 193 cumulative
+  downloads, zero install growth, and zero qualified external authors were the
+  last observation. The scheduled measurement—not intuition—will emit the gate
+  result after the deadline.
+
+Observed paid demand remains zero, so no new SKU, higher price, or projected
+profit is justified. The shortest honest path to a first dollar is publish K1,
+finish the closed A1 operational proof, then enable only the attested $299 A1
+checkout.
+
+## Correctness note — August 31, 2026
+
+Ranking remains **K1 → A1 → V1 → C4**. K1's underlying free scanner
+(`lambda-lifeline`) had a live-scan false negative for `python3.8` Lambda
+functions, fixed this cycle (see ASSETS.md and DECISIONS D52). This raises
+K1's product quality — a stranger evaluating the free tool before considering
+Audit would have gotten a wrong "healthy" result for that runtime — but it is
+a defect repair, not new demand evidence, and does not change any frame's
+score or the ranking.
+
+## August 31 gate result and authorized execution
+
+The ranking remains **K1 → A1 → V1 → C4**; the evidence changed V1's lifecycle,
+not the portfolio's revenue forecast.
+
+1. **K1:** direct public `@v2` consumption works and the one canonical
+   v2.0.0 draft is exact, but the Marketplace still displays v1.1.0 until the
+   owner completes GitHub's agreement/checkbox/2FA publication ceremony.
+2. **A1:** remains the only revenue-bearing unit and remains correctly closed.
+   The production host is still pre-v2 and injected; there is no verified
+   delivery/refund exercise, exact seller/account-cost facts, or new attested
+   live catalog.
+3. **V1:** the old gate failed with 103 installs (zero growth), 197 downloads
+   (+31 context-only), zero qualified VS-attributed external authors, and zero
+   qualified interest issues. Per the gate policy, its single reposition was
+   shipped as public v1.2.0 with a Lambda-specific name, search vocabulary, and
+   first-scan path. Its clean baseline is 103 installs / 199 downloads and its
+   new falsifier is 2026-09-05T23:27:55Z.
+4. **C4:** the reviewed Pages origin remains useful, but the custom domain
+   cannot be a paid funnel until the stale API and host injection are removed.
+
+This work creates a better free acquisition surface, not evidence for a higher
+price or another product. Qualified buyers, purchases, collected revenue, and
+collected profit remain zero. The conservative target remains 16 initial $299
+sales under the provisional fee assumptions already recorded above.
+
+## Branch reconciliation note — September 1, 2026
+
+Ranking remains **K1 → A1 → V1 → C4**; nothing here moves it. This cycle
+reconciled a real branch divergence (`marketing-machine-v2` vs `origin/main`,
+three merged PRs) and fixed a second `lambda-lifeline` live-scan false
+negative (`python3.11`, same class as D52's `python3.8` fix). K1's product
+quality improves again; V1's public state is now confirmed at v1.2.0 with
+its five-day gate at `2026-09-05T23:27:55Z` (unchanged from `main`'s prior
+observation, just now visible on this branch). No new demand evidence, no
+frame score change.
+
+## Maintenance-only note — September 2, 2026
+
+Ranking remains **K1 → A1 → V1 → C4**. Egress was blocked for the seventh
+consecutive cycle (now confirmed a general organization-policy block, not a
+two-domain denylist — see DECISIONS D57), so no new C4 content or K1/V1
+correctness gap could be researched externally. A full internal re-sweep of
+the lambda-lifeline/deprecations.yml/python-pivot cross-check found no new
+K1 product defect beyond the already-fixed python3.8/python3.11 cases. V1's
+five-day gate (`2026-09-05T23:27:55Z`) remains pending. No frame score
+change; no new demand evidence.
+
+## Fresh marketplace/channel ranking — September 4, 2026
+
+Current official platform rules and fresh public discovery checks change the
+execution order, but not the fact that only fulfilled purchases count:
+
+1. **V1 (VS extension → A1) is the strongest observed acquisition surface.**
+   It appears first or second for several high-intent Marketplace searches
+   including “AWS Lambda EOL” and “AWS deprecation.” VS extensions support only
+   Free/Trial pricing, so v1.3 remains a free, local scanner that routes a real
+   finding to Audit; it is not itself forecast as revenue. The original
+   103-install baseline and September 5 gate are not reset by a correctness
+   release.
+2. **A1 ($299 automated Audit) remains the only fast cash unit.** Fourteen
+   domestic-card sales would provisionally net about $4,060.42 under the
+   previously recorded 2.9% + $0.30 assumption. Actual account fees/currency,
+   refunds, tax, and incremental host cost remain unknown until HQ-B; this is
+   arithmetic, not evidence. Search already places the cited Lambda schedule
+   page directly behind AWS for at least one relevant schedule query, so the
+   new contextual card is the cheapest owned path to test once checkout opens.
+3. **K1 (GitHub Action → A1) remains the second free marketplace funnel.**
+   GitHub Actions have built-in discovery but no native paid plan. The public
+   `@v2` ref works; the v2 Marketplace release still needs the account holder's
+   agreement/checkbox/2FA ceremony. Read-only, nonblocking first use now lowers
+   trial friction.
+4. **A3 on RapidAPI becomes the only credible compounding candidate with both
+   discovery and payment.** Official docs allow up to four public plans and
+   add `X-RapidAPI-Proxy-Secret` to provider requests; RapidAPI's documented
+   provider share is 80%. Thirty-four $150 customer-months would yield $4,080
+   before payout/tax effects. It is not the fast bet: a bounded endpoint,
+   measured free-tier capacity, seller/KYC/PayPal setup, and a live listing are
+   still absent. Do not divert the GRACE launch to build it first.
+5. **C4 (source-linked search pages → A1) stays the no-cost compounding funnel.**
+   The custom host's stale indexed snippets and injected script make recrawling
+   unsafe until HQ-C; Pages remains the clean canonical fallback.
+
+Contra is deliberately **parked**, despite attractive discovery and
+commission-free seller earnings. Contra supports fixed-price services and a
+$299 listing would require 14 sales to gross $4,186, but inquiries, contracts,
+private-file handoff, project delivery, and every MCP write confirmation retain
+the exact human element this operating model is removing. It becomes viable
+only if a supported platform integration can hand a paid buyer directly into
+the already-automated Audit flow without double charging or manual delivery.
+
+Deprioritized after official-policy review: AWS Marketplace (onboarding/review
+and buyer-response burden), Gumroad/Payhip/Lemon Squeezy marketplaces (prior
+sales/review or service restrictions), Fiverr/Upwork (manual service work and
+automation limits), Polar (no service marketplace discovery), and GitHub
+Sponsors (support, not disguised Audit checkout). No asking price or platform
+marketing claim is recorded as demand.
+
+Primary policy references checked this cycle:
+
+- <https://code.visualstudio.com/api/working-with-extensions/publishing-extension>
+- <https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace>
+- <https://docs.rapidapi.com/v2.0/docs/additional-request-headers>
+- <https://docs.rapidapi.com/docs/hub-listing-monetize-tab>
+- <https://help.contra.com/en/articles/9322412-how-to-add-services-to-your-contra-profile>
+
+## Public-signal ranking checkpoint — September 4, 2026
+
+Ranking remains **A1 cash path → V1 acquisition → K1 acquisition → A3 queued**.
+The public v1.3.0 Gallery evidence changes V1 from “pending/inconclusive” to a
+mechanical signal pass: five samples consistently report 104 installs versus
+the retained 103 baseline. This is the smallest possible positive install
+signal and validates continuing the channel; it does not validate the $299
+offer, estimate conversion, or reduce the $4,000 cash gap. The accompanying
+download movement from 199 to 226 is not treated as 27 people.
+
+A1 remains the only unit capable of collecting near-term money: one automated,
+source-only $299 report, provisionally 14 domestic no-refund sales or the
+existing 16-sale conservative buffer. K1 still needs the owner-held Marketplace
+publication ceremony. A3 remains behind the Audit launch because building a
+second payment surface before the existing fulfillment path is proven would
+delay first revenue. No frame is promoted on the basis of commits, workflow
+runs, Marketplace counters, or search rank alone.
+
+## Launch-path review checkpoint — September 4, 2026
+
+Ranking remains **A1 cash path → V1 acquisition → K1 acquisition → A3 queued**.
+Publishing the API image to GHCR was rejected: the production host must still
+build or pull, preflight, snapshot, deploy, and verify, so a registry image
+removes zero documented owner minutes while adding another mutable release
+surface and credential/pull path. The guarded host wrapper improves the actual
+deployment boundary instead.
+
+Security, legal, and repository-admin work lower execution and loss risk; they
+do not add traffic, validate willingness to pay, or change any revenue score.
+Former HQ-F is complete, HQ-B is narrowed by official seller-address and
+governing-law evidence, and the pending owner ceiling falls from 42 to 38
+minutes. Checkout is still closed, so A1's five-day purchase falsifier has not
+started. No product or channel is promoted on operational polish alone.
+
+## Discovery-saturation check — September 4, 2026
+
+Fresh marketplace and repository evidence does not change the ranking. V1
+already ranks first or second for seven high-intent AWS deprecation/EOL search
+phrases and seventh for broad `aws lambda`, yet has zero qualified issues and
+zero attributable purchases. Add the one missing exact GitHub ecosystem topic
+for K1, then stop treating metadata churn as distribution. A duplicate hosted
+site, sponsor-button promotion, and a keyword-only VS patch all fail to improve
+built-in payment or unlock A1 fulfillment.
+
+K1 remains the fastest listed channel but still needs HQ-E's account-holder
+Marketplace ceremony for v2. A1 remains the only paid unit and still needs the
+closed-deploy/E2E/catalog sequence. V1 remains a useful acquisition surface, not
+a proved sales channel. RapidAPI remains queued behind real checkout evidence;
+building it now would create another account/payment dependency rather than a
+faster first dollar.
+
+## Post-merge ranking — September 4, 2026
+
+PR #56 and the exact merge-SHA suites make the discovery record durable but add
+no customer signal. The subsequent cleanup containment failure also changes no
+market fact. Ranking remains **A1 cash path → V1 acquisition → K1 acquisition →
+A3 queued**. Do not interpret the new GitHub topic, green checks, merged state,
+or branch alignment as a sale, and do not add a substitute SKU while A1 remains
+closed on owner-only production/payment gates.
+
+## Environment-recovery checkpoint — September 4, 2026
+
+The workspace-local env scan does not change the opportunity ranking because it
+recovered no usable authority. If the owner-reported external envs are copied
+into the prepared ignored inbox, valid GRACE transport plus Stripe-test/Resend
+credentials could collapse most A1 deployment work; a valid DEV key could also
+remove the false corpus through its supported API. Those are conditional
+capabilities, not current assets or demand. A1 remains first, and no credential
+may weaken the closed-checkout, E2E, refund, cost, or truth gates.
+
+## September 5 checkpoint
+
+No ranking change: the paid API still needs access. Five Gallery samples retain
+the previously observed +1 install signal, with zero qualified interest issues.
+The original September 5 23:27:55 UTC gate is not yet due. Repeating package
+releases or adding another storefront would not resolve the payment dependency.
+
+
+## Local product verification — 2026-09-05 09:44 UTC
+
+The whole-product request selected scanner trust and recovery after reproducible defects in otherwise passing workflows. This reduces correctness risk in the existing free scanners and bounded report intake. Monetization ranking, prices, funnel hypotheses and external falsifiers are unchanged. Local test results do not demonstrate demand or change the profit gap.

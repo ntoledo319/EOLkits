@@ -1,4 +1,4 @@
-# Rupture — Public Rule Sources
+# EOLkits — Public Rule Sources
 
 > Every rule shipped in `rules/public/` is grounded in a publicly-published source. This file is the index of those sources. If a rule cannot cite a public source, it does not ship.
 
@@ -28,4 +28,7 @@
 
 ## Citation rule
 
-Every rule entry in `rules/public/*.yml` MUST include a `source_url` field pointing at a stable, public, primary source. PRs that add rules without `source_url` are rejected by CI. The CI check is enforced by `feed/publish.py` validation (the build fails if any rule lacks a source).
+Every active deprecation in `rules/public/deprecations.yml` MUST include an
+HTTPS `url` pointing at a stable public primary source. Every generated error
+fix in `apps/web/content/fixes.yml` MUST include an HTTPS `source_url`. The web
+build validates both datasets, so a missing citation fails CI.

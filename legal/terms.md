@@ -1,108 +1,116 @@
-# Terms of Service — Rupture
+# Terms of Service — EOLkits
 
-**Last updated:** April 29, 2026
+**Last updated:** September 4, 2026
 
-## 1. Acceptance of Terms
+## 1. Acceptance
 
-By accessing or using Rupture's services (the "Services"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the Services.
+EOLkits is operated by Toledo Technologies LLC, 2389 Main St. STE 100,
+Glastonbury, CT 06033, United States ("EOLkits," "we," or "us").
 
-## 2. Description of Services
+By using EOLkits, you agree to these Terms. If you do not agree, do not use the
+service.
 
-Rupture provides automated migration tools for AWS platform deprecations, including:
-- Open-source CLI tools (MIT licensed)
-- Hash-anchored audit reports (paid)
-- Automated pull request generation (paid)
-- Organization licenses and rule-pack feeds (paid)
-- Continuous drift monitoring (paid subscription)
+## 2. Available Services
 
-## 3. Open Source Software
+### Free tools
 
-The CLI tools are released under the MIT License and are available on GitHub. You may use, modify, and distribute the CLI code subject to the terms of the MIT License. Paid tiers provide additional services, not additional code.
+The local CLI tools, browser scanner, documentation, and GitHub Action are
+provided under their applicable open-source licenses. The free scanners detect
+configured patterns in the files or inventory you supply; they do not guarantee
+a complete AWS account inventory.
 
-## 4. Paid Services
+### Paid repository evidence report
 
-### 4.1 Audit PDF
-- Hash-anchored deterministic reports
-- Delivered via email within 5 minutes of purchase
-- Includes verification URL for authenticity
-- Pricing varies based on urgency (surge pricing within 30/7 days of deadline)
+When its readiness gate is open, the only self-serve paid product is a static
+evidence report for one uploaded repository ZIP or supported source file. The
+report includes:
 
-### 4.2 Migration Pack
-- Automated PR opened on your repository
-- Includes codemods, IaC patches, canary plan, and rollback script
-- **Refund policy:** Auto-refund if CI fails within 7 days of PR creation
-- Refund processed automatically; no manual intervention required
+- exact observed file/line evidence for matched rules;
+- observed match/file counts and a severity-based remediation order;
+- a configured rule or package reference for each matched finding (dependency
+  floors are conservative triage baselines and require target-specific
+  verification);
+- the input SHA-256, rule-pack/report-engine versions, and a deterministic
+  evidence fingerprint; and
+- explicit scope and limitations.
 
-### 4.3 Org License
-- Annual subscription for live rule-pack feeds
-- Includes private rule extensions
-- Unlimited runs within licensed organization
+The report does **not** query a live AWS account, execute code, prove
+exploitability, count resources that are not present in the uploaded source,
+estimate downtime dollars, guarantee completeness, or constitute a digitally
+signed PDF. Target dates supplied at checkout are context only and do not change
+the price or findings.
 
-### 4.4 Drift Watch
-- Monthly subscription for continuous monitoring
-- Weekly re-scans of configured IAM roles
-- Delta PDFs delivered on detected changes
+### Unavailable concepts
 
-## 5. Payment and Billing
+Migration Pack, Drift Watch, and Organization License are private research/beta
+concepts and are not available for purchase. No listed feature, price, or prior
+page creates a right to purchase them. A stale direct payment that cannot be
+fulfilled is subject to automatic full refund handling.
 
-- Payments processed via Stripe
-- All prices in USD
-- Subscription billing occurs at the start of each billing period
-- You may cancel subscriptions at any time; access continues until period end
+## 3. Payment, Delivery, and Refunds
 
-## 6. Intellectual Property
+- Payment is processed by Stripe in USD.
+- The paid report is generated after verified payment and emailed when processing
+  succeeds. Provider outages and unusually large valid inputs can delay delivery.
+- If automated paid fulfillment permanently fails after retries, EOLkits queues
+  a full refund to the original payment method. If Stripe does not confirm that
+  refund, the order is flagged for operator review; customers may always use the
+  contact route below.
+- You may also request a full Audit refund within 30 days of purchase by emailing
+  `hello@toledotechnologies.com` from the purchase address. Include the Stripe
+  receipt or Checkout Session identifier. No explanation is required.
+- Refund posting time after issuance is controlled by Stripe and the customer's
+  financial institution.
 
-- CLI code: MIT License
-- Audit reports: Purchased for your internal use only
-- Generated PRs and patches: Belong to you (MIT license applies)
-- Rule packs: Licensed per your subscription tier
+## 4. Customer Responsibilities
 
-## 7. Limitations and Disclaimers
+You confirm that you have authority to upload and analyze the submitted files.
+Do not upload credentials, secrets, private keys, regulated personal data, or
+unrelated confidential material. Review every finding and test every change in a
+non-production environment before deployment.
 
-THE SERVICES ARE PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. Rupture is not liable for:
-- AWS service changes or deprecation schedule changes
-- Migration failures in your specific environment
-- Data loss or service interruptions
-- Indirect, consequential, or special damages
+Uploads are subject to the limits shown before checkout, including compressed
+and expanded size, archive-entry, decoded-line, mapping-record, resource, and
+dependency-manifest complexity limits. Inputs outside those bounds are rejected
+before payment.
 
-## 8. Acceptable Use
+## 5. Intellectual Property
 
-You agree not to:
-- Reverse engineer paid components
-- Share purchased reports outside your organization
-- Use automated means to abuse the service
-- Violate AWS terms of service when using our tools
+- Open-source code remains governed by its repository license.
+- A purchased report may be used and shared internally within the purchasing
+  organization.
+- Customer source remains the customer's property. EOLkits receives only the
+  limited right to process it for requested fulfillment and security/abuse
+  prevention during the stated retention period.
 
-## 9. GitHub App Permissions
+## 6. Acceptable Use
 
-The Migration Pack requires installation of our GitHub App with permissions to:
-- Read repository contents and metadata
-- Create pull requests
-- Read check run status
+Do not abuse, disrupt, probe without authorization, evade limits, upload
+malicious archives, infringe rights, or use EOLkits in violation of law or a
+third-party platform's terms.
 
-You may uninstall at any time via GitHub settings.
+## 7. Disclaimers
 
-## 10. Abuse and Opt-Out
+EOLkits is provided "as is" and "as available." AWS and other platforms may
+change schedules and behavior. Source analysis can produce false positives,
+false negatives, or recommendations that require environment-specific changes.
+EOLkits is not a substitute for security, legal, compliance, or production
+change review.
 
-Repository owners may:
-- Add `.no-rupture` file to repo root to block auto-PRs
-- Report abuse via `/abuse` endpoint
-- Requests are processed within 60 seconds
+To the maximum extent permitted by law, EOLkits is not liable for indirect,
+incidental, special, consequential, or lost-profit damages arising from use of
+the service. Nothing in these Terms excludes liability that cannot legally be
+excluded.
 
-## 11. Changes to Terms
+## 8. Governing Law
 
-We may update these Terms from time to time. Continued use after changes constitutes acceptance.
+These Terms are governed by the laws of the State of Connecticut, without
+regard to its conflict-of-law rules. This does not limit mandatory consumer
+protections that apply in your place of residence.
 
-## 12. Contact
+## 9. Changes and Contact
 
-For questions about these Terms:
-- GitHub Discussions: https://github.com/ntoledo319/Rupture/discussions
-- Legal inquiries: See GitHub profile for contact
-
-## 13. Governing Law
-
-These Terms shall be governed by the laws of the jurisdiction where the operator is established (to be updated upon business entity formation).
-
----
-
-*By using Rupture, you acknowledge that you have read, understood, and agree to these Terms of Service.*
+Material changes will be published here with a new update date. Questions and
+refund requests: `hello@toledotechnologies.com`. Postal correspondence may be
+sent to Toledo Technologies LLC, 2389 Main St. STE 100, Glastonbury, CT 06033,
+United States.

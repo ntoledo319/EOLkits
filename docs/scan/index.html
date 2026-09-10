@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="referrer" content="origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://eolkits.com; form-action 'self'">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Free AWS Lambda Runtime &amp; Dependency EOL Scanner — EOLkits</title>
+<meta name="description" content="Scan selected AWS infrastructure and dependency files locally. See matched lines, cited timelines, and file coverage; download your findings without uploading source.">
+<link rel="canonical" href="https://ntoledo319.github.io/EOLkits/scan/">
+<link rel="stylesheet" href="/EOLkits/style.css">
+<script defer src="/EOLkits/track.js"></script>
+<meta property="og:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
+
+<style>.scan-page { color-scheme: dark; }
+.scan-page [hidden] { display: none !important; }
+.scan-page a { text-decoration: underline; text-underline-offset: 4px; }
+.scan-page .brand, .scan-page .scan-button { text-decoration: none; }
+.scan-page .container { max-width: 1080px; }
+.scan-page button, .scan-page input, .scan-page select, .scan-page textarea { font: inherit; }
+.scan-page button, .scan-page summary { cursor: pointer; }
+.scan-page :focus-visible { outline: 3px solid #ff986f; outline-offset: 4px; }
+.skip-link { position: absolute; top: -80px; left: 20px; z-index: 100; background: var(--bg-card); padding: 12px; }
+.skip-link:focus { top: 10px; }
+.scan-nav { display: flex; align-items: center; justify-content: space-between; min-height: 80px; gap: 24px; border-bottom: 1px solid var(--border); }
+.scan-nav nav, .scan-footer div { display: flex; gap: 24px; flex-wrap: wrap; }
+.scan-nav nav, .scan-footer { font-size: .85rem; color: #adb5c3; }
+.scan-intro { padding: 60px 0 34px; max-width: 830px; }
+.scan-intro .eyebrow { margin: 0 0 18px; color: #ff986f; font-size: .75rem; letter-spacing: .09em; }
+.scan-intro h1 { margin: 0 0 20px; font-size: clamp(2.15rem, 5.5vw, 3.75rem); line-height: 1.08; letter-spacing: -.045em; }
+.scan-lede { color: #b7c0ce; font-size: 1.1rem; max-width: 710px; margin: 0 0 18px; }
+.privacy { display: flex; gap: 8px; align-items: center; color: #9bd4b6; font-size: .84rem; }
+.privacy::before { content: ''; display: inline-block; flex: 0 0 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.scan-workspace { background: var(--bg-soft); border: 1px solid #303949; border-radius: 14px; padding: 26px; scroll-margin-top: 24px; }
+.section-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 22px; }
+.step-label { font: .7rem var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: #a0aabb; margin: 0 0 9px; }
+.scan-page h2 { font-size: 1.25rem; letter-spacing: -.02em; margin: 0; }
+.scan-page h3 { font-size: .98rem; margin: 0 0 8px; }
+.scan-button { display: inline-flex; justify-content: center; align-items: center; gap: 8px; border: 1px solid transparent; border-radius: 7px; padding: 11px 16px; font-size: .86rem !important; font-weight: 650 !important; line-height: 1.4; }
+.scan-button.primary { background: #ff8454; color: #17100c; border-color: #ff8454; }
+.scan-button.primary:hover { background: #ff9e78; }
+.scan-button.secondary { background: #1b2230; color: #e6e8eb; border-color: #3d4657; }
+.scan-button.secondary:hover { border-color: #c7ced8; }
+.scan-button:disabled { opacity: .5; cursor: default; }
+.drop-zone { display: flex; align-items: center; gap: 22px; padding: 26px 22px; border: 1px dashed #667286; border-radius: 9px; background: #151d29; }
+.drop-zone.over { border-color: #ff986f; background: #2a221f; }
+.drop-zone p { margin: 0; color: #b7c0ce; font-size: .83rem; }
+.drop-zone .scan-button { margin-left: auto; flex-shrink: 0; }
+.drop-symbol { color: #ff986f; font-size: 2.2rem; }
+.input-help { color: #a7b1c0; font-size: .76rem; line-height: 1.65; margin: 12px 0; }
+.paste-panel { border-top: 1px solid var(--border); margin-top: 20px; padding-top: 17px; }
+.paste-panel summary, .coverage summary { font-size: .88rem; font-weight: 600; padding: 6px 0; }
+.paste-panel form { display: grid; gap: 10px; padding-top: 18px; }
+.scan-page label { font-size: .78rem; color: #bec6d2; }
+.scan-page select, .scan-page input[type='search'], .scan-page textarea { min-width: 0; width: 100%; border: 1px solid #465164; border-radius: 6px; background: #0b1018; color: #e6e8eb; padding: 10px 12px; }
+.scan-page textarea { resize: vertical; font: .82rem/1.6 var(--font-mono); min-height: 160px; }
+.scan-page textarea::placeholder, .scan-page input::placeholder { color: #9aa6b8; }
+.paste-panel .scan-button { justify-self: start; }
+.paste-panel .input-help { margin-top: 0; }
+.scan-feedback { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 20px; min-height: 28px; }
+.scan-feedback p { font-size: .8rem; color: #b5becd; margin: 0; }
+.scan-feedback > div { display: flex; gap: 12px; flex-shrink: 0; }
+.text-button { background: none; border: none; color: #c4ccda; padding: 7px; text-decoration: underline; text-underline-offset: 4px; font-size: .8rem !important; }
+.scan-output { padding-top: 38px; }
+.scan-summary { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--border); border-radius: 9px; margin-bottom: 24px; background: #121923; }
+.scan-summary > div { padding: 17px 22px; display: flex; gap: 12px; align-items: baseline; }
+.scan-summary > div + div { border-left: 1px solid var(--border); }
+.scan-summary strong { font: 600 1.7rem var(--font-mono); color: #f0f2f5; }
+.scan-summary span { color: #b7c0ce; font-size: .8rem; }
+.finding-controls { display: flex; align-items: end; flex-wrap: wrap; gap: 16px; margin: 0 0 18px; }
+.finding-controls label { display: block; margin-bottom: 7px; }
+.finding-controls .finding-search { flex: 1; min-width: 180px; }
+.finding-controls p { color: #adb7c5; font: .74rem var(--font-mono); margin-bottom: 12px; }
+.findings { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+.finding { border: 1px solid #303949; border-radius: 10px; background: #131a25; padding: 22px; min-width: 0; }
+.finding-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.finding-heading h3 { font: 600 1rem var(--font-mono); margin: 0; overflow-wrap: anywhere; }
+.severity { padding: 3px 7px; border-radius: 4px; font: 600 .65rem var(--font-mono); text-transform: uppercase; letter-spacing: .03em; }
+.sev-critical { background: #431f27; color: #ffb1bd; }
+.sev-high { background: #442e21; color: #ffc29b; }
+.sev-medium { background: #3b341c; color: #f6d87f; }
+.sev-low { background: #203652; color: #aecfff; }
+.finding-kind { color: #a7b1c0; font-size: .72rem; margin-left: auto; }
+.finding-location { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin: 12px 0 18px; font-size: .8rem; }
+.finding-location code { color: #dce1e8; overflow-wrap: anywhere; }
+.finding-location span { color: #a7b1c0; }
+.finding-change { font-size: .85rem; display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; }
+.finding-change strong { font-weight: 500; }
+.milestones { display: flex; flex-wrap: wrap; gap: 15px 32px; margin: 12px 0; }
+.milestones dt { font-size: .68rem; color: #aeb8c8; }
+.milestones dd { font: .83rem var(--font-mono); margin: 4px 0 0; }
+.finding-note { color: #b8c2d1; font-size: .82rem; margin: 14px 0; }
+.finding-links { display: flex; flex-wrap: wrap; gap: 22px; font-size: .77rem; }
+.finding-links a { color: #ffc0a5; }
+.empty-result { padding: 25px; border: 1px solid #3d4657; border-radius: 8px; background: #151d29; }
+.empty-result p { color: #b7c0ce; margin: 0; font-size: .88rem; }
+.coverage { margin: 22px 0; border-top: 1px solid var(--border); padding-top: 13px; }
+.coverage ul { list-style: none; padding: 0; margin: 10px 0; }
+.coverage li { display: grid; grid-template-columns: 76px minmax(80px, 1fr) minmax(130px, 1.5fr); gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: .76rem; color: #afb9c8; }
+.coverage code { overflow-wrap: anywhere; color: #d5dce7; }
+.file-state { text-transform: uppercase; font: .64rem var(--font-mono); padding-top: 3px; }
+.state-scanned { color: #9bd4b6; }
+.state-failed, .state-cancelled, .state-skipped { color: #ffc09e; }
+.next-step { display: flex; align-items: center; flex-wrap: wrap; gap: 18px; background: #19212e; border: 1px solid #364156; border-radius: 10px; padding: 22px; }
+.next-step > div { flex: 1; min-width: 220px; }
+.next-step p { color: #b7c0ce; font-size: .79rem; margin: 0; }
+.next-step .scan-interest { flex-basis: 100%; padding-top: 14px; border-top: 1px solid #364156; font-size: .72rem; }
+.scan-scope { padding: 42px 0 30px; }
+.scope-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 22px; }
+.scope-columns ul { padding-left: 18px; color: #adb7c5; font-size: .82rem; }
+.scope-columns li { margin-bottom: 10px; }
+.scan-footer { display: flex; justify-content: space-between; gap: 20px; padding-top: 22px; padding-bottom: 35px; border-top: 1px solid var(--border); }
+@media (max-width: 650px) {
+  .scan-page .container { padding-left: 18px; padding-right: 18px; }
+  .scan-nav { min-height: 70px; gap: 14px; }
+  .scan-nav nav { gap: 12px; font-size: .7rem; }
+  .scan-intro { padding-top: 36px; }
+  .scan-lede { font-size: .98rem; }
+  .privacy { align-items: start; }
+  .privacy::before { margin-top: 8px; }
+  .scan-workspace { padding: 18px; }
+  .section-heading { align-items: start; flex-direction: column; gap: 15px; }
+  .drop-zone { flex-direction: column; gap: 14px; align-items: start; padding: 20px; }
+  .drop-symbol { display: none; }
+  .drop-zone .scan-button { margin-left: 0; width: 100%; }
+  .desktop-break { display: none; }
+  .scan-feedback { align-items: start; }
+  .scan-feedback > div { flex-direction: column; gap: 0; }
+  .scan-summary > div { padding: 13px 10px; flex-direction: column; gap: 4px; }
+  .scan-summary strong { font-size: 1.4rem; }
+  .scan-summary span { font-size: .7rem; }
+  .finding-controls { gap: 10px; }
+  .finding-controls p { flex-basis: 100%; margin: 0 0 4px; }
+  .finding { padding: 17px; }
+  .finding-kind { flex-basis: 100%; margin-left: 0; }
+  .coverage li { grid-template-columns: 64px 1fr; gap: 8px; }
+  .coverage li > span:last-child { grid-column: 2; }
+  .scope-columns { grid-template-columns: 1fr; gap: 16px; }
+  .scan-footer { flex-direction: column; font-size: .74rem; }
+  .scan-footer div { gap: 16px; }
+}
+</style>
+</head>
+<body class="scan-page">
+<a class="skip-link" href="#scanner">Skip to scanner</a>
+<header class="scan-nav container">
+  <a href="/EOLkits/" class="brand"><span class="brand-mark">/</span> EOLkits</a>
+  <nav aria-label="Main"><a href="/EOLkits/migrate/">Migration timelines</a><a href="/EOLkits/audit/sample/">Sample report</a></nav>
+</header>
+<main class="container">
+  <section class="scan-intro" aria-labelledby="page-title">
+    <p class="eyebrow">Free scanner · runs in your browser</p>
+    <h1 id="page-title">Find what needs to move.</h1>
+    <p class="scan-lede">Check your AWS Lambda runtimes and Node/Python dependencies before a migration. Get matched file locations, published timelines, and a result you can take with you.</p>
+    <p class="privacy">File names and contents stay in this browser. No account or AWS credentials.</p>
+  </section>
+
+  <section id="scanner" class="scan-workspace" aria-labelledby="input-title">
+    <div class="section-heading"><div><p class="step-label">01 / Select your input</p><h2 id="input-title">Start with your source files</h2></div><button class="scan-button secondary" id="try-sample" type="button">Try a fictional example</button></div>
+    <div id="dz" class="drop-zone">
+      <span class="drop-symbol" aria-hidden="true">↳</span>
+      <div><h3>Drop files here</h3><p>SAM, CloudFormation, Terraform, Serverless, CDK,<br class="desktop-break"> package.json, requirements*.txt, or pyproject.toml.</p></div>
+      <button id="choose-files" type="button" class="scan-button primary" aria-describedby="input-limits">Choose files</button>
+      <input id="fi" type="file" multiple accept=".yaml,.yml,.json,.tf,.hcl,.ts,.tsx,.js,.jsx,.mjs,.cjs,.py,.sh,.txt,.toml" hidden aria-label="Source files">
+    </div>
+    <p id="input-limits" class="input-help">Up to 100 files · 1 MiB per file · 10 MiB per scan · UTF-8 text. Extract ZIP archives first. Each selection starts a new scan.</p>
+    <details class="paste-panel">
+      <summary>Or paste a file</summary>
+      <form id="paste-form">
+        <label for="paste-kind">File format</label>
+        <select id="paste-kind">
+          <option value="template.yaml">SAM / CloudFormation YAML</option>
+          <option value="template.json">CloudFormation JSON</option>
+          <option value="main.tf">Terraform / HCL</option>
+          <option value="serverless.yml">Serverless Framework YAML</option>
+          <option value="stack.ts">CDK TypeScript / JavaScript</option>
+          <option value="stack.py">CDK Python</option>
+          <option value="deploy.sh">AWS CLI shell commands</option>
+          <option value="package.json">Node package.json</option>
+          <option value="requirements.txt">Python requirements.txt</option>
+          <option value="pyproject.toml">Python pyproject.toml (PEP 621)</option>
+        </select>
+        <label for="paste-source">File contents</label>
+        <textarea id="paste-source" rows="8" spellcheck="false" autocomplete="off" autocapitalize="off" aria-describedby="paste-help" placeholder="Paste the complete configuration or dependency file…"></textarea>
+        <p id="paste-help" class="input-help">Keep the surrounding Lambda resource or AWS provider configuration so the scanner can identify its context.</p>
+        <button class="scan-button primary" type="submit">Scan pasted source</button>
+      </form>
+    </details>
+    <div class="scan-feedback"><p id="scan-status" role="status" aria-live="polite" aria-atomic="true">Ready when you are. Choose files or try the example.</p><div><button class="scan-button secondary" id="cancel-scan" type="button" hidden>Cancel scan</button><button class="text-button" id="clear-scan" type="button">Clear</button></div></div>
+    <noscript><p class="empty-result">This local scanner needs JavaScript. You can also use the free <a href="https://github.com/ntoledo319/EOLkits#use-it-free">repository CLIs</a>.</p></noscript>
+  </section>
+
+  <section id="scan-output" class="scan-output" aria-labelledby="results-title" aria-busy="false" hidden>
+    <div class="section-heading"><div><p class="step-label">02 / Review the evidence</p><h2 id="results-title">Scan results</h2><p id="scan-origin" class="input-help"></p></div><button class="scan-button secondary" id="download-results" type="button" disabled>Download all findings (.json)</button></div>
+    <div class="scan-summary"><div><strong id="scanned-count">0</strong><span>files scanned</span></div><div><strong id="findings-count">0</strong><span>findings</span></div><div><strong id="attention-count">0</strong><span>files need attention</span></div></div>
+    <div id="finding-controls" class="finding-controls" hidden>
+      <div><label for="severity-filter">Severity</label><select id="severity-filter"><option value="">All severities</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low / verify</option></select></div>
+      <div class="finding-search"><label for="finding-search">Find a file or dependency</label><input id="finding-search" type="search" placeholder="Search these findings" autocomplete="off"></div>
+      <p id="filter-count" role="status" aria-live="polite"></p>
+    </div>
+    <div id="results"></div>
+    <details id="coverage" class="coverage"><summary id="coverage-summary">File coverage</summary><ul id="file-coverage"></ul></details>
+    <aside id="next-step" class="next-step" hidden></aside>
+  </section>
+
+  <section class="scan-scope" aria-labelledby="scope-title"><p class="step-label">Know the scope</p><h2 id="scope-title">A useful first check. A bounded one.</h2>
+    <div class="scope-columns"><div><h3>What it checks</h3><ul><li>Configured Lambda runtime declarations in AWS infrastructure and source files.</li><li>Tracked Node native packages against conservative compatibility baselines; meeting one still requires target-runtime testing.</li><li>Tracked Python dependencies for Python 3.12 wheel baselines in requirements files and PEP 621 dependency lists.</li></ul></div><div><h3>What it does not establish</h3><ul><li>No AWS account access, live inventory, runtime execution, or automatic code changes.</li><li>No full syntax validation of YAML, HCL, or TOML, complete repository coverage, resolved lockfiles, or recursive requirements includes.</li><li>A match is a review task. No matches does not prove migration readiness. Provider dates can change; follow the source links.</li></ul></div></div>
+    <p class="input-help">File names and contents are not uploaded. If the verified v2 telemetry service is available, bounded aggregate counts may be sent (only file and finding counts). <a href="/EOLkits/legal/privacy.html">Privacy details</a>.</p>
+  </section>
+</main>
+<footer class="scan-footer container"><span>EOLkits · MIT-licensed tools</span><div><a href="/EOLkits/fix/">Common migration errors</a><a href="/EOLkits/legal/terms.html">Terms</a><a href="https://github.com/ntoledo319/EOLkits">Source code ↗</a></div></footer>
+<script>
+const SITE_BASE = "https://ntoledo319.github.io/EOLkits";
+const INTEREST_URL = "https://github.com/ntoledo319/EOLkits/issues/new?template=audit-interest.yml";
+const DATA = {"runtimes":{"nodejs20.x":{"date":"2027-02-01","slug":"lambda-node.js-20-phase-1","severity":"high","kit":"lambda-lifeline","historical":false,"deprecation":"2026-04-30","blockUpdate":"2027-03-03","projected":false,"source":"https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"},"nodejs22.x":{"date":"2027-06-01","slug":"lambda-node.js-22-phase-1","severity":"medium","kit":"lambda-lifeline","historical":false,"deprecation":"2027-04-30","blockUpdate":"2027-07-01","projected":true,"source":"https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"},"python3.9":{"date":"2027-02-01","slug":"lambda-python-3.9-eol","severity":"high","kit":"python-pivot","historical":false,"deprecation":"2025-12-15","blockUpdate":"2027-03-03","projected":false,"source":"https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"},"python3.10":{"date":"2027-02-01","slug":"lambda-python-3.10-eol","severity":"high","kit":"python-pivot","historical":false,"deprecation":"2026-10-31","blockUpdate":"2027-03-03","projected":true,"source":"https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"},"python3.11":{"date":"2027-07-31","slug":"lambda-python-3.11-eol","severity":"medium","kit":"python-pivot","historical":false,"deprecation":"2027-06-30","blockUpdate":"2027-08-31","projected":true,"source":"https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"},"nodejs16.x":{"date":"2027-02-01","slug":"lambda-node.js-16-eol","severity":"high","kit":"lambda-lifeline","historical":false,"deprecation":"2024-06-12","blockUpdate":"2027-03-03","projected":false,"source":"https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"},"nodejs18.x":{"date":"2027-02-01","slug":"lambda-node.js-18-eol","severity":"high","kit":"lambda-lifeline","historical":false,"deprecation":"2025-09-01","blockUpdate":"2027-03-03","projected":false,"source":"https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"},"python3.8":{"date":"2027-02-01","slug":"lambda-python-3.8-eol","severity":"high","kit":"python-pivot","historical":false,"deprecation":"2024-10-14","blockUpdate":"2027-03-03","projected":false,"source":"https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"},"nodejs14.x":{"date":"2023-11-27","slug":"lambda-node.js-14","severity":"high","kit":"","historical":true,"deprecation":null,"blockUpdate":null,"projected":false,"source":null}},"native":{"sharp":{"min":"0.33.0","note":"Conservative baseline only; verify the current release on Node.js 24."},"bcrypt":{"min":"5.1.1","note":"Conservative baseline only; verify Node.js 24 support or consider bcryptjs."},"better-sqlite3":{"min":"11.0.0","note":"Conservative baseline only; verify the current Node.js 24 support matrix."},"canvas":{"min":"2.11.2","note":"Conservative baseline only; verify current target prebuilds."},"node-gyp":{"min":"10.0.0","note":"Build system. Upgrade before rebuilding natives."},"node-sass":{"min":null,"note":"Unmaintained. Use sass (Dart Sass) instead."},"bufferutil":{"min":"4.0.8","note":"WebSocket utility native addon."},"utf-8-validate":{"min":"6.0.4","note":"WebSocket utility native addon."},"libpq":{"min":"1.11.0","note":"Conservative baseline only; verify the current release and target prebuild."},"grpc":{"min":null,"note":"Unmaintained. Migrate to @grpc/grpc-js (pure JS)."},"@grpc/grpc-js":{"min":"1.10.0","note":"Pure JS, no native; keep it current."},"sqlite3":{"min":"5.1.7","note":"Conservative baseline only; verify current Node.js 24 prebuilds."},"argon2":{"min":"0.40.1","note":"Conservative baseline only; verify current Node.js 24 prebuilds."},"re2":{"min":"1.21.0","note":"RE2 regex engine."},"fibers":{"min":null,"note":"Unmaintained since the Node.js 16 era; remove it."},"@tensorflow/tfjs-node":{"min":"4.20.0","note":"TensorFlow native."},"sodium-native":{"min":"4.3.0","note":"libsodium bindings."},"zmq":{"min":null,"note":"Unmaintained. Use zeromq instead."},"zeromq":{"min":"6.1.2","note":"ZeroMQ bindings."},"farmhash":{"min":"4.0.0","note":"Native hashing."},"@napi-rs/snappy":{"min":null,"note":"Stale package; use a maintained compressor."},"heapdump":{"min":null,"note":"Unmaintained. Use node --heapsnapshot-signal instead."}},"wheels":{"numpy":{"min":"1.26.0","note":"1.26+ ships cp312 wheels."},"scipy":{"min":"1.11.4","note":"1.11.4+ for cp312."},"pandas":{"min":"2.1.1","note":"2.1.1+ for cp312."},"scikit-learn":{"min":"1.3.2","note":"1.3.2+ for cp312."},"matplotlib":{"min":"3.8.0","note":"3.8.0+ for cp312."},"pillow":{"min":"10.1.0","note":"10.1.0+ for cp312."},"lxml":{"min":"4.9.4","note":"4.9.4+ for cp312."},"cryptography":{"min":"41.0.5","note":"41.0.5+ for cp312 (libssl3)."},"pycryptodome":{"min":"3.19.0","note":"3.19.0+ for cp312."},"bcrypt":{"min":"4.1.1","note":"4.1.1+ for cp312."},"pyopenssl":{"min":"23.3.0","note":"23.3.0+ for cp312."},"psycopg2-binary":{"min":"2.9.9","note":"2.9.9+ for cp312."},"psycopg":{"min":"3.1.13","note":"3.1.13+ for cp312."},"mysqlclient":{"min":"2.2.0","note":"2.2.0+ for cp312."},"pymssql":{"min":"2.2.11","note":"2.2.11+ for cp312."},"pyyaml":{"min":"6.0.1","note":"6.0.1+ for cp312."},"orjson":{"min":"3.9.10","note":"3.9.10+ for cp312."},"ujson":{"min":"5.8.0","note":"5.8.0+ for cp312."},"msgpack":{"min":"1.0.7","note":"1.0.7+ for cp312."},"aiohttp":{"min":"3.9.0","note":"3.9.0+ for cp312."},"grpcio":{"min":"1.59.0","note":"1.59.0+ for cp312."},"protobuf":{"min":"4.25.0","note":"4.25.0+ for cp312."},"frozenlist":{"min":"1.4.0","note":"1.4.0+ for cp312."},"multidict":{"min":"6.0.4","note":"6.0.4+ for cp312."},"yarl":{"min":"1.9.3","note":"1.9.3+ for cp312."},"tiktoken":{"min":"0.5.2","note":"0.5.2+ for cp312."},"tokenizers":{"min":"0.15.0","note":"0.15.0+ for cp312."},"awscrt":{"min":"0.19.17","note":"0.19.17+ for cp312."},"boto3":{"min":"1.29.0","note":"1.29+ tested on cp312."},"botocore":{"min":"1.32.0","note":"1.32+ tested on cp312."},"python-snappy":{"min":"0.7.0","note":"0.7.0+ ships a pure-Python wheel built on cramjam."},"fastparquet":{"min":"2023.10.1","note":"2023.10.1+ for cp312."}},"version":"sha256:c8b4ea2cf6668b4b62c99ff4c44ee979adb978aa86f5d69171ee66c1b5887980"};
+const $ = (s) => document.querySelector(s);
+const RT_VALUE_RE = /^(nodejs\d+\.x|python\d+\.\d+|ruby\d+\.\d+|java\d+|dotnet\d+|dotnetcore\d+\.\d+|go\d+\.x|provided\.al\d+|provided)\b/i;
+const CDK_VALUE_RE = /Runtime\.(NODEJS|PYTHON|RUBY|JAVA|DOTNET|GO)_(\d+)(?:_(\d+))?(?:_X)?/i;
+function cdkId(l, a, b) { l = l.toLowerCase(); if (l === 'nodejs') return 'nodejs' + a + '.x'; if (l === 'python') return 'python' + a + '.' + (b || '0'); if (l === 'ruby') return 'ruby' + a + '.' + (b || '0'); return l + a; }
+function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+function classify(name) {
+  const n = name.replace(/\\/g, '/').split('/').pop().toLowerCase();
+  if (n === 'package.json') return 'pkg';
+  if (/^requirements[^/]*\.txt$/.test(n)) return 'req';
+  if (n === 'pyproject.toml') return 'pyproject';
+  if (/\.(yaml|yml|json|tf|hcl|ts|tsx|js|jsx|mjs|cjs|py|sh|txt)$/.test(n)) return 'iac';
+  return null;
+}
+const SCAN_LIMITS = Object.freeze({ files: 100, fileBytes: 1048576, totalBytes: 10485760 });
+class ScanInputError extends Error {}
+
+function lineLookup(content) {
+  const starts = [0];
+  for (let i = 0; i < content.length; i++) if (content[i] === '\n') starts.push(i + 1);
+  return index => {
+    let low = 0, high = starts.length;
+    while (low + 1 < high) { const middle = (low + high) >>> 1; if (starts[middle] <= index) low = middle; else high = middle; }
+    return low + 1;
+  };
+}
+
+// Token locations are retained from valid JSON rather than guessed from matching text.
+// This disambiguates identical runtime/package values in unrelated objects.
+function jsonInput(content) {
+  let value;
+  try { value = JSON.parse(content); }
+  catch { throw new ScanInputError('Invalid JSON. Correct the syntax and scan again.'); }
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new ScanInputError('Expected a JSON object, not an array or scalar.');
+  }
+  const tokens = [...content.matchAll(/"(?:\\.|[^"\\])*"|[{}\[\],:]|[^\s{}\[\],:]+/g)];
+  const properties = [];
+  let cursor = 0, line = 1, previous = 0;
+  for (const token of tokens) {
+    for (let i = previous; i < token.index; i++) if (content[i] === '\n') line++;
+    token.line = line;
+    previous = token.index;
+  }
+  function visit(path) {
+    if (path.length > 64) throw new ScanInputError('JSON nesting exceeds the 64-level scan limit.');
+    const token = tokens[cursor++];
+    if (token[0] === '{') {
+      while (tokens[cursor][0] !== '}') {
+        const key = JSON.parse(tokens[cursor++][0]);
+        cursor++; // colon, already validated by JSON.parse
+        visit(path.concat(key));
+        if (tokens[cursor][0] === ',') cursor++;
+      }
+      cursor++;
+    } else if (token[0] === '[') {
+      let index = 0;
+      while (tokens[cursor][0] !== ']') {
+        visit(path.concat(String(index++)));
+        if (tokens[cursor][0] === ',') cursor++;
+      }
+      cursor++;
+    } else {
+      properties.push({ path, value: JSON.parse(token[0]), line: token.line });
+    }
+  }
+  visit([]);
+  return { value, properties };
+}
+
+class RuntimeLocations extends Map {
+  add(runtime, line) {
+    if (!this.has(runtime)) this.set(runtime, new Set());
+    if (Number.isInteger(line) && line > 0) this.get(runtime).add(line);
+  }
+}
+function vtuple(v) { return (v || '').replace(/^[^\d]*/, '').split(/[.\-+]/).map((x) => parseInt(x, 10) || 0); }
+function vlt(a, b) { const A = vtuple(a), B = vtuple(b); for (let i = 0; i < Math.max(A.length, B.length); i++) { const x = A[i] || 0, y = B[i] || 0; if (x < y) return true; if (x > y) return false; } return false; }
+function cleanV(v) { return v ? v.replace(/^[\^~>=<\s]+/, '') : null; }
+function extractMin(spec) { if (!spec) return null; for (const op of ['==', '>=']) { for (let part of spec.split(',')) { part = part.trim(); if (part.indexOf(op) === 0) return part.slice(op.length).trim(); } } return null; }
+function runtimeId(value) {
+  const cleaned = String(value || '').trim().replace(/^['"]/, '');
+  const m = cleaned.match(RT_VALUE_RE);
+  return m ? m[1].toLowerCase() : null;
+}
+function configRecords(c) {
+  const records = [], stack = [], lines = c.split(/\r?\n/); let documentId = 0;
+  const keyRe = /^([ \t]*)(["']?)([A-Za-z0-9_.-]+)\2\s*:\s*(.*)$/;
+  for (let i = 0; i < lines.length; i++) {
+    if (/^[ \t]*(?:---|\.\.\.)[ \t]*(?:#.*)?$/.test(lines[i])) { stack.length = 0; documentId++; continue; }
+    const m = lines[i].match(keyRe); if (!m) continue;
+    const indent = m[1].replace(/\t/g, '        ').length;
+    while (stack.length && stack[stack.length - 1][0] >= indent) stack.pop();
+    const key = m[3].toLowerCase();
+    const raw = m[4].replace(/\s+#.*$/, '').trim().replace(/,$/, '').trim();
+    let value = raw;
+    if (value.length >= 2 && ((value[0] === '"' && value[value.length - 1] === '"') || (value[0] === "'" && value[value.length - 1] === "'"))) value = value.slice(1, -1);
+    const path = stack.slice(-8).map((item) => item[1]).concat([key]);
+    records.push({ documentId, line: i + 1, key, value, path });
+    if (raw === '' || raw === '{') stack.push([indent, key]);
+  }
+  return records;
+}
+function samePath(left, right) { return left.length === right.length && left.every((value, index) => value === right[index]); }
+function samDocuments(c) {
+  const documents = new Set(); let documentId = 0, pendingIndent = null;
+  for (const line of c.split(/\r?\n/)) {
+    if (/^[ \t]*(?:---|\.\.\.)[ \t]*(?:#.*)?$/.test(line)) { documentId++; pendingIndent = null; continue; }
+    const transform = line.match(/^([ \t]*)["']?Transform["']?\s*:\s*(.*)$/i);
+    if (transform) {
+      const value = transform[2].replace(/\s+#.*$/, '').trim();
+      if (/AWS::Serverless-/i.test(value)) documents.add(documentId);
+      pendingIndent = value ? null : transform[1].replace(/\t/g, '        ').length;
+      continue;
+    }
+    if (pendingIndent === null || !line.trim()) continue;
+    const indent = (line.match(/^[ \t]*/) || [''])[0].replace(/\t/g, '        ').length;
+    if (indent <= pendingIndent) pendingIndent = null;
+    else if (/^[ \t]*-[ \t]*["']?AWS::Serverless-/i.test(line)) { documents.add(documentId); pendingIndent = null; }
+  }
+  return documents;
+}
+function yamlLambdaRuntimes(c, found) {
+  const records = configRecords(c), resources = new Set(), providers = new Set(), sam = samDocuments(c);
+  for (const r of records) {
+    if (r.key === 'type' && /^(AWS::Lambda::Function|AWS::Serverless::Function)$/i.test(r.value) && r.path.includes('resources')) resources.add(r.documentId + '\u0000' + r.path.slice(0, -1).join('\u0000'));
+    if (samePath(r.path, ['provider', 'name']) && r.value.toLowerCase() === 'aws') providers.add(r.documentId);
+  }
+  for (const r of records) {
+    if (r.key !== 'runtime') continue;
+    const resourceRuntime = r.path.length >= 3 && samePath(r.path.slice(-2), ['properties', 'runtime']) && resources.has(r.documentId + '\u0000' + r.path.slice(0, -2).join('\u0000'));
+    const samGlobal = sam.has(r.documentId) && samePath(r.path, ['globals', 'function', 'runtime']);
+    const serverless = providers.has(r.documentId) && (samePath(r.path, ['provider', 'runtime']) || (r.path.length === 3 && r.path[0] === 'functions' && r.path[2] === 'runtime'));
+    if (resourceRuntime || samGlobal || serverless) { const id = runtimeId(r.value); if (id) found.add(id, r.line); }
+  }
+}
+function jsonLambdaRuntimes(c, found) {
+  if (!c.trim().startsWith('{')) return;
+  const { value: document, properties } = jsonInput(c);
+  const transforms = Array.isArray(document.Transform) ? document.Transform : [document.Transform];
+  const sam = transforms.some(item => typeof item === 'string' && item.toLowerCase().startsWith('aws::serverless-'));
+  for (const record of properties) {
+    const path = record.path;
+    const resource = path.length === 4 && path[0] === 'Resources' && path[2] === 'Properties' && path[3] === 'Runtime'
+      ? document.Resources?.[path[1]] : null;
+    const lambda = resource && /^AWS::(?:Lambda|Serverless)::Function$/i.test(String(resource.Type || ''));
+    if (lambda || (sam && samePath(path, ['Globals', 'Function', 'Runtime']))) {
+      const id = runtimeId(record.value); if (id) found.add(id, record.line);
+    }
+  }
+}
+function hclCodeLines(c) {
+  const output = []; let block = false, heredoc = null;
+  for (const original of c.split(/\r?\n/)) {
+    if (heredoc) { const candidate = heredoc[1] ? original.trim() : original; if (candidate === heredoc[0]) heredoc = null; output.push([original, ' '.repeat(original.length)]); continue; }
+    const visible = [...original]; let quote = null, escaped = false, i = 0;
+    while (i < original.length) {
+      const ch = original[i], pair = original.slice(i, i + 2);
+      if (block) { visible[i] = ' '; if (pair === '*/') { visible[i + 1] = ' '; block = false; i += 2; continue; } i++; continue; }
+      if (quote) { visible[i] = ' '; if (escaped) escaped = false; else if (ch === '\\') escaped = true; else if (ch === quote) quote = null; i++; continue; }
+      if (pair === '/*') { visible[i] = visible[i + 1] = ' '; block = true; i += 2; continue; }
+      if (pair === '//' || ch === '#') { for (let j = i; j < visible.length; j++) visible[j] = ' '; break; }
+      if (ch === '"' || ch === "'") { visible[i] = ' '; quote = ch; }
+      i++;
+    }
+    const code = visible.join(''), marker = code.match(/<<(-?)([A-Za-z_][A-Za-z0-9_]*)/);
+    if (marker) heredoc = [marker[2], marker[1] === '-'];
+    output.push([original, code]);
+  }
+  return output;
+}
+function terraformLambdaRuntimes(c, found) {
+  let inside = false, depth = 0, structuralEvents = 0, line = 0;
+  const declaration = /\bresource\s+["']aws_lambda_function["']\s+["'][^"']+["']\s*\{/i;
+  for (const pair of hclCodeLines(c)) {
+    line++;
+    const original = pair[0], code = pair[1], declarationMatch = inside ? null : original.match(declaration);
+    const visibleResource = inside ? -1 : code.search(/\bresource\s+/i);
+    const resource = declarationMatch && declarationMatch.index === visibleResource ? declarationMatch : null;
+    if (resource) { inside = true; depth = 0; }
+    if (!inside) continue;
+    let position = resource ? resource.index : 0;
+    while (position < code.length) {
+      const character = code[position];
+      if (character === '{') { depth++; structuralEvents++; }
+      else if (character === '}') { depth--; structuralEvents++; }
+      else if (depth === 1 && code.slice(position, position + 7).toLowerCase() === 'runtime') {
+        const key = code.slice(position).match(/^\bruntime\b\s*=/i);
+        if (!key) { position++; continue; }
+        const runtime = original.slice(position).match(/^\bruntime\b\s*=\s*["']?([^"'\s}]+)/i), id = runtime && runtimeId(runtime[1]);
+        if (id) found.add(id, line); position += key[0].length; structuralEvents++;
+        if (structuralEvents > 100000) throw new ScanInputError('Terraform exceeds the scan complexity limit. Split the file and retry.');
+        continue;
+      }
+      if (structuralEvents > 100000) throw new ScanInputError('Terraform exceeds the scan complexity limit. Split the file and retry.');
+      if (depth <= 0 && character === '}') { inside = false; break; }
+      position++;
+    }
+  }
+}
+function explicitLambdaRuntimes(c, found) {
+  const importedRuntime = /(?:aws-cdk-lib|@aws-cdk)\/aws-lambda|from\s+aws_cdk\.aws_lambda\s+import[^\n]*\bRuntime\b|software\.amazon\.awscdk\.services\.lambda\.Runtime|Amazon\.CDK\.AWS\.Lambda/i.test(c);
+  let number = 0;
+  for (const line of c.split(/\r?\n/)) {
+    number++;
+    if (/^\s*(?:#|\/\/)/.test(line)) continue;
+    const cli = line.match(/\baws\s+lambda\b[^\n]*--runtime(?:\s+|=)["']?([^"'\s]+)/i); const cliId = cli && runtimeId(cli[1]); if (cliId) found.add(cliId, number);
+    const qualified = line.match(/\bruntime\b\s*[:=(]\s*(?:aws_)?_?lambda\.(Runtime\.[A-Z0-9_]+)/i);
+    const imported = importedRuntime && line.match(/\bruntime\b\s*[:=(]\s*(Runtime\.[A-Z0-9_]+)/i);
+    const cdk = qualified || imported; const match = cdk && cdk[1].match(CDK_VALUE_RE); const id = match && cdkId(match[1], match[2], match[3]); if (id) found.add(id, number);
+  }
+}
+function scanIaC(file, c) {
+  const f = new RuntimeLocations(), out = [];
+  if (/\.json$/i.test(file) || c.trim().startsWith('{')) jsonLambdaRuntimes(c, f);
+  else {
+    yamlLambdaRuntimes(c, f);
+    terraformLambdaRuntimes(c, f);
+    explicitLambdaRuntimes(c, f);
+  }
+  f.forEach((locations, rt) => {
+    const d = DATA.runtimes[rt];
+    const lines = [...locations].sort((a, b) => a - b);
+    if (d) out.push({ kind: 'runtime', file, name: rt, lines, severity: d.historical ? 'critical' : (d.severity || 'high'), date: d.date, deprecation: d.deprecation, blockUpdate: d.blockUpdate, projected: d.projected, source: d.source, guide: d.slug, kit: d.kit, historical: d.historical, note: d.historical ? 'Past a published milestone; recheck the linked provider status and enforcement dates.' : 'Runtime with an AWS-published deprecation and create/update restriction timeline.' });
+  });
+  return out;
+}
+function scanPkg(file, c) {
+  const { value: pkg, properties } = jsonInput(c);
+  for (const section of ['dependencies', 'devDependencies', 'optionalDependencies']) {
+    if (pkg[section] !== undefined && (!pkg[section] || typeof pkg[section] !== 'object' || Array.isArray(pkg[section]) || Object.values(pkg[section]).some(v => typeof v !== 'string'))) {
+      throw new ScanInputError(section + ' must be an object of package names and version strings.');
+    }
+  }
+  const out = [];
+  for (const property of properties) {
+    if (property.path.length !== 2 || !['dependencies', 'devDependencies', 'optionalDependencies'].includes(property.path[0])) continue;
+    const name = property.path[1];
+    const info = Object.hasOwn(DATA.native, name) ? DATA.native[name] : null; if (!info) continue;
+    const declared = cleanV(property.value);
+    const evidence = { lines: [property.line], source: 'https://www.npmjs.com/package/' + encodeURIComponent(name) };
+    if (info.min === null) { out.push({ ...evidence, kind: 'native', file, name, severity: 'critical', declared: declared || '(unpinned)', required: '(unmaintained — replace)', note: info.note }); continue; }
+    if (declared && !vlt(declared, info.min)) { out.push({ ...evidence, kind: 'native', file, name, severity: 'low', declared, required: 'verify Node.js 24 support', note: 'Meets the configured older baseline; confirm the package release and rebuild/test on Node.js 24.' }); continue; }
+    out.push({ ...evidence, kind: 'native', file, name, severity: 'high', declared: declared || '(unpinned)', required: '>= ' + info.min, note: info.note });
+  }
+  return out;
+}
+function pyFindings(pkgs, file) {
+  const out = [];
+  for (const pair of pkgs) {
+    const name = pair[0].replace(/[._-]+/g, '-'), spec = pair[1], req = Object.hasOwn(DATA.wheels, name) ? DATA.wheels[name] : null; if (!req) continue;
+    const evidence = { lines: [pair[2]], source: 'https://pypi.org/project/' + encodeURIComponent(name) + '/' };
+    const declared = extractMin(spec);
+    if (req.min === null) { out.push({ ...evidence, kind: 'wheel', file, name, severity: 'critical', declared: spec || '(unpinned)', required: '(no cp312 wheels)', note: req.note }); continue; }
+    if (declared === null) { out.push({ ...evidence, kind: 'wheel', file, name, severity: 'low', declared: '(unpinned)', required: '>= ' + req.min, note: 'unpinned; pin >= ' + req.min + ' for reproducibility.' }); continue; }
+    if (vlt(declared, req.min)) out.push({ ...evidence, kind: 'wheel', file, name, severity: 'high', declared: spec, required: '>= ' + req.min, note: req.note });
+  }
+  return out;
+}
+function parseReq(content) {
+  const out = [];
+  content.split(/\r?\n/).forEach((raw, index) => {
+    const line = raw.trim();
+    if (/^(?:-[rce]|--(?:requirement|constraint|editable))(?:[=\s]|[^-])/i.test(line)) {
+      throw new ScanInputError('Referenced requirements, constraints, and editable installs are not resolved. Export a flat requirements.txt and scan it.');
+    }
+    if (!line || line[0] === '#' || line[0] === '-') return;
+    const match = line.match(/^([A-Za-z0-9_.-]+)\s*(?:\[[^\]]*\])?\s*([<>=!~].+)?/);
+    if (match) out.push([match[1].toLowerCase(), (match[2] || '').split(';')[0].trim() || null, index + 1]);
+  });
+  return out;
+}
+
+function parsePyproject(content) {
+  const out = [];
+  const lineNumber = lineLookup(content);
+  // This is deliberately a bounded PEP 621 dependency-list scan, not TOML validation.
+  // A table-based Poetry manifest is refused instead of appearing to have no risks.
+  if (/^\s*\[tool\.poetry(?:\.|\])/m.test(content) && !/^\s*\[project\]/m.test(content)) {
+    throw new ScanInputError('Poetry tables are not supported. Export requirements.txt and scan that file.');
+  }
+  const headers = [...content.matchAll(/^\s*\[([^\]\n]+)\][^\n]*$/gm)];
+  for (let i = 0; i < headers.length; i++) {
+    const section = headers[i][1].trim();
+    if (!['project', 'project.optional-dependencies'].includes(section)) continue;
+    const start = headers[i].index + headers[i][0].length;
+    const block = content.slice(start, i + 1 < headers.length ? headers[i + 1].index : content.length);
+    if (section === 'project' && /\bdynamic\s*=\s*\[[^\]]*["'](?:dependencies|optional-dependencies)["']/.test(block)) {
+      throw new ScanInputError('Dynamic dependencies are not resolved. Export a flat requirements.txt and scan it.');
+    }
+    const arrays = /([A-Za-z0-9_-]+)\s*=\s*\[((?:[^"'\[\]]|"(?:\\.|[^"\\])*"|'[^']*')*)\]/g;
+    let parsedList = false;
+    for (const array of block.matchAll(arrays)) {
+      if (section === 'project' && array[1] !== 'dependencies') continue;
+      parsedList = true;
+      const valuesStart = start + array.index + array[0].indexOf('[') + 1;
+      for (const value of array[2].matchAll(/"([^"\n]*)"|'([^'\n]*)'/g)) {
+        const requirement = value[1] ?? value[2];
+        const match = requirement.match(/^\s*([A-Za-z0-9_.-]+)\s*(?:\[[^\]]*\])?\s*([<>=!~][^;]*)?/);
+        if (match) out.push([match[1].toLowerCase(), (match[2] || '').trim() || null, lineNumber(valuesStart + value.index)]);
+      }
+    }
+    if (!parsedList && (section === 'project' ? /^\s*dependencies\s*=/m.test(block) : /^\s*[A-Za-z0-9_-]+\s*=/m.test(block))) {
+      throw new ScanInputError('Could not read the PEP 621 dependency list. Validate pyproject.toml or export requirements.txt.');
+    }
+  }
+  return out;
+}
+
+function scanFile(name, content) {
+  const kind = classify(name);
+  if (!kind) throw new ScanInputError('Unsupported file type. Extract archives and choose supported source files.');
+  if (typeof content !== 'string' || !content.trim()) throw new ScanInputError('File is empty. No source was scanned.');
+  if (new TextEncoder().encode(content).length > SCAN_LIMITS.fileBytes) throw new ScanInputError('File exceeds the 1 MiB scan limit.');
+  if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f\ufffd]/.test(content)) throw new ScanInputError('File is binary or is not valid UTF-8 text.');
+  if (/\.json$/i.test(name)) jsonInput(content);
+  if (kind === 'pkg') return scanPkg(name, content);
+  if (kind === 'req') return pyFindings(parseReq(content), name);
+  if (kind === 'pyproject') return pyFindings(parsePyproject(content), name);
+  return scanIaC(name, content);
+}
+
+function auditLink(deadline, kit) {
+  const params = new URLSearchParams({ source: 'scan', utm_source: 'scan', utm_medium: 'tool', utm_campaign: 'free-scan' });
+  if (deadline) params.set('deadline', deadline);
+  if (kit) params.set('kit', kit);
+  return SITE_BASE + '/audit/?' + params.toString();
+}
+
+const SEV_RANK = { critical: 0, high: 1, medium: 2, low: 3 };
+const SCOPE_NOTE = 'Configured Lambda runtime and Node/Python dependency patterns in selected files only. No AWS account, deployed behavior, full syntax validation, included requirements files, lockfile resolution, or complete repository analysis.';
+
+function orderedFindings(findings) {
+  return [...findings].sort((a, b) => (SEV_RANK[a.severity] - SEV_RANK[b.severity]) ||
+    a.file.localeCompare(b.file, 'en') || a.name.localeCompare(b.name, 'en') || (a.lines[0] - b.lines[0]));
+}
+
+function findingDetail(finding) {
+  if (finding.kind !== 'runtime') return '<p class="finding-change"><code>' + esc(finding.declared) + '</code> <span aria-label="to">→</span> <strong>' + esc(finding.required) + '</strong></p>';
+  const prefix = finding.projected ? 'Projected ' : '';
+  const dates = [[prefix + 'Deprecation', finding.deprecation], [prefix + 'Create restriction', finding.date], [prefix + 'Update restriction', finding.blockUpdate]];
+  return '<dl class="milestones">' + dates.filter(pair => pair[1]).map(pair => '<div><dt>' + esc(pair[0]) + '</dt><dd>' + esc(pair[1]) + '</dd></div>').join('') + '</dl>';
+}
+
+function render(all) {
+  const box = $('#results');
+  const query = $('#finding-search').value.trim().toLowerCase();
+  const severity = $('#severity-filter').value;
+  const visible = all.filter(f => (!severity || f.severity === severity) && (!query || (f.file + ' ' + f.name).toLowerCase().includes(query)));
+  $('#filter-count').textContent = visible.length + ' of ' + all.length + ' findings';
+  $('#next-step').hidden = !all.length;
+  if (!all.length) {
+    const scanned = scanState.files.filter(file => file.status === 'scanned').length;
+    const incomplete = scanState.files.some(file => file.status !== 'scanned');
+    box.innerHTML = '<div class="empty-result"><h3>' + (scanned ? 'No configured pattern matched' : 'No files were scanned') + '</h3><p>' +
+      (scanned ? 'This is a limited source check, not proof that your repository or AWS account is free of migration risk.' : 'Choose a supported, nonempty source file and try again.') +
+      (incomplete ? ' Review the file coverage below before drawing conclusions.' : '') + '</p></div>';
+    return;
+  }
+  const rows = visible.map(f => {
+    const lines = [...new Set(f.lines)].join(', ');
+    const source = f.source && /^https:\/\//.test(f.source) ? '<a href="' + esc(f.source) + '" target="_blank" rel="noopener noreferrer">' + (f.kind === 'runtime' ? 'AWS source' : 'Package reference') + ' ↗</a>' : '';
+    const guide = f.guide ? '<a href="' + SITE_BASE + '/migrate/' + encodeURIComponent(f.guide) + '/">Migration timeline →</a>' : '';
+    return '<li class="finding"><div class="finding-heading"><span class="severity sev-' + f.severity + '">' + esc(f.severity) + '</span><h3>' + esc(f.name) + '</h3><span class="finding-kind">' + ({ runtime: 'Lambda runtime', native: 'Node dependency', wheel: 'Python dependency' }[f.kind]) + '</span></div>' +
+      '<p class="finding-location"><code>' + esc(f.file) + '</code><span>Line' + (f.lines.length === 1 ? '' : 's') + ' ' + esc(lines) + '</span></p>' +
+      findingDetail(f) + '<p class="finding-note">' + esc(f.note || '') + '</p><div class="finding-links">' + source + guide + '</div></li>';
+  }).join('');
+  box.innerHTML = visible.length ? '<ol class="findings">' + rows + '</ol>' : '<div class="empty-result"><h3>No findings match these filters</h3><p>Change the severity or search text to see the other findings. The download always includes all findings.</p></div>';
+  const next = $('#next-step');
+  next.innerHTML = '<div><h3>Need an archive-wide review artifact?</h3><p>Inspect the optional one-repository evidence report ($299): PDF, evidence fingerprint, remediation order, and explicit scope. Availability is checked before checkout.</p></div>' +
+    '<a class="scan-button secondary" href="' + auditLink(null, all[0].kit) + '">See sample and availability →</a>' +
+    '<p class="scan-interest"><a href="' + INTEREST_URL + '" target="_blank" rel="noopener noreferrer">Record nonbinding Audit interest on GitHub</a>. This is public; do not include code, secrets, company, or personal information.</p>';
+}
+
+const dz = $('#dz'), fi = $('#fi');
+let scanState = { files: [], findings: [], label: '', busy: false };
+let generation = 0;
+let activeReader = null;
+
+function setStatus(message) { $('#scan-status').textContent = message; }
+
+function setBusy(busy) {
+  scanState.busy = busy;
+  $('#cancel-scan').hidden = !busy;
+  $('#download-results').disabled = busy || !scanState.files.length;
+  $('#scan-output').setAttribute('aria-busy', String(busy));
+}
+
+function renderCoverage() {
+  const files = scanState.files;
+  $('#file-coverage').innerHTML = files.map(file => '<li><span class="file-state state-' + file.status + '">' + esc(file.status) + '</span><code>' + esc(file.name) + '</code><span>' + esc(file.reason || 'Checked configured patterns') + '</span></li>').join('');
+  const total = files.reduce((sum, file) => sum + (file.count || 1), 0);
+  const issues = total - files.filter(file => file.status === 'scanned').length;
+  $('#coverage-summary').textContent = 'File coverage · ' + total + ' selected' + (issues ? ' · ' + issues + ' need attention' : '');
+  $('#coverage').open = issues > 0;
+}
+
+function showResults(cancelled = false) {
+  scanState.findings = orderedFindings(scanState.findings);
+  const scanned = scanState.files.filter(file => file.status === 'scanned').length;
+  const total = scanState.files.reduce((sum, file) => sum + (file.count || 1), 0);
+  const issues = total - scanned;
+  $('#scan-output').hidden = false;
+  $('#results-title').textContent = cancelled ? 'Scan cancelled' : issues ? 'Scan incomplete' : 'Scan complete';
+  $('#scan-origin').textContent = scanState.label;
+  $('#scanned-count').textContent = String(scanned);
+  $('#findings-count').textContent = String(scanState.findings.length);
+  $('#attention-count').textContent = String(issues);
+  $('#finding-controls').hidden = !scanState.findings.length;
+  render(scanState.findings);
+  renderCoverage();
+  setStatus((cancelled ? 'Cancelled. ' : '') + scanned + ' of ' + total + ' files scanned. ' + scanState.findings.length + ' findings. ' + issues + ' files need attention.');
+}
+
+function stopReading() {
+  generation++;
+  if (activeReader && activeReader.readyState === 1) activeReader.abort();
+  activeReader = null;
+}
+
+function readText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    activeReader = reader;
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new ScanInputError('Could not read this file. Choose it again and retry.'));
+    reader.onabort = () => reject(new ScanInputError('Reading cancelled.'));
+    reader.readAsText(file, 'UTF-8');
+  });
+}
+
+async function handle(files, label = 'Your selected files') {
+  const selected = [...files];
+  if (!selected.length) return;
+  stopReading();
+  const current = generation;
+  scanState = {
+    files: selected.slice(0, SCAN_LIMITS.files).map(file => ({ name: file.webkitRelativePath || file.name, bytes: file.size, status: 'pending' })),
+    findings: [], label, busy: true
+  };
+  if (selected.length > SCAN_LIMITS.files) scanState.files.push({ name: (selected.length - SCAN_LIMITS.files) + ' additional files', count: selected.length - SCAN_LIMITS.files, status: 'skipped', reason: 'The limit is 100 files per scan. Scan the remaining files in another batch.' });
+  $('#severity-filter').value = '';
+  $('#finding-search').value = '';
+  $('#scan-output').hidden = true;
+  setBusy(true);
+  let bytes = 0;
+  for (let i = 0; i < Math.min(selected.length, SCAN_LIMITS.files); i++) {
+    const file = selected[i], record = scanState.files[i];
+    if (!classify(record.name)) {
+      record.status = 'skipped'; record.reason = 'Unsupported type. Extract ZIP archives and choose supported source files.';
+      continue;
+    }
+    if (!file.size || file.size > SCAN_LIMITS.fileBytes || bytes + file.size > SCAN_LIMITS.totalBytes) {
+      record.status = 'skipped'; record.reason = !file.size ? 'File is empty.' : file.size > SCAN_LIMITS.fileBytes ? 'File exceeds 1 MiB.' : 'Batch exceeds 10 MiB. Scan this file in another batch.';
+      continue;
+    }
+    bytes += file.size;
+    setStatus('Scanning file ' + (i + 1) + ' of ' + Math.min(selected.length, SCAN_LIMITS.files) + '…');
+    try {
+      const content = await readText(file);
+      if (current !== generation) return;
+      scanState.findings.push(...scanFile(record.name, content));
+      record.status = 'scanned';
+    } catch (error) {
+      if (current !== generation) return;
+      record.status = 'failed';
+      record.reason = error instanceof ScanInputError ? error.message : 'This file could not be scanned. Check its format and retry.';
+    }
+    // Give cancel/replacement input a turn between files, even when reads complete quickly.
+    await new Promise(resolve => setTimeout(resolve, 0));
+    if (current !== generation) return;
+  }
+  activeReader = null;
+  setBusy(false);
+  showResults();
+  try {
+    if (typeof window.eolkitsTrack === 'function') window.eolkitsTrack('scan_completed', { sku: 'audit', meta: { finding_count: scanState.findings.length, file_count: scanState.files.filter(file => file.status === 'scanned').length } });
+  } catch { /* Aggregate telemetry must never affect the local result. */ }
+}
+
+function reportData() {
+  return {
+    schema_version: 1, tool: 'EOLkits browser scanner', rules_version: DATA.version,
+    input: scanState.label, scope: SCOPE_NOTE,
+    selected_file_count: scanState.files.reduce((sum, file) => sum + (file.count || 1), 0),
+    scanned_file_count: scanState.files.filter(file => file.status === 'scanned').length,
+    complete: !scanState.busy && scanState.files.every(file => file.status === 'scanned'),
+    files: scanState.files.map(file => ({ ...file })), findings: scanState.findings.map(finding => ({ ...finding }))
+  };
+}
+
+dz.addEventListener('dragover', event => { event.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', event => { event.preventDefault(); dz.classList.remove('over'); void handle(event.dataTransfer.files); });
+$('#choose-files').addEventListener('click', () => fi.click());
+fi.addEventListener('change', () => { void handle(fi.files); fi.value = ''; });
+$('#severity-filter').addEventListener('change', () => render(scanState.findings));
+$('#finding-search').addEventListener('input', () => render(scanState.findings));
+
+$('#paste-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const content = $('#paste-source').value;
+  if (!content.trim()) { setStatus('Paste some source before scanning.'); $('#paste-source').focus(); return; }
+  void handle([new File([content], $('#paste-kind').value, { type: 'text/plain' })], 'Pasted source');
+});
+
+$('#try-sample').addEventListener('click', () => {
+  void handle([
+    new File(['Resources:\n  ExampleFunction:\n    Type: AWS::Serverless::Function\n    Properties:\n      Runtime: nodejs20.x\n'], 'example/template.yaml'),
+    new File(['{\n  "dependencies": {\n    "node-sass": "^9.0.0",\n    "sharp": "^0.32.0"\n  }\n}\n'], 'example/package.json'),
+    new File(['# Fictional example dependencies\nnumpy==1.24.0\n'], 'example/requirements.txt')
+  ], 'Fictional example · not your repository');
+});
+
+$('#cancel-scan').addEventListener('click', () => {
+  stopReading();
+  for (const file of scanState.files) if (file.status === 'pending') { file.status = 'cancelled'; file.reason = 'Not scanned. Run this file again to finish the check.'; }
+  setBusy(false);
+  showResults(true);
+});
+
+$('#clear-scan').addEventListener('click', () => {
+  stopReading();
+  scanState = { files: [], findings: [], label: '', busy: false };
+  fi.value = '';
+  $('#paste-source').value = '';
+  $('#results').replaceChildren();
+  $('#file-coverage').replaceChildren();
+  $('#next-step').replaceChildren();
+  $('#scan-output').hidden = true;
+  setBusy(false);
+  setStatus('Cleared. Choose files, paste source, or try the example.');
+});
+
+$('#download-results').addEventListener('click', () => {
+  if (scanState.busy || !scanState.files.length) return;
+  const url = URL.createObjectURL(new Blob([JSON.stringify(reportData(), null, 2) + '\n'], { type: 'application/json' }));
+  const link = document.createElement('a');
+  link.href = url; link.download = 'eolkits-findings.json';
+  document.body.append(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  setStatus('Downloaded the complete local scan result, including file coverage and all findings.');
+});
+
+</script>
+</body>
+</html>

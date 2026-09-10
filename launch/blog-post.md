@@ -1,20 +1,25 @@
-# Migrating AWS Lambda Node.js 20 to Node.js 22: A complete guide (Sep 30, 2026 cliff)
+# ARCHIVED DRAFT — REVERIFY BEFORE ANY MANUAL PUBLICATION
 
-> Published 2026-04-28. Updated 2026-05-21 — Phase 1 EOL has passed; this guide is now positioned as the **cleanup path before the Sep 30 Phase 3 cliff** (after which AWS blocks updates to existing `nodejs20.x` functions). For teams running AWS Lambda functions on `nodejs20.x`. Source: [AWS Lambda runtimes official docs](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html).
+This draft has not passed the current claim, date, and promotional-content
+review. It is not approved for publication.
+
+# Migrating AWS Lambda Node.js 20 to Node.js 22 (historical draft)
+
+> Published 2026-04-28. Updated 2026-07-22 — Phase 1 EOL has passed; this guide is now positioned as the **cleanup path before the Feb 1 / Mar 3, 2027 block cliffs** (after which AWS blocks creating, then updating, existing `nodejs20.x` functions). For teams running AWS Lambda functions on `nodejs20.x`. Source: [AWS Lambda runtimes official docs](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html).
 
 ## TL;DR
 
-- **April 30, 2026**: AWS stops security patches for `nodejs20.x` (Phase 1).
-- **August 31, 2026**: AWS blocks creating *new* functions on `nodejs20.x` (Phase 2).
-- **September 30, 2026**: AWS blocks *updating* existing functions on `nodejs20.x` (Phase 3, the hard cliff).
+- **April 30, 2026**: AWS stops security patches for `nodejs20.x` (Phase 1 — passed).
+- **February 1, 2027**: AWS blocks creating *new* functions on `nodejs20.x` (Phase 2, block-create).
+- **March 3, 2027**: AWS blocks *updating* existing functions on `nodejs20.x` (Phase 3, block-update — the hard cliff).
 - Migrating to `nodejs22.x` is a semver-breaking change. Most code works. A specific set of patterns will break. This post documents all of them.
-- We built an open-source CLI called [`lambda-lifeline`](https://github.com/ntoledo319/Rupture/tree/main/kits/lambda-lifeline) that automates the whole migration: scan, codemod, audit, IaC patch, canary deploy with auto-rollback.
+- We built an open-source CLI called [`lambda-lifeline`](https://github.com/ntoledo319/EOLkits/tree/main/kits/lambda-lifeline) that automates the whole migration: scan, codemod, audit, IaC patch, canary deploy with auto-rollback.
 
 ---
 
 ## Why this is happening
 
-AWS runs a 3-phase deprecation process for every Lambda runtime. Phase 1 ends security patches. Phase 2 blocks creating new functions on the deprecated runtime. Phase 3 blocks *updating* existing functions. The phases are always spaced ~3-4 months apart, and once Phase 3 hits, your only option is a full deploy with a new runtime.
+AWS runs a 3-phase deprecation process for every Lambda runtime. Phase 1 ends security patches. Phase 2 blocks creating new functions on the deprecated runtime. Phase 3 blocks *updating* existing functions. For `nodejs20.x`, block-create (Feb 1, 2027) and block-update (Mar 3, 2027) land about a month apart, and once Phase 3 hits, your only option is a full deploy with a new runtime.
 
 Node.js 20 itself is officially supported by the Node.js Foundation until April 2026 ([Node.js release schedule](https://github.com/nodejs/release#release-schedule)). AWS Lambda aligns to the upstream EOL date, so April 30, 2026 is the start of the 3-phase countdown.
 
@@ -135,7 +140,7 @@ find . -name '*.js' -o -name '*.mjs' -o -name '*.ts' | \
   xargs sed -i 's/assert { type:/with { type:/g'
 ```
 
-This over-triggers on `assert(...)` function calls. Use a proper AST tool or [`lambda-lifeline codemod`](https://github.com/ntoledo319/Rupture/tree/main/kits/lambda-lifeline) which only matches the import-assertion grammar.
+This over-triggers on `assert(...)` function calls. Use a proper AST tool or [`lambda-lifeline codemod`](https://github.com/ntoledo319/EOLkits/tree/main/kits/lambda-lifeline) which only matches the import-assertion grammar.
 
 ```bash
 npx lambda-lifeline codemod src/ --apply
@@ -251,7 +256,7 @@ We kept getting the same "your runtime is deprecated" email from AWS every 6-8 m
 
 So we scoped it. `lambda-lifeline` only migrates Node.js Lambda runtimes. It does nothing else. It has 24 tests covering every command, every output format, every exit-code path. It defaults to dry-run. The canary deploy refuses to run without an alarm ARN.
 
-Source: https://github.com/ntoledo319/Rupture/tree/main/kits/lambda-lifeline
+Source: https://github.com/ntoledo319/EOLkits/tree/main/kits/lambda-lifeline
 
 It's MIT-licensed. Fork it, use it, resell it.
 
@@ -259,8 +264,8 @@ It's MIT-licensed. Fork it, use it, resell it.
 
 ## Related guides
 
-- [Migrating Amazon Linux 2 to AL2023](https://github.com/ntoledo319/Rupture/tree/main/kits/al2023-gate) — deadline June 30, 2026
-- [Migrating Lambda Python 3.9/3.10 to 3.12](https://github.com/ntoledo319/Rupture/tree/main/kits/python-pivot) — Python 3.9 already past EOL
+- [Migrating Amazon Linux 2 to AL2023](https://github.com/ntoledo319/EOLkits/tree/main/kits/al2023-gate) — deadline June 30, 2026
+- [Migrating Lambda Python 3.9/3.10 to 3.12](https://github.com/ntoledo319/EOLkits/tree/main/kits/python-pivot) — Python 3.9 already past EOL
 
 ---
 

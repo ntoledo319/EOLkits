@@ -1,6 +1,7 @@
-// Codemod: rewrite Node.js 20 code for Node.js 22 compatibility.
+// Codemod: detect/repair selected breaking changes encountered when moving from
+// Node.js 20 through Node.js 24. This is a bounded rule set, not a readiness proof.
 // Rules:
-//   assert-to-with   : `import x from './f' with { type: 'json' }` → `with`
+//   assert-to-with   : `import x from './f' assert { type: 'json' }` → `with`
 //   buffer-safety    : flag Buffer.toString() calls with negative indices (lint, not rewrite)
 //   streams-hwm      : flag streams constructed without explicit highWaterMark (lint)
 //   require-assert   : CJS equivalent `require('x', { assert: {...} })` callouts
@@ -21,31 +22,31 @@ export const RULES = {
   'assert-to-with': {
     description: 'Rewrite ESM `import ... assert { type: "json" }` to `import ... with { type: "json" }`',
     // Matches:
-    //   import x from './f.json' with { type: 'json' };
-    //   import x from './f.json' with {type:"json"};
-    //   } from './f.json' with { type: 'json' }
+    //   import x from './f.json' assert { type: 'json' };
+    //   import x from './f.json' assert {type:"json"};
+    //   } from './f.json' assert { type: 'json' }
     pattern: /(\bfrom\s+['"][^'"]+['"]\s+)assert(\s*\{[^}]*\})/g,
     replace: (_m, pre, obj) => `${pre}with${obj}`,
     kind: 'rewrite',
   },
   'dynamic-import-assert': {
-    description: 'Rewrite dynamic `import(x, { with: { type: "json" } })` → `{ with: { type: "json" } }`',
+    description: 'Rewrite dynamic `import(x, { assert: { type: "json" } })` → `{ with: { type: "json" } }`',
     pattern: /import\(([^,)]+),\s*\{\s*assert\s*:/g,
     replace: (_m, spec) => `import(${spec}, { with:`,
     kind: 'rewrite',
   },
   'buffer-negative-index': {
-    description: 'Flag Buffer.toString(enc, start, end) with negative end (throws in Node 22)',
+    description: 'Flag Buffer.toString(enc, start, end) with negative end (throws in Node.js 22+)',
     // Heuristic lint — matches .toString('utf8', -1) style calls
     pattern: /\.toString\s*\(\s*['"][^'"]+['"]\s*,\s*-?\d+\s*,\s*-\d+\s*\)/g,
     kind: 'lint',
-    message: 'Negative end index to Buffer.toString throws RangeError in Node 22. Convert to a non-negative length.',
+    message: 'Negative end index to Buffer.toString throws RangeError in Node.js 22+. Convert to a non-negative length.',
   },
   'streams-hwm': {
     description: 'Flag stream constructors without explicit highWaterMark (default changed 16KB→64KB)',
-    pattern: /new\s+(Readable|Writable|Transform|Duplex)\s*\(\s*\{[^}]*\}\s*\)/g,
+    pattern: /new\s+(Readable|Writable|Transform|Duplex)\s*\(\s*\{[\s\S]*?\}\s*\)/g,
     kind: 'lint',
-    message: 'Node 22 changed default highWaterMark to 64KB. Set an explicit value if memory-constrained.',
+    message: 'Node.js 22 changed the default highWaterMark to 64KB. Set an explicit value if memory-constrained.',
     guard: (match) => !/highWaterMark/.test(match),
   },
 };
@@ -148,7 +149,7 @@ export async function codemodCommand(argv) {
 
   console.log();
   if (filesChanged === 0) {
-    log.ok('No codemod hits. Your code looks Node 22-ready on the matched rules.');
+    log.ok('No configured Node.js migration codemod rule matched. This is not a complete readiness proof.');
   } else {
     log.ok(`${filesChanged} file(s) with ${totalEdits} edit(s). ${apply ? 'Applied.' : 'Preview only.'}`);
   }

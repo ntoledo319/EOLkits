@@ -1,4 +1,9 @@
-# HN reply playbook
+# ARCHIVED — DO NOT POST
+
+These replies describe closed or unproved capabilities and are retained only as
+historical research.
+
+# HN reply playbook (historical)
 
 Pre-written answers to the questions HN will absolutely ask. Lead with the answer, no preamble. Reply once per top-level comment. Stop unless someone asks.
 
@@ -14,7 +19,7 @@ Pre-written answers to the questions HN will absolutely ask. Lead with the answe
 ## "Why not Renovate / Dependabot?"
 
 ```
-Renovate updates package.json versions. The runtime upgrade also lives in IaC (SAM Runtime: nodejs20.x, CDK lambda.Runtime.NODEJS_20_X, Terraform runtime = "nodejs20.x") and in source code (the import-assertion → import-attribute syntax change is a hard parse error in Node 22, not a dep bump). Rupture is the part that handles those — the codemod plus the IaC patch plus the deploy/rollback. It's complementary to Renovate, not a replacement.
+Renovate updates package.json versions. The runtime upgrade also lives in IaC (SAM Runtime: nodejs20.x, CDK lambda.Runtime.NODEJS_20_X, Terraform runtime = "nodejs20.x") and in source code (the import-assertion → import-attribute syntax change is a hard parse error in Node 22, not a dep bump). EOLkits is the part that handles those — the codemod plus the IaC patch plus the deploy/rollback. It's complementary to Renovate, not a replacement.
 ```
 
 ## "AWS already emails you about this. Why a tool?"
@@ -35,10 +40,10 @@ Different runtimes, different breakage surfaces, different IaC patterns, differe
 The CLIs are MIT and complete. You can run scan / codemod / iac / deploy / rollback offline against fixtures or live against AWS, no payment required, no feature-gated nags. The paid tiers add things you'd otherwise build yourself: a printable hash-anchored audit PDF for the change-management folks, a fleet drift watcher, an org-license terms doc, and the migration-pack PRs against private repos with a 7-day CI-failure auto-refund. If your shop never wanted any of those, the free tier is the whole product.
 ```
 
-## "Mutation testing at 80% — what tool?"
+## "Mutation testing — what tool?"
 
 ```
-mutmut for the Python kits, Stryker for lambda-lifeline. The runs are in CI, gated, and the score thresholds are checked on every PR. The current weekly mutation run is signed off the main branch. Result: https://github.com/ntoledo319/Rupture/actions/workflows/mutation.yml
+mutmut on the Python kits (al2023-gate, python-pivot). It runs weekly in CI as a quality signal — the score shows up in the run summary against a 70% target. It's deliberately not a hard PR gate, since surviving mutants are usually a missing-test signal rather than a regression. The determinism check, by contrast, is a hard gate on every PR. Workflow: https://github.com/ntoledo319/EOLkits/actions/workflows/mutation.yml
 ```
 
 ## "What's the codemod tech?"
@@ -80,7 +85,7 @@ The kits don't take AWS credentials from anywhere except the standard credential
 ## "Can I see the bot's actual PR diff?"
 
 ```
-Yes — here's the sandbox end-to-end run from yesterday: [paste actual sandbox PR URL when posting]
+Yes — here's a sandbox end-to-end run: [paste the sandbox PR URL at submission time]
 
 The two-file diff is the entire output: template.yaml runtime bumped (twice), processor.mjs assert→with rewritten. Branch name, commit message, PR body, and labels are all in the screenshot.
 ```
@@ -88,7 +93,7 @@ The two-file diff is the entire output: template.yaml runtime bumped (twice), pr
 ## "Is the audit PDF actually verifiable or is the SHA-256 a vibe?"
 
 ```
-Verifiable. Every PDF embeds the SHA-256 of the input artifact, the rule-pack version SHA, the kit version, and a verification URL hosted at ntoledo319.github.io/Rupture/audit/verify. You paste the embedded hash into the verify page; it returns either a match (bytes-identical) or a mismatch with the diff. If the page is down, the same check is reproducible offline with shasum -a 256 against the inputs the PDF documents.
+Verifiable. Every PDF embeds the SHA-256 of the input artifact, the rule-pack version SHA, the kit version, and a verification URL hosted at eolkits.com/verify. You paste the embedded hash into the verify page; it returns either a match (bytes-identical) or a mismatch with the diff. If the page is down, the same check is reproducible offline with shasum -a 256 against the inputs the PDF documents.
 ```
 
 ## "Why post this now and not before April 30?"
@@ -96,7 +101,7 @@ Verifiable. Every PDF embeds the SHA-256 of the input artifact, the rule-pack ve
 ```
 Honest answer: I had the kits done in February. Posted nothing. Life got in the way and the original launch window in early May passed. The Apr 30 Phase 1 EOL for Node 20 is now history — that's fair criticism and I'd rather own it than dance around it.
 
-What's still live: Amazon Linux 2 EOL is Jun 30 (40 days from this post). Lambda Python 3.9/3.10/3.11 are still in their EOL waves. And the Node 20 hard cliff is actually Sep 30 — Phase 3, when AWS blocks updates to existing functions — so lambda-lifeline is still useful as cleanup if you have functions still on nodejs20.x. The kits don't expire when one of their deadlines does. But the framing on the README and this post leads with what's still ahead of us, not what's behind.
+What's still live: Amazon Linux 2 EOL is Jun 30 (about three weeks from this post). Lambda Python 3.9/3.10/3.11 are still in their EOL waves. And the Node 20 hard cliff is actually Mar 3, 2027 — Phase 3, when AWS blocks updates to existing functions (AWS delayed the original 2026 schedule into a synchronized Q1-2027 cluster) — so lambda-lifeline is still useful as cleanup if you have functions still on nodejs20.x. The kits don't expire when one of their deadlines does. But the framing on the README and this post leads with what's still ahead of us, not what's behind.
 ```
 
 ## If someone is hostile

@@ -4,10 +4,11 @@ to the resource type (EC2 ASG, EKS node group, ECS task, Beanstalk env).
 """
 
 from __future__ import annotations
+
 import argparse
 from pathlib import Path
-from . import util
 
+from . import util
 
 RUNBOOKS = {
     "asg": """# EC2 Auto Scaling Group — AL2 → AL2023 swap
@@ -162,9 +163,7 @@ Swap CNAMEs back. Keep old env running for ≥72h as insurance.
 def run(args: argparse.Namespace) -> int:
     target = args.kind
     if target not in RUNBOOKS:
-        util.err(
-            f"Unknown runbook kind: {target}. Choose one of: {', '.join(RUNBOOKS.keys())}"
-        )
+        util.err(f"Unknown runbook kind: {target}. Choose one of: {', '.join(RUNBOOKS.keys())}")
         return 2
     content = RUNBOOKS[target].format(
         name=args.name or "<NAME>",

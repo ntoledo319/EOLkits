@@ -8,7 +8,7 @@ updates:
     directory: "/kits/python-pivot"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "pip"
+  - package-ecosystem: "npm"
     directory: "/kits/lambda-lifeline"
     schedule:
       interval: "weekly"
@@ -22,6 +22,10 @@ updates:
       interval: "weekly"
   - package-ecosystem: "github-actions"
     directory: "/"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/apps/grace-api"
     schedule:
       interval: "weekly"
   - package-ecosystem: "docker"

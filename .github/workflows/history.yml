@@ -1,0 +1,120 @@
+name: Project history
+
+# Keeps the living history honest: validates the ledgers and event capsules, fails on
+# drifted deterministic output, audits the PR range for unrecorded material work, scans the
+# history artifacts for secrets, and requires one history-impact declaration in the PR body.
+# History-only changes (docs/history, .project-history, PROJECT_HISTORY.md, the tool and its
+# tests) are exempt from the declaration so that history maintenance never loops on itself.
+# The monthly "history gardener" writes one drift report; it never authors interpretation.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - 'PROJECT_HISTORY.md'
+      - 'docs/history/**'
+      - '.project-history/**'
+      - 'scripts/project_history.py'
+      - 'tests/test_project_history.py'
+      - '.github/workflows/history.yml'
+  schedule:
+    - cron: '23 6 1 * *'   # monthly gardener; no weekly bot confetti
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  history-checks:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Validate ledgers, events, links, cited objects and secrets
+        run: python3 scripts/project_history.py validate
+      - name: Run history tool tests
+        run: python3 -m unittest -q tests/test_project_history.py
+      - name: Render-drift check
+        run: |
+          python3 scripts/project_history.py render
+          git diff --exit-code -- PROJECT_HISTORY.md docs/history .project-history \
+            || { echo "::error::rendered history drifted; run 'python3 scripts/project_history.py render' and commit"; exit 1; }
+      - name: Incremental audit of the pull-request range
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/project_history.py audit --since "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+      - name: Incremental audit of the pushed range
+        if: github.event_name == 'push'
+        run: python3 scripts/project_history.py audit --since HEAD~1
+      - name: Require a history-impact declaration
+        if: github.event_name == 'pull_request'
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_ACTOR: ${{ github.event.pull_request.user.login }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          changed="$(git diff --name-only "$BASE" "$HEAD_SHA")"
+          history_only=1
+          while IFS= read -r p; do
+            [ -z "$p" ] && continue
+            case "$p" in
+              PROJECT_HISTORY.md|docs/history/*|.project-history/*|scripts/project_history.py|tests/test_project_history.py|.github/workflows/history.yml) ;;
+              *) history_only=0 ;;
+            esac
+          done <<< "$changed"
+          if [ "$history_only" = 1 ]; then
+            echo "history-only change; declaration not required"; exit 0
+          fi
+          if [ "$PR_ACTOR" = "dependabot[bot]" ]; then
+            echo "dependabot dependency bump; treated as 'history:none — dependency bump without semantic consequence' per policy"; exit 0
+          fi
+          if printf '%s' "$PR_BODY" | grep -Eq 'history:(recorded[[:space:]]+eolkits-[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9-]+|none[[:space:]]+[—-][[:space:]]*[^[:space:]]+|defer[[:space:]]+[—-][[:space:]]*[^[:space:]]+)'; then
+            echo "history declaration present"
+          else
+            echo "::error::PR body must declare exactly one of: 'history:recorded <event-id>', 'history:none — <reason>', 'history:defer — <tracking item, owner, deadline>'. No naked skip is allowed."
+            exit 1
+          fi
+          if printf '%s' "$PR_BODY" | grep -Eq 'history:recorded[[:space:]]+eolkits-[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9-]+'; then
+            id="$(printf '%s' "$PR_BODY" | grep -Eo 'history:recorded[[:space:]]+eolkits-[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9-]+' | head -1 | awk '{print $2}')"
+            ls .project-history/events/*/"$id".md >/dev/null 2>&1 || { echo "::error::declared event $id does not exist under .project-history/events/"; exit 1; }
+          fi
+      - name: Flag high-signal surfaces (advisory)
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/project_history.py assess --range "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+
+  history-gardener:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Full audit and drift report
+        run: |
+          mkdir -p tmp
+          python3 scripts/project_history.py audit --full --as-of "$(date -u +%Y-%m-%d)" --report tmp/history-drift-report.md || true
+          python3 scripts/project_history.py validate
+      - name: Publish the drift report as the run artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: history-drift-report
+          path: tmp/history-drift-report.md
+          retention-days: 90
+      - name: Fail the run only when a material gap exists
+        run: |
+          if grep -Eq '^- (refs changed|[0-9]+ commit\(s\) touch material surfaces|goal .* past its review_by|deferral .* expired|event .* no observed outcome)' tmp/history-drift-report.md; then
+            echo "::warning::history drift found; open a PR that records the missing events or amends the stale records (see the artifact)"
+            exit 1
+          fi
+          echo "no material drift"

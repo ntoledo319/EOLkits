@@ -4,3 +4,7 @@ src/**
 *.vsix
 tsconfig.json
 package-lock.json
+test/**
+eslint.config.mjs
+out/**/*.map
+out/**/*.d.ts

@@ -1,4 +1,11 @@
-# Phase 1 — Rupture Scan Findings
+# Phase 1 — EOLkits Scan Findings
+
+> **Correction (2026-08-03):** the Phase 2/Phase 3 dates below (Aug 31 / Sep 30, 2026 for nodejs20.x;
+> Nov 30 / Dec 31, 2026 for python3.10) reflect this scan's sources — mostly third-party blogs — and
+> are **superseded**. AWS delayed those block-create/block-update dates into a synchronized **Q1-2027
+> cluster: Feb 1, 2027 (block-create) / Mar 3, 2027 (block-update)**, confirmed against the AWS Lambda
+> runtimes table (see `rules/public/deprecations.yml`, the repo's live source of truth). This file is
+> kept as a historical research snapshot — do not cite its Phase 2/3 dates for any current claim.
 
 **Scan date:** 2026-04-28
 **Deadline window:** 2026-05-05 → 2026-07-27 (adjusted to include phased deprecations with hard blocks in window)
@@ -71,4 +78,4 @@
 2. **Candidate B — Amazon Linux 2 → AL2023 Migration Kit** (urgency 8/10, bigger TAM, higher build cost)
 3. **Candidate C — Lambda Python 3.10 → 3.12 Migration Kit** (urgency 6/10, reserve for V2)
 
-## Recommendation: Ship Kit A. Reserve Kit B and Kit C as the product roadmap (the "Rupture Kits" brand has legs — every runtime EOL is a paid kit).
+## Recommendation: Ship Kit A. Reserve Kit B and Kit C as the product roadmap (the "EOLkits Kits" brand has legs — every runtime EOL is a paid kit).

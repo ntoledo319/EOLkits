@@ -1,4 +1,4 @@
-name: Test
+name: Test release surfaces
 
 on:
   push:
@@ -6,143 +6,319 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
+env:
+  TMPDIR: ${{ github.workspace }}/tmp/runtime-tmp
+  PIP_CACHE_DIR: ${{ github.workspace }}/tmp/pip-cache
+  npm_config_cache: ${{ github.workspace }}/tmp/npm-cache
+
 jobs:
-  test-python-kits:
+  python-kits:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         kit: [al2023-gate, python-pivot]
     steps:
       - uses: actions/checkout@v6
-      
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      
-      - name: Install dependencies
+      - name: Test kit
         run: |
-          cd kits/${{ matrix.kit }}
-          pip install -e ".[dev]"
-      
-      - name: Run tests
-        run: |
-          cd kits/${{ matrix.kit }}
-          pytest -v --cov=. --cov-report=xml
-      
-      - name: Upload coverage
-        uses: codecov/codecov-action@v6
+          mkdir -p "$TMPDIR" "$PIP_CACHE_DIR"
+          python -m venv "$GITHUB_WORKSPACE/tmp/${{ matrix.kit }}-venv"
+          venv="$GITHUB_WORKSPACE/tmp/${{ matrix.kit }}-venv"
+          "$venv/bin/pip" install -e "kits/${{ matrix.kit }}[dev]"
+          "$venv/bin/pytest" -q --cov="kits/${{ matrix.kit }}/src" \
+            --cov-report="xml:$GITHUB_WORKSPACE/tmp/${{ matrix.kit }}-coverage.xml" \
+            "kits/${{ matrix.kit }}/test"
+      - uses: codecov/codecov-action@v6
         with:
-          files: ./kits/${{ matrix.kit }}/coverage.xml
+          files: ./tmp/${{ matrix.kit }}-coverage.xml
           flags: ${{ matrix.kit }}
 
-  test-node-kit:
+  node-kit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - run: mkdir -p "$TMPDIR" "$npm_config_cache"
+      - run: npm ci --no-audit && npm test
+        working-directory: kits/lambda-lifeline
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
+  worker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: '20'
+      - run: mkdir -p "$TMPDIR" "$npm_config_cache"
+      - run: npm ci --no-audit && npm run build && npm test
+        working-directory: apps/worker
 
-      - name: Install dependencies
-        run: |
-          cd kits/lambda-lifeline
-          npm ci
-
-      - name: Run tests
-        run: |
-          cd kits/lambda-lifeline
-          npm test
-
-  test-worker:
+  grace-api:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Test API
+        run: |
+          mkdir -p "$TMPDIR" "$PIP_CACHE_DIR"
+          python -m venv "$GITHUB_WORKSPACE/tmp/grace-venv"
+          venv="$GITHUB_WORKSPACE/tmp/grace-venv"
+          "$venv/bin/pip" install -r apps/grace-api/requirements-dev.txt
+          "$venv/bin/pytest" -q apps/grace-api
+
+  runner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Test report runner
+        run: |
+          mkdir -p "$TMPDIR" "$PIP_CACHE_DIR"
+          python -m venv "$GITHUB_WORKSPACE/tmp/runner-venv"
+          venv="$GITHUB_WORKSPACE/tmp/runner-venv"
+          "$venv/bin/pip" install --require-hashes -r apps/runner/requirements.lock
+          "$venv/bin/pip" install --require-hashes -r apps/runner/requirements-test.lock
+          "$venv/bin/pytest" -q apps/runner
+          "$venv/bin/python" apps/runner/build_sample_report.py --check
+
+  web:
+    runs-on: ubuntu-latest
+    env:
+      EOLKITS_BASE_PATH: /EOLkits
+      EOLKITS_SITE_URL: https://ntoledo319.github.io/EOLkits
+      EOLKITS_API_URL: https://eolkits.com
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Build and test generated site
+        run: |
+          mkdir -p "$TMPDIR" "$PIP_CACHE_DIR"
+          python -m venv "$GITHUB_WORKSPACE/tmp/web-venv"
+          venv="$GITHUB_WORKSPACE/tmp/web-venv"
+          "$venv/bin/pip" install --require-hashes -r apps/web/requirements-dev.lock
+          "$venv/bin/python" apps/web/build.py
+          "$venv/bin/pytest" -q apps/web
+          git diff --exit-code -- docs
+      - name: Reject stale or unrendered commerce output
+        run: |
+          set -euo pipefail
+          if grep -REn '\{API_URL\}|\{SITE_URL\}|\{\{|\}\}' \
+            docs/audit/index.html docs/pack/index.html docs/license/index.html docs/partners/index.html; then
+            echo "::error::Unrendered placeholder found"; exit 1
+          fi
+          # Historical citations deliberately retain former URLs and identities.
+          if grep -REn --exclude-dir=history 'eolkits-worker|/Rupture/' docs; then
+            echo "::error::Stale deployment URL found"; exit 1
+          fi
+          if grep -RPn --exclude-dir=history 'https://ntoledo319\.github\.io/(?!EOLkits(?:/|["<]))' docs; then
+            echo "::error::Unprefixed GitHub Pages URL found"; exit 1
+          fi
+          if grep -En '<loc>https?://' docs/sitemap.xml | \
+            grep -v 'https://ntoledo319\.github\.io/EOLkits/'; then
+            echo "::error::Noncanonical host in sitemap"; exit 1
+          fi
+      - name: Exercise the rendered browser scanner
+        run: node apps/web/test_browser.mjs
+
+  vscode-extension:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: '20'
-      
-      - name: Install dependencies
-        run: |
-          cd apps/worker
-          npm ci
-      
-      - name: Type check
-        run: |
-          cd apps/worker
-          npx tsc --noEmit
-      
-      - name: Run tests
-        run: |
-          cd apps/worker
-          npm test
+      - run: mkdir -p "$TMPDIR" "$npm_config_cache"
+      - run: npm ci --no-audit && npm test && npm run package
+        working-directory: apps/vscode-extension
 
-  test-runner:
+  github-action:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      
-      - name: Install dependencies
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Exercise clean and findings fixtures
         run: |
-          cd apps/runner
-          pip install -r requirements.txt
-      
-      - name: Run tests
-        run: |
-          cd apps/runner
-          pytest -v
+          set -euo pipefail
+          mkdir -p "$TMPDIR" "$PIP_CACHE_DIR" "$npm_config_cache" "$GITHUB_WORKSPACE/tmp"
+          clean_output="$GITHUB_WORKSPACE/tmp/action-clean-output"
+          findings_output="$GITHUB_WORKSPACE/tmp/action-findings-output"
+          : > "$clean_output"
+          : > "$findings_output"
+          GITHUB_ACTION_PATH="$GITHUB_WORKSPACE" GITHUB_OUTPUT="$clean_output" \
+            INPUT_KIT=lambda-lifeline INPUT_PATH=apps/github-action/test/fixtures/clean \
+            INPUT_FAIL_ON=any bash apps/github-action/run.sh
+          grep -qx 'has_findings=false' "$clean_output"
+          grep -qx 'should_fail=false' "$clean_output"
+          clean_report="$(sed -n 's/^report_path=//p' "$clean_output")"
+          test -f "$clean_report"
+          if grep -Fq 'audit-interest.yml' "$clean_report"; then
+            echo "::error::Clean scan must not request qualified finding-based interest"
+            exit 1
+          fi
+          GITHUB_ACTION_PATH="$GITHUB_WORKSPACE" GITHUB_OUTPUT="$findings_output" \
+            INPUT_KIT=lambda-lifeline INPUT_PATH=apps/github-action/test/fixtures/findings \
+            INPUT_FAIL_ON=any bash apps/github-action/run.sh
+          grep -qx 'has_findings=true' "$findings_output"
+          grep -qx 'should_fail=true' "$findings_output"
+          findings_report="$(sed -n 's/^report_path=//p' "$findings_output")"
+          test -f "$findings_report"
+          grep -Fq 'https://ntoledo319.github.io/EOLkits/audit/' "$findings_report"
+          grep -Fq 'one-repository evidence report ($299)' "$findings_report"
+          grep -Fq 'audit-interest.yml' "$findings_report"
+          if grep -Fq 'https://eolkits.com/audit' "$findings_report"; then
+            echo "::error::Action report points at the obsolete custom-domain funnel"
+            exit 1
+          fi
+      - name: Test acquisition evidence reduction
+        run: node --test scripts/vscode-gallery-evidence.test.mjs
 
-  test-web:
+  containers:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dockerfile: [apps/grace-api/Dockerfile, apps/runner/Dockerfile]
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build ${{ matrix.dockerfile }}
+        run: |
+          set -euo pipefail
+          dockerfile='${{ matrix.dockerfile }}'
+          image_ref="eolkits-ci:$(basename "$(dirname "$dockerfile")")"
+          docker build --tag "$image_ref" --file "$dockerfile" .
+          test "$(docker image inspect --format '{{.Config.User}}' "$image_ref")" = \
+            '10001:10001'
+          test "$(docker image inspect --format '{{index .Config.Entrypoint 0}}' "$image_ref")" = \
+            '/usr/local/bin/eolkits-container-entrypoint'
+          test "$(docker run --rm --entrypoint /usr/local/bin/eolkits-container-entrypoint \
+            "$image_ref" sh -c umask)" = '0077'
+
+  dependency-audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      
-      - name: Install Jinja2
-        run: pip install jinja2 pyyaml
-      
-      - name: Build site
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Audit locked Python graphs and Node runtime licenses
         run: |
-          python apps/web/build.py
-      
-      - name: Check outputs exist
-        run: |
-          test -f docs/audit/index.html
-          test -f docs/pack/index.html
-          test -f docs/license/index.html
+          mkdir -p "$TMPDIR" "$PIP_CACHE_DIR"
+          python -m venv "$GITHUB_WORKSPACE/tmp/audit-venv"
+          venv="$GITHUB_WORKSPACE/tmp/audit-venv"
+          "$venv/bin/pip" install 'pip-audit>=2.10,<3'
+          "$venv/bin/pip-audit" -r apps/grace-api/requirements.lock --progress-spinner off
+          "$venv/bin/pip-audit" -r apps/runner/requirements.lock --progress-spinner off
+          "$venv/bin/pip-audit" -r apps/runner/requirements-test.lock --progress-spinner off
+          "$venv/bin/pip-audit" -r apps/web/requirements-dev.lock --progress-spinner off
+          node scripts/audit-node-locks.mjs \
+            kits/lambda-lifeline/package-lock.json \
+            apps/worker/package-lock.json \
+            apps/vscode-extension/package-lock.json
+          npm_major="$(npm --version | cut -d. -f1)"
+          if (( npm_major < 11 )); then
+            echo "::error::npm 11+ is required; older clients fall back to the retired quick-audit endpoint"
+            exit 1
+          fi
+          audit_lockfile() {
+            local prefix="$1"
+            local attempt
+            for attempt in 1 2 3; do
+              if timeout 120s npm audit --package-lock-only --omit=dev \
+                --audit-level=high --prefix "$prefix"; then
+                return 0
+              fi
+              if (( attempt == 3 )); then
+                echo "::error::npm audit failed after $attempt attempts for $prefix"
+                return 1
+              fi
+              echo "::warning::npm audit attempt $attempt failed for $prefix; retrying"
+              sleep "$((attempt * 5))"
+            done
+          }
+          audit_lockfile kits/lambda-lifeline
+          audit_lockfile apps/worker
 
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      
-      - name: Install linting tools
+      - name: Lint, format-check, and type-check Python
         run: |
-          pip install ruff black==25.12.0 mypy
-      
-      - name: Lint with ruff
-        run: ruff check kits/
-      
-      - name: Format check with black
-        run: black --check kits/
-      
-      - name: Type check with mypy
-        run: mypy kits/al2023-gate/src kits/python-pivot/src --ignore-missing-imports
+          mkdir -p "$TMPDIR" "$PIP_CACHE_DIR"
+          python -m venv "$GITHUB_WORKSPACE/tmp/lint-venv"
+          venv="$GITHUB_WORKSPACE/tmp/lint-venv"
+          "$venv/bin/pip" install -r requirements-lint.txt
+          "$venv/bin/ruff" check kits/ apps/grace-api apps/runner apps/web
+          "$venv/bin/black" --check kits/ apps/grace-api apps/runner apps/web
+          "$venv/bin/mypy" kits/al2023-gate/src kits/python-pivot/src --ignore-missing-imports
+          if grep -REn 'https://eolkits\.com/(audit|scan|eol-checker|migrate)' \
+            README.md apps/github-action apps/vscode-extension kits; then
+            echo "::error::Distribution copy points at the obsolete custom-domain funnel"
+            exit 1
+          fi
+      - name: Validate the fail-closed GRACE deployment contract
+        run: |
+          set -euo pipefail
+          mkdir -p "$TMPDIR"
+          shellcheck --severity=warning \
+            deploy/grace/container-entrypoint.sh \
+            deploy/grace/deploy-api-closed.sh \
+            deploy/grace/ship-web.sh \
+            deploy/grace/snapshot-api-volume.sh
+          env_file="$TMPDIR/compose-validation.env"
+          printf '%s\n' \
+            'STRIPE_KEY=sk_test_dummy' \
+            'STRIPE_WEBHOOK_SECRET=whsec_test' \
+            'RESEND_API_KEY=re_test' \
+            'EOLKITS_INTERNAL_URL_SECRET=validation-only-32-byte-secret-value' \
+            'EOLKITS_AUDIT_CHECKOUT_ENABLED=0' \
+            'EOLKITS_API_PORT=8120' > "$env_file"
+          chmod 0600 "$env_file"
+          reviewed_sha='0123456789abcdef0123456789abcdef01234567'
+          rendered="$(
+            EOLKITS_ENV_FILE="$env_file" \
+            EOLKITS_BUILD_SHA="$reviewed_sha" \
+            EOLKITS_AUDIT_CHECKOUT_ENABLED=0 \
+              docker compose --project-name eolkits-api \
+              --file deploy/grace/docker-compose.eolkits-api.yml \
+              --env-file "$env_file" config --format json
+          )"
+          jq -e --arg sha "$reviewed_sha" '
+            (.name == "eolkits-api") and
+            (.services["eolkits-api"] as $service |
+              $service.image == ("eolkits-api:" + $sha) and
+              $service.user == "10001:10001" and
+              $service.read_only == true and
+              ($service.cap_drop | index("ALL")) != null and
+              ($service.security_opt | index("no-new-privileges:true")) != null and
+              $service.environment.EOLKITS_AUDIT_CHECKOUT_ENABLED == "0" and
+              any($service.ports[];
+                .host_ip == "127.0.0.1" and .published == "8120" and .target == 8080))
+          ' <<< "$rendered"

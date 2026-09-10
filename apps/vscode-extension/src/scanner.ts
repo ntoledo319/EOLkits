@@ -1,166 +1,84 @@
 import * as vscode from 'vscode';
-import { RuptureDiagnostics } from './diagnostics';
+import { Finding, severityRank } from './model';
+import {
+    RuleMatch,
+    scanJavaScriptText,
+    scanPythonText,
+    scanStructuredText,
+    scanTerraformText
+} from './rules';
+import { resolveSetting } from './settings';
 
-export class RuptureScanner {
-    constructor(private diagnostics: RuptureDiagnostics) {}
+export class EOLkitsScanner {
+    supportsDocument(document: vscode.TextDocument): boolean {
+        return ['yaml', 'json', 'jsonc', 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'python'].includes(document.languageId) ||
+            /\.(tf|hcl|yaml|yml|json|jsonc|js|jsx|ts|tsx|py)$/i.test(document.fileName);
+    }
 
-    async scanDocument(document: vscode.TextDocument): Promise<void> {
+    scanDocument(document: vscode.TextDocument): Finding[] | undefined {
+        if (!this.supportsDocument(document)) return undefined;
         const text = document.getText();
-        const findings: Finding[] = [];
+        let findings: Finding[] = [];
+        const extension = document.fileName.split('.').pop()?.toLowerCase();
 
-        // Check file type and run appropriate scan
-        if (document.languageId === 'yaml' || document.languageId === 'json') {
-            findings.push(...this.scanCloudFormation(text, document));
+        // Extension fallback keeps a supported file scannable without another language extension.
+        if (extension === 'tf' || extension === 'hcl') {
+            findings = this.toFindings(scanTerraformText(text), document);
+        } else if (['yaml', 'json', 'jsonc'].includes(document.languageId) ||
+            ['yaml', 'yml', 'json', 'jsonc'].includes(extension || '')) {
+            findings = this.toFindings(scanStructuredText(text), document);
+        } else if (['javascript', 'javascriptreact', 'typescript', 'typescriptreact'].includes(document.languageId) ||
+            ['js', 'jsx', 'ts', 'tsx'].includes(extension || '')) {
+            findings = this.toFindings(scanJavaScriptText(text), document);
+        } else if (document.languageId === 'python' || extension === 'py') {
+            findings = this.toFindings(scanPythonText(text), document);
+        } else {
+            return undefined;
         }
 
-        if (document.languageId === 'javascript' || document.languageId === 'typescript') {
-            findings.push(...this.scanJavaScript(text, document));
-        }
-
-        if (document.languageId === 'python') {
-            findings.push(...this.scanPython(text, document));
-        }
-
-        if (document.fileName.endsWith('.tf') || document.fileName.endsWith('.hcl')) {
-            findings.push(...this.scanTerraform(text, document));
-        }
-
-        // Update diagnostics for this document
-        this.diagnostics.setFindings(document.uri, findings);
+        const config = vscode.workspace.getConfiguration('eolkits', document.uri);
+        const legacyConfig = vscode.workspace.getConfiguration('rupture', document.uri);
+        const enabled = new Set(resolveSetting(config, legacyConfig, 'enabledKits', [
+            'lambda-lifeline',
+            'al2023-gate',
+            'python-pivot'
+        ]));
+        const threshold = resolveSetting<Finding['severity']>(
+            config,
+            legacyConfig,
+            'severityThreshold',
+            'medium'
+        );
+        findings = findings.filter(finding =>
+            enabled.has(this.kitForFinding(finding)) &&
+            severityRank(finding.severity) >= severityRank(threshold)
+        );
+        return findings;
     }
 
-    private scanCloudFormation(text: string, document: vscode.TextDocument): Finding[] {
-        const findings: Finding[] = [];
-        const lines = text.split('\n');
-
-        // Check for Lambda Node.js 20
-        const node20Pattern = /Runtime:\s*nodejs20\.x/g;
-        let match;
-        while ((match = node20Pattern.exec(text)) !== null) {
-            const line = text.substring(0, match.index).split('\n').length - 1;
-            findings.push({
-                severity: 'critical',
-                message: 'Lambda Node.js 20 runtime deprecated (EOL: 2026-04-30)',
+    private toFindings(matches: RuleMatch[], document: vscode.TextDocument): Finding[] {
+        return matches.map(match => {
+            const position = document.positionAt(match.index);
+            return {
+                severity: match.severity,
+                message: match.message,
+                uri: document.uri,
                 file: document.fileName,
-                line: line + 1,
-                character: match.index - text.lastIndexOf('\n', match.index) - 1,
-                code: 'LAMBDA_NODE20_EOL'
-            });
-        }
-
-        // Check for Python 3.9-3.11
-        const pythonPattern = /Runtime:\s*python3\.(9|10|11)/g;
-        while ((match = pythonPattern.exec(text)) !== null) {
-            const line = text.substring(0, match.index).split('\n').length - 1;
-            const version = match[1];
-            const eolDates: Record<string, string> = {
-                '9': '2026-10-31',
-                '10': '2027-04-30',
-                '11': '2027-10-31'
+                line: position.line + 1,
+                character: position.character,
+                endCharacter: Math.min(position.character + 10, document.lineAt(position.line).text.length),
+                code: match.code
             };
-            findings.push({
-                severity: version === '9' ? 'high' : 'medium',
-                message: `Lambda Python 3.${version} deprecated (EOL: ${eolDates[version]})`,
-                file: document.fileName,
-                line: line + 1,
-                character: match.index - text.lastIndexOf('\n', match.index) - 1,
-                code: `LAMBDA_PYTHON3${version}_EOL`
-            });
-        }
-
-        // Check for Amazon Linux 2
-        const al2Pattern = /ImageId.*amazonlinux2|AMI.*AL2/gi;
-        while ((match = al2Pattern.exec(text)) !== null) {
-            const line = text.substring(0, match.index).split('\n').length - 1;
-            findings.push({
-                severity: 'high',
-                message: 'Amazon Linux 2 deprecated (EOL: 2026-06-30)',
-                file: document.fileName,
-                line: line + 1,
-                character: match.index - text.lastIndexOf('\n', match.index) - 1,
-                code: 'AMAZON_LINUX2_EOL'
-            });
-        }
-
-        return findings;
+        });
     }
 
-    private scanJavaScript(text: string, document: vscode.TextDocument): Finding[] {
-        const findings: Finding[] = [];
-
-        // Check for aws-sdk v2 imports
-        const sdkV2Pattern = /require\(['"]aws-sdk['"]\)|from ['"]aws-sdk['"]/g;
-        let match;
-        while ((match = sdkV2Pattern.exec(text)) !== null) {
-            const line = text.substring(0, match.index).split('\n').length - 1;
-            findings.push({
-                severity: 'medium',
-                message: 'aws-sdk v2 deprecated in Lambda Node.js 22, migrate to v3',
-                file: document.fileName,
-                line: line + 1,
-                character: match.index - text.lastIndexOf('\n', match.index) - 1,
-                code: 'AWS_SDK_V2_DEPRECATED'
-            });
+    private kitForFinding(finding: Finding): string {
+        if (finding.code.startsWith('PYTHON_') || finding.code.startsWith('LAMBDA_PYTHON')) {
+            return 'python-pivot';
         }
-
-        return findings;
-    }
-
-    private scanPython(text: string, document: vscode.TextDocument): Finding[] {
-        const findings: Finding[] = [];
-
-        // Check for deprecated modules
-        const deprecatedPatterns = [
-            { pattern: /from distutils/g, message: 'distutils deprecated, use setuptools', severity: 'medium' },
-            { pattern: /import imp\b/g, message: 'imp module deprecated, use importlib', severity: 'medium' },
-            { pattern: /from collections import.*Mapping/g, message: 'collections.Mapping deprecated, use collections.abc.Mapping', severity: 'low' },
-        ];
-
-        for (const { pattern, message, severity } of deprecatedPatterns) {
-            let match;
-            while ((match = pattern.exec(text)) !== null) {
-                const line = text.substring(0, match.index).split('\n').length - 1;
-                findings.push({
-                    severity: severity as any,
-                    message,
-                    file: document.fileName,
-                    line: line + 1,
-                    character: match.index - text.lastIndexOf('\n', match.index) - 1,
-                    code: 'PYTHON_DEPRECATED_MODULE'
-                });
-            }
+        if (finding.code.includes('AL2') || finding.code.startsWith('AMAZON_LINUX')) {
+            return 'al2023-gate';
         }
-
-        return findings;
+        return 'lambda-lifeline';
     }
-
-    private scanTerraform(text: string, document: vscode.TextDocument): Finding[] {
-        const findings: Finding[] = [];
-
-        // Check for deprecated AMIs in launch templates
-        const amiPattern = /ami.*amazon-linux-2|al2-ami/gi;
-        let match;
-        while ((match = amiPattern.exec(text)) !== null) {
-            const line = text.substring(0, match.index).split('\n').length - 1;
-            findings.push({
-                severity: 'high',
-                message: 'Amazon Linux 2 AMI deprecated (EOL: 2026-06-30)',
-                file: document.fileName,
-                line: line + 1,
-                character: match.index - text.lastIndexOf('\n', match.index) - 1,
-                code: 'TF_AL2_AMI_DEPRECATED'
-            });
-        }
-
-        return findings;
-    }
-}
-
-interface Finding {
-    severity: 'critical' | 'high' | 'medium' | 'low';
-    message: string;
-    file: string;
-    line: number;
-    character: number;
-    code: string;
 }

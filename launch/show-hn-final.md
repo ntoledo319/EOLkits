@@ -1,4 +1,9 @@
-# Show HN — final
+# ARCHIVED — DO NOT POST
+
+This is not a final launch artifact. It predates the current product and claim
+audit and describes unavailable capabilities.
+
+# Show HN draft (historical)
 
 This is the version to paste at submission time. Replaces the earlier draft.
 
@@ -14,33 +19,33 @@ This is the version to paste at submission time. Replaces the earlier draft.
 ## Title
 
 ```
-Show HN: Rupture – CLIs for AWS runtime deprecations (Amazon Linux 2 EOL Jun 30)
+Show HN: EOLkits – CLIs for AWS runtime deprecations (Amazon Linux 2 EOL Jun 30)
 ```
 
 ## Submission URL
 
 ```
-https://github.com/ntoledo319/Rupture
+https://github.com/ntoledo319/EOLkits
 ```
 
 ## Body
 
 ```
-Amazon Linux 2 hits end-of-life on Jun 30, 2026. After that, no patches, no new AMIs, anything still pinned to AL2 in a launch template or EKS node group is on borrowed time. Lambda Python 3.9/3.10/3.11 are in their own EOL waves; Node.js 20 already hit Phase 1 EOL on Apr 30 (Phase 3, the update-blocking cliff, is Sep 30). When the cliffs land you can't update functions on those runtimes anymore — the only path is a full re-deploy on a new runtime, or your code is frozen.
+Amazon Linux 2 hit end-of-life on Jun 30, 2026. Since then: no patches, no new AMIs, anything still pinned to AL2 in a launch template or EKS node group is on borrowed time. Lambda Python 3.9/3.10/3.11 are in their own EOL waves; Node.js 20 already hit Phase 1 EOL on Apr 30 (Phase 3, the update-blocking cliff, is Mar 3, 2027). When the cliffs land you can't update functions on those runtimes anymore — the only path is a full re-deploy on a new runtime, or your code is frozen.
 
-I built Rupture: one CLI per deadline.
+I built EOLkits: one CLI per deadline.
 
   al2023-gate       Amazon Linux 2 → AL2023   (Jun 30, 2026)
   python-pivot      Lambda Python 3.9-3.11 → 3.12
-  lambda-lifeline   nodejs16/18/20 → 22       (Phase 1 passed Apr 30; cliff Sep 30)
+  lambda-lifeline   nodejs16/18/20 → 22       (Phase 1 passed Apr 30; cliff Mar 3, 2027)
 
 Each kit does the same five things: scan the account, run mechanical codemods (dry-run is the default; --apply writes), patch IaC across SAM / CDK / Terraform / Serverless / Packer / Ansible, generate a staged canary plan with auto-rollback hooks, and produce a tested rollback script. All offline-able through fixtures so you can evaluate before pointing it at AWS.
 
 The pieces I cared about getting right:
 
-- Deterministic builds. Same inputs → byte-identical outputs, CI-gated.
+- Deterministic output. CI runs each kit twice on the same inputs and fails on any diff.
 - Hash-anchored audit PDFs. Every report embeds SHA-256 of inputs and the rule-pack version, with a public verify URL.
-- Property + mutation tested codemods. Mutation score is gated at 80%+ in CI.
+- Property-tested codemods, plus weekly mutation testing (mutmut) on the Python kits as a quality signal — score surfaced in the run summary, 70% target.
 - Sigstore-signed releases with CycloneDX SBOMs.
 - Public nightly benchmark across a curated corpus of real public IaC repos — so you can see what the kits actually catch on real code, not synthetic fixtures.
 
@@ -48,18 +53,20 @@ The free GitHub Action runs the dry-run pass on PRs and comments findings. Paid 
 
 Why I built this: every six months AWS sends the same "your runtime is deprecated" email, and there's no integrated tool for any of it. CloudQuery gives you inventory. Migration Hub is for lift-and-shift. aws-samples gives you snippets. Nothing did scan + codemod + IaC patch + canary + rollback for one specific deprecation, end to end. So I scoped each kit tight: one runtime, one deadline, one job.
 
-Repo:           https://github.com/ntoledo319/Rupture
-Action:         ntoledo319/Rupture@v1
-Benchmark:      https://ntoledo319.github.io/Rupture/status/
-Sample PDF:     https://ntoledo319.github.io/Rupture/audit/
-Calendar (.ics): https://ntoledo319.github.io/Rupture/deprecations.ics
+Repo:           https://github.com/ntoledo319/EOLkits
+Action:         ntoledo319/EOLkits@v1
+Benchmark:      https://github.com/ntoledo319/EOLkits/blob/main/BENCHMARK.md
+Sample PDF:     https://eolkits.com/audit/
+Calendar (.ics): https://eolkits.com/deprecations.ics
 
 Open to feedback on any of it — codemod rules especially. If you've already done one of these migrations and the kit missed something, tell me. That's the most useful thing anyone can do for me right now.
 ```
 
 ## Submission timing
 
-Window: Tue or Wed, **6:00–9:00 a.m. PT**. Target: **Tue Jun 9 or Wed Jun 10, 2026** — gives 20–21 days of pre-AL2023 urgency for the HN audience. (The original 5/5 window was missed; this is the reframed target.)
+**STALE — do not use as-is.** The window below (Fri Jun 12, 2026) and its "18 days of pre-AL2 urgency remain" framing were written for a submission that never happened; both the date and the AL2-countdown premise are now long past (AL2 EOL'd Jun 30, 2026). Before posting, pick a new submission date and re-anchor the urgency framing to a deadline that's actually still ahead (e.g. the Feb 1 / Mar 3, 2027 Lambda block cluster) — do not paste this section's original window/countdown verbatim.
+
+~~Window: **8:30–9:30 a.m. ET, Fri Jun 12, 2026**. 18 days of pre-AL2 (Jun 30) urgency remain. (Earlier Jun 2/3 and Jun 9/10 targets passed; Jun 11 prep ran in the afternoon, so Friday morning is the live window.)~~
 
 After submitting, paste the HN URL into `launched.txt`:
 

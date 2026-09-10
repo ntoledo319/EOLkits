@@ -1,0 +1,12 @@
+{
+  "Functions": [
+    {"FunctionName": "node-16", "Runtime": "nodejs16.x"},
+    {"FunctionName": "node-18", "Runtime": "nodejs18.x"},
+    {"FunctionName": "node-20", "Runtime": "nodejs20.x"},
+    {"FunctionName": "node-22", "Runtime": "nodejs22.x"},
+    {"FunctionName": "python-38", "Runtime": "python3.8"},
+    {"FunctionName": "python-39", "Runtime": "python3.9"},
+    {"FunctionName": "python-310", "Runtime": "python3.10"},
+    {"FunctionName": "python-311", "Runtime": "python3.11"}
+  ]
+}

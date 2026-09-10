@@ -1,0 +1,31 @@
+# Import this block before any broader EOLkits reverse-proxy rule while the
+# legacy API is still deployed. It prevents new uploads/checkout state from
+# reaching that process, preserves Stripe webhook delivery for reconciliation,
+# and gives obsolete GitHub App routes an explicit terminal response.
+route {
+    @blockedUploads path /upload /upload/*
+    handle @blockedUploads {
+        header Cache-Control "no-store"
+        respond "EOLkits uploads are temporarily unavailable during a safety upgrade.\n" 503
+    }
+
+    @blockedCommerce {
+        method POST PUT PATCH DELETE
+        path /api/audit/checkout /api/pack/checkout /api/drift/checkout /api/events
+    }
+    handle @blockedCommerce {
+        header Cache-Control "no-store"
+        respond "EOLkits checkout is temporarily unavailable during a safety upgrade.\n" 503
+    }
+
+    @closedPack path /pack/install /pack/setup
+    handle @closedPack {
+        header Cache-Control "no-store"
+        respond "The EOLkits GitHub App is retired.\n" 410
+    }
+
+    @stripeWebhook path /webhook/stripe
+    handle @stripeWebhook {
+        reverse_proxy 127.0.0.1:8120
+    }
+}

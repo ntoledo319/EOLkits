@@ -1,20 +1,18 @@
 import * as vscode from 'vscode';
+import { Finding } from './model';
 
-export class RuptureDiagnostics {
-    private diagnosticCollection: vscode.DiagnosticCollection;
-    private allFindings: Map<string, Finding[]> = new Map();
+export class EOLkitsDiagnostics implements vscode.Disposable {
+    private readonly diagnosticCollection: vscode.DiagnosticCollection;
 
     constructor() {
-        this.diagnosticCollection = vscode.languages.createDiagnosticCollection('rupture');
+        this.diagnosticCollection = vscode.languages.createDiagnosticCollection('eolkits');
     }
 
     setFindings(uri: vscode.Uri, findings: Finding[]): void {
-        this.allFindings.set(uri.toString(), findings);
-
         const diagnostics: vscode.Diagnostic[] = findings.map(f => {
             const range = new vscode.Range(
                 new vscode.Position(f.line - 1, f.character),
-                new vscode.Position(f.line - 1, f.character + 10)
+                new vscode.Position(f.line - 1, f.endCharacter)
             );
 
             const diagnostic = new vscode.Diagnostic(
@@ -23,7 +21,7 @@ export class RuptureDiagnostics {
                 this.severityToDiagnostic(f.severity)
             );
             diagnostic.code = f.code;
-            diagnostic.source = 'Rupture';
+            diagnostic.source = 'EOLkits';
 
             return diagnostic;
         });
@@ -31,17 +29,12 @@ export class RuptureDiagnostics {
         this.diagnosticCollection.set(uri, diagnostics);
     }
 
-    getAllFindings(): Finding[] {
-        const result: Finding[] = [];
-        for (const [uri, findings] of this.allFindings) {
-            result.push(...findings);
-        }
-        return result.sort((a, b) => this.severityRank(b.severity) - this.severityRank(a.severity));
+    delete(uri: vscode.Uri): void {
+        this.diagnosticCollection.delete(uri);
     }
 
-    clear(): void {
-        this.diagnosticCollection.clear();
-        this.allFindings.clear();
+    dispose(): void {
+        this.diagnosticCollection.dispose();
     }
 
     private severityToDiagnostic(severity: string): vscode.DiagnosticSeverity {
@@ -56,23 +49,4 @@ export class RuptureDiagnostics {
                 return vscode.DiagnosticSeverity.Information;
         }
     }
-
-    private severityRank(severity: string): number {
-        const ranks: Record<string, number> = {
-            critical: 4,
-            high: 3,
-            medium: 2,
-            low: 1
-        };
-        return ranks[severity] || 0;
-    }
-}
-
-interface Finding {
-    severity: 'critical' | 'high' | 'medium' | 'low';
-    message: string;
-    file: string;
-    line: number;
-    character: number;
-    code: string;
 }

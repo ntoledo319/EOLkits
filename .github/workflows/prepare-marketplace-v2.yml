@@ -1,0 +1,123 @@
+name: Prepare Marketplace v2 draft
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type SYNC_CANONICAL_EOLKITS_V2_DRAFT
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: prepare-marketplace-v2
+  cancel-in-progress: false
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authorize the exact owner-controlled draft mutation
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+          EXPECTED_OWNER: ntoledo319
+          EXPECTED_REPOSITORY: ntoledo319/EOLkits
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]
+          [[ "$GITHUB_REPOSITORY" == "$EXPECTED_REPOSITORY" ]]
+          [[ "$GITHUB_REF" == 'refs/heads/main' ]]
+          [[ "$GITHUB_ACTOR" == "$EXPECTED_OWNER" ]]
+          [[ "$GITHUB_TRIGGERING_ACTOR" == "$EXPECTED_OWNER" ]]
+          [[ "$CONFIRMATION" == 'SYNC_CANONICAL_EOLKITS_V2_DRAFT' ]]
+
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Validate the release surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f action.yml
+          test -f apps/github-action/run.sh
+          grep -Fq 'uses: ntoledo319/EOLkits@v2' README.md
+          grep -Fq 'The only paid product EOLkits is prepared to offer' README.md
+          grep -Fq 'https://ntoledo319.github.io/EOLkits/audit/' README.md
+          grep -Fq 'audit-interest.yml' apps/github-action/run.sh
+          grep -Fq 'one-repository evidence report (\$299)' apps/github-action/run.sh
+          if grep -Eiq 'surge to|Migration Pack.*\$|Org License.*\$|Drift Watch.*\$' README.md; then
+            echo "::error::Retired commercial claim found in the release README"
+            exit 1
+          fi
+          if grep -REiq 'https://eolkits\.com/(audit|scan|eol-checker|migrate)' \
+            README.md apps/github-action apps/vscode-extension kits; then
+            echo "::error::Release copy points at the obsolete custom-domain funnel"
+            exit 1
+          fi
+
+      - name: Synchronize the one canonical private release draft
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          readonly release_id='375063073'
+          readonly release_name='Rupture AWS Deprecation Check v2.0.0'
+          mkdir -p "$GITHUB_WORKSPACE/tmp/marketplace-draft"
+          releases_file="$GITHUB_WORKSPACE/tmp/marketplace-draft/releases.json"
+          gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" \
+            --slurp >"$releases_file"
+          jq -e 'flatten | type == "array"' "$releases_file" \
+            >"$GITHUB_WORKSPACE/tmp/marketplace-draft/releases-shape.txt"
+
+          canonical="$(gh api "repos/$GITHUB_REPOSITORY/releases/$release_id")"
+          jq -e --argjson id "$release_id" --arg name "$release_name" '
+            .id == $id and .draft == true and .prerelease == false and
+            .name == $name and (.assets | length) == 0
+          ' <<<"$canonical" >"$GITHUB_WORKSPACE/tmp/marketplace-draft/canonical-before.json"
+          duplicate_count="$(jq --argjson id "$release_id" --arg name "$release_name" '
+            flatten |
+            [.[] | select(
+              .id != $id and .draft == true and
+              (.name == $name or .tag_name == "v2.0.0")
+            )] | length
+          ' "$releases_file")"
+          [[ "$duplicate_count" == '0' ]] || {
+            echo "::error::Found $duplicate_count duplicate v2 draft(s); refusing mutation"
+            exit 1
+          }
+          public_count="$(jq '
+            flatten | [.[] | select(.draft == false and .tag_name == "v2.0.0")] | length
+          ' "$releases_file")"
+          [[ "$public_count" == '0' ]] || {
+            echo '::error::v2.0.0 is already public; refusing to rewrite it'
+            exit 1
+          }
+
+          public_v2_sha="$(git ls-remote --exit-code \
+            "https://github.com/$GITHUB_REPOSITORY.git" refs/heads/v2 | cut -f1)"
+          [[ "$public_v2_sha" == "$GITHUB_SHA" ]] || {
+            echo "::error::Public v2 ($public_v2_sha) does not equal selected main ($GITHUB_SHA)"
+            exit 1
+          }
+
+          jq -n \
+            --arg tag 'v2.0.0' \
+            --arg target "$GITHUB_SHA" \
+            --arg name "$release_name" \
+            --rawfile body .github/release-notes/marketplace-v2.md \
+            '{tag_name: $tag, target_commitish: $target, name: $name, body: $body, draft: true, prerelease: false}' \
+            >"$GITHUB_WORKSPACE/tmp/marketplace-draft/update.json"
+          gh api --method PATCH "repos/$GITHUB_REPOSITORY/releases/$release_id" \
+            --input "$GITHUB_WORKSPACE/tmp/marketplace-draft/update.json" \
+            >"$GITHUB_WORKSPACE/tmp/marketplace-draft/canonical-after.json"
+          jq -e --argjson id "$release_id" --arg target "$GITHUB_SHA" --arg name "$release_name" '
+            .id == $id and .tag_name == "v2.0.0" and
+            .target_commitish == $target and .name == $name and
+            .draft == true and .prerelease == false and (.assets | length) == 0
+          ' "$GITHUB_WORKSPACE/tmp/marketplace-draft/canonical-after.json" \
+            >"$GITHUB_WORKSPACE/tmp/marketplace-draft/postcondition.txt"
+          echo "Synchronized canonical private v2.0.0 draft to commit $GITHUB_SHA."

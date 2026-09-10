@@ -36,13 +36,18 @@ Thumbs.db
 /tmp/rupture_pack.*
 .aider*
 
+# Revenue-loop scratch (WORKSPACE_ROOT/tmp per AGENTS.md §1); binaries + throwaway scripts
+/tmp/
+.kilo/
+
 # Mutation testing scratch (mutmut writes mutants/, never commit)
 mutants/
 .mutmut-cache
 mutation_report.txt
 
-# Claude scheduled-task lock (local, host-specific)
-.claude/
+
+# Toledo tooling metadata (host-specific local path; not part of the project)
+.toledo.yaml
 
 # Type-check & lint caches
 .mypy_cache/

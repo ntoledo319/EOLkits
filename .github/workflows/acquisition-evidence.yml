@@ -1,0 +1,273 @@
+name: Measure public acquisition evidence
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 12 * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/acquisition-evidence.yml'
+      - '.github/ISSUE_TEMPLATE/audit-interest.yml'
+      - 'apps/web/**'
+      - 'apps/github-action/**'
+      - 'apps/vscode-extension/**'
+
+permissions:
+  contents: read
+  issues: read
+
+concurrency:
+  group: acquisition-evidence
+  cancel-in-progress: true
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    env:
+      TMPDIR: ${{ github.workspace }}/tmp/runtime-tmp
+      VSCODE_EXTENSION_ID: rupture.rupture-vscode
+      VSCODE_RELEASE_VERSION: 1.3.0
+      VSCODE_BASELINE_INSTALLS: '103'
+      VSCODE_BASELINE_DOWNLOADS: '199'
+      VSCODE_SIGNAL_GATE_AT: '2026-09-05T23:27:55Z'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Measure public lower bounds
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$TMPDIR" "$GITHUB_WORKSPACE/tmp/acquisition"
+          owner="${GITHUB_REPOSITORY%%/*}"
+          evidence_dir="$GITHUB_WORKSPACE/tmp/acquisition"
+
+          gh api --paginate "repos/$GITHUB_REPOSITORY/issues?state=all&per_page=100" \
+            --jq '.[]' > "$evidence_dir/issues.ndjson"
+          jq -s --arg owner "$owner" '
+            [.[]
+              | select(has("pull_request") | not)
+              | select(.title | startswith("[Audit interest]"))
+              | select(.user.type != "Bot")
+              | select(.user.login != $owner)
+              | select((.user.login | test("\\[bot\\]$"; "i")) | not)
+              | select(((.body // "") | ascii_downcase) as $body
+                  | ($body | contains("- [x] i ran an eolkits scanner on real project files"))
+                  and ($body | contains("- [x] i understand the offer is one static repository evidence report priced at $299"))
+                  and ($body | contains("- [x] if checkout were open and the documented scope fit, i would consider purchasing it"))
+                  and ($body | contains("- [x] i will not include repository names")))
+            ]' "$evidence_dir/issues.ndjson" > "$evidence_dir/qualified-interest.json"
+
+          issue_count="$(jq 'length' "$evidence_dir/qualified-interest.json")"
+          author_count="$(jq '[.[].user.login] | unique | length' "$evidence_dir/qualified-interest.json")"
+          near_term_count="$(jq '[.[] | select((.body // "") | contains("Within 30 days"))] | length' "$evidence_dir/qualified-interest.json")"
+          vscode_issue_count="$(jq '[.[] | select((.body // "") | contains("VS Code extension"))] | length' "$evidence_dir/qualified-interest.json")"
+          vscode_author_count="$(jq '[.[] | select((.body // "") | contains("VS Code extension")) | .user.login] | unique | length' "$evidence_dir/qualified-interest.json")"
+
+          repo_json="$(gh api "repos/$GITHUB_REPOSITORY")"
+          stars="$(jq -r '.stargazers_count' <<< "$repo_json")"
+          forks="$(jq -r '.forks_count' <<< "$repo_json")"
+
+          # These values are defined in the job environment above.
+          # shellcheck disable=SC2153
+          readonly vscode_expected_id="$VSCODE_EXTENSION_ID" \
+            vscode_expected_version="$VSCODE_RELEASE_VERSION" \
+            vscode_baseline_installs="$VSCODE_BASELINE_INSTALLS" \
+            vscode_baseline_downloads="$VSCODE_BASELINE_DOWNLOADS" \
+            vscode_signal_gate_at="$VSCODE_SIGNAL_GATE_AT"
+          gallery_request="$(
+            jq -cn --arg extension_id "$vscode_expected_id" '
+              {
+                filters: [{criteria: [{filterType: 7, value: $extension_id}]}],
+                flags: 914
+              }
+            '
+          )"
+          gallery_samples="$evidence_dir/vscode-gallery-samples.ndjson"
+          : > "$gallery_samples"
+          for sample_index in 1 2 3 4 5; do
+            cache_buster="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${sample_index}-$(date +%s%N)"
+            gallery_sample="$evidence_dir/vscode-gallery-sample-$sample_index.json"
+            curl --fail --silent --show-error --max-time 20 --retry 2 \
+              --header 'Accept: application/json;api-version=7.2-preview.1;excludeUrls=true' \
+              --header 'Cache-Control: no-cache' \
+              --header 'Content-Type: application/json' \
+              --data-binary "$gallery_request" \
+              "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery?cache_buster=$cache_buster" \
+              --output "$gallery_sample"
+            jq -c . "$gallery_sample" >> "$gallery_samples"
+          done
+          jq -s '.' "$gallery_samples" > "$evidence_dir/vscode-gallery-samples.json"
+          observed_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          VSCODE_EXTERNAL_AUTHORS="$vscode_author_count" \
+            VSCODE_OBSERVED_AT="$observed_at" \
+            node scripts/vscode-gallery-evidence.mjs \
+            "$evidence_dir/vscode-gallery-samples.json" \
+            > "$evidence_dir/vscode-gallery-summary.json"
+
+          vscode_extension_id="$(jq -er '.extension_id' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_version="$(jq -er '.version' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_last_updated="$(jq -er '.last_updated' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_gallery_sample_count="$(jq -er '.sample_count' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_replication_consistent="$(jq -r '.replication_consistent' "$evidence_dir/vscode-gallery-summary.json")"
+          if [[ "$vscode_replication_consistent" != true \
+            && "$vscode_replication_consistent" != false ]]; then
+            echo "::error::VS Gallery consistency result is not boolean"
+            exit 1
+          fi
+          vscode_install_samples="$(jq -cer '.samples.installs' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_download_samples="$(jq -cer '.samples.downloads' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_installs="$(jq -er '.lower_bound.installs' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_downloads="$(jq -er '.lower_bound.downloads' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_installs_max="$(jq -er '.upper_bound.installs' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_downloads_max="$(jq -er '.upper_bound.downloads' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_install_delta="$(jq -er '.delta_from_release_baseline.installs' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_download_delta="$(jq -er '.delta_from_release_baseline.downloads' "$evidence_dir/vscode-gallery-summary.json")"
+          vscode_signal_gate="$(jq -er '.signal_gate' "$evidence_dir/vscode-gallery-summary.json")"
+          for counter in \
+            "$vscode_installs" \
+            "$vscode_downloads" \
+            "$vscode_installs_max" \
+            "$vscode_downloads_max" \
+            "$vscode_baseline_installs" \
+            "$vscode_baseline_downloads"
+          do
+            if [[ ! "$counter" =~ ^[0-9]+$ ]]; then
+              echo "::error::VS Marketplace returned a non-integer counter"
+              exit 1
+            fi
+          done
+          code_query='"ntoledo319/EOLkits@v2" -repo:ntoledo319/EOLkits'
+          external_search_available=false
+          external_v2_refs=0
+          if code_json="$(gh api --method GET search/code -f q="$code_query" -f per_page=100 2>"$evidence_dir/code-search.err")"; then
+            external_search_available=true
+            external_v2_refs="$(jq -r '.total_count' <<< "$code_json")"
+          fi
+
+          # Querying the collection makes an empty match an observed false while
+          # preserving fail-closed behavior for auth, rate-limit, network, or 5xx
+          # failures. Do not turn an unavailable API into false evidence.
+          matching_v2_releases="$(
+            gh api --paginate \
+              "repos/$GITHUB_REPOSITORY/releases?per_page=100" \
+              --jq '.[] | select(.tag_name == "v2.0.0")'
+          )"
+          public_v2_release="$(
+            jq -s 'any(.[]; .draft == false)' <<< "$matching_v2_releases"
+          )"
+          if [[ "$public_v2_release" != true && "$public_v2_release" != false ]]; then
+            echo "::error::GitHub release query returned a non-boolean result"
+            exit 1
+          fi
+
+          jq -n \
+            --arg observed_at "$observed_at" \
+            --argjson qualified_interest_issues "$issue_count" \
+            --argjson distinct_external_authors "$author_count" \
+            --argjson within_30_days "$near_term_count" \
+            --argjson vscode_qualified_interest_issues "$vscode_issue_count" \
+            --argjson vscode_distinct_external_authors "$vscode_author_count" \
+            --argjson external_v2_code_refs "$external_v2_refs" \
+            --argjson external_v2_search_available "$external_search_available" \
+            --argjson public_v2_release "$public_v2_release" \
+            --argjson stars "$stars" \
+            --argjson forks "$forks" \
+            --arg vscode_extension_id "$vscode_extension_id" \
+            --arg vscode_version "$vscode_version" \
+            --arg vscode_last_updated "$vscode_last_updated" \
+            --argjson vscode_gallery_installs "$vscode_installs" \
+            --argjson vscode_gallery_downloads "$vscode_downloads" \
+            --argjson vscode_gallery_installs_max "$vscode_installs_max" \
+            --argjson vscode_gallery_downloads_max "$vscode_downloads_max" \
+            --argjson vscode_gallery_sample_count "$vscode_gallery_sample_count" \
+            --argjson vscode_replication_consistent "$vscode_replication_consistent" \
+            --argjson vscode_install_samples "$vscode_install_samples" \
+            --argjson vscode_download_samples "$vscode_download_samples" \
+            --argjson vscode_baseline_installs "$vscode_baseline_installs" \
+            --argjson vscode_baseline_downloads "$vscode_baseline_downloads" \
+            --argjson vscode_install_delta "$vscode_install_delta" \
+            --argjson vscode_download_delta "$vscode_download_delta" \
+            --arg vscode_signal_gate_at "$vscode_signal_gate_at" \
+            --arg vscode_signal_gate "$vscode_signal_gate" \
+            '{
+              observed_at: $observed_at,
+              qualified_interest_issues: $qualified_interest_issues,
+              distinct_external_authors: $distinct_external_authors,
+              within_30_days: $within_30_days,
+              vscode_qualified_interest_issues: $vscode_qualified_interest_issues,
+              vscode_distinct_external_authors: $vscode_distinct_external_authors,
+              external_v2_code_refs: $external_v2_code_refs,
+              external_v2_search_available: $external_v2_search_available,
+              public_v2_release: $public_v2_release,
+              stars: $stars,
+              forks: $forks,
+              vscode_gallery: {
+                extension_id: $vscode_extension_id,
+                version: $vscode_version,
+                last_updated: $vscode_last_updated,
+                installs: $vscode_gallery_installs,
+                downloads: $vscode_gallery_downloads,
+                measurement: {
+                  sample_count: $vscode_gallery_sample_count,
+                  replication_consistent: $vscode_replication_consistent,
+                  samples: {
+                    installs: $vscode_install_samples,
+                    downloads: $vscode_download_samples
+                  },
+                  conservative_lower_bound: {
+                    installs: $vscode_gallery_installs,
+                    downloads: $vscode_gallery_downloads
+                  },
+                  observed_upper_bound: {
+                    installs: $vscode_gallery_installs_max,
+                    downloads: $vscode_gallery_downloads_max
+                  }
+                },
+                release_baseline: {
+                  installs: $vscode_baseline_installs,
+                  downloads: $vscode_baseline_downloads
+                },
+                delta_from_release_baseline: {
+                  installs: $vscode_install_delta,
+                  downloads: $vscode_download_delta
+                },
+                signal_gate_at: $vscode_signal_gate_at,
+                signal_gate: $vscode_signal_gate
+              },
+              caveat: "Public lower bounds only; private repositories, unindexed use, and purchases are not observed here. Marketplace downloads can include update/package fetches. Counters and interest are not revenue."
+            }' > "$evidence_dir/evidence.json"
+
+          {
+            echo '## Public acquisition evidence'
+            echo
+            echo "Observed: \`$observed_at\`"
+            echo
+            echo "- Price-qualified Audit interest issues: **$issue_count**"
+            echo "- Distinct external authors: **$author_count**"
+            echo "- Purchase window within 30 days: **$near_term_count**"
+            echo "- VS Code-attributed qualified issues: **$vscode_issue_count**"
+            echo "- Distinct external VS Code authors: **$vscode_author_count**"
+            echo "- Public code references to \`ntoledo319/EOLkits@v2\` outside this repository: **$external_v2_refs**"
+            echo "- Code-search result available: **$external_search_available**"
+            echo "- Public v2.0.0 release: **$public_v2_release**"
+            echo "- VS Marketplace v$vscode_version installs (five-sample lower bound): **$vscode_installs** (**$vscode_install_delta** from the $vscode_baseline_installs-install release baseline; observed max **$vscode_installs_max**)"
+            echo "- VS Marketplace v$vscode_version downloads (five-sample lower bound): **$vscode_downloads** (**$vscode_download_delta** from the $vscode_baseline_downloads-download release baseline; observed max **$vscode_downloads_max**)"
+            echo "- VS Gallery replicas consistent: **$vscode_replication_consistent** (samples: installs $vscode_install_samples; downloads $vscode_download_samples)"
+            echo "- VS five-day signal gate: **$vscode_signal_gate** (deadline: \`$vscode_signal_gate_at\`)"
+            echo
+            echo 'These are public lower bounds, not purchases or revenue. Private use and search-index lag are invisible. Downloads can include update/package fetches and do not establish demand.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Preserve the observation
+        uses: actions/upload-artifact@v7
+        with:
+          name: acquisition-evidence-${{ github.run_id }}
+          path: tmp/acquisition/evidence.json
+          if-no-files-found: error
+          retention-days: 14

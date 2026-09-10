@@ -1,0 +1,9 @@
+# Add to deploy/satellite-agent/grace_satellite_agent.py SATELLITES.
+# This intentionally does not modify the existing `eolkits` static entry.
+"eolkits-api": {
+    "kind": "compose",
+    "compose_project": "eolkits-api",
+    "compose_dir": "/home/ubuntu/sites/eolkits-api",
+    "services": ["eolkits-api"],
+    "allowed_actions": ["status", "logs", "restart", "redeploy"],
+},

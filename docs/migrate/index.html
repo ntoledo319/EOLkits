@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="referrer" content="origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://eolkits.com; form-action 'self'">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS deprecation deadlines — migration guides | EOLkits</title>
+    <meta name="description" content="Tracked AWS platform deprecation milestones, ordered by date: Lambda runtimes and Amazon Linux 2. Each links a provider source and bounded migration checks.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://ntoledo319.github.io/EOLkits/migrate/">
+    <link rel="stylesheet" href="/EOLkits/style.css">
+    <link rel="alternate" type="text/calendar" title="AWS Deprecation Deadlines (EOLkits)" href="/EOLkits/deprecations.ics">
+    <meta property="og:title" content="AWS deprecation deadlines — migration guides | EOLkits">
+    <meta property="og:description" content="Provider-linked AWS deprecation milestones with bounded free migration tools.">
+    <meta property="og:url" content="https://ntoledo319.github.io/EOLkits/migrate/">
+    <meta property="og:type" content="website">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "Tracked AWS deprecation deadlines",
+        "itemListElement": [
+
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "url": "https://ntoledo319.github.io/EOLkits/migrate/amazon-linux-2-eol/",
+                "name": "Amazon Linux 2 EOL (deadline 2026-06-30)"
+            },
+
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "url": "https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-20-phase-1/",
+                "name": "Lambda Node.js 20 create/update restrictions (deadline 2027-02-01)"
+            },
+
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "url": "https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.9-eol/",
+                "name": "Lambda Python 3.9 create/update restrictions (deadline 2027-02-01)"
+            },
+
+            {
+                "@type": "ListItem",
+                "position": 4,
+                "url": "https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.10-eol/",
+                "name": "Lambda Python 3.10 projected create/update restrictions (deadline 2027-02-01)"
+            },
+
+            {
+                "@type": "ListItem",
+                "position": 5,
+                "url": "https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-16-eol/",
+                "name": "Lambda Node.js 16 create/update restrictions (deadline 2027-02-01)"
+            },
+
+            {
+                "@type": "ListItem",
+                "position": 6,
+                "url": "https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-18-eol/",
+                "name": "Lambda Node.js 18 create/update restrictions (deadline 2027-02-01)"
+            },
+
+            {
+                "@type": "ListItem",
+                "position": 7,
+                "url": "https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.8-eol/",
+                "name": "Lambda Python 3.8 create/update restrictions (deadline 2027-02-01)"
+            },
+
+            {
+                "@type": "ListItem",
+                "position": 8,
+                "url": "https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-22-phase-1/",
+                "name": "Lambda Node.js 22 projected create/update restrictions (deadline 2027-06-01)"
+            },
+
+            {
+                "@type": "ListItem",
+                "position": 9,
+                "url": "https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.11-eol/",
+                "name": "Lambda Python 3.11 projected create/update restrictions (deadline 2027-07-31)"
+            }
+
+        ]
+    }
+    </script>
+</head>
+<body class="migrate-page">
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="/EOLkits/" class="brand"><span class="brand-mark">▸</span> EOLkits</a>
+    <nav>
+      <a href="/EOLkits/migrate/">Deadlines</a>
+      <a href="/EOLkits/#pricing">Pricing</a>
+      <a href="/EOLkits/deprecations.ics">Calendar</a>
+      <a href="https://github.com/ntoledo319/EOLkits" class="btn-ghost">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container article">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/EOLkits/">Home</a> / <span>AWS deprecations</span>
+    </nav>
+
+    <h1>AWS deprecation deadlines</h1>
+    <p class="sub">AWS platform deprecations EOLkits tracks, ordered by published deadline. Each page carries sourced dates and bounded migration notes; future schedules can change. <a href="/EOLkits/deprecations.ics">Subscribe to the calendar (.ics)</a>.</p>
+    <p class="sub">Prefer a 10-second check instead of browsing the list? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent. Hitting a specific error message? See the <a href="/EOLkits/fix/">AWS migration error fixes</a> hub.</p>
+
+    <div class="deadline-list">
+
+        <a class="deadline-row passed" href="/EOLkits/migrate/amazon-linux-2-eol/">
+            <div class="dl-date">
+                <strong>2026-06-30</strong>
+                <span class="dl-days">passed</span>
+            </div>
+            <div class="dl-body">
+                <div class="dl-name">Amazon Linux 2 EOL <span class="severity-badge severity-critical">critical</span></div>
+                <div class="dl-meta">EC2, EKS, ECS, Elastic Beanstalk · <code>al2023-gate</code></div>
+            </div>
+            <div class="dl-arrow">→</div>
+        </a>
+
+        <a class="deadline-row ahead" href="/EOLkits/migrate/lambda-node.js-20-phase-1/">
+            <div class="dl-date">
+                <strong>2027-02-01</strong>
+                <span class="dl-days">154 days</span>
+            </div>
+            <div class="dl-body">
+                <div class="dl-name">Lambda Node.js 20 create/update restrictions <span class="severity-badge severity-high">high</span></div>
+                <div class="dl-meta">AWS Lambda · <code>lambda-lifeline</code></div>
+            </div>
+            <div class="dl-arrow">→</div>
+        </a>
+
+        <a class="deadline-row ahead" href="/EOLkits/migrate/lambda-python-3.9-eol/">
+            <div class="dl-date">
+                <strong>2027-02-01</strong>
+                <span class="dl-days">154 days</span>
+            </div>
+            <div class="dl-body">
+                <div class="dl-name">Lambda Python 3.9 create/update restrictions <span class="severity-badge severity-high">high</span></div>
+                <div class="dl-meta">AWS Lambda · <code>python-pivot</code></div>
+            </div>
+            <div class="dl-arrow">→</div>
+        </a>
+
+        <a class="deadline-row ahead" href="/EOLkits/migrate/lambda-python-3.10-eol/">
+            <div class="dl-date">
+                <strong>2027-02-01</strong>
+                <span class="dl-days">154 days</span>
+            </div>
+            <div class="dl-body">
+                <div class="dl-name">Lambda Python 3.10 projected create/update restrictions <span class="severity-badge severity-high">high</span></div>
+                <div class="dl-meta">AWS Lambda · <code>python-pivot</code></div>
+            </div>
+            <div class="dl-arrow">→</div>
+        </a>
+
+        <a class="deadline-row ahead" href="/EOLkits/migrate/lambda-node.js-16-eol/">
+            <div class="dl-date">
+                <strong>2027-02-01</strong>
+                <span class="dl-days">154 days</span>
+            </div>
+            <div class="dl-body">
+                <div class="dl-name">Lambda Node.js 16 create/update restrictions <span class="severity-badge severity-high">high</span></div>
+                <div class="dl-meta">AWS Lambda · <code>lambda-lifeline</code></div>
+            </div>
+            <div class="dl-arrow">→</div>
+        </a>
+
+        <a class="deadline-row ahead" href="/EOLkits/migrate/lambda-node.js-18-eol/">
+            <div class="dl-date">
+                <strong>2027-02-01</strong>
+                <span class="dl-days">154 days</span>
+            </div>
+            <div class="dl-body">
+                <div class="dl-name">Lambda Node.js 18 create/update restrictions <span class="severity-badge severity-high">high</span></div>
+                <div class="dl-meta">AWS Lambda · <code>lambda-lifeline</code></div>
+            </div>
+            <div class="dl-arrow">→</div>
+        </a>
+
+        <a class="deadline-row ahead" href="/EOLkits/migrate/lambda-python-3.8-eol/">
+            <div class="dl-date">
+                <strong>2027-02-01</strong>
+                <span class="dl-days">154 days</span>
+            </div>
+            <div class="dl-body">
+                <div class="dl-name">Lambda Python 3.8 create/update restrictions <span class="severity-badge severity-high">high</span></div>
+                <div class="dl-meta">AWS Lambda · <code>python-pivot</code></div>
+            </div>
+            <div class="dl-arrow">→</div>
+        </a>
+
+        <a class="deadline-row ahead" href="/EOLkits/migrate/lambda-node.js-22-phase-1/">
+            <div class="dl-date">
+                <strong>2027-06-01</strong>
+                <span class="dl-days">274 days</span>
+            </div>
+            <div class="dl-body">
+                <div class="dl-name">Lambda Node.js 22 projected create/update restrictions <span class="severity-badge severity-medium">medium</span></div>
+                <div class="dl-meta">AWS Lambda · <code>lambda-lifeline</code></div>
+            </div>
+            <div class="dl-arrow">→</div>
+        </a>
+
+        <a class="deadline-row ahead" href="/EOLkits/migrate/lambda-python-3.11-eol/">
+            <div class="dl-date">
+                <strong>2027-07-31</strong>
+                <span class="dl-days">334 days</span>
+            </div>
+            <div class="dl-body">
+                <div class="dl-name">Lambda Python 3.11 projected create/update restrictions <span class="severity-badge severity-medium">medium</span></div>
+                <div class="dl-meta">AWS Lambda · <code>python-pivot</code></div>
+            </div>
+            <div class="dl-arrow">→</div>
+        </a>
+
+    </div>
+
+    <p class="cite-note" style="margin-top:2rem">Each date links its provider source. Migration checks are bounded static guidance to validate against the workload and current upstream documentation.</p>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="brand"><span class="brand-mark">▸</span> EOLkits</div>
+        <p class="muted">Tracked AWS deprecations deserve tested migration paths.</p>
+      </div>
+      <div>
+        <h5>Deadlines</h5>
+        <a href="/EOLkits/migrate/">Tracked AWS deprecations</a><br>
+        <a href="/EOLkits/deprecations.ics">Deadline calendar (.ics)</a>
+      </div>
+      <div>
+        <h5>Resources</h5>
+        <a href="https://github.com/ntoledo319/EOLkits">GitHub</a><br>
+        <a href="/EOLkits/#pricing">Pricing</a>
+      </div>
+    </div>
+    <div class="muted small">© 2026 EOLkits · MIT-licensed kits · facts cited from primary sources</div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -4,6 +4,7 @@ Dates reflect published AWS Lambda runtime deprecation schedule.
 """
 
 from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import date
 from typing import Dict, Optional
@@ -31,28 +32,28 @@ RUNTIME_TABLE: Dict[str, RuntimeInfo] = {
         "python3.8",
         "3.8",
         deprecation_phase1=date(2024, 10, 14),
-        block_create=date(2024, 11, 13),
-        block_update=date(2024, 12, 16),
+        block_create=date(2027, 2, 1),
+        block_update=date(2027, 3, 3),
     ),
     "python3.9": RuntimeInfo(
         "python3.9",
         "3.9",
         deprecation_phase1=date(2025, 12, 15),
-        block_create=date(2026, 1, 14),
-        block_update=date(2026, 2, 13),
+        block_create=date(2027, 2, 1),
+        block_update=date(2027, 3, 3),
     ),
     "python3.10": RuntimeInfo(
         "python3.10",
         "3.10",
         deprecation_phase1=date(2026, 10, 31),
-        block_create=date(2026, 11, 30),
-        block_update=date(2026, 12, 31),
+        block_create=date(2027, 2, 1),
+        block_update=date(2027, 3, 3),
     ),
     "python3.11": RuntimeInfo(
         "python3.11",
         "3.11",
         deprecation_phase1=date(2027, 6, 30),
-        block_create=date(2027, 7, 30),
+        block_create=date(2027, 7, 31),
         block_update=date(2027, 8, 31),
     ),
     "python3.12": RuntimeInfo(

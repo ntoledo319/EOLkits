@@ -1,178 +1,134 @@
-# Rupture — Migration Kits for AWS Platform Deprecations
+# EOLkits
 
-> CLIs for the AWS deprecation deadlines that break production. Next up: **Amazon Linux 2 (Jun 30, 2026)**. Also: **Lambda Python 3.9/3.10/3.11** waves, and post-deadline cleanup for **Lambda Node.js 20**.
+EOLkits finds AWS runtime and Amazon Linux migration risks in source code and
+infrastructure-as-code. The scanners run locally; the optional paid product turns
+a repository ZIP or source file into a shareable evidence report.
 
-[![landing](https://img.shields.io/badge/landing-live-brightgreen)](https://ntoledo319.github.io/Rupture)
-[![tests](https://img.shields.io/badge/tests-126%20passing-brightgreen)](#tests)
-[![license](https://img.shields.io/badge/license-MIT%20(open%20core)-blue)](#license)
+## Use it free
 
-AWS is killing runtimes on a hard schedule. When a deadline passes, deploys fail, functions get frozen, AMIs stop receiving patches. Most shops find out in production.
+Install the free [EOLkits scanner for VS Code](https://marketplace.visualstudio.com/items?itemName=rupture.rupture-vscode),
+run the verified [browser scanner](https://ntoledo319.github.io/EOLkits/scan/?source=github_readme&utm_source=github&utm_medium=readme),
+or use one of the MIT-licensed kits in this repository:
 
-**Rupture ships one CLI per deadline.** Each kit scans your accounts, rewrites the broken code, patches the IaC, generates a safe canary plan, and produces a rollback script. All kits work offline via fixtures so you can evaluate before you run them against AWS.
+- [`lambda-lifeline`](./kits/lambda-lifeline) checks Lambda Node.js runtime,
+  dependency, source, and IaC compatibility.
+- [`python-pivot`](./kits/python-pivot) checks Lambda Python runtime, removed
+  standard-library APIs, dependency, and IaC compatibility.
+- [`al2023-gate`](./kits/al2023-gate) checks Amazon Linux 2 to Amazon Linux 2023
+  package, cloud-init, Ansible, and rollout concerns.
 
----
+Each kit has its own installation and command reference. Fixture and dry-run modes
+let you inspect proposed work before using cloud credentials or changing files.
 
-## The deadlines
+The browser scanner accepts selected files or pasted source and includes a fictional
+example. Results show matched lines, source references, severity filters, and file
+coverage. Its JSON download includes all findings and any failed, skipped, or
+cancelled files; it contains no source contents. Scans stay local and are limited to
+100 UTF-8 files, 1 MiB per file, and 10 MiB per batch. Extract archives first.
+This is a bounded pattern check, not proof of migration readiness.
 
-| Kit | Deadline | What breaks | Status |
-|---|---|---|---|
-| [**al2023-gate**](./kits/al2023-gate) | **Jun 30, 2026** — Amazon Linux 2 EOL | `yum`, `amazon-linux-extras`, `ntpd`, `iptables`, Python 2 | **Live deadline** |
-| [**python-pivot**](./kits/python-pivot) | **Lambda Python 3.9/3.10/3.11** EOL waves | `distutils`, `imp`, `collections.Mapping`, native wheels | Active |
-| [**lambda-lifeline**](./kits/lambda-lifeline) | Apr 30, 2026 — Lambda Node.js 20 EOL (Phase 1, **passed**) | `require()`, `aws-sdk` v2, `URL` globals, OpenSSL 3 hashes | Post-deadline cleanup |
-
-> Phase 1 for Node.js 20 ended Apr 30, 2026 — security patches stop. Phase 2 (Aug 31) blocks creating new functions on `nodejs20.x`; Phase 3 (Sep 30) blocks updating existing ones. If you're still on `nodejs20.x`, `lambda-lifeline` is the cleanup path before the Sep 30 cliff.
-
-Every kit ships the same 6 pillars:
-
-1. **scan** — enumerate affected resources across regions (fixture or live via boto3)
-2. **codemod / remap** — rewrite source and config to the new runtime
-3. **audit** — find the dependency landmines (native wheels, deprecated modules)
-4. **iac** — patch SAM / CDK (Python+TS) / Terraform / Serverless / Packer / Ansible
-5. **deploy** — staged canary (5 → 25 → 50 → 100) with CloudWatch alarm rollback
-6. **rollback** — one command back to the previous version
-
----
-
-## Install
-
-Each kit is standalone. `al2023-gate` and `python-pivot` are Python CLIs; `lambda-lifeline` is a Node CLI. Clone and install the one you need.
-
-For the live deadline (AL2 → AL2023, Jun 30):
-
-```bash
-git clone https://github.com/ntoledo319/Rupture.git
-cd Rupture/kits/al2023-gate   # or kits/python-pivot
-pip install -e .
-al2023-gate --help
-```
-
-For Node 20 cleanup (before the Sep 30 Phase 3 cliff):
-
-```bash
-cd Rupture/kits/lambda-lifeline
-npm install
-npm link
-lambda-lifeline --help
-```
-
-The Python kits require Python 3.10+. Live mode uses `boto3`; fixture mode requires nothing.
-
----
+The VS Code scanner keeps diagnostics, its tree, and open reports synchronized.
+Unreadable files, pending edits, and cancelled scans remain visible; a folder scan
+preserves results from the rest of the workspace. See the
+[extension guide](./apps/vscode-extension/README.md) for its scan and retry behavior.
 
 ## GitHub Action
 
-Run the free PR check from GitHub Actions:
+Add the free repository check to a workflow:
 
 ```yaml
-- uses: ntoledo319/Rupture@v1
-  with:
-    kit: auto
-    path: .
-    fail-on: high
-    comment-pr: true
+permissions:
+  contents: read
+
+steps:
+  - uses: actions/checkout@v6
+  - uses: ntoledo319/EOLkits@v2
+    with:
+      kit: auto
+      path: .
+      fail-on: none
 ```
 
-The action runs dry-run, path-safe checks from all three kits and can comment findings on pull requests.
+The action installs the three local kits, scans only the selected workspace path,
+and writes a job summary. This read-only first run reports findings without
+blocking the build. After reviewing its output, set `fail-on: any` to enforce the
+check. Pull-request comments are off by default; enable `comment-pr: true` only
+when the caller deliberately grants `pull-requests: write` permission.
 
----
+## Paid repository evidence report
 
-## 30-second demo
+The only paid product EOLkits is prepared to offer is a **$299 static repository
+evidence report**. Checkout is shown only when the v2 fulfillment backend reports
+itself ready; while that operational gate is closed, the report is not
+purchasable.
 
-Live deadline first — Amazon Linux 2 → AL2023:
+The report includes:
+
+- exact observed file and line locations, capped per finding type;
+- severity, remediation notes, and a configured rule or package reference for
+  each matched finding;
+- the uploaded input SHA-256, rule-pack version, and deterministic evidence
+  fingerprint;
+- explicit scope and limitations.
+
+It does **not** inspect an AWS account, predict downtime or cost, prove exploitability,
+or digitally sign the PDF. A successfully delivered report causes its source upload
+to be deleted immediately; checkout-bound source uploads expire within 48 hours and
+reports within 30 days. See the [terms](./legal/terms.md),
+[privacy notice](./legal/privacy.md), and [security model](./SECURITY.md).
+
+[See the $299 report scope and availability](https://ntoledo319.github.io/EOLkits/audit/?source=github_readme&utm_source=github&utm_medium=readme)
+or inspect the [engine-generated fictional sample PDF](https://ntoledo319.github.io/EOLkits/audit/sample/eolkits-sample-report.pdf)
+and its [input/hash manifest](https://ntoledo319.github.io/EOLkits/audit/sample/eolkits-sample-report.json).
+
+## Not for sale
+
+Migration Pack, Drift Watch, Organization License, partner white-labeling, and the
+public GitHub App are closed research or private-beta concepts. Their API checkout
+and fulfillment paths reject requests. They should not be represented as available
+products.
+
+## Local verification
 
 ```bash
-# Scan what's about to break (offline, no AWS creds needed)
-al2023-gate scan --fixture test/fixtures/inventory.json --format table
+# Use project-local environments; CI carries the complete matrix.
+python3 -m venv tmp/verify-venv
+tmp/verify-venv/bin/pip install -r apps/grace-api/requirements-dev.txt
+tmp/verify-venv/bin/pip install -r apps/runner/requirements-dev.txt
+tmp/verify-venv/bin/pip install -r apps/web/requirements-dev.txt
+TMPDIR="$PWD/tmp/runtime-tmp" tmp/verify-venv/bin/pytest -q apps/grace-api
+TMPDIR="$PWD/tmp/runtime-tmp" tmp/verify-venv/bin/pytest -q apps/runner
+TMPDIR="$PWD/tmp/runtime-tmp" tmp/verify-venv/bin/pytest -q apps/web
 
-# Remap package names (yum → dnf, retired packages → replacements)
-al2023-gate remap --packages packages.txt
+# Node kit
+(cd kits/lambda-lifeline && npm test)
 
-# Patch cloud-init / launch-template / Packer / Ansible
-al2023-gate cloudinit --path user-data.yaml --apply
+# Worker
+(cd apps/worker && npm test)
 
-# Generate the rollout runbook for EKS / ECS / Beanstalk / ASG
-al2023-gate runbook --target eks
+# Static site
+tmp/verify-venv/bin/python apps/web/build.py
+
+# Rendered scanner smoke: installed Chrome/Chromium, no browser package download.
+# Override the executable with EOLKITS_CHROME if needed; artifacts stay in tmp/.
+node apps/web/test_browser.mjs
 ```
 
-Same shape for `python-pivot` and `lambda-lifeline` — see each kit's README for the full walkthrough with captured output.
+Use each component's lockfile or requirements file when constructing an isolated
+environment. The CI workflows are the canonical full matrix.
 
----
+## Architecture
 
-## Pricing
-
-| SKU | Price | What you get | Delivery |
-|---|---|---|---|
-| **CLI (free)** | $0 | All three kits, MIT, no limits | `git clone` |
-| **Audit PDF** | $299 (surge to $399 inside 30 days, $599 inside 7 days) | A hash-anchored, deterministic report scoring every finding by severity × blast-radius, with a roll-forward roadmap and cost-of-not-fixing estimate | Email within 5 minutes |
-| **Migration Pack** | $1,499 | A real PR opened on your repo with codemods + IaC patches + canary plan + rollback. Refund auto-fires if CI fails | GitHub App opens PR within 5 minutes |
-| **Org License** | $14,999 / yr | Live rule-pack feed, private rule extensions, unlimited runs, one-year validity | License key emailed |
-| **Drift Watch** | $19 / mo | Weekly re-scan of a read-only IAM role; delta PDF on change; auto-PR on new deprecation | Cron-driven |
-
-**[→ Pricing page](https://ntoledo319.github.io/Rupture#pricing)**
-
----
-
-## Why this exists
-
-AWS publishes deprecation notices on a blog. Your deploys will fail on a Tuesday. The fix is usually not one-line — it's native wheels that don't exist for the new runtime, OpenSSL 3 hashes your code depended on, an IMDSv1 call that's now blocked, an `iptables` rule that no longer works on nftables.
-
-Rupture automates AWS migrations off deprecated runtimes — deterministically, safely, and before the deadline. It's opinionated, well-tested (126 tests across kits + apps), and safe — everything is dry-run by default, everything has a rollback path.
-
----
-
-## Tests
-
-```bash
-# lambda-lifeline: 24 tests (Node, node --test)
-cd kits/lambda-lifeline && npm test
-
-# al2023-gate: 48 tests
-cd kits/al2023-gate && pytest -q
-
-# python-pivot: 44 tests
-cd kits/python-pivot && pytest -q
-
-# apps/runner: 7 tests
-cd apps/runner && pytest -q
-
-# apps/worker: 3 tests (vitest)
-cd apps/worker && npm test
-```
-
-126 passing across kits + apps.
-
----
-
-## Roadmap
-
-Shipped:
-- [x] al2023-gate — Amazon Linux 2 → AL2023 *(Jun 30, 2026 — live deadline)*
-- [x] python-pivot — Lambda Python 3.9/3.10/3.11 → 3.12 *(rolling EOL waves)*
-- [x] lambda-lifeline — Lambda Node.js 20 → 22 *(Phase 1 passed Apr 30; Phase 3 cliff Sep 30)*
-
-Queued:
-- [ ] imds-v2-gate — IMDSv1 → IMDSv2 enforcement
-- [ ] rds-pg-gate — RDS for PostgreSQL major version EOLs
-- [ ] eks-version-gate — EKS control-plane version migrations
-
-Each new kit is free forever for bundle customers.
-
----
+- `kits/` — local migration scanners and codemods
+- `apps/github-action/` + `action.yml` — free CI distribution surface
+- `apps/vscode-extension/` — local editor scanner
+- `apps/web/` — deterministic static-site generator
+- `apps/grace-api/` — upload, checkout, webhook, job, refund, and delivery service
+- `apps/runner/` — evidence extraction and PDF rendering
+- `rules/public/` — cited deprecation dates used by public surfaces
+- `revenue/` — current commercial plan, evidence, decisions, and owner queue
 
 ## License
 
-Open-core: the CLI code in this repo is MIT-licensed. The paid tiers include hash-anchored audit reports, automated PR bots, and rule-pack feeds.
-
----
-
-## Links
-
-- 🌐 [Landing page](https://ntoledo319.github.io/Rupture)
-- 🚀 [Show HN post](./launch/show-hn-final.md)
-- 📝 [Blog post: Migrating Lambda Node.js 20 → 22](./launch/blog-post.md)
-- 💬 [Direct support reply templates](./launch/thread-answers.md)
-- 💬 Issues: use the repo tracker
-
----
-
-*Rupture migrates AWS workloads off deprecated runtimes — automatically, deterministically, and before the deadline.*
+The repository code is MIT-licensed unless a file says otherwise. Third-party
+licenses are recorded in [`ATTRIBUTIONS.md`](./ATTRIBUTIONS.md).

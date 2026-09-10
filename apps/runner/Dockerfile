@@ -1,58 +1,42 @@
-# Rupture Runner Container
-# Multi-stage build for the job runner that processes audit PDFs and migration PRs
-
-FROM python:3.12-slim as builder
+FROM python:3.12.14-slim-bookworm@sha256:782412e85d0f0984994c290652577d4018aff08145c85b262bb63dc0c7522254
 
 WORKDIR /app
 
-# Install build dependencies (gcc + WeasyPrint native libs needed at build time
-# for cffi bindings against pango/cairo/gdk-pixbuf).
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    libc6-dev \
-    libpango-1.0-0 \
-    libpangoft2-1.0-0 \
-    libharfbuzz0b \
     libcairo2 \
     libgdk-pixbuf-2.0-0 \
-    && rm -rf /var/lib/apt/lists/*
+    libharfbuzz0b \
+    libpango-1.0-0 \
+    libpangoft2-1.0-0 \
+    fonts-dejavu-core \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --create-home --uid 10001 runner
 
-# Install Python dependencies
-COPY requirements.txt .
-RUN pip install --user --no-cache-dir -r requirements.txt
+COPY apps/runner/requirements.lock /app/requirements.lock
+RUN pip install --no-cache-dir --require-hashes -r /app/requirements.lock
 
-# Runtime stage
-FROM python:3.12-slim
+COPY apps/runner/main.py /app/main.py
+COPY apps/runner/audit_pdf.py /app/audit_pdf.py
+COPY rules/public/deprecations.yml /app/rules/public/deprecations.yml
+COPY rules/public/dependency-compatibility.json /app/rules/public/dependency-compatibility.json
+COPY deploy/grace/container-entrypoint.sh /usr/local/bin/eolkits-container-entrypoint
 
-WORKDIR /app
+RUN chmod 0555 /usr/local/bin/eolkits-container-entrypoint
 
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    curl \
-    jq \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy Python packages from builder
-COPY --from=builder /root/.local /root/.local
-
-# Install all three kits
-COPY kits/lambda-lifeline /opt/kits/lambda-lifeline
-COPY kits/al2023-gate /opt/kits/al2023-gate
-COPY kits/python-pivot /opt/kits/python-pivot
-
-RUN pip install --no-cache-dir \
-    /opt/kits/lambda-lifeline \
-    /opt/kits/al2023-gate \
-    /opt/kits/python-pivot
-
-# Copy runner code
-COPY apps/runner/main.py /app/
-COPY apps/runner/audit_pdf.py /app/
-COPY apps/runner/migration_pr.py /app/
-
-# Make sure scripts are in PATH
-ENV PATH=/root/.local/bin:$PATH
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV HOME=/tmp
+ENV TMPDIR=/tmp
+ENV XDG_CACHE_HOME=/tmp/.cache
+ENV RUNNER_HTTP=1
+# Containers deliberately opt into their network namespace; direct execution
+# stays loopback-only unless an operator makes the same explicit choice.
+ENV RUNNER_BIND=0.0.0.0
+ENV EOLKITS_DEPRECATIONS_FILE=/app/rules/public/deprecations.yml
+ENV EOLKITS_DEPENDENCY_RULES_FILE=/app/rules/public/dependency-compatibility.json
+ENV EOLKITS_ALLOWED_UPLOAD_ORIGIN=https://eolkits.com
 
-ENTRYPOINT ["python", "/app/main.py"]
+USER 10001:10001
+EXPOSE 8080
+ENTRYPOINT ["/usr/local/bin/eolkits-container-entrypoint"]
+CMD ["python", "/app/main.py"]

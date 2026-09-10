@@ -1,66 +1,122 @@
 {
   "name": "rupture-vscode",
-  "displayName": "Rupture - AWS Deprecation Scanner",
-  "description": "Real-time AWS deprecation detection in VS Code",
-  "version": "1.0.0",
+  "displayName": "AWS Lambda EOL Scanner — EOLkits",
+  "description": "Find deprecated AWS Lambda runtimes, Amazon Linux 2, and AWS SDK v2 risks in Terraform, SAM/CloudFormation, and source. Local; no AWS credentials.",
+  "version": "1.3.0",
   "publisher": "rupture",
+  "icon": "icon.png",
+  "galleryBanner": {
+    "color": "#E8801A",
+    "theme": "dark"
+  },
+  "homepage": "https://ntoledo319.github.io/EOLkits/",
+  "bugs": {
+    "url": "https://github.com/ntoledo319/EOLkits/issues"
+  },
+  "qna": "marketplace",
+  "pricing": "Free",
+  "sponsor": {
+    "url": "https://ntoledo319.github.io/EOLkits/audit/?utm_source=vscode&utm_medium=marketplace&source=vscode"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
   "categories": [
     "Linters",
-    "Debuggers",
-    "Programming Languages"
+    "Other"
   ],
   "keywords": [
     "aws",
     "lambda",
     "deprecation",
+    "end-of-life",
+    "eol",
     "migration",
+    "amazon linux",
+    "cloudformation",
+    "terraform",
     "nodejs",
-    "python"
+    "python",
+    "serverless",
+    "devops",
+    "sre",
+    "runtime upgrade",
+    "nodejs20",
+    "nodejs16",
+    "nodejs18",
+    "python3.8",
+    "python3.9",
+    "aws sdk v2",
+    "sam"
   ],
   "activationEvents": [
     "onLanguage:yaml",
     "onLanguage:json",
     "onLanguage:javascript",
-    "onLanguage:python"
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact",
+    "onLanguage:terraform",
+    "onLanguage:python",
+    "onCommand:rupture.scanWorkspace",
+    "onCommand:rupture.showReport",
+    "onCommand:rupture.getAudit"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "rupture.scanWorkspace",
-        "title": "Rupture: Scan Workspace for Deprecations",
+        "command": "eolkits.scanWorkspace",
+        "title": "EOLkits: Scan Workspace for Deprecations",
         "icon": "$(search)"
       },
       {
-        "command": "rupture.showReport",
-        "title": "Rupture: Show Deprecation Report",
+        "command": "eolkits.showReport",
+        "title": "EOLkits: Show Deprecation Report",
         "icon": "$(output)"
       },
       {
-        "command": "rupture.getAudit",
-        "title": "Rupture: Get Full Audit Report",
+        "command": "eolkits.getAudit",
+        "title": "EOLkits: Get Repository Evidence Report",
         "icon": "$(link-external)"
       }
     ],
     "menus": {
       "explorer/context": [
         {
-          "command": "rupture.scanWorkspace",
+          "command": "eolkits.scanWorkspace",
           "group": "2_workspace@5",
           "when": "explorerResourceIsFolder"
         }
       ]
     },
     "configuration": {
-      "title": "Rupture",
+      "title": "EOLkits",
       "properties": {
+        "eolkits.enabledKits": {
+          "type": "array",
+          "default": ["lambda-lifeline", "al2023-gate", "python-pivot"],
+          "description": "Which EOLkits kits to enable",
+          "items": {
+            "type": "string",
+            "enum": ["lambda-lifeline", "al2023-gate", "python-pivot"]
+          }
+        },
+        "eolkits.severityThreshold": {
+          "type": "string",
+          "default": "medium",
+          "description": "Minimum severity to report",
+          "enum": ["low", "medium", "high", "critical"]
+        },
+        "eolkits.autoScan": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically refresh saved files and supported files changed on disk"
+        },
         "rupture.enabledKits": {
           "type": "array",
           "default": ["lambda-lifeline", "al2023-gate", "python-pivot"],
-          "description": "Which Rupture kits to enable",
+          "description": "Legacy setting retained for the v1.1 transition. Use eolkits.enabledKits.",
+          "deprecationMessage": "Use eolkits.enabledKits instead.",
           "items": {
             "type": "string",
             "enum": ["lambda-lifeline", "al2023-gate", "python-pivot"]
@@ -69,22 +125,23 @@
         "rupture.severityThreshold": {
           "type": "string",
           "default": "medium",
-          "description": "Minimum severity to report",
+          "description": "Legacy setting retained for the v1.1 transition. Use eolkits.severityThreshold.",
+          "deprecationMessage": "Use eolkits.severityThreshold instead.",
           "enum": ["low", "medium", "high", "critical"]
         },
         "rupture.autoScan": {
           "type": "boolean",
           "default": true,
-          "description": "Automatically scan on file save"
+          "description": "Legacy setting retained for the v1.1 transition. Use eolkits.autoScan.",
+          "deprecationMessage": "Use eolkits.autoScan instead."
         }
       }
     },
     "views": {
       "explorer": [
         {
-          "id": "rupture.deprecations",
-          "name": "AWS Deprecations",
-          "when": "rupture.hasDeprecations"
+          "id": "eolkits.deprecations",
+          "name": "AWS Deprecations"
         }
       ]
     }
@@ -93,23 +150,22 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js",
+    "test": "npm run compile && npm run lint && node test/rules.test.cjs && node test/lifecycle.test.cjs",
     "package": "vsce package"
   },
   "devDependencies": {
-    "@types/vscode": "^1.85.0",
-    "@types/node": "20.x",
-    "@typescript-eslint/eslint-plugin": "^6.15.0",
-    "@typescript-eslint/parser": "^6.15.0",
-    "eslint": "^8.56.0",
-    "typescript": "^5.3.3",
-    "@vscode/vsce": "^2.22.0"
+    "@types/vscode": "1.85.0",
+    "@types/node": "20.19.43",
+    "@typescript-eslint/eslint-plugin": "8.67.0",
+    "@typescript-eslint/parser": "8.67.0",
+    "eslint": "10.9.0",
+    "typescript": "5.9.3",
+    "@vscode/vsce": "3.9.2"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ntoledo319/Rupture.git",
+    "url": "https://github.com/ntoledo319/EOLkits.git",
     "directory": "apps/vscode-extension"
   },
   "license": "MIT"
