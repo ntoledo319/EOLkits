@@ -123,16 +123,19 @@ jobs:
             docs/audit/index.html docs/pack/index.html docs/license/index.html docs/partners/index.html; then
             echo "::error::Unrendered placeholder found"; exit 1
           fi
-          if grep -REn 'eolkits-worker|/Rupture/' docs; then
+          # Historical citations deliberately retain former URLs and identities.
+          if grep -REn --exclude-dir=history 'eolkits-worker|/Rupture/' docs; then
             echo "::error::Stale deployment URL found"; exit 1
           fi
-          if grep -RPn 'https://ntoledo319\.github\.io/(?!EOLkits(?:/|["<]))' docs; then
+          if grep -RPn --exclude-dir=history 'https://ntoledo319\.github\.io/(?!EOLkits(?:/|["<]))' docs; then
             echo "::error::Unprefixed GitHub Pages URL found"; exit 1
           fi
           if grep -En '<loc>https?://' docs/sitemap.xml | \
             grep -v 'https://ntoledo319\.github\.io/EOLkits/'; then
             echo "::error::Noncanonical host in sitemap"; exit 1
           fi
+      - name: Exercise the rendered browser scanner
+        run: node apps/web/test_browser.mjs
 
   vscode-extension:
     runs-on: ubuntu-latest

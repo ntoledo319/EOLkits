@@ -38,7 +38,7 @@ rather than resolved by fiat. "No evidence found" never means "did not happen".
 <!-- chapter: docs/history/ORIENTATION.md -->
 # Orientation
 
-A present-tense briefing for anyone — human or agent — about to work in this repository, followed by how to read the rest of the history and how to keep it current. Everything in the "Present tense" section describes the tree at the audit anchor (HEAD 71c78a1192ce8e83f955f3b53f1595449d4c9ff7, branch `codex/workspace-env-scan-20260904`, 2026-09-04). Everything after it is history and is written in the past tense on purpose.
+A present-tense briefing for anyone — human or agent — about to work in this repository, followed by how to read the rest of the history and how to keep it current. The original "Present tense" section describes the tree at the audit anchor (HEAD 71c78a1192ce8e83f955f3b53f1595449d4c9ff7, branch `codex/workspace-env-scan-20260904`, 2026-09-04). Dated updates below distinguish later working-tree changes from that reconstruction.
 
 ## Present tense
 
@@ -52,6 +52,10 @@ How the repository is operated: by agents. `AGENTS.md` (unchanged since 2026-07-
 
 Present-tense working-tree state that is *not* history: on 2026-09-04 the working tree carried a pre-existing uncommitted modification to `.gitignore` and the uncommitted history system itself; the untracked April tool logs (`.aider*`) and the git-ignored `tmp/owner-env-import/` inbox exist on disk. Treat these as work in progress.
 
+## September 5 working-tree update
+
+The history system is now committed at `24c2debcce3782667c17c567742b45216881766a`. The subsequent local product pass improves browser coverage, recovery and findings export; synchronizes editor findings across lifecycle changes; corrects supported Python manifests, Lambda template edits and rollback selection; and rejects malformed report input before checkout (CLM-E5-001 … CLM-E5-004). See [the workflow event](.project-history/events/2026/eolkits-2026-09-05-trustworthy-scan-workflows.md) for evidence and parsing limits. These changes have local automated and rendered-browser verification, with no release or deployment. Provider-fixture PDF verification does not satisfy the real deployment or purchase gates. Pre-existing `.gitignore` work remains preserved.
+
 ## What is not established
 
 No revenue, ever. No verified end-to-end purchase, ever. No measured traffic to the paid funnel. No confirmed reading of the Marketplace or Gallery by this audit (browser use was prohibited; those numbers are agent-reported). Whether the project's own runtime secrets were rotated after the September 2026 credential sweep is not recorded anywhere read. The repository's commit history has **not** been rewritten (see [the sweep event](.project-history/events/2026/eolkits-2026-09-01-credential-sweep-left-repo-unrewritten.md)).
@@ -60,7 +64,7 @@ No revenue, ever. No verified end-to-end purchase, ever. No measured traffic to 
 
 The reading path is [`PROJECT_HISTORY.md`](PROJECT_HISTORY.md), assembled from the chapters in this directory in the order set by [`.project-history/policy.yml`](.project-history/policy.yml): this orientation, the [narrative](docs/history/NARRATIVE.md), the [ideology](docs/history/IDEOLOGY.md), the [goals](docs/history/GOALS.md), the [decision map](docs/history/DECISION_MAP.md), the [open questions](docs/history/OPEN_QUESTIONS.md), the generated [timeline](docs/history/TIMELINE.md) and [coverage](docs/history/COVERAGE.md) indexes, then every event capsule and the contradiction register as appendices.
 
-Four kinds of statement are kept apart: what participants **said** (commit messages, handoffs, PR bodies, ledgers), what the system **did** (code, configuration, workflows at a revision), what **outcome** followed (releases, ledger observations, the absence of revenue), and what the historian **infers**. Claim ids (`CLM-<era>-nnn`) point into [`.project-history/claims.yml`](.project-history/claims.yml), where each carries a full commit SHA or another stable locator, an evidence type, a status and a confidence. Principle ids (`P-nn`, versioned as `P-nn.k`) and goal ids (`G-nn`) point into `.project-history/doctrine/`. Contradiction ids (`CON-nnn`) point into the register, which preserves competing accounts with a best-supported reading rather than a verdict. Event ids (`eolkits-YYYY-MM-DD-slug`) are capsules under `.project-history/events/2026/`, one per material decision arc, with occurred/decided/merged/released/recorded dates kept distinct; every capsule here is a backfill recorded on 2026-09-04.
+Four kinds of statement are kept apart: what participants **said** (commit messages, handoffs, PR bodies, ledgers), what the system **did** (code, configuration, workflows at a revision), what **outcome** followed (releases, ledger observations, the absence of revenue), and what the historian **infers**. Claim ids (`CLM-<era>-nnn`) point into [`.project-history/claims.yml`](.project-history/claims.yml), where each carries a full commit SHA or another stable locator, an evidence type, a status and a confidence. Principle ids (`P-nn`, versioned as `P-nn.k`) and goal ids (`G-nn`) point into `.project-history/doctrine/`. Contradiction ids (`CON-nnn`) point into the register, which preserves competing accounts with a best-supported reading rather than a verdict. Event ids (`eolkits-YYYY-MM-DD-slug`) are capsules under `.project-history/events/2026/`, one per material decision arc, with occurred/decided/merged/released/recorded dates kept distinct. The initial capsules were backfilled on 2026-09-04; the September 5 workflow event is contemporaneous.
 
 Dates are author dates unless a capsule says otherwise. The era prefixes in claim ids (E1..E4B, EXT) record which reconstruction slice produced a claim and are not themselves era boundaries; the eras are defined in the narrative by evidence.
 
@@ -205,6 +209,12 @@ The ledgers call the author "the active Codex thread"; the commits say "Nick Tol
 **Debt handed forward.** A deployment nobody has deployed; a gate nobody has run; a draft nobody has published; a queue of forty minutes; two agent lines with two rulebooks; a name that is two names; twenty-five articles with wrong dates still public; sixteen open dependency PRs; an operating document whose Day-28 clock expired on 2026-08-10.
 
 **Synthesis.** On 2026-09-04 the project believes that only what can be proven should be sold, that the free scanners are the product's reputation, that counters are not dollars, and that containment outranks revenue. It wants one real purchase through a gate it has built and cannot run. It can find and fix its own false statements, ship free-surface releases, and harden a deployment. It cannot deploy, cannot publish to a marketplace, cannot open checkout, and cannot know whether anyone would buy. It has learned, in its own words, that "high gross margin per hypothetical sale is not profitability or demand". It still refuses to spend money, to spam, to fake a fulfilment, to force-push, or to leave the jail.
+
+## September 5 continuation — verify the local scan experience
+
+The owner's next request asked for substantial improvement of the complete product. Running the existing workflows exposed gaps beneath otherwise passing suites: incomplete browser reads could resemble clean results, editor views could disagree, some Python manifests were missed, template rewrites could touch unrelated settings, rollback could choose a newer version, and paid preflight could accept malformed package JSON. The agent chose one shared objective: make scan coverage, recovery and local edits trustworthy (CLM-E5-001 … CLM-E5-004).
+
+The resulting [workflow event](.project-history/events/2026/eolkits-2026-09-05-trustworthy-scan-workflows.md) records a working-tree implementation after the history-system commit. Browser controls and local export were exercised in Chromium at desktop and mobile sizes; editor lifecycle, CLI command and paid-input regressions were independently checked. A provider-fixture flow produced a real PDF and exercised download and retention. These observations strengthen local correctness. They do not establish a release, a working deployed payment integration or customer demand; the real deployment and purchase goals remain blocked.
 
 ## Threads that run through every era
 
@@ -531,6 +541,7 @@ Decision genealogies for the concepts that shaped EOLkits, each traced as *press
 | [September 4: a five-sample evidence gate, v1.3.0, the reversal of daily date churn, admin authority found after all, and a closed deployment hardened for an owner who has not deployed it](.project-history/events/2026/eolkits-2026-09-04-evidence-gate-v13-and-closed-deployment-hardening.md) `eolkits-2026-09-04-evidence-gate-v13-and-closed-deployment-hardening` | release | `eolkits-2026-08-30-fail-closed-relaunch-recovery`, `eolkits-2026-08-31-vscode-reposition-and-authorized-ops`, `eolkits-2026-07-13-node20-date-truth-sweeps`, `eolkits-2026-05-31-deterministic-deprecation-seo`, `eolkits-2026-09-04-jail-violations-and-env-recovery-scan` | — | — | — | — |
 | [Bootstrap of the living-history system (reconstruction of 2026-04-28 to 2026-09-04)](.project-history/events/2026/eolkits-2026-09-04-history-system-bootstrap.md) `eolkits-2026-09-04-history-system-bootstrap` | bootstrap | `eolkits-2026-09-01-credential-sweep-left-repo-unrewritten` | — | — | — | — |
 | [Governance by self-termination: three cycles ended over /dev/null, /dev/stdout and /tmp, and an in-jail credential-surface scan that recovered nothing](.project-history/events/2026/eolkits-2026-09-04-jail-violations-and-env-recovery-scan.md) `eolkits-2026-09-04-jail-violations-and-env-recovery-scan` | governance | `eolkits-2026-07-13-revenue-loop-v2-operating-doc`, `eolkits-2026-09-04-evidence-gate-v13-and-closed-deployment-hardening`, `eolkits-2026-09-01-credential-sweep-left-repo-unrewritten`, `eolkits-2026-09-04-history-system-bootstrap` | — | — | — | — |
+| [Make scan coverage, recovery and local migration edits trustworthy across the product](.project-history/events/2026/eolkits-2026-09-05-trustworthy-scan-workflows.md) `eolkits-2026-09-05-trustworthy-scan-workflows` | product | `eolkits-2026-08-22-free-surfaces-made-truthful`, `eolkits-2026-08-22-truthful-evidence-report-rebuild`, `eolkits-2026-09-04-evidence-gate-v13-and-closed-deployment-hardening` | — | — | — | — |
 <!-- /generated:decision-index -->
 
 ---
@@ -644,6 +655,7 @@ says otherwise). `decided`, `merged`, and `released` columns are kept distinct o
 | 2026-09-04 | 2026-09-04 | 2026-09-04 | 2026-09-04 | [September 4: a five-sample evidence gate, v1.3.0, the reversal of daily date churn, admin authority found after all, and a closed deployment hardened for an owner who has not deployed it](.project-history/events/2026/eolkits-2026-09-04-evidence-gate-v13-and-closed-deployment-hardening.md) `eolkits-2026-09-04-evidence-gate-v13-and-closed-deployment-hardening` | release | high | observed | strongly_supported |
 | 2026-09-04 | 2026-09-04 | — | — | [Bootstrap of the living-history system (reconstruction of 2026-04-28 to 2026-09-04)](.project-history/events/2026/eolkits-2026-09-04-history-system-bootstrap.md) `eolkits-2026-09-04-history-system-bootstrap` | bootstrap | high | implemented | confirmed |
 | 2026-09-04 | 2026-09-04 | 2026-09-04 | — | [Governance by self-termination: three cycles ended over /dev/null, /dev/stdout and /tmp, and an in-jail credential-surface scan that recovered nothing](.project-history/events/2026/eolkits-2026-09-04-jail-violations-and-env-recovery-scan.md) `eolkits-2026-09-04-jail-violations-and-env-recovery-scan` | governance | medium | observed | strongly_supported |
+| 2026-09-05 | 2026-09-05 | — | — | [Make scan coverage, recovery and local migration edits trustworthy across the product](.project-history/events/2026/eolkits-2026-09-05-trustworthy-scan-workflows.md) `eolkits-2026-09-05-trustworthy-scan-workflows` | product | high | implemented | confirmed |
 
 ## Claims by date
 
@@ -1007,6 +1019,11 @@ says otherwise). `decided`, `merged`, and `released` columns are kept distinct o
 | 2026-09-04 | `CLM-E4B-069` Legal pages at HEAD describe the sole paid product as one $299 static evidence report (no live AWS access, no exploitability proof, no sign… | direct | verified | confirmed |
 | 2026-09-04 | `CLM-E4B-070` The GitHub Marketplace Action listing is reported to still show v1.1.0 while `@v2` is consumable directly; the acquisition gate's `public_v… | contemporaneous | reported | strongly_supported |
 | 2026-09-04 | `CLM-EXT-027` By 2026-09-04 the public repo description had changed to "Free local scanner, VS Code extension, GitHub Action, and MIT CLIs … Optional $29… | direct | verified | confirmed |
+| 2026-09-05 | `CLM-E5-001` The September 5 browser implementation exposes bounded file coverage, input errors and cancellation, supports paste and a labelled example,… | behavioral | verified | confirmed |
+| 2026-09-05 | `CLM-E5-002` The September 5 editor changes synchronize diagnostics, tree, context and open reports through one state owner, including scoped scans, edi… | behavioral | verified | confirmed |
+| 2026-09-05 | `CLM-E5-003` The September 5 CLI changes parse supported Python manifests, scope template runtime edits to Lambda configuration, stage inspected changes… | behavioral | verified | confirmed |
+| 2026-09-05 | `CLM-E5-004` The September 5 paid-input changes reject malformed package JSON and invalid upload-size types before checkout; corrected uploads recover a… | behavioral | verified | confirmed |
+| 2026-09-05 | `CLM-E5-005` The pre-existing living-history system was committed locally on September 5 as docs(history): install project history system. | direct | verified | confirmed |
 
 Sources for every claim are listed in [`.project-history/claims.yml`](.project-history/claims.yml); the reading path is [`PROJECT_HISTORY.md`](PROJECT_HISTORY.md) (chapter directory: `docs/history`).
 
@@ -1024,7 +1041,7 @@ Generated from `.project-history/state.yml` and `.project-history/sources.yml` b
 - Audit date: 2026-09-04
 - Full-audit anchor: `71c78a1192ce8e83f955f3b53f1595449d4c9ff7`
 - Incremental anchor: `71c78a1192ce8e83f955f3b53f1595449d4c9ff7`
-- Reachable commits at audit (`git rev-list --all --count`): 3599
+- Reachable commits at audit (`git rev-list --all --count`): 3617
 - Root commit: `05435fd26157dd1bd763e6e9fb1b4ecd39a7cecb`
 
 ## Refs examined
@@ -1159,6 +1176,7 @@ Generated from `.project-history/state.yml` and `.project-history/sources.yml` b
 | `SRC-mind-status-docs` | owner-notes | contemporaneous | partial | 2026-09-04 | "/home/nick/Development/active/Mind/60 Sources/" — iCloud "TTLLC Status docs" (maintained as of 2026-05-28, e… |
 | `SRC-openclaw-launch` | agent-workspace | contemporaneous | accessible | 2026-09-04 | /home/nick/.openclaw/workspace/eolkits-launch/ (_GROUND-TRUTH-SCAN.tsv 2026-08-01, al2-eol-migration-guide.md… |
 | `SRC-outreach-al2` | owner-campaign-records | contemporaneous | partial | 2026-09-04 | /home/nick/Development/outreach-contacts/campaigns/al2-eolkits/ (STATUS.md, BOARD-VERDICT-2026-06-29.md, two… |
+| `SRC-product-improvement-20260905` | working-tree-and-local-verification | direct | accessible | 2026-09-05 | Working tree after 24c2debcce3782667c17c567742b45216881766a on codex/whole-product-improvement-20260905; apps… |
 | `SRC-purge-ledgers` | security-operations-ledgers | contemporaneous | accessible | 2026-09-04 | /home/nick/Development/.unlazy/credential-cleanup/ (discovery/repositories.md, discovery/history.md, discover… |
 | `SRC-purge-memory` | agent-memory-note | retrospective | accessible | 2026-09-04 | /home/nick/.claude/projects/-home-nick/memory/credential-cleanup-audit-2026-09.md (2026-09-03/04) |
 | `SRC-purge-report` | security-operations-report | contemporaneous | accessible | 2026-09-04 | /home/nick/Development/SECURITY_CLEANUP_REPORT.md (2026-09-02, addendum 2026-09-04) and /home/nick/Developmen… |
@@ -1182,8 +1200,8 @@ One capsule per material decision arc. Each carries distinct occurred/decided/me
 
 ### A one-day agent mission builds Rupture Kits: three deadline-driven AWS migration CLIs
 
-`eolkits-2026-04-28-rupture-mission-launch` · kind: origin · scope: project-wide · significance: foundational · status: closed · confidence: confirmed  
-occurred 2026-04-28 · decided 2026-04-28 · merged 2026-04-28 · released unknown · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-04-28-rupture-mission-launch` · kind: origin · scope: project-wide · significance: foundational · status: closed · confidence: confirmed<br>
+occurred 2026-04-28 · decided 2026-04-28 · merged 2026-04-28 · released unknown · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E1-001`, `CLM-E1-002`, `CLM-E1-003`, `CLM-E1-004`, `CLM-E1-005`, `CLM-E1-006`, `CLM-E1-007`, `CLM-E1-008`, `CLM-E1-009`, `CLM-E1-010`, `CLM-E1-011`, `CLM-E1-012`, `CLM-E1-053`, `CLM-E1-054`, `CLM-E1-060`, `CLM-EXT-001` · capsule: [`.project-history/events/2026/eolkits-2026-04-28-rupture-mission-launch.md`](.project-history/events/2026/eolkits-2026-04-28-rupture-mission-launch.md)
 
 **Before-state and pressure.** An empty repository named "Rupture", created through the GitHub web UI on 2026-04-28 with a one-line README (CLM-E1-001). The pressure was a mission brief given to a hosted agent (SuperNinja/NinjaTech identities "Rupture Kits", "Rupture Bot", "Rupture Ops"): a $0 seed budget, a "$25k goal" in seven days, and the fact that the Lambda Node.js 20 deprecation phase was two days away (CLM-E1-003, CLM-E1-004). The owner's own note of 2026-05-05 lists "Rupture" first among near-term revenue items, which corroborates that revenue, not tooling for its own sake, was the frame (CLM-EXT-001).
@@ -1210,8 +1228,8 @@ claims: `CLM-E1-001`, `CLM-E1-002`, `CLM-E1-003`, `CLM-E1-004`, `CLM-E1-005`, `C
 
 ### The autonomy runbook: five self-serve SKUs, a Stripe-and-Worker fulfilment loop, and CI trust signals
 
-`eolkits-2026-04-29-autonomy-runbook-five-skus` · kind: operating-model · scope: project-wide · significance: foundational · status: superseded · confidence: confirmed  
-occurred 2026-04-29 · decided 2026-04-29 · merged 2026-04-29 · released 2026-05-02 · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-04-29-autonomy-runbook-five-skus` · kind: operating-model · scope: project-wide · significance: foundational · status: superseded · confidence: confirmed<br>
+occurred 2026-04-29 · decided 2026-04-29 · merged 2026-04-29 · released 2026-05-02 · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E1-016`, `CLM-E1-017`, `CLM-E1-018`, `CLM-E1-019`, `CLM-E1-020`, `CLM-E1-021`, `CLM-E1-022`, `CLM-E1-023`, `CLM-E1-024`, `CLM-E1-025`, `CLM-E1-026`, `CLM-E1-027`, `CLM-E1-028`, `CLM-E1-029`, `CLM-E1-030`, `CLM-E1-031`, `CLM-E1-032`, `CLM-E1-055`, `CLM-E1-056`, `CLM-E1-057`, `CLM-E1-061`, `CLM-E1-064`, `CLM-E1-013`, `CLM-E1-014`, `CLM-E1-015` · capsule: [`.project-history/events/2026/eolkits-2026-04-29-autonomy-runbook-five-skus.md`](.project-history/events/2026/eolkits-2026-04-29-autonomy-runbook-five-skus.md)
 
 **Before-state and pressure.** Day-one tiers sold human support ("Priority Slack", "live pairing"), which the new runbook judged incompatible with a solo operator who wanted no per-sale labour: the old ladder "violates the autonomy rule (offers human support)" (CLM-E1-018). PR #1, the first Claude Code contribution, had just fixed six real defects including tests that never exercised the rewriter (CLM-E1-013, CLM-E1-014).
@@ -1238,8 +1256,8 @@ claims: `CLM-E1-016`, `CLM-E1-017`, `CLM-E1-018`, `CLM-E1-019`, `CLM-E1-020`, `C
 
 ### Launch hardening, the signed v1.0.0 release, the Marketplace 'v1' tag — and a launch that never fired
 
-`eolkits-2026-05-02-v1-signed-release-and-marketplace` · kind: release · scope: project-wide · significance: high · status: closed · confidence: confirmed  
-occurred 2026-05-02 · decided 2026-05-02 · merged 2026-05-02 · released 2026-05-02 · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-05-02-v1-signed-release-and-marketplace` · kind: release · scope: project-wide · significance: high · status: closed · confidence: confirmed<br>
+occurred 2026-05-02 · decided 2026-05-02 · merged 2026-05-02 · released 2026-05-02 · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E1-034`, `CLM-E1-035`, `CLM-E1-036`, `CLM-E1-037`, `CLM-E1-038`, `CLM-E1-039`, `CLM-E1-040`, `CLM-E1-041`, `CLM-E1-042`, `CLM-E1-043`, `CLM-E1-044`, `CLM-E1-045`, `CLM-E1-046`, `CLM-E1-047`, `CLM-E1-048`, `CLM-E1-049`, `CLM-E1-050`, `CLM-E1-051`, `CLM-E1-052`, `CLM-E1-058`, `CLM-E1-059`, `CLM-E1-062`, `CLM-E1-063`, `CLM-E1-033`, `CLM-E2-029`, `CLM-E2-030` · capsule: [`.project-history/events/2026/eolkits-2026-05-02-v1-signed-release-and-marketplace.md`](.project-history/events/2026/eolkits-2026-05-02-v1-signed-release-and-marketplace.md)
 
 **Before-state and pressure.** The three "blocking credentials" gate (Stripe, Cloudflare, GitHub App) was the declared blocker; the verification workflows were red or could not run; a Show HN was pencilled for Tuesday 2026-05-05. An attempt on 2026-04-30 to hand an external operator-handoff document to aider on Azure-hosted models failed four times on configuration and left only untracked chat logs (CLM-E1-033).
@@ -1266,8 +1284,8 @@ claims: `CLM-E1-034`, `CLM-E1-035`, `CLM-E1-036`, `CLM-E1-037`, `CLM-E1-038`, `C
 
 ### The launch re-aimed at the Amazon Linux 2 deadline, and the Show HN that HN would not accept
 
-`eolkits-2026-05-21-al2-deadline-reframe-and-hn-attempts` · kind: goal · scope: launch · significance: high · status: superseded · confidence: confirmed  
-occurred 2026-05-21 · decided 2026-05-21 · merged 2026-05-21 · released unknown · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-05-21-al2-deadline-reframe-and-hn-attempts` · kind: goal · scope: launch · significance: high · status: superseded · confidence: confirmed<br>
+occurred 2026-05-21 · decided 2026-05-21 · merged 2026-05-21 · released unknown · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E2-001`, `CLM-E2-002`, `CLM-E2-031`, `CLM-E2-032`, `CLM-E2-036`, `CLM-E2-062`, `CLM-E2-063`, `CLM-E1-051`, `CLM-E1-052`, `CLM-EXT-011`, `CLM-EXT-037`, `CLM-E2-037` · capsule: [`.project-history/events/2026/eolkits-2026-05-21-al2-deadline-reframe-and-hn-attempts.md`](.project-history/events/2026/eolkits-2026-05-21-al2-deadline-reframe-and-hn-attempts.md)
 
 **Before-state and pressure.** Eleven days of silence followed the signed v1.0.0 release: no non-bot commit between 2026-05-04 and 2026-05-15, `launched.txt` still "not yet submitted" (CLM-E1-051, CLM-E1-052). The launch copy led with the Lambda Node.js 20 date, which had already passed. The commit that reopened work on 2026-05-21 says the May 5/6 Show HN window was missed "when work was backburnered" and that the copy should "honestly own the missed window" (CLM-E2-001). The owner's own notes from 2026-05-05 had listed Rupture first among short-term revenue items, so the pressure was still revenue, now with a new clock: Amazon Linux 2 end of support on 2026-06-30.
@@ -1294,8 +1312,8 @@ claims: `CLM-E2-001`, `CLM-E2-002`, `CLM-E2-031`, `CLM-E2-032`, `CLM-E2-036`, `C
 
 ### Deterministic, zero-LLM deprecation pages: the rules file becomes the only source of public facts
 
-`eolkits-2026-05-31-deterministic-deprecation-seo` · kind: architecture · scope: web · significance: high · status: closed · confidence: confirmed  
-occurred 2026-05-31 · decided 2026-05-31 · merged 2026-06-08 · released 2026-06-22 · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-05-31-deterministic-deprecation-seo` · kind: architecture · scope: web · significance: high · status: closed · confidence: confirmed<br>
+occurred 2026-05-31 · decided 2026-05-31 · merged 2026-06-08 · released 2026-06-22 · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E2-004`, `CLM-E2-012`, `CLM-E2-034`, `CLM-E2-035`, `CLM-E2-044`, `CLM-E2-049`, `CLM-E2-050`, `CLM-E2-061`, `CLM-E4B-035`, `CLM-E3-028`, `CLM-E2-065` · capsule: [`.project-history/events/2026/eolkits-2026-05-31-deterministic-deprecation-seo.md`](.project-history/events/2026/eolkits-2026-05-31-deterministic-deprecation-seo.md)
 
 **Before-state and pressure.** The April runbook had promised "programmatic SEO" and shipped a nightly `seo-pages` workflow that regenerated `/vs/` comparison pages as `rupture-bot`; the pages were thin and the site build still targeted GitHub Pages paths even after the custom domain existed (CLM-E2-020). With the Show HN blocked, organic search was the only channel the project was permitted to use, and the site had "zero analytics instrumentation".
@@ -1322,8 +1340,8 @@ claims: `CLM-E2-004`, `CLM-E2-012`, `CLM-E2-034`, `CLM-E2-035`, `CLM-E2-044`, `C
 
 ### Rupture becomes EOLkits: a name chosen off-repo, executed by two agents nine minutes apart, and never fully applied
 
-`eolkits-2026-06-11-rupture-renamed-eolkits` · kind: rename · scope: project-wide · significance: high · status: closed · confidence: confirmed  
-occurred 2026-05-31 · decided unknown · merged 2026-06-11 · released 2026-06-11 · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-06-11-rupture-renamed-eolkits` · kind: rename · scope: project-wide · significance: high · status: closed · confidence: confirmed<br>
+occurred 2026-05-31 · decided unknown · merged 2026-06-11 · released 2026-06-11 · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E2-006`, `CLM-E2-007`, `CLM-E2-024`, `CLM-E2-025`, `CLM-E2-026`, `CLM-E2-027`, `CLM-E2-028`, `CLM-E2-003`, `CLM-EXT-002`, `CLM-EXT-012`, `CLM-EXT-028`, `CLM-E4A-035`, `CLM-E4B-021`, `CLM-E4A-027`, `CLM-E1-003`, `CLM-EXT-004`, `CLM-EXT-040` · capsule: [`.project-history/events/2026/eolkits-2026-06-11-rupture-renamed-eolkits.md`](.project-history/events/2026/eolkits-2026-06-11-rupture-renamed-eolkits.md)
 
 **Before-state and pressure.** "Rupture" was the mission's word for a deadline event and the brand from the first commit (CLM-E1-003). The owner's late-May notes show a domain-naming exercise for "Project: Rupture (B2B Developer Tools)" whose core value was "AWS is breaking your production on a specific date"; candidates included DeprecationFix.com, RuptureKit.com and EOL-kits-style names, and the product catalogue then records "Rebrand complete (formerly Rupture)" (CLM-EXT-002). In the repository the pressure was mechanical: the Marketplace action slug derived from "Rupture …" returned 404 at the expected `eolkits-aws-deprecation-check` address, and docs pointed at `ntoledo319/EOLkits` URLs before any such repository existed (CLM-E2-007).
@@ -1350,8 +1368,8 @@ claims: `CLM-E2-006`, `CLM-E2-007`, `CLM-E2-024`, `CLM-E2-025`, `CLM-E2-026`, `C
 
 ### The paid runtime moves from Cloudflare Workers to the owner's GRACE VPS, and 'live' is declared before delivery could work
 
-`eolkits-2026-06-08-cloudflare-to-grace-runtime` · kind: architecture · scope: grace-api · significance: foundational · status: superseded · confidence: confirmed  
-occurred 2026-06-08 · decided unknown · merged 2026-06-08 · released 2026-06-09 · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-06-08-cloudflare-to-grace-runtime` · kind: architecture · scope: grace-api · significance: foundational · status: superseded · confidence: confirmed<br>
+occurred 2026-06-08 · decided unknown · merged 2026-06-08 · released 2026-06-09 · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E2-005`, `CLM-E2-008`, `CLM-E2-009`, `CLM-E2-010`, `CLM-E2-011`, `CLM-E2-013`, `CLM-E2-014`, `CLM-E2-015`, `CLM-E2-016`, `CLM-E2-017`, `CLM-E2-018`, `CLM-E2-019`, `CLM-E2-020`, `CLM-E2-022`, `CLM-E2-043`, `CLM-E2-055`, `CLM-E2-064`, `CLM-EXT-003`, `CLM-EXT-006`, `CLM-EXT-008`, `CLM-E2-021`, `CLM-E2-023`, `CLM-E2-058` · capsule: [`.project-history/events/2026/eolkits-2026-06-08-cloudflare-to-grace-runtime.md`](.project-history/events/2026/eolkits-2026-06-08-cloudflare-to-grace-runtime.md)
 
 **Before-state and pressure.** The April Worker depended on Cloudflare R2 for audit-PDF delivery, and R2 was "not enabled on account"; on 2026-05-31 the plan was still an R2 redeploy once the owner enabled it (CLM-E2-005). The live commerce pages emitted literal `{API_URL}` placeholders — checkout was broken on the public site (CLM-E2-011). Outside the repository, the owner's notes record eolkits.com going from "never-deployed" on Vercel to a static site on the GRACE VPS around 2026-05-28 (CLM-EXT-003), and a portfolio-wide push had ranked EOLkits "#1 fastest path to a first dollar" on 2026-06-05 (CLM-EXT-007).
@@ -1378,8 +1396,8 @@ claims: `CLM-E2-005`, `CLM-E2-008`, `CLM-E2-009`, `CLM-E2-010`, `CLM-E2-011`, `C
 
 ### marketing-machine-v2: a long-lived branch that production deployed directly, and an API that became the studio's lead bus
 
-`eolkits-2026-06-16-marketing-machine-v2-branch-and-lead-bus` · kind: operating-model · scope: project-wide · significance: high · status: superseded · confidence: confirmed  
-occurred 2026-06-16 · decided 2026-06-16 · merged 2026-08-22 · released 2026-06-22 · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-06-16-marketing-machine-v2-branch-and-lead-bus` · kind: operating-model · scope: project-wide · significance: high · status: superseded · confidence: confirmed<br>
+occurred 2026-06-16 · decided 2026-06-16 · merged 2026-08-22 · released 2026-06-22 · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E2-033`, `CLM-E2-034`, `CLM-E2-038`, `CLM-E2-039`, `CLM-E2-040`, `CLM-E2-041`, `CLM-E2-042`, `CLM-E2-043`, `CLM-E2-044`, `CLM-E2-048`, `CLM-E2-050`, `CLM-E2-053`, `CLM-E2-057`, `CLM-EXT-018`, `CLM-E3-001`, `CLM-E3-014`, `CLM-E4A-024`, `CLM-E3-048`, `CLM-E3-055` · capsule: [`.project-history/events/2026/eolkits-2026-06-16-marketing-machine-v2-branch-and-lead-bus.md`](.project-history/events/2026/eolkits-2026-06-16-marketing-machine-v2-branch-and-lead-bus.md)
 
 **Before-state and pressure.** Launch blocked by HN policy; no analytics; a FormSubmit lead form on the studio sites that "silently dropped every submission" (CLM-E2-038). The repository had no way to deploy to the VPS, so the practical route was a cron on the box that pulled a branch.
@@ -1406,8 +1424,8 @@ claims: `CLM-E2-033`, `CLM-E2-034`, `CLM-E2-038`, `CLM-E2-039`, `CLM-E2-040`, `C
 
 ### Outside the repository: the owner's portfolio calls the paid arm a dead market, then a first wedge, then shelves it
 
-`eolkits-2026-06-20-portfolio-verdicts-dead-market-and-shelving` · kind: external-constraint · scope: project-wide · significance: high · status: closed · confidence: strongly_supported  
-occurred 2026-06-20 · decided 2026-06-29 · merged unknown · released unknown · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-06-20-portfolio-verdicts-dead-market-and-shelving` · kind: external-constraint · scope: project-wide · significance: high · status: closed · confidence: strongly_supported<br>
+occurred 2026-06-20 · decided 2026-06-29 · merged unknown · released unknown · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-EXT-005`, `CLM-EXT-006`, `CLM-EXT-007`, `CLM-EXT-009`, `CLM-EXT-010`, `CLM-EXT-014`, `CLM-EXT-015`, `CLM-EXT-016`, `CLM-EXT-017`, `CLM-EXT-019`, `CLM-EXT-021`, `CLM-EXT-022`, `CLM-EXT-023`, `CLM-EXT-024`, `CLM-EXT-038`, `CLM-EXT-036`, `CLM-EXT-013`, `CLM-EXT-039` · capsule: [`.project-history/events/2026/eolkits-2026-06-20-portfolio-verdicts-dead-market-and-shelving.md`](.project-history/events/2026/eolkits-2026-06-20-portfolio-verdicts-dead-market-and-shelving.md)
 
 **Before-state and pressure.** A ten-day portfolio monetisation sprint (2026-05-27 to 06-06) had put EOLkits in its top three with a twelve-month base forecast of $20,000 (CLM-EXT-005). On 2026-06-05 an ops agent patched 38 broken calls-to-action directly on the live VPS site and reclassified the product from "landing 404 / blocked" to "live / sellable now" (CLM-EXT-006); the same day's offer documents called it "#1 — fastest path to a first dollar" with every Stripe link returning 200 in live mode (CLM-EXT-007). Five AL2/EOLkits cold emails went out that day (CLM-EXT-009); 42 named AL2 leads were loaded on 2026-06-11 (CLM-EXT-010). The AL2 deadline was 25 days away.
@@ -1434,8 +1452,8 @@ claims: `CLM-EXT-005`, `CLM-EXT-006`, `CLM-EXT-007`, `CLM-EXT-009`, `CLM-EXT-010
 
 ### The autopsy: '$0 because it never reached the market', the faceless conversion system, and a question the owner did not answer
 
-`eolkits-2026-06-21-autopsy-never-reached-market` · kind: reversal · scope: project-wide · significance: foundational · status: superseded · confidence: confirmed  
-occurred 2026-06-21 · decided 2026-06-22 · merged 2026-08-22 · released 2026-06-22 · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-06-21-autopsy-never-reached-market` · kind: reversal · scope: project-wide · significance: foundational · status: superseded · confidence: confirmed<br>
+occurred 2026-06-21 · decided 2026-06-22 · merged 2026-08-22 · released 2026-06-22 · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E2-045`, `CLM-E2-046`, `CLM-E2-047`, `CLM-E2-048`, `CLM-E2-049`, `CLM-E2-051`, `CLM-E2-052`, `CLM-E2-053`, `CLM-E2-054`, `CLM-E2-055`, `CLM-E2-056`, `CLM-E2-063`, `CLM-E2-066`, `CLM-E3-049`, `CLM-E3-050`, `CLM-E4A-056` · capsule: [`.project-history/events/2026/eolkits-2026-06-21-autopsy-never-reached-market.md`](.project-history/events/2026/eolkits-2026-06-21-autopsy-never-reached-market.md)
 
 **Before-state and pressure.** Nine days to AL2 end of support; no traffic measurement, no leads, an untested $1,499 fulfilment path, two Show HN rejections, and internal "mission complete" ledgers from April still in the tree (CLM-E2-066). The autopsy's own words: "You cannot harden your way to revenue"; "Don't relapse into building"; "First real fulfillment is untested … a frightening place to discover a bug".
@@ -1462,8 +1480,8 @@ claims: `CLM-E2-045`, `CLM-E2-046`, `CLM-E2-047`, `CLM-E2-048`, `CLM-E2-049`, `C
 
 ### One wrong date, twenty places: the superseded Node.js 20 block dates and the month it took to sweep them out
 
-`eolkits-2026-07-13-node20-date-truth-sweeps` · kind: data · scope: rules · significance: high · status: closed · confidence: confirmed  
-occurred 2026-07-13 · decided 2026-07-13 · merged 2026-08-22 · released 2026-07-22 · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-07-13-node20-date-truth-sweeps` · kind: data · scope: rules · significance: high · status: closed · confidence: confirmed<br>
+occurred 2026-07-13 · decided 2026-07-13 · merged 2026-08-22 · released 2026-07-22 · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E3-006`, `CLM-E3-007`, `CLM-E3-009`, `CLM-E3-021`, `CLM-E3-050`, `CLM-E3-051`, `CLM-E3-052`, `CLM-E1-022`, `CLM-E1-061`, `CLM-E2-061`, `CLM-E4A-003`, `CLM-E4A-051`, `CLM-E4B-019`, `CLM-EXT-037` · capsule: [`.project-history/events/2026/eolkits-2026-07-13-node20-date-truth-sweeps.md`](.project-history/events/2026/eolkits-2026-07-13-node20-date-truth-sweeps.md)
 
 **Before-state and pressure.** The product's factual core is a table of AWS dates, and the first table shipped on 2026-04-29 was already inconsistent with the kit READMEs beside it (CLM-E1-022). Surge pricing, the ICS calendar and every SEO page derived from that table (CLM-E1-061, CLM-E2-061), so a wrong date was a wrong price and a wrong calendar entry. Launch copy had taken Node 20's block dates from blog posts reproducing AWS's original 30/60-day schedule; AWS had since delayed them (CLM-E3-007). Kit READMEs still advertised Solo/Team/Enterprise tiers, a Slack channel and a domain that did not exist (CLM-E3-021).
@@ -1490,8 +1508,8 @@ claims: `CLM-E3-006`, `CLM-E3-007`, `CLM-E3-009`, `CLM-E3-021`, `CLM-E3-050`, `C
 
 ### REVENUE LOOP v2: an operating document installs a jailed nightly agent with a truth rule, a ship law and a $4,000 clock
 
-`eolkits-2026-07-13-revenue-loop-v2-operating-doc` · kind: operating-model · scope: project-wide · significance: foundational · status: observed · confidence: confirmed  
-occurred 2026-07-13 · decided 2026-07-13 · merged 2026-08-22 · released unknown · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-07-13-revenue-loop-v2-operating-doc` · kind: operating-model · scope: project-wide · significance: foundational · status: observed · confidence: confirmed<br>
+occurred 2026-07-13 · decided 2026-07-13 · merged 2026-08-22 · released unknown · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E3-002`, `CLM-E3-003`, `CLM-E3-004`, `CLM-E3-005`, `CLM-E3-008`, `CLM-E3-010`, `CLM-E3-011`, `CLM-E3-014`, `CLM-E3-015`, `CLM-E3-016`, `CLM-E3-047`, `CLM-E3-054`, `CLM-E4B-001`, `CLM-E4B-002`, `CLM-E4B-003`, `CLM-E4B-004`, `CLM-E4B-005`, `CLM-E4A-055` · capsule: [`.project-history/events/2026/eolkits-2026-07-13-revenue-loop-v2-operating-doc.md`](.project-history/events/2026/eolkits-2026-07-13-revenue-loop-v2-operating-doc.md)
 
 **Before-state and pressure.** AL2 end of support had passed thirteen days earlier with $0; the autopsy and profit projections had framed distribution as the gap; the site self-deployed daily from `marketing-machine-v2`; the June handoff's human unlocks had not happened. The owner's marketing factory had been frozen two days later (CLM-EXT-024). What remained was an agent that could run every night without the owner.
@@ -1518,8 +1536,8 @@ claims: `CLM-E3-002`, `CLM-E3-003`, `CLM-E3-004`, `CLM-E3-005`, `CLM-E3-008`, `C
 
 ### Billing honesty: two SKUs that charged real money for nothing, three agents with three remedies, and a fix that reached production only by archiving the prices
 
-`eolkits-2026-07-14-billing-honesty-sku-retirement` · kind: pricing · scope: grace-api · significance: foundational · status: superseded · confidence: confirmed  
-occurred 2026-07-14 · decided 2026-07-16 · merged 2026-08-22 · released 2026-08-25 · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-07-14-billing-honesty-sku-retirement` · kind: pricing · scope: grace-api · significance: foundational · status: superseded · confidence: confirmed<br>
+occurred 2026-07-14 · decided 2026-07-16 · merged 2026-08-22 · released 2026-08-25 · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E3-022`, `CLM-E3-023`, `CLM-E3-024`, `CLM-E3-025`, `CLM-E3-031`, `CLM-E3-032`, `CLM-E3-033`, `CLM-E3-034`, `CLM-E3-035`, `CLM-E3-037`, `CLM-E3-038`, `CLM-E3-039`, `CLM-E3-041`, `CLM-E3-042`, `CLM-E3-045`, `CLM-E3-056`, `CLM-E3-058`, `CLM-E1-027`, `CLM-E4A-012`, `CLM-E4A-013`, `CLM-E4A-040`, `CLM-E3-036`, `CLM-E3-040` · capsule: [`.project-history/events/2026/eolkits-2026-07-14-billing-honesty-sku-retirement.md`](.project-history/events/2026/eolkits-2026-07-14-billing-honesty-sku-retirement.md)
 
 **Before-state and pressure.** The April runbook priced five SKUs before they could fulfil: the migration-PR runner was a stub on the day it was sold (CLM-E1-027); Drift Watch's checkout and upsell were added on 2026-06-08 with a no-op `handle_drift_watch_setup` (CLM-E3-022); Org License generated a real key on payment and never sent it (CLM-E3-023). The pricing ladder at the start of July was unchanged since 2026-06-11 (CLM-E3-025). The operating document's "do no harm" rule and "NEVER fake-fulfill" made this a violation the moment it was noticed.
@@ -1546,8 +1564,8 @@ claims: `CLM-E3-022`, `CLM-E3-023`, `CLM-E3-024`, `CLM-E3-025`, `CLM-E3-031`, `C
 
 ### The only demand test: three answers on AWS re:Post, a content flywheel that could not verify itself, and a Day-28 window that closed at $0
 
-`eolkits-2026-07-15-repost-answers-only-demand-test` · kind: experiment · scope: launch · significance: high · status: superseded · confidence: strongly_supported  
-occurred 2026-07-15 · decided 2026-07-15 · merged 2026-08-22 · released unknown · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-07-15-repost-answers-only-demand-test` · kind: experiment · scope: launch · significance: high · status: superseded · confidence: strongly_supported<br>
+occurred 2026-07-15 · decided 2026-07-15 · merged 2026-08-22 · released unknown · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E3-012`, `CLM-E3-013`, `CLM-E3-015`, `CLM-E3-016`, `CLM-E3-017`, `CLM-E3-018`, `CLM-E3-019`, `CLM-E3-020`, `CLM-E3-026`, `CLM-E3-027`, `CLM-E3-028`, `CLM-E3-029`, `CLM-E3-030`, `CLM-E3-043`, `CLM-E3-044`, `CLM-E3-053`, `CLM-E3-057`, `CLM-EXT-025`, `CLM-EXT-026` · capsule: [`.project-history/events/2026/eolkits-2026-07-15-repost-answers-only-demand-test.md`](.project-history/events/2026/eolkits-2026-07-15-repost-answers-only-demand-test.md)
 
 **Before-state and pressure.** "~0 qualified traffic has reached the working funnel"; the money rail had just been verified live (CLM-E3-011); the operating document forbade cold email and DMs and demanded an externally visible change every night. The only "closest-to-a-buyer, $0, TOS-clean move" the routine could find was answering questions where buyers already were.
@@ -1574,8 +1592,8 @@ claims: `CLM-E3-012`, `CLM-E3-013`, `CLM-E3-015`, `CLM-E3-016`, `CLM-E3-017`, `C
 
 ### Free surfaces first: the v2 branch, a private Marketplace draft, Pages as the canonical host, a real sample report, and the extension that was public all along
 
-`eolkits-2026-08-22-free-surfaces-made-truthful` · kind: interface · scope: project-wide · significance: high · status: observed · confidence: confirmed  
-occurred 2026-08-22 · decided 2026-08-22 · merged 2026-08-22 · released 2026-08-25 · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-08-22-free-surfaces-made-truthful` · kind: interface · scope: project-wide · significance: high · status: observed · confidence: confirmed<br>
+occurred 2026-08-22 · decided 2026-08-22 · merged 2026-08-22 · released 2026-08-25 · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E4A-022`, `CLM-E4A-025`, `CLM-E4A-026`, `CLM-E4A-027`, `CLM-E4A-028`, `CLM-E4A-029`, `CLM-E4A-032`, `CLM-E4A-033`, `CLM-E4A-034`, `CLM-E4A-035`, `CLM-E4A-036`, `CLM-E4A-037`, `CLM-E4A-052`, `CLM-E4A-053`, `CLM-E1-039`, `CLM-E1-047`, `CLM-EXT-020`, `CLM-EXT-027` · capsule: [`.project-history/events/2026/eolkits-2026-08-22-free-surfaces-made-truthful.md`](.project-history/events/2026/eolkits-2026-08-22-free-surfaces-made-truthful.md)
 
 **Before-state and pressure.** The rebuilt README documented `uses: ntoledo319/EOLkits@v2` before any `v2` ref existed (CLM-E4A-026); the Marketplace listing was stale at v1.1.0; the custom domain still served retired products; the public sample was a mock; the extension was believed unpublished because it had been searched for under the new name (CLM-E4A-035). The jailed shell had no GitHub credential and force pushes were forbidden, so `main` could only be advanced by publishing identical trees through the connected GitHub app (CLM-E4A-022).
@@ -1602,8 +1620,8 @@ claims: `CLM-E4A-022`, `CLM-E4A-025`, `CLM-E4A-026`, `CLM-E4A-027`, `CLM-E4A-028
 
 ### Retiring the legacy rails: a 410 tombstone over the Cloudflare Worker, six Stripe prices archived by an audited workflow, and the invention of one-use push authorisation
 
-`eolkits-2026-08-22-legacy-commerce-retirement` · kind: security · scope: legacy-rails · significance: high · status: closed · confidence: confirmed  
-occurred 2026-08-22 · decided 2026-08-22 · merged 2026-08-25 · released 2026-08-25 · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-08-22-legacy-commerce-retirement` · kind: security · scope: legacy-rails · significance: high · status: closed · confidence: confirmed<br>
+occurred 2026-08-22 · decided 2026-08-22 · merged 2026-08-25 · released 2026-08-25 · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E4A-030`, `CLM-E4A-031`, `CLM-E4A-039`, `CLM-E4A-040`, `CLM-E4A-054`, `CLM-E1-034`, `CLM-E1-062`, `CLM-E2-009`, `CLM-E4B-008`, `CLM-E4B-026` · capsule: [`.project-history/events/2026/eolkits-2026-08-22-legacy-commerce-retirement.md`](.project-history/events/2026/eolkits-2026-08-22-legacy-commerce-retirement.md)
 
 **Before-state and pressure.** The Worker declared live on 2026-05-02 (CLM-E1-034) had been "legacy/reference only" since June (CLM-E2-009) but was never turned off: on 2026-08-22 it answered health checks with Stripe in live mode (CLM-E4A-030). The deployed GRACE API still had charge-capable handlers for retired SKUs, and six historical Payment Links existed. Stripe identifiers had been committed to `pricing.yml` since April (not reproduced here).
@@ -1630,8 +1648,8 @@ claims: `CLM-E4A-030`, `CLM-E4A-031`, `CLM-E4A-039`, `CLM-E4A-040`, `CLM-E4A-054
 
 ### The truthful evidence report: one 338-file commit retires the five-SKU business, the bots and every prior handoff, and restarts the $4,000 clock behind a closed checkout
 
-`eolkits-2026-08-22-truthful-evidence-report-rebuild` · kind: reversal · scope: project-wide · significance: foundational · status: observed · confidence: confirmed  
-occurred 2026-08-22 · decided 2026-08-22 · merged 2026-08-22 · released 2026-08-25 · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-08-22-truthful-evidence-report-rebuild` · kind: reversal · scope: project-wide · significance: foundational · status: observed · confidence: confirmed<br>
+occurred 2026-08-22 · decided 2026-08-22 · merged 2026-08-22 · released 2026-08-25 · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E4A-004`, `CLM-E4A-005`, `CLM-E4A-006`, `CLM-E4A-007`, `CLM-E4A-008`, `CLM-E4A-009`, `CLM-E4A-010`, `CLM-E4A-011`, `CLM-E4A-014`, `CLM-E4A-015`, `CLM-E4A-016`, `CLM-E4A-017`, `CLM-E4A-018`, `CLM-E4A-019`, `CLM-E4A-020`, `CLM-E4A-021`, `CLM-E4A-041`, `CLM-E4A-042`, `CLM-E4A-055`, `CLM-E4A-056`, `CLM-E4A-057`, `CLM-E4A-058`, `CLM-E4A-059`, `CLM-E4A-060`, `CLM-E4A-001`, `CLM-E4A-002`, `CLM-E3-056` · capsule: [`.project-history/events/2026/eolkits-2026-08-22-truthful-evidence-report-rebuild.md`](.project-history/events/2026/eolkits-2026-08-22-truthful-evidence-report-rebuild.md)
 
 **Before-state and pressure.** Thirty-nine loop days and four months live with $0; a nightly agent still finding false or stale public claims every cycle and unable to reach the web for 38 cycles (CLM-E4A-001, CLM-E4A-002); a live site advertising Migration Pack, Organization License, Drift Watch, "unsupported blast-radius/cost claims, and done-for-you PR fulfillment", a "universal December 31" date and a refund-on-CI-failure promise that had never been tested (CLM-E4A-014); Drift Watch still chargeable on the deployed API; hourly synthetic status commits publishing hard-coded zeros; an owner queue unactioned for 39 days. The June autopsy had already diagnosed "build-as-procrastination" and the wrong hero SKU (CLM-E4A-056). The pressure was internal audit evidence, not an external event.
@@ -1658,8 +1676,8 @@ claims: `CLM-E4A-004`, `CLM-E4A-005`, `CLM-E4A-006`, `CLM-E4A-007`, `CLM-E4A-008
 
 ### Incident: the custom host injects a third-party analytics script into every page; contained by a content-security policy, never removed
 
-`eolkits-2026-08-25-host-injected-analytics-contained` · kind: incident · scope: web · significance: medium · status: observed · confidence: strongly_supported  
-occurred 2026-08-25 · decided 2026-08-25 · merged 2026-08-25 · released 2026-08-26 · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-08-25-host-injected-analytics-contained` · kind: incident · scope: web · significance: medium · status: observed · confidence: strongly_supported<br>
+occurred 2026-08-25 · decided 2026-08-25 · merged 2026-08-25 · released 2026-08-26 · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E4A-038`, `CLM-E4A-047`, `CLM-E4B-065`, `CLM-E2-050`, `CLM-E4A-054` · capsule: [`.project-history/events/2026/eolkits-2026-08-25-host-injected-analytics-contained.md`](.project-history/events/2026/eolkits-2026-08-25-host-injected-analytics-contained.md)
 
 **Before-state and pressure.** The privacy policy promised no third-party analytics and a first-party cookieless beacon (CLM-E2-050). The custom host is a shared VPS serving several of the owner's sites behind one Caddy; the daily cron deployed the static site there at 07:17 UTC (CLM-E4A-024).
@@ -1686,8 +1704,8 @@ claims: `CLM-E4A-038`, `CLM-E4A-047`, `CLM-E4B-065`, `CLM-E2-050`, `CLM-E4A-054`
 
 ### The end of marketing-machine-v2 as a distinct line: an exact-tree merge drops hand-written drafts, a reconciliation downgrades them to research, and PR #24 declares the branch superseded
 
-`eolkits-2026-08-29-marketing-machine-v2-absorbed` · kind: operating-model · scope: project-wide · significance: medium · status: closed · confidence: confirmed  
-occurred 2026-08-25 · decided 2026-08-29 · merged 2026-08-29 · released unknown · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-08-29-marketing-machine-v2-absorbed` · kind: operating-model · scope: project-wide · significance: medium · status: closed · confidence: confirmed<br>
+occurred 2026-08-25 · decided 2026-08-29 · merged 2026-08-29 · released unknown · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E4A-043`, `CLM-E4A-044`, `CLM-E4A-045`, `CLM-E4A-046`, `CLM-E4A-048`, `CLM-E4A-049`, `CLM-E4A-050`, `CLM-E4A-023`, `CLM-E4A-024`, `CLM-EXT-034`, `CLM-E2-059`, `CLM-E2-060`, `CLM-E3-046`, `CLM-E1-015` · capsule: [`.project-history/events/2026/eolkits-2026-08-29-marketing-machine-v2-absorbed.md`](.project-history/events/2026/eolkits-2026-08-29-marketing-machine-v2-absorbed.md)
 
 **Before-state and pressure.** Since June the branch had been both the deploy feed for the box cron and the nightly Claude routine's ship channel, while `main` was bot noise (CLM-E4A-024). After 2026-08-22 every product change was mirrored into `main` the same day, so the branch's only remaining unique content was ledger text, a corrected lifecycle row and hand-drafted answers.
@@ -1714,8 +1732,8 @@ claims: `CLM-E4A-043`, `CLM-E4A-044`, `CLM-E4A-045`, `CLM-E4A-046`, `CLM-E4A-048
 
 ### Recovery from the top: PR #25 makes the only paid offer fail closed before any production mutation, and the one-use push trigger becomes a pattern
 
-`eolkits-2026-08-30-fail-closed-relaunch-recovery` · kind: security · scope: grace-api · significance: foundational · status: observed · confidence: confirmed  
-occurred 2026-08-30 · decided 2026-08-30 · merged 2026-08-30 · released unknown · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-08-30-fail-closed-relaunch-recovery` · kind: security · scope: grace-api · significance: foundational · status: observed · confidence: confirmed<br>
+occurred 2026-08-30 · decided 2026-08-30 · merged 2026-08-30 · released unknown · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E4B-006`, `CLM-E4B-007`, `CLM-E4B-008`, `CLM-E4B-009`, `CLM-E4B-010`, `CLM-E4B-011`, `CLM-E4B-012`, `CLM-E4B-013`, `CLM-E4B-014`, `CLM-E4B-015`, `CLM-E4B-016`, `CLM-E4B-017`, `CLM-E4B-018`, `CLM-E4B-027`, `CLM-E4B-028`, `CLM-E4B-049`, `CLM-E4B-065`, `CLM-EXT-034` · capsule: [`.project-history/events/2026/eolkits-2026-08-30-fail-closed-relaunch-recovery.md`](.project-history/events/2026/eolkits-2026-08-30-fail-closed-relaunch-recovery.md)
 
 **Before-state and pressure.** The live custom host was "a stale backend with an unauthenticated upload path" plus the injected analytics script; the public `@v2` ref had been deleted in the 08-29 branch churn (CLM-EXT-034); draft-sync and Cloudflare-retirement workflows still ran on ordinary pushes; the app import migrated SQLite before secret validation; the old $299 price id still sat in `pricing.yml` (PR #25's stated premises, CLM-E4B-006). The Day-7 falsifiers had already failed (CLM-E4A-053).
@@ -1742,8 +1760,8 @@ claims: `CLM-E4B-006`, `CLM-E4B-007`, `CLM-E4B-008`, `CLM-E4B-009`, `CLM-E4B-010
 
 ### The one permitted reposition: VS extension v1.2.0 as 'AWS Lambda EOL Scanner', a legal operator named, and an owner-authorised one-use platform-operations run that could not do the admin work
 
-`eolkits-2026-08-31-vscode-reposition-and-authorized-ops` · kind: product · scope: vscode-extension · significance: high · status: observed · confidence: strongly_supported  
-occurred 2026-08-31 · decided 2026-08-31 · merged 2026-08-31 · released 2026-08-31 · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-08-31-vscode-reposition-and-authorized-ops` · kind: product · scope: vscode-extension · significance: high · status: observed · confidence: strongly_supported<br>
+occurred 2026-08-31 · decided 2026-08-31 · merged 2026-08-31 · released 2026-08-31 · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E4B-020`, `CLM-E4B-021`, `CLM-E4B-022`, `CLM-E4B-023`, `CLM-E4B-024`, `CLM-E4B-025`, `CLM-E4B-026`, `CLM-E4B-041`, `CLM-E4B-064`, `CLM-E4B-066`, `CLM-E4B-070`, `CLM-EXT-038` · capsule: [`.project-history/events/2026/eolkits-2026-08-31-vscode-reposition-and-authorized-ops.md`](.project-history/events/2026/eolkits-2026-08-31-vscode-reposition-and-authorized-ops.md)
 
 **Before-state and pressure.** The gate PR #25 had built evaluated at 2026-08-30T11:15Z: 103 installs, 0 growth, 0 qualified authors → `failed_reposition_required` (CLM-E4B-020). AGENTS.md §8 permits exactly one reposition after five live days with zero signal; the extension still carried its May-era name and a dead `/Rupture/audit` link. Legal pages said only "based in Connecticut". Twenty-five DEV posts with known date errors were still public and the Pages source and branch protection were owner-only settings.
@@ -1770,8 +1788,8 @@ claims: `CLM-E4B-020`, `CLM-E4B-021`, `CLM-E4B-022`, `CLM-E4B-023`, `CLM-E4B-024
 
 ### The September 2026 credential purge: eighteen repositories rewritten, this one inventoried, scanned and left untouched
 
-`eolkits-2026-09-01-credential-sweep-left-repo-unrewritten` · kind: external-constraint · scope: project-wide · significance: high · status: closed · confidence: confirmed  
-occurred 2026-09-01 · decided 2026-09-01 · merged unknown · released unknown · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-09-01-credential-sweep-left-repo-unrewritten` · kind: external-constraint · scope: project-wide · significance: high · status: closed · confidence: confirmed<br>
+occurred 2026-09-01 · decided 2026-09-01 · merged unknown · released unknown · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-EXT-029`, `CLM-EXT-030`, `CLM-EXT-031`, `CLM-EXT-032`, `CLM-EXT-033`, `CLM-EXT-034`, `CLM-EXT-035`, `CLM-EXT-036`, `CLM-E4B-027`, `CLM-E4B-059`, `CLM-E1-032`, `CLM-E1-033` · capsule: [`.project-history/events/2026/eolkits-2026-09-01-credential-sweep-left-repo-unrewritten.md`](.project-history/events/2026/eolkits-2026-09-01-credential-sweep-left-repo-unrewritten.md)
 
 **Before-state and pressure.** The repository had committed Stripe identifiers into `pricing.yml` since 2026-04-30 (identifiers, not keys; not reproduced here, CLM-E1-032), carried a Cloudflare `wrangler.toml` with account references, and had untracked tool logs from April containing a credential-shaped value (CLM-E1-033). A June ops note had already recorded that a Stripe-live-key-shaped string in Rupture "was a dummy" (CLM-EXT-036). The pressure was portfolio-wide: a credential exposure across the owner's estate led to a sweep of every repository.
@@ -1798,8 +1816,8 @@ claims: `CLM-EXT-029`, `CLM-EXT-030`, `CLM-EXT-031`, `CLM-EXT-032`, `CLM-EXT-033
 
 ### September 4: a five-sample evidence gate, v1.3.0, the reversal of daily date churn, admin authority found after all, and a closed deployment hardened for an owner who has not deployed it
 
-`eolkits-2026-09-04-evidence-gate-v13-and-closed-deployment-hardening` · kind: release · scope: project-wide · significance: high · status: observed · confidence: strongly_supported  
-occurred 2026-09-04 · decided 2026-09-04 · merged 2026-09-04 · released 2026-09-04 · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-09-04-evidence-gate-v13-and-closed-deployment-hardening` · kind: release · scope: project-wide · significance: high · status: observed · confidence: strongly_supported<br>
+occurred 2026-09-04 · decided 2026-09-04 · merged 2026-09-04 · released 2026-09-04 · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E4B-019`, `CLM-E4B-029`, `CLM-E4B-030`, `CLM-E4B-031`, `CLM-E4B-032`, `CLM-E4B-033`, `CLM-E4B-034`, `CLM-E4B-035`, `CLM-E4B-036`, `CLM-E4B-037`, `CLM-E4B-038`, `CLM-E4B-039`, `CLM-E4B-040`, `CLM-E4B-041`, `CLM-E4B-042`, `CLM-E4B-043`, `CLM-E4B-044`, `CLM-E4B-045`, `CLM-E4B-046`, `CLM-E4B-047`, `CLM-E4B-048`, `CLM-E4B-062`, `CLM-E4B-063`, `CLM-E4B-067`, `CLM-E4B-068`, `CLM-E4B-069`, `CLM-E4B-070` · capsule: [`.project-history/events/2026/eolkits-2026-09-04-evidence-gate-v13-and-closed-deployment-hardening.md`](.project-history/events/2026/eolkits-2026-09-04-evidence-gate-v13-and-closed-deployment-hardening.md)
 
 **Before-state and pressure.** The Claude line's plan of Sep 2/4 said "nothing left but owner work" (CON-023). The Gallery install counter flickered between 103 and 104 on near-simultaneous reads, so a single read could pass or fail the gate at random (CLM-E4B-033). The VS rules lacked Node 16 and Python 3.8; lambda-lifeline had already needed python3.8 (2026-08-31) and python3.11 (2026-09-01) rows to stop reporting real functions healthy (CLM-E4B-019). The Claude cycles had bumped `BUILD_DATE` four times, rewriting every sitemap lastmod. The audit-page tracker was not loading. The runner accepted local paths over HTTP.
@@ -1826,9 +1844,9 @@ claims: `CLM-E4B-019`, `CLM-E4B-029`, `CLM-E4B-030`, `CLM-E4B-031`, `CLM-E4B-032
 
 ### Bootstrap of the living-history system (reconstruction of 2026-04-28 to 2026-09-04)
 
-`eolkits-2026-09-04-history-system-bootstrap` · kind: bootstrap · scope: project-wide · significance: high · status: implemented · confidence: confirmed  
-occurred 2026-09-04 · decided 2026-09-04 · merged unknown · released unknown · recorded 2026-09-04 · last verified 2026-09-05  
-claims: `CLM-EXT-029`, `CLM-EXT-030`, `CLM-EXT-033`, `CLM-E4A-055` · capsule: [`.project-history/events/2026/eolkits-2026-09-04-history-system-bootstrap.md`](.project-history/events/2026/eolkits-2026-09-04-history-system-bootstrap.md)
+`eolkits-2026-09-04-history-system-bootstrap` · kind: bootstrap · scope: project-wide · significance: high · status: implemented · confidence: confirmed<br>
+occurred 2026-09-04 · decided 2026-09-04 · merged unknown · released unknown · recorded 2026-09-04 · last verified 2026-09-05<br>
+claims: `CLM-EXT-029`, `CLM-EXT-030`, `CLM-EXT-033`, `CLM-E4A-055`, `CLM-E5-005` · capsule: [`.project-history/events/2026/eolkits-2026-09-04-history-system-bootstrap.md`](.project-history/events/2026/eolkits-2026-09-04-history-system-bootstrap.md)
 
 **Before-state and pressure.** The repository had no history system. Its intent lived in handoff documents that were repeatedly deleted (2026-05-02, 2026-08-22), in agent-authored ledgers under `revenue/`, in commit messages, and in owner records outside the repository. 3,253 of 3,599 commits were automation noise. Each new agent session reconstructed context from scratch, and the operating document (AGENTS.md, unchanged since 2026-07-13) still described a mission whose clock had been restarted twice (CLM-E4A-055).
 
@@ -1848,14 +1866,16 @@ claims: `CLM-EXT-029`, `CLM-EXT-030`, `CLM-EXT-033`, `CLM-E4A-055` · capsule: [
 
 **Observed outcome.** Local validation, the 22 unit tests, a byte-stable double render, a clean full audit and the lead's independent verifier all passed at the close of the reconstruction (2026-09-05 UTC; the anchors and counts are those of 2026-09-04, and no commit was added in between). The CI workflow has not yet run: it activates only when these files are pushed to GitHub.
 
+Later September 5 observation: commit `24c2debcce3782667c17c567742b45216881766a` installed these artifacts in the local repository (CLM-E5-005). This resolves the local-commit portion of the question below; no push, merge to main or CI execution was verified.
+
 **Tradeoffs, debt and follow-ups.** The pre-existing modified `.gitignore` in the working tree was left untouched as present-tense work. E3 and E4b reviews were folded in as they arrived; any later evidence should be added as amendments, not silent edits. The monthly gardener writes a drift report but never a narrative.
 
 **Unresolved questions.** Whether the owner wants the history committed on this Codex branch or on main; whether future agents will honour the continuity contract without harness enforcement.
 
 ### Governance by self-termination: three cycles ended over /dev/null, /dev/stdout and /tmp, and an in-jail credential-surface scan that recovered nothing
 
-`eolkits-2026-09-04-jail-violations-and-env-recovery-scan` · kind: governance · scope: revenue · significance: medium · status: observed · confidence: strongly_supported  
-occurred 2026-09-04 · decided 2026-09-04 · merged 2026-09-04 · released unknown · recorded 2026-09-04 · last verified 2026-09-04  
+`eolkits-2026-09-04-jail-violations-and-env-recovery-scan` · kind: governance · scope: revenue · significance: medium · status: observed · confidence: strongly_supported<br>
+occurred 2026-09-04 · decided 2026-09-04 · merged 2026-09-04 · released unknown · recorded 2026-09-04 · last verified 2026-09-04<br>
 claims: `CLM-E4B-050`, `CLM-E4B-051`, `CLM-E4B-052`, `CLM-E4B-053`, `CLM-E4B-054`, `CLM-E4B-055`, `CLM-E4B-056`, `CLM-E4B-057`, `CLM-E4B-058`, `CLM-E4B-059`, `CLM-E4B-060`, `CLM-E4B-061`, `CLM-E4B-003`, `CLM-E4A-042` · capsule: [`.project-history/events/2026/eolkits-2026-09-04-jail-violations-and-env-recovery-scan.md`](.project-history/events/2026/eolkits-2026-09-04-jail-violations-and-env-recovery-scan.md)
 
 **Before-state and pressure.** AGENTS.md §1 and §12: reading outside the workspace root is as forbidden as writing, `/tmp` is forbidden, "Escape = run-ending failure", and "when choosing between the mission and the jail, the jail wins — every time" (CLM-E4B-003). Subagents and cleanup commands use standard device paths by habit. The owner had reported that env files elsewhere on the drive could clear most of the queue's blockers.
@@ -1879,6 +1899,36 @@ claims: `CLM-E4B-050`, `CLM-E4B-051`, `CLM-E4B-052`, `CLM-E4B-053`, `CLM-E4B-054
 **Tradeoffs, debt and follow-ups.** A queue whose arithmetic is simultaneously 38, 40 and "less" (the E4b review's contradiction 7); a discipline that will end future cycles over device paths unless the rule is refined; the untracked inbox as the current handoff's first step.
 
 **Unresolved questions.** Whether the owner will copy the env files; whether the rule should distinguish device paths from real escapes; whether the deleted branch held anything not in `main` (the ledgers say not).
+
+### Make scan coverage, recovery and local migration edits trustworthy across the product
+
+`eolkits-2026-09-05-trustworthy-scan-workflows` · kind: product · scope: project-wide · significance: high · status: implemented · confidence: confirmed<br>
+occurred 2026-09-05 · decided 2026-09-05 · merged unknown · released unknown · recorded 2026-09-05 · last verified 2026-09-05<br>
+claims: `CLM-E5-001`, `CLM-E5-002`, `CLM-E5-003`, `CLM-E5-004` · capsule: [`.project-history/events/2026/eolkits-2026-09-05-trustworthy-scan-workflows.md`](.project-history/events/2026/eolkits-2026-09-05-trustworthy-scan-workflows.md)
+
+**Before-state and pressure.** The owner requested a whole-product improvement grounded in running the existing software. The agent reconstructed EOLkits as free AWS migration scanners plus a bounded optional evidence PDF. Reproductions found a browser read failure that could end in a no-findings state, disconnected editor scan state, Python manifests missed by quote-based extraction, unrelated runtime settings eligible for rewriting, an automatic rollback fallback that could select a newer version, and malformed package JSON accepted by paid preflight. Existing regression suites had passed despite these gaps.
+
+**Intended beneficiaries.** Developers checking a repository before an AWS runtime migration, especially those deciding which findings to review, whether a scan covered their input, and whether a local rewrite is safe to apply. Paid-report users also need rejected input to be recoverable before checkout.
+
+**Goal, non-goal and definition of success.** The selected goal was coherent, truthful local scanning and recovery across the browser, editor, CLI and report intake. Acceptance required meaningful negative and positive controls, actual browser interaction and downloads, synchronized editor views, scoped and idempotent CLI edits, and independently rerun worker checks. The task did not authorize publishing, spending, opening checkout, contacting people, changing lifecycle dates, or replacing the existing stack. This is a local implementation record, not a release or demand measurement.
+
+**Principles affirmed, introduced, weakened or challenged.** P-06 was strengthened by narrower local rewrites, staged batch validation and safer rollback selection. P-16.2 was affirmed by rejecting malformed input before checkout while preserving the deployment gate. P-17 was affirmed by making coverage, recovery and local findings export available in the free browser and editor surfaces. Their lifecycle statuses remain active.
+
+**Alternatives considered and rejected paths.** The agent considered visual polish alone, adding commercial features, and replacing the scanner stack. It chose to fix observed breaks in the existing workflows: presentation depends on accurate coverage, editor views need one state owner, and template edits need source spans and resource scope. A general YAML/HCL engine and dependency resolver would exceed the selected change; bounded parsing and explicit manual-review limits were retained. No new runtime dependency was introduced.
+
+**Decision and rationale.** The agent selected trustworthy scan outcomes as the shared improvement across layers. Rejected or incomplete input must remain visible; results must refer to the selected source; local changes must stay within identified Lambda configuration. Three specialist workers owned the editor, paid path review/intake repair, and CLI corrections while the root implemented the browser and independently verified the returned work. These are recorded engineering decisions, not an inference about customer demand.
+
+**Implementation and evidence anchors.** The anchor above is the existing history-system commit, **not** an implementation commit. Changes were made in its working tree on `codex/whole-product-improvement-20260905`. Reproducible evidence is in `apps/web/test_scan.py`, `apps/web/test_browser.mjs`, `apps/vscode-extension/test/lifecycle.test.cjs`, the two changed kits' test suites, `apps/grace-api/test/test_app.py`, and `apps/runner/test/test_audit_pdf.py`. Local command captures, source hashes, screenshots and the provider-fixture PDF flow are under ignored `tmp/product-improvement/`; acceptance and independent-review records are under ignored `.unlazy/product-improvement/`.
+
+CI now runs the rendered scanner smoke. Existing deployment-URL checks exclude `docs/history/`, whose intentional historical citations were reproduced as false failures; all other generated public artifacts remain checked. The history renderer uses explicit HTML line breaks for event metadata so new generated capsules pass `git diff --check` without trailing whitespace.
+
+**Expected outcome.** Users should distinguish findings from missing coverage, recover from input or read failures, inspect and export useful local evidence, see current editor state, and preview template edits without modifying unrelated settings. Invalid report input should be corrected through a new immutable upload before payment. No conversion, speed or revenue improvement was forecast as a measured result.
+
+**Observed outcome.** The web suite passed 66 tests. Chromium exercised keyboard input, real file selection and JSON download, filtering, malformed and unreadable input, cancellation, stale-result protection and bounded batches; desktop and 390/320-pixel layouts were inspected. The extension compiled and passed lint, rule and activation-level lifecycle tests. Paid-path verification passed 95 API tests and 45 runner tests, plus a local signed-upload/webhook-to-real-PDF/download/retention flow with providers mocked. CLI verification exercised actual commands for manifest parsing, dry-run/apply/idempotency, unrelated settings and whole-batch refusal, plus rollback fixtures. Final verification details are recorded in `revenue/METRICS.md`; none are evidence of a deployed purchase.
+
+**Tradeoffs, debt and follow-ups.** Browser analysis remains bounded pattern matching, with 100 files, 1 MiB per file and 10 MiB per batch; a complete batch is not proof of migration safety. Browser TOML support is narrower than the Python CLI's real TOML parser. YAML/HCL editors deliberately support a subset, and CDK remains source-pattern based. Python 3.9/3.10 TOML audits need the optional existing `tomli` package or a flat requirements file. Editor lifecycle tests use a mock VS Code host, not an Electron extension host. Live AWS, Stripe, Resend and deployed retention remain unverified. No version bump or publishing occurred.
+
+**Unresolved questions.** Will these changes improve real developer adoption or paid-report demand after release? That requires external observation. G-09 and G-12 still require their real deployment and purchase evidence; local tests do not satisfy them.
 
 ---
 

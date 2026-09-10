@@ -1118,11 +1118,11 @@ def render_project_history(repo: Repo, events: list[dict], claims: list[dict], c
         out.append("")
         out.append(
             f"`{m.get('id')}` · kind: {m.get('kind')} · scope: {m.get('scope')} · significance: {m.get('significance')} · "
-            f"status: {m.get('status')} · confidence: {m.get('confidence')}  "
+            f"status: {m.get('status')} · confidence: {m.get('confidence')}<br>"
         )
         out.append(
             f"occurred {m.get('occurred_at') or 'unknown'} · decided {m.get('decided_at') or 'unknown'} · merged {m.get('merged_at') or 'unknown'} · "
-            f"released {m.get('released_at') or 'unknown'} · recorded {m.get('recorded_at')} · last verified {m.get('last_verified_at') or 'unknown'}  "
+            f"released {m.get('released_at') or 'unknown'} · recorded {m.get('recorded_at')} · last verified {m.get('last_verified_at') or 'unknown'}<br>"
         )
         out.append(f"claims: {', '.join(f'`{c}`' for c in (m.get('claim_ids') or [])) or '—'} · capsule: [`{ev['rel']}`]({ev['rel']})")
         out.append("")

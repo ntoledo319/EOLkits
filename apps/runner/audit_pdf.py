@@ -1277,19 +1277,31 @@ def _manifest_dependencies(
     if basename == "package.json":
         try:
             package = json.loads(content)
-        except (json.JSONDecodeError, RecursionError):
-            return entries
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                "package.json must contain valid JSON "
+                f"(line {exc.lineno}, column {exc.colno}): {filename}"
+            ) from exc
+        except RecursionError as exc:
+            raise ValueError(
+                f"package.json nesting exceeds the analysis limit: {filename}"
+            ) from exc
         if not isinstance(package, dict):
-            raise ValueError("package.json root must be an object")
+            raise ValueError(f"package.json root must be an object: {filename}")
         dependencies: dict[str, Any] = {}
         for key in ("dependencies", "devDependencies"):
-            values = package.get(key) or {}
-            if isinstance(values, dict):
-                dependencies.update(
-                    (str(name), spec)
-                    for name, spec in values.items()
-                    if str(name) in NODE_NATIVE_PACKAGES
+            values = package.get(key, {})
+            if not isinstance(values, dict):
+                raise ValueError(f"package.json {key} must be an object: {filename}")
+            if any(not isinstance(spec, str) for spec in values.values()):
+                raise ValueError(
+                    f"package.json {key} dependency versions must be strings: {filename}"
                 )
+            dependencies.update(
+                (str(name), spec)
+                for name, spec in values.items()
+                if str(name) in NODE_NATIVE_PACKAGES
+            )
         for name, spec in dependencies.items():
             bounded_spec = _bounded_dependency_spec(spec, basename)
             position = content.find(json.dumps(name))

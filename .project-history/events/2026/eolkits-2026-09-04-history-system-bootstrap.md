@@ -13,9 +13,9 @@ released_at: null
 recorded_at: 2026-09-04
 last_verified_at: 2026-09-05
 summary: "A read-only archaeology of all 3,599 reachable commits, 58 PRs, 4 releases and the owner's portfolio records produced this evidence-linked history plus a deterministic tool, CI checks and an agent continuity contract; nothing was committed by the reconstruction itself."
-claim_ids: [CLM-EXT-029, CLM-EXT-030, CLM-EXT-033, CLM-E4A-055]
+claim_ids: [CLM-EXT-029, CLM-EXT-030, CLM-EXT-033, CLM-E4A-055, CLM-E5-005]
 source_ids: [SRC-repo-git, SRC-commit-index, SRC-github-api, SRC-purge-report, SRC-purge-ledgers, SRC-historian]
-anchors: ["71c78a1192ce8e83f955f3b53f1595449d4c9ff7", "05435fd26157dd1bd763e6e9fb1b4ecd39a7cecb"]
+anchors: ["71c78a1192ce8e83f955f3b53f1595449d4c9ff7", "05435fd26157dd1bd763e6e9fb1b4ecd39a7cecb", "24c2debcce3782667c17c567742b45216881766a"]
 related: [eolkits-2026-09-01-credential-sweep-left-repo-unrewritten]
 amends: []
 supersedes: []
@@ -24,7 +24,7 @@ reversed_by: []
 status: implemented
 confidence: confirmed
 secrets_reviewed: true
-revision_notes: []
+revision_notes: ["2026-09-05: added CLM-E5-005 and the later local installation commit after the product-improvement session observed it at HEAD. Original reconstruction outcome preserved; no remote publication or merge inferred."]
 ---
 
 ## Before-state and pressure
@@ -62,6 +62,8 @@ Agents load `docs/history/ORIENTATION.md` and `context` output before work, and 
 ## Observed outcome
 
 Local validation, the 22 unit tests, a byte-stable double render, a clean full audit and the lead's independent verifier all passed at the close of the reconstruction (2026-09-05 UTC; the anchors and counts are those of 2026-09-04, and no commit was added in between). The CI workflow has not yet run: it activates only when these files are pushed to GitHub.
+
+Later September 5 observation: commit `24c2debcce3782667c17c567742b45216881766a` installed these artifacts in the local repository (CLM-E5-005). This resolves the local-commit portion of the question below; no push, merge to main or CI execution was verified.
 
 ## Tradeoffs, debt and follow-ups
 

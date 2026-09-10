@@ -34,6 +34,7 @@ says otherwise). `decided`, `merged`, and `released` columns are kept distinct o
 | 2026-09-04 | 2026-09-04 | 2026-09-04 | 2026-09-04 | [September 4: a five-sample evidence gate, v1.3.0, the reversal of daily date churn, admin authority found after all, and a closed deployment hardened for an owner who has not deployed it](../../.project-history/events/2026/eolkits-2026-09-04-evidence-gate-v13-and-closed-deployment-hardening.md) `eolkits-2026-09-04-evidence-gate-v13-and-closed-deployment-hardening` | release | high | observed | strongly_supported |
 | 2026-09-04 | 2026-09-04 | — | — | [Bootstrap of the living-history system (reconstruction of 2026-04-28 to 2026-09-04)](../../.project-history/events/2026/eolkits-2026-09-04-history-system-bootstrap.md) `eolkits-2026-09-04-history-system-bootstrap` | bootstrap | high | implemented | confirmed |
 | 2026-09-04 | 2026-09-04 | 2026-09-04 | — | [Governance by self-termination: three cycles ended over /dev/null, /dev/stdout and /tmp, and an in-jail credential-surface scan that recovered nothing](../../.project-history/events/2026/eolkits-2026-09-04-jail-violations-and-env-recovery-scan.md) `eolkits-2026-09-04-jail-violations-and-env-recovery-scan` | governance | medium | observed | strongly_supported |
+| 2026-09-05 | 2026-09-05 | — | — | [Make scan coverage, recovery and local migration edits trustworthy across the product](../../.project-history/events/2026/eolkits-2026-09-05-trustworthy-scan-workflows.md) `eolkits-2026-09-05-trustworthy-scan-workflows` | product | high | implemented | confirmed |
 
 ## Claims by date
 
@@ -397,5 +398,10 @@ says otherwise). `decided`, `merged`, and `released` columns are kept distinct o
 | 2026-09-04 | `CLM-E4B-069` Legal pages at HEAD describe the sole paid product as one $299 static evidence report (no live AWS access, no exploitability proof, no sign… | direct | verified | confirmed |
 | 2026-09-04 | `CLM-E4B-070` The GitHub Marketplace Action listing is reported to still show v1.1.0 while `@v2` is consumable directly; the acquisition gate's `public_v… | contemporaneous | reported | strongly_supported |
 | 2026-09-04 | `CLM-EXT-027` By 2026-09-04 the public repo description had changed to "Free local scanner, VS Code extension, GitHub Action, and MIT CLIs … Optional $29… | direct | verified | confirmed |
+| 2026-09-05 | `CLM-E5-001` The September 5 browser implementation exposes bounded file coverage, input errors and cancellation, supports paste and a labelled example,… | behavioral | verified | confirmed |
+| 2026-09-05 | `CLM-E5-002` The September 5 editor changes synchronize diagnostics, tree, context and open reports through one state owner, including scoped scans, edi… | behavioral | verified | confirmed |
+| 2026-09-05 | `CLM-E5-003` The September 5 CLI changes parse supported Python manifests, scope template runtime edits to Lambda configuration, stage inspected changes… | behavioral | verified | confirmed |
+| 2026-09-05 | `CLM-E5-004` The September 5 paid-input changes reject malformed package JSON and invalid upload-size types before checkout; corrected uploads recover a… | behavioral | verified | confirmed |
+| 2026-09-05 | `CLM-E5-005` The pre-existing living-history system was committed locally on September 5 as docs(history): install project history system. | direct | verified | confirmed |
 
 Sources for every claim are listed in [`.project-history/claims.yml`](../../.project-history/claims.yml); the reading path is [`PROJECT_HISTORY.md`](../../PROJECT_HISTORY.md) (chapter directory: `docs/history`).

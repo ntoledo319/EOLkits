@@ -104,7 +104,7 @@ goals:
     definition_of_success: "Immutable upload and preflight; checkout with verified webhook; one job producing a real PDF; Resend delivery; signed download; refund path; evidence recorded — all in Stripe test mode on eolkits.com."
     review_by: 2026-09-19
     outcome: "Never executed; the live host still ran the pre-v2 backend on 2026-09-04 and the deployment script awaits the owner (HQ-A/HQ-C)."
-    notes: "This goal is the operational form of principle P-16.2."
+    notes: "This goal is the operational form of principle P-16.2. September 5 local input-validation and provider-fixture PDF verification (CLM-E5-004) strengthens the implementation but does not satisfy the real-deployment definition; status remains blocked."
   - id: G-10
     version: 1
     statement: "Earn evidence of demand on the free surfaces: VS Code install growth, external Action runs, and qualified '[Audit interest]' issues."
@@ -126,7 +126,7 @@ goals:
     definition_of_success: "Within ~90 days: 25+ GitHub stars, or 10+ genuine installs, or 1+ unsolicited inbound; otherwise the paid arm stays shelved."
     review_by: 2026-09-27
     outcome: "No external record of measurement; the repository shows 1 star and ~104 extension installs on 2026-09-04, which would satisfy the install clause only if the installs are treated as genuine."
-    notes: "Owner-side goal; the repository's agents never referenced it."
+    notes: "Owner-side goal; the repository's agents had not referenced it in the September 4 reconstruction. September 5 scanner/editor improvements (CLM-E5-001, CLM-E5-002, CLM-E5-003) provide local engineering evidence, not new adoption measurements; status remains active."
   - id: G-12
     version: 1
     statement: "Verify one real $299 purchase end to end before driving any traffic."

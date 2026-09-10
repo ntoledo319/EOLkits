@@ -11,7 +11,7 @@ incremental_anchor: 71c78a1192ce8e83f955f3b53f1595449d4c9ff7
 origin_main_at_audit: 55b61830a2cfa16b0b0cf3228d8df57b1d995e99
 local_main_at_audit: a297ea4a18c535a27b6bcad1c4a40d4ed08b974e
 root_commit: 05435fd26157dd1bd763e6e9fb1b4ecd39a7cecb
-reachable_commit_count: 3599
+reachable_commit_count: 3617
 head_reachable_commit_count: 3503
 tool_versions:
   git: system git on the audit host
@@ -199,3 +199,10 @@ rewritten_history:
     from origin/main, the root commit is unchanged, and local/remote branch-tip differences are
     identity re-commits with identical trees. No rewrite of this repository's ancestry was found.
     Anchors above should be re-checked by `audit --full` after any future rewrite.
+
+# September 5 local drift audit; original reconstruction/ref inventory above retained.
+latest_local_drift_check:
+  date: 2026-09-05
+  head: 24c2debcce3782667c17c567742b45216881766a
+  command: python3 scripts/project_history.py audit --full
+  outcome: "No hard failures; 270 cited SHAs resolve. The newer history-installation commit is recorded by CLM-E5-005 and a bootstrap-event revision. Local reachable count refreshed; no remote refs or outside-workspace sources were re-audited."

@@ -4,6 +4,13 @@
 # evidence_class: direct | contemporaneous | retrospective | behavioral | derived
 # access: accessible | inaccessible | partial
 sources:
+  - id: SRC-product-improvement-20260905
+    kind: working-tree-and-local-verification
+    locator: "Working tree after 24c2debcce3782667c17c567742b45216881766a on codex/whole-product-improvement-20260905; apps/web/, apps/vscode-extension/, kits/lambda-lifeline/, kits/python-pivot/, apps/grace-api/, apps/runner/ and their tests; local evidence in tmp/product-improvement/."
+    evidence_class: direct
+    access: accessible
+    retrieved: 2026-09-05
+    note: "Contemporaneous local implementation and executed checks. The SHA identifies the parent tree; no implementation commit, release, deployment, live-provider verification or market observation is implied. Temporary command captures are local; checked-in tests are the durable rerun mechanism."
   - id: SRC-repo-git
     kind: git-repository
     locator: /home/nick/Development/active/Rupture (remote https://github.com/ntoledo319/EOLkits.git, formerly ntoledo319/Rupture)

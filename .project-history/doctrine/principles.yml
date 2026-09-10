@@ -88,7 +88,7 @@ principles:
     supersedes: null
     claim_ids: [CLM-E1-008, CLM-E1-025, CLM-E1-064, CLM-E4A-057, CLM-E4B-042]
     origin: "kits/*/README 'Safety' 2026-04-28; updateplan.md Task 4.1; Action README; 2026-08-22 retention limits; PR #44 runner hardening."
-    notes: "The longest-lived unbroken principle; every hardening pass (06-08 fail-closed uploads, 08-22 retention and rate limits, 09-04 local-path rejection and non-root containers) extended rather than contradicted it."
+    notes: "The longest-lived unbroken principle; every hardening pass (06-08 fail-closed uploads, 08-22 retention and rate limits, 09-04 local-path rejection and non-root containers) extended rather than contradicted it. September 5 scoped template editing, batch refusal and older-version-only automatic rollback affirm the same local safety constraint (CLM-E5-003)."
   - id: P-07
     version: 1
     statement: "No fabricated operator history or testimonials in public copy."
@@ -214,7 +214,7 @@ principles:
     supersedes: P-16
     claim_ids: [CLM-E4A-007, CLM-E4A-010, CLM-E4B-007, CLM-E4B-043]
     origin: "EOLKITS_AUDIT_CHECKOUT_ENABLED at d772637a; HANDOFF gate; PR #25 preflight; PR #44 deploy-api-closed.sh."
-    notes: "The gate has never been executed because it requires owner steps; the principle is enforced by absence of sales, which the ledgers acknowledge."
+    notes: "The gate has never been executed because it requires owner steps; the principle is enforced by absence of sales, which the ledgers acknowledge. September 5 paid-input validation and provider-fixture tests (CLM-E5-004) preserve the gate; local PDF success is explicitly not deployed purchase evidence."
   - id: P-17
     version: 1
     statement: "Open core: the CLIs, Action and extension are free and MIT-licensed; anything paid sits on top and never gates the free tools' correctness."
@@ -223,7 +223,7 @@ principles:
     supersedes: null
     claim_ids: [CLM-E1-018, CLM-E3-055, CLM-E4A-028, CLM-E4B-019]
     origin: "Free CLI tier 2026-04-29; MIT LICENSE 2026-07-21; D7 'free tools are distribution' 2026-08-22."
-    notes: "Reinforced by the external 06-29 verdict that only the free CLI survives as a $0 funnel; the September scanner-correctness fixes shipped to the free surfaces first."
+    notes: "Reinforced by the external 06-29 verdict that only the free CLI survives as a $0 funnel; the early September scanner-correctness fixes shipped to the free surfaces first. September 5 browser coverage/export and editor lifecycle improvements remain free in the working tree (CLM-E5-001, CLM-E5-002); no new commercial gate was added."
   - id: P-18
     version: 1
     statement: "Public content is deterministic and sourced: no LLM-generated text on SEO pages, every fact rendered from the rules file with a source URL, real error strings only, byte-identical rebuilds."

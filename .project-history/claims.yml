@@ -19,6 +19,56 @@
 # Secrets policy: identifiers, keys, tokens, hostnames of private services and third-party
 # personal data are not reproduced; where a commit touched such material the claim says so.
 claims:
+  - claim_id: CLM-E5-005
+    claim: "The pre-existing living-history system was committed locally on September 5 as docs(history): install project history system."
+    date: 2026-09-05
+    source_ids: [SRC-repo-git]
+    locator: "24c2debcce3782667c17c567742b45216881766a; scripts/project_history.py, .project-history/, docs/history/, PROJECT_HISTORY.md, history workflow, tests and agent continuity contract."
+    evidence_type: direct
+    status: verified
+    confidence: confirmed
+    rationale: "The local commit and its paths resolve; the product-improvement branch has it as HEAD."
+    caveats: "A local commit is not evidence of a push, merge, release or completed CI run; no authorship inference is made."
+  - claim_id: CLM-E5-001
+    claim: "The September 5 browser implementation exposes bounded file coverage, input errors and cancellation, supports paste and a labelled example, and exports local findings with a rule fingerprint and source locations."
+    date: 2026-09-05
+    source_ids: [SRC-product-improvement-20260905]
+    locator: "apps/web/static/scan-engine.js, scan-ui.js, scan.css; apps/web/templates/scan.html.j2; apps/web/test_scan.py and test_browser.mjs; tmp/product-improvement/checks/web.json and browser.json."
+    evidence_type: behavioral
+    status: verified
+    confidence: confirmed
+    rationale: "66 web tests and actual Chromium workflows, local download and responsive rendered inspection passed."
+    caveats: "Working tree only; bounded pattern coverage is not full syntax validation, dependency resolution or migration assurance."
+  - claim_id: CLM-E5-002
+    claim: "The September 5 editor changes synchronize diagnostics, tree, context and open reports through one state owner, including scoped scans, edits, deletion, settings changes, cancellation and read failures."
+    date: 2026-09-05
+    source_ids: [SRC-product-improvement-20260905]
+    locator: "apps/vscode-extension/src/model.ts, lifecycle.ts, extension.ts, report.ts; test/lifecycle.test.cjs; tmp/product-improvement/extension/parent-verification.json."
+    evidence_type: behavioral
+    status: verified
+    confidence: confirmed
+    rationale: "Root independently reran npm test: TypeScript compilation, lint, rules and activation-level lifecycle tests passed."
+    caveats: "Mock VS Code API host; Electron host and published extension unverified. Existing rupture identities and v1.3.0 retained."
+  - claim_id: CLM-E5-003
+    claim: "The September 5 CLI changes parse supported Python manifests, scope template runtime edits to Lambda configuration, stage inspected changes before writes, and refuse automatic rollback when no older numbered version exists."
+    date: 2026-09-05
+    source_ids: [SRC-product-improvement-20260905]
+    locator: "kits/python-pivot/src/python_pivot/{audit,iac,manifests,terraform}.py; kits/lambda-lifeline/src/iac/ and src/rollback/index.mjs; owned test suites; tmp/product-improvement/cli/parent-verification.json."
+    evidence_type: behavioral
+    status: verified
+    confidence: confirmed
+    rationale: "Unit and actual CLI controls cover old-version findings against clean controls, single/double quotes, optional groups, JSON edits, byte preservation, idempotency, batch refusal and rollback selection."
+    caveats: "Local tests with fixture AWS clients; bounded YAML/HCL and source-pattern CDK remain documented limitations."
+  - claim_id: CLM-E5-004
+    claim: "The September 5 paid-input changes reject malformed package JSON and invalid upload-size types before checkout; corrected uploads recover and a local provider-fixture flow produces a real PDF with replay, signed-download and retention checks."
+    date: 2026-09-05
+    source_ids: [SRC-product-improvement-20260905]
+    locator: "apps/grace-api/eolkits_grace/app.py and test/test_app.py; apps/runner/audit_pdf.py and test/test_audit_pdf.py; tmp/product-improvement/backend/parent-verification.json and smoke_paid_flow.py."
+    evidence_type: behavioral
+    status: verified
+    confidence: confirmed
+    rationale: "Root independently ran 95 API and 45 runner tests, the real-PDF fixture flow and 19 selected input-validation regressions."
+    caveats: "Stripe and Resend were mocked. Checkout remained closed; this is not G-09 or G-12 production/purchase evidence."
   - claim_id: CLM-E1-001
     claim: "The repository was created on GitHub at 2026-04-28T07:14:48Z with a single-line README (\"# Rupture\") committed through the GitHub web UI."
     date: 2026-04-28
