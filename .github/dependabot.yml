@@ -16,10 +16,21 @@ updates:
     directory: "/apps/worker"
     schedule:
       interval: "weekly"
+    ignore:
+      # Keep Node 20 API types; newer build tooling does not require Node 26 APIs.
+      - dependency-name: "@types/node"
+        versions: [">=21.0.0"]
   - package-ecosystem: "npm"
     directory: "/apps/vscode-extension"
     schedule:
       interval: "weekly"
+    ignore:
+      # VS Code 1.85 remains supported; newer API types break vsce packaging.
+      - dependency-name: "@types/vscode"
+        versions: [">=1.86.0"]
+      # typescript-eslint 8.69 requires TypeScript <6.1; retain compatible fixes.
+      - dependency-name: "typescript"
+        versions: [">=6.1.0"]
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

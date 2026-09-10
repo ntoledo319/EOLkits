@@ -42,10 +42,12 @@ into a paid PDF. The remaining reviewed production graph uses permissive or
 file-level MPL terms. No GPL/AGPL/LGPL implementation is redistributed in the
 paid report artifact.
 
-The two hash-locked Python graphs were checked with `pip-audit` on August 22,
-2026 and reported no known vulnerabilities. Re-run both vulnerability and
-license checks whenever a lockfile changes; a past clean result is not a claim
-about future vulnerability data.
+The two hash-locked production Python graphs were checked with `pip-audit` on
+September 10, 2026 and reported no known vulnerabilities after both were upgraded
+to WeasyPrint 70.0 for CVE-2026-55073. The renderer retains its BSD license; both
+resolved inventories above reflect the installed version. Re-run vulnerability
+and license checks whenever a lockfile changes; a past clean result is not a
+claim about future vulnerability data.
 
 ## Data and source references
 

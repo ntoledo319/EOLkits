@@ -56,33 +56,48 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
       - run: mkdir -p "$TMPDIR" "$npm_config_cache"
       - run: npm ci --no-audit && npm run build && npm test
         working-directory: apps/worker
+      - name: Verify the Worker deployment bundle
+        run: npm exec -- wrangler deploy --dry-run --outdir "$GITHUB_WORKSPACE/tmp/worker-bundle"
+        working-directory: apps/worker
+        env:
+          WRANGLER_SEND_METRICS: 'false'
 
   grace-api:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.12', '3.14']
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version: ${{ matrix.python-version }}
       - name: Test API
         run: |
           mkdir -p "$TMPDIR" "$PIP_CACHE_DIR"
           python -m venv "$GITHUB_WORKSPACE/tmp/grace-venv"
           venv="$GITHUB_WORKSPACE/tmp/grace-venv"
+          "$venv/bin/pip" install --require-hashes -r apps/grace-api/requirements.lock
           "$venv/bin/pip" install -r apps/grace-api/requirements-dev.txt
+          "$venv/bin/pip" check
           "$venv/bin/pytest" -q apps/grace-api
 
   runner:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.12', '3.14']
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version: ${{ matrix.python-version }}
       - name: Test report runner
         run: |
           mkdir -p "$TMPDIR" "$PIP_CACHE_DIR"
@@ -90,6 +105,7 @@ jobs:
           venv="$GITHUB_WORKSPACE/tmp/runner-venv"
           "$venv/bin/pip" install --require-hashes -r apps/runner/requirements.lock
           "$venv/bin/pip" install --require-hashes -r apps/runner/requirements-test.lock
+          "$venv/bin/pip" check
           "$venv/bin/pytest" -q apps/runner
           "$venv/bin/python" apps/runner/build_sample_report.py --check
 
@@ -213,6 +229,31 @@ jobs:
             '/usr/local/bin/eolkits-container-entrypoint'
           test "$(docker run --rm --entrypoint /usr/local/bin/eolkits-container-entrypoint \
             "$image_ref" sh -c umask)" = '0077'
+          # Exercise the native PDF libraries and shipped modules in the exact
+          # production image. No provider request or persistent state is needed.
+          docker run --rm -i --network none --entrypoint python "$image_ref" - "$dockerfile" <<'PY'
+          import sys
+
+          import audit_pdf
+          from weasyprint import HTML
+
+          pdf = HTML(string="<p>EOLkits container smoke check</p>").write_pdf()
+          assert pdf.startswith(b"%PDF")
+          if sys.argv[1] == "apps/grace-api/Dockerfile":
+              from eolkits_grace.app import app
+              from eolkits_grace.config import settings
+              from eolkits_grace.preflight import validate_runtime_preflight
+
+              assert app.title == "EOLkits GRACE API"
+              assert not settings.audit_checkout_enabled
+              try:
+                  validate_runtime_preflight(settings)
+              except RuntimeError as exc:
+                  assert "without required secrets" in str(exc)
+              else:
+                  raise AssertionError("production preflight accepted missing secrets")
+              assert not settings.db_path.exists()
+          PY
 
   dependency-audit:
     runs-on: ubuntu-latest
