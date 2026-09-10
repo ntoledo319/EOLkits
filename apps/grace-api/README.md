@@ -43,6 +43,18 @@ page categories, and compact non-PII attribution tokens. Raw events expire after
 30 days, abuse-rate keys after two days, and event ingestion stops at a bounded
 SQLite/WAL size. Public status never exposes funnel, commerce, or per-order data.
 
+## Audit input validation
+
+`/upload/presign` requires `size` to be a positive integer JSON byte count.
+Invalid sizes return `400` before upload capacity is reserved. The uploaded
+bytes must match that count exactly.
+
+Checkout preflight rejects malformed `package.json` files, including those
+inside a repository ZIP. The scanned `dependencies` and `devDependencies`
+fields must be objects with string version values. JSON errors identify the
+file and line/column before a Stripe session is created. Correct the input and
+request a new upload; received uploads are immutable.
+
 ## `POST /api/v1/lead` — the studio lead bus
 
 Stores explicitly submitted research/contact requests durably before attempting

@@ -382,12 +382,12 @@ async def upload_presign(request: Request) -> dict[str, Any]:
         raise HTTPException(status_code=429, detail="upload capacity exceeded; try again later")
     try:
         body = json.loads(await _read_limited_body(request, 16 * 1024))
-    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+    except (ValueError, RecursionError) as exc:
         raise HTTPException(status_code=400, detail="invalid JSON") from exc
     if not isinstance(body, dict):
         raise HTTPException(status_code=400, detail="JSON object required")
     filename = Path(str(body.get("filename") or "")).name
-    size = int(body.get("size") or 0)
+    size = body.get("size")
     if not filename:
         raise HTTPException(status_code=400, detail="filename required")
     extension = Path(filename).suffix.lower()
@@ -396,8 +396,11 @@ async def upload_presign(request: Request) -> dict[str, Any]:
             status_code=400,
             detail={"error": "invalid_file_type", "allowed": sorted(ALLOWED_EXTENSIONS)},
         )
-    if size <= 0:
-        raise HTTPException(status_code=400, detail="positive file size required")
+    # JSON booleans are Python ints; coercion also silently truncates fractions
+    # and raises unhandled errors for arrays or strings. Reserve only an exact
+    # positive byte count that the immutable upload can subsequently match.
+    if type(size) is not int or size <= 0:
+        raise HTTPException(status_code=400, detail="positive integer file size required")
     if size > settings.max_upload_bytes:
         raise HTTPException(
             status_code=400,

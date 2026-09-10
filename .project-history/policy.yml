@@ -1,0 +1,109 @@
+# EOLkits living-history policy. Read by scripts/project_history.py.
+# Plain YAML subset: block mappings, block sequences, quoted scalars, inline lists.
+docs_dir: docs/history
+commands:
+  assess: python3 scripts/project_history.py assess
+  context: python3 scripts/project_history.py context
+  validate: python3 scripts/project_history.py validate
+  render: python3 scripts/project_history.py render
+  audit_full: python3 scripts/project_history.py audit --full
+  audit_incremental: python3 scripts/project_history.py audit --since HEAD~1
+  test: python3 -m unittest -q tests/test_project_history.py
+
+repository: ntoledo319/EOLkits
+title: "EOLkits — project history"
+local_path: /home/nick/Development/active/Rupture
+prior_names: [Rupture, "Rupture AWS Deprecation Check"]
+
+# Order in which docs/history chapters are assembled into PROJECT_HISTORY.md.
+reading_order:
+  - ORIENTATION.md
+  - NARRATIVE.md
+  - eras/*.md
+  - IDEOLOGY.md
+  - GOALS.md
+  - DECISION_MAP.md
+  - OPEN_QUESTIONS.md
+  - TIMELINE.md
+  - COVERAGE.md
+
+reading_guide: |
+  Four kinds of statement are kept apart throughout: what participants **said** (commit
+  messages, handoff documents, PR bodies, operating docs), what the system **did** (code,
+  configuration, tests, workflows at a given revision), what **outcome** followed (release
+  records, marketplace listings, evidence ledgers, the absence of revenue), and what the
+  historian **infers**. Every material statement in the narrative is backed by a claim id
+  (`CLM-…`) in `.project-history/claims.yml`; each claim carries a full commit SHA or another
+  stable locator, an evidence type (`direct`, `contemporaneous`, `retrospective`,
+  `behavioral`, `inferred`), a status (`verified`, `reported`, `inferred`, `disputed`,
+  `unknown`) and a confidence (`confirmed`, `strongly_supported`, `plausible`,
+  `speculative`, `unknown`). Git authorship is not intellectual authorship: many commits are
+  agent-authored (Claude, Codex, "Eve", "EOLkits Agent", "Rupture Ops") under the owner's
+  operating documents, and are labelled as such without inferring human intent. Dates are
+  author dates unless a capsule says otherwise; decision, merge, release and recording dates
+  are kept distinct. Contradictions are preserved in `.project-history/contradictions.yml`
+  rather than resolved by fiat. "No evidence found" never means "did not happen".
+
+# Sections every event capsule must carry (validated).
+event_sections:
+  - Before-state and pressure
+  - Intended beneficiaries
+  - Goal, non-goal and definition of success
+  - Principles affirmed, introduced, weakened or challenged
+  - Alternatives considered and rejected paths
+  - Decision and rationale
+  - Implementation and evidence anchors
+  - Expected outcome
+  - Observed outcome
+  - Tradeoffs, debt and follow-ups
+  - Unresolved questions
+
+# Materiality: record an event when purpose/audience/value/principle/goal changed; when a
+# durable API, data model, architecture, security, privacy, reliability, governance or
+# deployment choice constrains future work; when a release, migration, deprecation, incident,
+# rollback, reversal or external constraint changed direction; when an experiment or failure
+# changed what the project believes; or when a feature/removal changed the user promise.
+material_surfaces:
+  - name: product-promise
+    globs: ["README.md", "pricing.yml", "HANDOFF.md", "legal/*", "launch/**", "docs/index.html", "apps/web/content/**", "apps/web/templates/**"]
+    why: changes what is promised, sold, or refused to strangers
+  - name: paid-fulfilment-api
+    globs: ["apps/grace-api/**", "deploy/grace/**", "apps/runner/**"]
+    why: the paid report pipeline, its gates, retention and refund behaviour
+  - name: free-distribution-surfaces
+    globs: ["action.yml", "apps/github-action/**", "apps/vscode-extension/**", "apps/pre-commit/**", ".pre-commit-hooks.yaml"]
+    why: the free surfaces that carry the project's reputation and acquisition evidence
+  - name: rules-and-dates
+    globs: ["rules/**", "RULES.md", "corpus/**"]
+    why: cited deprecation dates are the product's factual core
+  - name: kits
+    globs: ["kits/**"]
+    why: scanner behaviour, false-positive posture, codemod safety
+  - name: ci-governance
+    globs: [".github/workflows/**", ".github/dependabot.yml", ".github/ISSUE_TEMPLATE/**", "AGENTS.md", "SECURITY.md", "CONTRIBUTING.md"]
+    why: automation, release authority, and agent operating rules
+  - name: revenue-operating-record
+    globs: ["revenue/**", "research/**"]
+    why: the agents' own decision, metrics and human-queue ledgers
+  - name: legacy-rails
+    globs: ["apps/worker/**", "apps/github-app/**"]
+    why: retired Cloudflare/Stripe worker and GitHub App paths; changes here revive or bury old promises
+
+noise_globs:
+  - "docs/status/**"
+  - "docs/vs/**"
+  - "docs/sitemap.xml"
+  - "docs/feed.xml"
+  - "docs/deprecations.ics"
+  - "**/package-lock.json"
+  - "**/requirements.lock"
+  - "**/*.png"
+  - "**/*.ico"
+  - "tmp/**"
+
+# Commits by these authors are regenerations or dependency bumps; assess/audit skip them.
+noise_authors: ["rupture-bot", "github-actions[bot]", "dependabot[bot]"]
+
+# Cadence
+review_cadence: monthly history gardener (GitHub Actions schedule) plus release-time audit
+deferral_max_days: 30

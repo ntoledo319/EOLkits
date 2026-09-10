@@ -21,10 +21,32 @@ No AWS login or extension configuration is required.
 
 ## What it does
 
-- **Scans on save and on demand** — CloudFormation/SAM, Terraform/HCL, JavaScript, TypeScript, Python, and JSON files across your workspace (`node_modules` excluded).
+- **Scans on save and on demand** — CloudFormation/SAM, Terraform/HCL, JavaScript/JSX, TypeScript/TSX, Python, and JSON/JSONC files across your workspace (`node_modules` excluded). Supported files changed outside the editor are also refreshed when auto-scan is enabled.
 - **Inline diagnostics** — matched runtime and compatibility patterns are underlined with severity and rule-specific context.
-- **Deprecations tree view** — a consolidated list of every finding in the workspace, in the Explorer sidebar.
-- **Deprecation report** — a summary panel grouping findings by severity.
+- **Deprecations tree view** — current findings grouped by severity, scan coverage, and files needing attention in the Explorer sidebar.
+- **Deprecation report** — a panel showing findings by severity, file/line locations, and scan coverage. An open report refreshes with the Problems panel and tree.
+
+### Understand scan coverage
+
+A workspace scan includes supported files in all open folders and uses current
+editor contents for files that are already open. A folder scan refreshes that
+folder and keeps current results from other folders. The report names the latest
+scan scope and shows coverage across the current results.
+
+Editing a scanned file removes its earlier findings and marks it pending until
+you save or scan again. Deleted files are removed from all views. Changes to
+enabled kits or the severity threshold trigger a fresh workspace scan; the legacy
+`rupture.*` settings remain supported unless an `eolkits.*` value is explicitly set.
+
+You can cancel a workspace scan from its progress notification. Cancelled scans,
+unreadable files, and pending edits remain visibly incomplete. Open the report for
+failed file paths, or select **Scan incomplete — retry** in the tree to try again.
+Zero matches means only that the scanned contents did not match enabled rules at
+your configured severity threshold; it does not certify a migration or resolve
+variables and computed runtime values.
+
+The initial scan and scans after configuration, folder, or rename changes still
+run when `autoScan` is disabled. This setting controls file saves and disk changes.
 
 ## What it detects today
 
@@ -59,7 +81,7 @@ Right-click any folder in the Explorer to scan it directly.
 |---|---|---|
 | `eolkits.enabledKits` | all three | Which deprecation kits to run |
 | `eolkits.severityThreshold` | `medium` | Minimum severity to report |
-| `eolkits.autoScan` | `true` | Scan automatically on file save |
+| `eolkits.autoScan` | `true` | Refresh saved files and supported files changed on disk. When disabled, changed files stay pending until an on-demand scan. |
 
 ---
 

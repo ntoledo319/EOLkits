@@ -40,6 +40,21 @@ Eight commands cover specific parts of a Node.js Lambda migration:
 
 File and AWS mutations require `--apply`. The tested rewrite rules are idempotent. Validate the generated plan, alarms, permissions, and rollback behavior in a non-production environment first.
 
+The IaC editor reads CloudFormation/SAM JSON and YAML, AWS Serverless Framework
+YAML/JSON, Terraform HCL and `.tf.json`, and the configured CDK runtime enum
+patterns. Template edits target Lambda function `Properties.Runtime`, SAM
+`Globals.Function.Runtime`, AWS Serverless provider/function runtimes, or direct
+`aws_lambda_function` runtime attributes. Unrelated settings, comments, tags,
+and string contents are retained, including file line endings.
+
+YAML support covers block mappings and single-line flow mappings. Lists are
+preserved as data; runtime aliases, merge keys, multiline flow mappings, and
+runtime expressions need manual review. Detected input errors return exit 2
+before any batch member is written; this is not a full YAML/IaC validator. CDK remains a source-pattern
+rewrite and does not resolve imports or prove deployment compatibility. Preview
+without `--apply`, inspect the diff after applying, and validate with your IaC
+toolchain before deployment.
+
 ---
 
 ## Why this exists
@@ -139,12 +154,12 @@ $ lambda-lifeline iac --path examples/sample-app --apply
 - **Deploys require a CloudWatch alarm ARN.** The kit will refuse to run a live deploy without one, because we want auto-rollback to actually work.
 - **Rewrites are minimal and version-control-friendly.** Codemods touch only the bytes they need to. Diffs are readable.
 - **Idempotent.** Run `iac --apply` twice and the second run is a no-op.
-- **Tested.** `npm test` runs the checked-in 28-case behavioral suite. Live AWS
+- **Tested.** `npm test` runs the checked-in behavioral suite, including manifest
+  scope, malformed-input, dry-run, and rollback safety controls. Live AWS
   mutation still requires your own non-production validation and release review.
 
 ```bash
 npm test
-# tests 28  pass 28  fail 0
 ```
 
 ---

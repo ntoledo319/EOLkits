@@ -110,7 +110,7 @@
         "eolkits.autoScan": {
           "type": "boolean",
           "default": true,
-          "description": "Automatically scan on file save"
+          "description": "Automatically refresh saved files and supported files changed on disk"
         },
         "rupture.enabledKits": {
           "type": "array",
@@ -151,7 +151,7 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "lint": "eslint src --ext ts",
-    "test": "npm run compile && npm run lint && node test/rules.test.cjs",
+    "test": "npm run compile && npm run lint && node test/rules.test.cjs && node test/lifecycle.test.cjs",
     "package": "vsce package"
   },
   "devDependencies": {

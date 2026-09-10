@@ -1630,3 +1630,27 @@ persisted nothing and revealed no value. Stop the cycle, interrupt the security
 specialist, revalidate the exact jail, reread all six state files, and restart
 without device-path redirection. Record the failure; do not erase it because the
 subsequent bounded scan succeeded.
+
+## September 5 — access checkpoint; no public shipment
+
+The previous env scan completed a bounded investigation and established the
+import route; it produced no revenue. This resumed check reproduced the absent
+credentials, closed v2 host, and existing +1-install signal. No live acquisition
+job needs waiting, and its next deadline is still in the future.
+
+The user's replacement AGENTS.md retains the absolute read prohibition. Request
+one specific read-only exception for the EOLkits/GRACE env search under
+`/home/nick` instead of assigning the entire deployment queue again. Until the
+owner explicitly grants it, use only the workspace and existing remote access.
+The configured SSH agent socket is outside the jail and was not accessed.
+No product, policy, account, or public state changed. This is a failed ship-law
+cycle, not commercial progress; do not create a documentation-only PR to
+manufacture a shipment. Preserve the owner's uncommitted history system.
+
+history:none — read-only revalidation reproduced the existing access blocker;
+the requested exception remains undecided and no product or policy changed.
+
+
+## Local product verification — 2026-09-05 09:44 UTC
+
+Selected one cross-product objective: make scan coverage, failure recovery and local remediation trustworthy. Reproductions justified the browser/editor work, real supported Python manifest parsing, scoped JSON/YAML/HCL edits, safer automatic rollback and bounded paid-input validation. Kept the stack, source dates, public commands, free-tool access, $299 SKU and closed checkout; added no runtime dependencies. CI now exercises the browser and excludes intentional history citations from deployment-URL hygiene checks. The user's prompt explicitly excluded publishing/spending, so this was a local engineering task, not a claimed shipped revenue cycle. Unlazy gates, bounded delegated ownership and independent parent verification were used throughout; the skill's outside-repository approval store conflicts with containment, so fixed inspected commands and local evidence were used without `--approve` or a stock `--reverify` claim. History: `eolkits-2026-09-05-trustworthy-scan-workflows`.

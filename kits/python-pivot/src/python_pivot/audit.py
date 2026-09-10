@@ -1,12 +1,11 @@
 """Native-wheel audit for requirements.txt / Pipfile / pyproject.
 
-Checks that declared versions have Python 3.12 wheels available on PyPI
-(determined by a curated table of the high-blast-radius packages that
-historically lagged behind new CPython releases).
+Compares declared versions with a curated Python 3.12 compatibility baseline.
+It does not resolve dependencies or query PyPI for an installed wheel.
 
 This is a deliberate non-exhaustive table — we cover the packages that
 actually break Lambda deploys when the runtime moves. Unknown packages
-pass silently (they're usually pure-Python).
+are outside this audit's coverage.
 """
 
 from __future__ import annotations
@@ -29,8 +28,8 @@ class WheelRequirement:
 
 
 # Curated table — only packages that historically required a version bump
-# to get Python 3.12 wheels. Values are the earliest release with working
-# cp312 wheels on PyPI for linux x86_64 / linux aarch64.
+# to get Python 3.12 wheels. A configured version baseline does not attest
+# currently published artifacts or compatibility with every target architecture.
 PY312_WHEEL_TABLE: Dict[str, WheelRequirement] = {
     # Scientific
     "numpy": WheelRequirement("numpy", "1.26.0", "1.26+ ships cp312 wheels."),
@@ -79,7 +78,27 @@ PY312_WHEEL_TABLE: Dict[str, WheelRequirement] = {
 }
 
 
-_REQ_LINE = re.compile(r"^\s*([A-Za-z0-9_.\-]+)\s*(?:\[[^\]]*\])?\s*([<>=!~]+.+)?\s*(?:#.*)?$")
+_REQ_LINE = re.compile(
+    r"^([A-Za-z0-9][A-Za-z0-9_.\-]*)(?:\[[^\]]+\])?\s*"
+    r"(?P<spec>(?:===|~=|==|!=|<=|>=|<|>).+|@\s*\S+)?$"
+)
+
+
+def _name(value: str) -> str:
+    return re.sub(r"[-_.]+", "-", value).lower()
+
+
+def _requirement(value: str) -> Tuple[str, Optional[str]]:
+    # Inspect all declared markers, including optional target environments; this
+    # local audit deliberately does not evaluate the host's marker environment.
+    value = re.split(r"\s+#", value, maxsplit=1)[0].split(";", 1)[0].strip()
+    value = re.sub(r"\s*\(([^()]*)\)$", r"\1", value)
+    match = _REQ_LINE.fullmatch(value)
+    if not match:
+        raise ValueError(
+            "unsupported dependency declaration; expected a named requirement with an optional version constraint or direct reference"
+        )
+    return _name(match.group(1)), (match.group("spec") or "").strip() or None
 
 
 def parse_requirements(path: Path) -> List[Tuple[str, Optional[str]]]:
@@ -87,27 +106,81 @@ def parse_requirements(path: Path) -> List[Tuple[str, Optional[str]]]:
     pkgs: List[Tuple[str, Optional[str]]] = []
     for raw in path.read_text().splitlines():
         line = raw.strip()
-        if not line or line.startswith("#") or line.startswith("-"):
+        if not line or line.startswith("#"):
             continue
-        m = _REQ_LINE.match(line)
-        if not m:
-            continue
-        name = m.group(1).lower()
-        spec = (m.group(2) or "").strip() or None
-        pkgs.append((name, spec))
+        if line.startswith("-") or line.endswith("\\") or " --hash=" in line:
+            raise ValueError(
+                "requirements includes, installer options, editable paths, and hash/continuation lines are not supported; audit a flat dependency file"
+            )
+        pkgs.append(_requirement(line))
     return pkgs
 
 
+def _toml(path: Path) -> dict:
+    try:
+        import tomllib
+    except ImportError:
+        try:
+            import tomli
+        except ImportError as exc:
+            raise ValueError(
+                "TOML audits require Python 3.11+ (or the optional tomli package on Python 3.9/3.10)"
+            ) from exc
+        return tomli.loads(path.read_text(encoding="utf-8"))
+    return tomllib.loads(path.read_text(encoding="utf-8"))
+
+
 def parse_pyproject(path: Path) -> List[Tuple[str, Optional[str]]]:
-    """Best-effort dep extraction from pyproject.toml (regex, no TOML parser dep)."""
-    text = path.read_text()
+    """Read PEP 621 dependencies and every optional dependency group as TOML."""
+    data = _toml(path)
+    project = data.get("project")
+    if not isinstance(project, dict):
+        raise ValueError(
+            "pyproject.toml must declare a [project] table; tool-specific dependencies (such as Poetry) are not supported"
+        )
+    dynamic = project.get("dynamic", [])
+    if not isinstance(dynamic, list) or not all(isinstance(item, str) for item in dynamic):
+        raise ValueError("project.dynamic must be an array of strings")
+    if set(dynamic) & {"dependencies", "optional-dependencies"}:
+        raise ValueError(
+            "dynamic project dependencies cannot be inspected; provide a flat requirements file"
+        )
     pkgs: List[Tuple[str, Optional[str]]] = []
-    # Look for dependencies = ["pkg==1.2", ...] and optional-dependencies blocks
-    for dep_list in re.findall(r"dependencies\s*=\s*\[([^\]]*)\]", text, flags=re.DOTALL):
-        for m in re.finditer(
-            r'"\s*([A-Za-z0-9_.\-]+)\s*(?:\[[^\]]*\])?\s*([<>=!~][^"]*)?\s*"', dep_list
-        ):
-            pkgs.append((m.group(1).lower(), (m.group(2) or "").strip() or None))
+    optional = project.get("optional-dependencies", {})
+    if not isinstance(optional, dict):
+        raise ValueError("project.optional-dependencies must be a table of string arrays")
+    groups = [project.get("dependencies", []), *optional.values()]
+    for group in groups:
+        if not isinstance(group, list) or not all(isinstance(dep, str) for dep in group):
+            raise ValueError("project dependencies must be arrays of requirement strings")
+        pkgs.extend(_requirement(dep) for dep in group)
+    return pkgs
+
+
+def parse_pipfile(path: Path) -> List[Tuple[str, Optional[str]]]:
+    """Read Pipenv packages/dev-packages, including inline version tables."""
+    data = _toml(path)
+    if not any(section in data for section in ("packages", "dev-packages")):
+        raise ValueError("Pipfile must contain [packages] or [dev-packages]")
+    pkgs: List[Tuple[str, Optional[str]]] = []
+    for section in ("packages", "dev-packages"):
+        group = data.get(section, {})
+        if not isinstance(group, dict):
+            raise ValueError(f"Pipfile {section} must be a table")
+        for name, declaration in group.items():
+            if isinstance(declaration, dict):
+                spec = declaration.get("version")
+                if spec is None and any(
+                    key in declaration for key in ("git", "path", "file", "hg", "svn", "bzr")
+                ):
+                    spec = "@ direct-reference"
+                elif spec is None:
+                    spec = "*"
+            else:
+                spec = declaration
+            if not isinstance(spec, str):
+                raise ValueError(f"Pipfile dependency {name!r} must have a string version")
+            pkgs.append(_requirement(name + ("" if spec == "*" else " " + spec)))
     return pkgs
 
 
@@ -119,7 +192,9 @@ def _extract_min_version(spec: Optional[str]) -> Optional[str]:
         for part in spec.split(","):
             part = part.strip()
             if part.startswith(op):
-                return part[len(op) :].strip()
+                version = part[len(op) :].strip()
+                if re.fullmatch(r"\d+(?:\.\d+)*(?:\.\*)?", version):
+                    return version.removesuffix(".*")
     return None
 
 
@@ -137,7 +212,9 @@ def _version_tuple(v: str) -> tuple:
 
 
 def _version_lt(a: str, b: str) -> bool:
-    return _version_tuple(a) < _version_tuple(b)
+    left, right = _version_tuple(a), _version_tuple(b)
+    width = max(len(left), len(right))
+    return left + (0,) * (width - len(left)) < right + (0,) * (width - len(right))
 
 
 def audit_packages(pkgs: List[Tuple[str, Optional[str]]]) -> List[dict]:
@@ -146,14 +223,18 @@ def audit_packages(pkgs: List[Tuple[str, Optional[str]]]) -> List[dict]:
     for name, spec in pkgs:
         req = PY312_WHEEL_TABLE.get(name)
         if not req:
-            continue  # unknown — assume fine
+            continue  # outside the curated table; no compatibility conclusion
         declared = _extract_min_version(spec)
         if req.min_version_for_py312 is None:
             # Package has NO cp312 wheels — always a problem
             findings.append(
                 {
                     "package": name,
-                    "declared": spec or "(unpinned)",
+                    "declared": (
+                        "(direct reference)"
+                        if spec and spec.startswith("@")
+                        else spec or "(unpinned)"
+                    ),
                     "required": "(none — no cp312 wheels)",
                     "severity": "critical",
                     "note": req.note,
@@ -165,10 +246,14 @@ def audit_packages(pkgs: List[Tuple[str, Optional[str]]]) -> List[dict]:
             findings.append(
                 {
                     "package": name,
-                    "declared": "(unpinned)",
+                    "declared": (
+                        "(direct reference)"
+                        if spec and spec.startswith("@")
+                        else spec or "(unpinned)"
+                    ),
                     "required": f">={req.min_version_for_py312}",
                     "severity": "low",
-                    "note": f"unpinned; latest will include cp312 wheels. Pin >={req.min_version_for_py312} for reproducibility.",
+                    "note": f"No comparable == or >= baseline; review this declaration and verify a target-platform wheel. Curated baseline: >={req.min_version_for_py312}.",
                 }
             )
             continue
@@ -196,10 +281,16 @@ def run(args: argparse.Namespace) -> int:
     if not machine:
         util.hdr(f"Native-wheel audit · {p}")
 
-    if p.suffix == ".toml" or p.name == "pyproject.toml":
-        pkgs = parse_pyproject(p)
-    else:
-        pkgs = parse_requirements(p)
+    try:
+        if p.name == "Pipfile":
+            pkgs = parse_pipfile(p)
+        elif p.suffix == ".toml":
+            pkgs = parse_pyproject(p)
+        else:
+            pkgs = parse_requirements(p)
+    except (OSError, UnicodeError, ValueError) as exc:
+        util.err(f"Cannot audit {p}: {exc}")
+        return 2
 
     findings = audit_packages(pkgs)
 
@@ -208,7 +299,10 @@ def run(args: argparse.Namespace) -> int:
         return 1 if (args.strict and findings) else 0
 
     if not findings:
-        util.ok(f"All {len(pkgs)} pinned package(s) OK for Python 3.12.")
+        covered = sum(name in PY312_WHEEL_TABLE for name, _ in pkgs)
+        util.ok(
+            f"No configured compatibility findings among {covered} of {len(pkgs)} declared dependency entries. Packages outside the curated table are not checked; wheel availability is not verified."
+        )
         return 0
 
     for f in findings:

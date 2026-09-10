@@ -55,7 +55,9 @@ def build_parser() -> argparse.ArgumentParser:
     c.set_defaults(func=codemod_mod.run)
 
     # audit
-    a = sub.add_parser("audit", help="Audit requirements for Python 3.12 wheel availability")
+    a = sub.add_parser(
+        "audit", help="Compare declared dependencies with curated Python 3.12 baselines"
+    )
     a.add_argument("path", help="requirements.txt, Pipfile, or pyproject.toml")
     a.add_argument("--format", choices=["table", "json"], default="table")
     a.add_argument("--strict", action="store_true", help="Exit 1 if any findings")

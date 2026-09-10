@@ -1,20 +1,18 @@
 import * as vscode from 'vscode';
+import { Finding } from './model';
 
 export class EOLkitsDiagnostics implements vscode.Disposable {
-    private diagnosticCollection: vscode.DiagnosticCollection;
-    private allFindings: Map<string, Finding[]> = new Map();
+    private readonly diagnosticCollection: vscode.DiagnosticCollection;
 
     constructor() {
         this.diagnosticCollection = vscode.languages.createDiagnosticCollection('eolkits');
     }
 
     setFindings(uri: vscode.Uri, findings: Finding[]): void {
-        this.allFindings.set(uri.toString(), findings);
-
         const diagnostics: vscode.Diagnostic[] = findings.map(f => {
             const range = new vscode.Range(
                 new vscode.Position(f.line - 1, f.character),
-                new vscode.Position(f.line - 1, f.character + 10)
+                new vscode.Position(f.line - 1, f.endCharacter)
             );
 
             const diagnostic = new vscode.Diagnostic(
@@ -31,22 +29,12 @@ export class EOLkitsDiagnostics implements vscode.Disposable {
         this.diagnosticCollection.set(uri, diagnostics);
     }
 
-    getAllFindings(): Finding[] {
-        const result: Finding[] = [];
-        for (const findings of this.allFindings.values()) {
-            result.push(...findings);
-        }
-        return result.sort((a, b) => this.severityRank(b.severity) - this.severityRank(a.severity));
-    }
-
-    clear(): void {
-        this.diagnosticCollection.clear();
-        this.allFindings.clear();
+    delete(uri: vscode.Uri): void {
+        this.diagnosticCollection.delete(uri);
     }
 
     dispose(): void {
         this.diagnosticCollection.dispose();
-        this.allFindings.clear();
     }
 
     private severityToDiagnostic(severity: string): vscode.DiagnosticSeverity {
@@ -61,23 +49,4 @@ export class EOLkitsDiagnostics implements vscode.Disposable {
                 return vscode.DiagnosticSeverity.Information;
         }
     }
-
-    private severityRank(severity: string): number {
-        const ranks: Record<string, number> = {
-            critical: 4,
-            high: 3,
-            medium: 2,
-            low: 1
-        };
-        return ranks[severity] || 0;
-    }
-}
-
-interface Finding {
-    severity: 'critical' | 'high' | 'medium' | 'low';
-    message: string;
-    file: string;
-    line: number;
-    character: number;
-    code: string;
 }
