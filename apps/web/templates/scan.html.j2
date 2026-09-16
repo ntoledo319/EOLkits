@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Free AWS Lambda Runtime &amp; Dependency EOL Scanner — EOLkits</title>
+<meta name="description" content="Scan selected AWS infrastructure and dependency files locally. See matched lines, cited timelines, and file coverage; download your findings without uploading source.">
+<link rel="canonical" href="{{ site_url }}/scan/">
+<link rel="stylesheet" href="/style.css">
+<script defer src="/track.js"></script>
+{{ og_meta | safe }}
+<style>{{ css | safe }}</style>
+</head>
+<body class="scan-page">
+<a class="skip-link" href="#scanner">Skip to scanner</a>
+<header class="scan-nav container">
+  <a href="/" class="brand"><span class="brand-mark">/</span> EOLkits</a>
+  <nav aria-label="Main"><a href="/migrate/">Migration timelines</a><a href="/audit/sample/">Sample report</a></nav>
+</header>
+<main class="container">
+  <section class="scan-intro" aria-labelledby="page-title">
+    <p class="eyebrow">Free scanner · runs in your browser</p>
+    <h1 id="page-title">Find what needs to move.</h1>
+    <p class="scan-lede">Check your AWS Lambda runtimes and Node/Python dependencies before a migration. Get matched file locations, published timelines, and a result you can take with you.</p>
+    <p class="privacy">File names and contents stay in this browser. No account or AWS credentials.</p>
+  </section>
+
+  <section id="scanner" class="scan-workspace" aria-labelledby="input-title">
+    <div class="section-heading"><div><p class="step-label">01 / Select your input</p><h2 id="input-title">Start with your source files</h2></div><button class="scan-button secondary" id="try-sample" type="button">Try a fictional example</button></div>
+    <div id="dz" class="drop-zone">
+      <span class="drop-symbol" aria-hidden="true">↳</span>
+      <div><h3>Drop files here</h3><p>SAM, CloudFormation, Terraform, Serverless, CDK,<br class="desktop-break"> package.json, requirements*.txt, or pyproject.toml.</p></div>
+      <button id="choose-files" type="button" class="scan-button primary" aria-describedby="input-limits">Choose files</button>
+      <input id="fi" type="file" multiple accept=".yaml,.yml,.json,.tf,.hcl,.ts,.tsx,.js,.jsx,.mjs,.cjs,.py,.sh,.txt,.toml" hidden aria-label="Source files">
+    </div>
+    <p id="input-limits" class="input-help">Up to 100 files · 1 MiB per file · 10 MiB per scan · UTF-8 text. Extract ZIP archives first. Each selection starts a new scan.</p>
+    <details class="paste-panel">
+      <summary>Or paste a file</summary>
+      <form id="paste-form">
+        <label for="paste-kind">File format</label>
+        <select id="paste-kind">
+          <option value="template.yaml">SAM / CloudFormation YAML</option>
+          <option value="template.json">CloudFormation JSON</option>
+          <option value="main.tf">Terraform / HCL</option>
+          <option value="serverless.yml">Serverless Framework YAML</option>
+          <option value="stack.ts">CDK TypeScript / JavaScript</option>
+          <option value="stack.py">CDK Python</option>
+          <option value="deploy.sh">AWS CLI shell commands</option>
+          <option value="package.json">Node package.json</option>
+          <option value="requirements.txt">Python requirements.txt</option>
+          <option value="pyproject.toml">Python pyproject.toml (PEP 621)</option>
+        </select>
+        <label for="paste-source">File contents</label>
+        <textarea id="paste-source" rows="8" spellcheck="false" autocomplete="off" autocapitalize="off" aria-describedby="paste-help" placeholder="Paste the complete configuration or dependency file…"></textarea>
+        <p id="paste-help" class="input-help">Keep the surrounding Lambda resource or AWS provider configuration so the scanner can identify its context.</p>
+        <button class="scan-button primary" type="submit">Scan pasted source</button>
+      </form>
+    </details>
+    <div class="scan-feedback"><p id="scan-status" role="status" aria-live="polite" aria-atomic="true">Ready when you are. Choose files or try the example.</p><div><button class="scan-button secondary" id="cancel-scan" type="button" hidden>Cancel scan</button><button class="text-button" id="clear-scan" type="button">Clear</button></div></div>
+    <noscript><p class="empty-result">This local scanner needs JavaScript. You can also use the free <a href="https://github.com/ntoledo319/EOLkits#use-it-free">repository CLIs</a>.</p></noscript>
+  </section>
+
+  <section id="scan-output" class="scan-output" aria-labelledby="results-title" aria-busy="false" hidden>
+    <div class="section-heading"><div><p class="step-label">02 / Review the evidence</p><h2 id="results-title">Scan results</h2><p id="scan-origin" class="input-help"></p></div><button class="scan-button secondary" id="download-results" type="button" disabled>Download all findings (.json)</button></div>
+    <div class="scan-summary"><div><strong id="scanned-count">0</strong><span>files scanned</span></div><div><strong id="findings-count">0</strong><span>findings</span></div><div><strong id="attention-count">0</strong><span>files need attention</span></div></div>
+    <div id="finding-controls" class="finding-controls" hidden>
+      <div><label for="severity-filter">Severity</label><select id="severity-filter"><option value="">All severities</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low / verify</option></select></div>
+      <div class="finding-search"><label for="finding-search">Find a file or dependency</label><input id="finding-search" type="search" placeholder="Search these findings" autocomplete="off"></div>
+      <p id="filter-count" role="status" aria-live="polite"></p>
+    </div>
+    <div id="results"></div>
+    <details id="coverage" class="coverage"><summary id="coverage-summary">File coverage</summary><ul id="file-coverage"></ul></details>
+    <aside id="next-step" class="next-step" hidden></aside>
+  </section>
+
+  <section class="scan-scope" aria-labelledby="scope-title"><p class="step-label">Know the scope</p><h2 id="scope-title">A useful first check. A bounded one.</h2>
+    <div class="scope-columns"><div><h3>What it checks</h3><ul><li>Configured Lambda runtime declarations in AWS infrastructure and source files.</li><li>Tracked Node native packages against conservative compatibility baselines; meeting one still requires target-runtime testing.</li><li>Tracked Python dependencies for Python 3.12 wheel baselines in requirements files and PEP 621 dependency lists.</li></ul></div><div><h3>What it does not establish</h3><ul><li>No AWS account access, live inventory, runtime execution, or automatic code changes.</li><li>No full syntax validation of YAML, HCL, or TOML, complete repository coverage, resolved lockfiles, or recursive requirements includes.</li><li>A match is a review task. No matches does not prove migration readiness. Provider dates can change; follow the source links.</li></ul></div></div>
+    <p class="input-help">File names and contents are not uploaded. If the verified v2 telemetry service is available, bounded aggregate counts may be sent (only file and finding counts). <a href="/legal/privacy.html">Privacy details</a>.</p>
+  </section>
+</main>
+<footer class="scan-footer container"><span>EOLkits · MIT-licensed tools</span><div><a href="/fix/">Common migration errors</a><a href="/legal/terms.html">Terms</a><a href="https://github.com/ntoledo319/EOLkits">Source code ↗</a></div></footer>
+<script>
+const SITE_BASE = {{ site_base | safe }};
+const INTEREST_URL = {{ interest_url | safe }};
+const DATA = {{ data | safe }};
+{{ script | safe }}
+</script>
+</body>
+</html>

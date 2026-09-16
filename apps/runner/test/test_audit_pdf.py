@@ -566,6 +566,34 @@ def test_dependency_manifest_fields_are_bounded_and_root_is_an_object(monkeypatc
         )
 
 
+@pytest.mark.parametrize(
+    "manifest, error",
+    [
+        ('{"dependencies":{"sharp":"0.32.6",}', "must contain valid JSON"),
+        ('{"dependencies":[]}', "dependencies must be an object"),
+        ('{"devDependencies":null}', "devDependencies must be an object"),
+        ('{"dependencies":{"sharp":42}}', "dependency versions must be strings"),
+        ('{"dependencies":{"unlisted-package":[]}}', "dependency versions must be strings"),
+    ],
+)
+def test_invalid_package_manifests_fail_before_a_report_is_rendered(tmp_path, manifest, error):
+    audit = _load("audit_pdf")
+    source = tmp_path / "package.json"
+    source.write_text(manifest, encoding="utf-8")
+    report = tmp_path / "report.pdf"
+
+    with pytest.raises(ValueError, match=error):
+        audit.preflight_audit_input(str(source), filename=source.name)
+    with pytest.raises(ValueError, match=error):
+        audit.generate_audit_package(
+            None, "buyer@example.com", upload_path=str(source), output_path=str(report)
+        )
+    assert not report.exists()
+
+    source.write_text('{"dependencies":{"sharp":"0.32.6"}}', encoding="utf-8")
+    assert audit.preflight_audit_input(str(source), filename=source.name)["findings_count"] == 1
+
+
 def test_paid_dependency_rules_cover_browser_scanner_tables():
     audit = _load("audit_pdf")
     web_path = RUNNER_DIR.parent / "web" / "build.py"

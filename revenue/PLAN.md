@@ -1,6 +1,19 @@
 /home/nick/Development/active/Rupture
 # Revenue plan — reset August 22, 2026
 
+## Current checkpoint — September 5, 2026, 04:26 UTC
+
+The env inbox still contains only its instructions; required process keys are
+absent and repository secret names are unchanged. The live v2 capability/status
+routes still return 404. No new deployment or payment authority was recovered.
+Next action: obtain one explicit read-only exception to §1 for an EOLkits/GRACE
+env search under `/home/nick`, or use the existing inbox import. The exception
+has not been granted. No outside-workspace scan has been performed.
+
+Recorded collected profit remains $0; current payment-account totals are
+unavailable. The last observed gap is $4,000. This read-only checkpoint did not
+ship or earn money; do not count documentation as commercial progress.
+
 ## Reality
 
 Collected revenue is $0. Profitability has not been established. The repository
@@ -802,3 +815,8 @@ The first attempted scan in this sequence improperly routed `rg` diagnostics to
 the path target was a containment violation. That cycle stopped immediately;
 the specialist was interrupted; this scan resumed only after a fresh exact-jail
 validation and reread of all six state files.
+
+
+## Local product verification — 2026-09-05 09:44 UTC
+
+The requested product-improvement work is complete locally on `codex/whole-product-improvement-20260905`: browser, editor, two CLI kits and paid input validation are integrated and verified. Documentation and the living history record are updated. This task authorized local engineering, not external publication or a revenue-loop launch. Existing deployment/payment prerequisites remain the next commercial actions; checkout stays closed. No new dollars were observed and no account totals were queried. The previously recorded $4,000 gap is unchanged by this engineering work.

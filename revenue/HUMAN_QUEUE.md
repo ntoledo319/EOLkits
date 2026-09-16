@@ -1,5 +1,13 @@
 # Batched owner queue — authoritative September 4, 2026 — maximum 40 minutes
 
+_September 5, 04:26 UTC: the inbox is still empty of credentials. To eliminate
+HQ-0's manual file-copy work, Codex is requesting a specific read-only exception
+to §1 for locating EOLkits/GRACE env files under `/home/nick`, with no secret
+values printed and no outside-workspace writes. This exception is pending,
+not inferred from the instruction to continue. If granted, scan that scope and
+validate usable access before asking for any further queue work. Otherwise
+HQ-0 remains the permitted import route. All other launch gates still apply._
+
 _The owner reports that drive-local env files may contain most missing
 authority. The jail forbids Codex from reading their current location. HQ-0 is a
 two-minute secure file-copy step into the existing ignored inbox. The prior
@@ -222,3 +230,8 @@ successful import is expected to replace relevant host/account steps and reduce
 the actual total. Completed repository work and public VS Code v1.3 publication
 require no owner time. No owner action in this queue asks for the excluded
 retired Stripe credential rotation/revocation.
+
+
+## Local product verification — 2026-09-05 09:44 UTC
+
+No owner action was needed for the local whole-product improvements. Existing payment, deployment and marketplace items remain unchanged; no additional authority was inferred from local tests. The explicitly requested prompt and unlazy resources were read, with no broader home-directory or credential-search exception used.

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { EOLkitsDiagnostics } from './diagnostics';
+import { Finding, severityRank } from './model';
 import {
     RuleMatch,
     scanJavaScriptText,
@@ -10,27 +10,30 @@ import {
 import { resolveSetting } from './settings';
 
 export class EOLkitsScanner {
-    constructor(private diagnostics: EOLkitsDiagnostics) {}
+    supportsDocument(document: vscode.TextDocument): boolean {
+        return ['yaml', 'json', 'jsonc', 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'python'].includes(document.languageId) ||
+            /\.(tf|hcl|yaml|yml|json|jsonc|js|jsx|ts|tsx|py)$/i.test(document.fileName);
+    }
 
-    async scanDocument(document: vscode.TextDocument): Promise<void> {
+    scanDocument(document: vscode.TextDocument): Finding[] | undefined {
+        if (!this.supportsDocument(document)) return undefined;
         const text = document.getText();
         let findings: Finding[] = [];
+        const extension = document.fileName.split('.').pop()?.toLowerCase();
 
-        // Check file type and run appropriate scan
-        if (['yaml', 'json', 'jsonc'].includes(document.languageId)) {
-            findings.push(...this.toFindings(scanStructuredText(text), document));
-        }
-
-        if (['javascript', 'javascriptreact', 'typescript', 'typescriptreact'].includes(document.languageId)) {
-            findings.push(...this.toFindings(scanJavaScriptText(text), document));
-        }
-
-        if (document.languageId === 'python') {
-            findings.push(...this.toFindings(scanPythonText(text), document));
-        }
-
-        if (document.fileName.endsWith('.tf') || document.fileName.endsWith('.hcl')) {
-            findings.push(...this.toFindings(scanTerraformText(text), document));
+        // Extension fallback keeps a supported file scannable without another language extension.
+        if (extension === 'tf' || extension === 'hcl') {
+            findings = this.toFindings(scanTerraformText(text), document);
+        } else if (['yaml', 'json', 'jsonc'].includes(document.languageId) ||
+            ['yaml', 'yml', 'json', 'jsonc'].includes(extension || '')) {
+            findings = this.toFindings(scanStructuredText(text), document);
+        } else if (['javascript', 'javascriptreact', 'typescript', 'typescriptreact'].includes(document.languageId) ||
+            ['js', 'jsx', 'ts', 'tsx'].includes(extension || '')) {
+            findings = this.toFindings(scanJavaScriptText(text), document);
+        } else if (document.languageId === 'python' || extension === 'py') {
+            findings = this.toFindings(scanPythonText(text), document);
+        } else {
+            return undefined;
         }
 
         const config = vscode.workspace.getConfiguration('eolkits', document.uri);
@@ -48,11 +51,9 @@ export class EOLkitsScanner {
         );
         findings = findings.filter(finding =>
             enabled.has(this.kitForFinding(finding)) &&
-            this.severityRank(finding.severity) >= this.severityRank(threshold)
+            severityRank(finding.severity) >= severityRank(threshold)
         );
-
-        // Update diagnostics for this document
-        this.diagnostics.setFindings(document.uri, findings);
+        return findings;
     }
 
     private toFindings(matches: RuleMatch[], document: vscode.TextDocument): Finding[] {
@@ -61,9 +62,11 @@ export class EOLkitsScanner {
             return {
                 severity: match.severity,
                 message: match.message,
+                uri: document.uri,
                 file: document.fileName,
                 line: position.line + 1,
                 character: position.character,
+                endCharacter: Math.min(position.character + 10, document.lineAt(position.line).text.length),
                 code: match.code
             };
         });
@@ -78,17 +81,4 @@ export class EOLkitsScanner {
         }
         return 'lambda-lifeline';
     }
-
-    private severityRank(severity: Finding['severity']): number {
-        return { low: 1, medium: 2, high: 3, critical: 4 }[severity];
-    }
-}
-
-interface Finding {
-    severity: 'critical' | 'high' | 'medium' | 'low';
-    message: string;
-    file: string;
-    line: number;
-    character: number;
-    code: string;
 }

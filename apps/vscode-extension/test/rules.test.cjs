@@ -51,6 +51,8 @@ assert.equal(scanStructuredText('{"Runtime":"nodejs24.x"}').length, 0);
 const extensionRoot = path.resolve(__dirname, '..');
 const manifest = JSON.parse(fs.readFileSync(path.join(extensionRoot, 'package.json'), 'utf8'));
 const compiledExtension = fs.readFileSync(path.join(extensionRoot, 'out', 'extension.js'), 'utf8');
+const compiledLifecycle = fs.readFileSync(path.join(extensionRoot, 'out', 'lifecycle.js'), 'utf8');
+const compiledReport = fs.readFileSync(path.join(extensionRoot, 'out', 'report.js'), 'utf8');
 const verifiedSite = 'https://ntoledo319.github.io/EOLkits/';
 assert.equal(`${manifest.publisher}.${manifest.name}`, 'rupture.rupture-vscode');
 assert.equal(manifest.version, '1.3.0');
@@ -63,9 +65,8 @@ assert.equal(manifest.homepage, verifiedSite);
 assert.ok(manifest.sponsor.url.startsWith(`${verifiedSite}audit/`));
 assert.match(compiledExtension, /https:\/\/ntoledo319\.github\.io\/EOLkits\/audit\//);
 assert.doesNotMatch(compiledExtension, /https:\/\/eolkits\.com\/audit/);
-assert.match(compiledExtension, /rupture\.scanWorkspace/);
-assert.match(compiledExtension, /See \$299 Report/);
-assert.match(compiledExtension, /issues\/new\?template=audit-interest\.yml/);
+assert.match(compiledLifecycle, /See \$299 Report/);
+assert.match(compiledReport, /issues\/new\?template=audit-interest\.yml/);
 
 const config = (values = {}) => ({
   inspect: (section) => values[section] === undefined ? undefined : { workspaceValue: values[section] },

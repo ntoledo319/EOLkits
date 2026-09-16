@@ -1428,3 +1428,27 @@ benchmarks, or unverified analytics in this ledger.
 - Purchases: **0**. Paid reports: **0**. Collected revenue/profit: **$0**. Gap:
   **$4,000**. Checkout: **closed**. The excluded retired Stripe credential
   action remains untouched.
+
+## Access and public-state recheck — September 5, 2026
+
+Observed at 04:25:45 UTC:
+
+- Import inbox: instructions only. Required runtime/transport process keys: 0.
+- Repository secret names: Cloudflare account/token and VSCE PAT; variables: 0.
+- `main` and `marketing-machine-v2`: `55b61830a2cfa16b0b0cf3228d8df57b1d995e99`.
+- Root and health: HTTP 200. `/api/capabilities` and `/api/status`: HTTP 404.
+  The previously identified host-injected script is still present.
+- `rupture.rupture-vscode@1.3.0` install samples: 104, 104, 104, 104, 104;
+  download samples: 238, 238, 240, 244, 240. Conservative baseline deltas:
+  +1 install and +39 downloads. Neither is purchase evidence.
+- GitHub non-PR issues: 0; qualified interest: 0; stars: 1; forks: 0.
+- Release `375063073` remains a private draft targeting
+  `47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`.
+- No current payment-account total is accessible. The last recorded collected
+  revenue/profit remains $0; this check establishes no new revenue figure.
+- No remote mutation or outside-workspace scan was performed.
+
+
+## Local product verification — 2026-09-05 09:44 UTC
+
+Observed local verification: web 66 tests; API 95; report runner 45; Node CLI 42; Python CLI 81; AL2023 49; retired Worker 39; history tool 22. Editor TypeScript compilation, lint, rules and activation-level lifecycle checks passed, as did VSIX packaging. Whole-product Ruff, Black, mypy, Node runtime-license checks, deterministic site generation and generated-page URL checks passed. Chromium exercised real selection/download, keyboard input, desktop/390/320 layouts, invalid input, bounded coverage, cancellation and stale-result recovery. The actual GitHub Action passed clean/findings fixtures. A signed local upload/webhook produced a real PDF and exercised dedupe, download and retention with payment/email providers mocked. Three worker outputs were independently re-executed and source-fingerprinted by the parent. Evidence: ignored `tmp/product-improvement/`; durable tests live with the components. No deployment, provider delivery, purchases, traffic or fresh account reconciliation was observed in this task.

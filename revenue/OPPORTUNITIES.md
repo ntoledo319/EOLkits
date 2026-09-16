@@ -620,3 +620,15 @@ credentials could collapse most A1 deployment work; a valid DEV key could also
 remove the false corpus through its supported API. Those are conditional
 capabilities, not current assets or demand. A1 remains first, and no credential
 may weaken the closed-checkout, E2E, refund, cost, or truth gates.
+
+## September 5 checkpoint
+
+No ranking change: the paid API still needs access. Five Gallery samples retain
+the previously observed +1 install signal, with zero qualified interest issues.
+The original September 5 23:27:55 UTC gate is not yet due. Repeating package
+releases or adding another storefront would not resolve the payment dependency.
+
+
+## Local product verification — 2026-09-05 09:44 UTC
+
+The whole-product request selected scanner trust and recovery after reproducible defects in otherwise passing workflows. This reduces correctness risk in the existing free scanners and bounded report intake. Monetization ranking, prices, funnel hypotheses and external falsifiers are unchanged. Local test results do not demonstrate demand or change the profit gap.
