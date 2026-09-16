@@ -392,3 +392,45 @@ fixes:
     source_url: "https://nodejs.org/api/crypto.html"
     related_migrate: lambda-node.js-20-phase-1
     kit: lambda-lifeline
+  - slug: python-no-module-named-audioop
+    error: "ModuleNotFoundError: No module named 'audioop'"
+    context: "Python 3.13"
+    summary: "audioop was removed from the standard library in Python 3.13 under PEP 594. Code that imports it fails immediately on 3.13, including indirectly through libraries such as pydub."
+    cause: "PEP 594 removed nineteen legacy 'dead batteries' modules in Python 3.13 after deprecating them in 3.11. audioop was one of them. The import error often surfaces from a dependency rather than your own code."
+    fix_steps:
+      - "Confirm the interpreter: `python3 -VV`. The module still exists on 3.12 and earlier, so this only appears after a 3.13 upgrade."
+      - "Find who imports it: `grep -rn 'import audioop' .` and check your dependencies too, since libraries like pydub import it internally."
+      - "For a pure-Python drop-in, the community package `audioop-lts` was published specifically to restore this module on 3.13+."
+      - "For new work, prefer a maintained audio library (for example `soundfile`, `librosa`, or `numpy` for raw sample maths) rather than reviving the removed module."
+      - "If you are not ready to migrate, pin to Python 3.12 deliberately and record the reason, rather than pinning by accident."
+    source_url: "https://docs.python.org/3/whatsnew/3.13.html"
+    related_migrate: python-3.13
+    kit: python-pivot
+
+  - slug: python-no-module-named-pipes
+    error: "ModuleNotFoundError: No module named 'pipes'"
+    context: "Python 3.13"
+    summary: "pipes was removed from the standard library in Python 3.13 under PEP 594. Its only widely used function, pipes.quote, moved to shlex.quote years earlier."
+    cause: "PEP 594 removed nineteen legacy modules in Python 3.13. pipes wrapped shell pipelines around os.system and had been deprecated since 3.11."
+    fix_steps:
+      - "If you used `pipes.quote`, replace it with `shlex.quote` — it is the same function and has been the documented location since Python 3.3."
+      - "If you used `pipes.Template`, rewrite the pipeline with `subprocess.run` or `subprocess.Popen`, which is safer and does not shell out through os.system."
+      - "Search for it including indirect use: `grep -rn 'from pipes\\|import pipes' .`"
+      - "Re-run your test suite on 3.13 — a removed stdlib module fails at import time, so the failure appears before any of your logic runs."
+    source_url: "https://docs.python.org/3/whatsnew/3.13.html"
+    related_migrate: python-3.13
+    kit: python-pivot
+
+  - slug: python-no-module-named-aifc
+    error: "ModuleNotFoundError: No module named 'aifc'"
+    context: "Python 3.13"
+    summary: "aifc was removed from the standard library in Python 3.13 under PEP 594. It is commonly hit indirectly, because the removed sndhdr module and some speech libraries imported it."
+    cause: "PEP 594 removed nineteen legacy modules in Python 3.13, including aifc, sndhdr, sunau and chunk. Audio-handling code frequently touched several of them at once."
+    fix_steps:
+      - "Check whether your own code imports it at all: `grep -rn 'import aifc' .` — this error often comes from a dependency."
+      - "For reading and writing AIFF files, use a maintained library such as `soundfile` (libsndfile bindings) or `pydub`."
+      - "If a dependency is the importer, check for a release that dropped the import before you pin Python down to 3.12."
+      - "Note that `sndhdr`, `sunau` and `chunk` were removed in the same release, so fixing only aifc may surface the next one."
+    source_url: "https://docs.python.org/3/whatsnew/3.13.html"
+    related_migrate: python-3.13
+    kit: python-pivot
