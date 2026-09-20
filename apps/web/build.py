@@ -2152,7 +2152,6 @@ def main(output_dir=None):
         "success/index.html": build_success_page(),
         "partners/index.html": build_partners_page(),
         "status/index.html": build_status_page(),
-        "status/data.json": build_status_data_seed(),
         "blog/index.html": build_blog_index(),
         "vs/index.html": build_vs_index(),
         "blog/migrating-lambda-nodejs-20-to-22/index.html": build_retired_path_page(
