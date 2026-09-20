@@ -423,8 +423,28 @@ a:hover { color: var(--accent); }
   .hero { padding: 64px 0 32px; }
   .section { padding: 64px 0; }
   .footer-grid { grid-template-columns: 1fr; }
-  .nav nav a { margin-left: 16px; font-size: 0.9rem; }
-  .nav nav a:not(.btn-ghost) { display: none; }
+
+  /* Keep every header destination reachable on a phone. This rule previously
+     read `.nav nav a:not(.btn-ghost) { display: none; }`, which removed
+     Deadlines, Free scan and Audit below 640px with no menu to replace them,
+     leaving GitHub as the only header link on a phone. Wrap the header onto a
+     second row instead of hiding three of its four destinations. */
+  .nav-inner {
+    flex-wrap: wrap;
+    height: auto;
+    row-gap: 10px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+  .nav-inner > nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 18px;
+    width: 100%;
+  }
+  .nav nav a { margin-left: 0; font-size: 0.9rem; }
+  .nav nav a.btn-ghost { margin-left: auto; padding: 6px 12px; }
 }
 
 /* ---------- MIGRATE / DEPRECATION SEO PAGES ---------- */
