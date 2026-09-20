@@ -1,8 +1,35 @@
 # EOLkits release handoff
 
-Checkout remains closed. The only planned paid product is a **$299 static
-repository evidence report**; local tests and a working static site do not
-establish a functioning purchase or delivery path.
+Checkout is **open** as of 2026-09-20. `eolkits.com/api/capabilities` returns
+`audit.checkout_enabled: true, reason: "ready"` and `/api/status` returns
+`stripe: {ok: true, mode: "live"}`. The paid product is the **$299 static
+repository evidence report**.
+
+What that does and does not establish, stated plainly:
+
+- **Fulfillment ran for the first time in this product's history** on 2026-09-20,
+  inside the live container: `generate_audit_package` produced a real
+  21,624-byte PDF carrying an evidence hash. Report generation works.
+- A 30-day refund policy is published.
+- Local tests and a working static site still do not establish a purchase path.
+  No purchase has ever been made and **$0.00 has ever been collected**, so the
+  checkout → webhook → email → download chain has never been exercised by a
+  real buyer.
+- **Residual risk, unfixed:** a trivial input yields 0 findings and 2 pages. A
+  buyer whose repository has nothing wrong pays $299 for an empty report. The
+  next improvement is to gate paid checkout on the free scan having found
+  something.
+
+The GitHub Pages mirror (`ntoledo319.github.io/EOLkits/`) was a genuine second
+checkout — it carried `const API='https://eolkits.com'` and opened the same $299
+buy form — and was disabled on 2026-09-20; it now returns 404. `eolkits.com` is
+the single till.
+
+**This branch is not mergeable as it stands.** `fix/storefront-audit-20260919`
+is not a fast-forward of `origin/main` (12 commits ahead, 3 behind at
+`5fb63503`) and its first commit, `6f6e2549`, is a snapshot of 90 uncommitted
+files taken from the owner's working tree — not work produced by that pass. It
+must not be merged until decision D-004 is answered.
 
 Use [maintenance](docs/MAINTENANCE.md) for engineering and publication work,
 [the owner queue](revenue/HUMAN_QUEUE.md) for private access/account actions, and
@@ -46,6 +73,16 @@ Production must continue to reject test keys. Keep
 real fees, zero incremental hosting cost, and the separate live-catalog preflight
 are verified. The static form also requires a successful `/api/capabilities`
 readiness response. Record evidence without credentials or customer data.
+
+**Status, 2026-09-20 — this gate was not met before checkout opened.** Production
+runs with audit checkout enabled and live Stripe keys. Of the seven outcomes
+above, only the report-rendering half of (3) is recorded: a real PDF with an
+evidence hash, produced inside the live container from a supplied input. Items
+(1), (2), (4), (5), (6) and (7) are still unrecorded — no completed Checkout, no
+verified webhook, no delivery to an operator address, no signed download record,
+no refund reconciliation, no retention sweep evidence. The till stays open by
+owner direction because delivery demonstrably produces a report and a refund
+policy is published; treat the six open items as the work queue, not as passed.
 
 ## Verification and resumption
 

@@ -7,7 +7,7 @@ a repository ZIP or source file into a shareable evidence report.
 ## Use it free
 
 Install the free [EOLkits scanner for VS Code](https://marketplace.visualstudio.com/items?itemName=rupture.rupture-vscode),
-run the verified [browser scanner](https://ntoledo319.github.io/EOLkits/scan/?source=github_readme&utm_source=github&utm_medium=readme),
+run the verified [browser scanner](https://eolkits.com/scan/?source=github_readme&utm_source=github&utm_medium=readme),
 or use one of the MIT-licensed kits in this repository:
 
 - [`lambda-lifeline`](./kits/lambda-lifeline) checks Lambda Node.js runtime,
@@ -63,8 +63,9 @@ when the caller deliberately grants `pull-requests: write` permission.
 
 The only paid product EOLkits is prepared to offer is a **$299 static repository
 evidence report**. Checkout is shown only when the v2 fulfillment backend reports
-itself ready; while that operational gate is closed, the report is not
-purchasable.
+itself ready. As of 2026-09-20 that gate is open: `eolkits.com/api/capabilities`
+returns `audit.checkout_enabled: true, reason: "ready"`, so the report can be
+bought. The form hides itself again whenever the backend stops reporting ready.
 
 The report includes:
 
@@ -76,14 +77,20 @@ The report includes:
 - explicit scope and limitations.
 
 It does **not** inspect an AWS account, predict downtime or cost, prove exploitability,
-or digitally sign the PDF. A successfully delivered report causes its source upload
+or digitally sign the PDF. It reports only what the rule pack matches in what you
+upload: an input with nothing to migrate produces a short report with no findings.
+Run the free scanner first and read the sample report before paying. A successfully delivered report causes its source upload
 to be deleted immediately; checkout-bound source uploads expire within 48 hours and
 reports within 30 days. See the [terms](./legal/terms.md),
 [privacy notice](./legal/privacy.md), and [security model](./SECURITY.md).
 
-[See the $299 report scope and availability](https://ntoledo319.github.io/EOLkits/audit/?source=github_readme&utm_source=github&utm_medium=readme)
-or inspect the [engine-generated fictional sample PDF](https://ntoledo319.github.io/EOLkits/audit/sample/eolkits-sample-report.pdf)
-and its [input/hash manifest](https://ntoledo319.github.io/EOLkits/audit/sample/eolkits-sample-report.json).
+[See the $299 report scope and availability](https://eolkits.com/audit/?source=github_readme&utm_source=github&utm_medium=readme)
+or inspect the [engine-generated fictional sample PDF](https://eolkits.com/audit/sample/eolkits-sample-report.pdf)
+and its [input/hash manifest](https://eolkits.com/audit/sample/eolkits-sample-report.json).
+
+`eolkits.com` is the only published site. The GitHub Pages mirror at
+`ntoledo319.github.io/EOLkits/` was a second live checkout against the same
+backend and was disabled on 2026-09-20; those URLs now return 404.
 
 ## Not for sale
 
@@ -104,8 +111,9 @@ The [development guide](docs/development.md) covers prerequisites, isolated
 component checks and editable kit installation. Read [CONTRIBUTING](CONTRIBUTING.md)
 for rule, safety and history requirements; use [MAINTENANCE](docs/MAINTENANCE.md)
 for the current engineering inventory and [HANDOFF](HANDOFF.md) for release gates.
-Production checkout remains closed; local verification does not complete the
-payment, email or deployment exercise.
+Local verification does not complete the payment, email or deployment exercise;
+production checkout is controlled by the backend readiness signal, not by these
+checks, and is currently open.
 
 ## Project map
 

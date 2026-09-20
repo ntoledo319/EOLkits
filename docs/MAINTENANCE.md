@@ -85,7 +85,7 @@ checked, but this pass did not execute a Python 3.9 test matrix.
 | PR #63 verification | Last remote failures: history declaration and dependency audit. Description/local fixes exist, but refreshed remote CI is pending. Keep this broad PR open as previously directed. |
 | Exact container images | Both Dockerfiles pin the reviewed Python 3.14.7 tag/digest. The exact native container build/smokes require hosted CI; local 3.14 evidence is separate. |
 | Cleanup publication | Review the current branch's complete working-tree diff, then commit/publish when policy permits. No cleanup deployment or main merge is claimed. |
-| Operational prerequisites | Private configuration, seller/account facts, closed rollout, real payment/email/refund/retention proof, Marketplace attestations and author-controlled DEV cleanup remain in the [owner queue](../revenue/HUMAN_QUEUE.md). Checkout stays closed. |
+| Operational prerequisites | Private configuration, seller/account facts, closed rollout, real payment/email/refund/retention proof, Marketplace attestations and author-controlled DEV cleanup remain in the [owner queue](../revenue/HUMAN_QUEUE.md). Checkout is no longer closed: it opened live on 2026-09-20 with these prerequisites still outstanding. |
 
 The exact rejected action was `git push -u origin codex/emergency-maintenance-20260910`.
 Automatic approval review returned:

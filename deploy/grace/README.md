@@ -109,6 +109,16 @@ Generate secrets on the deployment host with `openssl rand -hex 32`. GitHub App 
 
 ## Deploy checkout closed
 
+**Read this before running the sequence below (status 2026-09-20).** Production
+does not currently run closed: `eolkits.com/api/capabilities` returns
+`audit.checkout_enabled: true, reason: "ready"` and `/api/status` returns
+`stripe: {ok: true, mode: "live"}`. This procedure sets
+`EOLKITS_AUDIT_CHECKOUT_ENABLED=0` and its final gate asserts
+`checkout_enabled == false`, so running it as written **closes the live till**
+and the gate then passes on a deployment that can no longer take money. Deploy
+this way only when closing checkout is the intent; otherwise carry the current
+checkout state deliberately.
+
 Use the checked-in compose file from a reviewed clone. The normal path is the
 guarded dry-run followed by the same command with `--apply`:
 

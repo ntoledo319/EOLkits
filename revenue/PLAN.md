@@ -9,8 +9,10 @@ prior checkpoint; [maintenance](../docs/MAINTENANCE.md) is the engineering backl
 
 - Workspace-recorded collected revenue/profit: **$0**. No fresh payment-account
   reconciliation or paid delivery is recorded. Last recorded target gap: **$4,000**.
-- The sole planned paid offer is a **$299 static repository evidence report**.
-  Production checkout stays closed until [all release gates](../HANDOFF.md) pass.
+- The sole paid offer is a **$299 static repository evidence report**. Production
+  checkout **opened** on 2026-09-20 with live Stripe keys, before
+  [all release gates](../HANDOFF.md) passed; the gates that remain open are listed
+  there. Report generation itself was verified in the live container that day.
 - Free distribution remains the CLI/Action, browser scanner, editor extension,
   and cited static guidance. Their adoption is not purchase evidence.
 - The September 10 first-party analytics repair passed both production static
