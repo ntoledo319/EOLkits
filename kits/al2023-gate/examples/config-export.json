@@ -1,0 +1,14 @@
+{
+  "evaluations": [],
+  "resources": [
+    {
+      "accountId": "111111111111",
+      "awsRegion": "us-east-1",
+      "configuration": {
+        "imageId": "ami-12345678"
+      },
+      "resourceId": "i-example",
+      "resourceType": "AWS::EC2::Instance"
+    }
+  ]
+}

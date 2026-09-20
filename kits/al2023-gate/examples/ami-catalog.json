@@ -1,0 +1,7 @@
+[
+  {
+    "ami_id": "ami-12345678",
+    "description": "Fictional fixture: Amazon Linux 2",
+    "region": "us-east-1"
+  }
+]

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Optional manual deployment of docs/ to a user-writable GRACE web root.
+# Optional isolated static build and deployment to a user-writable GRACE root.
 #
 # Usage (run from repo root):
 #   deploy/grace/ship-web.sh            # build + DRY-RUN rsync (shows the diff, changes nothing)
@@ -12,15 +12,31 @@
 # SSH user, and contain the sentinel documented in deploy/grace/README.md. This
 # script never uses elevated privileges and never changes API services.
 set -euo pipefail
+# These are exclusively public assets; rsync -a preserves their permissions.
+umask 022
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
+if (( $# > 1 )); then
+  echo "ERROR: expected at most one argument" >&2
+  exit 2
+fi
+case "${1:-}" in
+  -h|--help)
+    printf '%s\n' 'Usage: deploy/grace/ship-web.sh [--apply]' \
+      'Default: isolated build, remote target validation, and rsync dry run.' \
+      'Requires GRACE_HOST and GRACE_WEBROOT; --apply snapshots and deploys.'
+    exit 0
+    ;;
+  ""|--apply) ;;
+  *) echo "ERROR: unknown argument: $1" >&2; exit 2 ;;
+esac
 : "${GRACE_HOST:?Set GRACE_HOST to the reviewed SSH host}"
 : "${GRACE_WEBROOT:?Set GRACE_WEBROOT to the reviewed, user-writable web root}"
 readonly EXPECTED_GRACE_WEBROOT="/home/ubuntu/sites/eolkits-webroot"
 readonly DEPLOY_SENTINEL=".eolkits-static-deploy-target"
 readonly DEPLOY_SENTINEL_VALUE="eolkits-static-site-v1"
-if [[ ! "$GRACE_HOST" =~ ^[A-Za-z0-9._@:-]+$ ]]; then
+if [[ ! "$GRACE_HOST" =~ ^[A-Za-z0-9][A-Za-z0-9._@:-]*$ ]]; then
   echo "ERROR: GRACE_HOST contains unsupported characters" >&2
   exit 2
 fi
@@ -98,6 +114,9 @@ mkdir -p \
   "$ROOT/tmp/pip-cache"
 export TMPDIR="$ROOT/tmp/runtime-tmp"
 export PIP_CACHE_DIR="$ROOT/tmp/pip-cache"
+STAGE_DIR="$(mktemp -d "$TMPDIR/eolkits-web.XXXXXX")"
+trap 'rm -rf -- "$STAGE_DIR"' EXIT
+chmod 0755 "$STAGE_DIR"
 if [ ! -x "$ROOT/tmp/sample-deploy-venv/bin/python" ]; then
   python3 -m venv "$ROOT/tmp/sample-deploy-venv"
 fi
@@ -111,20 +130,23 @@ echo "==> Verifying the committed sample against the paid report engine"
 "$ROOT/tmp/sample-deploy-venv/bin/python" apps/runner/build_sample_report.py --check
 
 echo "==> Building site (deterministic; targets eolkits.com by default)"
-"$ROOT/tmp/web-deploy-venv/bin/python" apps/web/build.py
-"$ROOT/tmp/web-deploy-venv/bin/pytest" -q apps/web
+EOLKITS_BASE_PATH='' EOLKITS_SITE_URL='https://eolkits.com' \
+  EOLKITS_API_URL='https://eolkits.com' \
+  "$ROOT/tmp/web-deploy-venv/bin/python" apps/web/build.py --output "$STAGE_DIR"
+"$ROOT/tmp/web-deploy-venv/bin/python" scripts/verify_static_release.py \
+  --directory "$STAGE_DIR"
 
-echo "==> Pre-flight gate: docs/ contains no symlinks"
-if find docs -type l -print -quit | grep -q .; then
-  echo "ERROR: docs/ contains a symlink — refusing to deploy." >&2
-  find docs -type l -print >&2
+echo "==> Pre-flight gate: release contains no symlinks"
+if find "$STAGE_DIR" -type l -print -quit | grep -q .; then
+  echo "ERROR: release contains a symlink — refusing to deploy." >&2
+  find "$STAGE_DIR" -type l -print >&2
   exit 1
 fi
 
-echo "==> Pre-flight gate: no un-interpolated {API_URL} placeholders in docs/"
-if grep -rq "{API_URL}" docs --include='*.html'; then
-  echo "ERROR: {API_URL} placeholder found in docs/ — refusing to ship a broken commerce page." >&2
-  grep -rl "{API_URL}" docs --include='*.html' >&2
+echo "==> Pre-flight gate: no un-interpolated {API_URL} placeholders in release"
+if grep -rq "{API_URL}" "$STAGE_DIR" --include='*.html'; then
+  echo "ERROR: {API_URL} placeholder found in release — refusing to ship a broken commerce page." >&2
+  grep -rl "{API_URL}" "$STAGE_DIR" --include='*.html' >&2
   exit 1
 fi
 
@@ -136,7 +158,7 @@ if [ "${1:-}" != "--apply" ]; then
   rsync -avn --delete \
     --filter="protect /$DEPLOY_SENTINEL" \
     -e "ssh -o BatchMode=yes -o ConnectTimeout=15" \
-    docs/ "$GRACE_HOST:$GRACE_WEBROOT/"
+    "$STAGE_DIR/" "$GRACE_HOST:$GRACE_WEBROOT/"
   exit 0
 fi
 
@@ -147,16 +169,16 @@ create_remote_snapshot
 echo "==> Revalidating the remote deployment identity"
 validate_remote_target
 
-echo "==> Deploying docs/ -> $GRACE_HOST:$GRACE_WEBROOT/  (Caddy serves files directly; no reload needed)"
+echo "==> Deploying verified release -> $GRACE_HOST:$GRACE_WEBROOT/  (Caddy serves files directly; no reload needed)"
 rsync -av --delete \
   --filter="protect /$DEPLOY_SENTINEL" \
   -e "ssh -o BatchMode=yes -o ConnectTimeout=15" \
-  docs/ "$GRACE_HOST:$GRACE_WEBROOT/"
+  "$STAGE_DIR/" "$GRACE_HOST:$GRACE_WEBROOT/"
 
 echo "==> Verifying live site"
-curl -fsSI "https://eolkits.com/audit/" >/dev/null
-if ! curl -fsS "https://eolkits.com/audit/" |
-  grep -Fq "Turn a repository into reviewable AWS migration evidence"; then
+curl -fsSI --max-time 30 "https://eolkits.com/audit/"
+live_audit="$(curl -fsS --max-time 30 "https://eolkits.com/audit/")"
+if ! grep -Fq "Turn a repository into reviewable AWS migration evidence" <<<"$live_audit"; then
   echo "ERROR: live audit page is missing the expected release marker." >&2
   exit 1
 fi
@@ -165,9 +187,9 @@ for artifact in \
   eolkits-sample-report.pdf \
   fictional-repository.zip
 do
-  local_hash="$(sha256sum "docs/audit/sample/$artifact" | cut -d' ' -f1)"
+  local_hash="$(sha256sum "$STAGE_DIR/audit/sample/$artifact" | cut -d' ' -f1)"
   live_hash="$(
-    curl -fsS "https://eolkits.com/audit/sample/$artifact" |
+    curl -fsS --max-time 30 "https://eolkits.com/audit/sample/$artifact" |
       sha256sum |
       cut -d' ' -f1
   )"

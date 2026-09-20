@@ -63,13 +63,13 @@ REMAP_TABLE: Dict[str, RemapEntry] = {
         "php7.4",
         "php8.2",
         "replaced_by",
-        note="PHP 7.4 is upstream EOL. AL2023 has php8.2 only.",
+        note="PHP 7.4 is upstream EOL. This mapping targets php8.2; verify application compatibility.",
     ),
     "python3.8": RemapEntry(
         "python3.8",
         "python3.11",
         "replaced_by",
-        note="AL2023 default python is 3.11. 3.8 not available.",
+        note="Targets optional Python 3.11; AL2023 system Python remains 3.9.",
     ),
     "python3.7": RemapEntry(
         "python3.7",

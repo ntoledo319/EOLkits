@@ -35,6 +35,8 @@ says otherwise). `decided`, `merged`, and `released` columns are kept distinct o
 | 2026-09-04 | 2026-09-04 | — | — | [Bootstrap of the living-history system (reconstruction of 2026-04-28 to 2026-09-04)](../../.project-history/events/2026/eolkits-2026-09-04-history-system-bootstrap.md) `eolkits-2026-09-04-history-system-bootstrap` | bootstrap | high | implemented | confirmed |
 | 2026-09-04 | 2026-09-04 | 2026-09-04 | — | [Governance by self-termination: three cycles ended over /dev/null, /dev/stdout and /tmp, and an in-jail credential-surface scan that recovered nothing](../../.project-history/events/2026/eolkits-2026-09-04-jail-violations-and-env-recovery-scan.md) `eolkits-2026-09-04-jail-violations-and-env-recovery-scan` | governance | medium | observed | strongly_supported |
 | 2026-09-05 | 2026-09-05 | — | — | [Make scan coverage, recovery and local migration edits trustworthy across the product](../../.project-history/events/2026/eolkits-2026-09-05-trustworthy-scan-workflows.md) `eolkits-2026-09-05-trustworthy-scan-workflows` | product | high | implemented | confirmed |
+| 2026-09-10 | 2026-09-10 | — | — | [Emergency maintenance: restore first-party analytics and verify dependency compatibility](../../.project-history/events/2026/eolkits-2026-09-10-emergency-maintenance.md) `eolkits-2026-09-10-emergency-maintenance` | incident | high | implemented | strongly_supported |
+| 2026-09-10 | 2026-09-10 | — | — | [Complete the kit roadmaps and make maintenance reproducible](../../.project-history/events/2026/eolkits-2026-09-10-project-cleanup.md) `eolkits-2026-09-10-project-cleanup` | product | high | implemented | strongly_supported |
 
 ## Claims by date
 
@@ -403,5 +405,8 @@ says otherwise). `decided`, `merged`, and `released` columns are kept distinct o
 | 2026-09-05 | `CLM-E5-003` The September 5 CLI changes parse supported Python manifests, scope template runtime edits to Lambda configuration, stage inspected changes… | behavioral | verified | confirmed |
 | 2026-09-05 | `CLM-E5-004` The September 5 paid-input changes reject malformed package JSON and invalid upload-size types before checkout; corrected uploads recover a… | behavioral | verified | confirmed |
 | 2026-09-05 | `CLM-E5-005` The pre-existing living-history system was committed locally on September 5 as docs(history): install project history system. | direct | verified | confirmed |
+| 2026-09-10 | `CLM-E5-006` The September 10 emergency follow-up repaired first-party analytics and passed both static guards, found PR #63 still failing its API depen… | contemporaneous | verified | strongly_supported |
+| 2026-09-10 | `CLM-E5-007` The September 10 cleanup implements both five-item kit roadmaps as bounded CLI features, consolidates active ledgers while retaining exact… | behavioral | verified | strongly_supported |
+| 2026-09-10 | `CLM-E5-008` The pre-cleanup branch records the workflow implementation as 900be04ddd39f381e242150cf0470799837acd3b, the dependency audit fix as e20b672… | direct | verified | confirmed |
 
 Sources for every claim are listed in [`.project-history/claims.yml`](../../.project-history/claims.yml); the reading path is [`PROJECT_HISTORY.md`](../../PROJECT_HISTORY.md) (chapter directory: `docs/history`).

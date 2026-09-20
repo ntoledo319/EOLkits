@@ -36,6 +36,9 @@ Repository = "https://github.com/ntoledo319/EOLkits"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+python_pivot = ["templates/*.yml"]
+
 [tool.mutmut]
 paths_to_mutate = "src/python_pivot/"
 tests_dir = "test/"

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "al2023-gate"
 version = "1.0.0"
-description = "Amazon Linux 2 to AL2023 migration checks, package remapping, cloud-init and Ansible previews, Packer scaffolding, and rollout runbooks."
+description = "AL2 migration checks, AWS Config and Terraform evidence, EKS proposals, agent configuration shims, CI templates, and rollout runbooks."
 readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"

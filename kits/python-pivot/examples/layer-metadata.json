@@ -1,0 +1,9 @@
+{
+  "layers": [
+    {
+      "LayerVersionArn": "arn:aws:lambda:us-east-1:123456789012:layer:fictional-python-layer:1",
+      "CompatibleRuntimes": ["python3.12"],
+      "CompatibleArchitectures": ["x86_64", "arm64"]
+    }
+  ]
+}

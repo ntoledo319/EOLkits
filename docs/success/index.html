@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://eolkits.com; form-action 'self'">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Thank you — EOLkits</title>
+<title>Checkout return — EOLkits</title>
 <meta name="robots" content="noindex">
 <style>
 body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:0 auto;padding:2rem;line-height:1.6}
@@ -19,7 +19,7 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 </head>
 <body>
 <a href="/EOLkits/" class="brand">← EOLkits</a>
-<h1 id="title">Thank you</h1>
+<h1 id="title">Check your payment receipt</h1>
 <div id="body"></div>
 <footer><a href="/EOLkits/">Home</a> · <a href="/EOLkits/status/">Status</a> · <a href="/EOLkits/legal/terms.html">Terms</a></footer>
 <script>
@@ -29,8 +29,8 @@ const title = document.getElementById('title');
 const body = document.getElementById('body');
 function h(html) { body.innerHTML = html; }
 if (sku === 'audit') {
-  title.textContent = 'Your audit is on the way';
-  h('<div class="card"><p>Payment received. Your repository evidence PDF is queued for automated generation and email delivery. Delays are possible.</p><p>Its evidence lookup records the input hash, rule-pack version, evidence fingerprint, and observed counts. The PDF itself is not digitally signed.</p><p>If fulfillment cannot complete after retries, the system attempts an automatic refund and surfaces any unresolved refund for operator review.</p></div>');
+  title.textContent = 'Check your receipt and email';
+  h('<div class="card"><p>This page does not confirm a payment. Check your Stripe receipt for confirmation. If your Audit payment completed, your repository evidence PDF will be generated and delivered by email; delays are possible.</p><p>The delivered report includes an input hash, rule-pack version, evidence fingerprint, and observed counts. The PDF itself is not digitally signed.</p><p>If a paid order cannot be fulfilled after retries, the system attempts an automatic refund and surfaces unresolved refunds for operator review. For help with a completed payment, email <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> with your receipt.</p></div>');
 } else if (sku === 'pack') {
   title.textContent = 'Migration Pack is closed';
   h('<div class="card"><p>Migration Pack is not available for purchase. If a legacy payment link charged you, email <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> with the Stripe receipt so the payment can be reviewed and refunded.</p></div>');
@@ -38,7 +38,7 @@ if (sku === 'audit') {
   title.textContent = 'Drift Watch is unavailable';
   h('<div class="card"><p>Drift Watch is not open for purchase. If a legacy payment link charged you, email <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> with the Stripe receipt so the payment can be reviewed and refunded.</p></div>');
 } else {
-  h('<div class="card"><p>Payment received. Check your email for next steps.</p></div>');
+  h('<div class="card"><p>This page does not confirm a payment or create an order. Check your payment receipt and email, or <a href="/EOLkits/audit/">review Audit availability</a>.</p></div>');
 }
 </script>
 </body>

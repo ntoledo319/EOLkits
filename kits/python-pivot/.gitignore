@@ -14,3 +14,4 @@ htmlcov/
 .DS_Store
 findings.json
 wheel-audit.json
+/tmp/

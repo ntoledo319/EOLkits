@@ -4,6 +4,7 @@ EOLkits Static Site Generator
 Builds docs/ from templates and rule-pack data.
 """
 
+import argparse
 import hashlib
 import json
 import os
@@ -17,7 +18,7 @@ import yaml
 # Dependencies are installed explicitly from requirements-dev.txt; the builder
 # never mutates its Python environment.
 try:
-    from jinja2 import Environment, FileSystemLoader, select_autoescape
+    from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 except ImportError as exc:
     raise SystemExit(
         "Jinja2 is required; install apps/web/requirements-dev.txt in a project-local venv"
@@ -61,6 +62,7 @@ CONTENT_SECURITY_POLICY = (
 # corpus. Record only materially changed pages here so a release does not falsely
 # rewrite every sitemap lastmod (or every article's first-publication date).
 PAGE_LASTMOD_OVERRIDES = {
+    "success/index.html": "2026-09-10",
     "audit/index.html": "2026-09-04",
     "lambda-runtime-deprecation-schedule/index.html": "2026-09-04",
     "legal/dpa.html": "2026-09-04",
@@ -237,325 +239,30 @@ def get_surge_price(base_price, days_until):
     return base_price
 
 
-def build_audit_page(pricing):
-    """Build the audit checkout page."""
-    html = (
-        """<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AWS deprecation evidence report | EOLkits</title>
-<meta name="description" content="A static repository evidence report for AWS runtime and Amazon Linux migration risks: exact file/line evidence, remediation, and configured rule or package references.">
-<link rel="canonical" href="{SITE_URL}/audit/">
-<meta property="og:type" content="website">
-<meta property="og:title" content="AWS deprecation evidence report | EOLkits">
-<meta property="og:description" content="A fixed-price static repository report with exact file/line evidence, remediation notes, and explicit scope limits.">
-<meta property="og:url" content="{SITE_URL}/audit/">
-<script defer src="/track.js"></script>
-"""
-        + _og_image_meta()
-        + """<style>
-body{font-family:system-ui,-apple-system,sans-serif;max-width:820px;margin:0 auto;padding:2rem;line-height:1.6;color:#111827}
-.brand{color:#2563eb;font-weight:600}
-h1{margin-top:.3rem}
-.lede{font-size:1.15rem;color:#374151}
-.cta{display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:.7rem 1.2rem;border-radius:6px;font-weight:600}
-.cta:hover{background:#1d4ed8}
-.cta.secondary{background:#fff;color:#2563eb;border:2px solid #2563eb}
-.callout{background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #2563eb;border-radius:8px;padding:1.25rem;margin:1.5rem 0}
-.pricing{border:2px solid #e5e7eb;border-radius:8px;padding:1.5rem;margin:1.5rem 0}
-.price{font-size:2rem;font-weight:700;color:#059669}
-.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin:1rem 0}
-.tier{border:1px solid #d1d5db;border-radius:6px;padding:1rem;text-align:center}
-.tier.urgent{border-color:#dc2626;background:#fef2f2}
-.tier.soon{border-color:#f59e0b;background:#fffbeb}
-.valuebox{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:1.25rem;margin:1.5rem 0}
-.guarantee{background:#ecfdf5;border:2px solid #059669;border-radius:8px;padding:1.5rem;margin:1.5rem 0}
-.guarantee h3{margin-top:0;color:#059669}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0}
-.cell{border:1px solid #e5e7eb;border-radius:8px;padding:1rem;font-size:.92rem}
-.cell h4{margin:.2rem 0}
-.logos{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0}
-.logos span{border:1px solid #d1d5db;border-radius:999px;padding:.3rem .8rem;font-size:.85rem;color:#374151;background:#f9fafb}
-.reassure{color:#6b7280;font-size:.9rem;margin:.5rem 0}
-.faq{margin:2rem 0}
-.faq details{border-bottom:1px solid #e5e7eb;padding:.75rem 0}
-.faq summary{font-weight:600;cursor:pointer}
-button{background:#2563eb;color:white;border:none;padding:0.75rem 1.5rem;border-radius:6px;font-size:1rem;cursor:pointer}
-button:hover{background:#1d4ed8}
-form#auditForm{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:1.5rem;margin:1rem 0}
-form#auditForm input{box-sizing:border-box;max-width:100%;width:100%;padding:.65rem}
-.assurances{background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:1rem 1.25rem;margin:1rem 0}
-.assurances ul{margin:.5rem 0 0;padding-left:1.2rem}
-footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
-</style>
-</head>
-<body>
-<a href="/" class="brand">← EOLkits</a>
-<h1>Turn a repository into reviewable AWS migration evidence</h1>
-<p class="lede">Upload one repository ZIP or supported source file. The <strong>$299 evidence report</strong> returns the exact files and lines that matched, a severity-and-reach-ranked remediation order, and a configured rule or package reference for each matched finding. It is a static source scan—not a live AWS inventory.</p>
-
-<div class="callout">
-  <strong>Don't take our word for it.</strong> &nbsp;<a class="cta secondary" href="/scan/">▶ Run the free scan</a><br>
-  Check representative files locally before paying. The paid report adds archive-wide scanning of supported text files, exact line evidence, a severity-and-reach-ranked remediation order, and an evidence fingerprint.
-</div>
-
-<h2>What you get</h2>
-<ul>
-  <li>Exact <strong>file:line evidence</strong> and observed match counts—no invented resource counts</li>
-  <li>A <strong>roll-forward order</strong> based on finding severity and observed reach</li>
-  <li>The configured rule or package reference for each finding; dependency floors are conservative triage baselines that still require target-specific verification</li>
-  <li>Explicit scope and limitations: what was scanned, skipped, and not inferred</li>
-  <li>Input SHA-256 plus a deterministic <strong>evidence fingerprint</strong> verifiable at <code>/verify/</code></li>
-</ul>
-<p><a class="cta secondary" href="/audit/sample/">▶ Inspect the fictional sample</a> &nbsp; <a href="/audit/sample/eolkits-sample-report.pdf">Download the engine-generated PDF →</a></p>
-
-<div class="pricing">
-  <h2>Pricing</h2>
-  <div class="tiers"><div class="tier"><strong>One repository</strong><div class="price">$299</div><p>ZIP archive or one supported source file · one fixed price</p></div></div>
-  <p class="reassure">A target date may be included as planning context. It never changes the price or scan results.</p>
-</div>
-
-<div class="assurances">
-  <strong>Before you upload:</strong>
-  <ul>
-    <li>No AWS credentials or AWS account access are requested.</li>
-    <li>Successfully processed source is deleted immediately; checkout-bound uploads expire within 48 hours and generated reports within 30 days.</li>
-    <li><a href="/audit/sample/">Inspect the fictional input, engine-generated PDF, and hash manifest</a> before deciding.</li>
-  </ul>
-</div>
-
-<div id="auditGate" class="callout"><strong>Checkout safety check:</strong> waiting for the v2 fulfillment backend. Checkout stays closed unless the live API confirms report engine 2.0.</div>
-<div id="auditInterest" class="callout">
-  <strong>Found a relevant issue in a real project?</strong>
-  Checkout is paused while fulfillment is verified. If this exact one-repository
-  report would be worth $299 to you, record a public, no-obligation demand signal.
-  It is not an order, reservation, waitlist, or promise of a reply.
-  <p><a class="cta secondary" href="{AUDIT_INTEREST_URL}" target="_blank" rel="noopener">Record qualified $299 interest on GitHub</a></p>
-  <p class="reassure">GitHub publishes your username and submission. Do not include repository names, filenames, code, secrets, security details, company information, or personal data.</p>
-</div>
-<form id="auditForm" hidden>
-  <h3>Start Audit</h3>
-  <p><input type="email" id="auditEmail" name="email" placeholder="your@email.com" required></p>
-  <p><input type="date" id="auditDeadline" name="deadline" aria-label="Deadline date"></p>
-  <p><input type="file" id="auditFile" name="file" required accept=".zip,.yaml,.yml,.json,.tf,.tfvars,.js,.ts,.tsx,.py,.toml,.lock,.sh,.txt"></p>
-  <p class="reassure">Upload limits: 10 MiB input; ZIPs may contain at most 2,000 entries and 25 MiB expanded text. Analysis is also bounded to 500,000 decoded lines, 100,000 mapping records per file, 10,000 Lambda resources per file, 10,000 retained evidence records, and 1 MiB per dependency manifest. Binary archive members are skipped; standalone binary inputs and archives with no supported text are rejected. Encrypted, ambiguous-path, path-traversing, over-complex, and suspiciously compressed archives are rejected before checkout. Do not upload secrets or unrelated personal data.</p>
-  <button id="auditSubmit" type="submit">Upload and Proceed to Checkout</button>
-  <p class="reassure">By continuing, you authorize this upload to be scanned and agree to the <a href="/legal/terms.html">Terms</a> and <a href="/legal/privacy.html">Privacy Policy</a>. Stripe Checkout shows the final $299 price before payment.</p>
-  <p id="auditStatus" style="color:#6b7280;font-size:.875rem"></p>
-</form>
-
-<div class="valuebox">
-  <strong>What this buys:</strong> a reviewable change-approval artifact your team can check against the uploaded repository and the linked rule or package references. No speculative downtime-dollar estimate is included.
-</div>
-
-<div class="guarantee">
-  <h3>30-day refund policy</h3>
-  <p><strong>When checkout is open, request a full refund within 30 days.</strong> Email from the purchase address with the Stripe receipt or Checkout Session identifier; no explanation is required.</p>
-  <p>If fulfillment permanently fails after retries, the system queues a full refund. Any refund that cannot be confirmed is surfaced for operator review.</p>
-</div>
-
-<h2>Why you can trust the report (without trusting the brand)</h2>
-<div class="grid">
-  <div class="cell"><h4>Evidence, not estimates</h4>Each match includes the observed file, line, and text.</div>
-  <div class="cell"><h4>Checkable references</h4>Each finding links its configured rule or package reference; conservative dependency floors still require release and target verification.</div>
-  <div class="cell"><h4>Repeatable findings</h4>The evidence fingerprint covers the input hash, rule-pack version, and canonical findings.</div>
-  <div class="cell"><h4>Bounded scope</h4>The report says plainly that it does not query AWS or prove a complete inventory.</div>
-</div>
-
-<div class="logos">
-  <span>AWS</span><span>CloudFormation / SAM</span><span>CDK</span><span>Terraform</span><span>Serverless</span><span>Ansible</span><span>Packer</span><span>cloud-init</span><span>GitHub Actions</span>
-</div>
-
-<h2>How it works</h2>
-<p><strong>When checkout is open:</strong></p>
-<ol>
-  <li>Upload a repository ZIP or a supported SAM / CDK / Terraform / Serverless / cloud-init source file (10 MiB compressed maximum)</li>
-  <li>We safely inspect supported text files without extracting the archive to disk</li>
-  <li>Get a PDF by email after automated processing; delays and retries are possible</li>
-  <li>Verify the evidence metadata at <code>/verify/</code> during its retention window of up to 30 days</li>
-</ol>
-
-<p class="reassure">When the readiness gate opens: Stripe checkout · automated delivery with durable retries · 30-day money-back guarantee</p>
-
-<script>
-const API = '{API_URL}';
-const qp = new URLSearchParams(location.search);
-function attributionToken(value) {{
-  value = String(value || '').toLowerCase();
-  return /^[a-z0-9._-]{{1,64}}$/.test(value) ? value : '';
-}}
-function attribution() {{
-  return {{
-    source: attributionToken(qp.get('source')) || 'audit_page',
-    utm_source: attributionToken(qp.get('utm_source')),
-    utm_medium: attributionToken(qp.get('utm_medium')),
-    utm_campaign: attributionToken(qp.get('utm_campaign')),
-    kit: attributionToken(qp.get('kit'))
-  }};
-}}
-function apiMessage(data, fallback) {{
-  if (data && typeof data.detail === 'string') return data.detail;
-  if (data && data.detail && typeof data.detail.error === 'string') return data.detail.error;
-  if (data && typeof data.error === 'string') return data.error;
-  return fallback;
-}}
-const auditForm = document.getElementById('auditForm');
-const auditStatus = document.getElementById('auditStatus');
-const auditSubmit = document.getElementById('auditSubmit');
-const deadlineInput = document.getElementById('auditDeadline');
-const auditGate = document.getElementById('auditGate');
-const auditInterest = document.getElementById('auditInterest');
-// Prefill report context from a deadline-tagged migration page. The deadline does
-// not alter price.
-if (qp.get('deadline') && deadlineInput) deadlineInput.value = qp.get('deadline');
-if (qp.get('cancelled')) auditStatus.textContent = 'Checkout cancelled — finish whenever you are ready.';
-fetch(API + '/api/capabilities', {{ cache: 'no-store', credentials: 'omit' }}).then(r => r.ok ? r.json() : Promise.reject()).then(c => {{
-  const a = c && c.audit;
-  if (a && a.checkout_enabled === true && String(a.report_version) === '2.0') {{
-    auditForm.hidden = false;
-    auditGate.hidden = true;
-    auditInterest.hidden = true;
-  }} else {{
-    auditGate.textContent = 'Audit checkout is temporarily paused while fulfillment is verified.';
-  }}
-}}).catch(() => {{ auditGate.textContent = 'Audit checkout is temporarily paused while fulfillment is verified.'; }});
-auditForm.addEventListener('submit', async (event) => {{
-  event.preventDefault();
-  const file = document.getElementById('auditFile').files[0];
-  const email = document.getElementById('auditEmail').value;
-  const deadline = deadlineInput ? deadlineInput.value : '';
-  if (!file || !email) return;
-  if (file.size > 10 * 1024 * 1024) {{
-    auditStatus.textContent = 'Upload must be 10 MiB or smaller.';
-    return;
-  }}
-
-  auditSubmit.disabled = true;
-  auditStatus.textContent = 'Requesting upload URL...';
-
-  try {{
-    const presign = await fetch(API + '/upload/presign', {{
-      method: 'POST',
-      headers: {{ 'Content-Type': 'application/json' }},
-      body: JSON.stringify({{
-        filename: file.name,
-        contentType: file.type || 'application/octet-stream',
-        size: file.size
-      }})
-    }});
-    const presignData = await presign.json();
-    if (!presign.ok) throw new Error(apiMessage(presignData, 'Upload storage is unavailable'));
-
-    auditStatus.textContent = 'Uploading audit input...';
-    const upload = await fetch(presignData.uploadUrl, {{
-      method: 'PUT',
-      headers: {{ 'Content-Type': file.type || 'application/octet-stream' }},
-      body: file
-    }});
-    if (!upload.ok) throw new Error('Upload failed');
-
-    auditStatus.textContent = 'Opening secure checkout...';
-    if (typeof window.eolkitsTrack === 'function') {{
-      window.eolkitsTrack('checkout_click', {{ sku: 'audit', deadline: deadline }});
-    }}
-    const a = attribution();
-    const checkoutBody = new URLSearchParams({{ email: email, upload_id: presignData.uploadId }});
-    if (deadline) checkoutBody.set('deadline', deadline);
-    for (const k of ['source', 'utm_source', 'utm_medium', 'utm_campaign', 'kit']) {{
-      if (a[k]) checkoutBody.set(k, a[k]);
-    }}
-    const checkout = await fetch(API + '/api/audit/checkout', {{
-      method: 'POST',
-      headers: {{ 'Content-Type': 'application/x-www-form-urlencoded' }},
-      body: checkoutBody
-    }});
-    const checkoutData = await checkout.json();
-    if (!checkout.ok || !checkoutData.url) throw new Error(apiMessage(checkoutData, 'Checkout failed'));
-    window.location.href = checkoutData.url;
-  }} catch (error) {{
-    auditSubmit.disabled = false;
-    auditStatus.textContent = error instanceof Error ? error.message : 'Audit checkout failed';
-  }}
-}});
-</script>
-
-<div class="faq">
-<h2>Questions</h2>
-<details><summary>Why pay when the CLI is free?</summary><p>The CLI is the right choice for hands-on engineers. The paid product packages supported-file evidence across the uploaded archive, line locations, prioritization, limitations, and references into a shareable PDF.</p></details>
-<details><summary>Is my code safe?</summary><p>Uploads travel over TLS, are used only for report generation, and are deleted after successful delivery. Unchecked uploads normally expire within 24 hours; checkout-bound uploads are retained for no more than 48 hours so retries can finish. Generated reports expire within 30 days. Prefer no upload? Use the free local tools.</p></details>
-<details><summary>How can I trust the results?</summary><p>Check the exact file/line evidence and the configured rule or package reference for each finding. Dependency floors are conservative triage baselines, not guarantees of target compatibility. The report carries an input hash and evidence fingerprint. It does not claim to be a digitally signed PDF.</p></details>
-<details><summary>How fast is it?</summary><p>Processing is automated, but delivery time depends on queue, runner, and email-provider availability. Failed jobs retry and unresolved failures surface for refund review.</p></details>
-<details><summary>What if it's wrong, or I'm just not happy?</summary><p>Email us within 30 days for a full refund. No questions asked.</p></details>
-</div>
-
-<footer>
-  <p>File/line evidence · configured references · input hash + evidence fingerprint · checkout and automated delivery remain readiness-gated.</p>
-  <p><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/scan/">Free scan</a> · <a href="/audit/sample/">Sample report</a></p>
-</footer>
-</body>
-</html>"""
+def render_commerce_template(name):
+    """Keep HTML/JavaScript separate from build orchestration and fail on missing data."""
+    env = Environment(
+        loader=FileSystemLoader(TEMPLATE_DIR),
+        autoescape=True,
+        undefined=StrictUndefined,
+        keep_trailing_newline=True,
     )
-    return _interpolate_api(html)
+    return env.get_template(name).render(
+        api_url=API_URL,
+        site_url=SITE_URL,
+        interest_url=AUDIT_INTEREST_URL,
+        og_image_meta=_og_image_meta(),
+    )
+
+
+def build_audit_page(pricing):
+    """Render the audit page from its maintained template."""
+    return render_commerce_template("audit.html.j2")
 
 
 def build_audit_sample_page(pricing):
-    """Landing page for the engine-generated fictional PDF and hash manifest."""
-    html = """<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sample audit report — EOLkits</title>
-<meta name="description" content="Illustrative EOLkits evidence report format: exact file/line matches, observed reach, remediation order, limitations, and configured references.">
-<style>
-body{font-family:system-ui,-apple-system,sans-serif;max-width:820px;margin:0 auto;padding:2rem;line-height:1.6;color:#111827}
-.brand{color:#2563eb;font-weight:600}
-.banner{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:.75rem 1rem;margin:1rem 0;font-size:.9rem}
-.download{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:1rem;margin:1rem 0}
-.meta{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:1rem;margin:1rem 0;font-size:.9rem}
-.cta{display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:.7rem 1.2rem;border-radius:6px;font-weight:600;margin:1rem 0}
-code{background:#f3f4f6;padding:.1rem .3rem;border-radius:4px}
-footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:.875rem}
-</style>
-</head>
-<body>
-<a href="/audit/" class="brand">← Back to Audit</a>
-<div class="banner"><strong>ILLUSTRATIVE SAMPLE.</strong> This fictional repository shows the v2 report format. It is not a customer report or evidence of a live AWS account scan.</div>
-<div class="download"><strong>Inspect the actual engine output.</strong><br><a class="cta" href="/audit/sample/eolkits-sample-report.pdf">Download the sample PDF</a><br><a href="/audit/sample/fictional-repository.zip">Fictional input ZIP</a> · <a href="/audit/sample/eolkits-sample-report.json">SHA-256 and evidence manifest</a></div>
-<h1>AWS deprecation evidence report</h1>
-<div class="meta">
-  <div><strong>Uploaded artifact:</strong> <code>fictional-repository.zip</code></div>
-  <div><strong>Format:</strong> 4-page engine-generated PDF</div>
-  <div><strong>Observed scope:</strong> 4 supported text files; 1 unsupported README skipped</div>
-  <div><strong>Hashes:</strong> the downloadable manifest records the complete input SHA-256, PDF SHA-256, and evidence fingerprint.</div>
-  <div><strong>Findings:</strong> 4 distinct risk types · 5 file/line evidence records</div>
-</div>
-
-<div class="banner"><strong>Scope limitation:</strong> static uploaded-source scan only. No AWS account was queried; resource inventory and runtime behavior are not inferred.</div>
-
-<h2>What is inside the PDF</h2>
-<ul>
-  <li>Engine-ranked findings with exact observed file/line evidence</li>
-  <li>Observed reach, remediation notes, and a configured reference per finding</li>
-  <li>Explicit scan scope, skipped-file count, limitations, and roll-forward order</li>
-  <li>The same input hash and evidence fingerprint recorded in the manifest above</li>
-</ul>
-
-<h2>What the report does not claim</h2>
-<p>It does not estimate downtime dollars, count deployed instances/functions, inspect omitted files, or guarantee that a match is reachable at runtime. Those facts require environment-specific validation.</p>
-
-<a class="cta" href="/audit/?source=audit_sample&amp;utm_source=audit_sample&amp;utm_medium=proof">Review the fixed $299 scope and availability →</a>
-<p><a href="/scan/">Or run the free scan first →</a></p>
-
-<footer>
-  <p>Production reports include exact observed evidence, configured rule or package references, input SHA-256, and a deterministic evidence fingerprint. The PDF itself is not digitally signed.</p>
-  <p><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></p>
-</footer>
-</body>
-</html>"""
-    return html
+    """Render the audit_sample page from its maintained template."""
+    return render_commerce_template("audit_sample.html.j2")
 
 
 def _build_unavailable_product_page(name: str, explanation: str) -> str:
@@ -1628,77 +1335,13 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 
 
 def build_success_page():
-    """Post-checkout status for the only active paid SKU (Audit v2)."""
-    html = """<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Thank you — EOLkits</title>
-<meta name="robots" content="noindex">
-<style>
-body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:0 auto;padding:2rem;line-height:1.6}
-.brand{color:#2563eb;font-weight:600}
-h1{margin-top:0}
-.card{border:1px solid #e5e7eb;border-radius:10px;padding:1.5rem;margin:1.25rem 0}
-.upsell{background:#ecfdf5;border:2px solid #059669}
-.btn{display:inline-block;background:#2563eb;color:#fff;padding:.6rem 1.2rem;border-radius:6px;text-decoration:none;font-weight:600}
-footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
-</style>
-</head>
-<body>
-<a href="/" class="brand">← EOLkits</a>
-<h1 id="title">Thank you</h1>
-<div id="body"></div>
-<footer><a href="/">Home</a> · <a href="/status/">Status</a> · <a href="/legal/terms.html">Terms</a></footer>
-<script>
-const qp = new URLSearchParams(location.search);
-const sku = qp.get('sku') || '';
-const title = document.getElementById('title');
-const body = document.getElementById('body');
-function h(html) {{ body.innerHTML = html; }}
-if (sku === 'audit') {{
-  title.textContent = 'Your audit is on the way';
-  h('<div class="card"><p>Payment received. Your repository evidence PDF is queued for automated generation and email delivery. Delays are possible.</p><p>Its evidence lookup records the input hash, rule-pack version, evidence fingerprint, and observed counts. The PDF itself is not digitally signed.</p><p>If fulfillment cannot complete after retries, the system attempts an automatic refund and surfaces any unresolved refund for operator review.</p></div>');
-}} else if (sku === 'pack') {{
-  title.textContent = 'Migration Pack is closed';
-  h('<div class="card"><p>Migration Pack is not available for purchase. If a legacy payment link charged you, email <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> with the Stripe receipt so the payment can be reviewed and refunded.</p></div>');
-}} else if (sku === 'drift') {{
-  title.textContent = 'Drift Watch is unavailable';
-  h('<div class="card"><p>Drift Watch is not open for purchase. If a legacy payment link charged you, email <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> with the Stripe receipt so the payment can be reviewed and refunded.</p></div>');
-}} else {{
-  h('<div class="card"><p>Payment received. Check your email for next steps.</p></div>');
-}}
-</script>
-</body>
-</html>"""
-    return _interpolate_api(html)
+    """Render the success page from its maintained template."""
+    return render_commerce_template("success.html.j2")
 
 
 def build_status_page():
-    html = """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Status — EOLkits</title>
-<style>body{font-family:system-ui,sans-serif;max-width:900px;margin:0 auto;padding:2rem;line-height:1.6}.brand{color:#2563eb;font-weight:600}.svc{display:flex;justify-content:space-between;align-items:center;border:1px solid #e5e7eb;border-radius:8px;padding:1rem;margin:.5rem 0}.dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:8px;background:#9ca3af}.dot.green{background:#10b981}.dot.red{background:#ef4444}.muted{color:#6b7280;font-size:.85rem}.notice{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:1rem}</style>
-</head><body><a href="/" class="brand">← EOLkits</a><h1>System Status</h1>
-<p class="muted">Live backend readiness only. Low-volume funnel, commerce, and order details are private operator data. This is not an end-to-end synthetic purchase test.</p>
-<p id="feedState" class="notice">Loading the live API status…</p>
-<div id="services"><div class="svc"><span><span class="dot" id="dot-storage"></span>Upload/report storage</span><span id="t-storage">unknown</span></div>
-<div class="svc"><span><span class="dot" id="dot-stripe"></span>Stripe configuration</span><span id="t-stripe">unknown</span></div>
-<div class="svc"><span><span class="dot" id="dot-runner"></span>Job runner</span><span id="t-runner">—</span></div>
-<div class="svc"><span><span class="dot" id="dot-email"></span>Email configuration</span><span id="t-email">unknown</span></div></div>
-<h2>Product availability</h2><ul id="capabilities"><li>Loading…</li></ul>
-<script>
-function list(id,data){const el=document.getElementById(id);el.innerHTML='';const entries=Object.entries(data||{});if(!entries.length){el.innerHTML='<li>No capabilities reported</li>';return;}for(const [k,v] of entries){const li=document.createElement('li');li.textContent=k+': '+v;el.appendChild(li);} }
-fetch('{API_URL}/api/status',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject(new Error('HTTP '+r.status))).then(d=>{
-  document.getElementById('feedState').textContent='Live API reported '+(d.overall||'unknown')+' at '+(d.timestamp||'unknown time')+'.';
-  for(const s of ['storage','stripe','runner','email']){
-    const v=(d.components||{})[s];
-    if(v){document.getElementById('dot-'+s).className='dot '+(v.ok?'green':'red');document.getElementById('t-'+s).textContent=v.ok?'ready':'not ready';}
-  }
-  list('capabilities',d.capabilities);
-}).catch(e=>{document.getElementById('feedState').textContent='Live status unavailable; all component states remain unknown. '+e.message;list('capabilities',{});});
-</script>
-<footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a></footer></body></html>"""
-    return _interpolate_api(html)
+    """Render the status page from its maintained template."""
+    return render_commerce_template("status.html.j2")
 
 
 def inject_privacy_meta(content: str) -> str:
@@ -2466,8 +2109,20 @@ def build_deprecations_rss(deprecations):
     )
 
 
-def main():
-    """Main build entry point."""
+def main(output_dir=None):
+    """Build a complete site; an isolated output keeps deployment work out of docs/."""
+    repository = BASE_DIR.parent.parent.resolve()
+    output_dir = Path(output_dir or DOCS_DIR).resolve()
+    if not output_dir.is_relative_to(repository) or output_dir == repository:
+        raise ValueError("Site output must be a subdirectory of the repository")
+
+    def output_path(relative):
+        target = output_dir / relative
+        if not target.resolve().is_relative_to(output_dir):
+            raise ValueError(f"Output path escapes the selected directory: {relative}")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        return target
+
     print("EOLkits Static Site Builder")
     print("=" * 40)
 
@@ -2476,7 +2131,7 @@ def main():
     print(f"Loaded {len(pricing['skus'])} SKUs from pricing.yml")
 
     # Ensure docs directory exists
-    DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # Load deprecations
     deprecations = load_deprecations()
@@ -2484,6 +2139,7 @@ def main():
 
     # Build pages
     pages = {
+        "style.css": (BASE_DIR / "static/site.css").read_text(encoding="utf-8"),
         "index.html": build_index_page(pricing),
         "track.js": build_track_js(),
         f"{INDEXNOW_KEY}.txt": INDEXNOW_KEY,
@@ -2578,26 +2234,23 @@ def main():
     pages["robots.txt"] = build_robots_txt()
 
     for path, content in pages.items():
-        full_path = DOCS_DIR / path
-        full_path.parent.mkdir(parents=True, exist_ok=True)
+        full_path = output_path(path)
         rendered = normalize_project_links(inject_privacy_meta(content))
         full_path.write_text(normalize_generated_text(rendered), encoding="utf-8")
-        print(f"Built: docs/{path}")
+        print(f"Built: {full_path.relative_to(repository)}")
 
     # Binary social card (written outside the text loop) so every page's
     # og:image / twitter:image resolves instead of unfurling blank.
-    write_og_image(DOCS_DIR / "og-default.png")
-    print("Built: docs/og-default.png")
+    write_og_image(output_path("og-default.png"))
+    print(f"Built: {(output_dir / 'og-default.png').relative_to(repository)}")
 
     # Render legal docs from Markdown into real, indexable HTML (deterministic,
     # stdlib-only). Replaces the old shutil.copy that served raw markdown as
     # .html with no <title>/meta/canonical. sorted() keeps output stable.
-    legal_dir = DOCS_DIR.parent / "legal"
-    legal_output = DOCS_DIR / "legal"
+    legal_dir = repository / "legal"
     if legal_dir.exists():
-        legal_output.mkdir(exist_ok=True)
         legal_sources = sorted(legal_dir.glob("*.md"))
-        security_file = DOCS_DIR.parent / "SECURITY.md"
+        security_file = repository / "SECURITY.md"
         if security_file.exists():
             legal_sources.append(security_file)
         for legal_file in legal_sources:
@@ -2608,12 +2261,24 @@ def main():
                 f"{name.title()} — EOLkits",
             )
             html_doc = md_to_html(md_text, title, f"/legal/{name}.html")
-            output = legal_output / f"{name}.html"
+            output = output_path(f"legal/{name}.html")
             output.write_text(
                 normalize_generated_text(normalize_project_links(inject_privacy_meta(html_doc))),
                 encoding="utf-8",
             )
             print(f"Rendered: legal/{name}.html")
+
+    # These committed artifacts are produced and checked by the report engine.
+    # A deployment build copies their exact bytes instead of regenerating proof.
+    for name in (
+        "eolkits-sample-report.json",
+        "eolkits-sample-report.pdf",
+        "fictional-repository.zip",
+    ):
+        source = repository / "docs/audit/sample" / name
+        destination = output_path("audit/sample/" + name)
+        if destination != source:
+            destination.write_bytes(source.read_bytes())
 
     print("=" * 40)
     print("Build complete!")
@@ -2621,4 +2286,9 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--output", type=Path, help="Build into an isolated repository-local directory"
+    )
+    arguments = parser.parse_args()
+    sys.exit(main(arguments.output))

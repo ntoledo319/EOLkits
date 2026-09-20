@@ -3,11 +3,11 @@
 
 > **Amazon Linux 2 passed its published 2026-06-30 support milestone.** AWS has published AL2 material after that date, so do not infer the patch state of an instance from the date alone. Check the current AWS notice and the packages installed on the host, then plan the AL2023 migration.
 
-`al2023-gate` is a dependency-light Python tool that checks supported AL2 resource patterns in selected AWS regions or fixtures, generates Packer scaffolding, previews Ansible and cloud-init changes, and produces resource-type-specific migration runbooks.
+`al2023-gate` checks AL2 resource patterns in AWS or offline state, exports AWS Config inventory and rule evidence, previews migration changes, and generates reviewable EKS, monitoring, Packer, runbook and CI artifacts.
 
 Works offline (fixture mode) for demos, audits, or air-gapped reviews. Works live against AWS with standard boto3 credentials.
 
-[![Tests](https://img.shields.io/badge/tests-CI%20verified-green)](test/)
+[![CI](https://github.com/ntoledo319/EOLkits/actions/workflows/test.yml/badge.svg)](https://github.com/ntoledo319/EOLkits/actions/workflows/test.yml)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![AL2 EOL](https://img.shields.io/badge/AL2%20EOL-2026--06--30-red)](https://aws.amazon.com/amazon-linux-2/faqs/)
 
@@ -31,11 +31,11 @@ python3 -m venv .venv
 . .venv/bin/activate
 ```
 
-No external runtime deps. `boto3` is optional — only required for `scan` against live AWS. All other commands work offline.
+No mandatory external runtime dependencies. `boto3` is optional for live `scan` and explicit `config-export --live`; install it with `pip install -e ".[aws]"`. Offline inspection and artifact generation need no AWS credentials.
 
 ---
 
-## The 6 commands
+## Commands
 
 ```
 al2023-gate scan        # classify visible EC2, launch-template, EKS, and EB patterns
@@ -44,13 +44,21 @@ al2023-gate packer      # generate ready-to-build Packer HCL for your AL2023 AMI
 al2023-gate cloudinit   # diff user-data / cloud-init scripts for known AL2023 breakage
 al2023-gate ansible     # rewrite ansible playbooks (yum→dnf, python2→3, extras removal)
 al2023-gate runbook     # emit a resource-specific migration playbook (ASG / EKS / ECS / EB)
+al2023-gate config-export   # export recorded EC2 inventory and Config rule evaluations
+al2023-gate terraform-state # inspect AMI references in raw/show Terraform state, offline
+al2023-gate eks-proposal    # generate a parallel AL2023 node-group patch and draft-PR script
+al2023-gate agent-shim      # preserve Datadog/New Relic configs in private migration bundles
+al2023-gate ci-template     # generate an offline GitHub Actions state gate
 ```
 
-Each one does exactly one thing, can be piped, and has a `--format json` mode for CI use.
+Use `--help` on each command for its supported output modes. The new inventory/proposal commands emit JSON by default; `ci-template` emits YAML. See [the complete workflow guide](docs/ROADMAP.md) for scope, examples, permissions and safety boundaries.
 
 ---
 
 ## 5-minute demo
+
+The output below is illustrative fixture output; relative ages change with the
+scan date. Use the linked AWS sources and current command output for decisions.
 
 ### 1. Scan
 
@@ -83,8 +91,8 @@ AL2 PACKAGE  AL2023 EQUIVALENT  CATEGORY       NOTE
 ---------------------------------------------------
 docker       docker             extras_to_dnf ! AL2 used `amazon-linux-extras install docker`. AL2023: `dnf install docker`.
 nginx1       nginx              renamed         AL2 extras `nginx1` → AL2023 `nginx` (mainline).
-python3.8    python3.11         replaced_by   ! AL2023 default python is 3.11. 3.8 not available.
-php7.4       php8.2             replaced_by   ! PHP 7.4 is upstream EOL. AL2023 has php8.2 only.
+python3.8    python3.11         replaced_by   ! Targets optional Python 3.11; AL2023 system Python remains 3.9.
+php7.4       php8.2             replaced_by   ! PHP 7.4 is upstream EOL. This mapping targets php8.2; verify application compatibility.
 ntp          chrony             replaced_by   ! ntpd is removed. AL2023 uses chrony for time sync.
 yum-utils    dnf-utils          renamed         DNF replaces YUM. `yum-config-manager` is now `dnf config-manager`.
 ```
@@ -164,16 +172,17 @@ Same command supports `--kind eks|ecs|beanstalk` — each with resource-appropri
 | **cloud-init differ** | 11 rules for the highest-frequency AL2 user-data patterns that break on AL2023. |
 | **Ansible patcher** | yum→dnf (module & top-level), `amazon-linux-extras` task removal, python2→3 path rewrites, SELinux/ntp/iptables lint. |
 | **Runbook generator** | ASG (instance refresh + rollback), EKS (blue/green node group), ECS (task def base image swap), Beanstalk (CNAME swap). |
-| **49-case test suite** | Offline behavioral coverage across commands, formats, and exit-code paths. |
+| **Offline behavioral suite** | Existing scans plus pagination, state formats, real patch application, private config restoration, dry-run/refusal behavior and CI generation. |
 
 ---
 
 ## Safety
 
-- Every write operation defaults to **dry-run**. `--apply` is required to touch a file.
-- `scan` is strictly read-only (boto3 `Describe*` / `List*` only).
+- Source patchers and new proposal/configuration bundle commands default to **dry-run**; `--apply` writes local changes/artifacts. Existing Packer/runbook/report generators write when their output options request it.
+- `scan` and explicit `config-export --live` only read AWS. The Config exporter does not create recorders, rules or aggregators.
 - Runbook templates include rollback steps; validate them against your own release process.
-- No telemetry. No network calls outside AWS. No LLM.
+- No telemetry or LLM. CLI live calls target AWS only. The generated PR script contacts GitHub only when an operator explicitly invokes `--create-pr`; the CLI never invokes it.
+- Monitoring bundles contain copied credentials. Keep them private and outside Git. Generated migration scripts preview by default and require separate explicit execution on a prepared AL2023 destination.
 
 ---
 
@@ -187,13 +196,15 @@ described hosted products are not for sale.
 
 ---
 
-## Roadmap
+## Implemented roadmap
 
-- [ ] Live AWS Config Rules export (find AL2 at org-scale)
-- [ ] Terraform state scanner (detect `ami-xxx` references without an API call)
-- [ ] EKS AMI type auto-swap PR generator
-- [ ] Datadog / New Relic agent migration shims
-- [ ] GitHub Action template (`.github/workflows/al2023-gate-ci.yml`)
+- [x] Live AWS Config Rules export: existing aggregator EC2 inventory plus account/region rule evaluations; AMI catalog required for OS identification.
+- [x] Terraform state scanner: raw v4 and show JSON v1.x, nested modules, AMI IDs and explicit EKS AMI types; unresolved IDs remain unknown.
+- [x] EKS AMI proposal/PR generator: direct standard AL2 `.tf.json` node groups, parallel AL2023 group, real patch and operator-invoked draft-PR script.
+- [x] Datadog / New Relic agent configuration migration shims: byte-preserving private bundles and guarded restore scripts for a prepared AL2023 host.
+- [x] GitHub Action template: offline state gate for a vendored kit, generated with `ci-template`.
+
+[Usage, evidence limits and primary sources](docs/ROADMAP.md) · [Example workflow](examples/al2023-gate-ci.yml)
 
 ---
 

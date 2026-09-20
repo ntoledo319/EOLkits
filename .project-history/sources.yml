@@ -4,6 +4,20 @@
 # evidence_class: direct | contemporaneous | retrospective | behavioral | derived
 # access: accessible | inaccessible | partial
 sources:
+  - id: SRC-project-cleanup-20260910
+    kind: working-tree-and-local-verification
+    locator: "Working tree on codex/project-cleanup-20260910 after e20b67297dec4bb4b5d945c5e7d38d609ba0b490; docs/MAINTENANCE.md; kits/{python-pivot,al2023-gate}/; scripts/verify*.py; apps/web/; revenue/archive/2026-09-10/MANIFEST.json. Local command evidence under tmp/verify/ and .unlazy/squeaky-clean/."
+    evidence_class: direct
+    access: accessible
+    retrieved: 2026-09-10
+    note: "Current source and behavioral checks, not publication, cloud migration or paid-fulfillment evidence. Committed tests provide the durable rerun procedure; temporary logs are not a substitute for a release. The owner explicitly requested implementation of both old five-item kit roadmaps."
+  - id: SRC-emergency-maintenance-20260910
+    kind: operator-session-and-ci-review
+    locator: "September 10 emergency-maintenance session; EMERGENCYDDOTHISNOW.md; https://github.com/ntoledo319/EOLkits/pull/63; https://github.com/ntoledo319/EOLkits/pull/59; local reviewed evidence under tmp/emergency-20260910/."
+    evidence_class: contemporaneous
+    access: accessible
+    retrieved: 2026-09-10
+    note: "Records the bounded owner authorization, production before/after probes, successful static guard runs, observed PR failures, dependency review and local implementation. No credential values or script contents are reproduced. Remaining PR outcomes require a later evidence-backed amendment."
   - id: SRC-product-improvement-20260905
     kind: working-tree-and-local-verification
     locator: "Working tree after 24c2debcce3782667c17c567742b45216881766a on codex/whole-product-improvement-20260905; apps/web/, apps/vscode-extension/, kits/lambda-lifeline/, kits/python-pivot/, apps/grace-api/, apps/runner/ and their tests; local evidence in tmp/product-improvement/."

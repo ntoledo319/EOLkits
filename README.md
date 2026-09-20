@@ -13,9 +13,13 @@ or use one of the MIT-licensed kits in this repository:
 - [`lambda-lifeline`](./kits/lambda-lifeline) checks Lambda Node.js runtime,
   dependency, source, and IaC compatibility.
 - [`python-pivot`](./kits/python-pivot) checks Lambda Python runtime, removed
-  standard-library APIs, dependency, and IaC compatibility.
+  standard-library APIs, dependency, and IaC compatibility. It also inspects layers,
+  extensions, Powertools release metadata and boto3 model changes; see
+  [compatibility commands](kits/python-pivot/docs/COMPATIBILITY.md).
 - [`al2023-gate`](./kits/al2023-gate) checks Amazon Linux 2 to Amazon Linux 2023
-  package, cloud-init, Ansible, and rollout concerns.
+  package, cloud-init, Ansible, and rollout concerns, with Config/state inventory,
+  EKS proposals and monitoring-agent migration bundles; see
+  [migration workflows](kits/al2023-gate/docs/ROADMAP.md).
 
 Each kit has its own installation and command reference. Fixture and dry-run modes
 let you inspect proposed work before using cloud credentials or changing files.
@@ -88,36 +92,22 @@ public GitHub App are closed research or private-beta concepts. Their API checko
 and fulfillment paths reject requests. They should not be represented as available
 products.
 
-## Local verification
+## Development and maintenance
+
+Run the repository verifier from the checkout root:
 
 ```bash
-# Use project-local environments; CI carries the complete matrix.
-python3 -m venv tmp/verify-venv
-tmp/verify-venv/bin/pip install -r apps/grace-api/requirements-dev.txt
-tmp/verify-venv/bin/pip install -r apps/runner/requirements-dev.txt
-tmp/verify-venv/bin/pip install -r apps/web/requirements-dev.txt
-TMPDIR="$PWD/tmp/runtime-tmp" tmp/verify-venv/bin/pytest -q apps/grace-api
-TMPDIR="$PWD/tmp/runtime-tmp" tmp/verify-venv/bin/pytest -q apps/runner
-TMPDIR="$PWD/tmp/runtime-tmp" tmp/verify-venv/bin/pytest -q apps/web
-
-# Node kit
-(cd kits/lambda-lifeline && npm test)
-
-# Worker
-(cd apps/worker && npm test)
-
-# Static site
-tmp/verify-venv/bin/python apps/web/build.py
-
-# Rendered scanner smoke: installed Chrome/Chromium, no browser package download.
-# Override the executable with EOLKITS_CHROME if needed; artifacts stay in tmp/.
-node apps/web/test_browser.mjs
+python3 scripts/verify.py all
 ```
 
-Use each component's lockfile or requirements file when constructing an isolated
-environment. The CI workflows are the canonical full matrix.
+The [development guide](docs/development.md) covers prerequisites, isolated
+component checks and editable kit installation. Read [CONTRIBUTING](CONTRIBUTING.md)
+for rule, safety and history requirements; use [MAINTENANCE](docs/MAINTENANCE.md)
+for the current engineering inventory and [HANDOFF](HANDOFF.md) for release gates.
+Production checkout remains closed; local verification does not complete the
+payment, email or deployment exercise.
 
-## Architecture
+## Project map
 
 - `kits/` — local migration scanners and codemods
 - `apps/github-action/` + `action.yml` — free CI distribution surface

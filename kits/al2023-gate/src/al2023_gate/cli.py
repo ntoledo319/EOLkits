@@ -6,13 +6,14 @@ import argparse
 import os
 import sys
 
-from . import __version__, util
+from . import __version__, agent_shim, ci_template, config_export, eks_proposal, util
 from . import ansible as ansible_mod
 from . import cloudinit as cloudinit_mod
 from . import packer as packer_mod
 from . import remap as remap_mod
 from . import runbook as runbook_mod
 from . import scan as scan_mod
+from . import state as state_mod
 
 BANNER = r"""
     _    _     ____   ___ ____ _____         ____    _  _____ _____
@@ -95,12 +96,111 @@ def build_parser() -> argparse.ArgumentParser:
     rb.add_argument("--out", help="Output path (default: stdout)")
     rb.set_defaults(func=runbook_mod.run)
 
+    ts = sub.add_parser(
+        "terraform-state", help="Inspect AMI references in raw/show JSON state without AWS APIs"
+    )
+    ts.add_argument("path", help="Terraform raw state v4 or terraform show -json state")
+    ts.add_argument("--ami-catalog", help="Optional region-scoped AMI descriptions JSON")
+    ts.add_argument(
+        "--region", default="", help="Region for state resources lacking explicit region metadata"
+    )
+    ts.add_argument(
+        "--strict", action="store_true", help="Exit 1 on AL2/AL1 or unresolved AMI evidence"
+    )
+    ts.add_argument("--out", help="Create a new JSON report file (never overwrite)")
+    ts.set_defaults(func=state_mod.run, format="json")
+
+    cf = sub.add_parser(
+        "config-export",
+        help="Read recorded EC2 inventory and optional rule evaluations from an existing Config aggregator",
+    )
+    source = cf.add_mutually_exclusive_group(required=True)
+    source.add_argument("--fixture", help="Offline normalized resource/evaluation export JSON")
+    source.add_argument(
+        "--live", action="store_true", help="Explicitly enable read-only AWS Config API calls"
+    )
+    cf.add_argument("--aggregator", help="Existing organization/account configuration aggregator")
+    cf.add_argument("--region", help="Region hosting the aggregator")
+    cf.add_argument("--profile", help="AWS credential profile for read-only live calls")
+    cf.add_argument(
+        "--rule",
+        help="Also export noncompliant evaluations of this existing rule across aggregator accounts/regions",
+    )
+    cf.add_argument(
+        "--ami-catalog", help="Region-scoped AMI descriptions JSON; unmatched AMIs remain unknown"
+    )
+    cf.add_argument(
+        "--strict",
+        action="store_true",
+        help="Exit 1 on AL2/AL1, unresolved AMIs or noncompliant rule evaluations",
+    )
+    cf.add_argument("--out", help="Create a new JSON report file (never overwrite)")
+    cf.set_defaults(func=config_export.run, format="json")
+
+    ep = sub.add_parser(
+        "eks-proposal",
+        help="Preview a parallel AL2023 node-group patch and generate an opt-in draft-PR bundle",
+    )
+    ep.add_argument("path", help="Terraform .tf.json configuration")
+    ep.add_argument("--resource", required=True, help="aws_eks_node_group resource name")
+    ep.add_argument(
+        "--repo-path", help="Relative source path in the destination repository (default: basename)"
+    )
+    ep.add_argument("--out", help="New directory for patch, proposed JSON, PR body and open-pr.sh")
+    ep.add_argument(
+        "--apply",
+        action="store_true",
+        help="Write the local proposal bundle; never edit IaC or publish a PR",
+    )
+    ep.set_defaults(func=eks_proposal.run, format="json")
+
+    ag = sub.add_parser(
+        "agent-shim",
+        help="Preview or bundle exact Datadog/New Relic configs for a prepared AL2023 host",
+    )
+    ag.add_argument("--agent", required=True, choices=["datadog", "newrelic"])
+    ag.add_argument(
+        "--config-root",
+        required=True,
+        help="Exported etc-layout config tree; reads only this selected copy",
+    )
+    ag.add_argument(
+        "--out", help="New private bundle directory (contains original configuration secrets)"
+    )
+    ag.add_argument(
+        "--apply",
+        action="store_true",
+        help="Write the private bundle; never migrate or restart this host",
+    )
+    ag.set_defaults(func=agent_shim.run, format="json")
+
+    action = sub.add_parser(
+        "ci-template", help="Generate an offline, read-only GitHub Actions gate for a vendored kit"
+    )
+    action.add_argument(
+        "--state-path",
+        required=True,
+        help="Relative sanitized state/inventory path in the target repository",
+    )
+    action.add_argument(
+        "--kit-path", default="kits/al2023-gate", help="Relative vendored Python kit directory"
+    )
+    action.add_argument("--ami-catalog", help="Optional relative AMI catalog path")
+    action.add_argument(
+        "--region", default="", help="Region for state resources lacking explicit region metadata"
+    )
+    action.add_argument("--out", help="New workflow YAML path")
+    action.add_argument(
+        "--apply", action="store_true", help="Create workflow file; default prints YAML only"
+    )
+    action.set_defaults(func=ci_template.run, format="yaml")
+
     return p
 
 
 def _is_machine_output(args: argparse.Namespace) -> bool:
     fmt = getattr(args, "format", None)
-    if fmt in ("json", "csv", "md", "markdown"):
+    if fmt in ("json", "csv", "md", "markdown", "yaml"):
         return True
     if getattr(args, "cmd", None) == "runbook" and not getattr(args, "out", None):
         return True

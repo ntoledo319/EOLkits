@@ -29,7 +29,7 @@ This deployment serves one paid capability: the $299 Audit v2 repository evidenc
    build SHA plus all three loopback endpoints, and recreates the prior image if
    a gate fails. It deliberately does not restore a volume automatically:
    restoring old SQLite after a new payment could discard customer state.
-5. Bootstrap the static target once, then deploy the reviewed `docs/` tree with
+5. Bootstrap the static target once, then deploy a reviewed isolated static build with
    `ship-web.sh` after inspecting its default dry-run; verify the public domain
    serves the repaired claims. The deploy script accepts only
    `/home/ubuntu/sites/eolkits-webroot`, resolves and validates that directory
@@ -45,6 +45,26 @@ This deployment serves one paid capability: the $299 Audit v2 repository evidenc
    Run those bootstrap commands as the same unprivileged `ubuntu` account used
    for deployment. The sentinel is protected from `rsync --delete`; do not copy
    it into `docs/` or reuse it for another directory.
+
+   `ship-web.sh` builds into a fresh repository-local temporary directory with
+   explicit `https://eolkits.com` origins. It never rewrites the committed Pages
+   mirror or copies internal Markdown/history into the deployment. Before SSH,
+   it checks the report engine sample, local links, privacy CSP, checkout gate,
+   canonical origin and sample hashes. Both dry-run and apply remove their local
+   staging directory on exit. `--help` requires no credentials or installation.
+
+   To inspect the same static output without connecting to a host:
+
+   ```bash
+   EOLKITS_BASE_PATH='' EOLKITS_SITE_URL=https://eolkits.com \
+     EOLKITS_API_URL=https://eolkits.com \
+     tmp/verify/venv-web/bin/python apps/web/build.py --output tmp/static-preview
+   python3 scripts/verify_static_release.py --directory tmp/static-preview
+   ```
+
+   Prepare that interpreter with `python3 scripts/verify.py web`. Use a fresh
+   output directory for release review; the standalone builder does not delete
+   files from an existing output directory.
 6. Replace the emergency block with `Caddyfile.eolkits-api.block` only after the
    loopback v2 probes pass. Validate the complete Caddyfile before reloading;
    the reviewed block uses Caddy 2.8+'s `log_skip` to prevent bearer-equivalent

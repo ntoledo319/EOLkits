@@ -288,7 +288,7 @@ jobs:
             local prefix="$1"
             local attempt
             for attempt in 1 2 3; do
-              if timeout 120s npm audit --package-lock-only --omit=dev \
+              if timeout 120s npm audit --package-lock-only \
                 --audit-level=high --prefix "$prefix"; then
                 return 0
               fi
@@ -302,6 +302,7 @@ jobs:
           }
           audit_lockfile kits/lambda-lifeline
           audit_lockfile apps/worker
+          audit_lockfile apps/vscode-extension
 
   lint:
     runs-on: ubuntu-latest
@@ -316,14 +317,18 @@ jobs:
           python -m venv "$GITHUB_WORKSPACE/tmp/lint-venv"
           venv="$GITHUB_WORKSPACE/tmp/lint-venv"
           "$venv/bin/pip" install -r requirements-lint.txt
-          "$venv/bin/ruff" check kits/ apps/grace-api apps/runner apps/web
-          "$venv/bin/black" --check kits/ apps/grace-api apps/runner apps/web
+          verification_paths=(scripts/verify.py scripts/verify_action.py scripts/verify_maintenance.py
+            scripts/verify_static_release.py tests/test_verify.py tests/test_deploy_scripts.py)
+          "$venv/bin/ruff" check kits/ apps/grace-api apps/runner apps/web "${verification_paths[@]}"
+          "$venv/bin/black" --check kits/ apps/grace-api apps/runner apps/web "${verification_paths[@]}"
           "$venv/bin/mypy" kits/al2023-gate/src kits/python-pivot/src --ignore-missing-imports
           if grep -REn 'https://eolkits\.com/(audit|scan|eol-checker|migrate)' \
             README.md apps/github-action apps/vscode-extension kits; then
             echo "::error::Distribution copy points at the obsolete custom-domain funnel"
             exit 1
           fi
+      - name: Verify maintenance inventory and deployment argument safety
+        run: python3 scripts/verify.py maintenance
       - name: Validate the fail-closed GRACE deployment contract
         run: |
           set -euo pipefail

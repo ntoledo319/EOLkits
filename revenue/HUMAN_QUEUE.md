@@ -1,237 +1,120 @@
-# Batched owner queue — authoritative September 4, 2026 — maximum 40 minutes
+# Current owner queue
 
-_September 5, 04:26 UTC: the inbox is still empty of credentials. To eliminate
-HQ-0's manual file-copy work, Codex is requesting a specific read-only exception
-to §1 for locating EOLkits/GRACE env files under `/home/nick`, with no secret
-values printed and no outside-workspace writes. This exception is pending,
-not inferred from the instruction to continue. If granted, scan that scope and
-validate usable access before asking for any further queue work. Otherwise
-HQ-0 remains the permitted import route. All other launch gates still apply._
+Snapshot: September 10, 2026. These are the remaining private-access, account and
+execution-policy prerequisites. Completed static analytics work is recorded in
+[METRICS](METRICS.md); engineering tasks live in [MAINTENANCE](../docs/MAINTENANCE.md).
+The full former queue and its account observations are
+[archived unchanged](archive/2026-09-10/HUMAN_QUEUE.md).
 
-_The owner reports that drive-local env files may contain most missing
-authority. The jail forbids Codex from reading their current location. HQ-0 is a
-two-minute secure file-copy step into the existing ignored inbox. The prior
-queue was 38 minutes; the nominal ceiling is now 40, but usable imported
-credentials should replace—not duplicate—most relevant later steps._
+Estimated remaining owner effort is **42 minutes** if every item is needed.
+This is an estimate, not measured cumulative labor; usable imported access may
+replace several steps. Do not treat the historical 60-minute total budget as
+remaining untouched without reconciling actual owner time.
 
-_PR #57 is merged and green at exact `main` SHA
-`1476920a323ed63bd7311e6a9b2947e8e10ccf62`; the static branch matches it.
-The recorded feature-branch cleanup containment failure changed no queue item or
-commercial prerequisite. The pre-import total was 38 minutes, and the retired
-Stripe credential action remains excluded._
+## HQ-P — unblock already-authorized publication (2 minutes)
 
-_A resumed discovery-boundary audit at `2026-09-04T12:30:43Z` added the one
-missing exact repository topic (`github-actions`) and reverified the same draft
-target. VS search position, repository metadata, connected hosting inventory,
-GitHub sponsor policy, and Marketplace publication requirements exposed no
-additional autonomous path to payment. No queue item was completed or added;
-the pre-import maximum remained 38 minutes. The excluded retired-credential
-action remains outside this queue._
+**What/why:** reviewed maintenance publication was rejected before execution by
+an execution-policy control, even after owner authorization. Another verbal
+approval or a different transport does not resolve that control.
 
-## HQ-0 — import the existing env files into the workspace jail (2 minutes)
+1. Open the session's command-permission controls and enable the exact rejected
+   maintenance-branch push identified in [MAINTENANCE](../docs/MAINTENANCE.md).
+2. Resume the task; the agent must obtain fresh CI, complete the separate
+   maintenance PR and ordered dependency updates, and keep broad PR #63 open.
+   The larger cleanup is locally verified and remains a reviewable working tree.
 
-Why human-only: the files are elsewhere on the drive, and WORKSPACE_ROOT
-explicitly forbids Codex from reading or copying anything outside this project.
-The destination is already created and ignored by Git.
+[Repository pull requests](https://github.com/ntoledo319/EOLkits/pulls).
 
-Steps:
+## HQ-0 — make existing private configuration available (2 minutes)
 
-1. In Dolphin, enable hidden files with `Ctrl+H` and locate the existing
-   EOLkits/GRACE `.env` or deployment environment files.
-2. Copy them—without opening or editing them—to
-   `/home/nick/Development/active/Rupture/tmp/owner-env-import/`. If an env file
-   explicitly references a separate SSH/private credential file, copy that
-   referenced file into the same directory too. Files must be copies, not
-   symlinks.
-3. Do not copy, rotate, revoke, reactivate, or relabel the excluded retired
-   Stripe credential. Do not paste any secret into chat. Reply only `imported`.
+**What/why:** required runtime/payment configuration was absent from the last
+workspace inventory; files elsewhere are outside the normal workspace boundary.
 
-Codex will then classify and validate the imported capabilities without
-printing values, execute every safe supported operation they unlock, and
-recompute the remaining queue.
+1. In Dolphin, enable hidden files (`Ctrl+H`) and locate existing EOLkits/GRACE
+   environment files. Copy them into `tmp/owner-env-import/` under this checkout.
+2. Use copies, not symlinks. Keep the files private and ignored; do not paste
+   values or callback URLs into chat. Reply only that the import is ready.
 
-_Re-verified through GitHub's live API on September 4, 2026: HQ-E's release
-link (id `375063073`, tag `v2.0.0`, slug
-`untagged-ea8be73c7a7d9b6c45e7`) remains the sole canonical private draft. Its
-exact 40-character target is
-`47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`, which equals the protected public
-`v2` branch. No other item's external state has been observed to change; do not
-treat this note as new owner action._
+The private inbox is `tmp/owner-env-import/` in this checkout. The agent validates
+capabilities without printing secrets and removes any queue steps they satisfy.
+The excluded retired Stripe credential must not be copied or changed.
 
-_September 1, 2026: reconciled two parallel cycles' queues (one on
-`marketing-machine-v2`, one on `main`) after they diverged from the same
-August 30 recovery base. `main`'s HQ-A..HQ-G renumbering and VS v1.2.0
-publication are newer and authoritative for overall state; this branch's
-release-link durable-ID/fallback note is preserved in HQ-E below since the
-`untagged-<hex>` slug has already regenerated twice on ordinary resyncs._
+## HQ-A — verify/contain the stale upload service (3 minutes)
 
-Codex completed every operation currently reachable through the repository and
-connected GitHub authority. VS Code v1.3.0 is public, its exact package and
-five-sample Gallery evidence are verified, and its publisher is manual-only
-again. The exact v2 GitHub release draft is ready. Repository Pages now uses
-GitHub Actions, and active ruleset `22266277` blocks default-branch/`v2`
-deletion and force pushes; former HQ-F is complete with no owner labor. The
-remaining actions require production-host access, owner account attestations,
-DEV author authority, or payment-account control that is not present in the
-workspace or connected tools. Do them in this order; do not use an older
-handoff.
+**What/why:** the last recorded API probe did not establish Audit v2. Host runtime
+configuration and a controlled rollout are required; the analytics repair does
+not attest API readiness.
 
-The retired Stripe credential revocation/rotation action is explicitly excluded
-at the owner's direction. It was not attempted, is not included in the time
-budget below, and must not be treated as completed.
+1. On the controlled GRACE checkout, follow the [safe rollout order](../deploy/grace/README.md#safe-rollout-order).
+2. If the old upload/checkout surface remains active, install the reviewed
+   containment block and validate/reload Caddy as documented.
+3. Verify expected 503 mutation and 410 retired-route responses while retaining
+   the webhook route. Leave checkout off and record only route/status evidence.
 
-## HQ-A — contain the stale public upload service (3 minutes)
+## HQ-B — confirm seller/account economics (2 minutes)
 
-Why human-only: five non-invasive access routes were exhausted. Repository
-secrets expose neither GRACE deployment transport nor the runtime bundle; no
-local host credential or control token exists; both direct Caddy admin probes
-time out; and no connected host-management capability is available.
+**What/why:** actual account country, fee schedule/currencies and incremental
+hosting cost require owner knowledge; public standard fees cannot establish them.
 
-Steps:
+1. Open [Stripe settings](https://dashboard.stripe.com/settings). Supply only
+   account country, standard/custom pricing, charge and settlement currencies.
+2. Confirm EOLkits' incremental GRACE cost, including whether it is exactly $0.
+   Recompute the target using those facts before accepting payment.
 
-1. On the GRACE host, open the reviewed checkout of this repository.
-2. Install
-   `deploy/grace/Caddyfile.eolkits-emergency-containment.block` before the
-   existing EOLkits proxy rules, then reload Caddy through the host's existing
-   unprivileged deployment procedure.
-3. Run the first verification block in `deploy/grace/README.md`. Require upload
-   GET/POST/PUT and checkout/event mutations to return 503, obsolete App routes
-   to return 410, and the Stripe webhook route to remain proxied.
-4. Leave checkout off. If a postcondition differs, report only the route and
-   status; do not improvise a broader firewall rule.
+## HQ-C — closed rollout, isolated fulfillment proof and indexing (18 minutes)
 
-## HQ-B — supply the remaining commercial facts (2 minutes)
+**What/why:** this requires the private production/test configuration, an
+operator-owned delivery address and account-controlled indexing tools.
 
-Why human-only: Connecticut's official business registry establishes Toledo
-Technologies LLC's public mailing address, and the terms now use Connecticut
-law while preserving mandatory consumer protections. Public sources cannot
-establish the Stripe account's actual fee/currency facts or incremental GRACE
-cost.
+1. Follow [the closed deployment procedure](../deploy/grace/README.md#deploy-checkout-closed)
+   from a reviewed green commit, starting with its dry-run. Keep checkout off.
+2. Complete all seven outcomes in [HANDOFF](../HANDOFF.md) using the separate
+   test Compose project/volume. Record commit, sanitized evidence and pass/fail;
+   preserve production data and never use live payment keys in the test project.
+3. Verify the current static guards remain green. The first-party tracker repair
+   is already complete; do not reintroduce the external script.
+4. In [Google Search Console](https://search.google.com/search-console), select
+   `eolkits.com`, resubmit its sitemap and request the relevant updated pages.
+   An accepted request is not evidence that stale search snippets disappeared.
 
-Steps:
+## HQ-D — review/remove unsupported public DEV copy (10 minutes)
 
-1. Open <https://dashboard.stripe.com/settings>. Report the account country,
-   standard-versus-custom pricing, presentment currency, and settlement
-   currency. Never send a key, customer record, callback URL, or screenshot.
-2. State whether EOLkits adds exactly $0 of monthly cost to the existing GRACE
-   host. If not, provide only the incremental monthly amount.
+**What/why:** author-controlled public communications need the owner's action;
+25 EOLkits posts were last observed, but that is a dated count.
 
-## HQ-C — deploy Audit v2 closed, prove fulfillment, and repair indexing (18 minutes)
+1. Open [DEV dashboard](https://dev.to/dashboard) and review the currently public
+   EOLkits posts against the [quarantined corpus](../launch/distribution/devto/README.md).
+2. Return unsupported posts to drafts; do not publish replacements in this batch.
+3. Check [the public profile](https://dev.to/ntoledo319) and record what remains.
 
-Why human-only: this requires GRACE access and private Stripe-test/Resend
-values. No host transport or host-management capability is available to the
-workspace or connected tools; the guarded runtime bundle is now complete.
+## HQ-E — publish the reviewed Marketplace release (2 minutes)
 
-Steps:
+**What/why:** Marketplace agreement acceptance and any 2FA are account attestations.
 
-1. In the clean host checkout at `/home/ubuntu/sites/eolkits-api`, check out the
-   final green `main` commit. Run
-   `deploy/grace/deploy-api-closed.sh --sha <full-green-main-sha>` without
-   `--apply`. Require the guarded dry-run to pass and review its bounded plan.
-2. Repeat the exact command with `--apply`. It pins the reviewed SHA, validates
-   the current deployment and private env file, builds the digest-pinned image,
-   runs the no-volume checkout-closed preflight, snapshots the exact production
-   volume, deploys with checkout forced off, verifies all loopback capability
-   gates, and restores the prior image automatically if a post-deploy gate
-   fails. Do not restore a volume automatically.
-3. Replace the emergency block with
-   `deploy/grace/Caddyfile.eolkits-api.block` only after the wrapper proves
-   report version 2.0, exact build SHA, healthy dependencies, and checkout
-   false. Validate the complete Caddy config with Caddy 2.8 or newer before
-   reload; the reviewed block suppresses signed-upload URLs from access logs.
-4. Remove the host rule that injects
-   `https://stats.saiditright.com/script.js`. Do not replace it with another
-   third-party tag. Require raw HTML on `/`, `/audit/`, `/pack/`,
-   `/drift/`, and `/success/` to contain the generated CSP and no
-   cross-origin script.
-5. Use the separate test Compose project and a Stripe test card to prove
-   presign, immutable PUT, signed webhook, exactly one job, a real PDF, Resend
-   delivery, signed download, matching verification lookup, retention, and
-   full-refund handling on forced failure. Tear down only the test project.
-6. Leave production checkout off. Reply with the deployed full commit SHA and
-   pass/fail only—never host credentials, tokens, or customer data.
-7. Only after the injected script is absent and the reviewed custom-host sitemap
-   is live, open Google Search Console for `eolkits.com`, resubmit
-   `https://eolkits.com/sitemap.xml`, and request reindexing for `/audit/` and
-   `/lambda-runtime-deprecation-schedule/`. This is needed because public search
-   still shows retired $1,499 and “email in 5 minutes” snippets. Do not request
-   indexing while the host fails its injection gate.
+1. Open [releases](https://github.com/ntoledo319/EOLkits/releases). Locate the
+   canonical private v2.0.0 draft (last recorded release ID 375063073).
+2. Have the agent reverify its current target against protected `v2` and green CI;
+   archived draft URLs and commit targets may be stale. Select the Marketplace
+   checkbox for the existing listing, accept the agreement and finish 2FA.
+3. Confirm the version on [the existing listing](https://github.com/marketplace/actions/rupture-aws-deprecation-check).
 
-## HQ-D — unpublish the 25 false DEV posts (10 minutes)
+## HQ-G — enable the sole live catalog after every gate (3 minutes)
 
-Why human-only: the owner has no DEV API key in repository secrets and no DEV
-connector is available. Unpublishing is an owner-account communication action.
+**What/why:** only after HQ-A through HQ-D and the fulfillment/economic gates
+are complete may the owner accept real customer money. HQ-E adds distribution
+and cannot substitute for the commerce gates.
 
-Steps:
-
-1. Open <https://dev.to/dashboard>.
-2. Revert all 25 EOLkits posts to drafts. The exact public-author API check still
-   returns 25 posts; the local corpus is quarantined and documents unsupported
-   telemetry/account claims, obsolete links, and two known date errors.
-3. Refresh <https://dev.to/ntoledo319> and confirm no EOLkits posts remain
-   public. Do not edit, replace, or publish promotional content in this batch.
-
-## HQ-E — publish the canonical GitHub Marketplace v2 release (2 minutes)
-
-Why human-only: GitHub requires the account holder to accept its developer
-agreement, select the Marketplace checkbox, and complete 2FA. The Releases API
-does not perform those account-holder attestations.
-
-Steps:
-
-1. Open the sole private draft (release id `375063073`, currently at slug
-   `untagged-ea8be73c7a7d9b6c45e7`):
-   <https://github.com/ntoledo319/EOLkits/releases/tag/untagged-ea8be73c7a7d9b6c45e7>.
-   GitHub regenerates this `untagged-<hex>` slug every time the draft is
-   resynced by `prepare-marketplace-v2.yml` (it has already changed twice
-   across prior cycles), so if that exact link 404s, instead open
-   <https://github.com/ntoledo319/EOLkits/releases> and click the one draft
-   titled "Rupture AWS Deprecation Check v2.0.0" (release id `375063073`) —
-   do not open any other release or draft.
-2. Confirm tag `v2.0.0`, target
-   `47cd9eae77c5a9ddfdbbdb33206efe8f60b907d8`, no assets, and the existing
-   release notes. Select “Publish this Action to the GitHub Marketplace,” keep
-   the existing listing identity, accept the agreement if shown, and publish
-   with 2FA. Do not create another release or listing.
-3. Confirm
-   <https://github.com/marketplace/actions/rupture-aws-deprecation-check>
-   shows v2.0.0. Stop if the target commit differs.
-
-## HQ-G — create the new catalog and enable the only checkout (3 minutes)
-
-Why human-only: this creates live payment objects and begins accepting customer
-money. No connected Stripe authority exists.
-
-Prerequisites: HQ-A through HQ-D are complete; legal/cost math is updated from
-HQ-B; the custom host is injection-free; Audit v2 capability, delivery, refund,
-and retention evidence is green; and no fulfillment/refund alert is open.
-HQ-E improves distribution but cannot weaken these commerce gates. Repository
-Pages and release-branch protections are already complete.
-
-Steps:
-
-1. In Stripe live mode, create one Product named **EOLkits Audit v2** and one
-   active, one-time **USD $299.00** Price. Do not reuse or reactivate
-   `price_1TRoGjDL3cQl851oiIWR5JIa` or another historical Price. Do not create
+1. In [Stripe Products](https://dashboard.stripe.com/products), create one Audit v2
+   Product and a one-time USD $299 Price. Do not reuse retired prices or create
    a public Payment Link.
-2. Put only the new IDs into `EOLKITS_AUDIT_PRODUCT_ID` and
-   `EOLKITS_AUDIT_PRICE_ID`; set
-   `EOLKITS_AUDIT_CHECKOUT_ENABLED=1`.
-3. Run the documented no-volume, network-enabled preflight. It must attest
-   exact identity, object types, live/active state, one-time USD 29900 amount,
-   and the expanded Product. Redeploy only after it passes.
-4. Set repository variable `AUDIT_CHECKOUT_EXPECTED=true`; verify health,
-   status, `/api/capabilities`, the public form, and one input-bound $299
-   Checkout Session. Do not self-charge in live mode.
+2. Supply only the new IDs through private runtime configuration. With the
+   intended checkout configuration, run the mutation-free
+   [live-catalog preflight](../apps/grace-api/eolkits_grace/preflight.py). The
+   closed deployment wrapper intentionally cannot enable checkout.
+3. After preflight passes, have the operator apply the reviewed live configuration
+   and set `AUDIT_CHECKOUT_EXPECTED=true`. Verify health, readiness, the public
+   form and input-bound checkout without self-charging in live mode. Record evidence.
 
-Estimated owner labor before the new import: **38 minutes**. HQ-0 makes the
-nominal maximum **40 minutes**, leaving 20 minutes within the 60-minute cap; a
-successful import is expected to replace relevant host/account steps and reduce
-the actual total. Completed repository work and public VS Code v1.3 publication
-require no owner time. No owner action in this queue asks for the excluded
-retired Stripe credential rotation/revocation.
-
-
-## Local product verification — 2026-09-05 09:44 UTC
-
-No owner action was needed for the local whole-product improvements. Existing payment, deployment and marketplace items remain unchanged; no additional authority was inferred from local tests. The explicitly requested prompt and unlazy resources were read, with no broader home-directory or credential-search exception used.
+Historical price retirement is already recorded; it is not an unfinished task.
+Retired Stripe credential rotation/revocation remains explicitly excluded and
+must not be represented as completed.

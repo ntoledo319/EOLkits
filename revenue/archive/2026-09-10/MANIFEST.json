@@ -1,0 +1,36 @@
+{
+  "recorded_at": "2026-09-10",
+  "source": "Working tree before documentation consolidation, including uncommitted owner/session updates",
+  "files": {
+    "ASSETS.md": {
+      "sha256": "ff3214d7a5e8f6d491c6211a7d038e3fe66ad7a64d43ed02a0515b07e5a35975",
+      "bytes": 40950,
+      "lines": 646
+    },
+    "OPPORTUNITIES.md": {
+      "sha256": "89847ac37bd1388ce14ad58d647accbf52cbbe71ab67056c96e051da5244cddb",
+      "bytes": 37290,
+      "lines": 642
+    },
+    "PLAN.md": {
+      "sha256": "f6f025c955a19f28f7e8d2941ee6902f5770fbd6fdaf3ed2e157ff4e25c8afe6",
+      "bytes": 49852,
+      "lines": 836
+    },
+    "METRICS.md": {
+      "sha256": "e792f9bf0a0277ec5e4fac025990782e38193ae6f7b706e546ae1c5380807657",
+      "bytes": 95989,
+      "lines": 1476
+    },
+    "HUMAN_QUEUE.md": {
+      "sha256": "10466c0693e06d3b9f2b97e52a648b09c08a8833a3fefbaab39cf2106ace14bb",
+      "bytes": 14328,
+      "lines": 257
+    },
+    "DECISIONS.md": {
+      "sha256": "68bbcc7c5257c2637ef8d25011f48cd66aa09f2fe091a71f3736b905418f076c",
+      "bytes": 103410,
+      "lines": 1683
+    }
+  }
+}

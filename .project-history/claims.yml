@@ -19,6 +19,36 @@
 # Secrets policy: identifiers, keys, tokens, hostnames of private services and third-party
 # personal data are not reproduced; where a commit touched such material the claim says so.
 claims:
+  - claim_id: CLM-E5-007
+    claim: "The September 10 cleanup implements both five-item kit roadmaps as bounded CLI features, consolidates active ledgers while retaining exact archival bytes, isolates static deployment builds and corrects an unverified payment-success claim. Dependency updates and verification tooling are local while remote publication remains blocked."
+    date: 2026-09-10
+    source_ids: [SRC-project-cleanup-20260910, SRC-github-api]
+    locator: "Working tree after e20b67297dec4bb4b5d945c5e7d38d609ba0b490; kits/{python-pivot,al2023-gate}/README.md and tests; scripts/verify.py; apps/web/test_static_release.py; apps/web/test_commerce_templates.py; revenue/archive/2026-09-10/MANIFEST.json; docs/MAINTENANCE.md."
+    evidence_type: behavioral
+    status: verified
+    confidence: strongly_supported
+    rationale: "The parent reviewed the sources, independently verified exact archive hashes, and executed browser, isolated-build, link, sample-hash and deployment-refusal checks. The maintenance inventory records the full integrated check result separately."
+    caveats: "No fresh remote CI, main merge, real AWS migration, vendor telemetry validation or paid transaction is implied. No runtime compatibility scanner claims proof from an AMI ID or an absent SDK model alone."
+  - claim_id: CLM-E5-008
+    claim: "The pre-cleanup branch records the workflow implementation as 900be04ddd39f381e242150cf0470799837acd3b, the dependency audit fix as e20b67297dec4bb4b5d945c5e7d38d609ba0b490, and the blocked-cycle/no-cosmetic-ship policy as c23339b4c8a07695e23b646b4f7090530c751e65. The last policy explicitly permits a blocked cycle to end without any commit."
+    date: 2026-09-10
+    source_ids: [SRC-repo-git, SRC-project-cleanup-20260910]
+    locator: "900be04ddd39f381e242150cf0470799837acd3b; e20b67297dec4bb4b5d945c5e7d38d609ba0b490; c23339b4c8a07695e23b646b4f7090530c751e65:AGENTS.md section 7."
+    evidence_type: direct
+    status: verified
+    confidence: confirmed
+    rationale: "Full local SHAs and the policy diff were inspected. This supplies durable commit locators for earlier working-tree records without rewriting those records as contemporaneous commit evidence."
+    caveats: "Commit dates are September 10; earlier capsule dates describe the work's original session. The policy commit's motivation is an author statement, not independently reconstructed production-cycle evidence."
+  - claim_id: CLM-E5-006
+    claim: "The September 10 emergency follow-up repaired first-party analytics and passed both static guards, found PR #63 still failing its API dependency audit and history declaration, prepared Python 3.12/3.14 and container runtime checks, and began dependency dispositions within supported extension and Node API type boundaries."
+    date: 2026-09-10
+    source_ids: [SRC-emergency-maintenance-20260910, SRC-github-api]
+    locator: "3f6e9f5b9f56eda162867137262037213b43e078; PR #63, Actions run 34450366804/job 102784483509; successful live guards 34455421385 and 34455467762; PR #59 merged as 5fb6350352a29ac736aec8823e1ba53d16ec9700; working-tree .github/workflows/test.yml and .github/dependabot.yml."
+    evidence_type: contemporaneous
+    status: verified
+    confidence: strongly_supported
+    rationale: "Live GitHub checks and merge metadata were read, production before/after probe records were inspected, and the working-tree CI and policy changes were reviewed."
+    caveats: "Recorded before remaining dependency dispositions and refreshed PR #63 CI had completed; successful static guards and a partial dependency merge do not establish overall success or visitor traffic."
   - claim_id: CLM-E5-005
     claim: "The pre-existing living-history system was committed locally on September 5 as docs(history): install project history system."
     date: 2026-09-05

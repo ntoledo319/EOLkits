@@ -6,7 +6,7 @@ import argparse
 import os
 import sys
 
-from . import __version__, util
+from . import __version__, action_template, extensions, layers, powertools, sdk_audit, util
 from . import audit as audit_mod
 from . import codemod as codemod_mod
 from . import deploy as deploy_mod
@@ -62,6 +62,67 @@ def build_parser() -> argparse.ArgumentParser:
     a.add_argument("--format", choices=["table", "json"], default="table")
     a.add_argument("--strict", action="store_true", help="Exit 1 if any findings")
     a.set_defaults(func=audit_mod.run)
+
+    # Read-only migration compatibility evidence. AWS access is never implicit.
+    layer = sub.add_parser("layers", help="Check layer ZIP content or declared compatibility")
+    layer_input = layer.add_mutually_exclusive_group(required=True)
+    layer_input.add_argument("--archive", help="Local layer ZIP; never extracted or executed")
+    layer_input.add_argument("--fixture", help="JSON object containing a layers array")
+    layer_input.add_argument(
+        "--live", action="store_true", help="Explicit read-only Lambda metadata lookup"
+    )
+    layer.add_argument("--function", help="Function for --live")
+    layer.add_argument("--region", help="AWS region for --live")
+    layer.add_argument("--profile", help="AWS profile for --live")
+    layer.set_defaults(func=layers.run)
+
+    extension = sub.add_parser(
+        "extensions", help="Check extension ZIP launchers and Python interpreter evidence"
+    )
+    extension.add_argument("--archive", required=True, help="Local extension layer ZIP")
+    extension.set_defaults(func=extensions.run)
+
+    for command in (layer, extension):
+        command.add_argument("--runtime", default="python3.12", help="Target Python runtime")
+        command.add_argument("--architecture", choices=["x86_64", "arm64"], default="x86_64")
+
+    power = sub.add_parser("powertools", help="Check exact Powertools release Python metadata")
+    power.add_argument("path", nargs="?", help="Supported dependency file (exact pin required)")
+    power.add_argument(
+        "--matrix", action="store_true", help="Show the exact-release snapshot matrix"
+    )
+    power.add_argument("--package-version", help="Resolved Powertools version")
+    power.add_argument("--metadata", help="Locally saved PyPI JSON for another exact release")
+    power.add_argument("--runtime", default="python3.12")
+    power.set_defaults(func=powertools.run)
+
+    sdk = sub.add_parser(
+        "boto3", help="Compare static SDK calls with local botocore service models"
+    )
+    sdk.add_argument("path", help="Python source file or directory")
+    sdk_models = sdk.add_mutually_exclusive_group(required=True)
+    sdk_models.add_argument("--models", help="Target botocore data directory")
+    sdk_models.add_argument(
+        "--installed-models",
+        action="store_true",
+        help="Use installed botocore models; no AWS client or requests",
+    )
+    sdk.add_argument("--baseline-models", help="Previous model set, required to prove removals")
+    sdk.set_defaults(func=sdk_audit.run)
+    for command in (layer, extension, power, sdk):
+        command.add_argument("--format", choices=["table", "json"], default="table")
+        command.add_argument(
+            "--strict",
+            action="store_true",
+            help="Exit 1 for incompatibility or manual-review findings",
+        )
+
+    action = sub.add_parser("action", help="Preview a GitHub Actions workflow for a vendored kit")
+    action.add_argument("--out", help="New workflow path (parent directory must exist)")
+    action.add_argument(
+        "--apply", action="store_true", help="Create the file; default prints preview only"
+    )
+    action.set_defaults(func=action_template.run)
 
     # iac
     i = sub.add_parser("iac", help="Patch Python runtime in SAM / CDK / Terraform / Serverless")

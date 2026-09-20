@@ -7,7 +7,7 @@
 
 Works offline (fixture mode) for demos and CI. Works live against AWS with standard boto3 credentials.
 
-[![Tests](https://img.shields.io/badge/tests-CI%20verified-green)](test/)
+[![CI](https://github.com/ntoledo319/EOLkits/actions/workflows/test.yml/badge.svg)](https://github.com/ntoledo319/EOLkits/actions/workflows/test.yml)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Python 3.9 EOL](https://img.shields.io/badge/python3.9-EOL%202025--12--15-red)](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html)
 
@@ -38,7 +38,7 @@ commands. TOML audits use the standard library on Python 3.11+; on Python
 
 ---
 
-## The 6 commands
+## Commands
 
 ```
 python-pivot scan        # find Python Lambdas by runtime, severity, days-to-EOL
@@ -47,11 +47,19 @@ python-pivot audit       # compare declared dependencies with curated cp312 base
 python-pivot iac         # patch Runtime: python3.9 → python3.12 across SAM/CDK/Terraform/Serverless
 python-pivot deploy      # staged canary deploy with CloudWatch-alarm auto-rollback
 python-pivot rollback    # revert alias to previous version
+python-pivot layers      # inspect local layer ZIPs or publisher metadata
+python-pivot extensions  # inspect extension launchers and Python interpreter evidence
+python-pivot powertools  # compare exact Powertools releases with target Python metadata
+python-pivot boto3       # check source calls against target/baseline botocore models
+python-pivot action      # preview a GitHub Actions workflow; create only with --apply
 ```
 
 ---
 
 ## 5-minute demo
+
+The output below is illustrative fixture output; relative ages change with the
+scan date. Use the linked AWS sources and current command output for decisions.
 
 ### 1. Scan
 
@@ -94,7 +102,7 @@ $ python-pivot codemod src/ --apply
 
 **Lints** (flagged for human review, no auto-fix): `distutils`, `imp`, `@asyncio.coroutine`, `datetime.utcnow()`, `asyncio.get_event_loop()`, `typing.io/re` submodules, `unittest.makeSuite`, `pkg_resources`.
 
-No pyupgrade-style over-rewriting. Lambda Lambda code is production code — we rewrite only what is mechanically safe.
+No pyupgrade-style over-rewriting. Lambda code is production code — we rewrite only what is mechanically safe.
 
 ### 3. Audit native wheels
 
@@ -227,13 +235,36 @@ described hosted products are not for sale.
 
 ---
 
-## Roadmap
+## Migration compatibility checks
 
-- [ ] Lambda Layer compatibility scanner
-- [ ] Lambda Extension Python version check
-- [ ] AWS Lambda Powertools version compat matrix
-- [ ] boto3 breaking-change scanner (deprecated parameters, removed API versions)
-- [ ] GitHub Action template
+The five earlier roadmap items are implemented with bounded inputs and explicit
+coverage in every JSON report:
+
+- [x] Layer scanner: Python import paths, named CPython ABIs, native architecture,
+  and publisher declarations; optional read-only AWS metadata lookup.
+- [x] Extension Python check: executable bits, Python shebangs and bundled
+  interpreter evidence; native and dynamic launchers receive separate review findings.
+- [x] Powertools matrix: exact-release `Requires-Python` and classifiers,
+  including the different requirements of 3.0.0, 3.15.1 and 3.34.0.
+- [x] boto3 scanner: modeled deprecated parameters/operations and target model
+  availability; an optional previous model set proves parameter, operation and
+  API-version removals from the selected SDK model set.
+- [x] GitHub Action template: preview by default, exclusive file creation with
+  `--apply`, read-only repository permissions and offline scan commands.
+
+```bash
+python-pivot layers --fixture examples/layer-metadata.json --format json --strict
+python-pivot layers --archive layer.zip --runtime python3.12 --architecture arm64
+python-pivot extensions --archive extension.zip --runtime python3.12
+python-pivot powertools --matrix --runtime python3.12 --format json
+python-pivot boto3 src/ --models vendor/botocore/data --baseline-models vendor/previous-botocore/data --strict
+python-pivot action --out .github/workflows/python-compatibility.yml
+```
+
+See [supported inputs, examples and limits](docs/COMPATIBILITY.md). These checks
+do not execute uploaded code or prove a Lambda deployment works. JSON output is
+one report object; `--strict` exits 1 for either incompatibilities or explicit
+manual-review findings. Invalid input exits 2 without a clean report.
 
 ---
 

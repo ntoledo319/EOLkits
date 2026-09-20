@@ -60,10 +60,10 @@ aws autoscaling update-auto-scaling-group --auto-scaling-group-name {name} \\
     "eks": """# EKS managed node group — AL2 → AL2023
 
 Target: Cluster `{cluster}` · NodeGroup `{name}` · Region `{region}`.
-Approach: blue/green node group (safer than in-place amiType swap).
+Approach: parallel node groups; custom-AMI launch-template upgrades need a separate review.
 
 ## Pre-flight
-- [ ] EKS cluster version ≥ 1.29 (AL2023 supported 1.29+)
+- [ ] Cluster version, VPC CNI and target AL2023 AMI support verified against current EKS documentation
 - [ ] Workloads have PodDisruptionBudgets set
 - [ ] Relevant Helm charts / node-local DaemonSets tested on AL2023 kernel 6.1+
 - [ ] IAM node role has permissions for AL2023 (same as AL2)

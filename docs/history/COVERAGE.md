@@ -9,7 +9,7 @@ Generated from `.project-history/state.yml` and `.project-history/sources.yml` b
 - Audit date: 2026-09-04
 - Full-audit anchor: `71c78a1192ce8e83f955f3b53f1595449d4c9ff7`
 - Incremental anchor: `71c78a1192ce8e83f955f3b53f1595449d4c9ff7`
-- Reachable commits at audit (`git rev-list --all --count`): 3617
+- Reachable commits at audit (`git rev-list --all --count`): 3633
 - Root commit: `05435fd26157dd1bd763e6e9fb1b4ecd39a7cecb`
 
 ## Refs examined
@@ -135,6 +135,7 @@ Generated from `.project-history/state.yml` and `.project-history/sources.yml` b
 | `SRC-bizops-audit-service` | owner-business-documents | contemporaneous | accessible | 2026-09-04 | /home/nick/Development/business-ops/revenue-ready-services/eolkits-aws-migration-audit/ (8 files, all 2026-06… |
 | `SRC-bizops-root` | owner-business-documents | contemporaneous | accessible | 2026-09-04 | /home/nick/Development/business-ops/*.md (ACTION-LOG, DECISION-LOG, RUN-STATE, NEXT-ACTIONS, FINAL-VERIFICATI… |
 | `SRC-commit-index` | derived-index | derived | accessible | 2026-09-04 | scratchpad commits.tsv built from `git log --all --topo-order --numstat` (3,599 rows) and era batch files; no… |
+| `SRC-emergency-maintenance-20260910` | operator-session-and-ci-review | contemporaneous | accessible | 2026-09-10 | September 10 emergency-maintenance session; EMERGENCYDDOTHISNOW.md; https://github.com/ntoledo319/EOLkits/pul… |
 | `SRC-github-api` | github-rest-api | direct | accessible | 2026-09-04 | gh api repos/ntoledo319/EOLkits, repos/ntoledo319/EOLkits/activity (3,585 rows), repos/ntoledo319/EOLkits/eve… |
 | `SRC-github-prs` | github-pull-requests | contemporaneous | accessible | 2026-09-04 | gh pr list --repo ntoledo319/EOLkits --state all (58 PRs, bodies and timelines read); 0 issues |
 | `SRC-github-releases` | github-releases | direct | accessible | 2026-09-04 | gh release view v1.0.0 / v1 / v1.1.0 / v2.0.0 (draft) --repo ntoledo319/EOLkits; tag objects 4d834b80c2567740… |
@@ -145,6 +146,7 @@ Generated from `.project-history/state.yml` and `.project-history/sources.yml` b
 | `SRC-openclaw-launch` | agent-workspace | contemporaneous | accessible | 2026-09-04 | /home/nick/.openclaw/workspace/eolkits-launch/ (_GROUND-TRUTH-SCAN.tsv 2026-08-01, al2-eol-migration-guide.md… |
 | `SRC-outreach-al2` | owner-campaign-records | contemporaneous | partial | 2026-09-04 | /home/nick/Development/outreach-contacts/campaigns/al2-eolkits/ (STATUS.md, BOARD-VERDICT-2026-06-29.md, two… |
 | `SRC-product-improvement-20260905` | working-tree-and-local-verification | direct | accessible | 2026-09-05 | Working tree after 24c2debcce3782667c17c567742b45216881766a on codex/whole-product-improvement-20260905; apps… |
+| `SRC-project-cleanup-20260910` | working-tree-and-local-verification | direct | accessible | 2026-09-10 | Working tree on codex/project-cleanup-20260910 after e20b67297dec4bb4b5d945c5e7d38d609ba0b490; docs/MAINTENAN… |
 | `SRC-purge-ledgers` | security-operations-ledgers | contemporaneous | accessible | 2026-09-04 | /home/nick/Development/.unlazy/credential-cleanup/ (discovery/repositories.md, discovery/history.md, discover… |
 | `SRC-purge-memory` | agent-memory-note | retrospective | accessible | 2026-09-04 | /home/nick/.claude/projects/-home-nick/memory/credential-cleanup-audit-2026-09.md (2026-09-03/04) |
 | `SRC-purge-report` | security-operations-report | contemporaneous | accessible | 2026-09-04 | /home/nick/Development/SECURITY_CLEANUP_REPORT.md (2026-09-02, addendum 2026-09-04) and /home/nick/Developmen… |

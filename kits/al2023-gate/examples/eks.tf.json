@@ -1,0 +1,22 @@
+{
+  "resource": {
+    "aws_eks_node_group": {
+      "workers": {
+        "ami_type": "AL2_x86_64",
+        "cluster_name": "example",
+        "node_group_name": "workers",
+        "node_role_arn": "${aws_iam_role.nodes.arn}",
+        "scaling_config": [
+          {
+            "desired_size": 2,
+            "max_size": 3,
+            "min_size": 1
+          }
+        ],
+        "subnet_ids": [
+          "${aws_subnet.private.id}"
+        ]
+      }
+    }
+  }
+}

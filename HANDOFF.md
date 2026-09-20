@@ -1,52 +1,61 @@
 # EOLkits release handoff
 
-**Current as of August 22, 2026.** This file replaces the obsolete pre-launch
-handoff. Revenue state and owner-only work are tracked in `revenue/`; do not use
-old launch documents as operating instructions.
+Checkout remains closed. The only planned paid product is a **$299 static
+repository evidence report**; local tests and a working static site do not
+establish a functioning purchase or delivery path.
 
-## What is safe to ship now
+Use [maintenance](docs/MAINTENANCE.md) for engineering and publication work,
+[the owner queue](revenue/HUMAN_QUEUE.md) for private access/account actions, and
+[the evidence ledger](revenue/METRICS.md) for dated observations. The six prior
+revenue ledgers are preserved [byte for byte](revenue/archive/2026-09-10/README.md).
 
-- The free local scanners, browser scanner, GitHub Action, documentation, and
-  static site.
-- The Audit v2 backend **with checkout disabled**.
-- The existing GitHub Marketplace Action identity, updated from a reviewed `v2`
-  release after CI passes.
+## Release surfaces
 
-## What is not available
+The free CLIs, browser scanner, GitHub Action, editor extension, and generated
+site are independent release surfaces. A green reviewed revision can be released
+through its existing channel. Preserve the Marketplace identities and supported
+runtime versions; local changes are not published releases.
 
-Migration Pack, Drift Watch, Organization License, the public GitHub App, and
-partner/white-label fulfillment are closed research concepts. Their legacy
-checkout paths must remain closed. Do not publish the archived copy in `launch/`
-or accept payment for those concepts.
+Audit v2 can be deployed with checkout disabled using the guarded
+[GRACE rollout procedure](deploy/grace/README.md). The September 10 first-party
+analytics repair passed both static guards; that resolves the earlier external
+script/CSP blocker only. It does not establish the backend version or commerce
+readiness. Dependency publication and PR #63 verification remain in the current
+maintenance inventory.
 
-## The paid-product gate
+Migration Pack, Drift Watch, Organization License, partner white-labeling, and
+the public GitHub App remain unavailable. Their checkout paths stay closed.
+Historical Stripe prices were retired; do not reactivate them or use archived
+launch copy as an operating procedure.
 
-The only proposed paid product is a $299 static repository evidence report.
-Checkout must remain disabled until all of the following are evidenced in Stripe
-test mode on the real deployment shape:
+## Required paid-product evidence
 
-1. immutable upload and bounded archive preflight;
-2. Checkout completion and verified Stripe webhook;
-3. one-and-only-one job claim and real PDF rendering;
-4. Resend delivery to an operator-owned address;
-5. signed download and evidence lookup matching the PDF metadata;
-6. failed-fulfillment refund initiation and reconciliation; and
-7. source/report retention sweeps.
+Before enabling production checkout, record all seven outcomes from the isolated
+Stripe test-mode deployment described in [the deployment guide](deploy/grace/README.md#test-mode-e2e-deployment):
 
-The exact deployment and test procedure is in `deploy/grace/README.md`. Keep
-`EOLKITS_AUDIT_CHECKOUT_ENABLED=0` until that procedure passes. The static page
-also hides checkout unless `/api/capabilities` reports Audit v2 ready.
+1. An immutable upload and bounded archive preflight.
+2. Completed Checkout and a verified Stripe webhook.
+3. Exactly one job claim producing a real PDF.
+4. Resend delivery to an operator-owned address.
+5. A signed download and verification record matching the PDF metadata.
+6. Failed-fulfillment refund initiation and reconciliation.
+7. Source and report retention sweeps.
 
-## Owner actions
+Production must continue to reject test keys. Keep
+`EOLKITS_AUDIT_CHECKOUT_ENABLED=0` until these outcomes, seller/account facts,
+real fees, zero incremental hosting cost, and the separate live-catalog preflight
+are verified. The static form also requires a successful `/api/capabilities`
+readiness response. Record evidence without credentials or customer data.
 
-`revenue/HUMAN_QUEUE.md` is the sole current checklist. It includes exact links,
-ordering, and a total time budget. In particular, legacy Stripe Payment Links
-must be archived before paid traffic is possible, and old DEV posts need manual
-review because autonomous posting or editing is prohibited.
+## Verification and resumption
 
-## Verification
+Run `python3 scripts/verify.py all`; use the
+[development guide](docs/development.md) for prerequisites. CI additionally
+checks the actual container images and runtime matrix. Neither substitutes for
+the deployment exercise above.
 
-The complete local and CI matrix is documented in `README.md` and
-`.github/workflows/test.yml`. A green unit suite is necessary but is not evidence
-that payment, email, DNS, or production routing works; those require the live
-test-mode exercise above.
+At handoff, identify the exact reviewed commit, local checks, remote CI state,
+publication state, and outstanding access requirements separately. Preserve
+`history/cited-objects` and `archive/*` tags. Keep the revenue loop disabled until
+its network prerequisite is verified; do not manufacture publication by changing
+dates or regenerating identical artifacts.
