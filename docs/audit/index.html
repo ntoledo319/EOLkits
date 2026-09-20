@@ -38,7 +38,14 @@ h1{margin-top:.3rem}
 .guarantee h3{margin-top:0;color:#059669}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0}
 .cell{border:1px solid #e5e7eb;border-radius:8px;padding:1rem;font-size:.92rem}
-.cell h4{margin:.2rem 0}
+.cell h3{margin:.2rem 0;font-size:1rem}
+.skip{position:absolute;left:-9999px}
+.skip:focus{position:static;display:inline-block;padding:.5rem 1rem;background:#2563eb;color:#fff;border-radius:6px}
+form#auditForm label{display:inline-block;font-weight:600;margin-bottom:.25rem;font-size:.95rem}
+.sitenav{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding-bottom:1rem;margin-bottom:1rem;border-bottom:1px solid #e5e7eb}
+.sitenav nav{display:flex;flex-wrap:wrap;gap:1rem}
+.sitenav a{color:#2563eb;text-decoration:none;font-weight:600}
+.sitenav a:hover{text-decoration:underline}
 .logos{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0}
 .logos span{border:1px solid #d1d5db;border-radius:999px;padding:.3rem .8rem;font-size:.85rem;color:#374151;background:#f9fafb}
 .reassure{color:#6b7280;font-size:.9rem;margin:.5rem 0}
@@ -55,7 +62,16 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 </style>
 </head>
 <body>
-<a href="/EOLkits/" class="brand">← EOLkits</a>
+<a class="skip" href="#main">Skip to main content</a>
+<header class="sitenav">
+  <a href="/EOLkits/" class="brand">← EOLkits</a>
+  <nav aria-label="Primary">
+    <a href="/EOLkits/migrate/">Deadlines</a>
+    <a href="/EOLkits/scan/">Free scan</a>
+    <a href="/EOLkits/audit/">Audit</a>
+  </nav>
+</header>
+<main id="main">
 <h1>Turn a repository into reviewable AWS migration evidence</h1>
 <p class="lede">Upload one repository ZIP or supported source file. The <strong>$299 evidence report</strong> returns the exact files and lines that matched, a severity-and-reach-ranked remediation order, and a configured rule or package reference for each matched finding. It is a static source scan—not a live AWS inventory.</p>
 
@@ -100,9 +116,12 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 </div>
 <form id="auditForm" hidden>
   <h3>Start Audit</h3>
-  <p><input type="email" id="auditEmail" name="email" placeholder="your@email.com" required></p>
-  <p><input type="date" id="auditDeadline" name="deadline" aria-label="Deadline date"></p>
-  <p><input type="file" id="auditFile" name="file" required accept=".zip,.yaml,.yml,.json,.tf,.tfvars,.js,.ts,.tsx,.py,.toml,.lock,.sh,.txt"></p>
+  <p><label for="auditEmail">Email address for report delivery</label><br>
+  <input type="email" id="auditEmail" name="email" placeholder="your@email.com" autocomplete="email" required></p>
+  <p><label for="auditDeadline">Target migration date (optional)</label><br>
+  <input type="date" id="auditDeadline" name="deadline"></p>
+  <p><label for="auditFile">Repository ZIP or single source file</label><br>
+  <input type="file" id="auditFile" name="file" required accept=".zip,.yaml,.yml,.json,.tf,.tfvars,.js,.ts,.tsx,.py,.toml,.lock,.sh,.txt"></p>
   <p class="reassure">Upload limits: 10 MiB input; ZIPs may contain at most 2,000 entries and 25 MiB expanded text. Analysis is also bounded to 500,000 decoded lines, 100,000 mapping records per file, 10,000 Lambda resources per file, 10,000 retained evidence records, and 1 MiB per dependency manifest. Binary archive members are skipped; standalone binary inputs and archives with no supported text are rejected. Encrypted, ambiguous-path, path-traversing, over-complex, and suspiciously compressed archives are rejected before checkout. Do not upload secrets or unrelated personal data.</p>
   <button id="auditSubmit" type="submit">Upload and Proceed to Checkout</button>
   <p class="reassure">By continuing, you authorize this upload to be scanned and agree to the <a href="/EOLkits/legal/terms.html">Terms</a> and <a href="/EOLkits/legal/privacy.html">Privacy Policy</a>. Stripe Checkout shows the final $299 price before payment.</p>
@@ -121,10 +140,10 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 
 <h2>Why you can trust the report (without trusting the brand)</h2>
 <div class="grid">
-  <div class="cell"><h4>Evidence, not estimates</h4>Each match includes the observed file, line, and text.</div>
-  <div class="cell"><h4>Checkable references</h4>Each finding links its configured rule or package reference; conservative dependency floors still require release and target verification.</div>
-  <div class="cell"><h4>Repeatable findings</h4>The evidence fingerprint covers the input hash, rule-pack version, and canonical findings.</div>
-  <div class="cell"><h4>Bounded scope</h4>The report says plainly that it does not query AWS or prove a complete inventory.</div>
+  <div class="cell"><h3>Evidence, not estimates</h3>Each match includes the observed file, line, and text.</div>
+  <div class="cell"><h3>Checkable references</h3>Each finding links its configured rule or package reference; conservative dependency floors still require release and target verification.</div>
+  <div class="cell"><h3>Repeatable findings</h3>The evidence fingerprint covers the input hash, rule-pack version, and canonical findings.</div>
+  <div class="cell"><h3>Bounded scope</h3>The report says plainly that it does not query AWS or prove a complete inventory.</div>
 </div>
 
 <div class="logos">
@@ -144,6 +163,15 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 
 <script>
 const API = 'https://eolkits.com';
+// Canonical host guard: this page is published for one storefront only.
+const STOREFRONT_HOST = 'eolkits.com';
+(function () {
+  const h = location.hostname;
+  const local = !h || h === 'localhost' || h === '127.0.0.1' || h === '[::1]' || h.endsWith('.local');
+  if (!local && h !== STOREFRONT_HOST && h !== 'www.' + STOREFRONT_HOST) {
+    location.replace('https://' + STOREFRONT_HOST + '/audit/');
+  }
+})();
 const qp = new URLSearchParams(location.search);
 function attributionToken(value) {
   value = String(value || '').toLowerCase();
@@ -174,16 +202,22 @@ const auditInterest = document.getElementById('auditInterest');
 // not alter price.
 if (qp.get('deadline') && deadlineInput) deadlineInput.value = qp.get('deadline');
 if (qp.get('cancelled')) auditStatus.textContent = 'Checkout cancelled — finish whenever you are ready.';
-fetch(API + '/api/capabilities', { cache: 'no-store', credentials: 'omit' }).then(r => r.ok ? r.json() : Promise.reject()).then(c => {
-  const a = c && c.audit;
-  if (a && a.checkout_enabled === true && String(a.report_version) === '2.0') {
-    auditForm.hidden = false;
-    auditGate.hidden = true;
-    auditInterest.hidden = true;
-  } else {
-    auditGate.textContent = 'Audit checkout is temporarily paused while fulfillment is verified.';
-  }
-}).catch(() => { auditGate.textContent = 'Audit checkout is temporarily paused while fulfillment is verified.'; });
+// Checkout stays closed until automated delivery is verified end to end.
+const FULFILMENT_PROVEN = false;
+if (!FULFILMENT_PROVEN) {
+  auditGate.textContent = 'Audit checkout is paused while automated delivery is verified end to end. The free scanners are unaffected.';
+} else {
+  fetch(API + '/api/capabilities', { cache: 'no-store', credentials: 'omit' }).then(r => r.ok ? r.json() : Promise.reject()).then(c => {
+    const a = c && c.audit;
+    if (a && a.checkout_enabled === true && String(a.report_version) === '2.0') {
+      auditForm.hidden = false;
+      auditGate.hidden = true;
+      auditInterest.hidden = true;
+    } else {
+      auditGate.textContent = 'Audit checkout is temporarily paused while fulfillment is verified.';
+    }
+  }).catch(() => { auditGate.textContent = 'Audit checkout is temporarily paused while fulfillment is verified.'; });
+}
 auditForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const file = document.getElementById('auditFile').files[0];
@@ -253,6 +287,7 @@ auditForm.addEventListener('submit', async (event) => {
 <details><summary>What if it's wrong, or I'm just not happy?</summary><p>Email us within 30 days for a full refund. No questions asked.</p></details>
 </div>
 
+</main>
 <footer>
   <p>File/line evidence · configured references · input hash + evidence fingerprint · checkout and automated delivery remain readiness-gated.</p>
   <p><a href="/EOLkits/legal/terms.html">Terms</a> · <a href="/EOLkits/legal/privacy.html">Privacy</a> · <a href="/EOLkits/scan/">Free scan</a> · <a href="/EOLkits/audit/sample/">Sample report</a></p>
