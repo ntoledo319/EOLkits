@@ -41,3 +41,29 @@ def test_template_origins_follow_deployment_configuration(monkeypatch):
     assert "const API = 'https://api.example.com';" in page
     assert "fetch(API + '/api/audit/checkout'" in page
     assert "{API_URL}" not in page
+
+
+def test_conditional_checkout_copy_matches_the_fulfilment_hold():
+    """The page must never hold checkout closed and read as open, or the reverse.
+
+    EOL-04: four sentences saying checkout is not open yet once rendered beside a
+    live buy form. Tie the two halves together so they cannot drift apart again.
+    """
+    page = build.build_audit_page(build.load_pricing())
+    held = "const FULFILMENT_PROVEN = false;" in page
+    conditional = (
+        "When checkout is open",
+        "When the readiness gate opens",
+        "readiness-gated",
+    )
+    present = [phrase for phrase in conditional if phrase in page]
+    if held:
+        assert present, (
+            "checkout is held closed but no copy says so; the page reads as if it "
+            "were open for business"
+        )
+    else:
+        assert not present, (
+            "checkout is open but the page still tells the buyer it is gated: "
+            + ", ".join(present)
+        )
