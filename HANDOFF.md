@@ -26,8 +26,9 @@ buy form — and was disabled on 2026-09-20; it now returns 404. `eolkits.com` i
 the single till.
 
 **This branch is not mergeable as it stands.** `fix/storefront-audit-20260919`
-is not a fast-forward of `origin/main` (12 commits ahead, 3 behind at
-`5fb63503`) and its first commit, `6f6e2549`, is a snapshot of 90 uncommitted
+is not a fast-forward of `origin/main`: that branch (`5fb63503` when this was
+written) carries three commits this branch does not. Its first commit,
+`6f6e2549`, is a snapshot of 90 uncommitted
 files taken from the owner's working tree — not work produced by that pass. It
 must not be merged until decision D-004 is answered.
 
