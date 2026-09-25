@@ -905,7 +905,17 @@ def resend_unnotified_leads(max_batch: int = 50) -> dict[str, int]:
         try:
             fields = json.loads(row.get("fields") or "{}")
         except Exception:
-            fields = {}
+            fields = None
+        if not isinstance(fields, dict):
+            # `fields` is cut at 4000 characters when stored, so a long message
+            # leaves invalid JSON. Never re-send the owner an alert without the
+            # contact details: fall back to the identity columns plus the raw text.
+            fallback = {
+                "email": row.get("email") or "",
+                "name": row.get("name") or "",
+                "details (shortened when stored)": row.get("fields") or "",
+            }
+            fields = {k: v for k, v in fallback.items() if v}
         _send_lead_notification(
             int(row["id"]), row.get("product") or "", row.get("source") or "", fields
         )
