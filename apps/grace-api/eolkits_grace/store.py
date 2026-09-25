@@ -688,6 +688,54 @@ class Store:
                 conn.execute("SELECT COUNT(*) AS n FROM leads WHERE notified = 0").fetchone()["n"]
             )
 
+    # ---- lead retention and deletion -------------------------------------- #
+    #
+    # Deletes of personal data run with `secure_delete` on, so SQLite overwrites
+    # the freed row content instead of leaving it in free pages, inside one
+    # IMMEDIATE transaction so the rows reported are exactly the rows removed.
+    # In WAL mode the old page images stay in the database file until a
+    # checkpoint copies the overwritten pages over them; callers that erase
+    # rows call `checkpoint_wal()` afterwards.
+
+    @contextmanager
+    def _erasing(self) -> Iterator[sqlite3.Connection]:
+        with self.connect() as conn:
+            conn.execute("PRAGMA secure_delete = ON")
+            conn.execute("BEGIN IMMEDIATE")
+            yield conn
+
+    def checkpoint_wal(self) -> bool:
+        """Copy the WAL into the database file and truncate it, without waiting.
+
+        The busy timeout is 0 for this one connection, so the checkpoint never
+        stalls other work (a Stripe webhook, a job) behind a reader: it either
+        completes at once or reports False, and the caller retries later."""
+        with self.connect() as conn:
+            conn.execute("PRAGMA busy_timeout = 0")
+            try:
+                busy, _log_frames, _checkpointed = conn.execute(
+                    "PRAGMA wal_checkpoint(TRUNCATE)"
+                ).fetchone()
+            except sqlite3.OperationalError:
+                return False
+        return int(busy) == 0
+
+    def purge_leads_before(self, cutoff_iso: str, *, dry_run: bool = False) -> dict[str, int]:
+        """Delete lead rows captured before `cutoff_iso` (a UTC isoformat string,
+        the format `ts` is written in, so text order is time order).
+        `unnotified` counts matched rows whose owner alert never went out."""
+        sql_where = "FROM leads WHERE ts < ?"
+        manager = self.connect() if dry_run else self._erasing()
+        with manager as conn:
+            row = conn.execute(
+                "SELECT COUNT(*) AS n, COALESCE(SUM(notified = 0), 0) AS unnotified " + sql_where,
+                (cutoff_iso,),
+            ).fetchone()
+            deleted = 0
+            if not dry_run and int(row["n"]):
+                deleted = int(conn.execute("DELETE " + sql_where, (cutoff_iso,)).rowcount)
+        return {"matched": int(row["n"]), "deleted": deleted, "unnotified": int(row["unnotified"])}
+
     def event_counts(self, since_days: int = 7) -> dict[str, int]:
         cutoff = (datetime.now(UTC) - timedelta(days=since_days)).isoformat()
         with self.connect() as conn:

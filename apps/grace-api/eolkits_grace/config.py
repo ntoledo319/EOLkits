@@ -16,6 +16,23 @@ def _bool_env(name: str, default: bool = False) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def _int_env(name: str, default: int, *, minimum: int, maximum: int) -> int:
+    """Read a whole-number setting strictly. A malformed or out-of-range value
+    stops startup with a message naming the variable instead of silently
+    falling back, because a fallback here would quietly change how long
+    personal data is kept."""
+    raw = os.environ.get(name)
+    if raw is None or not raw.strip():
+        return default
+    try:
+        value = int(raw.strip())
+    except ValueError:
+        raise ValueError(f"{name} must be a whole number, got {raw!r}") from None
+    if not minimum <= value <= maximum:
+        raise ValueError(f"{name} must be between {minimum} and {maximum}, got {value}")
+    return value
+
+
 # Marker for explicit demo/sandbox mode. Tests set STRIPE_KEY to this value to
 # exercise the checkout/fulfillment flow without hitting Stripe. It is NEVER a
 # valid value in ENVIRONMENT=production (startup aborts — see require_runtime_secrets).
@@ -90,6 +107,12 @@ class Settings:
     audit_price_id: str = os.environ.get("EOLKITS_AUDIT_PRICE_ID", "")
     audit_product_id: str = os.environ.get("EOLKITS_AUDIT_PRODUCT_ID", "")
     build_sha: str = os.environ.get("EOLKITS_BUILD_SHA", "unknown")[:64]
+    # Lead retention is opt-in. Unset or 0 keeps lead rows until someone deletes
+    # them, which is the behaviour before this setting existed. A positive N
+    # deletes rows captured more than N days ago, in the artifact-retention
+    # sweep (at startup, then hourly). The period is the owner's decision, so
+    # no default is chosen here.
+    lead_retention_days: int = _int_env("EOLKITS_LEAD_RETENTION_DAYS", 0, minimum=0, maximum=36500)
 
     @property
     def db_path(self) -> Path:

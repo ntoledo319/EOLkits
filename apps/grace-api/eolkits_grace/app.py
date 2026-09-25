@@ -1327,7 +1327,43 @@ def cleanup_expired_artifacts(
         "reports": removed_reports,
         "expired_kv": expired_kv,
         **telemetry,
+        "leads": purge_expired_leads(),
     }
+
+
+# True while a retention purge's WAL checkpoint is still owed (the database was
+# busy); the next sweep retries it even when it deletes nothing new.
+_lead_checkpoint_pending = False
+
+
+def purge_expired_leads() -> int:
+    """Apply EOLKITS_LEAD_RETENTION_DAYS: delete lead rows captured more than that
+    many days ago and return how many went. Unset or 0 (the default) is a no-op
+    that does not touch the database. Runs as the last step of the retention
+    sweep, so a failure here cannot skip the upload/report/telemetry cleanup."""
+    global _lead_checkpoint_pending
+    days = settings.lead_retention_days
+    if not days:
+        return 0
+    cutoff = (datetime.now(UTC) - timedelta(days=days)).isoformat()
+    result = store.purge_leads_before(cutoff)
+    if result["deleted"]:
+        logger.info(
+            "lead retention: purged %d lead row(s) older than %d days", result["deleted"], days
+        )
+        if result["unnotified"]:
+            logger.warning(
+                "lead retention: %d purged lead(s) had never been alerted to the owner",
+                result["unnotified"],
+            )
+    if result["deleted"] or _lead_checkpoint_pending:
+        _lead_checkpoint_pending = not store.checkpoint_wal()
+        if _lead_checkpoint_pending:
+            logger.warning(
+                "lead retention: WAL checkpoint deferred while the database was busy; "
+                "the next sweep retries it"
+            )
+    return result["deleted"]
 
 
 def _upload_path(upload_id: str) -> Path:
