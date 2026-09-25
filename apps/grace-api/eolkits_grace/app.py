@@ -25,8 +25,10 @@ import requests
 from fastapi import BackgroundTasks, FastAPI, Form, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
+from starlette.datastructures import Headers
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from . import pricing
+from . import lead_pages, pricing
 from .config import settings
 from .email import EmailDeliveryError, render_audit_delivery_email, send_email
 from .preflight import validate_runtime_preflight
@@ -130,6 +132,16 @@ class BoundedRequestBodyMiddleware:
             return settings.max_form_bytes
         return None
 
+    @staticmethod
+    def _reject(scope: dict[str, Any], status_code: int, detail: str) -> Response:
+        # A native HTML form post to the lead endpoint gets a readable page with
+        # the same status; every other request gets the same JSON as always.
+        if scope.get("path") == "/api/v1/lead":
+            request_headers = Headers(scope=scope)
+            if lead_pages.is_browser_form_navigation(request_headers):
+                return _lead_page(request_headers, {}, status_code, detail)
+        return JSONResponse({"detail": detail}, status_code=status_code)
+
     async def __call__(self, scope: dict[str, Any], receive: Any, send: Any) -> None:
         limit = self._limit(scope)
         if limit is None:
@@ -141,14 +153,10 @@ class BoundedRequestBodyMiddleware:
         if raw_length:
             try:
                 if int(raw_length) > limit:
-                    await JSONResponse({"detail": "request body too large"}, status_code=413)(
-                        scope, receive, send
-                    )
+                    await self._reject(scope, 413, "request body too large")(scope, receive, send)
                     return
             except ValueError:
-                await JSONResponse({"detail": "invalid content length"}, status_code=400)(
-                    scope, receive, send
-                )
+                await self._reject(scope, 400, "invalid content length")(scope, receive, send)
                 return
 
         body = bytearray()
@@ -160,9 +168,7 @@ class BoundedRequestBodyMiddleware:
                 continue
             body.extend(message.get("body") or b"")
             if len(body) > limit:
-                await JSONResponse({"detail": "request body too large"}, status_code=413)(
-                    scope, receive, send
-                )
+                await self._reject(scope, 413, "request body too large")(scope, receive, send)
                 return
             if not message.get("more_body", False):
                 break
@@ -933,8 +939,34 @@ def _resolve_next(next_url: str, request: Request) -> str:
     return ""
 
 
-def _respond(target: str, payload: dict[str, Any]) -> Response:
-    return RedirectResponse(target, status_code=303) if target else JSONResponse(payload)
+def _respond(target: str, payload: dict[str, Any], page_for: Request | None = None) -> Response:
+    if target:
+        return RedirectResponse(target, status_code=303)
+    if page_for is not None:
+        # A native form post without a usable `_next` would otherwise land on raw JSON.
+        return _lead_page(page_for.headers, {}, 200, sent=True)
+    return JSONResponse(payload)
+
+
+def _lead_page(
+    headers: Headers,
+    raw: dict[str, str],
+    status_code: int,
+    detail: Any = None,
+    *,
+    sent: bool = False,
+    retry_after: str | None = None,
+) -> Response:
+    """The readable page a browser form navigation gets instead of raw JSON. Its
+    "Go back" link is only ever an allow-listed studio site (`_SITE_ORIGINS`)."""
+    link = lead_pages.return_link(
+        referer=headers.get("referer") or "",
+        origin=headers.get("origin") or "",
+        next_value=raw.get("_next") or raw.get("next") or "",
+        allowed_origins=_SITE_ORIGINS,
+    )
+    kind = "sent" if sent else lead_pages.kind_for(status_code, detail)
+    return lead_pages.render(kind, status_code, link, retry_after)
 
 
 @app.post("/api/v1/lead")
@@ -945,27 +977,52 @@ async def capture_lead(request: Request, background_tasks: BackgroundTasks) -> R
     lead durably, fires an owner notification over the working email path, and
     303-redirects to `_next` (preserving the prior FormSubmit UX) — or returns
     JSON when no redirect target is given. Replaces FormSubmit, which silently
-    dropped every submission at mxroute."""
+    dropped every submission at mxroute.
+
+    A browser form navigation (see `lead_pages.is_browser_form_navigation`) that
+    fails, or succeeds without a usable `_next`, gets a small HTML page with the
+    same status code instead of raw JSON. Every other client takes the unchanged
+    path below and gets exactly the responses it always got."""
     raw: dict[str, str] = {}
+    if not lead_pages.is_browser_form_navigation(request.headers):
+        return await _capture_lead(request, background_tasks, raw, browser=False)
+    try:
+        return await _capture_lead(request, background_tasks, raw, browser=True)
+    except StarletteHTTPException as exc:
+        retry_after = (exc.headers or {}).get("Retry-After")
+        return _lead_page(
+            request.headers, raw, exc.status_code, exc.detail, retry_after=retry_after
+        )
+    except Exception:
+        logger.exception("lead capture failed during a native form submission")
+        return _lead_page(request.headers, raw, 500)
+
+
+async def _capture_lead(
+    request: Request, background_tasks: BackgroundTasks, raw: dict[str, str], *, browser: bool
+) -> Response:
+    # `raw` is filled in place so the caller can still find the form's site
+    # (`_next`) for the error page's "Go back" link.
     try:
         form = await request.form()
         for k, v in form.multi_items():
             k, v = str(k), str(v)
             raw[k] = f"{raw[k]}, {v}" if k in raw else v  # join checkbox arrays
     except Exception:
-        raw = {}
+        raw.clear()
     if not raw:
         try:
             body = await request.json()
             if isinstance(body, dict):
-                raw = {str(k): str(v) for k, v in body.items()}
+                raw.update({str(k): str(v) for k, v in body.items()})
         except Exception:
-            raw = {}
+            raw.clear()
 
+    page_for = request if browser else None
     target = _resolve_next(raw.get("_next") or raw.get("next") or "", request)
     # Honeypot: bots fill the hidden _honey field. Accept silently; record nothing.
     if raw.get("_honey") or raw.get("_gotcha"):
-        return _respond(target, {"ok": True})
+        return _respond(target, {"ok": True}, page_for)
 
     fields = {k: v for k, v in raw.items() if not k.startswith("_") and str(v).strip()}
     email = next((fields[k] for k in _EMAIL_KEYS if fields.get(k)), "")
@@ -975,7 +1032,7 @@ async def capture_lead(request: Request, background_tasks: BackgroundTasks) -> R
     for control in ("product", "source", "next"):
         fields.pop(control, None)
     if not email or not _EMAIL_RE.match(email.strip()):
-        raise HTTPException(status_code=400, detail="A valid email is required.")
+        raise HTTPException(status_code=400, detail=lead_pages.INVALID_EMAIL_DETAIL)
     if not _consume_lead_capture_allowance(request):
         raise HTTPException(status_code=429, detail="Too many submissions. Please try again later.")
 
@@ -984,7 +1041,7 @@ async def capture_lead(request: Request, background_tasks: BackgroundTasks) -> R
     )
     store.record_event("lead", {"source": source, "sku": product, "meta": {"lead_id": lead_id}})
     background_tasks.add_task(_send_lead_notification, lead_id, product, source, fields)
-    return _respond(target, {"ok": True, "lead_id": lead_id})
+    return _respond(target, {"ok": True, "lead_id": lead_id}, page_for)
 
 
 # ---- webhooks ---------------------------------------------------------------- #
