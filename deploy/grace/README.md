@@ -83,7 +83,17 @@ EOLKITS_AUDIT_CHECKOUT_ENABLED=0
 # EOLKITS_AUDIT_PRICE_ID=price_...
 EOLKITS_BUILD_SHA=<deployed-git-commit>
 EOLKITS_API_PORT=8120
+
+# Optional. Uncomment to change the default.
+# LEAD_NOTIFY_TO=hello@toledotechnologies.com  # where /api/v1/lead alerts go (comma-separated)
+# EOLKITS_LEAD_RETENTION_DAYS=<days>           # unset or 0 (default) = keep leads until
+#                                              # deleted by hand; N = delete after N days
 ```
+
+`EOLKITS_LEAD_RETENTION_DAYS` is checked at startup: anything other than a whole
+number from 0 to 36500 stops the API with a message naming the variable, rather
+than silently turning retention off. No period is set by default; choosing one
+is an owner decision (see the lead-deletion runbook).
 
 Generate secrets on the deployment host with `openssl rand -hex 32`. GitHub App credentials are not used by Audit v2 and must not be added.
 
@@ -155,6 +165,27 @@ curl -fsS https://eolkits.com/api/capabilities | jq
 - `GET /verify/{fingerprint}` and `/api/verify/{fingerprint}`
 - `POST /api/v1/lead` for honest research requests
 - authenticated `POST /admin/reconcile-refund`
+
+## Lead bus (`/api/v1/lead`)
+
+The Toledo sites post their contact forms here, as native HTML forms or with
+`fetch`.
+
+- Fetch/JSON clients (for example SiteLift's Fit Check), curl and
+  server-to-server callers get `{"ok": true, "lead_id": N}`,
+  `{"detail": "..."}` on errors, or a 303 to an allow-listed `_next`. These
+  responses are pinned byte for byte by `apps/grace-api/test/test_lead_json_contract.py`.
+- A native browser form submission (form body sent as a navigation) gets a
+  small HTML page instead of raw JSON when it fails (400, 413, 429, 5xx) or
+  succeeds without a usable `_next`. The page keeps the status code, runs no
+  script, loads nothing, and links back only to an allow-listed studio site.
+- Owner alerts: a lead counts as alerted only when Resend accepts the email.
+  Unalerted leads are re-sent at startup and hourly, with the contact details
+  even when a long message was shortened in storage.
+- Deleting one person's data, and the optional retention period:
+  [`runbooks/lead-deletion.md`](runbooks/lead-deletion.md). The CLI cannot
+  delete the owner-notification emails; those are removed from the
+  `LEAD_NOTIFY_TO` mailbox by hand.
 
 The server-side checkout switch defaults to off. The static page independently keeps its form hidden unless the live capability handshake reports Audit report version `2.0` and checkout enabled.
 
