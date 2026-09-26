@@ -82,7 +82,8 @@ is safe while the API is serving.
 Unset or `0` keeps leads until you delete them (the code default). A positive
 number N makes the API delete leads older than N days, once at startup and then
 every hour, in the same way as the delete above. Production sets `730` (two
-years; see `deploy/grace/README.md`). Rows screened as spam or duplicate are
+years) in `.env.production`; see `deploy/grace/README.md` for when a new value
+takes effect. Rows screened as spam or duplicate are
 kept and deleted on the same schedule as every other lead. A value that is not
 a whole number from 0 to 36500 stops the API at startup with a message naming
 the variable.
