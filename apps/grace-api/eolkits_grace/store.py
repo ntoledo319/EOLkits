@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import string
 import time
 from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
@@ -687,6 +688,126 @@ class Store:
             return int(
                 conn.execute("SELECT COUNT(*) AS n FROM leads WHERE notified = 0").fetchone()["n"]
             )
+
+    # ---- lead retention and deletion -------------------------------------- #
+    #
+    # Deletes of personal data run with `secure_delete` on, so SQLite overwrites
+    # the freed row content instead of leaving it in free pages, inside one
+    # IMMEDIATE transaction so the rows reported are exactly the rows removed.
+    # In WAL mode the old page images stay in the database file until a
+    # checkpoint copies the overwritten pages over them; callers that erase
+    # rows call `checkpoint_wal()` afterwards.
+
+    @contextmanager
+    def _erasing(self) -> Iterator[sqlite3.Connection]:
+        with self.connect() as conn:
+            conn.execute("PRAGMA secure_delete = ON")
+            conn.execute("BEGIN IMMEDIATE")
+            yield conn
+
+    def checkpoint_wal(self) -> bool:
+        """Copy the WAL into the database file and truncate it, without waiting.
+
+        The busy timeout is 0 for this one connection, so the checkpoint never
+        stalls other work (a Stripe webhook, a job) behind a reader: it either
+        completes at once or reports False, and the caller retries later."""
+        with self.connect() as conn:
+            conn.execute("PRAGMA busy_timeout = 0")
+            try:
+                busy, _log_frames, _checkpointed = conn.execute(
+                    "PRAGMA wal_checkpoint(TRUNCATE)"
+                ).fetchone()
+            except sqlite3.OperationalError:
+                return False
+        return int(busy) == 0
+
+    def purge_leads_before(self, cutoff_iso: str, *, dry_run: bool = False) -> dict[str, int]:
+        """Delete lead rows captured before `cutoff_iso` (a UTC isoformat string,
+        the format `ts` is written in, so text order is time order).
+        `unnotified` counts matched rows whose owner alert never went out."""
+        sql_where = "FROM leads WHERE ts < ?"
+        manager = self.connect() if dry_run else self._erasing()
+        with manager as conn:
+            row = conn.execute(
+                "SELECT COUNT(*) AS n, COALESCE(SUM(notified = 0), 0) AS unnotified " + sql_where,
+                (cutoff_iso,),
+            ).fetchone()
+            deleted = 0
+            if not dry_run and int(row["n"]):
+                deleted = int(conn.execute("DELETE " + sql_where, (cutoff_iso,)).rowcount)
+        return {"matched": int(row["n"]), "deleted": deleted, "unnotified": int(row["unnotified"])}
+
+    # Stored emails are the raw form value (not trimmed), so one person's rows
+    # are matched on a trimmed, lower-cased copy. SQLite's lower() folds A-Z
+    # only; the input is folded exactly the same way (not with str.lower(),
+    # which folds all of Unicode) so both sides always agree.
+    _LEAD_EMAIL_KEY = "lower(trim(email, char(32, 9, 10, 13)))"
+    _ASCII_LOWER = str.maketrans(string.ascii_uppercase, string.ascii_lowercase)
+
+    @classmethod
+    def _email_key(cls, email: str) -> str:
+        return str(email).strip(" \t\r\n").translate(cls._ASCII_LOWER)
+
+    def delete_leads(
+        self,
+        *,
+        email: str | None = None,
+        ids: list[int] | None = None,
+        dry_run: bool = False,
+    ) -> dict[str, Any]:
+        """Delete the lead rows for one person (by email) and/or by row id.
+
+        Returns the matched rows (id, ts, product, source, notified; never the
+        form contents) and how many were deleted (0 on a dry run)."""
+        clauses: list[str] = []
+        params: list[Any] = []
+        if email is not None:
+            clauses.append(f"{self._LEAD_EMAIL_KEY} = ?")
+            params.append(self._email_key(email))
+        if ids:
+            clauses.append(f"id IN ({', '.join('?' for _ in ids)})")
+            params.extend(int(i) for i in ids)
+        if not clauses:
+            raise ValueError("delete_leads needs an email or at least one id")
+        where = " OR ".join(clauses)
+        manager = self.connect() if dry_run else self._erasing()
+        with manager as conn:
+            rows = [
+                dict(row)
+                for row in conn.execute(
+                    f"SELECT id, ts, product, source, notified FROM leads WHERE {where} "
+                    "ORDER BY id",
+                    params,
+                ).fetchall()
+            ]
+            deleted = 0
+            if rows and not dry_run:
+                deleted = int(conn.execute(f"DELETE FROM leads WHERE {where}", params).rowcount)
+        return {"matched": rows, "deleted": deleted}
+
+    def lead_ids_mentioning(self, email: str, *, exclude_ids: list[int] | None = None) -> list[int]:
+        """Ids of lead rows whose name or form fields contain `email` although the
+        row's own email is someone else's: candidates for a human to review.
+        `fields` is stored as JSON, so non-ASCII text there is \\u-escaped; both
+        spellings of the address are searched."""
+        needle = self._email_key(email)
+        if not needle:
+            return []
+        escaped = json.dumps(needle)[1:-1]
+        exclude = [int(i) for i in exclude_ids or []]
+        sql = (
+            "SELECT id FROM leads WHERE "
+            f"{self._LEAD_EMAIL_KEY} != ? AND ("
+            "instr(lower(COALESCE(fields, '')), ?) > 0 "
+            "OR instr(lower(COALESCE(fields, '')), ?) > 0 "
+            "OR instr(lower(COALESCE(name, '')), ?) > 0)"
+        )
+        params: list[Any] = [needle, needle, escaped, needle]
+        if exclude:
+            sql += f" AND id NOT IN ({', '.join('?' for _ in exclude)})"
+            params.extend(exclude)
+        with self.connect() as conn:
+            return [int(row["id"]) for row in conn.execute(sql + " ORDER BY id", params).fetchall()]
 
     def event_counts(self, since_days: int = 7) -> dict[str, int]:
         cutoff = (datetime.now(UTC) - timedelta(days=since_days)).isoformat()
