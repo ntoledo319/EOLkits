@@ -1,9 +1,11 @@
-"""The operator deletion CLI: python -m eolkits_grace.lead_admin."""
+"""The operator CLI: python -m eolkits_grace.lead_admin (delete, purge, list, reclassify)."""
 
 from __future__ import annotations
 
 import io
+import json
 import os
+import sqlite3
 import subprocess
 import sys
 from datetime import UTC, datetime, timedelta
@@ -198,3 +200,213 @@ def test_runs_as_a_module(load_grace, tmp_path):
     assert "Deleted 1 lead row(s)." in run.stdout
     assert "LEAD_NOTIFY_TO mailbox" in run.stdout
     assert _ids(mod) == []
+
+
+# ---- list and reclassify (lead screening) ----------------------------------- #
+
+MINUTE = timedelta(minutes=1)
+T0 = datetime(2026, 7, 4, 18, 39, tzinfo=UTC)
+BTC = "IMPORTANT! 1.3426 BTC IS YOURS FOR WITHDRAWAL ACT QUICKLY https://shorto.link/Ab12C"
+REDESIGN_PITCH = (
+    "Hi, I'm Sam. We help businesses redesign their websites. I took a quick look at your "
+    "site and saw a few opportunities to improve it. Grab a time here: https://cal.example/"
+)
+# (minutes after T0, email, product, form fields): shaped like production's
+# leads table before screening, every row already alerted.
+HISTORY = [
+    *[(0, "bot@example.net", "Contact", {"topic": t, "message": BTC}) for t in "abcde"],
+    (60, "bot@forms-bot.example", "Care", {"work_description": "kq3vzr"}),
+    (60, "bot@forms-bot.example", "Discovery", {"goal": "w8ptsd"}),
+    (
+        60,
+        "bot@forms-bot.example",
+        "Partner",
+        {"agency_name": "Transfer of funds to your name >>> graph.org/TRANSACTION-1"},
+    ),
+    (120, "quote@example.org", "Contact", {"message": "Ciao, volevo sapere il tuo prezzo."}),
+    (
+        180,
+        "sales@toledotechnologies.com",
+        "Contact",
+        {"message": "Let you know about our new harness. Get yours today, 50% OFF!"},
+    ),
+    (240, "dana@example.com", "Apps", {"message": "We need a scheduling tool for our clinic."}),
+    (300, "sam@agency.example", "Contact", {"message": REDESIGN_PITCH}),
+    (301, "sam@agency.example", "Contact", {"context": "Direct contact inquiry"}),
+]
+EXPECTED = {
+    1: ("spam", "link to a known spam host (shorto.link)"),
+    2: ("spam", "link to a known spam host (shorto.link)"),
+    3: ("spam", "link to a known spam host (shorto.link)"),
+    4: ("spam", "link to a known spam host (shorto.link)"),
+    5: ("spam", "link to a known spam host (shorto.link)"),
+    6: ("suspect", "empty or one-word message"),
+    7: ("duplicate", "repeat of lead 6 within 10 minutes"),
+    8: ("spam", "link to a known spam host (graph.org)"),
+    9: ("suspect", "one-line price question"),
+    10: ("suspect", "sales pitch wording; sent from the studio's own domain"),
+    11: ("ok", None),
+    12: ("suspect", "sales pitch wording"),
+    13: ("duplicate", "repeat of lead 12 within 10 minutes"),
+}
+DATA_COLUMNS = "id, ts, email, name, product, source, fields, notified"
+
+
+def _production_history(grace_env, tmp_path, *, migrate: bool = True):
+    """state.sqlite3 with the pre-screening schema and HISTORY in it, then (as
+    the API does at startup) migrated. Returns (database path, Store)."""
+    data_dir = tmp_path / "prod"
+    data_dir.mkdir()
+    grace_env(EOLKITS_DATA_DIR=str(data_dir))
+    db = data_dir / "state.sqlite3"
+    conn = sqlite3.connect(db)
+    conn.execute(
+        "CREATE TABLE leads (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, "
+        "email TEXT NOT NULL, name TEXT, product TEXT, source TEXT, fields TEXT, "
+        "notified INTEGER NOT NULL DEFAULT 0)"
+    )
+    for minutes, email, product, fields in HISTORY:
+        conn.execute(
+            "INSERT INTO leads(ts, email, product, source, fields, notified) "
+            "VALUES (?, ?, ?, 'toledotechnologies.com/contact', ?, 1)",
+            ((T0 + minutes * MINUTE).isoformat(), email, product, json.dumps(fields)),
+        )
+    conn.commit()
+    conn.close()
+    from eolkits_grace.store import Store
+
+    return db, (Store(db) if migrate else None)
+
+
+def _rows(db, columns: str = DATA_COLUMNS) -> list[tuple]:
+    conn = sqlite3.connect(db)
+    try:
+        return conn.execute(f"SELECT {columns} FROM leads ORDER BY id").fetchall()
+    finally:
+        conn.close()
+
+
+def test_reclassify_dry_run_then_for_real(grace_env, fresh_import, tmp_path):
+    db, _ = _production_history(grace_env, tmp_path)
+    data_before = _rows(db)
+    assert {row[0] for row in _rows(db, "status")} == {"ok"}  # the migration default
+
+    code, out = _cli(fresh_import, "reclassify", "--dry-run")
+    assert code == 0
+    assert "Checked 13 lead row(s); 12 would change." in out
+    assert "  id 7 | 2026-07-04 19:39 | ok -> duplicate | Discovery | repeat of lead 6" in out
+    assert "By change: ok -> duplicate 2, ok -> spam 6, ok -> suspect 4." in out
+    assert "Dry run: nothing was changed." in out
+    assert "kq3vzr" not in out and "BTC" not in out  # never the form contents
+    assert {row[0] for row in _rows(db, "status")} == {"ok"}
+
+    code, out = _cli(fresh_import, "reclassify")
+    assert code == 0
+    assert "Checked 13 lead row(s); 12 to change." in out
+    assert "Updated the status of 12 lead row(s). No row was deleted" in out
+    assert _rows(db) == data_before  # status only: every other value is untouched
+    assert {row[0]: (row[1], row[2]) for row in _rows(db, "id, status, status_reason")} == EXPECTED
+
+    code, out = _cli(fresh_import, "reclassify")
+    assert code == 0 and "Checked 13 lead row(s); 0 to change." in out
+
+
+def test_reclassify_reports_leads_that_become_alertable(grace_env, fresh_import, tmp_path):
+    db, store = _production_history(grace_env, tmp_path)
+    with store.connect() as conn:  # a real lead once held back, never alerted
+        conn.execute("UPDATE leads SET status = 'spam', notified = 0 WHERE id = 11")
+    code, out = _cli(fresh_import, "reclassify", "--dry-run")
+    assert "  id 11 | 2026-07-04 22:39 | spam -> ok | Apps | -" in out
+    assert "1 of them were never alerted to the owner and become alertable" in out
+    assert store.count_unnotified() == 0
+    _cli(fresh_import, "reclassify")
+    assert store.count_unnotified() == 1  # the API's re-send sweep picks it up
+
+
+def test_list_shows_status_and_reason_never_the_message(grace_env, fresh_import, tmp_path):
+    _production_history(grace_env, tmp_path)
+    _cli(fresh_import, "reclassify")
+
+    code, out = _cli(fresh_import, "list")
+    assert code == 0
+    assert (
+        "id 1 | 2026-07-04 18:39 | spam | Contact | link to a known spam host (shorto.link)" in out
+    )
+    assert "id 11 | 2026-07-04 22:39 | ok | Apps | -" in out
+    assert "Listed 13 lead row(s): ok 1, suspect 4, spam 6, duplicate 2." in out
+    assert "add --show-message to see them" in out
+    for private in ("BTC", "scheduling tool", "dana@example.com", "prezzo"):
+        assert private not in out
+
+    code, out = _cli(fresh_import, "list", "--status", "suspect", "--since", "2026-07-04")
+    assert code == 0
+    assert [line.split(" | ")[0] for line in out.splitlines() if line.startswith("id ")] == [
+        "id 6",
+        "id 9",
+        "id 10",
+        "id 12",
+    ]
+    assert "Listed 4 lead row(s) captured on or after 2026-07-04 UTC and with status suspect" in out
+
+    code, out = _cli(fresh_import, "list", "--since", "2026-07-05")
+    assert "Listed 0 lead row(s) captured on or after 2026-07-05 UTC." in out
+
+    code, out = _cli(fresh_import, "list", "--status", "ok", "--show-message")
+    assert "    message: We need a scheduling tool for our clinic." in out
+
+
+def test_list_prints_form_text_safely(load_grace, fresh_import):
+    mod, _ = load_grace()
+    mod.store.record_lead(
+        email="a@example.com",
+        product="Apps\x1b[2J‮",
+        fields={"message": "line one\r\nline two \x1b]0;owned\x07 end"},
+    )
+    code, out = _cli(fresh_import, "list", "--show-message")
+    assert code == 0
+    assert "\x1b" not in out and "‮" not in out and "\x07" not in out
+    assert "| Apps\\u001b[2J\\u202e |" in out
+    assert "    message: line one\n      line two \\u001b]0;owned\\u0007 end" in out
+
+
+def test_list_and_reclassify_need_the_migrated_schema(grace_env, fresh_import, tmp_path):
+    db, _ = _production_history(grace_env, tmp_path, migrate=False)
+    schema = _rows(db, "COUNT(*)")
+    for argv in (["list"], ["reclassify"], ["reclassify", "--dry-run"]):
+        code, out = _cli(fresh_import, *argv)
+        assert code == 1 and "no lead screening status yet" in out
+    conn = sqlite3.connect(db)
+    columns = [row[1] for row in conn.execute("PRAGMA table_info(leads)")]
+    conn.close()
+    assert "status" not in columns  # the CLI never migrates
+    assert _rows(db, "COUNT(*)") == schema
+    # purge still works on the old schema.
+    code, out = _cli(fresh_import, "purge", "--days", "30", "--dry-run")
+    assert code == 0 and "Matched 13 lead row(s)" in out
+
+
+@pytest.mark.parametrize("value", ["2026-9-1", "yesterday", "2026-02-30", "20260901"])
+def test_list_rejects_a_bad_since_date(load_grace, fresh_import, value):
+    load_grace()
+    with pytest.raises(SystemExit) as exc:
+        _cli(fresh_import, "list", "--since", value)
+    assert exc.value.code == 2
+    with pytest.raises(SystemExit):
+        _cli(fresh_import, "list", "--status", "maybe")
+
+
+def test_reclassify_runs_as_a_module(grace_env, tmp_path):
+    db, _ = _production_history(grace_env, tmp_path)
+    env = {**os.environ, "PYTHONPATH": str(API_ROOT), "EOLKITS_DATA_DIR": str(db.parent)}
+    for argv in (["reclassify", "--dry-run"], ["list", "--status", "duplicate"]):
+        run = subprocess.run(
+            [sys.executable, "-m", "eolkits_grace.lead_admin", *argv],
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
+        )
+        assert run.returncode == 0, run.stderr
+    assert "12 would change" not in run.stdout  # the list run
+    assert "Listed 0 lead row(s) with status duplicate." in run.stdout

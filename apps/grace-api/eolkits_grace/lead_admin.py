@@ -5,6 +5,8 @@
     docker exec eolkits-api python -m eolkits_grace.lead_admin delete --id 41 --id 42
     docker exec eolkits-api python -m eolkits_grace.lead_admin purge --dry-run
     docker exec eolkits-api python -m eolkits_grace.lead_admin purge --days 365 --dry-run
+    docker exec eolkits-api python -m eolkits_grace.lead_admin list --since 2026-09-01 --status suspect
+    docker exec eolkits-api python -m eolkits_grace.lead_admin reclassify --dry-run
 
 `delete` removes one person's lead rows (matched on the stored email, ignoring
 A-Z letter case and surrounding spaces) and/or specific rows by id. `purge`
@@ -12,26 +14,39 @@ removes rows older than N days, where N defaults to EOLKITS_LEAD_RETENTION_DAYS;
 it is the same purge the running API applies in its retention sweep when that
 setting is on.
 
-Neither command touches email. The owner-notification emails for a lead live in
-the LEAD_NOTIFY_TO mailbox and must be deleted there separately.
+`list` shows lead rows with their screening status (ok, suspect, spam,
+duplicate) and why, never what the visitor wrote unless --show-message is
+given. `reclassify` applies the current screening rules to the rows already
+stored; it changes the status only and never deletes or edits a row.
 
-See deploy/grace/runbooks/lead-deletion.md.
+None of these commands touches email. The owner-notification emails for a lead
+live in the LEAD_NOTIFY_TO mailbox and must be deleted there separately.
+
+See deploy/grace/runbooks/lead-deletion.md and deploy/grace/README.md.
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import os
+import re
 import sys
-from datetime import UTC, datetime, timedelta
+from collections import Counter
+from datetime import UTC, date, datetime, timedelta
 from typing import Any, TextIO
 
 from .config import settings
-from .store import Store
+from .store import LEAD_ALERT_STATUSES, LEAD_STATUSES, Store
 
 MAILBOX_REMINDER = (
     "Reminder: this does not touch email. Delete this person's owner-notification "
-    'emails (subject "New lead: ...") from the LEAD_NOTIFY_TO mailbox separately.'
+    'emails (subject "New lead: ..." or "Likely spam: New lead: ...") from the '
+    "LEAD_NOTIFY_TO mailbox separately."
+)
+NO_STATUS_COLUMN = (
+    "This database has no lead screening status yet. The API adds it when the "
+    "version with lead screening starts; run this again after that deploy."
 )
 
 
@@ -51,12 +66,25 @@ def _open_store(out: TextIO) -> Store | None:
     return Store(path, initialize=False)
 
 
+def _clean(value: Any, limit: int | None = None) -> str:
+    """Form text made safe to print in a terminal: control and formatting
+    characters (escape sequences, bidi overrides) are shown as \\u escapes."""
+    text = str(value if value is not None else "")
+    if limit is not None and len(text) > limit:
+        text = text[: limit - 3] + "..."
+    return "".join(ch if ch.isprintable() else f"\\u{ord(ch):04x}" for ch in text)
+
+
 def _describe(rows: list[dict[str, Any]]) -> str:
     return ", ".join(
         f"id {row['id']} ({str(row['ts'])[:10]}, "
-        f"{row.get('product') or row.get('source') or 'no product'})"
+        f"{_clean(row.get('product') or row.get('source') or 'no product', 80)})"
         for row in rows
     )
+
+
+def _when(ts: Any) -> str:
+    return str(ts or "")[:16].replace("T", " ")
 
 
 def _finish_erasure(store: Store, out: TextIO) -> None:
@@ -147,6 +175,134 @@ def cmd_purge(args: argparse.Namespace, out: TextIO) -> int:
     return 0
 
 
+def _row_line(row: dict[str, Any], status: str, reason: str | None) -> str:
+    return " | ".join(
+        (
+            f"id {row['id']}",
+            _when(row["ts"]),
+            status,
+            _clean(row.get("product") or row.get("source") or "no product", 60),
+            _clean(reason or "-", 120),
+        )
+    )
+
+
+def _print_message(row: dict[str, Any], out: TextIO) -> None:
+    stored = row.get("fields") or ""
+    try:
+        fields = json.loads(stored or "{}")
+    except (TypeError, ValueError):
+        fields = None
+    if not isinstance(fields, dict):
+        fields = {"(stored text, shortened)": stored}
+    if not fields:
+        print("    (no form fields)", file=out)
+    for key, value in fields.items():
+        lines = str(value).splitlines() or [""]
+        print(f"    {_clean(key, 60)}: {_clean(lines[0])}", file=out)
+        for line in lines[1:]:
+            print(f"      {_clean(line)}", file=out)
+
+
+def cmd_list(args: argparse.Namespace, out: TextIO) -> int:
+    store = _open_store(out)
+    if store is None:
+        return 1
+    if not store.has_lead_status():
+        print(NO_STATUS_COLUMN, file=out)
+        return 1
+    counts: Counter[str] = Counter()
+    for row in store.iter_leads(
+        since=args.since, status=args.status, with_fields=args.show_message
+    ):
+        counts[row["status"]] += 1
+        print(_row_line(row, row["status"], row["status_reason"]), file=out)
+        if args.show_message:
+            _print_message(row, out)
+    listed = sum(counts.values())
+    summary = ", ".join(f"{status} {counts[status]}" for status in LEAD_STATUSES if counts[status])
+    scope = " and ".join(
+        part
+        for part in (
+            f"captured on or after {args.since} UTC" if args.since else "",
+            f"with status {args.status}" if args.status else "",
+        )
+        if part
+    )
+    print(
+        f"Listed {listed} lead row(s){' ' + scope if scope else ''}"
+        f"{': ' + summary if summary else ''}.",
+        file=out,
+    )
+    if not args.show_message and listed:
+        print("Form contents are not shown; add --show-message to see them.", file=out)
+    return 0
+
+
+def cmd_reclassify(args: argparse.Namespace, out: TextIO) -> int:
+    store = _open_store(out)
+    if store is None:
+        return 1
+    if not store.has_lead_status():
+        print(NO_STATUS_COLUMN, file=out)
+        return 1
+    result = store.reclassify_leads(dry_run=args.dry_run)
+    changes = result["changes"]
+    verb = "would change" if args.dry_run else "to change"
+    print(f"Checked {result['checked']} lead row(s); {len(changes)} {verb}.", file=out)
+    for change in changes:
+        print(
+            "  "
+            + _row_line(change, f"{change['old_status']} -> {change['status']}", change["reason"]),
+            file=out,
+        )
+    if changes:
+        moves = Counter((c["old_status"], c["status"]) for c in changes)
+        print(
+            "By change: "
+            + ", ".join(f"{old} -> {new} {n}" for (old, new), n in sorted(moves.items()))
+            + ".",
+            file=out,
+        )
+    owed = [
+        c
+        for c in changes
+        if c["status"] in LEAD_ALERT_STATUSES
+        and c["old_status"] not in LEAD_ALERT_STATUSES
+        and not c["notified"]
+    ]
+    if owed:
+        print(
+            f"{len(owed)} of them were never alerted to the owner and become alertable; "
+            "the API's re-send sweep (at startup, then hourly) will alert the owner about them.",
+            file=out,
+        )
+    if args.dry_run:
+        print("Dry run: nothing was changed.", file=out)
+        return 0
+    print(
+        f"Updated the status of {result['updated']} lead row(s). "
+        "No row was deleted and no form data was changed.",
+        file=out,
+    )
+    if result["updated"] < len(changes):
+        print(
+            f"{len(changes) - result['updated']} row(s) changed while this ran and were left "
+            "as they are. Run reclassify again to re-check them.",
+            file=out,
+        )
+    return 0
+
+
+def _since_date(value: str) -> str:
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        raise argparse.ArgumentTypeError(f"not a YYYY-MM-DD date: {value!r}")
+    try:
+        return date.fromisoformat(value).isoformat()
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"not a real date: {value!r}") from None
+
+
 def _positive_days(value: str) -> int:
     try:
         days = int(value)
@@ -160,7 +316,7 @@ def _positive_days(value: str) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="python -m eolkits_grace.lead_admin",
-        description="Delete lead rows from the EOLkits lead database.",
+        description="Review, screen and delete lead rows in the EOLkits lead database.",
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -184,6 +340,29 @@ def build_parser() -> argparse.ArgumentParser:
         "--dry-run", action="store_true", help="show what would be deleted, change nothing"
     )
     purge.set_defaults(func=cmd_purge)
+
+    listing = sub.add_parser(
+        "list", help="list lead rows with their screening status (no form contents)"
+    )
+    listing.add_argument(
+        "--since", type=_since_date, help="only rows captured on or after this UTC date"
+    )
+    listing.add_argument("--status", choices=LEAD_STATUSES, help="only rows with this status")
+    listing.add_argument(
+        "--show-message",
+        action="store_true",
+        help="also print each row's form fields (what the visitor wrote)",
+    )
+    listing.set_defaults(func=cmd_list)
+
+    reclassify = sub.add_parser(
+        "reclassify",
+        help="apply the screening rules to stored rows (status only, never deletes)",
+    )
+    reclassify.add_argument(
+        "--dry-run", action="store_true", help="show what would change, change nothing"
+    )
+    reclassify.set_defaults(func=cmd_reclassify)
     return parser
 
 
