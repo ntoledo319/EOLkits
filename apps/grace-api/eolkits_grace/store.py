@@ -1,17 +1,23 @@
 from __future__ import annotations
 
 import json
+import logging
+import re
 import sqlite3
 import string
 import time
+import unicodedata
+from collections.abc import Iterable, Mapping
 from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any, Iterator, NamedTuple
 
 # Exponential backoff schedule (seconds) for retryable jobs; index == attempts.
 JOB_BACKOFF_SECONDS = [0, 30, 120, 600, 1800, 7200]
 DEFAULT_MAX_ATTEMPTS = 6
+
+logger = logging.getLogger("eolkits_grace")
 
 
 def _now() -> str:
@@ -22,6 +28,412 @@ def _trunc(value: Any, limit: int = 120) -> str | None:
     if value is None:
         return None
     return str(value)[:limit]
+
+
+# ---- lead screening --------------------------------------------------------- #
+#
+# Every submission to POST /api/v1/lead is stored, whatever these rules say, and
+# the visitor gets the same response either way. The rules only decide whether
+# the owner is emailed about it:
+#
+#   ok         normal alert
+#   suspect    alert, with the subject prefixed "Likely spam: "
+#   spam       stored, no alert
+#   duplicate  stored, no alert: the same address sent the same text again, or
+#              a submission with no text of its own, within 10 minutes
+#
+# A wrong "spam" or "duplicate" costs the owner an alert (the row itself stays
+# and `lead_admin list` shows it), so those need hard evidence: a link to a host
+# that carried nothing but spam, link markup, or a true repeat. Wording never
+# does it alone. A genuine lead may write about jackpots, prizes, loans or
+# crypto, or even quote a scam, next to a link to its own site, so the spam
+# campaigns' phrases, like every other loose signal, only make a lead "suspect",
+# which still alerts. The patterns come from the submissions the lead bus
+# received from June to September 2026.
+
+LEAD_STATUSES = ("ok", "suspect", "spam", "duplicate")
+LEAD_ALERT_STATUSES = ("ok", "suspect")
+LEAD_DUPLICATE_WINDOW = timedelta(minutes=10)
+LIKELY_SPAM_PREFIX = "Likely spam: "
+
+# Form field names, in priority order, that app.py reads the email and name
+# columns from. Screening leaves them out of the text it treats as the message.
+LEAD_EMAIL_KEYS = ("email", "Email", "e-mail", "your-email", "your_email")
+LEAD_NAME_KEYS = (
+    "name",
+    "Name",
+    "full_name",
+    "fullname",
+    "contact",
+    "company",
+    "Business",
+    "agency_name",
+)
+_EMAIL_FIELDS = frozenset(key.casefold() for key in LEAD_EMAIL_KEYS)
+_IDENTITY_FIELDS = _EMAIL_FIELDS | {key.casefold() for key in LEAD_NAME_KEYS}
+# Hidden fields the page fills in itself (the form's label, the service name,
+# the offer terms). They say nothing about what the visitor wrote.
+_SITE_FILLED_FIELDS = frozenset({"context", "service", "offer"})
+# Visitors do not write from the studio's own domains; pitch bots do.
+_OWN_DOMAINS = ("toledotechnologies.com", "eolkits.com")
+
+# Hosts that carried nothing but prize and crypto spam: link shorteners and
+# Telegraph pages. A link to one (not a bare mention of the name) is spam, so a
+# genuine visitor who links through one gets no alert. Each entry also matches
+# its subdomains.
+SPAM_LINK_HOSTS = (
+    "telegra.ph",
+    "graph.org",
+    "shorto.link",
+    "short.vird.co",
+    "shortmylink.co",
+    "lmy.de",
+    "alstr.in",
+    "gnosis.link",
+    "myip.kr",
+    "g9.yt",
+    "come.ac",
+    "1hut.ru",
+    "link.firststudyhub.com",
+    "1borsa.com",
+    "lnkz.at",
+    "clickto.cc",
+    "cut.gl",
+    "tau.lu",
+    "nordwit.com",
+    "resizelink.com",
+    "bpl.kr",
+    "url.in.th",
+)
+
+_HOST_RE = re.compile(
+    r"(?<![\w.@-])((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24})(?![\w-])",
+    re.IGNORECASE,
+)
+# A link: a URL with a scheme or "www.", or a bare host followed by a path
+# ("graph.org/BALANCE-..."). A bare host alone is not a link here.
+_LINK_RE = re.compile(
+    r"(?:https?://|\bwww\.)[^\s<>\"]+|(?<![\w.@-])(?:[a-z0-9-]+\.)+[a-z]{2,24}/",
+    re.IGNORECASE,
+)
+# Link markup pointing at another site: an HTML anchor or a forum [url=] tag
+# with an absolute address, the way link spam posts it. A relative link, as in
+# a visitor quoting their own page's HTML, is not this. Bounded so a long run
+# of "<a " cannot make the search quadratic.
+_MARKUP_RE = re.compile(
+    r"<a\s[^>]{0,200}?\bhref\s*=\s*[\"']?\s*(?:https?:)?//|\[url=\s*[\"']?\s*(?:https?:)?//",
+    re.IGNORECASE,
+)
+
+_MONEY = r"\$\s?\d{1,3}(?:,\d{3})+"  # $1,000 and up, written with commas
+_MILLIONS = r"\$\s?\d{1,3}(?:,\d{3}){2,}"  # $1,000,000 and up
+_PROMO_AMOUNT = rf"(?:\$\s?(?:[2-9]\d|[1-9]\d\d),\d{{3}}|{_MILLIONS})"  # $20,000 and up
+# Anchored to the start of a number so a long digit run stays linear.
+_COIN_AMOUNT = r"(?<![\d.,])\d+(?:[.,]\d+)?\s*(?:btc|usdt|eth)\b"
+# An arrow pointing straight at a link ("-> graph.org/...", "=>> https://..."),
+# not an arrow in a described flow ("sign up -> pay -> done").
+_ARROW_TO_LINK = r"\s*[-=]*>+\s*(?=https?://|www\.|(?:[a-z0-9-]+\.)+[a-z]{2,24}/)"
+# The prize and crypto campaigns' own phrases, as they wrote them, each put in
+# front of its link. They count only when a link follows in the same field (see
+# `_spam_wording`), and even then they only make a lead "suspect": a genuine
+# lead can use the same words (a lottery's jackpot, a wallet's "top up 20
+# USDT -> https://..." flow, a course quoting a scam).
+_SPAM_WORDING: tuple[tuple[str, re.Pattern[str]], ...] = tuple(
+    (kind, re.compile(pattern, re.IGNORECASE))
+    for kind, pattern in (
+        # "The $27,000,000 Jackpot Is a Route to Riches": every jackpot the
+        # campaigns named was in the millions.
+        ("prize", rf"{_MILLIONS}\s+jackpot\b"),
+        # "Go all in with a $25,000 promo code".
+        ("prize", rf"{_PROMO_AMOUNT}\s+promo code\b"),
+        # "BE THE RANDOM WINNER OF THE PLAYSTATION 5 PRO 2TB", "BE THE
+        # SWEEPSTAKES WINNER OF LAMBORGHINI AVENTADOR".
+        (
+            "prize",
+            r"\bbe the (?:random|sweepstakes) winner of (?:the |an? )?(?:playstation|lamborghini)\b",
+        ),
+        ("prize", r"\bnanosecond from winning\b"),
+        # "The PlayStation 5 Pro 2TB is the fantastic reward", "The Lamborghini
+        # Aventador is the astonishing premium", "An PlayStation 5 Pro 2TB award
+        # is being presented".
+        (
+            "prize",
+            r"\b(?:playstation\s*5|lamborghini)\b[^\n]{0,24}?"
+            r"\b(?:is the (?:fantastic reward|astonishing premium)|award is being presented)\b",
+        ),
+        # "Earn $1,500 per day or more by validating transactions on PoS chains",
+        # "... through crypto options trading", "... from decentralized voting
+        # rights", "... from multiple blockchain networks", "... usage".
+        (
+            "crypto",
+            rf"{_MONEY}\s+per day or more\s+(?:usage\b|(?:through|by|from)\s+"
+            r"(?:crypto|validating|decentrali[sz]ed|multiple blockchain)\b)",
+        ),
+        ("crypto", rf"{_COIN_AMOUNT}\s+is yours for withdrawal\b"),
+        ("crypto", rf"\btake the benefit of your {_COIN_AMOUNT}"),
+        # "Top Up 169.30 USDT -> graph.org/...", "Transaction to you.Continue >
+        # graph.org/...", "Transfer of funds to your name. RECEIVE >>> graph.org/...",
+        # "Transfer No E1234 from Coinbase. GET =>> ...": each arrow points at the link.
+        ("crypto", rf"\btop up {_COIN_AMOUNT}{_ARROW_TO_LINK}"),
+        ("crypto", rf"\btransaction to you\.\s*\w{{0,12}}{_ARROW_TO_LINK}"),
+        (
+            "crypto",
+            rf"\btransfer of funds to your name\W{{0,4}}receive\b[^\n>]{{0,24}}{_ARROW_TO_LINK}",
+        ),
+        (
+            "crypto",
+            r"\btransfer\s*(?:№|no\.?|#)\s*\w{0,12}\d\w{0,12}\s+from\s+(?:coinbase|binance)\b"
+            rf"[^\n>]{{0,12}}{_ARROW_TO_LINK}",
+        ),
+    )
+)
+
+
+def _spam_wording(texts: Iterable[str]) -> str | None:
+    """The kind of campaign wording ("prize" or "crypto") in any one of
+    `texts` (one per form field) that has a link after it in the same field.
+    A phrase in one field and a link in another (the Website field, say) do
+    not count."""
+    for text in texts:
+        for kind, pattern in _SPAM_WORDING:
+            match = pattern.search(text)
+            if match and _LINK_RE.search(text, match.end()):
+                return kind
+    return None
+
+
+# Sales-pitch wording. A "strong" cue is something a prospect does not write to
+# a studio; a "weak" cue is outreach mechanics a prospect might use too. A lead
+# is a pitch with one strong cue plus any other cue. Weak cues alone never make
+# one: "I visited your site, can we book a call? Let us know" is how a real
+# prospect writes too, and every pitch received had a strong cue.
+_PITCH_STRONG = tuple(
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in (
+        r"\b(?:order|get|grab) yours\b|\b(?:order|get|grab) (?:it|one) (?:now|today)\b",
+        r"\blet you know about our new\b",
+        r"\bdo you have any use for\b",
+        r"\bfreelance (?:writer|copywriter)\b",
+        r"\bno cost,? no obligation\b",
+        r"\b(?:instant (?:loan )?approval|no collateral|flexible repayment)\b",
+        r"\buse contact (?:forms?|pages?) to share\b",
+        r"\bwe only use chat\b",
+        r"\b(?:saw|see|noticed|found) (?:a few|some|several) (?:opportunities|ways|areas)"
+        r" to improve\b",
+        r"\bhappy to share (?:a few|some) (?:quick )?ideas\b",
+        r"\bvetted (?:development|software) (?:companies|agencies|partners)\b",
+    )
+)
+_PITCH_WEAK = tuple(
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in (
+        r"\bvisited (?:your (?:web ?)?site|[a-z0-9-]+\.[a-z]{2,})",
+        r"\b(?:took|had) a (?:quick )?look at your (?:web ?)?site\b",
+        r"\b(?:book|grab|schedule) a (?:time|call|meeting|demo|slot)\b|\bcalendly\.com\b",
+        r"\b(?:t\.me|wa\.me)/|\bwhatsapp\b|\btelegram\b",
+        r"\b\d{1,2}\s?% off\b|\bfree shipping\b",
+        r"\btoday only\b|\blimited\W?time\b|\bdon'?t miss (?:out|this)\b",
+        r"\blooking for new (?:opportunities|clients|projects)\b",
+        r"\bkindly reply\b",
+        r"\bsee how it works\b",
+        r"\blet us know if (?:this|you)\b",
+        r"\bhope (?:this|my) (?:email|message|note) finds you\b|\bhope you'?re doing well\b",
+        r"\bwe help (?:businesses|companies|brands|business owners)\b",
+        r"\bunsubscribe\b|\bopt[- ]out\b",
+    )
+)
+
+# "What is your price" in many languages, for the one-line template that
+# arrives in a new language every week. Short stems carry their inflections.
+_PRICE_WORD_RE = re.compile(
+    r"(?<!\w)(?:"
+    r"prices?|pricing|costs?|quotes?|rates|"
+    r"precios?|preços?|preco|prezz[oi]|prezo|preu|prix|tarifs?|pre[țţt](?:ul)?|pretium|"
+    r"preise?|prijs|prys|pris(?:en)?|"
+    r"cen[aeuyęėo]|cenas|cijen[aeu]|цен[аеуы]|цін[аиу]|kain(?:a|ą|os|as)|"
+    r"hinta|hinnan|hintaa|hind|hinda|hinnad|ár(?:a|at|ak)?|fiyat\w*|qiym[əe]t\w*|"
+    r"giá|harga|presyo|çmim\w*|verð\w*|"
+    r"τιμ\w*|ფას\w*|գին\w*|מחיר\w*|\w*سعر\w*|قیمت\w*|कीमत|मूल्य|दाम|দাম"
+    r")(?!\w)"
+    r"|价格|價格|价钱|値段|価格|料金|가격|ราคา",
+    re.IGNORECASE,
+)
+# Anything that gives a price question something to price.
+_PROJECT_WORD_RE = re.compile(
+    r"\b(?:web ?sites?|sites?|apps?|applications?|stores?|shops?|e-?commerce|online|"
+    r"wordpress|shopify|squarespace|wix|webflow|migrat\w*|redesign\w*|audit\w*|seo|"
+    r"mobile|ios|android|software|platforms?|integrations?|api|pages?|logo|brand\w*|"
+    r"design\w*|develop\w*|build\w*|rebuild\w*|fix\w*|bugs?|support|maintenance|"
+    r"hosting|domains?|automat\w*|chatbots?|crm|dashboards?|databases?|plugins?|"
+    r"projects?|mvp|saas|portals?|booking|care plans?|kits?|reports?|"
+    r"sitio|página|pagina|tienda|aplicaci\w*|sito|negozio|loja)\b",
+    re.IGNORECASE,
+)
+# Scripts written without spaces between words.
+_UNSPACED_SCRIPTS = ("CJK", "HIRAGANA", "KATAKANA", "HANGUL", "THAI", "LAO", "KHMER", "MYANMAR")
+# A file input in a multipart form is stored as the text of Starlette's upload
+# object (for example an empty <input type="file">). Not something typed.
+_UPLOAD_PLACEHOLDER_RE = re.compile(r"UploadFile\(filename=")
+
+
+class LeadScreen(NamedTuple):
+    status: str
+    reason: str
+
+
+class RecordedLead(NamedTuple):
+    id: int
+    status: str
+    reason: str
+
+
+def _screen_text(value: Any) -> str:
+    text = unicodedata.normalize("NFKC", str(value if value is not None else ""))
+    return text.replace("\u2019", "'").replace("\u2018", "'")
+
+
+def _is_message_text(text: str) -> bool:
+    """True for something the visitor wrote, as opposed to a picked option
+    ("15k-50k", "not-sure") or a lone word or random token ("hello", "kq3vzr")."""
+    if " " in text or len(text) >= 25 or _HOST_RE.search(text):
+        return True
+    return any(unicodedata.name(ch, "").startswith(_UNSPACED_SCRIPTS) for ch in text)
+
+
+def lead_message_parts(fields: Mapping[str, Any]) -> list[str]:
+    """The text the visitor wrote, one entry per field, whitespace collapsed.
+    Leaves out the identity fields, the fields the page fills in itself, and
+    picked options."""
+    parts = []
+    for key, value in fields.items():
+        folded = str(key).strip().casefold()
+        if folded in _IDENTITY_FIELDS or folded in _SITE_FILLED_FIELDS:
+            continue
+        text = " ".join(_screen_text(value).split())
+        if text and _is_message_text(text) and not _UPLOAD_PLACEHOLDER_RE.match(text):
+            parts.append(text)
+    return parts
+
+
+def lead_message_key(stored_fields: str | None) -> tuple[str, bool]:
+    """(comparison key, has text) for a `fields` value as stored. Two
+    submissions carry the same message when their keys are equal. A value cut
+    at 4,000 characters is no longer JSON; its raw text is compared instead."""
+    try:
+        data = json.loads(stored_fields or "{}")
+    except (TypeError, ValueError):
+        data = None
+    if isinstance(data, dict):
+        parts = lead_message_parts(data)
+        return "\x1f".join(sorted(part.casefold() for part in parts)), bool(parts)
+    text = " ".join(str(stored_fields).split()).casefold()
+    return text, bool(text)
+
+
+def _is_complete_fields(stored_fields: str | None) -> bool:
+    """True when a stored `fields` value is the whole submission (valid JSON),
+    False when it was cut at 4,000 characters."""
+    try:
+        return isinstance(json.loads(stored_fields or "{}"), dict)
+    except (TypeError, ValueError):
+        return False
+
+
+# Where a link points: its own host, and the host of any address embedded in it
+# (a redirect such as "https://a.example/r?u=https://b.example/x").
+_LINK_HOSTS_RE = re.compile(r"(?:^|//)(?:[^\s/?#@]*@)?([a-z0-9.-]+)", re.IGNORECASE)
+
+
+def _spam_link_host(text: str) -> str | None:
+    """The listed spam host a link in `text` points at. The name alone ("our
+    changelog is on telegra.ph") is not a link."""
+    for link in _LINK_RE.finditer(text):
+        for match in _LINK_HOSTS_RE.finditer(link.group()):
+            host = match.group(1).lower().strip(".")
+            for spam_host in SPAM_LINK_HOSTS:
+                if host == spam_host or host.endswith("." + spam_host):
+                    return spam_host
+    return None
+
+
+def _is_pitch(text: str) -> bool:
+    strong = sum(1 for pattern in _PITCH_STRONG if pattern.search(text))
+    weak = sum(1 for pattern in _PITCH_WEAK if pattern.search(text))
+    return strong >= 1 and strong + weak >= 2
+
+
+def _is_price_template(text: str) -> bool:
+    return (
+        len(text) <= 80
+        and len(text.split()) <= 10
+        and bool(_PRICE_WORD_RE.search(text))
+        and not any(ch.isdigit() for ch in text)
+        and not _HOST_RE.search(text)
+        and not _PROJECT_WORD_RE.search(text)
+    )
+
+
+def _own_domain(email: str) -> bool:
+    domain = str(email).strip().rsplit("@", 1)[-1].strip().casefold()
+    return any(domain == own or domain.endswith("." + own) for own in _OWN_DOMAINS)
+
+
+def screen_lead_content(*, email: str, fields: Mapping[str, Any] | str) -> LeadScreen:
+    """Judge one submission on its content alone: 'spam', 'suspect' or 'ok'.
+    (A 'duplicate' needs the earlier rows; see `Store.record_screened_lead`.)
+
+    `fields` is the form as captured, or the raw stored text when the stored
+    JSON was cut short. The reason names the rule, never the visitor's text."""
+    if isinstance(fields, Mapping):
+        values = [
+            _screen_text(value)
+            for key, value in fields.items()
+            if str(key).strip().casefold() not in _EMAIL_FIELDS
+        ]
+        parts = lead_message_parts(fields)
+    else:
+        values = [_screen_text(fields)]
+        parts = [" ".join(values[0].split())] if values[0].strip() else []
+    scanned = "\n".join(values)
+
+    host = _spam_link_host(scanned)
+    if host:
+        return LeadScreen("spam", f"link to a known spam host ({host})")
+
+    message = "\n".join(parts)
+    reasons = []
+    # Pasted markup alone is not proof of spam: clients paste their own pages'
+    # HTML into bug reports. It is flagged, and still alerted.
+    if _MARKUP_RE.search(scanned):
+        reasons.append("HTML link markup")
+    kind = _spam_wording(values)
+    if kind:
+        reasons.append(f"{kind} spam wording with a link")
+    elif not parts:
+        reasons.append("empty or one-word message")
+    elif _is_pitch(message):
+        reasons.append("sales pitch wording")
+    elif _is_price_template(message):
+        reasons.append("one-line price question")
+    if _own_domain(email):
+        reasons.append("sent from the studio's own domain")
+    if reasons:
+        return LeadScreen("suspect", "; ".join(reasons))
+    return LeadScreen("ok", "")
+
+
+def _duplicate_reason(earlier_id: int) -> str:
+    minutes = int(LEAD_DUPLICATE_WINDOW.total_seconds() // 60)
+    return f"repeat of lead {earlier_id} within {minutes} minutes"
+
+
+def _parse_ts(value: Any) -> datetime | None:
+    """A stored `ts` as an aware UTC datetime (None if unreadable)."""
+    try:
+        parsed = datetime.fromisoformat(str(value))
+    except (TypeError, ValueError):
+        return None
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
 
 
 class Store:
@@ -159,6 +571,8 @@ class Store:
                 -- Generic inbound lead capture (studio microsites + any product).
                 -- Replaces FormSubmit; this row is the durable guarantee a lead is
                 -- never silently dropped, independent of email delivery.
+                -- `status` is the screening result (ok/suspect/spam/duplicate);
+                -- it only decides the owner alert, never whether a row is kept.
                 CREATE TABLE IF NOT EXISTS leads (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     ts TEXT NOT NULL,
@@ -167,7 +581,9 @@ class Store:
                     product TEXT,
                     source TEXT,
                     fields TEXT,
-                    notified INTEGER NOT NULL DEFAULT 0
+                    notified INTEGER NOT NULL DEFAULT 0,
+                    status TEXT NOT NULL DEFAULT 'ok',
+                    status_reason TEXT
                 );
                 CREATE INDEX IF NOT EXISTS idx_leads_ts ON leads(ts);
                 CREATE INDEX IF NOT EXISTS idx_leads_email ON leads(email);
@@ -176,7 +592,8 @@ class Store:
             # Add columns to pre-existing `jobs` tables BEFORE creating any index
             # that references them (an old prod DB has jobs without dedupe_key).
             self._migrate_jobs_columns(conn)
-            # An old prod `leads` table (created before notify-hardening) lacks `notified`.
+            # An old prod `leads` table (created before notify-hardening) lacks
+            # `notified`; one created before lead screening lacks `status`.
             self._migrate_leads_columns(conn)
             self._redact_stripe_event_payloads(conn)
             conn.execute(
@@ -204,6 +621,14 @@ class Store:
             # New inserts still start at notified=0 (the column default) and earn the flag
             # only on a confirmed send.
             conn.execute("UPDATE leads SET notified = 1")
+        # Lead screening. Additive only: rows captured before it keep every value
+        # and read as 'ok' (the column default), which is how they were alerted.
+        # `lead_admin reclassify` applies the rules to them when the operator
+        # chooses to.
+        if "status" not in existing:
+            conn.execute("ALTER TABLE leads ADD COLUMN status TEXT NOT NULL DEFAULT 'ok'")
+        if "status_reason" not in existing:
+            conn.execute("ALTER TABLE leads ADD COLUMN status_reason TEXT")
 
     def _redact_stripe_event_payloads(self, conn: sqlite3.Connection) -> None:
         """Remove customer/billing data retained by older deployments.
@@ -649,20 +1074,112 @@ class Store:
     ) -> int:
         """Durably record an inbound lead. The returned id confirms capture even
         if the notification email later fails — this row is the guarantee."""
+        return self.record_screened_lead(
+            email=email, name=name, product=product, source=source, fields=fields
+        ).id
+
+    def record_screened_lead(
+        self,
+        *,
+        email: str,
+        name: str | None = None,
+        product: str | None = None,
+        source: str | None = None,
+        fields: dict[str, Any] | None = None,
+    ) -> RecordedLead:
+        """Record a lead exactly as `record_lead` always has, plus its screening
+        status (see "lead screening" above). The row is written whatever the
+        rules say; a rule that fails leaves the lead 'ok' so it still alerts.
+
+        The duplicate check and the insert share one IMMEDIATE transaction, so
+        a burst of identical submissions is judged one at a time."""
+        stored_fields = json.dumps(fields or {})[:4000]
+        try:
+            status, reason = screen_lead_content(email=email, fields=fields or {})
+        except Exception:  # noqa: BLE001 — screening must never cost a lead
+            logger.exception("lead screening failed; keeping the lead as 'ok'")
+            status, reason = "ok", "not screened (rule error)"
+        now = datetime.now(UTC)
         with self.connect() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            if status != "spam":
+                try:
+                    earlier = self._earlier_submission(
+                        conn, email, stored_fields, now, product=product
+                    )
+                except Exception:  # noqa: BLE001 — as above
+                    logger.exception("lead duplicate check failed; judging the lead alone")
+                    earlier = None
+                if earlier is not None:
+                    status, reason = "duplicate", _duplicate_reason(earlier)
             cur = conn.execute(
-                "INSERT INTO leads(ts, email, name, product, source, fields) "
-                "VALUES (?, ?, ?, ?, ?, ?)",
+                "INSERT INTO leads(ts, email, name, product, source, fields, status, "
+                "status_reason) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 (
-                    _now(),
+                    now.isoformat(),
                     str(email)[:200],
                     _trunc(name, 200),
                     _trunc(product),
                     _trunc(source, 200),
-                    json.dumps(fields or {})[:4000],
+                    stored_fields,
+                    status,
+                    reason or None,
                 ),
             )
-            return int(cur.lastrowid)
+            return RecordedLead(int(cur.lastrowid), status, reason)
+
+    def _earlier_submission(
+        self,
+        conn: sqlite3.Connection,
+        email: str,
+        stored_fields: str | None,
+        when: datetime,
+        *,
+        before_id: int | None = None,
+        product: str | None = None,
+    ) -> int | None:
+        """The id of an earlier lead that makes this one a duplicate: the same
+        address within LEAD_DUPLICATE_WINDOW before `when`, and either the same
+        message or no message of its own on the same form (an empty re-send). A
+        different message, or a message-less submission on another product's
+        form, is not a duplicate: it may be a real follow-up."""
+        email_key = self._email_key(email)
+        if not email_key:
+            return None
+        message_key, has_message = lead_message_key(stored_fields)
+        # A value cut at 4,000 characters hides whatever followed the cut, so it
+        # can never prove two messages are the same: a follow-up that differs
+        # only after the cut must still alert.
+        complete = _is_complete_fields(stored_fields)
+        sql = f"SELECT id, fields, product FROM leads WHERE ts >= ? AND {self._LEAD_EMAIL_KEY} = ?"
+        params: list[Any] = [(when - LEAD_DUPLICATE_WINDOW).isoformat(), email_key]
+        if before_id is not None:
+            sql += " AND id < ?"
+            params.append(int(before_id))
+        for row in conn.execute(sql + " ORDER BY id DESC LIMIT 50", params).fetchall():
+            if not has_message:
+                # A message-less repeat is a duplicate only on the same form:
+                # options picked on a different product are a new inquiry.
+                if (row["product"] or "") == (product or ""):
+                    return int(row["id"])
+                continue
+            if (
+                complete
+                and _is_complete_fields(row["fields"])
+                and lead_message_key(row["fields"])[0] == message_key
+            ):
+                return int(row["id"])
+        return None
+
+    def lead_screen(self, lead_id: int) -> LeadScreen:
+        """The screening status stored with a lead ('ok' if the row is gone)."""
+        with self.connect() as conn:
+            row = conn.execute(
+                "SELECT status, status_reason FROM leads WHERE id = ?", (int(lead_id),)
+            ).fetchone()
+        if row is None:
+            return LeadScreen("ok", "")
+        return LeadScreen(row["status"] or "ok", row["status_reason"] or "")
 
     def recent_leads(self, limit: int = 100) -> list[dict[str, Any]]:
         with self.connect() as conn:
@@ -674,20 +1191,140 @@ class Store:
         with self.connect() as conn:
             conn.execute("UPDATE leads SET notified = 1 WHERE id = ?", (int(lead_id),))
 
+    # Leads the owner is alerted about. Spam and duplicates are never alerted,
+    # so they are never "owed" an alert either.
+    _ALERTABLE = "status IN ('ok', 'suspect')"
+
     def unnotified_leads(self, limit: int = 100) -> list[dict[str, Any]]:
         """Durably-captured leads the owner was NOT yet successfully alerted about —
-        the recovery queue for the periodic re-send sweep (self-heals email outages)."""
+        the recovery queue for the periodic re-send sweep (self-heals email outages).
+        Spam and duplicates are not in it."""
         with self.connect() as conn:
             rows = conn.execute(
-                "SELECT * FROM leads WHERE notified = 0 ORDER BY id ASC LIMIT ?", (limit,)
+                f"SELECT * FROM leads WHERE notified = 0 AND {self._ALERTABLE} "
+                "ORDER BY id ASC LIMIT ?",
+                (limit,),
             ).fetchall()
         return [dict(row) for row in rows]
 
     def count_unnotified(self) -> int:
         with self.connect() as conn:
             return int(
-                conn.execute("SELECT COUNT(*) AS n FROM leads WHERE notified = 0").fetchone()["n"]
+                conn.execute(
+                    f"SELECT COUNT(*) AS n FROM leads WHERE notified = 0 AND {self._ALERTABLE}"
+                ).fetchone()["n"]
             )
+
+    # ---- lead screening: operator views ------------------------------------ #
+
+    def has_lead_status(self) -> bool:
+        """True once the API has added the screening columns (at its startup)."""
+        with self.connect() as conn:
+            columns = {row["name"] for row in conn.execute("PRAGMA table_info(leads)")}
+        return {"status", "status_reason"} <= columns
+
+    def iter_leads(
+        self, *, since: str | None = None, status: str | None = None, with_fields: bool = False
+    ) -> Iterator[dict[str, Any]]:
+        """Lead rows oldest first, one at a time, optionally from a UTC date or
+        time (`ts` text order is time order) and with one screening status. The
+        form contents (`fields`) are read only when asked for."""
+        clauses: list[str] = []
+        params: list[Any] = []
+        if since:
+            clauses.append("ts >= ?")
+            params.append(since)
+        if status:
+            clauses.append("status = ?")
+            params.append(status)
+        where = f"WHERE {' AND '.join(clauses)} " if clauses else ""
+        columns = "id, ts, product, source, notified, status, status_reason"
+        if with_fields:
+            columns += ", fields"
+        with self.connect() as conn:
+            for row in conn.execute(f"SELECT {columns} FROM leads {where}ORDER BY id", params):
+                yield dict(row)
+
+    def reclassify_leads(self, *, dry_run: bool = False) -> dict[str, Any]:
+        """Apply the screening rules to every stored lead, oldest first, exactly
+        as they apply at capture: a duplicate is judged against the rows before
+        it within LEAD_DUPLICATE_WINDOW of its own time.
+
+        Changes `status` and `status_reason` only; never deletes a row or changes
+        what it holds. A row changes only if its status is still what was read,
+        so a concurrent change is never overwritten. Returns every change (id,
+        ts, product, source, notified, old/new status, reason) and, unless
+        `dry_run`, how many were written."""
+        changes: list[dict[str, Any]] = []
+        checked = 0
+        with self.connect() as conn:
+            for row in conn.execute(
+                "SELECT id, ts, email, product, source, fields, notified, status, "
+                "status_reason FROM leads ORDER BY id"
+            ):
+                checked += 1
+                status, reason = self._rescreen(conn, row)
+                old_status = row["status"] or "ok"
+                if (status, reason or None) != (old_status, row["status_reason"] or None):
+                    changes.append(
+                        {
+                            "id": int(row["id"]),
+                            "ts": row["ts"],
+                            "product": row["product"],
+                            "source": row["source"],
+                            "notified": int(row["notified"] or 0),
+                            "old_status": old_status,
+                            "status": status,
+                            "reason": reason,
+                        }
+                    )
+        updated = 0
+        if changes and not dry_run:
+            with self.connect() as conn:
+                conn.execute("BEGIN IMMEDIATE")
+                for change in changes:
+                    cur = conn.execute(
+                        "UPDATE leads SET status = ?, status_reason = ? "
+                        "WHERE id = ? AND status = ?",
+                        (
+                            change["status"],
+                            change["reason"] or None,
+                            change["id"],
+                            change["old_status"],
+                        ),
+                    )
+                    updated += cur.rowcount
+        return {"checked": checked, "changes": changes, "updated": updated}
+
+    def _rescreen(self, conn: sqlite3.Connection, row: sqlite3.Row) -> LeadScreen:
+        """The status `record_screened_lead` would give this row had it just
+        arrived, with the rows stored before it."""
+        stored = row["fields"]
+        try:
+            data = json.loads(stored or "{}")
+        except (TypeError, ValueError):
+            data = None
+        try:
+            verdict = screen_lead_content(
+                email=row["email"] or "", fields=data if isinstance(data, dict) else str(stored)
+            )
+        except Exception:  # noqa: BLE001 — same fallback as at capture
+            logger.exception("lead screening failed for lead %s", row["id"])
+            verdict = LeadScreen("ok", "not screened (rule error)")
+        when = _parse_ts(row["ts"])
+        if verdict.status == "spam" or when is None:
+            return verdict
+        earlier = self._earlier_submission(
+            conn,
+            row["email"] or "",
+            stored,
+            when,
+            before_id=int(row["id"]),
+            product=row["product"],
+        )
+        if earlier is not None:
+            return LeadScreen("duplicate", _duplicate_reason(earlier))
+        return verdict
 
     # ---- lead retention and deletion -------------------------------------- #
     #
@@ -724,12 +1361,16 @@ class Store:
     def purge_leads_before(self, cutoff_iso: str, *, dry_run: bool = False) -> dict[str, int]:
         """Delete lead rows captured before `cutoff_iso` (a UTC isoformat string,
         the format `ts` is written in, so text order is time order).
-        `unnotified` counts matched rows whose owner alert never went out."""
+        `unnotified` counts matched rows whose owner alert never went out (spam
+        and duplicates are never alerted, so they are not counted)."""
         sql_where = "FROM leads WHERE ts < ?"
         manager = self.connect() if dry_run else self._erasing()
         with manager as conn:
+            columns = {row["name"] for row in conn.execute("PRAGMA table_info(leads)")}
+            # The CLI may open a database the API has not migrated yet.
+            owed = f"notified = 0 AND {self._ALERTABLE}" if "status" in columns else "notified = 0"
             row = conn.execute(
-                "SELECT COUNT(*) AS n, COALESCE(SUM(notified = 0), 0) AS unnotified " + sql_where,
+                f"SELECT COUNT(*) AS n, COALESCE(SUM({owed}), 0) AS unnotified " + sql_where,
                 (cutoff_iso,),
             ).fetchone()
             deleted = 0
