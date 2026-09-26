@@ -84,7 +84,8 @@ EOLKITS_AUDIT_CHECKOUT_ENABLED=0
 EOLKITS_BUILD_SHA=<deployed-git-commit>
 EOLKITS_API_PORT=8120
 
-# Lead retention: two years in production. Read only at startup; see below.
+# Lead retention: two years. Production only: leave it out of any other
+# environment's file (unset keeps leads). Read only at startup; see below.
 EOLKITS_LEAD_RETENTION_DAYS=730
 
 # Optional. Uncomment to change the default.
@@ -208,19 +209,34 @@ before and gets exactly the same response (JSON, redirect or page, pinned by
 | Status | Owner alert | When |
 |---|---|---|
 | `ok` | `New lead: ...` | everything else |
-| `suspect` | `Likely spam: New lead: ...`, with a line saying why | a one-line "what is your price" message in any language; sales-pitch wording (at least one phrase a prospect does not write, such as "no cost, no obligation", plus one more outreach cue); an empty or one-word message; sent from a toledotechnologies.com or eolkits.com address |
-| `spam` | none, never re-sent | one of the spam campaigns' own phrases (such as "the $27,000,000 jackpot", "... BTC is yours for withdrawal", "Transfer of funds to your name. RECEIVE") with a link after it in the same field; a link to a shortener or Telegraph host that carried only spam; HTML or forum link markup pointing at another site |
+| `suspect` | `Likely spam: New lead: ...`, with a line saying why | a spam campaign's own phrase (such as "the $27,000,000 jackpot" or "... BTC is yours for withdrawal") with a link after it, where the link does not go to a listed spam host; a one-line "what is your price" message in any language; sales-pitch wording (at least one phrase a prospect does not write, such as "no cost, no obligation", plus one more outreach cue); an empty or one-word message; sent from a toledotechnologies.com or eolkits.com address |
+| `spam` | none, never re-sent | a link to one of the listed shorteners or Telegraph hosts, which carried only spam (a link: naming the site in a sentence does not count); HTML or forum link markup pointing at another site |
 | `duplicate` | none, never re-sent | the same address sent the same message, or a message with no text of its own, within the previous 10 minutes |
 
-A false `spam` or `duplicate` costs an alert, never the lead: the row is kept
-and `list` shows it. The rules (in `apps/grace-api/eolkits_grace/store.py`,
-section "lead screening") are narrow for that reason: they look for phrases and
-hosts only the spam used, not topics. An inquiry about a remittance app, a
-raffle, a casino promo, a loan page or a crypto wallet, with a link to its own
-site, stays `ok`, and so does a phrase in one field with a link in another (the
-Website field, say). A real follow-up from the same address with a different
-message is never a duplicate. If screening itself fails, the lead is alerted as
-`ok`.
+The rules are in `apps/grace-api/eolkits_grace/store.py`, section "lead
+screening". Wording never stops an alert by itself: a genuine inquiry can
+mention a raffle's jackpot, a casino promo, a loan offer or a crypto wallet, or
+quote a scam, next to a link to its own site. The campaign phrases only make a
+lead `suspect`, so it is still alerted. They follow the campaigns' own phrasing
+(every jackpot the campaigns named was in the millions), so ordinary inquiries
+on those topics, like the examples in `test_lead_screening.py`, stay `ok`.
+
+`spam` and `duplicate` cost an alert, never the lead: the row is kept and
+`list` shows it. `spam` needs a listed host or link markup, and that has a
+price: a genuine visitor who links through one of those shorteners or a
+Telegraph page, or pastes HTML such as `<a href="https://...">`, gets no alert.
+On the 248 submissions from June to September these rules mark 205 as `spam`,
+including all 189 prize and crypto link spams; one fake exchange transfer on an
+unlisted host is `suspect`. When the campaigns move to a new shortener, the
+first submission of a burst from one address alerts as `Likely spam:` and its
+repeats are `duplicate`. To stop alerts from a new host, add it to
+`SPAM_LINK_HOSTS` in store.py, deploy, and run `reclassify`.
+
+A real follow-up from the same address with a different message is never a
+duplicate. If screening itself fails, the lead is alerted as `ok`. Do not
+filter `Likely spam:` alerts out of the inbox: real leads land there too, for
+example a Discovery Routing or Care Plan form sent with only its options
+picked, which counts as an empty message.
 
 Review what screening decided, without printing what visitors wrote:
 
@@ -243,7 +259,10 @@ as the API starts, before you can reclassify anything, and until you do, every
 old row with `notified = 0` (for example spam the mailbox rejected) reads as `ok`
 and is re-sent, as the current image already does each hour: at most 50 per
 sweep, within the daily alert limit (`EOLKITS_LEAD_NOTIFICATION_DAILY_LIMIT`,
-20 by default). So reclassify straight after the restart, first as a preview:
+20 by default). That limit is shared with new leads: a large batch can use it
+up, and alerts for new leads then wait (stored, `notified = 0`) until its
+24-hour window, which starts at the first alert counted, runs out. So
+reclassify straight after the restart, first as a preview:
 
 ```bash
 docker exec eolkits-api python -m eolkits_grace.lead_admin reclassify --dry-run
