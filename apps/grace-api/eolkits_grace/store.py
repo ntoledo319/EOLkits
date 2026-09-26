@@ -330,6 +330,15 @@ def lead_message_key(stored_fields: str | None) -> tuple[str, bool]:
     return text, bool(text)
 
 
+def _is_complete_fields(stored_fields: str | None) -> bool:
+    """True when a stored `fields` value is the whole submission (valid JSON),
+    False when it was cut at 4,000 characters."""
+    try:
+        return isinstance(json.loads(stored_fields or "{}"), dict)
+    except (TypeError, ValueError):
+        return False
+
+
 # Where a link points: its own host, and the host of any address embedded in it
 # (a redirect such as "https://a.example/r?u=https://b.example/x").
 _LINK_HOSTS_RE = re.compile(r"(?:^|//)(?:[^\s/?#@]*@)?([a-z0-9.-]+)", re.IGNORECASE)
@@ -1133,13 +1142,23 @@ class Store:
         if not email_key:
             return None
         message_key, has_message = lead_message_key(stored_fields)
+        # A value cut at 4,000 characters hides whatever followed the cut, so it
+        # can never prove two messages are the same: a follow-up that differs
+        # only after the cut must still alert.
+        complete = _is_complete_fields(stored_fields)
         sql = f"SELECT id, fields FROM leads WHERE ts >= ? AND {self._LEAD_EMAIL_KEY} = ?"
         params: list[Any] = [(when - LEAD_DUPLICATE_WINDOW).isoformat(), email_key]
         if before_id is not None:
             sql += " AND id < ?"
             params.append(int(before_id))
         for row in conn.execute(sql + " ORDER BY id DESC LIMIT 50", params).fetchall():
-            if not has_message or lead_message_key(row["fields"])[0] == message_key:
+            if not has_message:
+                return int(row["id"])
+            if (
+                complete
+                and _is_complete_fields(row["fields"])
+                and lead_message_key(row["fields"])[0] == message_key
+            ):
                 return int(row["id"])
         return None
 

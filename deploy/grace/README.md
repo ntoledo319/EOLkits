@@ -211,7 +211,7 @@ before and gets exactly the same response (JSON, redirect or page, pinned by
 | `ok` | `New lead: ...` | everything else |
 | `suspect` | `Likely spam: New lead: ...`, with a line saying why | a spam campaign's own phrase (such as "the $27,000,000 jackpot" or "... BTC is yours for withdrawal") with a link after it, where the link does not go to a listed spam host; a one-line "what is your price" message in any language; sales-pitch wording (at least one phrase a prospect does not write, such as "no cost, no obligation", plus one more outreach cue); an empty or one-word message; sent from a toledotechnologies.com or eolkits.com address |
 | `spam` | none, never re-sent | a link to one of the listed shorteners or Telegraph hosts, which carried only spam (a link: naming the site in a sentence does not count); HTML or forum link markup pointing at another site |
-| `duplicate` | none, never re-sent | the same address sent the same message, or a message with no text of its own, within the previous 10 minutes |
+| `duplicate` | none, never re-sent | the same address sent the same message, or a message with no text of its own, within the previous 10 minutes (a message longer than the 4,000-character storage cut is never called a duplicate, so a follow-up that differs after the cut still alerts) |
 
 The rules are in `apps/grace-api/eolkits_grace/store.py`, section "lead
 screening". Wording never stops an alert by itself: a genuine inquiry can

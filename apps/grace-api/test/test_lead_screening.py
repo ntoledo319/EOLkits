@@ -806,12 +806,31 @@ def test_address_case_and_spaces_do_not_hide_a_duplicate(store):
     assert _capture(store, "visitor@example.com", form)[0] == "duplicate"
 
 
-def test_a_long_message_cut_short_in_storage_still_deduplicates(store):
+def test_a_message_cut_short_in_storage_is_never_called_a_duplicate(store):
+    # Storage keeps the first 4,000 characters, so a cut value cannot show that
+    # two messages match; a repeat of a very long message alerts again rather
+    # than risk hiding a real follow-up.
     form = contact("We need help with our platform. " * 400)
     assert _capture(store, "long@example.com", form)[0] == "ok"
-    assert _capture(store, "long@example.com", form)[0] == "duplicate"
+    assert _capture(store, "long@example.com", form)[0] == "ok"
     other = contact("A different, equally long request about our intranet. " * 300)
     assert _capture(store, "long@example.com", other)[0] == "ok"
+
+
+def test_a_follow_up_that_differs_only_after_the_storage_cut_still_alerts(store):
+    shared = "Background on our migration and the systems involved. " * 84  # > 4,000 chars
+    first = contact(shared + "Budget: $80k.")
+    second = contact(shared + "Correction: budget is $150k and my phone is 555 0100.")
+    assert _capture(store, "cio@cu.example", first)[0] == "ok"
+    assert _capture(store, "cio@cu.example", second)[0] == "ok"
+    rows = store.recent_leads(10)
+    assert [r["status"] for r in rows] == ["ok", "ok"]
+
+
+def test_short_identical_messages_are_still_duplicates(store):
+    form = contact("Please call me about a new website for our clinic.")
+    assert _capture(store, "dup@example.com", form)[0] == "ok"
+    assert _capture(store, "dup@example.com", form)[0] == "duplicate"
 
 
 def test_a_failing_rule_keeps_the_lead_ok(store, monkeypatch, fresh_import, caplog):
