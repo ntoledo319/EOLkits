@@ -145,12 +145,42 @@ def test_html_and_forum_link_markup_is_spam():
     for message in (
         "аренда авто <a href=https://car-rental.example/>аренда авто</a>",
         '<A  class="x" HREF="https://casino.example">best</a>',
+        "<a href='//pills.example/buy'>cheap</a>",
         "[url=https://pills.example]cheap[/url]",
     ):
         assert screen_lead_content(email="x@example.com", fields=contact(message)) == (
             "spam",
             "HTML link markup",
         )
+
+
+def test_quoted_html_with_relative_links_is_not_link_markup():
+    """A visitor may paste a piece of their own page; link spam always points
+    at another site."""
+    for message in (
+        'Our nav has <a class="nav" href="/about">About</a> and it breaks on iPhone. '
+        "Can you fix?",
+        'The footer link <a href="#contact">Contact</a> jumps to the wrong part of the page.',
+    ):
+        assert screen_lead_content(email="x@example.com", fields=contact(message)) == ("ok", "")
+
+
+def test_campaign_wording_needs_a_link_after_it_in_the_same_field():
+    """Every campaign put its link right after its phrase, in the same field."""
+    headline = "THE $27,000,000 JACKPOT IS A ROUTE TO RICHES"
+    link = "https://brand-new-short.example/k3Jd"
+    assert status_of(contact(f"{headline} {link}")) == "spam"
+    # The phrase alone, the visitor's own link before it, or the link in
+    # another field (the Website field of the Fit Check, say) is not the spam.
+    assert status_of(contact(headline)) == "ok"
+    assert status_of(contact(f"Our site {link} shows this banner: {headline}")) == "ok"
+    assert status_of(contact(headline, website=link)) == "ok"
+    fit_check = {
+        "service": "Delphi Fit Check",
+        "website": "https://lotto-results.example",
+        "goal": "Our banner reads 'the $10,000,000 jackpot' and must stay on the new site",
+    }
+    assert status_of(fit_check) == "ok"
 
 
 def test_loan_offer_with_a_link_is_spam_and_without_one_is_a_pitch():
@@ -392,6 +422,104 @@ GENUINE = {
         "context": "Five-field Automation Blueprint inquiry",
         "workflow_to_automate": "Weekly grade reports for our school",
     },
+    # Genuine inquiries on the topics the spam campaigns borrow, each with a
+    # link to the visitor's own site. None of them uses a campaign's phrase.
+    "design awards": contact(
+        "Have you won any design awards? We want a premium site; ours is https://firm.example"
+    ),
+    "won me over": contact(
+        "Loved the case study at https://toledotechnologies.com/work - you won me over. We "
+        "need a new site for our bakery."
+    ),
+    "won our business": contact(
+        "After reading your blog at www.toledotechnologies.com/blog you've won our business - "
+        "we need a Shopify rebuild."
+    ),
+    "remittance app": contact(
+        "We're building an app for international funds transfer between small businesses. "
+        "Current site: https://acme-remit.com. Can you help with the MVP?"
+    ),
+    "payroll transfers": contact(
+        "Our platform handles the transfer of funds for payroll; see https://payco.example. "
+        "Need a dashboard rebuild."
+    ),
+    "payment notification": contact(
+        "Our payment app sends a notification 'transaction to you' - site https://pay.example "
+        "needs rework"
+    ),
+    "wallet app": contact(
+        "Our wallet app shows '0.5 BTC is yours' after purchase and lets users top up 50 USDT; "
+        "landing page https://wallet.example"
+    ),
+    "wallet flow": contact(
+        "Our wallet flow is: top up 50 USDT -> confirm -> done. The current app is at "
+        "https://wallet.example"
+    ),
+    "rental marketplace": contact(
+        "Hosts on our platform earn $1,500 per day or more from bookings; we need the listing "
+        "pages rebuilt: https://stays.example"
+    ),
+    "crypto education": contact(
+        "Our crypto trading education site claims users earn $1,500 per day or more; we need "
+        "a compliance review of https://edu.example"
+    ),
+    "charity raffle": contact(
+        "Our charity raffle needs a page that announces the lucky winner each month. Current "
+        "site: https://kids-charity.org"
+    ),
+    "giveaway tool": contact(
+        "We run weekly giveaways on https://ourshop.example and need a tool that picks a "
+        "random winner and emails them."
+    ),
+    "sweepstakes page": contact(
+        "We host a sweepstakes each month and need the sweepstakes winner page rebuilt: "
+        "https://promo.example"
+    ),
+    "esports prize": contact(
+        "We're giving away a PlayStation 5 as the prize at our esports tournament and need a "
+        "signup site like https://ourleague.gg"
+    ),
+    "car dealer": contact(
+        "We sell pre-owned Lamborghini models and our award-winning showroom needs a new "
+        "inventory site: https://exotics.example"
+    ),
+    "casino promo": contact(
+        "We run a licensed online casino; our promo page for free spins at "
+        "https://casino.example is broken on mobile."
+    ),
+    "loyalty rewards": contact(
+        "We want a 'claim your reward' flow for our coffee loyalty app, see https://beans.example"
+    ),
+    "equipment lender": contact(
+        "We're a small business lender offering instant approval on equipment loans. Our site "
+        "https://lendco.example needs a redesign."
+    ),
+    "microloans": contact(
+        "We offer microloans with no collateral to farmers. Please rebuild https://agri-loans.example"
+    ),
+    "loan offer page": contact(
+        "We need a new loan offer page on https://creditunion.example with a calculator."
+    ),
+    "fit check loan flow": {
+        "service": "Delphi Fit Check",
+        "offer": "$750 fixed",
+        "website": "https://mybank.example",
+        "platform": "WordPress",
+        "goal": "Add an instant approval flow for our loan offer page",
+    },
+    "fit check remittance": {
+        "service": "Delphi Fit Check",
+        "website": "https://remit-app.example",
+        "goal": "Build a funds transfer MVP for immigrants sending money home",
+    },
+    # Outreach manners alone are how real prospects write too.
+    "polite prospect": contact(
+        "Hope this email finds you well. We'd like to book a call about a new website for our "
+        "dental practice. Let us know if you have time next week."
+    ),
+    "visited, call, whatsapp": contact(
+        "Hi, I visited your website. Can we book a call? I prefer WhatsApp."
+    ),
 }
 
 
@@ -420,6 +548,15 @@ def test_screening_stays_fast_on_hostile_64kb_input():
         "win " * (size // 4) + "lamborghini",
         "lamborghini " * (size // 12),
         "transfer no " * (size // 12),
+        "transfer no 1" * (size // 13),
+        "top up 1 btc " * (size // 13),
+        "top up 1 btc -> " + "a." * (size // 2),
+        "top up 1 btc ->" * (size // 15),
+        "playstation 5 " * (size // 14),
+        "transaction to you." * (size // 19),
+        "$10,000 jackpot " * (size // 16),
+        "<a href=" * (size // 8),
+        "<a " + "x" * size,
         "visited " + "a" * size,
         "$1," + "000," * (size // 4),
         "x" * size,
