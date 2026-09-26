@@ -33,7 +33,14 @@ from .config import settings
 from .email import EmailDeliveryError, render_audit_delivery_email, send_email
 from .preflight import validate_runtime_preflight
 from .security import sha256_hex, verify_stripe_signature
-from .store import Store
+from .store import (
+    LEAD_ALERT_STATUSES,
+    LEAD_EMAIL_KEYS,
+    LEAD_NAME_KEYS,
+    LIKELY_SPAM_PREFIX,
+    LeadScreen,
+    Store,
+)
 from .stripe_client import (
     cancel_subscription,
     create_checkout_session,
@@ -761,18 +768,10 @@ async def reconcile_refund(
 # ---- generic lead capture (studio microsites + any product) ------------------ #
 
 # Inbound forms use heterogeneous field names; these are the priority orders for
-# the two identity columns. Everything else is preserved verbatim in `fields`.
-_EMAIL_KEYS = ("email", "Email", "e-mail", "your-email", "your_email")
-_NAME_KEYS = (
-    "name",
-    "Name",
-    "full_name",
-    "fullname",
-    "contact",
-    "company",
-    "Business",
-    "agency_name",
-)
+# the two identity columns (defined beside the lead screening rules, which read
+# them too). Everything else is preserved verbatim in `fields`.
+_EMAIL_KEYS = LEAD_EMAIL_KEYS
+_NAME_KEYS = LEAD_NAME_KEYS
 
 # Pragmatic email shape check — rejects obvious junk without trying to be RFC 5322.
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
@@ -815,17 +814,29 @@ def _esc(value: Any) -> str:
     return str(value or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-def _lead_email_html(product: str, source: str, fields: dict[str, str]) -> str:
+def _lead_email_html(
+    product: str, source: str, fields: dict[str, str], screen_reason: str | None = None
+) -> str:
     rows = "".join(
         f"<tr><td style='padding:4px 12px 4px 0;color:#6b7280;font-size:13px;vertical-align:top'>{_esc(k)}</td>"
         f"<td style='padding:4px 0;font-size:13px'><strong>{_esc(v)}</strong></td></tr>"
         for k, v in fields.items()
+    )
+    # Only a lead screened as 'suspect' carries this line; an 'ok' lead's alert
+    # is exactly what it always was.
+    screened = (
+        '<p style="margin:0 0 16px;padding:8px 12px;background:#fef3c7;color:#78350f;'
+        f'font-size:13px;border-radius:6px">Screened as likely spam: {_esc(screen_reason)}. '
+        "Stored like every lead; check before replying.</p>"
+        if screen_reason
+        else ""
     )
     return (
         '<!doctype html><html><body style="font-family:system-ui,-apple-system,sans-serif;'
         'max-width:600px;margin:0 auto;padding:24px;line-height:1.5">'
         f"<h2 style=\"margin:0 0 4px\">New lead &mdash; {_esc(product) or 'studio'}</h2>"
         f"<p style=\"margin:0 0 16px;color:#6b7280;font-size:13px\">via {_esc(source) or 'website'}</p>"
+        f"{screened}"
         f'<table style="border-collapse:collapse;width:100%">{rows}</table>'
         '<p style="font-size:12px;color:#9ca3af;margin-top:24px">Captured by the GRACE lead bus '
         "(/api/v1/lead). Reply directly to reach the prospect.</p></body></html>"
@@ -833,19 +844,35 @@ def _lead_email_html(product: str, source: str, fields: dict[str, str]) -> str:
 
 
 def _send_lead_notification(
-    lead_id: int, product: str, source: str, fields: dict[str, str]
+    lead_id: int,
+    product: str,
+    source: str,
+    fields: dict[str, str],
+    status: str = "ok",
+    screen_reason: str | None = None,
 ) -> None:
     """Owner alert for a captured lead. The lead ROW is already durable; this only
     flips `notified=1` after a CONFIRMED send. It retries transient failures and, if
     every attempt fails, logs LOUDLY and leaves `notified=0` so the row surfaces in
     the recovery queue — instead of silently dropping the way FormSubmit did one layer
-    up. `resend_unnotified_leads` then self-heals once email recovers. Never raises."""
+    up. `resend_unnotified_leads` then self-heals once email recovers. Never raises.
+
+    Only 'ok' and 'suspect' leads are alerted; a 'suspect' alert's subject starts
+    with "Likely spam: " and its body says why."""
+    if status not in LEAD_ALERT_STATUSES:
+        logger.info("LEAD %s screened as %s; owner not alerted", lead_id, status)
+        return
     recipients = [a.strip() for a in (settings.lead_notify_to or "").split(",") if a.strip()]
     if not recipients:
         logger.error("LEAD %s captured but LEAD_NOTIFY_TO is empty — OWNER NOT ALERTED", lead_id)
         return
-    html = _lead_email_html(product, source, fields)
+    suspect = status == "suspect"
+    html = _lead_email_html(
+        product, source, fields, (screen_reason or "screening rules") if suspect else None
+    )
     subject = f"New lead: {product or 'studio inquiry'}"
+    if suspect:
+        subject = LIKELY_SPAM_PREFIX + subject
     sent = 0
     for to in recipients:
         if not store.allow_rate(
@@ -899,7 +926,8 @@ def resend_unnotified_leads(max_batch: int = 50) -> dict[str, int]:
     """Re-attempt owner alerts for any durably-captured lead not yet confirmed-sent.
     Idempotent; runs once at startup and then on a cadence from the drain loop
     (LEAD_SWEEP_INTERVAL_SECONDS) — no external cron required. Self-heals a transient
-    email outage without ever touching the (already durable) lead rows."""
+    email outage without ever touching the (already durable) lead rows. Spam and
+    duplicates are never in the queue; a suspect lead keeps its "Likely spam: "."""
     pending = store.unnotified_leads(limit=max_batch)
     for row in pending:
         try:
@@ -917,7 +945,12 @@ def resend_unnotified_leads(max_batch: int = 50) -> dict[str, int]:
             }
             fields = {k: v for k, v in fallback.items() if v}
         _send_lead_notification(
-            int(row["id"]), row.get("product") or "", row.get("source") or "", fields
+            int(row["id"]),
+            row.get("product") or "",
+            row.get("source") or "",
+            fields,
+            row.get("status") or "ok",
+            row.get("status_reason"),
         )
     remaining = store.count_unnotified()
     if remaining:
@@ -1046,12 +1079,31 @@ async def _capture_lead(
     if not _consume_lead_capture_allowance(request):
         raise HTTPException(status_code=429, detail="Too many submissions. Please try again later.")
 
+    # Every lead is stored and answered the same way, whatever screening says:
+    # spam learns nothing from the response. `record_lead` screens the lead in
+    # the same transaction that stores it; the status only decides the alert.
     lead_id = store.record_lead(
         email=email, name=name, product=product, source=source, fields=fields
     )
     store.record_event("lead", {"source": source, "sku": product, "meta": {"lead_id": lead_id}})
-    background_tasks.add_task(_send_lead_notification, lead_id, product, source, fields)
+    status, reason = _stored_screen(lead_id)
+    if status in LEAD_ALERT_STATUSES:
+        background_tasks.add_task(
+            _send_lead_notification, lead_id, product, source, fields, status, reason
+        )
+    else:
+        logger.info("LEAD %s stored as %s (%s); owner not alerted", lead_id, status, reason)
     return _respond(target, {"ok": True, "lead_id": lead_id}, page_for)
+
+
+def _stored_screen(lead_id: int) -> LeadScreen:
+    """The screening result stored with a lead. If it cannot be read, the lead
+    is alerted as 'ok': an extra alert is better than a missed lead."""
+    try:
+        return store.lead_screen(lead_id)
+    except Exception:  # noqa: BLE001 — the lead is stored; never fail the request
+        logger.exception("LEAD %s: screening status unreadable; alerting as usual", lead_id)
+        return LeadScreen("ok", "")
 
 
 # ---- webhooks ---------------------------------------------------------------- #

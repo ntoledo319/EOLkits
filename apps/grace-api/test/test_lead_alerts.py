@@ -44,6 +44,11 @@ def test_resend_of_a_long_lead_still_carries_the_contact_details(load_grace, mon
     assert "word word word" in html
 
 
+# A lead that lead screening passes as 'ok' ("Hello" alone is screened as a
+# one-word message, which is 'suspect').
+NORMAL = {**GOOD, "message": "Hello, we need our booking site moved off WordPress."}
+
+
 def test_resend_of_a_normal_lead_is_unchanged(load_grace, monkeypatch):
     mod, client = load_grace()
     from eolkits_grace.email import EmailDeliveryError
@@ -52,9 +57,10 @@ def test_resend_of_a_normal_lead_is_unchanged(load_grace, monkeypatch):
         raise EmailDeliveryError("provider down", retryable=True)
 
     monkeypatch.setattr(mod, "send_email", outage)
-    client.post("/api/v1/lead", data=GOOD)
+    client.post("/api/v1/lead", data=NORMAL)
+    assert mod.store.recent_leads(1)[0]["status"] == "ok"
     first_html = mod._lead_email_html(
-        "Apps", "", {"email": GOOD["email"], "name": "Visitor", "message": "Hello"}
+        "Apps", "", {"email": GOOD["email"], "name": "Visitor", "message": NORMAL["message"]}
     )
 
     captured: list[str] = []

@@ -8,13 +8,19 @@ Two independent proofs:
 * A differential run: the e377bd4d package is rebuilt from git into a temp
   directory and imported side by side with the current code. Both apps get the
   same raw ASGI requests on fresh databases, and every status line, header list,
-  body byte, escaped exception, stored lead row, and owner alert must match.
+  body byte, escaped exception, and stored lead row must match. Owner alerts
+  match too, except where lead screening (store.py) deliberately changes them:
+  no alert for spam and duplicates, "Likely spam: " for suspect leads.
   Skipped only when the clone has no copy of e377bd4d (e.g. a shallow CI clone).
+
+Lead screening never shows in a response: an ok, suspect, spam or duplicate
+lead gets the same bytes, page or redirect (test_screening_never_shows_...).
 """
 
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -84,6 +90,31 @@ _case("70 KB declared", *urlencoded({**GOOD, "message": "m" * 70000}))
 _case("70 KB chunked", *urlencoded({**GOOD, "message": "m" * 70000}), chunked=True, length=False)
 _case("small chunked", *urlencoded(GOOD), chunked=True, length=False)
 _case("bad length", *urlencoded(GOOD), [("content-length", "12abc")], length=False)
+# Lead screening sorts these differently; the responses must not differ.
+SPAM = {
+    "email": "lucky@example.net",
+    "topic": "other",
+    "budget": "not-sure",
+    "message": "A $25,000 promo code is your golden ticket "
+    "https://telegra.ph/Win-the-jackpot-today-Message-ID-000001-01-01",
+}
+PRICE_ONE_LINER = {"email": "quote@example.org", "message": "Ciao, volevo sapere il tuo prezzo."}
+PITCH = {
+    "email": "sales@example.com",
+    "message": "Hi, I wanted to let you know about our new desk lamp. Get yours today "
+    "with 50% OFF and FREE shipping: https://lamps.example.com",
+}
+REAL = {
+    "email": "owner@example-bakery.com",
+    "name": "Robin",
+    "message": "Our bakery site (https://example-bakery.com) needs online ordering before "
+    "the holidays. Budget is around $12,000. What would pricing look like?",
+    "product": "Apps",
+}
+_case("spam", *urlencoded(SPAM))
+_case("price one-liner", *urlencoded(PRICE_ONE_LINER))
+_case("sales pitch", *multipart(PITCH))
+_case("real inquiry", *as_json(REAL))
 
 # Header profiles for clients that must keep the JSON contract. `None` for the
 # content type means "the body's own".
@@ -279,10 +310,46 @@ def pair(baseline_root, grace_env, tmp_path, monkeypatch):
 
 
 def _lead_rows(mod) -> list[dict]:
+    """What was stored, column for column (the screening columns are new)."""
     return [
-        {k: row[k] for k in ("id", "email", "name", "product", "source", "fields", "notified")}
+        {k: row[k] for k in ("id", "email", "name", "product", "source", "fields")}
         for row in mod.store.recent_leads(1000)
     ]
+
+
+_TABLE = re.compile(r"<table.*</table>", re.DOTALL)
+
+
+def _assert_alerts_follow_screening(baseline, current) -> None:
+    """Every alert e377bd4d sent, the current code sends too (same recipient,
+    idempotency key, subject and body) unless screening says otherwise: none for
+    spam and duplicates, and "Likely spam: " plus a one-line note for suspect
+    leads. Nothing else is sent, and `notified` agrees with what was sent."""
+    old_notified = {row["id"]: row["notified"] for row in baseline.store.recent_leads(1000)}
+    rows = {row["id"]: row for row in current.store.recent_leads(1000)}
+    expected = []
+    for sent in baseline.sent_emails:
+        lead_id = int(re.match(r"eolkits-lead-(\d+)-", sent["key"]).group(1))
+        status = rows[lead_id]["status"]
+        if status == "ok":
+            expected.append(sent)
+        elif status == "suspect":
+            expected.append({**sent, "subject": "Likely spam: " + sent["subject"]})
+        else:
+            assert status in ("spam", "duplicate"), status
+    got = current.sent_emails
+    assert [(e["to"], e["key"], e["subject"]) for e in got] == [
+        (e["to"], e["key"], e["subject"]) for e in expected
+    ]
+    for new, old in zip(got, expected):
+        if old["subject"].startswith("Likely spam: "):
+            assert _TABLE.search(new["html"]).group() == _TABLE.search(old["html"]).group()
+            assert "Screened as likely spam: " in new["html"]
+        else:
+            assert new["html"] == old["html"]
+    for lead_id, row in rows.items():
+        alerted = row["status"] in ("ok", "suspect")
+        assert row["notified"] == (old_notified[lead_id] if alerted else 0), lead_id
 
 
 def _assert_same(baseline, current, requests) -> int:
@@ -293,7 +360,7 @@ def _assert_same(baseline, current, requests) -> int:
         assert new == old, name
         compared += 1
     assert _lead_rows(current) == _lead_rows(baseline)
-    assert current.sent_emails == baseline.sent_emails
+    _assert_alerts_follow_screening(baseline, current)
     return compared
 
 
@@ -305,6 +372,9 @@ def test_every_non_browser_request_is_byte_identical_to_e377bd4d(pair):
     assert compared == len(BODY_CASES) * (len(FETCH_PROFILES) + len(NON_FORM_NAVIGATIONS))
     assert len(_lead_rows(current)) > 50  # the run really captured leads...
     assert current.sent_emails  # ...and alerted the owner about them
+    # ...and screening sorted them every way, without changing a response.
+    statuses = {row["status"] for row in current.store.recent_leads(1000)}
+    assert statuses == {"ok", "suspect", "spam", "duplicate"}
 
 
 def test_rate_limited_and_disconnected_requests_match_e377bd4d(pair):
@@ -402,3 +472,83 @@ def test_other_capped_endpoints_are_untouched_even_for_browser_navigations(pair)
             assert b"<!doctype" not in new.body
             compared += 1
     assert compared == len(paths) * 4
+
+
+# ---- screening never shows in a response ------------------------------------ #
+
+INQUIRY = {
+    "email": "visitor@example.com",
+    "name": "Visitor",
+    "message": "We need a booking page for our clinic, ideally within six weeks.",
+}
+# Each scenario: (rows stored before the request, the submitted form, status).
+# One row always precedes the request, so every scenario's lead is id 2 and the
+# JSON bodies can be compared byte for byte.
+SCENARIOS = {
+    "ok": ([{"email": "other@example.com", "message": "An unrelated earlier lead."}], INQUIRY),
+    "suspect": (
+        [{"email": "other@example.com", "message": "An unrelated earlier lead."}],
+        {**INQUIRY, "message": "Hola, quería saber tu precio."},
+    ),
+    "spam": (
+        [{"email": "other@example.com", "message": "An unrelated earlier lead."}],
+        {**INQUIRY, "message": "THE $27,000,000 JACKPOT IS YOURS https://cut.gl/aBcD1"},
+    ),
+    # The same visitor sent the same message a minute ago.
+    "duplicate": ([INQUIRY], INQUIRY),
+}
+NAVIGATION = [
+    ("sec-fetch-mode", "navigate"),
+    ("sec-fetch-dest", "document"),
+    ("accept", "text/html,application/xhtml+xml,*/*;q=0.8"),
+    ("origin", SITE),
+    ("referer", SITE + "/contact/"),
+]
+# (name, headers, encoder, extra form fields)
+SHAPES = [
+    ("fetch json client", FETCH_PROFILES["sitelift-fetch"], urlencoded, {}),
+    ("json body", FETCH_PROFILES["curl"], as_json, {}),
+    ("multipart", FETCH_PROFILES["server-to-server"], multipart, {}),
+    ("allowed next", FETCH_PROFILES["curl"], urlencoded, {"_next": SITE + "/thanks/"}),
+    ("relative next", [("origin", SITE)], urlencoded, {"_next": "/contact?submitted=true"}),
+    ("browser form, no next", NAVIGATION, urlencoded, {}),
+    ("browser form, next", NAVIGATION, urlencoded, {"_next": SITE + "/thanks/"}),
+    ("browser multipart", NAVIGATION, multipart, {"product": "Apps"}),
+]
+
+
+def test_screening_never_shows_in_a_response(grace_env, tmp_path, monkeypatch):
+    """ok, suspect, spam and duplicate leads get byte-identical responses: the
+    same status, headers, JSON, redirect or readable page. Only the owner alert
+    differs, and the row is stored every time."""
+    for shape, profile, encode, extra in SHAPES:
+        results = {}
+        for scenario, (earlier, form) in SCENARIOS.items():
+            grace_env(EOLKITS_DATA_DIR=str(tmp_path / f"{shape}-{scenario}".replace(" ", "_")))
+            mod = fresh_import("eolkits_grace.app")
+            mod.store.init()
+            sent = install_email_recorder(mod, monkeypatch)
+            for row in earlier:
+                mod.store.record_lead(email=row["email"], fields=dict(row))
+            content_type, body = encode({**form, **extra})
+            headers = [*profile, ("content-type", content_type)]
+            results[scenario] = call_asgi(mod.app, headers=headers, chunks=[body])
+            lead = mod.store.recent_leads(1)[0]
+            assert (lead["id"], lead["status"]) == (2, scenario), (shape, scenario)
+            assert lead["email"] == form["email"]
+            subjects = [email["subject"] for email in sent]
+            assert (
+                subjects
+                == {
+                    "ok": ["New lead: " + (extra.get("product") or "studio inquiry")],
+                    "suspect": [
+                        "Likely spam: New lead: " + (extra.get("product") or "studio inquiry")
+                    ],
+                    "spam": [],
+                    "duplicate": [],
+                }[scenario]
+            ), (shape, scenario)
+        ok = results["ok"]
+        assert ok.status in (200, 303) and ok.raised is None, shape
+        for scenario, result in results.items():
+            assert result == ok, (shape, scenario)
