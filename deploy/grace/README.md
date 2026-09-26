@@ -226,9 +226,9 @@ on those topics, like the examples in `test_lead_screening.py`, stay `ok`.
 genuine visitor who links through one of those shorteners or a Telegraph page
 gets no alert. Pasted HTML such as `<a href="https://...">` alone is only
 `suspect`, so it still alerts.
-On the 248 submissions from June to September these rules mark 205 as `spam`,
+On the 248 submissions from June to September these rules mark 204 as `spam`,
 including all 189 prize and crypto link spams; one fake exchange transfer on an
-unlisted host is `suspect`. When the campaigns move to a new shortener, the
+unlisted host and one link-markup spam are `suspect`. When the campaigns move to a new shortener, the
 first submission of a burst from one address alerts as `Likely spam:` and its
 repeats are `duplicate`. To stop alerts from a new host, add it to
 `SPAM_LINK_HOSTS` in store.py, deploy, and run `reclassify`.
