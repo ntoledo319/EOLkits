@@ -84,16 +84,20 @@ EOLKITS_AUDIT_CHECKOUT_ENABLED=0
 EOLKITS_BUILD_SHA=<deployed-git-commit>
 EOLKITS_API_PORT=8120
 
+# Lead retention. Production sets 730 (two years); see below.
+EOLKITS_LEAD_RETENTION_DAYS=730
+
 # Optional. Uncomment to change the default.
 # LEAD_NOTIFY_TO=hello@toledotechnologies.com  # where /api/v1/lead alerts go (comma-separated)
-# EOLKITS_LEAD_RETENTION_DAYS=<days>           # unset or 0 (default) = keep leads until
-#                                              # deleted by hand; N = delete after N days
 ```
 
 `EOLKITS_LEAD_RETENTION_DAYS` is checked at startup: anything other than a whole
 number from 0 to 36500 stops the API with a message naming the variable, rather
-than silently turning retention off. No period is set by default; choosing one
-is an owner decision (see the lead-deletion runbook).
+than silently turning retention off. The code default is still `0` (off: leads
+are kept until deleted by hand), so an environment that does not set it keeps
+everything. **Production sets `EOLKITS_LEAD_RETENTION_DAYS=730`**: lead rows
+older than two years are deleted at startup and then hourly, spam included (see
+the lead-deletion runbook).
 
 Generate secrets on the deployment host with `openssl rand -hex 32`. GitHub App credentials are not used by Audit v2 and must not be added.
 
@@ -180,12 +184,71 @@ The Toledo sites post their contact forms here, as native HTML forms or with
   succeeds without a usable `_next`. The page keeps the status code, runs no
   script, loads nothing, and links back only to an allow-listed studio site.
 - Owner alerts: a lead counts as alerted only when Resend accepts the email.
-  Unalerted leads are re-sent at startup and hourly, with the contact details
-  even when a long message was shortened in storage.
+  Unalerted `ok` and `suspect` leads are re-sent at startup and hourly, with
+  the contact details even when a long message was shortened in storage.
+- Spam screening (below) decides which leads alert the owner. It never changes
+  what is stored or what the visitor sees.
 - Deleting one person's data, and the optional retention period:
   [`runbooks/lead-deletion.md`](runbooks/lead-deletion.md). The CLI cannot
   delete the owner-notification emails; those are removed from the
   `LEAD_NOTIFY_TO` mailbox by hand.
+
+### Lead spam screening
+
+Almost everything the forms received from June to September 2026 was spam, and
+every piece of it alerted the owner. Each submission is now stored exactly as
+before and gets exactly the same response (JSON, redirect or page, pinned by
+`test_lead_json_contract.py`), plus a `status` and a short `status_reason` in the
+`leads` table:
+
+| Status | Owner alert | When |
+|---|---|---|
+| `ok` | `New lead: ...` | everything else |
+| `suspect` | `Likely spam: New lead: ...`, with a line saying why | a one-line "what is your price" message in any language; sales-pitch wording; an empty or one-word message; sent from a toledotechnologies.com or eolkits.com address |
+| `spam` | none, never re-sent | a link together with prize, crypto-payout or loan-offer wording from the spam campaigns; a link to a shortener or Telegraph host that carried only spam; HTML or forum link markup |
+| `duplicate` | none, never re-sent | the same address sent the same message, or a message with no text of its own, within the previous 10 minutes |
+
+A false `spam` or `duplicate` costs an alert, never the lead: the row is kept
+and `list` shows it. The rules (in `apps/grace-api/eolkits_grace/store.py`,
+section "lead screening") are narrow for that reason: they look for wording and
+hosts only the spam used, not topics, and a real follow-up from the same address
+with a different message is never a duplicate. If screening itself fails, the
+lead is alerted as `ok`.
+
+Review what screening decided, without printing what visitors wrote:
+
+```bash
+docker exec eolkits-api python -m eolkits_grace.lead_admin list --since 2026-09-01
+docker exec eolkits-api python -m eolkits_grace.lead_admin list --status spam
+docker exec eolkits-api python -m eolkits_grace.lead_admin list --status spam --show-message
+```
+
+If a real lead turns up as `spam` or `duplicate`, reply to it from your own
+mailbox; the owner alert for it was not sent.
+
+**Deploying screening.** The API adds the two columns when it starts (an
+additive `ALTER TABLE`, run by the normal startup migration; no step to run by
+hand, nothing is rewritten, and the previous image still runs against the
+migrated table if you roll back). Rows captured before the deploy read as `ok`.
+After the deploy, apply the rules to them, first as a preview:
+
+```bash
+docker exec eolkits-api python -m eolkits_grace.lead_admin reclassify --dry-run
+docker exec eolkits-api python -m eolkits_grace.lead_admin reclassify
+```
+
+`reclassify` changes the status only (never deletes or edits a row), prints each
+change with its reason, and is safe to run while the API serves and to repeat.
+Rows it moves to `spam` or `duplicate` leave the re-send queue; a row that was
+never alerted and moves back to `ok` or `suspect` is alerted by the next re-send
+sweep (it says how many). `list` and `reclassify` refuse to run until the API
+has added the columns.
+
+Rolling back to an image without screening is safe for the data, but that image
+ignores `status`: its re-send sweep would alert the owner about the spam and
+duplicates captured since this deploy (they are stored with `notified = 0`,
+because no alert went out), within the daily lead alert budget
+(`EOLKITS_LEAD_NOTIFICATION_DAILY_LIMIT`).
 
 The server-side checkout switch defaults to off. The static page independently keeps its form hidden unless the live capability handshake reports Audit report version `2.0` and checkout enabled.
 

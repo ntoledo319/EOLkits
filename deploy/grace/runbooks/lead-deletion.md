@@ -9,7 +9,7 @@ reason.
 | Place | What it holds | Removed by this runbook? |
 |---|---|---|
 | `leads` table in `/data/eolkits/state.sqlite3` inside the `eolkits-api` container | email, name, product, source, and every form field (stored up to 4,000 characters) | **Yes**: the CLI below |
-| The `LEAD_NOTIFY_TO` mailbox (default `hello@toledotechnologies.com`) | one "New lead: ..." email per lead and recipient, from `noreply@eolkits.com`, with every field | **No**: delete by hand (step 4) |
+| The `LEAD_NOTIFY_TO` mailbox (default `hello@toledotechnologies.com`) | one "New lead: ..." or "Likely spam: New lead: ..." email per alerted lead and recipient, from `noreply@eolkits.com`, with every field. Leads screened as spam or duplicate get none | **No**: delete by hand (step 4) |
 | Resend (the email provider) | its own log of each notification email | **No**: check the Resend dashboard and Resend's current retention terms |
 | Database backups and volume snapshots (for example `~/backups/eolkits-state.backup-*.sqlite3` and `/home/ubuntu/backups/eolkits/*.tgz` on the server) | full copies of the database at the time they were taken | **No**: step 5 |
 | `events` table | one `lead` row per lead: lead id, product, source. No contact details | Not needed |
@@ -52,8 +52,9 @@ is safe while the API is serving.
    ```
 
 4. **The mailbox.** In the `LEAD_NOTIFY_TO` mailbox, search for the address.
-   The notifications have the subject `New lead: ...`. Delete those emails, then
-   empty them from Trash too. The CLI cannot reach email.
+   The notifications have the subject `New lead: ...` or
+   `Likely spam: New lead: ...`. Delete those emails, then empty them from Trash
+   too. The CLI cannot reach email.
 
 5. **Backups.** Copies taken before the deletion still hold the rows. List what
    exists (`ls -l ~/backups /home/ubuntu/backups/eolkits`) and delete the copies
@@ -78,11 +79,13 @@ is safe while the API is serving.
 ## Retention (optional, off by default)
 
 `EOLKITS_LEAD_RETENTION_DAYS` in `.env.production` controls automatic deletion.
-Unset or `0` keeps leads until you delete them (the default). A positive number
-N makes the API delete leads older than N days, once at startup and then every
-hour, in the same way as the delete above. The period is your decision. A value
-that is not a whole number from 0 to 36500 stops the API at startup with a
-message naming the variable.
+Unset or `0` keeps leads until you delete them (the code default). A positive
+number N makes the API delete leads older than N days, once at startup and then
+every hour, in the same way as the delete above. Production sets `730` (two
+years; see `deploy/grace/README.md`). Rows screened as spam or duplicate are
+kept and deleted on the same schedule as every other lead. A value that is not
+a whole number from 0 to 36500 stops the API at startup with a message naming
+the variable.
 
 Preview what a given period would delete, without deleting anything:
 
