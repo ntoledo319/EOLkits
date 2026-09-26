@@ -73,3 +73,17 @@ def test_send_email_transport_error_is_retryable(monkeypatch):
     with pytest.raises(EmailDeliveryError) as ei:
         send_email(_settings(), to="x@y.com", subject="s", html="<p>h</p>")
     assert ei.value.retryable is True
+
+
+def test_send_email_sets_reply_to_only_when_given(monkeypatch):
+    payloads = []
+
+    def fake_post(*a, **k):
+        payloads.append(k["json"])
+        return _Resp(True, 200, payload={"id": "em_1"})
+
+    monkeypatch.setattr(email_mod.requests, "post", fake_post)
+    send_email(_settings(), to="x@y.com", subject="s", html="<p>h</p>")
+    send_email(_settings(), to="x@y.com", subject="s", html="<p>h</p>", reply_to="lead@z.com")
+    assert "reply_to" not in payloads[0]
+    assert payloads[1]["reply_to"] == "lead@z.com"

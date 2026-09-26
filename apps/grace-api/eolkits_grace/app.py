@@ -873,6 +873,9 @@ def _send_lead_notification(
     subject = f"New lead: {product or 'studio inquiry'}"
     if suspect:
         subject = LIKELY_SPAM_PREFIX + subject
+    # Replying to the alert should reach the prospect, as the footer promises.
+    prospect = next((fields[k].strip() for k in _EMAIL_KEYS if fields.get(k)), "")
+    reply_to = prospect if _EMAIL_RE.match(prospect) else None
     sent = 0
     for to in recipients:
         if not store.allow_rate(
@@ -892,6 +895,7 @@ def _send_lead_notification(
                     to=to,
                     subject=subject,
                     html=html,
+                    reply_to=reply_to,
                     idempotency_key=(
                         f"eolkits-lead-{lead_id}-" f"{hashlib.sha256(to.encode()).hexdigest()[:12]}"
                     ),

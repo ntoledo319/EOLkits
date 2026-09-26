@@ -130,6 +130,16 @@ def test_lead_notify_success_marks_notified(tmp_path, monkeypatch):
     assert mod.store.count_unnotified() == 0
 
 
+def test_lead_alert_reply_to_is_the_prospect(tmp_path, monkeypatch):
+    mod, client = _load_app(tmp_path, monkeypatch, LEAD_NOTIFY_TO="owner@toledo.test")
+    calls = []
+    monkeypatch.setattr(mod, "send_email", lambda settings, **k: calls.append(k))
+    r = client.post("/api/v1/lead", json={"email": "warm@lead.com", "product": "ToledoWeb"})
+    assert r.status_code == 200
+    assert [c["to"] for c in calls] == ["owner@toledo.test"]
+    assert calls[0]["reply_to"] == "warm@lead.com"
+
+
 def test_lead_notify_failure_is_durable_and_recoverable(tmp_path, monkeypatch):
     # Resend outage: the lead must still be captured, left notified=0 (not silently
     # dropped), and then self-heal when the re-send sweep runs after email recovers.
