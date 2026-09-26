@@ -43,10 +43,13 @@ def _trunc(value: Any, limit: int = 120) -> str | None:
 #              a submission with no text of its own, within 10 minutes
 #
 # A wrong "spam" or "duplicate" costs the owner an alert (the row itself stays
-# and `lead_admin list` shows it), so those need a host or wording that only
-# spam uses, or a true repeat. The looser signals only ever make a lead
-# "suspect", which still alerts. The patterns come from the submissions the
-# lead bus received from June to September 2026.
+# and `lead_admin list` shows it), so those need hard evidence: a link to a host
+# that carried nothing but spam, link markup, or a true repeat. Wording never
+# does it alone. A genuine lead may write about jackpots, prizes, loans or
+# crypto, or even quote a scam, next to a link to its own site, so the spam
+# campaigns' phrases, like every other loose signal, only make a lead "suspect",
+# which still alerts. The patterns come from the submissions the lead bus
+# received from June to September 2026.
 
 LEAD_STATUSES = ("ok", "suspect", "spam", "duplicate")
 LEAD_ALERT_STATUSES = ("ok", "suspect")
@@ -75,7 +78,9 @@ _SITE_FILLED_FIELDS = frozenset({"context", "service", "offer"})
 _OWN_DOMAINS = ("toledotechnologies.com", "eolkits.com")
 
 # Hosts that carried nothing but prize and crypto spam: link shorteners and
-# Telegraph pages. Each entry also matches its subdomains.
+# Telegraph pages. A link to one (not a bare mention of the name) is spam, so a
+# genuine visitor who links through one gets no alert. Each entry also matches
+# its subdomains.
 SPAM_LINK_HOSTS = (
     "telegra.ph",
     "graph.org",
@@ -121,24 +126,32 @@ _MARKUP_RE = re.compile(
 )
 
 _MONEY = r"\$\s?\d{1,3}(?:,\d{3})+"  # $1,000 and up, written with commas
-_BIG_MONEY = r"\$\s?\d{2,3}(?:,\d{3})+"  # $10,000 and up
+_MILLIONS = r"\$\s?\d{1,3}(?:,\d{3}){2,}"  # $1,000,000 and up
+_PROMO_AMOUNT = rf"(?:\$\s?(?:[2-9]\d|[1-9]\d\d),\d{{3}}|{_MILLIONS})"  # $20,000 and up
 # Anchored to the start of a number so a long digit run stays linear.
 _COIN_AMOUNT = r"(?<![\d.,])\d+(?:[.,]\d+)?\s*(?:btc|usdt|eth)\b"
 # An arrow pointing straight at a link ("-> graph.org/...", "=>> https://..."),
 # not an arrow in a described flow ("sign up -> pay -> done").
 _ARROW_TO_LINK = r"\s*[-=]*>+\s*(?=https?://|www\.|(?:[a-z0-9-]+\.)+[a-z]{2,24}/)"
-# The campaigns' own phrases, each of which the spam put in front of its link.
-# They count only when a link follows in the same field (see `_spam_wording`).
-# Each is a phrase from those campaigns, never a topic word: a genuine lead may
-# well write about crypto, fund transfers, prizes, raffles, promo codes or
-# loans, and link its own site next to that.
+# The prize and crypto campaigns' own phrases, as they wrote them, each put in
+# front of its link. They count only when a link follows in the same field (see
+# `_spam_wording`), and even then they only make a lead "suspect": a genuine
+# lead can use the same words (a lottery's jackpot, a wallet's "top up 20
+# USDT -> https://..." flow, a course quoting a scam).
 _SPAM_WORDING: tuple[tuple[str, re.Pattern[str]], ...] = tuple(
     (kind, re.compile(pattern, re.IGNORECASE))
     for kind, pattern in (
-        # "The $27,000,000 Jackpot Is a Route to Riches", "Go all in with a
-        # $25,000 promo code": a slogan with a five-figure-plus amount.
-        ("prize", rf"{_BIG_MONEY}\s+(?:jackpot|promo code)\b"),
-        ("prize", r"\bbe the (?:random|sweepstakes) winner of\b"),
+        # "The $27,000,000 Jackpot Is a Route to Riches": every jackpot the
+        # campaigns named was in the millions.
+        ("prize", rf"{_MILLIONS}\s+jackpot\b"),
+        # "Go all in with a $25,000 promo code".
+        ("prize", rf"{_PROMO_AMOUNT}\s+promo code\b"),
+        # "BE THE RANDOM WINNER OF THE PLAYSTATION 5 PRO 2TB", "BE THE
+        # SWEEPSTAKES WINNER OF LAMBORGHINI AVENTADOR".
+        (
+            "prize",
+            r"\bbe the (?:random|sweepstakes) winner of (?:the |an? )?(?:playstation|lamborghini)\b",
+        ),
         ("prize", r"\bnanosecond from winning\b"),
         # "The PlayStation 5 Pro 2TB is the fantastic reward", "The Lamborghini
         # Aventador is the astonishing premium", "An PlayStation 5 Pro 2TB award
@@ -146,7 +159,7 @@ _SPAM_WORDING: tuple[tuple[str, re.Pattern[str]], ...] = tuple(
         (
             "prize",
             r"\b(?:playstation\s*5|lamborghini)\b[^\n]{0,24}?"
-            r"\b(?:is the \w+ (?:reward|premium)|award is being presented)\b",
+            r"\b(?:is the (?:fantastic reward|astonishing premium)|award is being presented)\b",
         ),
         # "Earn $1,500 per day or more by validating transactions on PoS chains",
         # "... through crypto options trading", "... from decentralized voting
@@ -172,16 +185,15 @@ _SPAM_WORDING: tuple[tuple[str, re.Pattern[str]], ...] = tuple(
             r"\btransfer\s*(?:№|no\.?|#)\s*\w{0,12}\d\w{0,12}\s+from\s+(?:coinbase|binance)\b"
             rf"[^\n>]{{0,12}}{_ARROW_TO_LINK}",
         ),
-        ("loan-offer", r"\btake advantage of our (?:limited\W{0,3}time )?loan offer\b"),
     )
 )
 
 
 def _spam_wording(texts: Iterable[str]) -> str | None:
-    """The kind of campaign wording ("prize", "crypto", "loan-offer") in any
-    one of `texts` (one per form field) that has a link after it in the same
-    field. A phrase in one field and a link in another (the Website field, say)
-    do not count."""
+    """The kind of campaign wording ("prize" or "crypto") in any one of
+    `texts` (one per form field) that has a link after it in the same field.
+    A phrase in one field and a link in another (the Website field, say) do
+    not count."""
     for text in texts:
         for kind, pattern in _SPAM_WORDING:
             match = pattern.search(text)
@@ -203,12 +215,12 @@ _PITCH_STRONG = tuple(
         r"\bdo you have any use for\b",
         r"\bfreelance (?:writer|copywriter)\b",
         r"\bno cost,? no obligation\b",
-        r"\b(?:loan offer|instant (?:loan )?approval|no collateral|flexible repayment)\b",
+        r"\b(?:instant (?:loan )?approval|no collateral|flexible repayment)\b",
         r"\buse contact (?:forms?|pages?) to share\b",
         r"\bwe only use chat\b",
         r"\b(?:saw|see|noticed|found) (?:a few|some|several) (?:opportunities|ways|areas)"
         r" to improve\b",
-        r"\bhappy to share (?:a few )?(?:quick )?ideas\b",
+        r"\bhappy to share (?:a few|some) (?:quick )?ideas\b",
         r"\bvetted (?:development|software) (?:companies|agencies|partners)\b",
     )
 )
@@ -318,12 +330,20 @@ def lead_message_key(stored_fields: str | None) -> tuple[str, bool]:
     return text, bool(text)
 
 
-def _spam_host(text: str) -> str | None:
-    for match in _HOST_RE.finditer(text):
-        host = match.group(1).lower()
-        for spam_host in SPAM_LINK_HOSTS:
-            if host == spam_host or host.endswith("." + spam_host):
-                return spam_host
+# Where a link points: its own host, and the host of any address embedded in it
+# (a redirect such as "https://a.example/r?u=https://b.example/x").
+_LINK_HOSTS_RE = re.compile(r"(?:^|//)(?:[^\s/?#@]*@)?([a-z0-9.-]+)", re.IGNORECASE)
+
+
+def _spam_link_host(text: str) -> str | None:
+    """The listed spam host a link in `text` points at. The name alone ("our
+    changelog is on telegra.ph") is not a link."""
+    for link in _LINK_RE.finditer(text):
+        for match in _LINK_HOSTS_RE.finditer(link.group()):
+            host = match.group(1).lower().strip(".")
+            for spam_host in SPAM_LINK_HOSTS:
+                if host == spam_host or host.endswith("." + spam_host):
+                    return spam_host
     return None
 
 
@@ -369,16 +389,16 @@ def screen_lead_content(*, email: str, fields: Mapping[str, Any] | str) -> LeadS
 
     if _MARKUP_RE.search(scanned):
         return LeadScreen("spam", "HTML link markup")
-    host = _spam_host(scanned)
+    host = _spam_link_host(scanned)
     if host:
         return LeadScreen("spam", f"link to a known spam host ({host})")
-    kind = _spam_wording(values)
-    if kind:
-        return LeadScreen("spam", f"link with {kind} spam wording")
 
     message = "\n".join(parts)
     reasons = []
-    if not parts:
+    kind = _spam_wording(values)
+    if kind:
+        reasons.append(f"{kind} spam wording with a link")
+    elif not parts:
         reasons.append("empty or one-word message")
     elif _is_pitch(message):
         reasons.append("sales pitch wording")

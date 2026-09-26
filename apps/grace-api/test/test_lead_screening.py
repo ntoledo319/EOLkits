@@ -96,21 +96,30 @@ def test_prize_and_crypto_link_spam(headline):
             assert status_of(form) == "spam", (headline, link)
 
 
-@pytest.mark.parametrize("headline", PRIZE_HEADLINES)
-def test_spam_wording_alone_catches_a_new_shortener(headline):
-    """The next campaign will use a host nobody has listed yet."""
-    verdict = screen_lead_content(
-        email="x@example.com", fields=contact(f"{headline} https://brand-new-short.example/k3Jd")
-    )
-    assert verdict.status == "spam"
-    assert verdict.reason.startswith("link with ")
-
-
 @pytest.mark.parametrize("host", SPAM_LINK_HOSTS)
 def test_every_listed_spam_host_with_neutral_wording(host):
-    for text in (f"Please see https://{host}/aB3dE", f"see {host}/aB3dE", f"https://go.{host}/x"):
+    for text in (
+        f"Please see https://{host}/aB3dE",
+        f"see {host}/aB3dE",
+        f"https://go.{host}/x",
+        f"HTTP://www.{host.upper()}",
+        f"https://out.example/r?u=https://{host}/aB3dE",  # a redirect to it
+    ):
         verdict = screen_lead_content(email="x@example.com", fields=contact(text))
         assert verdict == ("spam", f"link to a known spam host ({host})"), text
+
+
+def test_naming_a_spam_host_without_linking_to_it_is_not_spam():
+    for message in (
+        "We publish our changelog on telegra.ph and want it moved to our own site.",
+        "Our docs mirror at graph.org is outdated; please move it to https://docs.example",
+        "Is cut.gl a safe shortener for the QR codes on our menus?",
+        "Our link checker flags https://ourshop.example/?ref=cut.gl as broken.",
+    ):
+        assert screen_lead_content(email="x@example.com", fields=contact(message)) == (
+            "ok",
+            "",
+        ), message
 
 
 def test_telegraph_crypto_spam_in_the_partner_form():
@@ -124,9 +133,13 @@ def test_telegraph_crypto_spam_in_the_partner_form():
     ):
         form = partner(name, "graph.org/BALANCE-12345-US-DOLLARS-01-01-2")
         assert status_of(form) == "spam", name
-        # The wording is enough even on a host that is not listed.
+        # On a host that is not listed, the wording flags it; the owner is
+        # still alerted.
         unlisted = partner(name.replace("graph.org", "pages.example"), "")
-        assert status_of(unlisted) == "spam", name
+        assert screen_lead_content(email="x@example.com", fields=unlisted) == (
+            "suspect",
+            "crypto spam wording with a link",
+        ), name
 
 
 def test_fake_exchange_transfer_on_a_status_page_host():
@@ -136,8 +149,8 @@ def test_fake_exchange_transfer_on_a_status_page_host():
         "examplesup.statuspage.io/#about-this-site",
     )
     assert screen_lead_content(email="x@example.com", fields=form) == (
-        "spam",
-        "link with crypto spam wording",
+        "suspect",
+        "crypto spam wording with a link",
     )
 
 
@@ -165,11 +178,28 @@ def test_quoted_html_with_relative_links_is_not_link_markup():
         assert screen_lead_content(email="x@example.com", fields=contact(message)) == ("ok", "")
 
 
+# ---- suspect: still alerted, subject prefixed "Likely spam: " ---------------- #
+
+
+@pytest.mark.parametrize("headline", PRIZE_HEADLINES)
+def test_campaign_wording_on_an_unlisted_host_is_suspect(headline):
+    """The next campaign may use a host nobody has listed yet. Its wording
+    flags it, but wording alone never holds back an alert: genuine leads use
+    the same words (see QUOTED_CAMPAIGN_WORDING and GENUINE)."""
+    for link in ("https://brand-new-short.example/k3Jd", "new-short.example/k3Jd"):
+        verdict = screen_lead_content(email="x@example.com", fields=contact(f"{headline} {link}"))
+        assert verdict.status == "suspect", (headline, link)
+        assert verdict.reason in (
+            "prize spam wording with a link",
+            "crypto spam wording with a link",
+        ), (headline, link)
+
+
 def test_campaign_wording_needs_a_link_after_it_in_the_same_field():
     """Every campaign put its link right after its phrase, in the same field."""
     headline = "THE $27,000,000 JACKPOT IS A ROUTE TO RICHES"
     link = "https://brand-new-short.example/k3Jd"
-    assert status_of(contact(f"{headline} {link}")) == "spam"
+    assert status_of(contact(f"{headline} {link}")) == "suspect"
     # The phrase alone, the visitor's own link before it, or the link in
     # another field (the Website field of the Fit Check, say) is not the spam.
     assert status_of(contact(headline)) == "ok"
@@ -183,20 +213,49 @@ def test_campaign_wording_needs_a_link_after_it_in_the_same_field():
     assert status_of(fit_check) == "ok"
 
 
-def test_loan_offer_with_a_link_is_spam_and_without_one_is_a_pitch():
+def test_a_loan_pitch_is_suspect_with_or_without_a_link():
     offer = (
         "Dear Sirs/ma, Take advantage of our limited time loan offer and gain vital access to "
         "a flexible repayment plan. Instant approval, No collateral required. To proceed, "
         "kindly reply to this email with your confirmation. Don't miss out."
     )
-    assert status_of(contact(offer + " Apply: https://loans.example/apply")) == "spam"
-    assert screen_lead_content(email="x@example.com", fields=contact(offer)) == (
-        "suspect",
-        "sales pitch wording",
-    )
+    for message in (offer, offer + " Apply: https://loans.example/apply"):
+        assert screen_lead_content(email="x@example.com", fields=contact(message)) == (
+            "suspect",
+            "sales pitch wording",
+        )
 
 
-# ---- suspect: still alerted, subject prefixed "Likely spam: " ---------------- #
+# A genuine lead may quote a campaign's own words, with its own link after
+# them. Wording alone never costs an alert: these are "suspect", not "spam".
+QUOTED_CAMPAIGN_WORDING = {
+    "scam course": contact(
+        "Our course teaches why claims like 'earn $1,500 per day or more through crypto "
+        "options trading' are scams: https://edu.example"
+    ),
+    "wallet notice": contact(
+        "Our wallet sends 'Transaction to you. Continue -> https://wallet.example/tx' and it "
+        "looks like phishing, can you redesign it?"
+    ),
+    "wallet top-up": contact(
+        "Our app flow: Top up 20 USDT -> https://app.example/topup is confusing to users"
+    ),
+    "state lottery": contact(
+        "We need a new site for our $1,000,000 jackpot draw: https://draw.example"
+    ),
+    "sweepstakes rules": contact(
+        "Our rules page says 'be the sweepstakes winner of a Lamborghini' and links "
+        "https://dealer.example/rules; it needs a lawyer-approved rewrite."
+    ),
+}
+
+
+@pytest.mark.parametrize("name", QUOTED_CAMPAIGN_WORDING)
+def test_campaign_wording_never_holds_back_an_alert(name):
+    verdict = screen_lead_content(email="person@example.com", fields=QUOTED_CAMPAIGN_WORDING[name])
+    assert verdict.status == "suspect", name
+    assert verdict.reason.endswith("spam wording with a link"), name
+
 
 PRICE_ONE_LINERS = [
     "Hi, მინდოდა ვიცოდე თქვენი ფასი.",  # Georgian
@@ -423,7 +482,7 @@ GENUINE = {
         "workflow_to_automate": "Weekly grade reports for our school",
     },
     # Genuine inquiries on the topics the spam campaigns borrow, each with a
-    # link to the visitor's own site. None of them uses a campaign's phrase.
+    # link to the visitor's own site (or a spam host named, not linked).
     "design awards": contact(
         "Have you won any design awards? We want a premium site; ours is https://firm.example"
     ),
@@ -507,6 +566,45 @@ GENUINE = {
         "platform": "WordPress",
         "goal": "Add an instant approval flow for our loan offer page",
     },
+    "charity raffle jackpot": contact(
+        "Our hospital foundation runs a 50/50 raffle with a $10,000 jackpot each month. The "
+        "ticket page https://foundation-raffle.org keeps crashing on mobile."
+    ),
+    "casino jackpot banner": contact(
+        "We operate a licensed casino. Our homepage banner for the $50,000 jackpot is broken on "
+        "iPhone: https://ourcasino.example/promo"
+    ),
+    "exotic car dealer": contact(
+        "Our Lamborghini Urus is the ultimate premium SUV and our dealership site "
+        "https://lambo-greenwich.example does not show it well."
+    ),
+    "tournament reward": contact(
+        "For our fall tournament the PlayStation 5 Pro is the grand reward. Signups live at "
+        "https://ourleague.gg"
+    ),
+    "credit union loan offer": contact(
+        "We want homeowners to take advantage of our loan offer with a simple quote form. "
+        "Current site: https://cu-lending.example"
+    ),
+    "credit union banner": contact(
+        "Please add a banner: Take advantage of our limited-time loan offer! Link it to "
+        "https://cu-lending.example/apply"
+    ),
+    "espresso giveaway": contact(
+        "Visitors who sign up could be the random winner of a free espresso machine; the "
+        "landing page is https://beans.example/giveaway"
+    ),
+    "travel sweepstakes": contact(
+        "Customers can be the sweepstakes winner of a trip to Maine - we need that page built "
+        "on https://travelco.example"
+    ),
+    "partner promo code": contact(
+        "Our B2B SaaS gives a $10,000 promo code to partners; the partner page "
+        "https://saas.example/partners needs a rebuild."
+    ),
+    "changelog on telegraph": contact(
+        "We publish our changelog on telegra.ph and want it moved to our own site."
+    ),
     "fit check remittance": {
         "service": "Delphi Fit Check",
         "website": "https://remit-app.example",
@@ -519,6 +617,10 @@ GENUINE = {
     ),
     "visited, call, whatsapp": contact(
         "Hi, I visited your website. Can we book a call? I prefer WhatsApp."
+    ),
+    "bakery ideas": contact(
+        "I run a bakery; happy to share ideas on what we need. Let us know if you have time "
+        "for a call."
     ),
 }
 
@@ -555,6 +657,13 @@ def test_screening_stays_fast_on_hostile_64kb_input():
         "playstation 5 " * (size // 14),
         "transaction to you." * (size // 19),
         "$10,000 jackpot " * (size // 16),
+        "$1,000,000 jackpot " * (size // 19),
+        "$1," + "000," * (size // 4) + "000 jackpot https://a.example/",
+        "be the random winner of the " * (size // 28),
+        "https://" + "a:" * (size // 2),
+        "https://" + "/" * size,
+        "https://a.example/" + "//a" * (size // 3),
+        "www." + "a" * size,
         "<a href=" * (size // 8),
         "<a " + "x" * size,
         "visited " + "a" * size,
@@ -628,6 +737,17 @@ def test_a_burst_of_identical_spam_is_spam_every_time(store):
     for topic in ("feature", "codebase", "bug-fix", "bug-fix", "nonprofit"):
         form = old_contact("IMPORTANT! 1.3426 BTC IS YOURS FOR WITHDRAWAL https://shorto.link/Ab1")
         assert _capture(store, "bot@example.net", {**form, "topic": topic})[0] == "spam"
+
+
+def test_a_campaign_burst_on_a_new_host_alerts_once(store):
+    """On a host nobody has listed yet, the first of a burst is suspect (it
+    alerts, marked) and the repeats from the same address are duplicates."""
+    message = "THE $27,000,000 JACKPOT IS A ROUTE TO RICHES https://brand-new-short.example/k3Jd"
+    got = [
+        _capture(store, "lucky@example.net", {**old_contact(message), "topic": topic})[0]
+        for topic in ("feature", "codebase", "bug-fix", "other", "nonprofit")
+    ]
+    assert got == ["suspect"] + ["duplicate"] * 4
 
 
 def test_a_bot_hitting_three_forms_in_a_minute(store):
@@ -860,6 +980,19 @@ def test_alerts_follow_the_status(load_grace):
     assert mod.store.count_unnotified() == 0
     assert mod.resend_unnotified_leads() == {"attempted": 0, "still_unnotified": 0}
     assert len(mod.sent_emails) == 2
+
+
+def test_campaign_wording_on_an_unlisted_host_still_alerts(load_grace):
+    mod, client = load_grace()
+    form = {
+        "email": "draws@lotto.example",
+        "product": "Apps",
+        "message": "We need a new site for our $1,000,000 jackpot draw: https://draw.example",
+    }
+    assert client.post("/api/v1/lead", data=form).json() == {"ok": True, "lead_id": 1}
+    assert mod.store.lead_screen(1) == ("suspect", "prize spam wording with a link")
+    assert [e["subject"] for e in mod.sent_emails] == ["Likely spam: New lead: Apps"]
+    assert "Screened as likely spam: prize spam wording with a link." in mod.sent_emails[0]["html"]
 
 
 def test_the_resend_sweep_skips_spam_and_keeps_the_suspect_prefix(load_grace, monkeypatch):
