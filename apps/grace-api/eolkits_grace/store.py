@@ -396,14 +396,16 @@ def screen_lead_content(*, email: str, fields: Mapping[str, Any] | str) -> LeadS
         parts = [" ".join(values[0].split())] if values[0].strip() else []
     scanned = "\n".join(values)
 
-    if _MARKUP_RE.search(scanned):
-        return LeadScreen("spam", "HTML link markup")
     host = _spam_link_host(scanned)
     if host:
         return LeadScreen("spam", f"link to a known spam host ({host})")
 
     message = "\n".join(parts)
     reasons = []
+    # Pasted markup alone is not proof of spam: clients paste their own pages'
+    # HTML into bug reports. It is flagged, and still alerted.
+    if _MARKUP_RE.search(scanned):
+        reasons.append("HTML link markup")
     kind = _spam_wording(values)
     if kind:
         reasons.append(f"{kind} spam wording with a link")
@@ -1102,7 +1104,9 @@ class Store:
             conn.execute("BEGIN IMMEDIATE")
             if status != "spam":
                 try:
-                    earlier = self._earlier_submission(conn, email, stored_fields, now)
+                    earlier = self._earlier_submission(
+                        conn, email, stored_fields, now, product=product
+                    )
                 except Exception:  # noqa: BLE001 — as above
                     logger.exception("lead duplicate check failed; judging the lead alone")
                     earlier = None
@@ -1132,12 +1136,13 @@ class Store:
         when: datetime,
         *,
         before_id: int | None = None,
+        product: str | None = None,
     ) -> int | None:
         """The id of an earlier lead that makes this one a duplicate: the same
         address within LEAD_DUPLICATE_WINDOW before `when`, and either the same
-        message or no message of its own (a bot hitting several forms, an empty
-        re-send). A different message from the same address is not a duplicate,
-        even on another form: it may be a real follow-up."""
+        message or no message of its own on the same form (an empty re-send). A
+        different message, or a message-less submission on another product's
+        form, is not a duplicate: it may be a real follow-up."""
         email_key = self._email_key(email)
         if not email_key:
             return None
@@ -1146,14 +1151,18 @@ class Store:
         # can never prove two messages are the same: a follow-up that differs
         # only after the cut must still alert.
         complete = _is_complete_fields(stored_fields)
-        sql = f"SELECT id, fields FROM leads WHERE ts >= ? AND {self._LEAD_EMAIL_KEY} = ?"
+        sql = f"SELECT id, fields, product FROM leads WHERE ts >= ? AND {self._LEAD_EMAIL_KEY} = ?"
         params: list[Any] = [(when - LEAD_DUPLICATE_WINDOW).isoformat(), email_key]
         if before_id is not None:
             sql += " AND id < ?"
             params.append(int(before_id))
         for row in conn.execute(sql + " ORDER BY id DESC LIMIT 50", params).fetchall():
             if not has_message:
-                return int(row["id"])
+                # A message-less repeat is a duplicate only on the same form:
+                # options picked on a different product are a new inquiry.
+                if (row["product"] or "") == (product or ""):
+                    return int(row["id"])
+                continue
             if (
                 complete
                 and _is_complete_fields(row["fields"])
@@ -1306,7 +1315,12 @@ class Store:
         if verdict.status == "spam" or when is None:
             return verdict
         earlier = self._earlier_submission(
-            conn, row["email"] or "", stored, when, before_id=int(row["id"])
+            conn,
+            row["email"] or "",
+            stored,
+            when,
+            before_id=int(row["id"]),
+            product=row["product"],
         )
         if earlier is not None:
             return LeadScreen("duplicate", _duplicate_reason(earlier))

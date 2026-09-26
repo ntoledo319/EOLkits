@@ -241,7 +241,7 @@ EXPECTED = {
     4: ("spam", "link to a known spam host (shorto.link)"),
     5: ("spam", "link to a known spam host (shorto.link)"),
     6: ("suspect", "empty or one-word message"),
-    7: ("duplicate", "repeat of lead 6 within 10 minutes"),
+    7: ("suspect", "empty or one-word message"),
     8: ("spam", "link to a known spam host (graph.org)"),
     9: ("suspect", "one-line price question"),
     10: ("suspect", "sales pitch wording; sent from the studio's own domain"),
@@ -294,8 +294,12 @@ def test_reclassify_dry_run_then_for_real(grace_env, fresh_import, tmp_path):
     code, out = _cli(fresh_import, "reclassify", "--dry-run")
     assert code == 0
     assert "Checked 13 lead row(s); 12 would change." in out
-    assert "  id 7 | 2026-07-04 19:39 | ok -> duplicate | Discovery | repeat of lead 6" in out
-    assert "By change: ok -> duplicate 2, ok -> spam 6, ok -> suspect 4." in out
+    # A message-less submission on a different product's form is a new
+    # inquiry (flagged, still alerted), not a repeat of the Care form.
+    assert (
+        "  id 7 | 2026-07-04 19:39 | ok -> suspect | Discovery | empty or one-word message" in out
+    )
+    assert "By change: ok -> duplicate 1, ok -> spam 6, ok -> suspect 5." in out
     assert "Dry run: nothing was changed." in out
     assert "kq3vzr" not in out and "BTC" not in out  # never the form contents
     assert {row[0] for row in _rows(db, "status")} == {"ok"}
@@ -333,7 +337,7 @@ def test_list_shows_status_and_reason_never_the_message(grace_env, fresh_import,
         "id 1 | 2026-07-04 18:39 | spam | Contact | link to a known spam host (shorto.link)" in out
     )
     assert "id 11 | 2026-07-04 22:39 | ok | Apps | -" in out
-    assert "Listed 13 lead row(s): ok 1, suspect 4, spam 6, duplicate 2." in out
+    assert "Listed 13 lead row(s): ok 1, suspect 5, spam 6, duplicate 1." in out
     assert "add --show-message to see them" in out
     for private in ("BTC", "scheduling tool", "dana@example.com", "prezzo"):
         assert private not in out
@@ -342,11 +346,12 @@ def test_list_shows_status_and_reason_never_the_message(grace_env, fresh_import,
     assert code == 0
     assert [line.split(" | ")[0] for line in out.splitlines() if line.startswith("id ")] == [
         "id 6",
+        "id 7",
         "id 9",
         "id 10",
         "id 12",
     ]
-    assert "Listed 4 lead row(s) captured on or after 2026-07-04 UTC and with status suspect" in out
+    assert "Listed 5 lead row(s) captured on or after 2026-07-04 UTC and with status suspect" in out
 
     code, out = _cli(fresh_import, "list", "--since", "2026-07-05")
     assert "Listed 0 lead row(s) captured on or after 2026-07-05 UTC." in out

@@ -209,9 +209,9 @@ before and gets exactly the same response (JSON, redirect or page, pinned by
 | Status | Owner alert | When |
 |---|---|---|
 | `ok` | `New lead: ...` | everything else |
-| `suspect` | `Likely spam: New lead: ...`, with a line saying why | a spam campaign's own phrase (such as "the $27,000,000 jackpot" or "... BTC is yours for withdrawal") with a link after it, where the link does not go to a listed spam host; a one-line "what is your price" message in any language; sales-pitch wording (at least one phrase a prospect does not write, such as "no cost, no obligation", plus one more outreach cue); an empty or one-word message; sent from a toledotechnologies.com or eolkits.com address |
-| `spam` | none, never re-sent | a link to one of the listed shorteners or Telegraph hosts, which carried only spam (a link: naming the site in a sentence does not count); HTML or forum link markup pointing at another site |
-| `duplicate` | none, never re-sent | the same address sent the same message, or a message with no text of its own, within the previous 10 minutes (a message longer than the 4,000-character storage cut is never called a duplicate, so a follow-up that differs after the cut still alerts) |
+| `suspect` | `Likely spam: New lead: ...`, with a line saying why | a spam campaign's own phrase (such as "the $27,000,000 jackpot" or "... BTC is yours for withdrawal") with a link after it, where the link does not go to a listed spam host; a one-line "what is your price" message in any language; sales-pitch wording (at least one phrase a prospect does not write, such as "no cost, no obligation", plus one more outreach cue); an empty or one-word message; HTML or forum link markup pointing at another site (clients paste their own pages' HTML); sent from a toledotechnologies.com or eolkits.com address |
+| `spam` | none, never re-sent | a link to one of the listed shorteners or Telegraph hosts, which carried only spam (a link: naming the site in a sentence does not count), including inside HTML or forum link markup |
+| `duplicate` | none, never re-sent | the same address sent the same message, or a message with no text of its own on the same product's form, within the previous 10 minutes (a message longer than the 4,000-character storage cut is never called a duplicate, so a follow-up that differs after the cut still alerts) |
 
 The rules are in `apps/grace-api/eolkits_grace/store.py`, section "lead
 screening". Wording never stops an alert by itself: a genuine inquiry can
@@ -222,9 +222,10 @@ lead `suspect`, so it is still alerted. They follow the campaigns' own phrasing
 on those topics, like the examples in `test_lead_screening.py`, stay `ok`.
 
 `spam` and `duplicate` cost an alert, never the lead: the row is kept and
-`list` shows it. `spam` needs a listed host or link markup, and that has a
-price: a genuine visitor who links through one of those shorteners or a
-Telegraph page, or pastes HTML such as `<a href="https://...">`, gets no alert.
+`list` shows it. `spam` needs a link to a listed host, and that has a price: a
+genuine visitor who links through one of those shorteners or a Telegraph page
+gets no alert. Pasted HTML such as `<a href="https://...">` alone is only
+`suspect`, so it still alerts.
 On the 248 submissions from June to September these rules mark 205 as `spam`,
 including all 189 prize and crypto link spams; one fake exchange transfer on an
 unlisted host is `suspect`. When the campaigns move to a new shortener, the

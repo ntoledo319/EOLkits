@@ -154,17 +154,26 @@ def test_fake_exchange_transfer_on_a_status_page_host():
     )
 
 
-def test_html_and_forum_link_markup_is_spam():
+def test_html_and_forum_link_markup_is_flagged_but_still_alerted():
+    """Clients paste their own pages' HTML into bug reports, so markup alone is
+    'suspect' (alerted with the "Likely spam: " prefix), never silent 'spam'."""
     for message in (
         "аренда авто <a href=https://car-rental.example/>аренда авто</a>",
         '<A  class="x" HREF="https://casino.example">best</a>',
         "<a href='//pills.example/buy'>cheap</a>",
         "[url=https://pills.example]cheap[/url]",
+        'Our menu page <a href="https://ourbakery.example/menu">Menu</a> is broken on mobile.',
     ):
         assert screen_lead_content(email="x@example.com", fields=contact(message)) == (
-            "spam",
+            "suspect",
             "HTML link markup",
         )
+
+
+def test_markup_pointing_at_a_known_spam_host_is_spam():
+    host = sorted(SPAM_LINK_HOSTS)[0]
+    message = f'<a href="https://{host}/prize">claim</a>'
+    assert screen_lead_content(email="x@example.com", fields=contact(message))[0] == "spam"
 
 
 def test_quoted_html_with_relative_links_is_not_link_markup():
@@ -756,9 +765,16 @@ def test_a_bot_hitting_three_forms_in_a_minute(store):
         "suspect",
         "empty or one-word message",
     )
+    # Options picked on a different product's form are a new inquiry, not a
+    # repeat: flagged, still alerted.
+    assert _capture(store, email, discovery("w8ptsd"), product="New Discovery Routing Inquiry") == (
+        "suspect",
+        "empty or one-word message",
+    )
+    # The same message-less form again within 10 minutes is a repeat.
     assert _capture(store, email, discovery("w8ptsd"), product="New Discovery Routing Inquiry") == (
         "duplicate",
-        "repeat of lead 1 within 10 minutes",
+        "repeat of lead 2 within 10 minutes",
     )
     spam = partner(
         "📈 Transfer of funds to your name. RECEIVE >>> graph.org/TRANSACTION-01-01-1 <<< 📈",
