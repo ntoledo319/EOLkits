@@ -2,16 +2,20 @@
 browser form navigation: fetch/XHR (SiteLift's Fit Check reads {"ok": true} and
 {"detail": ...}), curl, and server-to-server callers.
 
-Two independent proofs:
+Three independent proofs:
 
-* Golden bytes, captured from the production code (e377bd4d), pinned here.
+* Golden bytes, captured from e377bd4d (the code before the lead bus gained its
+  readable pages), pinned here.
 * A differential run: the e377bd4d package is rebuilt from git into a temp
   directory and imported side by side with the current code. Both apps get the
   same raw ASGI requests on fresh databases, and every status line, header list,
   body byte, escaped exception, and stored lead row must match. Owner alerts
   match too, except where lead screening (store.py) deliberately changes them:
   no alert for spam and duplicates, "Likely spam: " for suspect leads.
-  Skipped only when the clone has no copy of e377bd4d (e.g. a shallow CI clone).
+* The same differential run against abd1519e, the code production runs, this
+  time with browser form navigations too: every readable page must match.
+  Each differential run is skipped only when the clone has no copy of its
+  commit (e.g. a shallow CI clone).
 
 Lead screening never shows in a response: an ok, suspect, spam or duplicate
 lead gets the same bytes, page or redirect (test_screening_never_shows_...).
@@ -29,7 +33,8 @@ from urllib.parse import urlencode
 import pytest
 from leadbus_support import ROOT, call_asgi, fresh_import, install_email_recorder
 
-BASELINE = "e377bd4d"
+BASELINE = "e377bd4d"  # before the readable pages: JSON for every client
+PRODUCTION = "abd1519e"  # what production runs: the lead bus with its pages
 SITE = "https://apps.toledotechnologies.com"
 GOOD = {"email": "visitor@example.com", "name": "Visitor", "message": "Hello", "product": "Apps"}
 
@@ -252,13 +257,12 @@ def test_golden_rate_limit_and_server_error_for_fetch_clients(load_grace, monkey
     assert _headers(failed)[b"content-type"] == b"text/plain; charset=utf-8"
 
 
-# ---- differential run against e377bd4d -------------------------------------- #
+# ---- differential runs against e377bd4d and abd1519e ------------------------ #
 
 
-@pytest.fixture(scope="module")
-def baseline_root(tmp_path_factory) -> Path:
-    """The e377bd4d `eolkits_grace` package, rebuilt from git as
-    `eolkits_grace_baseline` in a temp directory."""
+def _rebuild(commit: str, package_name: str, tmp_path_factory) -> Path:
+    """The `eolkits_grace` package at `commit`, rebuilt from git as
+    `package_name` in a temp directory (whose path is returned)."""
     git = shutil.which("git")
     if git is None:
         pytest.skip("git is not installed")
@@ -268,38 +272,52 @@ def baseline_root(tmp_path_factory) -> Path:
             [git, "-C", str(ROOT), *args], capture_output=True, timeout=60, check=False
         )
 
-    if run("cat-file", "-e", f"{BASELINE}^{{commit}}").returncode != 0:
-        pytest.skip(f"baseline commit {BASELINE} is not in this clone")
-    listing = run("ls-tree", "--name-only", BASELINE, "apps/grace-api/eolkits_grace/")
+    if run("cat-file", "-e", f"{commit}^{{commit}}").returncode != 0:
+        pytest.skip(f"baseline commit {commit} is not in this clone")
+    listing = run("ls-tree", "--name-only", commit, "apps/grace-api/eolkits_grace/")
     assert listing.returncode == 0, listing.stderr
-    root = tmp_path_factory.mktemp("baseline")
-    package = root / "eolkits_grace_baseline"
+    root = tmp_path_factory.mktemp(package_name)
+    package = root / package_name
     package.mkdir()
     for path in listing.stdout.decode().split():
         if path.endswith(".py"):
-            shown = run("show", f"{BASELINE}:{path}")
+            shown = run("show", f"{commit}:{path}")
             assert shown.returncode == 0, shown.stderr
             (package / Path(path).name).write_bytes(shown.stdout)
     assert (package / "app.py").is_file()
-    assert not (package / "lead_pages.py").exists()  # really the old code
     return root
 
 
-@pytest.fixture
-def pair(baseline_root, grace_env, tmp_path, monkeypatch):
-    """Factory: (baseline app module, current app module), each on its own fresh
-    database with identical settings and an email recorder."""
+@pytest.fixture(scope="module")
+def baseline_root(tmp_path_factory) -> Path:
+    root = _rebuild(BASELINE, "eolkits_grace_baseline", tmp_path_factory)
+    assert not (root / "eolkits_grace_baseline" / "lead_pages.py").exists()  # the old code
+    return root
+
+
+@pytest.fixture(scope="module")
+def production_root(tmp_path_factory) -> Path:
+    root = _rebuild(PRODUCTION, "eolkits_grace_production", tmp_path_factory)
+    package = root / "eolkits_grace_production"
+    assert (package / "lead_pages.py").is_file()  # the readable pages...
+    assert b"screen_lead_content" not in (package / "store.py").read_bytes()  # ...no screening
+    return root
+
+
+def _pair_factory(package: str, package_root: Path, grace_env, tmp_path, monkeypatch):
+    """Factory: (`package`'s app module, current app module), each on its own
+    fresh database with identical settings and an email recorder."""
 
     def load(**env: str):
         apps = []
-        for label, module, package, root in (
-            ("baseline", "eolkits_grace_baseline.app", "eolkits_grace_baseline", baseline_root),
+        for label, module, name, root in (
+            ("baseline", f"{package}.app", package, package_root),
             ("current", "eolkits_grace.app", "eolkits_grace", None),
         ):
             data_dir = tmp_path / label
             data_dir.mkdir()
             grace_env(EOLKITS_DATA_DIR=str(data_dir), **env)
-            kwargs = {"package": package, "root": root} if root else {"package": package}
+            kwargs = {"package": name, "root": root} if root else {"package": name}
             mod = fresh_import(module, **kwargs)
             mod.store.init()
             mod.sent_emails = install_email_recorder(mod, monkeypatch)
@@ -307,6 +325,20 @@ def pair(baseline_root, grace_env, tmp_path, monkeypatch):
         return apps[0], apps[1]
 
     return load
+
+
+@pytest.fixture
+def pair(baseline_root, grace_env, tmp_path, monkeypatch):
+    """Factory: (e377bd4d app module, current app module)."""
+    return _pair_factory("eolkits_grace_baseline", baseline_root, grace_env, tmp_path, monkeypatch)
+
+
+@pytest.fixture
+def production_pair(production_root, grace_env, tmp_path, monkeypatch):
+    """Factory: (abd1519e app module, current app module)."""
+    return _pair_factory(
+        "eolkits_grace_production", production_root, grace_env, tmp_path, monkeypatch
+    )
 
 
 def _lead_rows(mod) -> list[dict]:
@@ -321,7 +353,7 @@ _TABLE = re.compile(r"<table.*</table>", re.DOTALL)
 
 
 def _assert_alerts_follow_screening(baseline, current) -> None:
-    """Every alert e377bd4d sent, the current code sends too (same recipient,
+    """Every alert the baseline sent, the current code sends too (same recipient,
     idempotency key, subject and body) unless screening says otherwise: none for
     spam and duplicates, and "Likely spam: " plus a one-line note for suspect
     leads. Nothing else is sent, and `notified` agrees with what was sent."""
@@ -375,6 +407,26 @@ def test_every_non_browser_request_is_byte_identical_to_e377bd4d(pair):
     # ...and screening sorted them every way, without changing a response.
     statuses = {row["status"] for row in current.store.recent_leads(1000)}
     assert statuses == {"ok", "suspect", "spam", "duplicate"}
+
+
+def test_every_request_including_browser_pages_is_byte_identical_to_production(
+    production_pair,
+):
+    """abd1519e is what production runs. Every client, browser form navigations
+    and their readable pages included, gets the same bytes from the current
+    code, and the same rows are stored."""
+    production, current = production_pair()
+    profiles = {**FETCH_PROFILES, **NON_FORM_NAVIGATIONS, "browser-form": NAVIGATION}
+    compared = _assert_same(production, current, _requests(profiles))
+    assert compared == len(BODY_CASES) * len(profiles)
+    statuses = {row["status"] for row in current.store.recent_leads(1000)}
+    assert statuses == {"ok", "suspect", "spam", "duplicate"}
+    # Not vacuous: a browser form really does get a page from both.
+    content_type, body = urlencoded({**SPAM, "_next": "https://evil.example/"})
+    headers = [*NAVIGATION, ("content-type", content_type)]
+    pages = [call_asgi(m.app, headers=headers, chunks=[body]) for m in (production, current)]
+    assert pages[0] == pages[1]
+    assert pages[1].status == 200 and pages[1].body.startswith(b"<!doctype html>")
 
 
 def test_rate_limited_and_disconnected_requests_match_e377bd4d(pair):
