@@ -87,3 +87,26 @@ def test_send_email_sets_reply_to_only_when_given(monkeypatch):
     send_email(_settings(), to="x@y.com", subject="s", html="<p>h</p>", reply_to="lead@z.com")
     assert "reply_to" not in payloads[0]
     assert payloads[1]["reply_to"] == "lead@z.com"
+
+
+def test_send_email_sender_and_key_overrides(monkeypatch):
+    calls = []
+
+    def fake_post(*a, **k):
+        calls.append((k["headers"]["Authorization"], k["json"]["from"]))
+        return _Resp(True, 200, payload={"id": "em_1"})
+
+    monkeypatch.setattr(email_mod.requests, "post", fake_post)
+    send_email(_settings(), to="x@y.com", subject="s", html="<p>h</p>")
+    send_email(
+        _settings(resend_api_key=None),
+        to="x@y.com",
+        subject="s",
+        html="<p>h</p>",
+        sender="Toledo Technologies <noreply@toledotechnologies.com>",
+        api_key="re_toledo",
+    )
+    assert calls == [
+        ("Bearer re_test", "EOLkits <noreply@eolkits.com>"),
+        ("Bearer re_toledo", "Toledo Technologies <noreply@toledotechnologies.com>"),
+    ]

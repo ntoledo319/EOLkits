@@ -181,6 +181,54 @@ def test_suspect_lead_subject_keeps_the_site_tag_first(tmp_path, monkeypatch):
     assert subjects == ["[SiteLift] Likely spam: New lead: SiteLift"]
 
 
+def _post_leads(client, forms):
+    for i, (source, product) in enumerate(forms):
+        body = {
+            "email": f"route{i}@lead.com",
+            "source": source,
+            "product": product,
+            "message": f"Our booking site number {i} needs online payments before the holidays.",
+        }
+        assert client.post("/api/v1/lead", json=body).status_code == 200
+
+
+def test_toledo_leads_use_toledo_inbox_sender_and_key(tmp_path, monkeypatch):
+    mod, client = _load_app(
+        tmp_path,
+        monkeypatch,
+        LEAD_NOTIFY_TO="leads@eolkits.test",
+        TOLEDO_LEAD_NOTIFY_TO="leads@toledo.test",
+        TOLEDO_RESEND_API_KEY="re_toledo",
+    )
+    calls = []
+    monkeypatch.setattr(mod, "send_email", lambda settings, **k: calls.append(k))
+    _post_leads(client, [("sitelift-fit-check", "SiteLift"), ("eolkits.com/pricing", "Audit")])
+    toledo, eolkits = calls
+    assert (toledo["to"], toledo["api_key"]) == ("leads@toledo.test", "re_toledo")
+    assert toledo["sender"] == "Toledo Technologies <noreply@toledotechnologies.com>"
+    assert (eolkits["to"], eolkits["api_key"], eolkits["sender"]) == (
+        "leads@eolkits.test",
+        None,
+        None,
+    )
+
+
+def test_toledo_inbox_without_toledo_key_keeps_default_sender(tmp_path, monkeypatch):
+    mod, client = _load_app(
+        tmp_path,
+        monkeypatch,
+        LEAD_NOTIFY_TO="leads@eolkits.test",
+        TOLEDO_LEAD_NOTIFY_TO="leads@toledo.test",
+    )
+    calls = []
+    monkeypatch.setattr(mod, "send_email", lambda settings, **k: calls.append(k))
+    _post_leads(client, [("apps.toledotechnologies.com/contact", "Apps"), ("", "Mystery")])
+    assert [(c["to"], c["sender"], c["api_key"]) for c in calls] == [
+        ("leads@toledo.test", None, None),
+        ("leads@eolkits.test", None, None),
+    ]
+
+
 def test_lead_notify_failure_is_durable_and_recoverable(tmp_path, monkeypatch):
     # Resend outage: the lead must still be captured, left notified=0 (not silently
     # dropped), and then self-heal when the re-send sweep runs after email recovers.

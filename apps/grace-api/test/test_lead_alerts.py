@@ -31,9 +31,7 @@ def test_resend_of_a_long_lead_still_carries_the_contact_details(load_grace, mon
 
     captured: list[str] = []
 
-    def accept(
-        settings, *, to, subject, html, idempotency_key=None, attachments=None, reply_to=None
-    ):
+    def accept(settings, *, to, subject, html, idempotency_key=None, attachments=None, **_):
         captured.append(html)
         return {"ok": True, "id": "em_1"}
 

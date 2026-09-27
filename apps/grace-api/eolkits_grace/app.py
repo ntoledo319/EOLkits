@@ -881,7 +881,18 @@ def _send_lead_notification(
     if status not in LEAD_ALERT_STATUSES:
         logger.info("LEAD %s screened as %s; owner not alerted", lead_id, status)
         return
-    recipients = [a.strip() for a in (settings.lead_notify_to or "").split(",") if a.strip()]
+    site = _lead_site_label(source, product)
+    toledo = bool(site) and site != "EOLkits"
+    notify_to = settings.lead_notify_to
+    sender = api_key = None
+    budget_key = "email-lead-day:global"
+    if toledo and settings.toledo_lead_notify_to:
+        notify_to = settings.toledo_lead_notify_to
+    if toledo and settings.toledo_resend_api_key:
+        # Toledo's own Resend account: its own sender and its own daily quota.
+        sender, api_key = settings.toledo_email_from, settings.toledo_resend_api_key
+        budget_key = "email-lead-day:toledo"
+    recipients = [a.strip() for a in (notify_to or "").split(",") if a.strip()]
     if not recipients:
         logger.error("LEAD %s captured but LEAD_NOTIFY_TO is empty — OWNER NOT ALERTED", lead_id)
         return
@@ -893,7 +904,6 @@ def _send_lead_notification(
     if suspect:
         subject = LIKELY_SPAM_PREFIX + subject
     # The site tag leads, so an inbox sorted by subject groups each site together.
-    site = _lead_site_label(source, product)
     if site:
         subject = f"[{site}] {subject}"
     # Replying to the alert should reach the prospect, as the footer promises.
@@ -902,7 +912,7 @@ def _send_lead_notification(
     sent = 0
     for to in recipients:
         if not store.allow_rate(
-            "email-lead-day:global",
+            budget_key,
             limit=settings.lead_notification_daily_limit,
             window_seconds=86400,
         ):
@@ -919,6 +929,8 @@ def _send_lead_notification(
                     subject=subject,
                     html=html,
                     reply_to=reply_to,
+                    sender=sender,
+                    api_key=api_key,
                     idempotency_key=(
                         f"eolkits-lead-{lead_id}-" f"{hashlib.sha256(to.encode()).hexdigest()[:12]}"
                     ),

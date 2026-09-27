@@ -59,7 +59,16 @@ def install_email_recorder(mod, monkeypatch) -> list[dict[str, Any]]:
     sent: list[dict[str, Any]] = []
 
     def fake_send_email(
-        settings, *, to, subject, html, attachments=None, idempotency_key=None, reply_to=None
+        settings,
+        *,
+        to,
+        subject,
+        html,
+        attachments=None,
+        idempotency_key=None,
+        reply_to=None,
+        sender=None,
+        api_key=None,
     ):
         sent.append(
             {
@@ -68,6 +77,8 @@ def install_email_recorder(mod, monkeypatch) -> list[dict[str, Any]]:
                 "html": html,
                 "key": idempotency_key,
                 "reply_to": reply_to,
+                "sender": sender,
+                "api_key": api_key,
             }
         )
         return {"ok": True, "id": f"test-{len(sent)}"}
