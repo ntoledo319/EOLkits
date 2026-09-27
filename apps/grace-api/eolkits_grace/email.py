@@ -55,6 +55,7 @@ def send_email(
     html: str,
     attachments: list[dict] | None = None,
     idempotency_key: str | None = None,
+    reply_to: str | None = None,
 ) -> dict:
     """Send one email via Resend. Returns the provider payload on success and
     RAISES :class:`EmailDeliveryError` on any failure (no provider configured,
@@ -70,6 +71,8 @@ def send_email(
         "subject": subject,
         "html": html,
     }
+    if reply_to:
+        payload["reply_to"] = reply_to
     if attachments:
         payload["attachments"] = attachments
     try:

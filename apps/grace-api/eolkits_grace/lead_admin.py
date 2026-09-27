@@ -41,7 +41,7 @@ from .store import LEAD_ALERT_STATUSES, LEAD_STATUSES, Store
 
 MAILBOX_REMINDER = (
     "Reminder: this does not touch email. Delete this person's owner-notification "
-    'emails (subject "New lead: ..." or "Likely spam: New lead: ...") from the '
+    'emails (subject "[Site] New lead: ..." or "[Site] Likely spam: New lead: ...") from the '
     "LEAD_NOTIFY_TO mailbox separately."
 )
 NO_STATUS_COLUMN = (

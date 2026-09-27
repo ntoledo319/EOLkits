@@ -843,6 +843,25 @@ def _lead_email_html(
     )
 
 
+# Which site a lead came from, for the alert subject tag. Most specific first:
+# the bare toledotechnologies.com rule must not swallow its subdomains.
+_LEAD_SITE_RULES = (
+    (re.compile(r"sitelift"), "SiteLift"),
+    (re.compile(r"toledoweb|\bweb\.toledotechnologies\.com"), "ToledoWeb"),
+    (re.compile(r"\bapps\.toledotechnologies\.com"), "ToledoApps"),
+    (re.compile(r"\bmobile\.toledotechnologies\.com"), "ToledoMobile"),
+    (re.compile(r"\bai\.toledotechnologies\.com"), "ToledoAI"),
+    (re.compile(r"toledotechnologies\.com"), "Toledo Technologies"),
+    (re.compile(r"eolkits"), "EOLkits"),
+)
+
+
+def _lead_site_label(source: str, product: str) -> str:
+    """Site name for a lead's alert subject, or "" when no rule matches."""
+    text = f"{source} {product}".lower()
+    return next((label for pattern, label in _LEAD_SITE_RULES if pattern.search(text)), "")
+
+
 def _send_lead_notification(
     lead_id: int,
     product: str,
@@ -873,6 +892,13 @@ def _send_lead_notification(
     subject = f"New lead: {product or 'studio inquiry'}"
     if suspect:
         subject = LIKELY_SPAM_PREFIX + subject
+    # The site tag leads, so an inbox sorted by subject groups each site together.
+    site = _lead_site_label(source, product)
+    if site:
+        subject = f"[{site}] {subject}"
+    # Replying to the alert should reach the prospect, as the footer promises.
+    prospect = next((fields[k].strip() for k in _EMAIL_KEYS if fields.get(k)), "")
+    reply_to = prospect if _EMAIL_RE.match(prospect) else None
     sent = 0
     for to in recipients:
         if not store.allow_rate(
@@ -892,6 +918,7 @@ def _send_lead_notification(
                     to=to,
                     subject=subject,
                     html=html,
+                    reply_to=reply_to,
                     idempotency_key=(
                         f"eolkits-lead-{lead_id}-" f"{hashlib.sha256(to.encode()).hexdigest()[:12]}"
                     ),

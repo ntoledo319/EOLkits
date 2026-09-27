@@ -58,8 +58,18 @@ def install_email_recorder(mod, monkeypatch) -> list[dict[str, Any]]:
     """Replace the module's send_email with a recorder that reports success."""
     sent: list[dict[str, Any]] = []
 
-    def fake_send_email(settings, *, to, subject, html, attachments=None, idempotency_key=None):
-        sent.append({"to": to, "subject": subject, "html": html, "key": idempotency_key})
+    def fake_send_email(
+        settings, *, to, subject, html, attachments=None, idempotency_key=None, reply_to=None
+    ):
+        sent.append(
+            {
+                "to": to,
+                "subject": subject,
+                "html": html,
+                "key": idempotency_key,
+                "reply_to": reply_to,
+            }
+        )
         return {"ok": True, "id": f"test-{len(sent)}"}
 
     monkeypatch.setattr(mod, "send_email", fake_send_email)
