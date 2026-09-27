@@ -363,10 +363,13 @@ def _assert_alerts_follow_screening(baseline, current) -> None:
     for sent in baseline.sent_emails:
         lead_id = int(re.match(r"eolkits-lead-(\d+)-", sent["key"]).group(1))
         status = rows[lead_id]["status"]
+        # New since the baseline: the alert subject leads with the site's name.
+        site = current._lead_site_label(rows[lead_id]["source"], rows[lead_id]["product"])
+        tag = f"[{site}] " if site else ""
         if status == "ok":
-            expected.append(sent)
+            expected.append({**sent, "subject": tag + sent["subject"]})
         elif status == "suspect":
-            expected.append({**sent, "subject": "Likely spam: " + sent["subject"]})
+            expected.append({**sent, "subject": tag + "Likely spam: " + sent["subject"]})
         else:
             assert status in ("spam", "duplicate"), status
     got = current.sent_emails
@@ -374,7 +377,7 @@ def _assert_alerts_follow_screening(baseline, current) -> None:
         (e["to"], e["key"], e["subject"]) for e in expected
     ]
     for new, old in zip(got, expected):
-        if old["subject"].startswith("Likely spam: "):
+        if "Likely spam: " in old["subject"]:
             assert _TABLE.search(new["html"]).group() == _TABLE.search(old["html"]).group()
             assert "Screened as likely spam: " in new["html"]
         else:
@@ -589,12 +592,14 @@ def test_screening_never_shows_in_a_response(grace_env, tmp_path, monkeypatch):
             assert (lead["id"], lead["status"]) == (2, scenario), (shape, scenario)
             assert lead["email"] == form["email"]
             subjects = [email["subject"] for email in sent]
+            site = mod._lead_site_label(lead["source"], lead["product"])
+            tag = f"[{site}] " if site else ""
             assert (
                 subjects
                 == {
-                    "ok": ["New lead: " + (extra.get("product") or "studio inquiry")],
+                    "ok": [tag + "New lead: " + (extra.get("product") or "studio inquiry")],
                     "suspect": [
-                        "Likely spam: New lead: " + (extra.get("product") or "studio inquiry")
+                        tag + "Likely spam: New lead: " + (extra.get("product") or "studio inquiry")
                     ],
                     "spam": [],
                     "duplicate": [],

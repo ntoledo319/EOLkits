@@ -140,6 +140,47 @@ def test_lead_alert_reply_to_is_the_prospect(tmp_path, monkeypatch):
     assert calls[0]["reply_to"] == "warm@lead.com"
 
 
+def test_lead_alert_subject_is_tagged_with_the_site(tmp_path, monkeypatch):
+    mod, client = _load_app(tmp_path, monkeypatch, LEAD_NOTIFY_TO="owner@toledo.test")
+    subjects = []
+    monkeypatch.setattr(mod, "send_email", lambda settings, **k: subjects.append(k["subject"]))
+    forms = [
+        ("sitelift-fit-check", "SiteLift"),
+        ("toledoweb-migration-audit", "ToledoWeb"),
+        ("apps.toledotechnologies.com/contact", "General Toledo Apps inquiry"),
+        ("mobile.toledotechnologies.com", "Delphi Mobile Discovery"),
+        ("ai.toledotechnologies.com", "Delphi Automation Blueprint"),
+        ("toledotechnologies.com/care", "Care plans"),
+        ("", "Mystery"),
+    ]
+    for i, (source, product) in enumerate(forms):
+        body = {
+            "email": f"lead{i}@lead.com",
+            "source": source,
+            "product": product,
+            "message": f"Our booking site number {i} needs online payments before the holidays.",
+        }
+        assert client.post("/api/v1/lead", json=body).status_code == 200
+    assert subjects == [
+        "[SiteLift] New lead: SiteLift",
+        "[ToledoWeb] New lead: ToledoWeb",
+        "[ToledoApps] New lead: General Toledo Apps inquiry",
+        "[ToledoMobile] New lead: Delphi Mobile Discovery",
+        "[ToledoAI] New lead: Delphi Automation Blueprint",
+        "[Toledo Technologies] New lead: Care plans",
+        "New lead: Mystery",
+    ]
+
+
+def test_suspect_lead_subject_keeps_the_site_tag_first(tmp_path, monkeypatch):
+    mod, client = _load_app(tmp_path, monkeypatch, LEAD_NOTIFY_TO="owner@toledo.test")
+    subjects = []
+    monkeypatch.setattr(mod, "send_email", lambda settings, **k: subjects.append(k["subject"]))
+    body = {"email": "bare@lead.com", "source": "sitelift-fit-check", "product": "SiteLift"}
+    assert client.post("/api/v1/lead", json=body).status_code == 200
+    assert subjects == ["[SiteLift] Likely spam: New lead: SiteLift"]
+
+
 def test_lead_notify_failure_is_durable_and_recoverable(tmp_path, monkeypatch):
     # Resend outage: the lead must still be captured, left notified=0 (not silently
     # dropped), and then self-heal when the re-send sweep runs after email recovers.
