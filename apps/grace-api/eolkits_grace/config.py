@@ -55,6 +55,14 @@ class Settings:
     # the studio inbox; set it to an operator-verified address in production.
     # The durable `leads` row is the source of truth when notification fails.
     lead_notify_to: str = os.environ.get("LEAD_NOTIFY_TO", "hello@toledotechnologies.com")
+    # Toledo Technologies site leads (every tagged site except EOLkits) are routed to
+    # Toledo's own inbox and, when its key is set, sent through Toledo's own Resend
+    # account from a toledotechnologies.com address. Unset: they follow the defaults.
+    toledo_lead_notify_to: str = os.environ.get("TOLEDO_LEAD_NOTIFY_TO", "")
+    toledo_resend_api_key: str | None = os.environ.get("TOLEDO_RESEND_API_KEY")
+    toledo_email_from: str = os.environ.get(
+        "TOLEDO_EMAIL_FROM", "Toledo Technologies <noreply@toledotechnologies.com>"
+    )
 
     runner_url: str | None = os.environ.get("RUNNER_URL")
     runner_token: str | None = os.environ.get("RUNNER_TOKEN")

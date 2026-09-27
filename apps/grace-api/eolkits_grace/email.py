@@ -56,17 +56,20 @@ def send_email(
     attachments: list[dict] | None = None,
     idempotency_key: str | None = None,
     reply_to: str | None = None,
+    sender: str | None = None,
+    api_key: str | None = None,
 ) -> dict:
     """Send one email via Resend. Returns the provider payload on success and
     RAISES :class:`EmailDeliveryError` on any failure (no provider configured,
     transport error, or a non-2xx response) so callers never mistake a failed
     send for a delivered one."""
-    if not settings.resend_api_key:
+    api_key = api_key or settings.resend_api_key
+    if not api_key:
         raise EmailDeliveryError(
             "no email provider configured (RESEND_API_KEY unset)", retryable=True
         )
     payload: dict = {
-        "from": "EOLkits <noreply@eolkits.com>",
+        "from": sender or "EOLkits <noreply@eolkits.com>",
         "to": [to],
         "subject": subject,
         "html": html,
@@ -77,7 +80,7 @@ def send_email(
         payload["attachments"] = attachments
     try:
         headers = {
-            "Authorization": f"Bearer {settings.resend_api_key}",
+            "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
         }
         if idempotency_key:
