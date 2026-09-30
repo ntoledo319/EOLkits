@@ -7,7 +7,7 @@ import { resolveSetting } from './settings';
 let scanner: EOLkitsScanner;
 let diagnostics: EOLkitsDiagnostics;
 let treeProvider: EOLkitsTreeProvider;
-const AUDIT_URL = 'https://ntoledo319.github.io/EOLkits/audit/?utm_source=vscode&utm_medium=extension&source=vscode';
+const AUDIT_URL = 'https://eolkits.com/audit/?utm_source=vscode&utm_medium=extension&source=vscode';
 
 function openAudit(): Thenable<boolean> {
     return vscode.env.openExternal(vscode.Uri.parse(AUDIT_URL));
@@ -175,7 +175,7 @@ function generateReportHtml(findings: any[]): string {
             ${rows}
         </table>
         ${interestLink}
-        <p><a href="https://ntoledo319.github.io/EOLkits/audit/?utm_source=vscode&utm_medium=extension&source=vscode">Get repository evidence report →</a></p>
+        <p><a href="https://eolkits.com/audit/?utm_source=vscode&utm_medium=extension&source=vscode">Get repository evidence report →</a></p>
     </body>
     </html>`;
 }

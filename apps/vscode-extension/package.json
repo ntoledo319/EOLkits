@@ -2,21 +2,21 @@
   "name": "rupture-vscode",
   "displayName": "AWS Lambda EOL Scanner — EOLkits",
   "description": "Find deprecated AWS Lambda runtimes, Amazon Linux 2, and AWS SDK v2 risks in Terraform, SAM/CloudFormation, and source. Local; no AWS credentials.",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "publisher": "rupture",
   "icon": "icon.png",
   "galleryBanner": {
     "color": "#E8801A",
     "theme": "dark"
   },
-  "homepage": "https://ntoledo319.github.io/EOLkits/",
+  "homepage": "https://eolkits.com/",
   "bugs": {
     "url": "https://github.com/ntoledo319/EOLkits/issues"
   },
   "qna": "marketplace",
   "pricing": "Free",
   "sponsor": {
-    "url": "https://ntoledo319.github.io/EOLkits/audit/?utm_source=vscode&utm_medium=marketplace&source=vscode"
+    "url": "https://eolkits.com/audit/?utm_source=vscode&utm_medium=marketplace&source=vscode"
   },
   "engines": {
     "vscode": "^1.85.0"
