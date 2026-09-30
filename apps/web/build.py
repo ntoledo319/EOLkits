@@ -2403,6 +2403,7 @@ def build_scan_page(deprecations):
         '<div id="dz"><strong>Drop files here</strong><br><small>or click to choose — template.yaml, serverless.yml, *.tf, CDK *.ts, package.json, requirements.txt, pyproject.toml</small>'
         '<input id="fi" type="file" multiple accept=".yaml,.yml,.json,.tf,.ts,.js,.mjs,.txt,.toml" style="display:none"></div>\n'
         '<div id="results"></div>\n'
+        '<p id="report-scope-link">Need a shareable repository report? <a href="/audit/">Inspect the sample and $299 report scope</a>. A scan with no matches is not proof that your infrastructure is free of deprecation risk.</p>\n'
         "<h2>What it checks</h2>\n<ul>"
         "<li><strong>Lambda runtimes</strong> in SAM, CloudFormation, CDK, Terraform and Serverless Framework — flagged against AWS&rsquo;s published deprecation dates.</li>"
         "<li><strong>Node native dependencies</strong> (sharp, bcrypt, better-sqlite3&hellip;) that need a version bump, rebuild, or replacement before a Node&nbsp;24 migration.</li>"
