@@ -20,6 +20,18 @@ or use one of the MIT-licensed kits in this repository:
 Each kit has its own installation and command reference. Fixture and dry-run modes
 let you inspect proposed work before using cloud credentials or changing files.
 
+The browser scanner accepts selected files or pasted source and includes a fictional
+example. Results show matched lines, source references, severity filters, and file
+coverage. Its JSON download includes all findings and any failed, skipped, or
+cancelled files; it contains no source contents. Scans stay local and are limited to
+100 UTF-8 files, 1 MiB per file, and 10 MiB per batch. Extract archives first.
+This is a bounded pattern check, not proof of migration readiness.
+
+The VS Code scanner keeps diagnostics, its tree, and open reports synchronized.
+Unreadable files, pending edits, and cancelled scans remain visible; a folder scan
+preserves results from the rest of the workspace. See the
+[extension guide](./apps/vscode-extension/README.md) for its scan and retry behavior.
+
 ## GitHub Action
 
 Add the free repository check to a workflow:
@@ -96,6 +108,10 @@ TMPDIR="$PWD/tmp/runtime-tmp" tmp/verify-venv/bin/pytest -q apps/web
 
 # Static site
 tmp/verify-venv/bin/python apps/web/build.py
+
+# Rendered scanner smoke: installed Chrome/Chromium, no browser package download.
+# Override the executable with EOLKITS_CHROME if needed; artifacts stay in tmp/.
+node apps/web/test_browser.mjs
 ```
 
 Use each component's lockfile or requirements file when constructing an isolated

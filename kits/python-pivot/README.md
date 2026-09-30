@@ -32,7 +32,9 @@ python3 -m venv .venv
 . .venv/bin/activate
 ```
 
-No external runtime deps. `boto3` required only for `scan`, `deploy`, `rollback` against live AWS.
+No required external runtime dependencies. `boto3` is needed for live AWS
+commands. TOML audits use the standard library on Python 3.11+; on Python
+3.9/3.10, use a flat requirements file or install the optional `tomli` parser.
 
 ---
 
@@ -41,7 +43,7 @@ No external runtime deps. `boto3` required only for `scan`, `deploy`, `rollback`
 ```
 python-pivot scan        # find Python Lambdas by runtime, severity, days-to-EOL
 python-pivot codemod     # rewrite source for 3.12 (collections.abc, distutils, asyncio, …)
-python-pivot audit       # verify requirements.txt for cp312 wheel availability
+python-pivot audit       # compare declared dependencies with curated cp312 baselines
 python-pivot iac         # patch Runtime: python3.9 → python3.12 across SAM/CDK/Terraform/Serverless
 python-pivot deploy      # staged canary deploy with CloudWatch-alarm auto-rollback
 python-pivot rollback    # revert alias to previous version
@@ -111,9 +113,25 @@ $ python-pivot audit requirements.txt
 ⚠ 10 package(s) need attention before Python 3.12.
 ```
 
-30+ curated packages in the table — the ones that historically lagged on new CPython releases. `critical` = no cp312 wheels exist (swap required). `high` = upgrade required. `low` = unpinned (works but not reproducible).
+The curated table compares configured package baselines; it does not query PyPI,
+resolve dependencies, or verify wheels for your target architecture. Packages
+outside the table are not checked. `high` means the declared baseline precedes
+the configured minimum; `low` means a baseline cannot be established from the
+declaration and needs review. Markers are inspected across all declared
+environments, rather than evaluated against the machine running the audit.
 
-Supports `requirements.txt`, Pipfile, `pyproject.toml`.
+Supported input:
+
+- Flat requirements files with named requirements, extras, version constraints,
+  markers and comments. Includes, editable installs, installer options and
+  hash/continuation files require a flat input instead.
+- `pyproject.toml` using PEP 621 `project.dependencies` and every
+  `project.optional-dependencies` group, with TOML single or double quotes.
+- `Pipfile` `packages` and `dev-packages`, including inline version tables.
+
+Dynamic and tool-specific dependency tables such as Poetry are not resolved.
+Malformed or unsupported input exits 2 and does not emit a clean JSON array.
+`--strict` exits 1 for findings; clean scans remain limited to the curated table.
 
 ### 4. Patch IaC
 
@@ -130,12 +148,21 @@ $ python-pivot iac infra/ --apply
 ```
 
 Supports:
-- **SAM / CloudFormation** — `Runtime: python3.9` (per-function and in `Globals`)
+- **SAM / CloudFormation** — JSON and YAML Lambda `Properties.Runtime` and SAM `Globals.Function.Runtime`
 - **CDK** (TS + Python) — `Runtime.PYTHON_3_9` enum
-- **Terraform** — `runtime = "python3.9"`
-- **Serverless Framework** — `runtime: python3.9`
+- **Terraform** — direct `runtime` attributes of `aws_lambda_function` in HCL and `.tf.json`
+- **Serverless Framework** — AWS provider and direct function runtimes in YAML/JSON
 
-Idempotent. Already-migrated resources are not touched.
+Idempotent. Already-migrated resources and unrelated runtime settings are not
+touched by the template editors. Replacements retain quotes, comments, unrelated
+tags, and line endings. YAML supports block mappings and single-line flow
+mappings; lists remain data. Runtime expressions, structural aliases/merge keys,
+and multiline flow mappings require manual review. Detected input errors return
+exit 2 before any file in the batch is written; this is not a full YAML/IaC
+validator. CDK remains a
+source-pattern rewrite; it does not resolve imports or prove deployment
+compatibility. Preview without `--apply`, review the resulting diff, then
+validate with your IaC toolchain.
 
 ### 5. Deploy with canary + auto-rollback
 

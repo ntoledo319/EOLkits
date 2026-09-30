@@ -938,6 +938,106 @@ def test_checkout_preflight_rejects_fake_zip_before_stripe(tmp_path, monkeypatch
     assert stripe_calls == []
 
 
+@pytest.mark.parametrize("size", [None, 0, -1, "19", "abc", True, False, 1.5, [1], {"bytes": 1}])
+def test_upload_presign_rejects_invalid_sizes_without_reserving_capacity(
+    tmp_path, monkeypatch, size
+):
+    mod, client = _load_app(tmp_path, monkeypatch)
+
+    response = client.post("/upload/presign", json={"filename": "package.json", "size": size})
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "positive integer file size required"
+    with mod.store.connect() as conn:
+        assert conn.execute("SELECT count(*) FROM upload_reservations").fetchone()[0] == 0
+        assert conn.execute("SELECT count(*) FROM kv WHERE key LIKE 'upload:%'").fetchone()[0] == 0
+
+
+@pytest.mark.parametrize("archived", [False, True])
+def test_checkout_rejects_malformed_manifest_and_accepts_corrected_upload(
+    tmp_path, monkeypatch, archived
+):
+    import io
+    import zipfile
+
+    mod, client = _load_app(tmp_path, monkeypatch)
+    stripe_calls: list[dict] = []
+
+    def create_session(*args, **kwargs):
+        stripe_calls.append(kwargs)
+        return {"id": "cs_fixture", "url": "https://checkout.stripe.com/test", "mode": "test"}
+
+    monkeypatch.setattr(mod, "create_checkout_session", create_session)
+
+    def upload(manifest):
+        source = manifest.encode("utf-8")
+        filename = "package.json"
+        if archived:
+            stream = io.BytesIO()
+            with zipfile.ZipFile(stream, "w") as archive:
+                archive.writestr("service/package.json", source)
+            source = stream.getvalue()
+            filename = "repository.zip"
+        response = client.post("/upload/presign", json={"filename": filename, "size": len(source)})
+        assert response.status_code == 200
+        presign = response.json()
+        receipt = client.put(
+            presign["uploadUrl"].removeprefix("https://eolkits.com"), content=source
+        )
+        assert receipt.status_code == 200
+        return presign["uploadId"], receipt.json()["sha256"]
+
+    malformed_id, _ = upload('{"dependencies":{"sharp":"0.32.6",}')
+    response = client.post(
+        "/api/audit/checkout",
+        data={"email": "buyer@example.com", "upload_id": malformed_id},
+        headers={"accept": "application/json"},
+    )
+    assert response.status_code == 400
+    assert "package.json must contain valid JSON" in response.json()["detail"]
+    if archived:
+        assert "service/package.json" in response.json()["detail"]
+    assert stripe_calls == []
+    with mod.store.connect() as conn:
+        assert conn.execute("SELECT count(*) FROM checkout_claims").fetchone()[0] == 0
+
+    corrected_id, corrected_hash = upload('{"dependencies":{"sharp":"0.32.6"}}')
+    response = client.post(
+        "/api/audit/checkout",
+        data={"email": "buyer@example.com", "upload_id": corrected_id},
+        headers={"accept": "application/json"},
+    )
+    assert response.status_code == 200
+    assert len(stripe_calls) == 1
+    assert stripe_calls[0]["metadata"]["upload_sha256"] == corrected_hash
+    assert mod.store.get_json(f"upload:{corrected_id}")["preflight"] == {
+        "scannedFiles": 1,
+        "skippedFiles": 0,
+    }
+
+
+@pytest.mark.parametrize(
+    "size_json",
+    ["9" * 5000, "[" * 2000 + "1" + "]" * 2000],
+    ids=["oversized-integer", "nested-array"],
+)
+def test_upload_presign_rejects_excessive_json_values_without_reserving_capacity(
+    tmp_path, monkeypatch, size_json
+):
+    mod, client = _load_app(tmp_path, monkeypatch)
+
+    response = client.post(
+        "/upload/presign",
+        content='{"filename":"package.json","size":' + size_json + "}",
+        headers={"content-type": "application/json"},
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] in {"invalid JSON", "positive integer file size required"}
+    with mod.store.connect() as conn:
+        assert conn.execute("SELECT count(*) FROM upload_reservations").fetchone()[0] == 0
+
+
 def test_checkout_preflight_rejects_post_upload_byte_mutation(tmp_path, monkeypatch):
     mod, client = _load_app(tmp_path, monkeypatch, STRIPE_KEY="sk_live_dummytest")
     source = b"Runtime: nodejs20.x"

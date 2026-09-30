@@ -1,0 +1,680 @@
+# Contradiction register for the EOLkits (formerly Rupture) history. Reconstructed 2026-09-04.
+#
+# Each entry preserves competing accounts rather than resolving them by fiat. Fields: id,
+# disputed_claim, accounts (label, account, source_ids, claim_ids, date, proximity to the event,
+# independence/strength), disagreement_kind (fact | chronology | interpretation | motive | credit |
+# outcome), best_supported_reading, confidence, resolving_evidence, status (open | resolved).
+# "Resolved" means the record now carries an evidenced reading, not that the sources agree.
+contradictions:
+  - id: CON-001
+    disputed_claim: "The 2026-04-29 runbook's autonomy rule ('if a step needs a human, it does not exist') described how the launch actually worked."
+    disagreement_kind: interpretation
+    accounts:
+      - label: stated-rule
+        account: "updateplan.md made full autonomy a non-negotiable: every SKU terminates in a webhook, not a human."
+        source_ids: [SRC-repo-git, SRC-repo-deleted-docs]
+        claim_ids: [CLM-E1-017]
+        date: 2026-04-29
+        proximity: contemporaneous
+        strength: direct statement, agent-drafted
+      - label: launch-gates
+        account: "Every launch gate in the same era was operator-only: three blocking credentials, Marketplace toggle, Show HN, GitHub App secrets; readiness.md admitted the App credentials were the only true blockers."
+        source_ids: [SRC-repo-git, SRC-repo-deleted-docs]
+        claim_ids: [CLM-E1-028, CLM-E1-043, CLM-E1-044]
+        date: 2026-05-02
+        proximity: contemporaneous
+        strength: direct, corroborated by the July human-queue pattern (CLM-E3-057)
+    best_supported_reading: "The rule governed fulfilment design (webhooks, refunds, bots) but never the launch path; owner clicks were the binding constraint in every era, which the July operating doc later formalised as a bounded Human Queue rather than denying."
+    confidence: strongly_supported
+    resolving_evidence: "Nothing further is needed; the tension is structural and recurs in CLM-E3-057, CLM-E4A-052 and CLM-E4B-060."
+    status: resolved
+  - id: CON-002
+    disputed_claim: "What the product cost on 2026-05-02."
+    disagreement_kind: fact
+    accounts:
+      - label: handoff
+        account: "HANDOFF.md still described Solo $499 / Team $999 / Enterprise $2,499 tiers and a '$499 Solo Kit' funnel, and kit READMEs carried the same tables."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E1-045, CLM-E3-021]
+        date: 2026-05-02
+        proximity: contemporaneous
+        strength: direct; stale document
+      - label: pricing-file
+        account: "pricing.yml and the site sold Audit $299 (surging to $399/$599), Migration Pack $1,499, Org License $14,999/yr and Drift Watch $19/mo since 2026-04-29."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E1-018, CLM-E1-032]
+        date: 2026-04-29
+        proximity: contemporaneous
+        strength: direct; the file the Worker read
+    best_supported_reading: "pricing.yml was the operative price list; the handoff and kit READMEs were unrevised day-one prose. The fabricated tiers survived in kit READMEs until 2026-07-15."
+    confidence: confirmed
+    resolving_evidence: "Resolved by CLM-E3-021 (removal on 2026-07-15)."
+    status: resolved
+  - id: CON-003
+    disputed_claim: "The AWS deprecation dates the product cited, in particular the Lambda Node.js 20 block dates and the Python 3.9/3.10 dates."
+    disagreement_kind: fact
+    accounts:
+      - label: first-rules-file
+        account: "rules/public/deprecations.yml (2026-04-29) dated Python 3.9 EOL 2026-10-31 and 3.10 2027-04-30 while the python-pivot README in the same tree treated 3.9 as already past; launch copy took Node 20 block dates from blog schedules (Aug 31 / Sep 30 2026)."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E1-022, CLM-E3-007]
+        date: 2026-04-29
+        proximity: contemporaneous
+        strength: direct; internally inconsistent
+      - label: july-verification
+        account: "Cycle 0 (2026-07-13) verified at the AWS source that the Node 20 block dates had been delayed to 2027-02-01 / 2027-03-03 and swept the superseded dates out of 20+ places over a month."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E3-006, CLM-E3-051, CLM-E3-052]
+        date: 2026-07-13
+        proximity: contemporaneous
+        strength: direct; primary-source check recorded
+      - label: august-corrections
+        account: "Further fabricated version floors and a wrong python3.10 date were still being found in August; lambda-lifeline lacked python3.8 and python3.11 rows until 2026-08-31/09-01."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E4A-003, CLM-E4A-051, CLM-E4B-019]
+        date: 2026-08-21
+        proximity: contemporaneous
+        strength: direct
+    best_supported_reading: "The rule 'every rule cites a public source' was declared on day two but not verified against AWS until July; the 2027 Node dates are the best-supported values as of the audit, and the date corpus should be treated as a live risk, not a settled fact."
+    confidence: strongly_supported
+    resolving_evidence: "A dated read of the AWS runtime-support table against rules/public/deprecations.yml at HEAD."
+    status: open
+  - id: CON-004
+    disputed_claim: "Whether the CI 'trust signals' (reproducible release, mutation gate, public benchmark) were what the launch copy said they were."
+    disagreement_kind: outcome
+    accounts:
+      - label: launch-copy
+        account: "Release named 'Reproducible Release'; HN playbook said mutation was gated at 80%+ in CI and the benchmark showed 12 public repos clean."
+        source_ids: [SRC-repo-git, SRC-github-releases]
+        claim_ids: [CLM-E1-035, CLM-E1-059, CLM-E1-038]
+        date: 2026-05-04
+        proximity: contemporaneous
+        strength: direct statements
+      - label: workflows
+        account: "The reproducibility job hashed literal strings, Python SBOMs listed zero components, mutation became a non-blocking weekly signal on 2026-05-03, and the benchmark reported clean only after empty scanner output was counted as a pass."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E1-024, CLM-E1-036, CLM-E1-046, CLM-E1-037]
+        date: 2026-05-03
+        proximity: contemporaneous
+        strength: behavioral; workflow definitions at revision
+      - label: june-correction
+        account: "On 2026-06-11 the claims were rewritten to match CI: mutmut weekly against a 70% target, 'not an 80% per-PR CI gate'; the nonexistent Stryker reference was removed."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E2-024, CLM-E2-025]
+        date: 2026-06-11
+        proximity: contemporaneous
+        strength: direct
+    best_supported_reading: "The signals were installed as intent and described as achievement; the code caught up with the description only partially, and the copy was corrected six weeks later."
+    confidence: confirmed
+    resolving_evidence: "Resolved by the 2026-06-11 corrections and the 2026-08-22 deletion of the benchmark workflow (CLM-E4A-018)."
+    status: resolved
+  - id: CON-005
+    disputed_claim: "The codemod technology (AST-based with a shared library, or per-kit regex)."
+    disagreement_kind: fact
+    accounts:
+      - label: hn-playbook
+        account: "The 2026-05-04 reply playbook claimed Babel/libcst AST codemods and a shared library the kits import."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E1-059]
+        date: 2026-05-04
+        proximity: contemporaneous
+        strength: direct statement, unsupported
+      - label: code
+        account: "Codemods were regex-based from birth in both JS and Python with no shared library."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E1-009]
+        date: 2026-04-28
+        proximity: contemporaneous
+        strength: direct; source at revision
+    best_supported_reading: "Regex. The playbook described a design that was never built."
+    confidence: confirmed
+    resolving_evidence: "None needed."
+    status: resolved
+  - id: CON-006
+    disputed_claim: "Whether cold outreach was a non-goal."
+    disagreement_kind: chronology
+    accounts:
+      - label: day-one-directive
+        account: "Reddit, X, LinkedIn, cold email and DMs were forbidden 'per user directive'; the runbook cut cold email and pre-staked comments."
+        source_ids: [SRC-repo-git, SRC-repo-deleted-docs]
+        claim_ids: [CLM-E1-011, CLM-E1-020]
+        date: 2026-04-28
+        proximity: contemporaneous
+        strength: direct
+      - label: launch-kit
+        account: "By 2026-05-04 launch/ contained X and LinkedIn posts, cold-maintainer outreach templates and a reply playbook."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E1-058]
+        date: 2026-05-04
+        proximity: contemporaneous
+        strength: direct
+      - label: june-sends
+        account: "Five AL2/EOLkits cold emails were actually sent on 2026-06-05 from the owner's outreach system; ~231 sends portfolio-wide by 07-15 with zero replies; then bulk cold outreach was 'deliberately not revived' and 'no autonomous contact with real humans' became a hard rule."
+        source_ids: [SRC-tc-truth-audit, SRC-outreach-al2, SRC-repo-git]
+        claim_ids: [CLM-EXT-009, CLM-E2-053, CLM-E3-004]
+        date: 2026-06-05
+        proximity: contemporaneous
+        strength: reported (send log read by a later audit) plus direct rules
+    best_supported_reading: "The non-goal was real, was breached in May–June, produced nothing, and was re-imposed in July as a stricter rule (drafts only, every send to the Human Queue)."
+    confidence: strongly_supported
+    resolving_evidence: "The outreach send log itself (not read; contact data)."
+    status: resolved
+  - id: CON-007
+    disputed_claim: "Whether the paid audit path was 'verified end-to-end' and 'DEPLOYED & LIVE' on 2026-06-09."
+    disagreement_kind: outcome
+    accounts:
+      - label: handoff-06-08
+        account: "HANDOFF-2026-06-08 declared the hardened API and site live on GRACE with verified endpoints."
+        source_ids: [SRC-repo-deleted-docs]
+        claim_ids: [CLM-E2-016]
+        date: 2026-06-09
+        proximity: contemporaneous
+        strength: direct statement; its own checklist left the live test payment unchecked (CLM-E2-017)
+      - label: later-findings
+        account: "On 06-21 send_email was found to report failure by return value so every failed send counted as success; on 06-23 the Resend domain was found never verified, so 'a paying customer would have received nothing'; external docs through 06-26 repeat that delivery was never verified."
+        source_ids: [SRC-repo-git, SRC-repo-deleted-docs, SRC-bizops-audit-service, SRC-allocation-brief]
+        claim_ids: [CLM-E2-043, CLM-E2-055, CLM-EXT-008]
+        date: 2026-06-23
+        proximity: contemporaneous
+        strength: direct, independent (in-repo and owner records)
+    best_supported_reading: "'Live' meant the endpoints answered; the fulfilment chain could not have delivered a paid audit until 2026-06-23 at the earliest, and no real purchase ever exercised it."
+    confidence: confirmed
+    resolving_evidence: "A Stripe test-mode purchase through the deployed API (the seven-step gate defined 2026-08-22, never run)."
+    status: resolved
+  - id: CON-008
+    disputed_claim: "Which repository name was canonical at 08:16Z on 2026-06-11."
+    disagreement_kind: chronology
+    accounts:
+      - label: owner-session
+        account: "af722684 re-pointed links from ntoledo319/EOLkits to ntoledo319/Rupture, calling the EOLkits links 'dead'."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E2-024]
+        date: 2026-06-11
+        proximity: contemporaneous
+        strength: direct
+      - label: launch-automation
+        account: "Six minutes later 'EOLkits Agent' finished the rename repo-wide, tagged v1.1.0 and wrote 'Do NOT fix links back to Rupture'; the GitHub rename happened between the two commits."
+        source_ids: [SRC-repo-git, SRC-github-releases]
+        claim_ids: [CLM-E2-025, CLM-E2-026, CLM-E2-027]
+        date: 2026-06-11
+        proximity: contemporaneous
+        strength: direct
+    best_supported_reading: "Two agents acted on different views of the same repository within nine minutes; both were right at the moment they ran. The rename was decided off-repo between 05-22 and 05-31."
+    confidence: confirmed
+    resolving_evidence: "None needed; the sequence is fully evidenced."
+    status: resolved
+  - id: CON-009
+    disputed_claim: "Whether the Show HN was resubmitted after its 2026-06-12 rejection."
+    disagreement_kind: fact
+    accounts:
+      - label: autopsy-on-branch
+        account: "The 06-21 autopsy said the Show HN was never resubmitted and quoted launched.txt as 'not yet submitted'."
+        source_ids: [SRC-repo-deleted-docs]
+        claim_ids: [CLM-E2-045, CLM-E3-045]
+        date: 2026-06-21
+        proximity: contemporaneous
+        strength: direct but written on a branch forked before the ledger commits
+      - label: main-ledger
+        account: "main records a second attempt on 2026-06-17, also rejected by the new-account gate."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E2-031, CLM-E2-036]
+        date: 2026-06-17
+        proximity: contemporaneous
+        strength: direct
+      - label: owner-portfolio
+        account: "MASTER-PORTFOLIO (06-22) says rejected 06-12 and never resubmitted."
+        source_ids: [SRC-tc-master-portfolio]
+        claim_ids: [CLM-EXT-011]
+        date: 2026-06-22
+        proximity: contemporaneous
+        strength: derivative of the autopsy
+    best_supported_reading: "Two attempts (06-12, 06-17), both rejected; the 'never resubmitted' accounts are artefacts of branch divergence, not evidence. No submission ever succeeded."
+    confidence: confirmed
+    resolving_evidence: "None needed."
+    status: resolved
+  - id: CON-010
+    disputed_claim: "What the owner's portfolio believed EOLkits was worth in June 2026."
+    disagreement_kind: interpretation
+    accounts:
+      - label: revenue-ready
+        account: "06-05: '#1 fastest path to a first dollar', 'switch on and collect'."
+        source_ids: [SRC-bizops-audit-service]
+        claim_ids: [CLM-EXT-007]
+        date: 2026-06-05
+        proximity: contemporaneous
+        strength: agent-authored ops docs
+      - label: dead-market
+        account: "06-20: paid self-serve arm killed as a dead market (AWS Transform / Amazon Q do it free); 06-22 Truth Register lists EOLkits-paid among dead offers."
+        source_ids: [SRC-marketing-arm, SRC-tc-truth-register]
+        claim_ids: [CLM-EXT-015, CLM-EXT-016]
+        date: 2026-06-20
+        proximity: contemporaneous
+        strength: agent-authored validation, not a market test
+      - label: first-wedge
+        account: "06-23 MASTER-PORTFOLIO pitches the paid SKUs as the first wedge for a ~$150K raise; 06-26 allocation brief ranks EOLkits #1 at 30%."
+        source_ids: [SRC-tc-master-portfolio, SRC-allocation-brief]
+        claim_ids: [CLM-EXT-016, CLM-EXT-019]
+        date: 2026-06-23
+        proximity: contemporaneous
+        strength: agent-authored
+      - label: shelved
+        account: "06-29 adversarial board shelves the campaign as structurally dead for this operator; 07-15 factory frozen."
+        source_ids: [SRC-outreach-al2, SRC-marketing-arm]
+        claim_ids: [CLM-EXT-021, CLM-EXT-024]
+        date: 2026-06-29
+        proximity: contemporaneous
+        strength: agent-authored deliberation, executed in data
+    best_supported_reading: "The external corpus was produced faster than it could be reconciled; the sequence records the owner's estate oscillating, not a settled belief. The in-repo August rebuild reads as a response to the same evidence (inferred, not stated)."
+    confidence: strongly_supported
+    resolving_evidence: "An owner statement of which verdict, if any, was adopted."
+    status: open
+  - id: CON-011
+    disputed_claim: "Whether Stripe pricing was set by late May 2026."
+    disagreement_kind: fact
+    accounts:
+      - label: status-docs
+        account: "May-28 status docs: pricing 'not yet set', Stripe 'TBD'."
+        source_ids: [SRC-mind-status-docs]
+        claim_ids: [CLM-EXT-004]
+        date: 2026-05-28
+        proximity: contemporaneous
+        strength: owner notes
+      - label: repo
+        account: "Live Stripe products provisioned and committed 2026-04-30; Stripe objects tagged 2026-05-22."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E1-032, CLM-E2-003]
+        date: 2026-04-30
+        proximity: contemporaneous
+        strength: direct
+    best_supported_reading: "Stripe existed and was live from 04-30; the notes describe an unfinished decision about final tiers, not the absence of Stripe."
+    confidence: strongly_supported
+    resolving_evidence: "The 05-31 'EOLkits pricing set' log entry in the same notes."
+    status: resolved
+  - id: CON-012
+    disputed_claim: "How many tests EOLkits had in June 2026."
+    disagreement_kind: fact
+    accounts:
+      - label: repo-badges
+        account: "116 → 126 (05-21) → 149 'counted per component' (06-10) → 172 (06-21)."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E2-023]
+        date: 2026-06-21
+        proximity: contemporaneous
+        strength: direct; counting rule changed
+      - label: owner-docs
+        account: "92, 126, 144, 149, ~172, 197 across owner documents; the Truth Register rules 'use 197'."
+        source_ids: [SRC-bizops-root, SRC-tc-truth-register]
+        claim_ids: [CLM-EXT-013]
+        date: 2026-06-22
+        proximity: contemporaneous
+        strength: mixed bases
+    best_supported_reading: "There was no single counting basis; the badge measured whatever rule was current. The number is not a meaningful historical fact beyond 'growing'."
+    confidence: confirmed
+    resolving_evidence: "None needed."
+    status: resolved
+  - id: CON-013
+    disputed_claim: "Whether autonomous dev.to publishing under the owner's account complied with 'no autonomous contact with real humans'."
+    disagreement_kind: interpretation
+    accounts:
+      - label: routine
+        account: "The nightly routine treated own-content publishing as not contact; the VPS cron published staged articles with published: true and no per-article review."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E3-017, CLM-E3-018]
+        date: 2026-07-15
+        proximity: contemporaneous
+        strength: behavioral
+      - label: operating-doc
+        account: "AGENTS.md §2.4 forbids autonomous contact and §9 says nothing sends messages to humans autonomously; re:Post answers were draft-never-post."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E3-004, CLM-E3-020]
+        date: 2026-07-13
+        proximity: contemporaneous
+        strength: direct rule
+      - label: later-treatment
+        account: "The 08-22 rebuild deleted the publisher, quarantined the corpus and later queued unpublication of 25 posts for the owner."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E4A-006, CLM-E4B-066]
+        date: 2026-08-22
+        proximity: contemporaneous
+        strength: direct
+    best_supported_reading: "The routine's reading was defensible under the letter of the doc and was reversed by the next operating regime, which treated unreviewed public posting as a truth risk. Whether the articles were live during July is itself unknown (CLM-E3-019)."
+    confidence: plausible
+    resolving_evidence: "The dev.to account's publication dates for articles 05–24."
+    status: open
+  - id: CON-014
+    disputed_claim: "What the status page and the revenue ledger said about system health in July 2026."
+    disagreement_kind: fact
+    accounts:
+      - label: ledger-seed
+        account: "Cycle 0 METRICS recorded 'All systems ok' from the static seed; funnel counters were hard-coded zeros in both build.py and the workflow."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E3-043]
+        date: 2026-07-13
+        proximity: contemporaneous
+        strength: direct
+      - label: bot-data
+        account: "rupture-bot's committed data.json on main reported stripe/runner/email/github ok:false every day since 2026-06-09."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E3-044]
+        date: 2026-07-13
+        proximity: contemporaneous
+        strength: behavioral; inferred cause
+    best_supported_reading: "Neither number was an observation: the seed was a constant and the bot probed a Worker that had been retired. The 08-22 rebuild replaced both with explicit null/unknown."
+    confidence: strongly_supported
+    resolving_evidence: "Resolved by CLM-E4A-059."
+    status: resolved
+  - id: CON-015
+    disputed_claim: "What to do about Org License, a SKU that charged and delivered nothing."
+    disagreement_kind: interpretation
+    accounts:
+      - label: routine-fix
+        account: "07-19: wire the generated license key through email delivery (fix fulfilment)."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E3-023]
+        date: 2026-07-19
+        proximity: contemporaneous
+        strength: direct
+      - label: eve-delete
+        account: "07-22: remove Org License and Drift Watch from pricing, API, runner and site — 'they charged a card and delivered nothing'."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E3-033, CLM-E3-034]
+        date: 2026-07-22
+        proximity: contemporaneous
+        strength: direct; never merged
+      - label: rebuild
+        account: "08-22: mark both 'Product research only' / not for sale, with 410 responses."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E4A-008, CLM-E4A-011]
+        date: 2026-08-22
+        proximity: contemporaneous
+        strength: direct
+    best_supported_reading: "Three agents, three remedies, never reconciled in discussion; the last one shipped. The lineage is the project's 'billing honesty' arc."
+    confidence: confirmed
+    resolving_evidence: "None needed for the outcome; the reasoning behind choosing 'research only' over deletion is in D2 of the 08-22 ledger."
+    status: resolved
+  - id: CON-016
+    disputed_claim: "Whether /api/v1/lead 'had no honeypot' on 2026-08-10."
+    disagreement_kind: fact
+    accounts:
+      - label: merge-message
+        account: "The 08-10 merge says the endpoint had no honeypot and 78 of the last 81 submissions were spam."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E3-040]
+        date: 2026-08-10
+        proximity: contemporaneous
+        strength: direct statement about the stale lineage
+      - label: deploy-lineage
+        account: "Honeypot handling existed in app.py on marketing-machine-v2 since 2026-06-17."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E2-038]
+        date: 2026-06-17
+        proximity: contemporaneous
+        strength: direct; source at revision
+    best_supported_reading: "True only of the origin/main copy; the deployed API had the honeypot. The spam figure is unverifiable in-repo."
+    confidence: strongly_supported
+    resolving_evidence: "The VPS leads table or log for early August."
+    status: resolved
+  - id: CON-017
+    disputed_claim: "Whether the audit was refundable."
+    disagreement_kind: fact
+    accounts:
+      - label: copy
+        account: "README and homepage promised a 30-day money-back guarantee; the 06-22 conversion system locked 'iron-clad 30-day money-back'."
+        source_ids: [SRC-repo-git, SRC-repo-deleted-docs]
+        claim_ids: [CLM-E2-047, CLM-E3-039]
+        date: 2026-06-22
+        proximity: contemporaneous
+        strength: direct
+      - label: terms-and-engine
+        account: "The app's terms string said Audit PDFs are non-refundable and the refund engine fired only on Pack CI failure; the README was corrected on an orphan branch on 08-10."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E3-039]
+        date: 2026-08-10
+        proximity: contemporaneous
+        strength: direct
+    best_supported_reading: "The guarantee was marketing copy without an implementation; the 08-22 legal pages resolve it by describing exactly what the report is and is not."
+    confidence: confirmed
+    resolving_evidence: "Resolved by CLM-E4B-069."
+    status: resolved
+  - id: CON-018
+    disputed_claim: "Whether the paid API was closed on the live host when the code said it was."
+    disagreement_kind: outcome
+    accounts:
+      - label: code
+        account: "Drift Watch checkout returned 410 in code from 08-14 and every retired SKU from 08-22; PR #25 (08-30) made startup fail closed."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E3-031, CLM-E4A-008, CLM-E4B-007]
+        date: 2026-08-22
+        proximity: contemporaneous
+        strength: direct
+      - label: live-host
+        account: "The GRACE API was never redeployed: /api/capabilities 404 through 08-27 and throughout 08-30..09-04; closure on the live domain came only from archiving the Stripe prices on 08-25."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E3-042, CLM-E4A-040, CLM-E4B-065]
+        date: 2026-09-04
+        proximity: contemporaneous
+        strength: reported probes in ledgers
+    best_supported_reading: "Code and deployment diverged for the whole of E3–E4; the deployable state at HEAD (deploy-api-closed.sh) still awaits an owner action (HQ-A/HQ-C)."
+    confidence: strongly_supported
+    resolving_evidence: "A probe of eolkits.com /api/capabilities after the owner runs the closed deployment."
+    status: open
+  - id: CON-019
+    disputed_claim: "Which decision a given 'D-number' in revenue/DECISIONS.md refers to."
+    disagreement_kind: chronology
+    accounts:
+      - label: claude-line
+        account: "The nightly loop used D0–D49 before the pivot and later wrote D25/D36/D42/D43 into the compacted ledger."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E4A-043, CLM-E4A-050]
+        date: 2026-08-26
+        proximity: contemporaneous
+        strength: direct
+      - label: codex-line
+        account: "The pivot compacted the ledger to D0–D16 and continued D17–D78; D51–D55 were renumbered during merges, so commit messages reference pre-renumbering ids."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E4A-015, CLM-E4B-017]
+        date: 2026-09-01
+        proximity: contemporaneous
+        strength: direct
+    best_supported_reading: "D-numbers are not stable identifiers; this history cites commits and PRs instead and treats D-references as pointers into the ledger at a given revision."
+    confidence: confirmed
+    resolving_evidence: "None; recorded as a citation caveat."
+    status: resolved
+  - id: CON-020
+    disputed_claim: "Who authored the 2026-08-22 rebuild and the August–September 'Nick Toledo' commits."
+    disagreement_kind: credit
+    accounts:
+      - label: git-author
+        account: "Git author 'Nick Toledo' (local) / 'ntoledo319' (remote mirrors), one-line messages without bodies."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E4A-004, CLM-E4B-028]
+        date: 2026-08-22
+        proximity: contemporaneous
+        strength: direct metadata
+      - label: ledgers
+        account: "The ledgers address 'the active Codex thread', D33 says the owner explicitly directed Codex, and D30 cites three specialist reviews; PR bodies carry the intent."
+        source_ids: [SRC-repo-git, SRC-github-prs]
+        claim_ids: [CLM-E4A-041]
+        date: 2026-08-25
+        proximity: contemporaneous
+        strength: inferred from agent-written text
+    best_supported_reading: "Agent sessions (Codex CLI) operating under the owner's git identity and direction; the owner's share of the intellectual authorship is not recoverable from the repository."
+    confidence: strongly_supported
+    resolving_evidence: "The Codex session transcripts, which are outside git."
+    status: open
+  - id: CON-021
+    disputed_claim: "Whether the agent had repository-admin authority on GitHub."
+    disagreement_kind: fact
+    accounts:
+      - label: aug-31
+        account: "D54: scoped GitHub authority could not change repository-admin settings; Pages and ruleset were left for the owner."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E4B-024, CLM-E4B-025]
+        date: 2026-08-31
+        proximity: contemporaneous
+        strength: reported run outcome
+      - label: sep-4
+        account: "D70: fresh gh verification showed authenticated owner scope; ruleset 22266277 and Pages build_type=workflow were set at 11:15Z, verified via the API."
+        source_ids: [SRC-repo-git, SRC-github-api]
+        claim_ids: [CLM-E4B-040, CLM-E4B-041]
+        date: 2026-09-04
+        proximity: contemporaneous
+        strength: direct (API) plus inferred mechanism
+    best_supported_reading: "Both were true of different credentials: a workflow token without admin scope on 08-31 and an owner-authenticated gh session on 09-04. How the latter reached the jailed workspace is not recorded and sits in tension with the 08-22 premise that no GitHub credential existed there."
+    confidence: strongly_supported
+    resolving_evidence: "The agent environment's gh auth state on 2026-09-04, or an owner statement."
+    status: open
+  - id: CON-022
+    disputed_claim: "Which operating document the Claude scheduled cycles were following in August–September."
+    disagreement_kind: fact
+    accounts:
+      - label: cycles
+        account: "Cycle messages cite 'AGENTS.md §2.5 never blogs', a repost-answers/dev.to fallback and a daily BUILD_DATE routine."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E4B-005]
+        date: 2026-09-04
+        proximity: contemporaneous
+        strength: direct quotations of a document not in git
+      - label: committed-doc
+        account: "The committed AGENTS.md (unchanged since 2026-07-13) contains none of those instructions; .claude/ is git-ignored."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E4B-001, CLM-E4A-055]
+        date: 2026-07-13
+        proximity: contemporaneous
+        strength: direct
+    best_supported_reading: "Two agent lines ran under two rulebooks; the Claude line's instructions lived outside version control. Decisions attributed to 'AGENTS.md' by that line should be read as that line's own policy."
+    confidence: strongly_supported
+    resolving_evidence: "The untracked instruction file on the host that ran the scheduled cycles."
+    status: open
+  - id: CON-023
+    disputed_claim: "Whether anything autonomous remained to be done on 2026-09-04."
+    disagreement_kind: interpretation
+    accounts:
+      - label: claude-line
+        account: "PLAN (Sep 2/4): 'nothing left but owner work'; the sole remaining path to a first dollar is the owner's queue."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E4B-018, CLM-E4B-063]
+        date: 2026-09-04
+        proximity: contemporaneous
+        strength: direct
+      - label: codex-line
+        account: "PLAN (later Sep 4): that conclusion was 'falsified by fresh local and public evidence'; v1.3.0, admin actions and hardening followed the same day."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E4B-031, CLM-E4B-040, CLM-E4B-042]
+        date: 2026-09-04
+        proximity: contemporaneous
+        strength: direct
+    best_supported_reading: "Both lines agree the paid path is owner-gated; they disagree on whether free-surface work counts as progress. Under the project's own evidence hierarchy (dollars first) the Claude line's reading is the stricter one."
+    confidence: plausible
+    resolving_evidence: "The Day-14 gate output (2026-09-05) and whether any owner step in the queue is executed."
+    status: open
+  - id: CON-024
+    disputed_claim: "Whether the VS Code extension's five-day gate 'passed' on 2026-09-04."
+    disagreement_kind: outcome
+    accounts:
+      - label: gate-record
+        account: "Five consistent Gallery samples at 104 installs versus a 103 baseline: gate result passed, '+1 install'."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E4B-039]
+        date: 2026-09-04
+        proximity: contemporaneous
+        strength: reported; Marketplace not queried by this audit
+      - label: noise-record
+        account: "The same day's D60 documents nine near-simultaneous reads alternating between 103 and 104, i.e. the pass equals the flicker magnitude."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E4B-033]
+        date: 2026-09-04
+        proximity: contemporaneous
+        strength: reported
+    best_supported_reading: "A mechanical pass on a signal indistinguishable from counter noise; the agents themselves call it 'the smallest possible positive install signal' and not revenue."
+    confidence: strongly_supported
+    resolving_evidence: "A longer install series from the Gallery API."
+    status: open
+  - id: CON-025
+    disputed_claim: "Who the legal operator of EOLkits was."
+    disagreement_kind: fact
+    accounts:
+      - label: june-docs
+        account: "Owner documents attribute EOLkits to Toledo Technologies LLC while MASTER-PORTFOLIO says the entity is not yet formed and the 06-29 board treats the operator as no-entity, no-insurance."
+        source_ids: [SRC-tc-master-portfolio, SRC-outreach-al2, SRC-bizops-root]
+        claim_ids: [CLM-EXT-038]
+        date: 2026-06-23
+        proximity: contemporaneous
+        strength: direct but inconsistent
+      - label: legal-pages
+        account: "Legal pages name Toledo Technologies LLC (Connecticut) as operator from 2026-08-31 and add a registry-sourced business address on 2026-09-04."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E4B-021, CLM-E4B-044]
+        date: 2026-09-04
+        proximity: contemporaneous
+        strength: direct; the ledger says the address came from the state registry
+    best_supported_reading: "The entity appears to have been formed between late June and late August; the repository records the outcome, not the formation."
+    confidence: plausible
+    resolving_evidence: "The state business-registry record (not consulted; personal/financial detail outside scope)."
+    status: open
+  - id: CON-026
+    disputed_claim: "Whether the September 2026 credential sweep found secrets in this repository."
+    disagreement_kind: interpretation
+    accounts:
+      - label: scan-labels
+        account: "72 exact-value hits typed gemini_credential / codevault_credential / protected_secret_type across 33 commits."
+        source_ids: [SRC-purge-ledgers]
+        claim_ids: [CLM-EXT-030]
+        date: 2026-09-01
+        proximity: contemporaneous
+        strength: direct but labels name the pattern's source, not the match
+      - label: final-classification
+        account: "Every row classified public configuration / placeholder / planted demo key material; 0 validated live-credential events; no rewrite, quarantine or security commit; a June note says the Stripe-shaped string was a dummy."
+        source_ids: [SRC-purge-ledgers, SRC-purge-report, SRC-bizops-root]
+        claim_ids: [CLM-EXT-029, CLM-EXT-031, CLM-EXT-036]
+        date: 2026-09-02
+        proximity: contemporaneous
+        strength: direct
+    best_supported_reading: "No confirmed secret; the labels are easy to misread. Rotation status of the project's own runtime secrets is undocumented and remains an open item."
+    confidence: confirmed
+    resolving_evidence: "A rotation record for STRIPE_KEY / RESEND_API_KEY / GitHub App key (names only)."
+    status: resolved
+  - id: CON-027
+    disputed_claim: "Which mission clock the operating document was running."
+    disagreement_kind: chronology
+    accounts:
+      - label: agents-md
+        account: "AGENTS.md: $4,000 by Day 28 with Day 0 = 2026-07-13; the Day-28 window formally closed 08-10 at $0."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E3-003, CLM-E3-012]
+        date: 2026-08-10
+        proximity: contemporaneous
+        strength: direct
+      - label: plan-restart
+        account: "The 08-22 rebuild restarted the clock: $4,000 by 2026-09-19 with new Day-7/14/21/28 gates, without editing AGENTS.md."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E4A-017, CLM-E4A-055]
+        date: 2026-08-22
+        proximity: contemporaneous
+        strength: direct
+    best_supported_reading: "The target was carried forward unchanged while the deadline moved; the goal ledger records this as G-06 superseded by G-08."
+    confidence: confirmed
+    resolving_evidence: "None needed."
+    status: resolved
+  - id: CON-028
+    disputed_claim: "Whether the privacy policy's 'no third-party analytics' promise held on the custom host."
+    disagreement_kind: outcome
+    accounts:
+      - label: policy
+        account: "legal/privacy.md promised no third-party analytics and a first-party cookieless beacon."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E2-050, CLM-E4A-038]
+        date: 2026-06-22
+        proximity: contemporaneous
+        strength: direct
+      - label: host
+        account: "From 2026-08-25 every custom-domain page carried a host-injected third-party analytics script; a meta-CSP blocked execution but the tag remained in raw HTML through 09-04."
+        source_ids: [SRC-repo-git]
+        claim_ids: [CLM-E4A-038, CLM-E4A-047, CLM-E4B-065]
+        date: 2026-08-25
+        proximity: contemporaneous
+        strength: reported probes; contained, not removed
+    best_supported_reading: "The promise was broken by the shared host's configuration, outside the repository's control; containment was shipped and the verifier deliberately left red."
+    confidence: strongly_supported
+    resolving_evidence: "The host's Caddy configuration and a raw-HTML probe after the owner's HQ-A step."
+    status: open

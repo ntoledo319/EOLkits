@@ -35,7 +35,7 @@ If the 100% cutover completed, alarms didn't trip, but your engineers are now re
 
 ```bash
 lambda-lifeline rollback --function FN --apply
-# rolls to N-1 automatically
+# chooses the greatest existing numbered version below the current alias
 ```
 
 Or to a specific prior version:
@@ -43,6 +43,13 @@ Or to a specific prior version:
 ```bash
 lambda-lifeline rollback --function FN --to-version 16 --apply
 ```
+
+Automatic selection fails if no older published version exists; it never falls
+forward to a newer version. Deleted versions are skipped. This is version-order
+selection, not alias history. `--to-version` is an explicit operator-selected
+published version. Both modes remain dry-run unless `--apply` is present; the
+write uses the observed alias revision when AWS supplies one, so a concurrent
+alias change is rejected instead of overwritten.
 
 Behind the scenes this is:
 ```bash

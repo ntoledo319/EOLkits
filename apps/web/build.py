@@ -4,6 +4,7 @@ EOLkits Static Site Generator
 Builds docs/ from templates and rule-pack data.
 """
 
+import hashlib
 import json
 import os
 import re
@@ -2127,231 +2128,15 @@ def _runtime_id_from_name(name: str):
     return None
 
 
-_SCAN_JS = r"""
-const $ = (s) => document.querySelector(s);
-const RT_VALUE_RE = /^(nodejs\d+\.x|python\d+\.\d+|ruby\d+\.\d+|java\d+|dotnet\d+|dotnetcore\d+\.\d+|go\d+\.x|provided\.al\d+|provided)\b/i;
-const CDK_VALUE_RE = /Runtime\.(NODEJS|PYTHON|RUBY|JAVA|DOTNET|GO)_(\d+)(?:_(\d+))?(?:_X)?/i;
-function cdkId(l, a, b) { l = l.toLowerCase(); if (l === 'nodejs') return 'nodejs' + a + '.x'; if (l === 'python') return 'python' + a + '.' + (b || '0'); if (l === 'ruby') return 'ruby' + a + '.' + (b || '0'); return l + a; }
-function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
-function classify(name) {
-  const n = name.toLowerCase();
-  if (n.endsWith('package.json')) return 'pkg';
-  if (n.endsWith('requirements.txt') || /requirements.*\.txt$/.test(n)) return 'req';
-  if (n.endsWith('pyproject.toml') || n.endsWith('.toml') || n.endsWith('pipfile')) return 'pyproject';
-  return 'iac';
-}
-function vtuple(v) { return (v || '').replace(/^[^\d]*/, '').split(/[.\-+]/).map((x) => parseInt(x, 10) || 0); }
-function vlt(a, b) { const A = vtuple(a), B = vtuple(b); for (let i = 0; i < Math.max(A.length, B.length); i++) { const x = A[i] || 0, y = B[i] || 0; if (x < y) return true; if (x > y) return false; } return false; }
-function cleanV(v) { return v ? v.replace(/^[\^~>=<\s]+/, '') : null; }
-function extractMin(spec) { if (!spec) return null; for (const op of ['==', '>=']) { for (let part of spec.split(',')) { part = part.trim(); if (part.indexOf(op) === 0) return part.slice(op.length).trim(); } } return null; }
-function runtimeId(value) {
-  const cleaned = String(value || '').trim().replace(/^['"]/, '');
-  const m = cleaned.match(RT_VALUE_RE);
-  return m ? m[1].toLowerCase() : null;
-}
-function configRecords(c) {
-  const records = [], stack = [], lines = c.split(/\r?\n/); let documentId = 0;
-  const keyRe = /^([ \t]*)(["']?)([A-Za-z0-9_.-]+)\2\s*:\s*(.*)$/;
-  for (let i = 0; i < lines.length; i++) {
-    if (/^[ \t]*(?:---|\.\.\.)[ \t]*(?:#.*)?$/.test(lines[i])) { stack.length = 0; documentId++; continue; }
-    const m = lines[i].match(keyRe); if (!m) continue;
-    const indent = m[1].replace(/\t/g, '        ').length;
-    while (stack.length && stack[stack.length - 1][0] >= indent) stack.pop();
-    const key = m[3].toLowerCase();
-    const raw = m[4].replace(/\s+#.*$/, '').trim().replace(/,$/, '').trim();
-    let value = raw;
-    if (value.length >= 2 && ((value[0] === '"' && value[value.length - 1] === '"') || (value[0] === "'" && value[value.length - 1] === "'"))) value = value.slice(1, -1);
-    const path = stack.slice(-8).map((item) => item[1]).concat([key]);
-    records.push({ documentId, line: i + 1, key, value, path });
-    if (raw === '' || raw === '{') stack.push([indent, key]);
-  }
-  return records;
-}
-function samePath(left, right) { return left.length === right.length && left.every((value, index) => value === right[index]); }
-function samDocuments(c) {
-  const documents = new Set(); let documentId = 0, pendingIndent = null;
-  for (const line of c.split(/\r?\n/)) {
-    if (/^[ \t]*(?:---|\.\.\.)[ \t]*(?:#.*)?$/.test(line)) { documentId++; pendingIndent = null; continue; }
-    const transform = line.match(/^([ \t]*)["']?Transform["']?\s*:\s*(.*)$/i);
-    if (transform) {
-      const value = transform[2].replace(/\s+#.*$/, '').trim();
-      if (/AWS::Serverless-/i.test(value)) documents.add(documentId);
-      pendingIndent = value ? null : transform[1].replace(/\t/g, '        ').length;
-      continue;
-    }
-    if (pendingIndent === null || !line.trim()) continue;
-    const indent = (line.match(/^[ \t]*/) || [''])[0].replace(/\t/g, '        ').length;
-    if (indent <= pendingIndent) pendingIndent = null;
-    else if (/^[ \t]*-[ \t]*["']?AWS::Serverless-/i.test(line)) { documents.add(documentId); pendingIndent = null; }
-  }
-  return documents;
-}
-function yamlLambdaRuntimes(c, found) {
-  const records = configRecords(c), resources = new Set(), providers = new Set(), sam = samDocuments(c);
-  for (const r of records) {
-    if (r.key === 'type' && /^(AWS::Lambda::Function|AWS::Serverless::Function)$/i.test(r.value) && r.path.includes('resources')) resources.add(r.documentId + '\u0000' + r.path.slice(0, -1).join('\u0000'));
-    if (samePath(r.path, ['provider', 'name']) && r.value.toLowerCase() === 'aws') providers.add(r.documentId);
-  }
-  for (const r of records) {
-    if (r.key !== 'runtime') continue;
-    const resourceRuntime = r.path.length >= 3 && samePath(r.path.slice(-2), ['properties', 'runtime']) && resources.has(r.documentId + '\u0000' + r.path.slice(0, -2).join('\u0000'));
-    const samGlobal = sam.has(r.documentId) && samePath(r.path, ['globals', 'function', 'runtime']);
-    const serverless = providers.has(r.documentId) && (samePath(r.path, ['provider', 'runtime']) || (r.path.length === 3 && r.path[0] === 'functions' && r.path[2] === 'runtime'));
-    if (resourceRuntime || samGlobal || serverless) { const id = runtimeId(r.value); if (id) found.add(id); }
-  }
-}
-function jsonLambdaRuntimes(c, found) {
-  const stripped = c.trim(); if (stripped.includes('\n') || stripped.length > 1048576 || stripped[0] !== '{') return;
-  let document; try { document = JSON.parse(stripped); } catch (e) { return; }
-  if (!document || Array.isArray(document) || typeof document !== 'object') return;
-  const resources = document.Resources;
-  if (resources && typeof resources === 'object' && !Array.isArray(resources)) for (const key in resources) {
-    const resource = resources[key], type = resource && resource.Type, properties = resource && resource.Properties;
-    if (!/^AWS::(?:Lambda|Serverless)::Function$/i.test(String(type || '')) || !properties || typeof properties !== 'object') continue;
-    const id = runtimeId(properties.Runtime); if (id) found.add(id);
-  }
-  const transforms = Array.isArray(document.Transform) ? document.Transform : [document.Transform];
-  const globals = document.Globals && document.Globals.Function;
-  if (transforms.some((item) => typeof item === 'string' && item.toLowerCase().startsWith('aws::serverless-')) && globals && typeof globals === 'object') {
-    const id = runtimeId(globals.Runtime); if (id) found.add(id);
-  }
-}
-function hclCodeLines(c) {
-  const output = []; let block = false, heredoc = null;
-  for (const original of c.split(/\r?\n/)) {
-    if (heredoc) { const candidate = heredoc[1] ? original.trim() : original; if (candidate === heredoc[0]) heredoc = null; output.push([original, ' '.repeat(original.length)]); continue; }
-    const visible = [...original]; let quote = null, escaped = false, i = 0;
-    while (i < original.length) {
-      const ch = original[i], pair = original.slice(i, i + 2);
-      if (block) { visible[i] = ' '; if (pair === '*/') { visible[i + 1] = ' '; block = false; i += 2; continue; } i++; continue; }
-      if (quote) { visible[i] = ' '; if (escaped) escaped = false; else if (ch === '\\') escaped = true; else if (ch === quote) quote = null; i++; continue; }
-      if (pair === '/*') { visible[i] = visible[i + 1] = ' '; block = true; i += 2; continue; }
-      if (pair === '//' || ch === '#') { for (let j = i; j < visible.length; j++) visible[j] = ' '; break; }
-      if (ch === '"' || ch === "'") { visible[i] = ' '; quote = ch; }
-      i++;
-    }
-    const code = visible.join(''), marker = code.match(/<<(-?)([A-Za-z_][A-Za-z0-9_]*)/);
-    if (marker) heredoc = [marker[2], marker[1] === '-'];
-    output.push([original, code]);
-  }
-  return output;
-}
-function terraformLambdaRuntimes(c, found) {
-  let inside = false, depth = 0, structuralEvents = 0;
-  const declaration = /\bresource\s+["']aws_lambda_function["']\s+["'][^"']+["']\s*\{/i;
-  for (const pair of hclCodeLines(c)) {
-    const original = pair[0], code = pair[1], declarationMatch = inside ? null : original.match(declaration);
-    const visibleResource = inside ? -1 : code.search(/\bresource\s+/i);
-    const resource = declarationMatch && declarationMatch.index === visibleResource ? declarationMatch : null;
-    if (resource) { inside = true; depth = 0; }
-    if (!inside) continue;
-    let position = resource ? resource.index : 0;
-    while (position < code.length) {
-      const character = code[position];
-      if (character === '{') { depth++; structuralEvents++; }
-      else if (character === '}') { depth--; structuralEvents++; }
-      else if (depth === 1 && code.slice(position, position + 7).toLowerCase() === 'runtime') {
-        const key = code.slice(position).match(/^\bruntime\b\s*=/i);
-        if (!key) { position++; continue; }
-        const runtime = original.slice(position).match(/^\bruntime\b\s*=\s*["']?([^"'\s}]+)/i), id = runtime && runtimeId(runtime[1]);
-        if (id) found.add(id); position += key[0].length; structuralEvents++;
-        if (structuralEvents > 100000) return;
-        continue;
-      }
-      if (structuralEvents > 100000) return;
-      if (depth <= 0 && character === '}') { inside = false; break; }
-      position++;
-    }
-  }
-}
-function explicitLambdaRuntimes(c, found) {
-  const importedRuntime = /(?:aws-cdk-lib|@aws-cdk)\/aws-lambda|from\s+aws_cdk\.aws_lambda\s+import[^\n]*\bRuntime\b|software\.amazon\.awscdk\.services\.lambda\.Runtime|Amazon\.CDK\.AWS\.Lambda/i.test(c);
-  for (const line of c.split(/\r?\n/)) {
-    const cli = line.match(/\baws\s+lambda\b[^\n]*--runtime(?:\s+|=)["']?([^"'\s]+)/i); const cliId = cli && runtimeId(cli[1]); if (cliId) found.add(cliId);
-    const qualified = line.match(/\bruntime\b\s*[:=(]\s*(?:aws_)?_?lambda\.(Runtime\.[A-Z0-9_]+)/i);
-    const imported = importedRuntime && line.match(/\bruntime\b\s*[:=(]\s*(Runtime\.[A-Z0-9_]+)/i);
-    const cdk = qualified || imported; const match = cdk && cdk[1].match(CDK_VALUE_RE); const id = match && cdkId(match[1], match[2], match[3]); if (id) found.add(id);
-  }
-}
-function scanIaC(file, c) {
-  const f = new Set(), out = [];
-  yamlLambdaRuntimes(c, f);
-  jsonLambdaRuntimes(c, f);
-  terraformLambdaRuntimes(c, f);
-  explicitLambdaRuntimes(c, f);
-  f.forEach((rt) => {
-    const d = DATA.runtimes[rt];
-    if (d) out.push({ kind: 'runtime', file, name: rt, severity: d.historical ? 'critical' : (d.severity || 'high'), date: d.date, kit: d.kit, historical: d.historical, note: d.historical ? 'Past a published milestone; recheck the linked provider status and enforcement dates.' : 'Runtime with an AWS-published deprecation and create/update restriction timeline.' });
-  });
-  return out;
-}
-function scanPkg(file, c) {
-  let pkg; try { pkg = JSON.parse(c); } catch (e) { return []; }
-  const deps = Object.assign({}, pkg.dependencies || {}, pkg.devDependencies || {}), out = [];
-  for (const name in deps) {
-    const info = DATA.native[name]; if (!info) continue;
-    const declared = cleanV(deps[name]);
-    if (info.min === null) { out.push({ kind: 'native', file, name, severity: 'critical', declared: declared || '(unpinned)', required: '(unmaintained — replace)', note: info.note }); continue; }
-    if (declared && !vlt(declared, info.min)) { out.push({ kind: 'native', file, name, severity: 'low', declared, required: 'verify Node.js 24 support', note: 'Meets the configured older baseline; confirm the package release and rebuild/test on Node.js 24.' }); continue; }
-    out.push({ kind: 'native', file, name, severity: 'high', declared: declared || '(unpinned)', required: '>= ' + info.min, note: info.note });
-  }
-  return out;
-}
-function pyFindings(pkgs, file) {
-  const out = [];
-  for (const pair of pkgs) {
-    const name = pair[0], spec = pair[1], req = DATA.wheels[name]; if (!req) continue;
-    const declared = extractMin(spec);
-    if (req.min === null) { out.push({ kind: 'wheel', file, name, severity: 'critical', declared: spec || '(unpinned)', required: '(no cp312 wheels)', note: req.note }); continue; }
-    if (declared === null) { out.push({ kind: 'wheel', file, name, severity: 'low', declared: '(unpinned)', required: '>= ' + req.min, note: 'unpinned; pin >= ' + req.min + ' for reproducibility.' }); continue; }
-    if (vlt(declared, req.min)) out.push({ kind: 'wheel', file, name, severity: 'high', declared: spec, required: '>= ' + req.min, note: req.note });
-  }
-  return out;
-}
-function parseReq(c) { const out = []; for (let raw of c.split(/\r?\n/)) { const line = raw.trim(); if (!line || line[0] === '#' || line[0] === '-') continue; const m = line.match(/^([A-Za-z0-9_.\-]+)\s*(?:\[[^\]]*\])?\s*([<>=!~].+)?/); if (!m) continue; out.push([m[1].toLowerCase(), (m[2] || '').trim() || null]); } return out; }
-function parsePyproject(c) { const out = []; const blocks = c.match(/dependencies\s*=\s*\[([\s\S]*?)\]/g) || []; for (const b of blocks) { const re = /"\s*([A-Za-z0-9_.\-]+)\s*(?:\[[^\]]*\])?\s*([<>=!~][^"]*)?\s*"/g; let m; while ((m = re.exec(b))) out.push([m[1].toLowerCase(), (m[2] || '').trim() || null]); } return out; }
-function scanFile(name, content) {
-  const k = classify(name);
-  if (k === 'pkg') return scanPkg(name, content);
-  if (k === 'req') return pyFindings(parseReq(content), name);
-  if (k === 'pyproject') return pyFindings(parsePyproject(content), name);
-  return scanIaC(name, content);
-}
-function auditLink(deadline, kit) { const p = new URLSearchParams({ source: 'scan', utm_source: 'scan', utm_medium: 'tool', utm_campaign: 'free-scan' }); if (deadline) p.set('deadline', deadline); if (kit) p.set('kit', kit); return SITE_BASE + '/audit/?' + p.toString(); }
-const SEV_RANK = { critical: 0, high: 1, medium: 2, low: 3 };
-function render(all) {
-  const box = $('#results');
-  if (!all.length) { box.innerHTML = '<div class="scan-ok">No configured browser-scan pattern matched the files you dropped. That is not proof that the repository or AWS account is free of deprecation risk.</div>'; return; }
-  all.sort((a, b) => (SEV_RANK[a.severity] - SEV_RANK[b.severity]));
-  let deadline = null, kit = '', today = new Date().toISOString().slice(0, 10);
-  for (const f of all) { if (f.kind === 'runtime' && f.date && f.date >= today) { if (!deadline || f.date < deadline) { deadline = f.date; kit = f.kit || kit; } } }
-  const rows = all.map((f) => {
-    const what = f.kind === 'runtime' ? ('Runtime ' + f.name) : f.name;
-    const when = f.kind === 'runtime' ? (f.historical ? ('deprecated ' + f.date) : ('blocks ' + (f.date || '?'))) : (f.declared + ' → ' + f.required);
-    return '<tr class="sev-' + f.severity + '"><td>' + f.severity.toUpperCase() + '</td><td>' + esc(what) + '</td><td>' + esc(f.file) + '</td><td>' + esc(when) + '</td><td>' + esc(f.note || '') + '</td></tr>';
-  }).join('');
-  const n = all.length;
-  box.innerHTML = '<p class="scan-count">' + n + ' finding' + (n === 1 ? '' : 's') + ' — all detected locally in your browser.</p>' +
-    '<table class="scan-tbl"><thead><tr><th>Severity</th><th>What</th><th>File</th><th>Deadline / fix</th><th>Detail</th></tr></thead><tbody>' + rows + '</tbody></table>' +
-    '<a class="scan-cta" href="' + auditLink(deadline, kit) + '">See the one-repository evidence report ($299) &rarr;</a>' +
-    '<p class="scan-interest"><a href="' + INTEREST_URL + '" target="_blank" rel="noopener">Would this report be worth $299? Record qualified public interest on GitHub.</a><br><small>No order or waitlist. Do not disclose project details, code, secrets, company information, or personal data.</small></p>';
-}
-const dz = $('#dz'), fi = $('#fi'); let acc = [];
-function scanDone(fileCount) { try { if (typeof window.eolkitsTrack === 'function') window.eolkitsTrack('scan_completed', { sku: 'audit', meta: { finding_count: acc.length, file_count: fileCount } }); } catch (e) {} }
-function handle(files) { acc = []; const arr = [...files]; let pending = arr.length; if (!pending) return; arr.forEach((file) => { const r = new FileReader(); r.onload = () => { try { acc = acc.concat(scanFile(file.name, r.result)); } catch (e) {} if (--pending === 0) { render(acc); scanDone(arr.length); } }; r.onerror = () => { if (--pending === 0) { render(acc); scanDone(arr.length); } }; r.readAsText(file); }); }
-dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('over'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('over'));
-dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('over'); handle(e.dataTransfer.files); });
-dz.addEventListener('click', () => fi.click());
-fi.addEventListener('change', () => handle(fi.files));
-"""
+_SCAN_JS = (
+    (BASE_DIR / "static" / "scan-engine.js").read_text(encoding="utf-8")
+    + "\n"
+    + (BASE_DIR / "static" / "scan-ui.js").read_text(encoding="utf-8")
+)
 
 
 def build_scan_page(deprecations):
-    """M1: the free, zero-upload, client-side EOL scanner. Findings mirror the paid
-    kits; runtime deadlines come from the cited deprecations.yml; CTA points at the
-    on-site /audit/ Checkout path (NOT a raw Stripe link) so fulfillment metadata
-    survives, and carries source/utm so the sale is attributed to the scanner."""
+    """Render the bounded local scanner from shared compatibility and lifecycle rules."""
     runtimes = {}
     for group in ("deprecations", "historical"):
         for dep in deprecations.get(group, []):
@@ -2364,71 +2149,41 @@ def build_scan_page(deprecations):
                 "severity": dep.get("severity", "high"),
                 "kit": dep.get("kit") or "",
                 "historical": group == "historical",
+                "deprecation": dep.get("deprecation_date"),
+                "blockUpdate": dep.get("block_update_date"),
+                "projected": dep.get("dates_projected", False),
+                "source": dep.get("url"),
             }
     data = json.dumps(
-        {"runtimes": runtimes, "native": _NATIVE_PACKAGES, "wheels": _PY312_WHEELS},
+        {
+            "runtimes": runtimes,
+            "native": _NATIVE_PACKAGES,
+            "wheels": _PY312_WHEELS,
+            "version": "sha256:"
+            + hashlib.sha256(
+                json.dumps(
+                    {"runtimes": runtimes, "dependencies": _DEPENDENCY_RULES}, sort_keys=True
+                ).encode("utf-8")
+            ).hexdigest(),
+        },
         separators=(",", ":"),
     )
-    head = (
-        '<!DOCTYPE html>\n<html lang="en">\n<head>\n'
-        '<meta charset="utf-8">\n'
-        '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
-        "<title>Free AWS Lambda Runtime &amp; Dependency EOL Scanner — EOLkits</title>\n"
-        '<meta name="description" content="Drop SAM/CDK/Terraform/Serverless, package.json, or requirements files to find tracked AWS Lambda runtime and native-dependency migration risks. File names and contents are not uploaded; bounded aggregate counts may be sent.">\n'
-        f'<link rel="canonical" href="{SITE_URL}/scan/">\n'
-        '<link rel="stylesheet" href="/style.css">\n'
-        '<script defer src="/track.js"></script>\n' + _og_image_meta() + "<style>"
-        "#dz{border:2px dashed #94a3b8;border-radius:10px;padding:2.5rem 1rem;text-align:center;cursor:pointer;background:#f8fafc}"
-        "#dz.over{border-color:#2563eb;background:#eff6ff}"
-        ".scan-tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.88rem}"
-        ".scan-tbl th,.scan-tbl td{border-bottom:1px solid #eee;padding:.5rem;text-align:left;vertical-align:top}"
-        ".sev-critical td:first-child{color:#b91c1c;font-weight:700}"
-        ".sev-high td:first-child{color:#b45309;font-weight:700}"
-        ".sev-medium td:first-child{color:#a16207;font-weight:700}"
-        ".sev-low td:first-child{color:#2563eb}"
-        ".scan-cta{display:inline-block;margin-top:1rem;padding:.75rem 1.25rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}"
-        ".scan-interest{margin-top:1rem;padding:1rem;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px}"
-        ".scan-ok{padding:1rem;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px}"
-        ".scan-count{font-weight:600;margin-top:1rem}.privacy{color:#16a34a;font-weight:600}"
-        "</style>\n</head>\n"
+    env = Environment(
+        loader=FileSystemLoader(TEMPLATE_DIR),
+        autoescape=select_autoescape(["html", "xml"]),
     )
-    body = (
-        '<body class="container">\n'
-        '<a href="/" class="brand">&larr; EOLkits</a>\n'
-        "<h1>Free AWS runtime &amp; dependency EOL scanner</h1>\n"
-        "<p>Drop your infrastructure and dependency files below to find deprecated AWS Lambda runtimes and the "
-        "native Node.js&nbsp;24 / Python&nbsp;3.12 dependency risks that can block a migration. "
-        '<span class="privacy">File names and contents stay in your browser.</span> '
-        "If the verified v2 telemetry service is available, the page sends only file and finding counts—never file names or contents.</p>\n"
-        '<div id="dz"><strong>Drop files here</strong><br><small>or click to choose — template.yaml, serverless.yml, *.tf, CDK *.ts, package.json, requirements.txt, pyproject.toml</small>'
-        '<input id="fi" type="file" multiple accept=".yaml,.yml,.json,.tf,.ts,.js,.mjs,.txt,.toml" style="display:none"></div>\n'
-        '<div id="results"></div>\n'
-        "<h2>What it checks</h2>\n<ul>"
-        "<li><strong>Lambda runtimes</strong> in SAM, CloudFormation, CDK, Terraform and Serverless Framework — flagged against AWS&rsquo;s published deprecation dates.</li>"
-        "<li><strong>Node native dependencies</strong> (sharp, bcrypt, better-sqlite3&hellip;) that need a version bump, rebuild, or replacement before a Node&nbsp;24 migration.</li>"
-        "<li><strong>Python wheels</strong> (numpy, pandas, cryptography&hellip;) that need a bump for a Python&nbsp;3.12 runtime.</li>"
-        "</ul>\n"
-        '<p>Hit a specific error message? See <a href="/fix/">common AWS migration error fixes &rarr;</a></p>\n'
-        "<p><small>This free scan covers configured high-impact source patterns. The paid report accepts one repository ZIP or source file and adds exact line evidence, configured references, a remediation order, and explicit limitations. It does not query your AWS account.</small></p>\n"
-    )
-    tail = "</body>\n</html>\n"
-    return (
-        head
-        + body
-        + "<script>\nconst SITE_BASE = "
-        + json.dumps(SITE_URL.rstrip("/"))
-        + ";\nconst INTEREST_URL = "
-        + json.dumps(AUDIT_INTEREST_URL)
-        + ";\nconst DATA = "
-        + data
-        + ";\n"
-        + _SCAN_JS
-        + "\n</script>\n"
-        + tail
+    template = env.get_template("scan.html.j2")
+    return template.render(
+        site_url=SITE_URL.rstrip("/"),
+        site_base=json.dumps(SITE_URL.rstrip("/")),
+        interest_url=json.dumps(AUDIT_INTEREST_URL),
+        data=data,
+        script=_SCAN_JS,
+        css=(BASE_DIR / "static" / "scan.css").read_text(encoding="utf-8"),
+        og_meta=_og_image_meta(),
     )
 
 
-# --- M2: the /fix/<error> verbatim-error corpus --------------------------- #
 def load_fixes():
     """Load and validate the cited verbatim-error corpus for /fix pages."""
     p = BASE_DIR / "content" / "fixes.yml"

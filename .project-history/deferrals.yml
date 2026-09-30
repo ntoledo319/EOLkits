@@ -1,0 +1,5 @@
+# Deferred history declarations (`history:defer — <tracking item, owner, deadline>`).
+# Each entry: id, reason, owner, deadline (YYYY-MM-DD), status (open | closed), event_id (once
+# recorded). `validate` and `audit` fail on an open deferral past its deadline (max 30 days per
+# policy.yml). None are open as of the 2026-09-04 reconstruction.
+deferrals: []

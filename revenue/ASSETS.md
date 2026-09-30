@@ -621,3 +621,16 @@ A git-ignored secure inbox at `tmp/owner-env-import/` is ready for copies of the
 owner-reported external env files. Until that import happens, Audit v2 remains
 code-complete but operationally unavailable; the sellable unit and $0 observed
 revenue are unchanged.
+
+## September 5 access recheck
+
+At 04:26 UTC the import inbox held only `README.txt`; no required GRACE,
+Stripe, Resend, catalog/admin, or DEV process key was present. GitHub still
+held only the Cloudflare account/token and VSCE publisher secret names.
+The existing static deployment does not supply API deployment authority.
+No asset became purchasable in this check.
+
+
+## Local product verification — 2026-09-05 09:44 UTC
+
+The local browser now provides explicit coverage/recovery, source locations and local JSON export; the editor synchronizes findings and handles incomplete scans. Python manifests and Lambda template edits have stronger scope/error handling; automatic rollback refuses when no older version exists. Paid intake rejects malformed package input before checkout. Component tests, actual CLI/browser/Action workflows and a fixture-provider real-PDF flow passed; these are local implementation capabilities, with no new release or commercial signal.
