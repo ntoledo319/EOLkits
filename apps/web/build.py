@@ -351,7 +351,7 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 
 <div class="guarantee">
   <h3>30-day refund policy</h3>
-  <p><strong>When checkout is open, request a full refund within 30 days.</strong> Email from the purchase address with the Stripe receipt or Checkout Session identifier; no explanation is required.</p>
+  <p><strong>Request a full refund within 30 days.</strong> Email from the purchase address with the Stripe receipt or Checkout Session identifier; no explanation is required.</p>
   <p>If fulfillment permanently fails after retries, the system queues a full refund. Any refund that cannot be confirmed is surfaced for operator review.</p>
 </div>
 
@@ -368,7 +368,6 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 </div>
 
 <h2>How it works</h2>
-<p><strong>When checkout is open:</strong></p>
 <ol>
   <li>Upload a repository ZIP or a supported SAM / CDK / Terraform / Serverless / cloud-init source file (10 MiB compressed maximum)</li>
   <li>We safely inspect supported text files without extracting the archive to disk</li>
@@ -376,7 +375,7 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
   <li>Verify the evidence metadata at <code>/verify/</code> during its retention window of up to 30 days</li>
 </ol>
 
-<p class="reassure">When the readiness gate opens: Stripe checkout · automated delivery with durable retries · 30-day money-back guarantee</p>
+<p class="reassure">Stripe checkout · automated delivery with durable retries · 30-day money-back guarantee</p>
 
 <script>
 const API = '{API_URL}';
@@ -1466,7 +1465,7 @@ def build_index_page(pricing):
     <div class="container">
       <div class="eyebrow">AWS runtime &amp; OS EOLs that break production</div>
       <h1>Find high-impact AWS deprecation risks in your source — free.</h1>
-      <p class="lede">The browser scanner checks configured Lambda runtime and Node/Python dependency patterns without uploading file contents. Repository CLIs add their documented operating-system checks. When its readiness gate is open, the $299 evidence report adds file/line evidence across supported files in the uploaded archive, remediation order, configured references, and explicit scope limitations.</p>
+      <p class="lede">The browser scanner checks configured Lambda runtime and Node/Python dependency patterns without uploading file contents. Repository CLIs add their documented operating-system checks. The $299 evidence report adds file/line evidence across supported files in the uploaded archive, remediation order, configured references, and explicit scope limitations.</p>
       <div class="cta-row">
         <a class="btn-primary" href="/scan/">Run the free scan</a>
         <a class="btn-secondary" href="https://github.com/ntoledo319/EOLkits">Clone the CLIs</a>
@@ -1526,7 +1525,7 @@ def build_index_page(pricing):
           <h3>Audit PDF</h3>
           <div class="price">${audit["base"]}</div>
           <p>One repository ZIP or source file: exact file/line evidence, observed reach, remediation order, configured references, and an evidence fingerprint. 30-day money-back.</p>
-          <a class="btn-primary" href="/audit/">Check availability</a>
+          <a class="btn-primary" href="/audit/">Get the ${audit["base"]} report</a>
           <p class="small"><a href="/audit/sample/">See a sample report →</a></p>
         </article>
       </div>
