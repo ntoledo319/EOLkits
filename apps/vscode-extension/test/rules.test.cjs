@@ -58,7 +58,16 @@ assert.equal(manifest.displayName, 'AWS Lambda EOL Scanner — EOLkits');
 assert.match(manifest.description, /Terraform, SAM\/CloudFormation/);
 assert.ok(manifest.keywords.includes('nodejs20'));
 assert.ok(manifest.keywords.includes('aws sdk v2'));
-assert.ok(manifest.activationEvents.includes('onCommand:rupture.scanWorkspace'));
+// Every contributed command must carry an explicit activation event. The
+// manifest contributes eolkits.* commands (and menus reference them); the
+// legacy rupture.* aliases stay registered at runtime in extension.ts for old
+// keybindings, but activation must track the contributed command ids.
+for (const contribution of manifest.contributes.commands) {
+  assert.ok(
+    manifest.activationEvents.includes(`onCommand:${contribution.command}`),
+    `missing onCommand activation event for ${contribution.command}`
+  );
+}
 assert.equal(manifest.homepage, verifiedSite);
 assert.ok(manifest.sponsor.url.startsWith(`${verifiedSite}audit/`));
 assert.match(compiledExtension, /https:\/\/ntoledo319\.github\.io\/EOLkits\/audit\//);
