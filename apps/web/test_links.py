@@ -82,13 +82,30 @@ def test_sitemap_dates_change_only_for_materially_updated_pages() -> None:
         for item in root.findall(f"{namespace}url")
     }
 
-    assert observed[f"{build.SITE_URL}/"] == "2026-09-09"
-    assert observed[f"{build.SITE_URL}/audit/"] == "2026-09-04"
-    assert observed[f"{build.SITE_URL}/lambda-runtime-deprecation-schedule/"] == "2026-09-04"
-    assert observed[f"{build.SITE_URL}/legal/dpa.html"] == "2026-09-04"
-    assert observed[f"{build.SITE_URL}/legal/privacy.html"] == "2026-09-04"
-    assert observed[f"{build.SITE_URL}/legal/terms.html"] == "2026-09-04"
-    assert observed[f"{build.SITE_URL}/legal/SECURITY.html"] == "2026-09-09"
+    # Expected lastmod comes from the same source the builder uses, so the
+    # checked-in sitemap can never drift a day ahead of BUILD_DATE (the old
+    # hardcoded literals forced a daily test edit and a red web job whenever
+    # BUILD_DATE moved before the literals did).
+    def expected_lastmod(url: str) -> str:
+        path = url.removeprefix(f"{build.SITE_URL}/")
+        source_path = "index.html" if path == "" else path.removesuffix("/") + "/index.html"
+        if not path.endswith("/"):
+            source_path = path
+        return build.PAGE_LASTMOD_OVERRIDES.get(source_path, build._build_date())
+
+    assert observed
+    for location, lastmod in observed.items():
+        assert lastmod == expected_lastmod(
+            location
+        ), f"{location}: lastmod {lastmod} != expected {expected_lastmod(location)}"
+
+    # Materially-updated pages keep their pinned dates instead of the build date.
+    for source_path, pinned in build.PAGE_LASTMOD_OVERRIDES.items():
+        if source_path.startswith("legal/"):
+            location = f"{build.SITE_URL}/{source_path}"
+        else:
+            location = f"{build.SITE_URL}/{source_path.removesuffix('index.html')}"
+        assert observed[location] == pinned
 
 
 def test_indexnow_key_verifies_the_entire_sitemap_scope() -> None:
