@@ -36,7 +36,7 @@ test('scan --fixture --json emits well-formed JSON', () => {
   assert.equal(etl.eol, true);
   assert.notEqual(etl.lifecycle, 'supported');
   assert.equal(etl.recommended_target, 'python3.12');
-  assert.equal(etl.deprecation_dates.block_update, '2027-03-03');
+  assert.equal(etl.deprecation_dates.block_update, '2027-08-31');
   const mlInfer = data.find(d => d.function_name === 'ml-inference-endpoint');
   assert.equal(mlInfer.runtime, 'python3.11');
   assert.equal(mlInfer.eol, false);
@@ -49,7 +49,7 @@ test('scan --fixture --json emits well-formed JSON', () => {
   assert.equal(orders.runtime, 'nodejs20.x');
   assert.equal(orders.recommended_target, 'nodejs24.x');
   // Well-formed JSON check: the countdown field must be a finite number, not a magic
-  // magnitude (block_update = 2027-03-03, so a hardcoded threshold silently rots as time passes).
+  // magnitude (block_update = 2027-08-31, so a hardcoded threshold silently rots as time passes).
   assert.equal(typeof orders.days_until_block_update, 'number');
   assert.ok(Number.isFinite(orders.days_until_block_update));
   const current = data.find(d => d.function_name === 'events-api-current');
@@ -67,8 +67,8 @@ test('lifecycle distinguishes supported at-risk runtimes from deprecated ones', 
   assert.equal(runtimeLifecycle('provided.al2', observedAt), 'deprecated');
   assert.equal(runtimeLifecycle('nodejs24.x', observedAt), 'supported');
   assert.equal(runtimeLifecycle('nodejs20.x', observedAt), 'deprecated');
-  assert.equal(runtimeLifecycle('nodejs20.x', Date.parse('2027-02-15T00:00:00Z')), 'create-blocked');
-  assert.equal(runtimeLifecycle('nodejs20.x', Date.parse('2027-03-03T00:00:00Z')), 'update-blocked');
+  assert.equal(runtimeLifecycle('nodejs20.x', Date.parse('2027-08-15T00:00:00Z')), 'create-blocked');
+  assert.equal(runtimeLifecycle('nodejs20.x', Date.parse('2027-08-31T00:00:00Z')), 'update-blocked');
 });
 
 test('scan --fixture --format csv emits CSV header', () => {

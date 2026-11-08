@@ -77,7 +77,7 @@ fixes:
     error: "The runtime parameter of python3.9 is no longer supported for creating or updating AWS Lambda functions"
     context: "AWS Lambda"
     summary: "AWS Lambda is blocking create/update operations on a deprecated Python runtime."
-    cause: "Per the AWS Lambda runtime deprecation table, python3.9 was deprecated on 2025-12-15; AWS blocks creating new python3.9 functions on 2027-02-01 and updating existing ones on 2027-03-03 (AWS delayed these beyond the usual 30/60 days). Earlier runtimes such as python3.7 are already blocked for create. The error fires when a deploy targets a runtime past its block date."
+    cause: "Per the AWS Lambda runtime deprecation table, python3.9 was deprecated on 2025-12-15; AWS blocks creating new python3.9 functions on 2027-07-29 and updating existing ones on 2027-08-31 (AWS delayed these well beyond the usual 30/60 days). Earlier runtimes such as python3.7 are already blocked for create. The error fires when a deploy targets a runtime past its block date."
     fix_steps:
       - "Change the runtime to a currently supported version. EOLkits' bounded rewrite examples use python3.12; recheck AWS's current table and choose the target your dependencies support."
       - "SAM/CloudFormation: `Runtime: python3.12`. CDK: `runtime: lambda.Runtime.PYTHON_3_12`. Terraform: `runtime = \"python3.12\"`. Serverless: `runtime: python3.12`."
@@ -145,7 +145,7 @@ fixes:
     error: "The runtime parameter of nodejs18.x is no longer supported for creating or updating AWS Lambda functions"
     context: "AWS Lambda"
     summary: "AWS Lambda is blocking create/update operations on a deprecated Node.js runtime."
-    cause: "Per the AWS Lambda runtime deprecation table, nodejs16.x and nodejs18.x are both deprecated (patches stopped) and share the same block dates: AWS blocks creating new functions on 2027-02-01 and updating existing ones on 2027-03-03 (AWS delayed both beyond the usual 30/60 days, in a cluster with nodejs20.x and several Python runtimes). The error fires once a deploy targets a runtime past its block date."
+    cause: "Per the AWS Lambda runtime deprecation table, nodejs16.x and nodejs18.x are both deprecated (patches stopped) and share the same block dates: AWS blocks creating new functions on 2027-07-29 and updating existing ones on 2027-08-31 (AWS delayed both well beyond the usual 30/60 days, in a cluster with nodejs20.x and several Python runtimes). The error fires once a deploy targets a runtime past its block date."
     fix_steps:
       - "Move to a currently supported runtime with adequate runway; EOLkits' current examples target nodejs24.x. Recheck AWS's table before scheduling."
       - "SAM/CloudFormation: `Runtime: nodejs24.x`. CDK: `runtime: lambda.Runtime.NODEJS_24_X`. Terraform: `runtime = \"nodejs24.x\"`. Serverless: `runtime: nodejs24.x`."

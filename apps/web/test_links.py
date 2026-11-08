@@ -311,20 +311,22 @@ def test_node_22_timeline_is_tracked_with_aws_source() -> None:
         encoding="utf-8"
     )
     assert "Lambda Node.js 22 projected create/update restrictions" in page
-    assert "2027-06-01" in page
-    assert "2027-07-01" in page
+    assert "2027-07-29" in page
+    assert "2027-08-31" in page
     assert "docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" in page
 
 
 def test_future_python_runtime_dates_are_labeled_projected() -> None:
-    for slug, runtime in (
-        ("lambda-python-3.10-eol", "Python 3.10"),
-        ("lambda-python-3.11-eol", "Python 3.11"),
-    ):
-        page = (DOCS / "migrate" / slug / "index.html").read_text(encoding="utf-8")
-        assert f"Lambda {runtime} projected create/update restrictions" in page
-        assert "AWS currently projects" in page
-        assert "subject to change" in page
+    page = (DOCS / "migrate" / "lambda-python-3.11-eol" / "index.html").read_text(encoding="utf-8")
+    assert "Lambda Python 3.11 projected create/update restrictions" in page
+    assert "AWS currently projects" in page
+    assert "subject to change" in page
+
+
+def test_past_python_runtime_dates_are_not_labeled_projected() -> None:
+    page = (DOCS / "migrate" / "lambda-python-3.10-eol" / "index.html").read_text(encoding="utf-8")
+    assert "Lambda Python 3.10 create/update restrictions" in page
+    assert "was deprecated by AWS on 2026-10-31" in page
 
 
 def test_generated_text_has_no_trailing_whitespace() -> None:
@@ -575,10 +577,10 @@ def test_browser_runtime_scan_requires_lambda_configuration_context() -> None:
     }
     script = (
         "const DATA={runtimes:{"
-        "'python3.9':{severity:'high',date:'2027-02-01',kit:''},"
-        "'python3.10':{severity:'high',date:'2027-02-01',kit:''},"
-        "'python3.11':{severity:'medium',date:'2027-07-31',kit:''},"
-        "'nodejs20.x':{severity:'high',date:'2027-02-01',kit:''}}};\n"
+        "'python3.9':{severity:'high',date:'2027-07-29',kit:''},"
+        "'python3.10':{severity:'high',date:'2027-07-29',kit:''},"
+        "'python3.11':{severity:'medium',date:'2027-07-29',kit:''},"
+        "'nodejs20.x':{severity:'high',date:'2027-07-29',kit:''}}};\n"
         + scanner_functions
         + "\nconst cases="
         + json.dumps(cases)
