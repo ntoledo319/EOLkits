@@ -44,7 +44,7 @@ File and AWS mutations require `--apply`. The tested rewrite rules are idempoten
 
 ## Why this exists
 
-On **April 30, 2026** AWS stops applying security patches to `nodejs20.x` Lambda functions. AWS delayed the hard block dates into the synchronized Q1-2027 cluster: on **February 1, 2027** you can't create new `nodejs20.x` functions, and on **March 3, 2027** you can't even update code or config on the existing ones — they become frozen until you migrate.
+On **April 30, 2026** AWS stopped applying security patches to `nodejs20.x` Lambda functions. AWS has moved the hard block dates more than once; its table now lists them as: on **July 29, 2027** you can't create new `nodejs20.x` functions, and on **August 31, 2027** you can't even update code or config on the existing ones (except to move them to a supported runtime) — they become frozen until you migrate.
 
 The official AWS Health emails tell you *that* it's happening. This kit helps you
 identify which functions visible to a selected credential profile are affected,

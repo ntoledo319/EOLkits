@@ -12,7 +12,7 @@ tags: aws, python, lambda, serverless
 > Use the [current README](../../../README.md) and
 > [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
 
-AWS Lambda launched the `python3.13` runtime in November 2024 — Amazon Linux 2023, Python 3.13.x, LTS support through October 2029. If you're still on `python3.9` or `python3.10`, the create-block deadline hits **2027-02-01**; `python3.11` create-blocks at **2027-07-31**. Many teams are jumping straight to `python3.13` to bank the longest runway.
+AWS Lambda launched the `python3.13` runtime in November 2024 — Amazon Linux 2023, Python 3.13.x, LTS support through October 2029. If you're still on `python3.9`, `python3.10` or `python3.11`, the create-block deadline hits **2027-07-29**. Many teams are jumping straight to `python3.13` to bank the longest runway.
 
 What bites them isn't the runtime label change. It's **PEP 594** — the "dead batteries" cleanup that deprecated 19 stdlib modules in Python 3.11 (warnings only) and **deleted all of them in Python 3.13**. Cold start, hard crash, `ModuleNotFoundError`. Here are the four that actually appear in Lambda functions and their transitive dependencies.
 
@@ -108,9 +108,9 @@ Better yet, test your handler locally on a Python 3.13 environment before deploy
 
 | Runtime | Deprecated | Create blocked | Update blocked |
 |---|---|---|---|
-| `python3.9` | 2025-12-15 | 2027-02-01 | 2027-03-03 |
-| `python3.10` | 2026-03-31 | 2027-02-01 | 2027-03-03 |
-| `python3.11` | 2027-06-30 | 2027-07-31 | 2027-08-31 |
+| `python3.9` | 2025-12-15 | 2027-07-29 | 2027-08-31 |
+| `python3.10` | 2026-10-31 | 2027-07-29 | 2027-08-31 |
+| `python3.11` | 2027-06-30 | 2027-07-29 | 2027-08-31 |
 | `python3.12` | not yet deprecated | — | — |
 | `python3.13` | not yet deprecated | — | — |
 

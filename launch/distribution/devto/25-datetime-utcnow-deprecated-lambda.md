@@ -98,7 +98,7 @@ A clean run means no remaining `utcnow()` or `utcfromtimestamp()` calls in your 
 
 ## The broader context: python3.12 is the upgrade target
 
-Lambda runtimes `python3.8`, `python3.9`, and `python3.10` are all deprecated and on track for create/update blocks in Q1 2027. The `python3.12` runtime is the recommended migration target — and the `utcnow()` warning is one of the cleanup items that comes with that upgrade, alongside the `distutils`, `imp`, and `asyncore` removals covered in separate guides.
+Lambda runtimes `python3.8`, `python3.9`, and `python3.10` are all deprecated and on track for create/update blocks on Jul 29 / Aug 31, 2027. The `python3.12` runtime is the recommended migration target — and the `utcnow()` warning is one of the cleanup items that comes with that upgrade, alongside the `distutils`, `imp`, and `asyncore` removals covered in separate guides.
 
 Fixing it now is a one-liner per call site and leaves your logs clean for the signals that actually matter.
 
