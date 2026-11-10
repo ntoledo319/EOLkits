@@ -11,8 +11,16 @@ tags: aws, ec2, security, devops
 > readiness-gated paid scope; claims and `eolkits.com` links below may be false or stale.
 > Use the [current README](../../../README.md) and
 > [verified public site](https://ntoledo319.github.io/EOLkits/) instead.
+>
+> **Known false claim:** AWS documents no universal "December 31 2025" IMDSv2
+> enforcement date. Both places are marked **[False]** below. AWS's EC2 guide
+> says an instance accepts IMDSv1 or IMDSv2 by default; IMDSv2 is required only
+> when the account default, account-level enforcement, the launch settings, the
+> AMI or an IAM policy requires it. DEV article 4358088 was posted from this
+> draft and should be unpublished (see `README.md` in this folder). Keep the
+> title as is: tools match the live post by its title.
 
-If your EC2 instance, CI runner, or Kubernetes node started returning credential errors or a bare `401` from `http://169.254.169.254/latest/meta-data/`, one of two things happened: you launched a new instance after December 31 2025 (when AWS flipped the default to IMDSv2-required), or you enforced IMDSv2 on an existing instance before auditing every workload that still used the old one-step token-free request.
+If your EC2 instance, CI runner, or Kubernetes node started returning credential errors or a bare `401` from `http://169.254.169.254/latest/meta-data/`, one of two things happened: you launched a new instance after December 31 2025 (when AWS flipped the default to IMDSv2-required) **[False: AWS documents no such date; see the note at the top.]**, or you enforced IMDSv2 on an existing instance before auditing every workload that still used the old one-step token-free request.
 
 Both produce the same symptoms. Here is how to triage and fix them.
 
@@ -140,7 +148,7 @@ Or set it at node group creation with `--launch-template` pointing to a template
 
 ## The timeline
 
-AWS started shipping new instance types and new accounts with `HttpTokens=required` by default in late 2024. As of December 31 2025 — the enforcement date for the transition — **new EC2 instances default to IMDSv2-required**. Existing instances that were already `optional` remain `optional` until you change them or they are replaced.
+AWS started shipping new instance types and new accounts with `HttpTokens=required` by default in late 2024. As of December 31 2025 — the enforcement date for the transition — **new EC2 instances default to IMDSv2-required**. **[False: AWS documents no such date; see the note at the top.]** Existing instances that were already `optional` remain `optional` until you change them or they are replaced.
 
 The safest path: audit with the query above, set `HttpPutResponseHopLimit=2` for any instance running containers, set `HttpTokens=required`, and redeploy via your launch template so new instances inherit the settings automatically.
 
