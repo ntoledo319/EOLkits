@@ -48,7 +48,8 @@ const UPGRADE_TARGETS = {
   'python3.10': 'python3.12',
   'python3.11': 'python3.12',
   'ruby3.2':    'ruby3.4',
-  'dotnet6':    'dotnet8',
+  // Not dotnet8: AWS deprecates it on Nov 10, 2026 and blocks it on the same dates as dotnet6.
+  'dotnet6':    'dotnet10',
   'java8.al2':  'java21',
   'provided.al2': 'provided.al2023',
 };

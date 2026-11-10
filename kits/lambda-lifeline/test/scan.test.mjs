@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { join, dirname } from 'node:path';
 import { runtimeLifecycle } from '../src/scan/index.mjs';
@@ -69,6 +71,21 @@ test('lifecycle distinguishes supported at-risk runtimes from deprecated ones', 
   assert.equal(runtimeLifecycle('nodejs20.x', observedAt), 'deprecated');
   assert.equal(runtimeLifecycle('nodejs20.x', Date.parse('2027-08-15T00:00:00Z')), 'create-blocked');
   assert.equal(runtimeLifecycle('nodejs20.x', Date.parse('2027-08-31T00:00:00Z')), 'update-blocked');
+});
+
+test('dotnet6 points to dotnet10, not dotnet8 (AWS deprecates dotnet8 on Nov 10, 2026)', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'lifeline-dotnet-'));
+  const fixture = join(dir, 'inventory.json');
+  writeFileSync(fixture, JSON.stringify({ Functions: [{
+    FunctionName: 'billing-dotnet', Runtime: 'dotnet6', Region: 'us-east-1',
+    FunctionArn: 'arn:aws:lambda:us-east-1:111122223333:function:billing-dotnet',
+  }] }));
+  const r = run(['scan', '--fixture', fixture, '--json']);
+  assert.equal(r.status, 0, r.stderr);
+  const [fn] = JSON.parse(r.stdout);
+  assert.equal(fn.runtime, 'dotnet6');
+  assert.equal(fn.recommended_target, 'dotnet10');
+  assert.equal(fn.deprecation_dates.block_update, '2027-08-31');
 });
 
 test('scan --fixture --format csv emits CSV header', () => {
