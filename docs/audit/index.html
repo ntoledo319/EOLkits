@@ -89,10 +89,10 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
   </ul>
 </div>
 
-<div id="auditGate" class="callout"><strong>Checkout safety check:</strong> waiting for the v2 fulfillment backend. Checkout stays closed unless the live API confirms report engine 2.0.</div>
+<div id="auditGate" class="callout"><strong>Checkout status:</strong> The upload form appears here only when the live API confirms checkout is open on report engine 2.0. The form needs JavaScript.</div>
 <div id="auditInterest" class="callout">
   <strong>Found a relevant issue in a real project?</strong>
-  Checkout is paused while fulfillment is verified. If this exact one-repository
+  If checkout is not open when you visit and this exact one-repository
   report would be worth $299 to you, record a public, no-obligation demand signal.
   It is not an order, reservation, waitlist, or promise of a reply.
   <p><a class="cta secondary" href="https://github.com/ntoledo319/EOLkits/issues/new?template=audit-interest.yml" target="_blank" rel="noopener">Record qualified $299 interest on GitHub</a></p>
@@ -173,16 +173,29 @@ const auditInterest = document.getElementById('auditInterest');
 // not alter price.
 if (qp.get('deadline') && deadlineInput) deadlineInput.value = qp.get('deadline');
 if (qp.get('cancelled')) auditStatus.textContent = 'Checkout cancelled — finish whenever you are ready.';
+// The page says "paused" only when the API says checkout_enabled is false. A
+// network failure or an unexpected answer says nothing about checkout state, so
+// the page then claims neither "open" nor "paused" and offers a reload.
+auditGate.textContent = 'Checking checkout status…';
+function auditGateUnconfirmed() {
+  auditGate.textContent = 'Checkout status could not be confirmed just now. ';
+  const retry = document.createElement('a');
+  retry.href = location.href.split('#')[0];
+  retry.textContent = 'Reload this page';
+  auditGate.append(retry, ' to try again.');
+}
 fetch(API + '/api/capabilities', { cache: 'no-store', credentials: 'omit' }).then(r => r.ok ? r.json() : Promise.reject()).then(c => {
   const a = c && c.audit;
   if (a && a.checkout_enabled === true && String(a.report_version) === '2.0') {
     auditForm.hidden = false;
     auditGate.hidden = true;
     auditInterest.hidden = true;
+  } else if (a && a.checkout_enabled === false) {
+    auditGate.textContent = 'Audit checkout is paused right now.';
   } else {
-    auditGate.textContent = 'Audit checkout is temporarily paused while fulfillment is verified.';
+    auditGateUnconfirmed();
   }
-}).catch(() => { auditGate.textContent = 'Audit checkout is temporarily paused while fulfillment is verified.'; });
+}).catch(auditGateUnconfirmed);
 auditForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const file = document.getElementById('auditFile').files[0];
