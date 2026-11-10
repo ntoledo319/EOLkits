@@ -6,7 +6,7 @@ Targets and answers are stale and require fresh manual policy and fact review.
 
 Drafted + accuracy/uniqueness/TOS-vetted 2026-07-15. Same rules as batch 1: post from your own re:Post account, one
 unique answer per thread, help-first (the eolkits link is a single disclosed footnote). All dates match the AWS
-runtime table; all links are live (`/scan/`, `/fix/`, `/lambda-runtime-deprecation-schedule/`).
+runtime table (block dates re-checked and corrected 2026-11-10); all links are live (`/scan/`, `/fix/`, `/lambda-runtime-deprecation-schedule/`).
 
 ---
 
@@ -29,7 +29,7 @@ Post at: https://repost.aws/questions/QUyHgVGQcUQyWa1bOcW7p4sQ/assistance-with-a
 >
 > Lambda@Edge adds constraints: deploy from us-east-1, no environment variables, and replicas take a few minutes to propagate.
 >
-> AWS currently lists block-create 2027-02-01 / block-update 2027-03-03, but they've revised these before — confirm on the live table: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+> AWS currently lists block-create 2027-07-29 / block-update 2027-08-31, but they've revised these before — confirm on the live table: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 >
 > To catch every deprecated runtime across your account, I maintain a free browser scanner (disclosure: mine, MIT, nothing uploaded): https://eolkits.com/scan/
 
@@ -37,7 +37,7 @@ Post at: https://repost.aws/questions/QUyHgVGQcUQyWa1bOcW7p4sQ/assistance-with-a
 
 Post at: https://repost.aws/questions/QUknkybQOKQ_K8Q5iN7Ff17Q/system-manager-state-manager-aws-lambda-end-of-support-for-python-3-9
 
-> The notice is real: `python3.9` reached deprecation on 2025-12-15, so the runtime no longer gets security patches even though your association keeps invoking it. Per the AWS runtimes table, create is blocked 2027-02-01 and update 2027-03-03 (AWS has revised these before, so check the table for the live date) — but the actionable point is it's already unpatched, so move now. Target `python3.12`.
+> The notice is real: `python3.9` reached deprecation on 2025-12-15, so the runtime no longer gets security patches even though your association keeps invoking it. Per the AWS runtimes table, create is blocked 2027-07-29 and update 2027-08-31 (AWS has revised these before, so check the table for the live date) — but the actionable point is it's already unpatched, so move now. Target `python3.12`.
 >
 > Find every affected function across regions:
 >
@@ -113,7 +113,7 @@ Post at: https://repost.aws/questions/QUiPjbDGqbQhGxFz5diAcEDg/scaling-python-3-
 >
 > **Rollout:** publish a new version, shift an alias 5–10% via weighted routing, gate on a CloudWatch alarm for Errors + init duration, then promote. Update the runtime string in your Copilot/CDK/SAM IaC too, or the next deploy reverts it.
 >
-> For inventory, list every function's runtime across accounts/regions before you touch anything — both python3.8 and python3.9 are already deprecated and running unpatched (block-update lands 2027-03-03 per the [AWS runtimes table](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html); AWS has revised these dates before, so check it for the live one — but unpatched is reason enough to move now).
+> For inventory, list every function's runtime across accounts/regions before you touch anything — both python3.8 and python3.9 are already deprecated and running unpatched (block-update lands 2027-08-31 per the [AWS runtimes table](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html); AWS has revised these dates before, so check it for the live one — but unpatched is reason enough to move now).
 >
 > For that inventory step there's a free client-side scanner I wrote that surfaces at-risk runtimes and the import-time breakages in one pass (disclosure: it's mine, MIT, nothing uploaded): https://eolkits.com/scan/ — and the full schedule is at https://eolkits.com/lambda-runtime-deprecation-schedule/ .
 

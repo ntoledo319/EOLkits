@@ -22,10 +22,10 @@ Two calendar cutoffs cover almost every "nothing changed but it broke" report on
 
 **Lambda runtime blocks.** AWS enforces these on the account, not on your deploy history — the API call itself gets rejected once the date passes, independent of when you last touched the function. As of today, `nodejs16.x`, `nodejs18.x`, `nodejs20.x`, `python3.8`, `python3.9`, and `python3.10` all share the same two dates:
 
-- **Block function *create*: Feb 1, 2027** — `CreateFunction` (or a Terraform/CDK/SAM deploy that provisions a *new* function or alias) on one of these runtimes is rejected outright after this date.
-- **Block function *update*: Mar 3, 2027** — after this, `UpdateFunctionCode`/`UpdateFunctionConfiguration` on an *existing* function using one of these runtimes is rejected too. The function keeps running and keeps invoking; you just can't ship a change to it anymore.
+- **Block function *create*: Jul 29, 2027** — `CreateFunction` (or a Terraform/CDK/SAM deploy that provisions a *new* function or alias) on one of these runtimes is rejected outright after this date.
+- **Block function *update*: Aug 31, 2027** — after this, `UpdateFunctionCode`/`UpdateFunctionConfiguration` on an *existing* function using one of these runtimes is rejected too. The function keeps running and keeps invoking; you just can't ship a change to it anymore.
 
-(`python3.11` is on a later cluster: block-create Jul 31 2027, block-update Aug 31 2027 — don't assume every runtime lines up with the Q1-2027 dates above.)
+(`python3.11` and `nodejs22.x` are not deprecated yet, but AWS already lists the same block dates for them, after deprecations on Jun 30 and Apr 30, 2027. AWS has moved these dates before, so check the table.)
 
 If your error is coming back from the Lambda control plane itself — not from inside your code, not from a cold start — rather than a runtime crash, this is almost certainly it. Check the runtime string on the function the deploy touched.
 

@@ -52,7 +52,7 @@ instructions or evidence of present availability.
 ## 2 — AWS re:Post: "AWS Lambda Python runtime 3.9 EoL"
 **Archived research target:** https://repost.aws/questions/QUwvZZcO78S2iFe9UF6rK4nw/aws-lambda-python-runtime-3-9-eol
 
-> Worth clearing up the dates first, because they've moved and most blog posts are stale: `python3.9` was **deprecated on 2025-12-15** (no more security patches). AWS originally set the create/update block dates for early 2026, then **delayed them** — per the current [AWS Lambda runtime deprecation table](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html) the block-create date is **2027-02-01** and block-update is **2027-03-03**. Since AWS has moved these before, treat that table as the source of truth — but either way it's already unpatched, so migrate now.
+> Worth clearing up the dates first, because they've moved and most blog posts are stale: `python3.9` was **deprecated on 2025-12-15** (no more security patches). AWS originally set the create/update block dates for early 2026, then **delayed them** — per the current [AWS Lambda runtime deprecation table](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html) the block-create date is **2027-07-29** and block-update is **2027-08-31**. Since AWS has moved these before, treat that table as the source of truth — but either way it's already unpatched, so migrate now.
 >
 > Target is **python3.12** (3.13 is available). The breakages that actually bite on 3.9 → 3.12:
 > - `distutils` and `imp` are **removed** (`ModuleNotFoundError`) — use `setuptools` / `importlib`.
@@ -121,7 +121,7 @@ Archived research target: https://repost.aws/questions/QUz3FDy7jfQliBFrh_hKZoaQ/
 >
 > On the runtime itself: `nodejs18.x` stopped receiving security patches on 2025-09-01. Per the current AWS
 > runtimes table, block-create and block-update for this cluster (nodejs16.x/18.x/20.x plus python3.8/3.9)
-> now land 2027-02-01 and 2027-03-03 — but AWS has pushed these dates back more than once already, so treat
+> now land 2027-07-29 and 2027-08-31 — but AWS has pushed these dates back more than once already, so treat
 > the live table as the source of truth, not this comment.
 >
 > If it's useful for auditing every function across regions in one pass (not just what Health Dashboard
@@ -209,7 +209,7 @@ Archived research target: https://repost.aws/questions/QUowJJh-50R3KbxGrZ2YNsCA/
 >    https://docs.aws.amazon.com/lambda/latest/dg/runtime-management.html
 >
 > Worth noting separately: `python3.9` itself is already past Lambda's own deprecation timeline (deprecated
-> 2025-12-15; per the current runtimes table, block-create is 2027-02-01 and block-update is 2027-03-03 for
+> 2025-12-15; per the current runtimes table, block-create is 2027-07-29 and block-update is 2027-08-31 for
 > this runtime cluster — AWS has revised these dates before, so treat the live table as the source of
 > truth, not this comment: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html). Since any
 > native dependency will need the same rebuild-for-target-glibc treatment on 3.11/3.12/3.13 anyway, it's
@@ -254,8 +254,8 @@ Archived research target: https://repost.aws/questions/QURnP8vskJREG40Ilrwx_RLQ/
 >
 > **2. Don't stop at `nodejs20.x`.** As of AWS's current runtimes table, `nodejs20.x` is now in the *same*
 > deprecation cluster as `nodejs16.x`/`nodejs18.x` (along with `python3.8`/`python3.9`): Lambda blocks
-> **creating** new functions on it starting **2027-02-01** and blocks **updating** existing functions on it
-> starting **2027-03-03**. (AWS has revised these dates before — the live table is the source of truth, not
+> **creating** new functions on it starting **2027-07-29** and blocks **updating** existing functions on it
+> starting **2027-08-31**. (AWS has revised these dates before — the live table is the source of truth, not
 > this comment, and definitely not the various 2026 dates still floating around some blog posts and even
 > older re:Post threads: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html.) Since you're
 > already touching this code to fix the login break, it's usually less total rework to go straight to
@@ -299,7 +299,7 @@ Archived research target: https://repost.aws/questions/QUVhoUXEhDSBGXtsiU8xCpIA/
 >
 > **Don't stop at `nodejs20.x` just because that's what AWS's error message suggests.** Per the current AWS
 > Lambda runtimes table, `nodejs20.x` is already in the same 2027 deprecation cluster as `nodejs16.x`/
-> `nodejs18.x` (plus `python3.8`/`python3.9`): block-create **2027-02-01**, block-update **2027-03-03** (AWS
+> `nodejs18.x` (plus `python3.8`/`python3.9`): block-create **2027-07-29**, block-update **2027-08-31** (AWS
 > has revised these dates before, so the live table is the source of truth, not this comment or AWS's own
 > error-message default — check it: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html). Since
 > you're already doing the override work to get off `nodejs14.x`, it's less total rework to target
