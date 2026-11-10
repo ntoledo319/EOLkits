@@ -1,6 +1,7 @@
 """Lambda Python runtime lifecycle table. Primary source: AWS Lambda runtimes docs.
 
-Dates reflect published AWS Lambda runtime deprecation schedule.
+Every Python row of https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+(supported and deprecated tables), re-read 2026-11-10. None = AWS says "Not scheduled".
 """
 
 from __future__ import annotations
@@ -21,12 +22,26 @@ class RuntimeInfo:
 
 
 RUNTIME_TABLE: Dict[str, RuntimeInfo] = {
+    "python2.7": RuntimeInfo(
+        "python2.7",
+        "2.7",
+        deprecation_phase1=date(2021, 7, 15),
+        block_create=date(2021, 7, 15),
+        block_update=date(2022, 5, 30),
+    ),
+    "python3.6": RuntimeInfo(
+        "python3.6",
+        "3.6",
+        deprecation_phase1=date(2022, 7, 18),
+        block_create=date(2022, 7, 18),
+        block_update=date(2022, 8, 29),
+    ),
     "python3.7": RuntimeInfo(
         "python3.7",
         "3.7",
-        deprecation_phase1=date(2023, 11, 27),
-        block_create=date(2023, 12, 28),
-        block_update=date(2024, 1, 29),
+        deprecation_phase1=date(2023, 12, 4),
+        block_create=date(2024, 1, 9),
+        block_update=date(2027, 8, 31),
     ),
     "python3.8": RuntimeInfo(
         "python3.8",
@@ -59,18 +74,34 @@ RUNTIME_TABLE: Dict[str, RuntimeInfo] = {
     "python3.12": RuntimeInfo(
         "python3.12",
         "3.12",
-        deprecation_phase1=None,
-        block_create=None,
-        block_update=None,
+        deprecation_phase1=date(2028, 10, 31),
+        block_create=date(2028, 11, 30),
+        block_update=date(2029, 1, 10),
         recommended_target="python3.12",
     ),
     "python3.13": RuntimeInfo(
         "python3.13",
         "3.13",
+        deprecation_phase1=date(2029, 6, 30),
+        block_create=date(2029, 7, 31),
+        block_update=date(2029, 8, 31),
+        recommended_target="python3.13",
+    ),
+    "python3.14": RuntimeInfo(
+        "python3.14",
+        "3.14",
+        deprecation_phase1=date(2029, 6, 30),
+        block_create=date(2029, 7, 31),
+        block_update=date(2029, 8, 31),
+        recommended_target="python3.14",
+    ),
+    "python3.15": RuntimeInfo(
+        "python3.15",
+        "3.15",
         deprecation_phase1=None,
         block_create=None,
         block_update=None,
-        recommended_target="python3.13",
+        recommended_target="python3.15",
     ),
 }
 
