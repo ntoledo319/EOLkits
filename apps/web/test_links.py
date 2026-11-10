@@ -16,6 +16,12 @@ import build
 
 DOCS = Path(__file__).resolve().parents[2] / "docs"
 ROOT = DOCS.parent
+# The eolkits.com /audit/ gate sentence from marketing-machine-v2. The workflows
+# accept it or the older one, so either build passes the live checks.
+AUDIT_GATE_SENTENCE = (
+    "The upload form appears here only when the live API confirms checkout is open on "
+    "report engine 2.0."
+)
 
 
 class _Links(HTMLParser):
@@ -121,6 +127,7 @@ def test_indexnow_submission_is_scoped_to_both_verified_hosts() -> None:
     assert '"$site_base/sitemap.xml"' in workflow
     assert "repository evidence report is the only paid product" in workflow
     assert "Checkout stays closed unless the live API confirms report engine 2.0." in workflow
+    assert AUDIT_GATE_SENTENCE in workflow
     assert "Refusing to notify search engines about retired commercial copy" in workflow
     assert "Refusing to notify search engines while an external script is injected" in workflow
 
@@ -130,6 +137,8 @@ def test_indexnow_submission_is_scoped_to_both_verified_hosts() -> None:
     assert 'http-equiv="Content-Security-Policy"' in grace_verifier
     assert "script-src 'self' 'unsafe-inline'" in grace_verifier
     assert "An unreviewed cross-origin script is injected" in grace_verifier
+    assert "Checkout stays closed unless the live API confirms report engine 2.0." in grace_verifier
+    assert AUDIT_GATE_SENTENCE in grace_verifier
 
 
 def test_project_pages_links_receive_the_repository_prefix(monkeypatch) -> None:
