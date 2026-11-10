@@ -90,7 +90,8 @@ def test_eol_delta_labels_past_and_future_dates():
 
 
 def test_runtime_block_dates_match_the_cited_aws_schedule():
-    for runtime in ("python3.8", "python3.9", "python3.10"):
-        assert runtimes.RUNTIME_TABLE[runtime].block_create == date(2027, 2, 1)
-        assert runtimes.RUNTIME_TABLE[runtime].block_update == date(2027, 3, 3)
-    assert runtimes.RUNTIME_TABLE["python3.11"].block_create == date(2027, 7, 31)
+    # Re-read from https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+    # on 2026-11-08: AWS moved the block windows to the Q3-2027 cluster.
+    for runtime in ("python3.8", "python3.9", "python3.10", "python3.11"):
+        assert runtimes.RUNTIME_TABLE[runtime].block_create == date(2027, 7, 29)
+        assert runtimes.RUNTIME_TABLE[runtime].block_update == date(2027, 8, 31)

@@ -6,12 +6,12 @@
 
 | Runtime | Phase 1 — patches stop | Phase 2 — block create | Phase 3 — block update (hard) |
 |---|---|---|---|
-| `nodejs16.x` | Jun 12, 2024 ✗ past | Feb 1, 2027 | **Mar 3, 2027** |
-| `nodejs18.x` | Sep 1, 2025 ✗ past  | Feb 1, 2027 | **Mar 3, 2027** |
-| `nodejs20.x` | **Apr 30, 2026**    | Feb 1, 2027 | **Mar 3, 2027** |
-| `nodejs22.x` | Apr 30, 2027 (projected) | Jun 1, 2027 | **Jul 1, 2027** |
+| `nodejs16.x` | Jun 12, 2024 ✗ past | Jul 29, 2027 | **Aug 31, 2027** |
+| `nodejs18.x` | Sep 1, 2025 ✗ past  | Jul 29, 2027 | **Aug 31, 2027** |
+| `nodejs20.x` | **Apr 30, 2026**    | Jul 29, 2027 | **Aug 31, 2027** |
+| `nodejs22.x` | Apr 30, 2027 (projected) | Jul 29, 2027 | **Aug 31, 2027** |
 
-AWS marks future runtime dates as subject to change. Recheck the linked table before scheduling a production migration.
+Dates re-read from AWS's table on 2026-11-08 (AWS revised the block windows from the earlier Q1-2027 cluster to this Q3-2027 cluster). AWS marks future runtime dates as subject to change. Recheck the linked table before scheduling a production migration.
 
 Machine-readable scan output separates `at_risk` (a tracked runtime with a
 published or projected migration timeline), `lifecycle` (`supported`,

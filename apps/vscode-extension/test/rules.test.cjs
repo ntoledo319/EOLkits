@@ -15,7 +15,7 @@ assert.equal(json[0].code, 'LAMBDA_NODE20_EOL');
 assert.equal(scanStructuredText('{"Runtime":"nodejs22.x"}')[0].severity, 'medium');
 assert.equal(scanStructuredText('{"Runtime":"nodejs16.x"}')[0].code, 'LAMBDA_NODE16_EOL');
 assert.equal(scanStructuredText('{"Runtime":"python3.8"}')[0].code, 'LAMBDA_PYTHON38_EOL');
-assert.match(scanStructuredText('{"Runtime":"python3.10"}')[0].message, /projected/);
+assert.match(scanStructuredText('{"Runtime":"python3.10"}')[0].message, /was deprecated by AWS Lambda on 2026-10-31/);
 assert.equal(scanStructuredText('{"runtime":"nodejs20.x"}').length, 0);
 
 const yaml = scanStructuredText('Runtime: python3.10\nImageId: amazonlinux2-ami\n');
