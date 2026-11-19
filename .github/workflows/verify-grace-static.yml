@@ -36,7 +36,13 @@ jobs:
           grep -Fq 'Drift Watch is unavailable' <<<"$drift"
           grep -Fq 'No checkout · no subscription · no waitlist' <<<"$drift"
           grep -Fq '<form id="auditForm" hidden>' <<<"$audit"
-          grep -Fq 'Checkout stays closed unless the live API confirms report engine 2.0.' <<<"$audit"
+          # The upload form must stay hidden unless the live API opens it. The older
+          # gate sentence is accepted until every host serves the new build.
+          if ! grep -Fq 'The upload form appears here only when the live API confirms checkout is open on report engine 2.0.' <<<"$audit" \
+            && ! grep -Fq 'Checkout stays closed unless the live API confirms report engine 2.0.' <<<"$audit"; then
+            echo '::error::The audit page is missing its fail-closed checkout gate'
+            exit 1
+          fi
           for page in "$home" "$audit" "$pack" "$drift"; do
             if ! grep -Fq 'http-equiv="Content-Security-Policy"' <<<"$page" \
               || ! grep -Fq "script-src 'self' 'unsafe-inline'" <<<"$page" \

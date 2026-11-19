@@ -16,6 +16,12 @@ import build
 
 DOCS = Path(__file__).resolve().parents[2] / "docs"
 ROOT = DOCS.parent
+# The eolkits.com /audit/ gate sentence from marketing-machine-v2. The workflows
+# accept it or the older one, so either build passes the live checks.
+AUDIT_GATE_SENTENCE = (
+    "The upload form appears here only when the live API confirms checkout is open on "
+    "report engine 2.0."
+)
 
 
 class _Links(HTMLParser):
@@ -121,6 +127,7 @@ def test_indexnow_submission_is_scoped_to_both_verified_hosts() -> None:
     assert '"$site_base/sitemap.xml"' in workflow
     assert "repository evidence report is the only paid product" in workflow
     assert "Checkout stays closed unless the live API confirms report engine 2.0." in workflow
+    assert AUDIT_GATE_SENTENCE in workflow
     assert "Refusing to notify search engines about retired commercial copy" in workflow
     assert "Refusing to notify search engines while an external script is injected" in workflow
 
@@ -130,6 +137,8 @@ def test_indexnow_submission_is_scoped_to_both_verified_hosts() -> None:
     assert 'http-equiv="Content-Security-Policy"' in grace_verifier
     assert "script-src 'self' 'unsafe-inline'" in grace_verifier
     assert "An unreviewed cross-origin script is injected" in grace_verifier
+    assert "Checkout stays closed unless the live API confirms report engine 2.0." in grace_verifier
+    assert AUDIT_GATE_SENTENCE in grace_verifier
 
 
 def test_project_pages_links_receive_the_repository_prefix(monkeypatch) -> None:
@@ -285,20 +294,22 @@ def test_node_22_timeline_is_tracked_with_aws_source() -> None:
         encoding="utf-8"
     )
     assert "Lambda Node.js 22 projected create/update restrictions" in page
-    assert "2027-06-01" in page
-    assert "2027-07-01" in page
+    assert "2027-07-29" in page
+    assert "2027-08-31" in page
     assert "docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" in page
 
 
 def test_future_python_runtime_dates_are_labeled_projected() -> None:
-    for slug, runtime in (
-        ("lambda-python-3.10-eol", "Python 3.10"),
-        ("lambda-python-3.11-eol", "Python 3.11"),
-    ):
-        page = (DOCS / "migrate" / slug / "index.html").read_text(encoding="utf-8")
-        assert f"Lambda {runtime} projected create/update restrictions" in page
-        assert "AWS currently projects" in page
-        assert "subject to change" in page
+    page = (DOCS / "migrate" / "lambda-python-3.11-eol" / "index.html").read_text(encoding="utf-8")
+    assert "Lambda Python 3.11 projected create/update restrictions" in page
+    assert "AWS currently projects" in page
+    assert "subject to change" in page
+
+
+def test_past_python_runtime_dates_are_not_labeled_projected() -> None:
+    page = (DOCS / "migrate" / "lambda-python-3.10-eol" / "index.html").read_text(encoding="utf-8")
+    assert "Lambda Python 3.10 create/update restrictions" in page
+    assert "was deprecated by AWS on 2026-10-31" in page
 
 
 def test_generated_text_has_no_trailing_whitespace() -> None:
@@ -549,10 +560,10 @@ def test_browser_runtime_scan_requires_lambda_configuration_context() -> None:
     }
     script = (
         "const DATA={runtimes:{"
-        "'python3.9':{severity:'high',date:'2027-02-01',kit:''},"
-        "'python3.10':{severity:'high',date:'2027-02-01',kit:''},"
-        "'python3.11':{severity:'medium',date:'2027-07-31',kit:''},"
-        "'nodejs20.x':{severity:'high',date:'2027-02-01',kit:''}}};\n"
+        "'python3.9':{severity:'high',date:'2027-07-29',kit:''},"
+        "'python3.10':{severity:'high',date:'2027-07-29',kit:''},"
+        "'python3.11':{severity:'medium',date:'2027-07-29',kit:''},"
+        "'nodejs20.x':{severity:'high',date:'2027-07-29',kit:''}}};\n"
         + scanner_functions
         + "\nconst cases="
         + json.dumps(cases)

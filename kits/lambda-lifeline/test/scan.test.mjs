@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { join, dirname } from 'node:path';
 import { runtimeLifecycle } from '../src/scan/index.mjs';
@@ -36,7 +38,7 @@ test('scan --fixture --json emits well-formed JSON', () => {
   assert.equal(etl.eol, true);
   assert.notEqual(etl.lifecycle, 'supported');
   assert.equal(etl.recommended_target, 'python3.12');
-  assert.equal(etl.deprecation_dates.block_update, '2027-03-03');
+  assert.equal(etl.deprecation_dates.block_update, '2027-08-31');
   const mlInfer = data.find(d => d.function_name === 'ml-inference-endpoint');
   assert.equal(mlInfer.runtime, 'python3.11');
   assert.equal(mlInfer.eol, false);
@@ -49,7 +51,7 @@ test('scan --fixture --json emits well-formed JSON', () => {
   assert.equal(orders.runtime, 'nodejs20.x');
   assert.equal(orders.recommended_target, 'nodejs24.x');
   // Well-formed JSON check: the countdown field must be a finite number, not a magic
-  // magnitude (block_update = 2027-03-03, so a hardcoded threshold silently rots as time passes).
+  // magnitude (block_update = 2027-08-31, so a hardcoded threshold silently rots as time passes).
   assert.equal(typeof orders.days_until_block_update, 'number');
   assert.ok(Number.isFinite(orders.days_until_block_update));
   const current = data.find(d => d.function_name === 'events-api-current');
@@ -67,8 +69,23 @@ test('lifecycle distinguishes supported at-risk runtimes from deprecated ones', 
   assert.equal(runtimeLifecycle('provided.al2', observedAt), 'deprecated');
   assert.equal(runtimeLifecycle('nodejs24.x', observedAt), 'supported');
   assert.equal(runtimeLifecycle('nodejs20.x', observedAt), 'deprecated');
-  assert.equal(runtimeLifecycle('nodejs20.x', Date.parse('2027-02-15T00:00:00Z')), 'create-blocked');
-  assert.equal(runtimeLifecycle('nodejs20.x', Date.parse('2027-03-03T00:00:00Z')), 'update-blocked');
+  assert.equal(runtimeLifecycle('nodejs20.x', Date.parse('2027-08-15T00:00:00Z')), 'create-blocked');
+  assert.equal(runtimeLifecycle('nodejs20.x', Date.parse('2027-08-31T00:00:00Z')), 'update-blocked');
+});
+
+test('dotnet6 points to dotnet10, not dotnet8 (AWS deprecates dotnet8 on Nov 10, 2026)', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'lifeline-dotnet-'));
+  const fixture = join(dir, 'inventory.json');
+  writeFileSync(fixture, JSON.stringify({ Functions: [{
+    FunctionName: 'billing-dotnet', Runtime: 'dotnet6', Region: 'us-east-1',
+    FunctionArn: 'arn:aws:lambda:us-east-1:111122223333:function:billing-dotnet',
+  }] }));
+  const r = run(['scan', '--fixture', fixture, '--json']);
+  assert.equal(r.status, 0, r.stderr);
+  const [fn] = JSON.parse(r.stdout);
+  assert.equal(fn.runtime, 'dotnet6');
+  assert.equal(fn.recommended_target, 'dotnet10');
+  assert.equal(fn.deprecation_dates.block_update, '2027-08-31');
 });
 
 test('scan --fixture --format csv emits CSV header', () => {

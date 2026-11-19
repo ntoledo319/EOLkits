@@ -6,6 +6,9 @@
 > cluster: Feb 1, 2027 (block-create) / Mar 3, 2027 (block-update)**, confirmed against the AWS Lambda
 > runtimes table (see `rules/public/deprecations.yml`, the repo's live source of truth). This file is
 > kept as a historical research snapshot — do not cite its Phase 2/3 dates for any current claim.
+>
+> **Correction (2026-11-10):** AWS moved the cluster again. Its table now lists **Jul 29, 2027
+> (block-create) / Aug 31, 2027 (block-update)**. `rules/public/deprecations.yml` carries the current dates.
 
 **Scan date:** 2026-04-28
 **Deadline window:** 2026-05-05 → 2026-07-27 (adjusted to include phased deprecations with hard blocks in window)

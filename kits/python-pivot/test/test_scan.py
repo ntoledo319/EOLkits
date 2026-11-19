@@ -28,15 +28,27 @@ def test_loads_all_six():
     assert len(findings) == 6
 
 
-def test_identifies_eol_runtimes():
+class _Nov10(date):
+    """Freeze "today" so day counts in these assertions do not drift."""
+
+    @classmethod
+    def today(cls):
+        return cls(2026, 11, 10)
+
+
+def test_identifies_eol_runtimes(monkeypatch):
+    monkeypatch.setattr(runtimes, "date", _Nov10)
     findings = scan.scan_fixture(str(FIXTURE))
     by_rt = {f.runtime: f for f in findings}
-    # 3.7 is long past EOL
+    # 3.7 is long past EOL (AWS: deprecated 2023-12-04)
     assert by_rt["python3.7"].severity == "critical-eol"
+    assert by_rt["python3.7"].days_to_eol == -1072
     # 3.8 is past EOL
     assert by_rt["python3.8"].severity == "critical-eol"
-    # 3.12 is the target — ok
-    assert by_rt["python3.12"].severity == "ok"
+    # 3.12 is the target. AWS deprecates it on 2028-10-31: "low", not flagged for migration.
+    assert by_rt["python3.12"].severity == "low"
+    assert by_rt["python3.12"].days_to_eol == 721
+    assert not runtimes.is_eol_or_soon("python3.12")
 
 
 def test_run_table_format(capsys):
@@ -89,8 +101,38 @@ def test_eol_delta_labels_past_and_future_dates():
     assert scan.eol_delta(70) == "in 70d"
 
 
-def test_runtime_block_dates_match_the_cited_aws_schedule():
-    for runtime in ("python3.8", "python3.9", "python3.10"):
-        assert runtimes.RUNTIME_TABLE[runtime].block_create == date(2027, 2, 1)
-        assert runtimes.RUNTIME_TABLE[runtime].block_update == date(2027, 3, 3)
-    assert runtimes.RUNTIME_TABLE["python3.11"].block_create == date(2027, 7, 31)
+# Every Python row of https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html,
+# re-read 2026-11-10: (deprecation, block function create, block function update).
+# None = "Not scheduled".
+AWS_PYTHON_ROWS = {
+    "python3.15": (None, None, None),
+    "python3.14": (date(2029, 6, 30), date(2029, 7, 31), date(2029, 8, 31)),
+    "python3.13": (date(2029, 6, 30), date(2029, 7, 31), date(2029, 8, 31)),
+    "python3.12": (date(2028, 10, 31), date(2028, 11, 30), date(2029, 1, 10)),
+    "python3.11": (date(2027, 6, 30), date(2027, 7, 29), date(2027, 8, 31)),
+    "python3.10": (date(2026, 10, 31), date(2027, 7, 29), date(2027, 8, 31)),
+    "python3.9": (date(2025, 12, 15), date(2027, 7, 29), date(2027, 8, 31)),
+    "python3.8": (date(2024, 10, 14), date(2027, 7, 29), date(2027, 8, 31)),
+    "python3.7": (date(2023, 12, 4), date(2024, 1, 9), date(2027, 8, 31)),
+    "python3.6": (date(2022, 7, 18), date(2022, 7, 18), date(2022, 8, 29)),
+    "python2.7": (date(2021, 7, 15), date(2021, 7, 15), date(2022, 5, 30)),
+}
+
+
+def test_every_python_row_matches_the_aws_runtimes_table():
+    assert set(runtimes.RUNTIME_TABLE) == set(AWS_PYTHON_ROWS)
+    for runtime, expected in AWS_PYTHON_ROWS.items():
+        info = runtimes.RUNTIME_TABLE[runtime]
+        got = (info.deprecation_phase1, info.block_create, info.block_update)
+        assert got == expected, runtime
+
+
+def test_newer_runtimes_are_never_told_to_move_back_to_312():
+    for runtime in ("python3.13", "python3.14", "python3.15"):
+        assert runtimes.RUNTIME_TABLE[runtime].recommended_target == runtime
+
+
+def test_retired_runtimes_are_flagged_not_ok():
+    for runtime in ("python2.7", "python3.6"):
+        assert runtimes.severity_for(runtime) == "critical-eol"
+        assert runtimes.is_eol_or_soon(runtime)

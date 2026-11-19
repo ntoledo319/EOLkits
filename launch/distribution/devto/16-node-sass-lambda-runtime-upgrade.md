@@ -112,12 +112,12 @@ Because `sass` is pure JS, this is less critical than before — but it's still 
 
 | Runtime | Node.js | Last node-sass prebuild | Phase 2 (create-block) |
 |---|---|---|---|
-| `nodejs16.x` | 16 | ✓ v9.0.0 | Blocked |
-| `nodejs18.x` | 18 | ✗ archived | Blocked |
-| `nodejs20.x` | 20 | ✗ archived | ~late 2026 |
-| `nodejs22.x` | 22 | ✗ archived | — |
+| `nodejs16.x` | 16 | ✓ v9.0.0 | Jul 29, 2027 |
+| `nodejs18.x` | 18 | ✗ archived | Jul 29, 2027 |
+| `nodejs20.x` | 20 | ✗ archived | Jul 29, 2027 |
+| `nodejs22.x` | 22 | ✗ archived | Jul 29, 2027 (deprecates Apr 30, 2027) |
 
-AWS blocks creating new functions on deprecated runtimes first, then blocks updating existing ones. `nodejs16.x` is already fully blocked. Teams migrating away from it are hitting this node-sass wall now.
+AWS blocks creating new functions on deprecated runtimes first, then blocks updating existing ones. `nodejs16.x` is long deprecated (Jun 12, 2024) and blocks on the same dates as 18 and 20: create on Jul 29, 2027, update on Aug 31, 2027. Teams migrating away from it are hitting this node-sass wall now.
 
 ---
 

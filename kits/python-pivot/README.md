@@ -61,15 +61,18 @@ $ python-pivot scan --fixture test/fixtures/lambda-inventory.json
 
 FUNCTION           RUNTIME     REGION     SEVERITY      EOL DELTA    TARGET
 ---------------------------------------------------------------------------
-payment-webhook    python3.9   us-east-1  critical-eol     250d ago  python3.12
-analytics-daily    python3.8   us-east-1  critical-eol     677d ago  python3.12
-image-resize       python3.10  us-east-2  high               in 70d  python3.12
-slack-notify       python3.11  us-east-1  low               in 312d  python3.12
-order-fulfillment  python3.12  us-east-1  ok                      —  python3.12
-legacy-etl         python3.7   eu-west-1  critical-eol     999d ago  python3.12
+payment-webhook    python3.9   us-east-1  critical-eol     330d ago  python3.12
+analytics-daily    python3.8   us-east-1  critical-eol     757d ago  python3.12
+image-resize       python3.10  us-east-2  critical-eol      10d ago  python3.12
+slack-notify       python3.11  us-east-1  low               in 232d  python3.12
+order-fulfillment  python3.12  us-east-1  low               in 721d  python3.12
+legacy-etl         python3.7   eu-west-1  critical-eol    1072d ago  python3.12
 
-⚠ python3.9 reached EOL 250 day(s) ago. Next: `python-pivot codemod`
+⚠ python3.9 reached EOL 330 day(s) ago. Next: `python-pivot codemod`
 ```
+
+Output from Nov 10, 2026. The day counts change every day. EOL DELTA counts to AWS's deprecation date
+(end of patches); AWS blocks new python3.8-3.11 functions on Jul 29, 2027 and updates on Aug 31, 2027.
 
 Add `--strict` for CI, `--format json|csv|md`, `--regions us-east-1,eu-west-1` for multi-region live scans.
 
