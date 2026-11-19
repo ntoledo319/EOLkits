@@ -6,63 +6,59 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Privacy Policy — EOLkits</title>
-<meta name="description" content="Last updated: September 4, 2026">
+<meta name="description" content="Last updated: November 19, 2026">
 <link rel="canonical" href="https://ntoledo319.github.io/EOLkits/legal/privacy.html">
 <link rel="stylesheet" href="/EOLkits/style.css">
 <script defer src="/EOLkits/track.js"></script>
 </head>
 <body class="container article">
 <h1>Privacy Policy — EOLkits</h1>
-<p><strong>Last updated:</strong> September 4, 2026</p>
+<p><strong>Last updated:</strong> November 19, 2026</p>
 <h2>1. Scope</h2>
 <p>EOLkits is operated by Toledo Technologies LLC, 2389 Main St. STE 100, Glastonbury, CT 06033, United States. Toledo Technologies LLC is the controller of personal data described in this policy unless a provider acts as an independent controller under its own terms.</p>
-<p>This policy describes data used by the EOLkits website, free browser tools, paid repository evidence report, and product-research forms. The Migration Pack, Drift Watch, and Organization License are not currently available for purchase.</p>
+<p>This policy describes data used by the EOLkits website, free browser tools, the $79 Offline Migration &amp; Audit Toolkit purchase/delivery flow, the $299 hosted repository evidence report, and product-research forms. Self-serve paid Stripe checkouts are offered to US buyers only. Migration Pack, Drift Watch, Partner Program, and Organization License are not available for purchase.</p>
 <h2>2. Data We Process</h2>
 <ul>
-<li><strong>Free browser scanner:</strong> Source files are processed in your browser and are not uploaded by that tool.</li>
-<li><strong>Paid evidence report:</strong> Email address, original upload filename, uploaded ZIP/source bytes, content hash, generated PDF, evidence fingerprint, and fulfillment status.</li>
+<li><strong>Free browser scanner and EOL checker:</strong> Source files and pasted snippets are processed in your browser; file names and contents are not uploaded by those tools.</li>
+<li><strong>$79 Offline Migration &amp; Audit Toolkit:</strong> Stripe Checkout metadata, customer email, order/fulfillment state, and delivery of the unlisted HTTPS ZIP download link. All toolkit scans and codemods run locally on your machine; no repository data is sent to EOLkits.</li>
+<li><strong>$299 Hosted Repository Evidence Report:</strong> Email address, original upload filename, uploaded ZIP/source bytes, content hash, generated PDF, evidence fingerprint, and fulfillment status.</li>
 <li><strong>Purchases:</strong> Stripe Checkout identifiers, price/SKU, amount, currency, customer email, refund state, and limited attribution fields. Card numbers are handled by Stripe and are not stored by EOLkits.</li>
-<li><strong>Product research:</strong> The current Audit-interest form is a public GitHub issue. GitHub publishes the submitting account and the selected form answers; EOLkits tells submitters not to include project, company, security, or personal data.</li>
-<li><strong>First-party usage events:</strong> A canonical page category, allowlisted event name, product/kit token, supplied source/UTM tokens, and bounded aggregate file and finding counts. Invalid or PII-like attribution values are discarded. EOLkits does not use advertising trackers, third-party analytics, cookies, browser storage, fingerprinting, or a visitor identifier.</li>
+<li><strong>Product research:</strong> The Audit-interest form opens a public GitHub issue. GitHub publishes the submitting account and selected form answers; EOLkits instructs submitters not to include project, company, security, or personal data.</li>
+<li><strong>First-party usage events and aggregate analytics:</strong> Canonical page category, allowlisted event name (<code>view</code>, <code>scan</code>, <code>checkout_start</code>, <code>scan_completed</code>, <code>checkout_click</code>), product/kit token, supplied source/UTM tokens, and bounded aggregate file and finding counts. EOLkits uses first-party cookieless telemetry and does not use advertising trackers, cross-site cookies, or browser local storage.</li>
 <li><strong>Abuse prevention:</strong> A server-secret-keyed pseudonymous network-source token is used for rate limiting; the originating address is not written to the application database.</li>
-<li><strong>Infrastructure logs:</strong> The hosting and email providers may process request metadata such as IP address, user agent, delivery status, and timestamps for security and operation.</li>
+<li><strong>Infrastructure logs:</strong> Hosting and transactional email providers process request metadata such as IP address, user agent, delivery status, and timestamps for security and delivery operation.</li>
 </ul>
 <h2>3. Why We Process It</h2>
-<table><thead><tr><th>Purpose</th><th>Data</th><th>Basis</th></tr></thead><tbody><tr><td>Generate and deliver a purchased report</td><td>Upload, email, purchase/job state</td><td>Contract fulfillment</td></tr><tr><td>Process or refund payment</td><td>Stripe/purchase state</td><td>Contract fulfillment and accounting</td></tr><tr><td>Protect and operate the service</td><td>Request/job/error data</td><td>Legitimate interest</td></tr><tr><td>Respond to a requested research follow-up</td><td>Submitted research form</td><td>Consent/request</td></tr></tbody></table>
+<table><thead><tr><th>Purpose</th><th>Data</th><th>Basis</th></tr></thead><tbody><tr><td>Deliver a purchased toolkit download or hosted report</td><td>Email, purchase/job state, and (for Audit v2) uploaded archive</td><td>Contract fulfillment</td></tr><tr><td>Process or refund payment</td><td>Stripe/purchase state</td><td>Contract fulfillment and accounting</td></tr><tr><td>Protect and operate the service</td><td>Request/job/error and aggregate usage data</td><td>Legitimate interest</td></tr><tr><td>Respond to a support or refund email</td><td>Customer correspondence</td><td>Contract fulfillment / request</td></tr></tbody></table>
 <h2>4. Storage and Retention</h2>
-<h3>Audit uploads and reports</h3>
+<h3>Audit v2 uploads and reports</h3>
 <ul>
-<li>Uploads and generated PDFs are stored on the EOLkits API&#x27;s managed filesystem.</li>
-<li>A successfully delivered report causes its source upload to be deleted immediately. Uploads that do not reach checkout normally expire within 24 hours. Checkout-bound uploads are retained for up to 48 hours so fulfillment retries can finish, then are swept.</li>
-<li>Generated report PDFs and their verification metadata expire within 30 days.</li>
-<li>Download and verification URLs contain a high-entropy identifier. Anyone who receives the full URL can use it during the retention window, so do not share it publicly.</li>
+<li>Uploads and generated PDFs for the $299 hosted report are stored on the EOLkits API&#x27;s managed filesystem.</li>
+<li>A successfully delivered report causes its source upload to be deleted immediately. Uploads that do not reach checkout expire within 24 hours. Checkout-bound uploads are retained for up to 48 hours so fulfillment retries can finish, then are swept.</li>
+<li>Generated report PDFs and their <code>/verify/</code> verification metadata expire within 30 days.</li>
+<li>Download and verification URLs contain high-entropy identifiers. Anyone who receives the full URL can access it while active, so keep delivery links private within your team.</li>
 </ul>
 <h3>Operational and financial records</h3>
 <ul>
-<li>Purchase, refund, and fulfillment records are stored in both Stripe and local EOLkits SQLite state as needed to deliver, reconcile, refund, and account for a purchase.</li>
-<li>Financial records may be retained as required by tax, accounting, fraud, or legal obligations.</li>
-<li>Raw first-party funnel events are automatically deleted after 30 days. Pseudonymous abuse-rate keys are automatically deleted after two days. Detailed event and commerce counts are available only to the authenticated operator.</li>
-<li>Source/UTM attribution is read from the current page URL only when the verified v2 first-party API is available. It is not written to cookies or browser storage, and outbound referrers are limited to the site origin.</li>
-<li>Product-research leads submitted through any separately displayed private form may be deleted on a verified request unless legal retention applies. Public GitHub issue data follows GitHub&#x27;s controls and retention practices.</li>
+<li>Purchase, refund, and fulfillment records are stored in Stripe and managed SQLite outbox state on our US server as needed to deliver downloads/reports, reconcile webhooks, issue refunds, and maintain accounting records.</li>
+<li>Financial records are retained as required by tax, accounting, fraud, or legal obligations.</li>
+<li>Raw first-party funnel events in the EOLkits API are automatically deleted after 30 days. Pseudonymous abuse-rate keys are deleted after two days.</li>
 </ul>
 <h2>5. Providers</h2>
 <p>EOLkits uses:</p>
-<table><thead><tr><th>Provider</th><th>Purpose</th><th>Data shared</th></tr></thead><tbody><tr><td>Stripe</td><td>Checkout and refunds</td><td>Email and transaction metadata</td></tr><tr><td>Resend</td><td>Transactional email and requested lead notifications</td><td>Email and message content</td></tr><tr><td>GitHub</td><td>Public source, issues, discussions, and releases</td><td>Information you submit to GitHub</td></tr><tr><td>Hosting provider</td><td>Static site and API operation</td><td>Requests, uploads, generated reports, operational state</td></tr></tbody></table>
+<table><thead><tr><th>Provider</th><th>Purpose</th><th>Data shared</th></tr></thead><tbody><tr><td>Stripe</td><td>Checkout, tax calculation, and refunds</td><td>Email and transaction metadata</td></tr><tr><td>Transactional SMTP / Resend</td><td>Purchase download links, report delivery, and support</td><td>Email and message content</td></tr><tr><td>GitHub</td><td>Public source, issues, discussions, and releases</td><td>Information you submit to GitHub</td></tr><tr><td>Hosting provider (US VPS)</td><td>Static site, download hosting, and API operation</td><td>Requests, operational state, and (for Audit v2) temporary uploads/reports</td></tr></tbody></table>
 <p>EOLkits does not sell personal data.</p>
 <h2>6. Security</h2>
 <ul>
 <li>Traffic is served over HTTPS.</li>
-<li>Generated pages restrict scripts and browser network connections to reviewed first-party origins. An unreviewed hosting-layer script is treated as a deployment failure and is not an authorized analytics provider.</li>
-<li>Upload identifiers are high entropy and uploads become immutable after receipt.</li>
-<li>Archive scanning is bounded and does not extract files onto the host filesystem.</li>
-<li>Production configuration fails closed when required payment/email secrets are absent.</li>
-<li>No security control eliminates all risk; avoid uploading secrets, credentials, private keys, or data unrelated to the requested source scan.</li>
+<li>Generated pages enforce a restrictive Content-Security-Policy limiting scripts and browser network connections to first-party origins.</li>
+<li>Archive scanning is bounded and does not extract uploaded files onto the host filesystem.</li>
+<li>No security control eliminates all risk; avoid uploading secrets, credentials, private keys, or data unrelated to a requested scan.</li>
 </ul>
 <h2>7. Your Choices and Rights</h2>
-<p>You may request access, correction, or deletion of eligible data, and may object to or restrict processing where applicable. Financial/legal records and data needed to resolve a transaction may be retained as required.</p>
-<p>Email <code>hello@toledotechnologies.com</code> from the address associated with the data and use the subject <code>EOLkits Privacy Request</code>. You may also open a private contact request through the operator&#x27;s GitHub profile; do not put sensitive data in a public issue or discussion. Postal requests may be sent to Toledo Technologies LLC, 2389 Main St. STE 100, Glastonbury, CT 06033, United States.</p>
-<h2>8. International Processing and Children</h2>
-<p>Providers may process data in the United States or other locations where they operate. EOLkits is not directed to children under 16 and does not knowingly collect their data.</p>
+<p>You may request access, correction, or deletion of eligible personal data by emailing <code>hello@toledotechnologies.com</code> from the address associated with the data with subject <code>EOLkits Privacy Request</code>, or by mail to Toledo Technologies LLC, 2389 Main St. STE 100, Glastonbury, CT 06033, United States. Financial and legal records needed to document or resolve a transaction are retained as required by law.</p>
+<h2>8. United States Processing and Children</h2>
+<p>Data is processed in the United States. EOLkits is a developer software service not directed to children under 16 and does not knowingly collect their data.</p>
 <h2>9. Changes</h2>
 <p>Material changes will be published on this page with a new update date.</p>
 </body>

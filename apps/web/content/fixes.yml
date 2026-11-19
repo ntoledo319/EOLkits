@@ -77,7 +77,7 @@ fixes:
     error: "The runtime parameter of python3.9 is no longer supported for creating or updating AWS Lambda functions"
     context: "AWS Lambda"
     summary: "AWS Lambda is blocking create/update operations on a deprecated Python runtime."
-    cause: "Per the AWS Lambda runtime deprecation table, python3.9 was deprecated on 2025-12-15; AWS blocks creating new python3.9 functions on 2027-07-29 and updating existing ones on 2027-08-31 (AWS delayed these well beyond the usual 30/60 days). Earlier runtimes such as python3.7 are already blocked for create. The error fires when a deploy targets a runtime past its block date."
+    cause: "Per the AWS Lambda runtime deprecation table, python3.9 was deprecated on 2025-12-15 and python3.10 on 2026-10-31; AWS blocks creating new functions on 2027-07-29 and updating existing ones on 2027-08-31. Earlier runtimes such as python3.7 are already blocked. The error fires when a deploy targets a runtime past its block date."
     fix_steps:
       - "Change the runtime to a currently supported version. EOLkits' bounded rewrite examples use python3.12; recheck AWS's current table and choose the target your dependencies support."
       - "SAM/CloudFormation: `Runtime: python3.12`. CDK: `runtime: lambda.Runtime.PYTHON_3_12`. Terraform: `runtime = \"python3.12\"`. Serverless: `runtime: python3.12`."
@@ -145,7 +145,7 @@ fixes:
     error: "The runtime parameter of nodejs18.x is no longer supported for creating or updating AWS Lambda functions"
     context: "AWS Lambda"
     summary: "AWS Lambda is blocking create/update operations on a deprecated Node.js runtime."
-    cause: "Per the AWS Lambda runtime deprecation table, nodejs16.x and nodejs18.x are both deprecated (patches stopped) and share the same block dates: AWS blocks creating new functions on 2027-07-29 and updating existing ones on 2027-08-31 (AWS delayed both well beyond the usual 30/60 days, in a cluster with nodejs20.x and several Python runtimes). The error fires once a deploy targets a runtime past its block date."
+    cause: "Per the AWS Lambda runtime deprecation table, nodejs16.x, nodejs18.x, and nodejs20.x are deprecated (patches stopped) and share synchronized block dates: AWS blocks creating new functions on 2027-07-29 and updating existing ones on 2027-08-31. The error fires once a deploy targets a runtime past its block date."
     fix_steps:
       - "Move to a currently supported runtime with adequate runway; EOLkits' current examples target nodejs24.x. Recheck AWS's table before scheduling."
       - "SAM/CloudFormation: `Runtime: nodejs24.x`. CDK: `runtime: lambda.Runtime.NODEJS_24_X`. Terraform: `runtime = \"nodejs24.x\"`. Serverless: `runtime: nodejs24.x`."
@@ -404,7 +404,7 @@ fixes:
       - "For new work, prefer a maintained audio library (for example `soundfile`, `librosa`, or `numpy` for raw sample maths) rather than reviving the removed module."
       - "If you are not ready to migrate, pin to Python 3.12 deliberately and record the reason, rather than pinning by accident."
     source_url: "https://docs.python.org/3/whatsnew/3.13.html"
-    related_migrate: python-3.13
+    related_migrate: lambda-python-3.11-eol
     kit: python-pivot
 
   - slug: python-no-module-named-pipes
@@ -418,7 +418,7 @@ fixes:
       - "Search for it including indirect use: `grep -rn 'from pipes\\|import pipes' .`"
       - "Re-run your test suite on 3.13 — a removed stdlib module fails at import time, so the failure appears before any of your logic runs."
     source_url: "https://docs.python.org/3/whatsnew/3.13.html"
-    related_migrate: python-3.13
+    related_migrate: lambda-python-3.11-eol
     kit: python-pivot
 
   - slug: python-no-module-named-aifc
@@ -432,5 +432,46 @@ fixes:
       - "If a dependency is the importer, check for a release that dropped the import before you pin Python down to 3.12."
       - "Note that `sndhdr`, `sunau` and `chunk` were removed in the same release, so fixing only aifc may surface the next one."
     source_url: "https://docs.python.org/3/whatsnew/3.13.html"
-    related_migrate: python-3.13
+    related_migrate: lambda-python-3.11-eol
+    kit: python-pivot
+
+  - slug: aws-health-lambda-python310-deprecated
+    error: "[AWS Lambda] End of support for Python 3.10 runtime in AWS Lambda"
+    context: "AWS Health Notification (Python 3.10)"
+    summary: "AWS deprecated the python3.10 Lambda runtime on October 31, 2026; AWS no longer applies security or runtime patches to python3.10 functions."
+    cause: "Per the AWS Lambda runtime deprecation table, python3.10 (running on Amazon Linux 2) entered end-of-support on 2026-10-31. Existing functions continue to invoke, but AWS blocks creating new python3.10 functions on 2027-07-29 and updating existing ones on 2027-08-31. Upgrading also shifts the base OS from Amazon Linux 2 (glibc 2.26) to Amazon Linux 2023 (glibc 2.34)."
+    fix_steps:
+      - "Inventory affected functions across regions (`aws lambda list-functions --query \"Functions[?Runtime=='python3.10'].[FunctionName,Architectures]\"`) and match them to SAM, CDK, Terraform, or Serverless files."
+      - "Audit Python 3.12/3.13 standard-library removals (`distutils`, `imp`, `asyncore`, `smtpd`, `cgi`, `pipes`) before changing the runtime string."
+      - "Rebuild compiled wheels (`cryptography`, `pydantic-core`, `psycopg2-binary`, `numpy`, `grpcio`) inside `public.ecr.aws/lambda/python:3.12` or `3.13` matching the function CPU architecture (`x86_64` vs `arm64`)."
+      - "Update IaC runtime to `python3.12` or `python3.13` and roll out behind a weighted Lambda alias canary with automatic CloudWatch alarm rollback."
+    source_url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
+    related_migrate: lambda-python-3.10-eol
+    kit: python-pivot
+
+  - slug: lambda-dotnet8-runtime-deprecated
+    error: "[AWS Lambda] End of support for .NET 8 (dotnet8) runtime in AWS Lambda"
+    context: "AWS Lambda (.NET 8 -> .NET 10)"
+    summary: "AWS deprecated the dotnet8 Lambda runtime on November 10, 2026 following Microsoft's end of support for .NET 8."
+    cause: "Per the AWS Lambda runtime deprecation table, `dotnet8` stopped receiving AWS security and runtime updates on 2026-11-10, with new function creation blocked on 2027-07-29 and function updates blocked on 2027-08-31. Both `dotnet8` and `dotnet10` run on Amazon Linux 2023, so OS-level glibc stays consistent while target frameworks and Lambda NuGet packages must advance."
+    fix_steps:
+      - "Update every Lambda `.csproj` file from `<TargetFramework>net8.0</TargetFramework>` to `<TargetFramework>net10.0</TargetFramework>`."
+      - "Update `aws-lambda-tools-defaults.json` (`\"function-runtime\": \"dotnet10\"`), SAM/CloudFormation (`Runtime: dotnet10`), CDK (`Runtime.DOTNET_10`), or Terraform (`runtime = \"dotnet10\"`)."
+      - "Upgrade `Amazon.Lambda.Core`, `Amazon.Lambda.Serialization.SystemTextJson`, and `Amazon.Lambda.AspNetCoreServer` NuGet packages to current .NET 10 compatible versions."
+      - "If using Native AOT, compile inside the matching AL2023 .NET 10 container image for the function's target architecture (`x86_64` or `arm64`)."
+    source_url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
+    related_migrate: lambda-dotnet-8-eol
+
+  - slug: lambda-python312-cryptography-glibc-al2023
+    error: "Runtime.ImportModuleError: Unable to import module: invalid ELF header (_rust.abi3.so)"
+    context: "AWS Lambda (Python 3.12 / AL2023)"
+    summary: "A compiled Python wheel (commonly cryptography, pydantic_core, or orjson) was packaged on macOS, Windows, or the wrong CPU architecture instead of Amazon Linux 2023 Linux."
+    cause: "Upgrading from `python3.9`/`python3.10` (AL2) to `python3.12`/`python3.13` (AL2023) often coincides with rebuilding deployment ZIPs or switching to Graviton2 (`arm64`). Running `pip install -t package/` on a developer laptop bundles Mach-O (`.so` compiled for macOS) or `x86_64` ELF binaries that fail at Lambda cold start with `invalid ELF header`."
+    fix_steps:
+      - "Build deployment packages or Lambda layers inside the official AL2023 container image: `docker run --rm --platform linux/amd64 -v \"$PWD\":/work public.ecr.aws/lambda/python:3.12 pip install -r /work/requirements.txt -t /work/python` (use `linux/arm64` for Graviton functions)."
+      - "Alternatively pass explicit pip wheel flags: `--platform manylinux2014_x86_64 --implementation cp --python-version 3.12 --only-binary=:all:` (or `manylinux2014_aarch64` for `arm64`)."
+      - "Pin `cryptography>=41.0.5` and `pydantic>=2.5` so prebuilt `cp312` manylinux wheels resolve without compiling Rust from source."
+      - "Inspect `.so` files in the built ZIP with `file python/**/*.so` before deploying to confirm `ELF 64-bit LSB shared object` matches your Lambda `Architectures` setting."
+    source_url: "https://docs.aws.amazon.com/lambda/latest/dg/python-package.html"
+    related_migrate: lambda-python-3.10-eol
     kit: python-pivot

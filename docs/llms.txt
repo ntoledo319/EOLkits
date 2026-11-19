@@ -9,6 +9,8 @@
 - [Lambda Node.js 22 projected create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-22-phase-1/): deadline 2027-07-29, severity medium, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 - [Lambda Python 3.9 create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.9-eol/): deadline 2027-07-29, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 - [Lambda Python 3.10 create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.10-eol/): deadline 2027-07-29, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+- [Lambda .NET 8 create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-dotnet-8-eol/): deadline 2027-07-29, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+- [Lambda provided.al2 create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-provided-al2-eol/): deadline 2027-07-29, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 - [Lambda Python 3.11 projected create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.11-eol/): deadline 2027-07-29, severity medium, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 - [Lambda Node.js 16 create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-16-eol/): deadline 2027-07-29, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 - [Lambda Node.js 18 create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-18-eol/): deadline 2027-07-29, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
@@ -46,13 +48,22 @@
 - [ModuleNotFoundError: No module named 'audioop'](https://ntoledo319.github.io/EOLkits/fix/python-no-module-named-audioop/): audioop was removed from the standard library in Python 3.13 under PEP 594. Code that imports it fails immediately on 3.13, including indirectly through libraries such as pydub. Source: https://docs.python.org/3/whatsnew/3.13.html
 - [ModuleNotFoundError: No module named 'pipes'](https://ntoledo319.github.io/EOLkits/fix/python-no-module-named-pipes/): pipes was removed from the standard library in Python 3.13 under PEP 594. Its only widely used function, pipes.quote, moved to shlex.quote years earlier. Source: https://docs.python.org/3/whatsnew/3.13.html
 - [ModuleNotFoundError: No module named 'aifc'](https://ntoledo319.github.io/EOLkits/fix/python-no-module-named-aifc/): aifc was removed from the standard library in Python 3.13 under PEP 594. It is commonly hit indirectly, because the removed sndhdr module and some speech libraries imported it. Source: https://docs.python.org/3/whatsnew/3.13.html
+- [[AWS Lambda] End of support for Python 3.10 runtime in AWS Lambda](https://ntoledo319.github.io/EOLkits/fix/aws-health-lambda-python310-deprecated/): AWS deprecated the python3.10 Lambda runtime on October 31, 2026; AWS no longer applies security or runtime patches to python3.10 functions. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+- [[AWS Lambda] End of support for .NET 8 (dotnet8) runtime in AWS Lambda](https://ntoledo319.github.io/EOLkits/fix/lambda-dotnet8-runtime-deprecated/): AWS deprecated the dotnet8 Lambda runtime on November 10, 2026 following Microsoft's end of support for .NET 8. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+- [Runtime.ImportModuleError: Unable to import module: invalid ELF header (_rust.abi3.so)](https://ntoledo319.github.io/EOLkits/fix/lambda-python312-cryptography-glibc-al2023/): A compiled Python wheel (commonly cryptography, pydantic_core, or orjson) was packaged on macOS, Windows, or the wrong CPU architecture instead of Amazon Linux 2023 Linux. Source: https://docs.aws.amazon.com/lambda/latest/dg/python-package.html
 - [Free in-browser scanner](https://ntoledo319.github.io/EOLkits/scan/): drop IaC / dependency files to find deprecated runtimes and incompatible dependencies locally. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent.
 
-## Pricing
+## Pricing (US buyers only for self-serve paid Stripe checkouts)
 
 - Free CLI: MIT-licensed kits (al2023-gate, python-pivot, lambda-lifeline). git clone https://github.com/ntoledo319/EOLkits
+- [Offline Migration & Audit Toolkit](https://ntoledo319.github.io/EOLkits/toolkit/): $79 — instant ZIP download (zero source upload) with air-gapped Python 3.10+ scanner (HTML/PDF-printable report + Jira CSV + SHA-256 attestation), Python 3.12/3.13 & AWS SDK v3 codemods, AL2023 native Lambda layer Dockerfiles, canary rollback IaC, and CAB sign-off templates.
 - [Audit PDF](https://ntoledo319.github.io/EOLkits/audit/): $299 — one repository ZIP or supported source file; exact file/line evidence, remediation order, configured references, and a deterministic evidence fingerprint.
 - No subscription, AWS-account inventory, or automated pull-request product is for sale.
+
+## Company & Trust
+
+- [About EOLkits](https://ntoledo319.github.io/EOLkits/about/): Toledo Technologies LLC, Glastonbury, CT.
+- [Changelog](https://ntoledo319.github.io/EOLkits/changelog/): rule-pack and schedule updates.
 
 ## Calendar
 

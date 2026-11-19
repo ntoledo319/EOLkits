@@ -5,6 +5,15 @@ skus:
     price_usd: 0
     stripe_product: null
     delivery: git clone
+  toolkit:
+    name: Offline Migration & Audit Toolkit
+    description: Air-gapped stdlib scanner, Python 3.12/3.13 & AWS SDK v3 codemods, AL2023 Lambda layer Dockerfiles, canary rollback IaC, and CAB sign-off templates
+    available: true
+    price_usd: 79
+    stripe_product: prod_VeoPE0u4yA9Osv
+    stripe_price_id: price_1UdUmlDL3cQl851oWKqhBTaG
+    payment_link: https://buy.stripe.com/9B66oH5s2cFy2l51oE87K0C
+    delivery: Instant download link by email after Stripe Checkout (no source upload)
   audit:
     name: Audit PDF
     description: Repository evidence report with file/line findings and source citations
@@ -48,6 +57,7 @@ skus:
     stripe_price_id: price_1TRoGmDL3cQl851ofGZyxs6q
 urls:
   landing: https://eolkits.com
+  toolkit: https://eolkits.com/toolkit
   audit: https://eolkits.com/audit
   pack: https://eolkits.com/pack
   license: https://eolkits.com/license

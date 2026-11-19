@@ -44,7 +44,7 @@ def test_closed_audit_page_offers_only_qualified_public_interest() -> None:
     assert "No AWS credentials or AWS account access are requested" in page
     assert "width:300px" not in page
     assert page.index('<div class="pricing">') < page.index('id="auditGate"')
-    assert page.index('id="auditGate"') < page.index("Why you can trust")
+    assert page.index('id="auditGate"') < page.index("How findings are verified")
 
 
 def test_schedule_routes_search_traffic_to_a_source_linked_audit_offer() -> None:

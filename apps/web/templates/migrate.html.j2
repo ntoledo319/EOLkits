@@ -94,7 +94,7 @@
             {
                 "@type": "Question",
                 "name": "Is there a free tool to migrate off {{ deprecation.name }}?",
-                "acceptedAnswer": { "@type": "Answer", "text": {{ (("Yes. " ~ (deprecation.kit or "EOLkits") ~ " is an MIT-licensed CLI with bounded static checks and targeted local change previews. The optional $" ~ pricing.audit_pdf.base|string ~ " static repository evidence report adds file-and-line evidence when its fulfillment backend is ready; EOLkits does not currently sell automated pull requests.") if deprecation.kit else ("EOLkits provides cited migration guidance and, when fulfillment is ready, an optional paid static repository evidence report. It does not currently sell automated pull requests."))|tojson }} }
+                "acceptedAnswer": { "@type": "Answer", "text": {{ (("Yes. " ~ (deprecation.kit or "EOLkits") ~ " is an MIT-licensed CLI with bounded static checks and local previews. Teams that cannot upload source code can buy the $" ~ pricing.toolkit.price|string ~ " Offline Migration & Audit Toolkit (instant ZIP download, local air-gapped CLI report + codemods + AL2023 Dockerfiles), and the optional $" ~ pricing.audit_pdf.base|string ~ " hosted static repository evidence report is available when its server gate is open. Self-serve paid checkouts are for US buyers only.") if deprecation.kit else ("EOLkits provides cited migration guidance, the $" ~ pricing.toolkit.price|string ~ " Offline Migration & Audit Toolkit (instant local download, zero source upload), and an optional $" ~ pricing.audit_pdf.base|string ~ " hosted static repository evidence report when its server gate is open. Self-serve paid checkouts are for US buyers only."))|tojson }} }
             }
         ]
     }
@@ -107,8 +107,10 @@
     <a href="/" class="brand"><span class="brand-mark">▸</span> EOLkits</a>
     <nav>
       <a href="/migrate/">Deadlines</a>
-      <a href="/#pricing">Pricing</a>
-      <a href="/deprecations.ics">Calendar</a>
+      <a href="/scan/">Free scan</a>
+      <a href="/toolkit/">Toolkit ($79)</a>
+      <a href="/audit/">Audit</a>
+      <a href="/about/">About</a>
       <a href="https://github.com/ntoledo319/EOLkits" class="btn-ghost">GitHub</a>
     </nav>
   </div>
@@ -183,17 +185,25 @@ node bin/cli.mjs --help{% else %}python3 -m venv .venv
         {% endif %}
 
         <section class="conversion">
-            <h2>Need repository evidence for this migration?</h2>
+            <h2>Need CAB-ready migration evidence or air-gapped codemods?</h2>
             <div class="pricing-grid-2">
                 <div class="pricing-card featured">
-                    <h3>Audit PDF</h3>
+                    <h3>Offline Migration &amp; Audit Toolkit</h3>
+                    <div class="price">${{ pricing.toolkit.price }}</div>
+                    <p>Instant ZIP download — runs locally with zero source upload. Includes air-gapped repo/IaC scanner (HTML/PDF-printable report + Jira CSV + SHA-256 attestation), Python 3.12/3.13 &amp; AWS SDK v3 codemods, AL2023 Lambda layer Dockerfiles, and canary rollback IaC. <strong>30-day full refund policy.</strong></p>
+                    <a href="{{ pricing.toolkit.payment_link }}" class="btn-primary">Buy Offline Toolkit — ${{ pricing.toolkit.price }}</a>
+                    <a href="/toolkit/" class="btn-outline">Full toolkit specs</a>
+                    <p class="small"><a href="/toolkit/sample/">Inspect sample air-gapped report →</a> · US buyers only</p>
+                </div>
+                <div class="pricing-card">
+                    <h3>Hosted Audit PDF</h3>
                     <div class="price">${{ pricing.audit_pdf.base }}</div>
-                    <p>Static scan of one repository ZIP or source file with exact file/line evidence, observed reach, remediation order, configured references, and explicit limitations. <strong>30-day money-back guarantee.</strong></p>
-                    <a href="{{ urgency.audit_link }}" class="btn-primary">Check Audit v2 availability</a>
-                    <p class="small"><a href="/scan/">Run the free scan first</a> · <a href="/audit/sample/">see a sample →</a></p>
-                    <p class="small">Prefer a 10-second check? Paste your config into the <a href="/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
+                    <p>Server-rendered static scan of one uploaded repository ZIP or source file with exact file/line evidence, observed reach, remediation order, configured references, and `/verify/` metadata. <strong>30-day full refund policy.</strong></p>
+                    <a href="{{ urgency.audit_link }}" class="btn-outline">Check Audit v2 availability</a>
+                    <p class="small"><a href="/scan/">Run the free scan first</a> · <a href="/audit/sample/">see a sample →</a> · US buyers only</p>
                 </div>
             </div>
+            <p class="small">Prefer a 10-second check? Paste your config into the <a href="/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
         </section>
 
         <section class="embed-badge">
@@ -248,21 +258,24 @@ node bin/cli.mjs --help{% else %}python3 -m venv .venv
     <div class="footer-grid">
       <div>
         <div class="brand"><span class="brand-mark">▸</span> EOLkits</div>
-        <p class="muted">Tracked AWS deprecations deserve tested migration paths.</p>
+        <p class="muted">Deterministic AWS runtime &amp; OS deprecation scanners, air-gapped codemods, and source-cited migration guides.</p>
+        <p class="muted small">Toledo Technologies LLC · 2389 Main St. STE 100, Glastonbury, CT 06033, United States · <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> · Self-serve paid checkouts: US buyers only.</p>
       </div>
       <div>
-        <h5>Deadlines</h5>
+        <h5>Tools &amp; Deadlines</h5>
         <a href="/migrate/">Tracked AWS deprecations</a><br>
+        <a href="/scan/">Free browser scanner</a><br>
+        <a href="/toolkit/">Offline Toolkit ($79)</a><br>
         <a href="/deprecations.ics">Deadline calendar (.ics)</a>
       </div>
       <div>
-        <h5>Resources</h5>
-        <a href="https://github.com/ntoledo319/EOLkits">GitHub</a><br>
-        <a href="/#pricing">Pricing</a><br>
-        <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a>
+        <h5>Company &amp; Legal</h5>
+        <a href="/about/">About</a> · <a href="/changelog/">Changelog</a><br>
+        <a href="https://github.com/ntoledo319/EOLkits">GitHub</a> · <a href="/status/">Status</a><br>
+        <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/legal/SECURITY.html">Security</a>
       </div>
     </div>
-    <div class="muted small">© 2026 EOLkits · MIT-licensed kits · provider dates carry source links</div>
+    <div class="muted small">© 2026 Toledo Technologies LLC · MIT-licensed open-source kits · provider dates carry primary-source links</div>
   </div>
 </footer>
 

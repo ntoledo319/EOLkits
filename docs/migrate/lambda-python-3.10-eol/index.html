@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lambda Python 3.10 create/update restrictions migration guide — milestone 2027-07-29 | EOLkits</title>
-    <meta name="description" content="Lambda Python 3.10 create/update restrictions: tracked milestone 2027-07-29 (more than 30 days out). AWS Lambda. 2 migration checks to verify, plus a free…">
+    <meta name="description" content="Lambda Python 3.10 create/update restrictions: tracked milestone 2027-07-29 (more than 30 days out). AWS Lambda. 4 migration checks to verify, plus a free…">
     <meta name="keywords" content="Lambda Python 3.10 create/update restrictions, AWS deprecation, AWS Lambda, lambda, python, runtime, migration, end of life, 2027-07-29">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.10-eol/">
@@ -16,20 +16,20 @@
 
     <!-- Open Graph -->
     <meta property="og:title" content="Lambda Python 3.10 create/update restrictions — AWS deprecation migration guide (milestone 2027-07-29)">
-    <meta property="og:description" content="Python 3.10 Lambda runtime (Amazon Linux 2) was deprecated by AWS on 2026-10-31 (no further security patches). Per the AWS Lambda runtime deprecation table (re-read 2026-11-08), AWS blocks creating new python3.10 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31.">
+    <meta property="og:description" content="Python 3.10 Lambda runtime (Amazon Linux 2) was deprecated by AWS on 2026-10-31 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31.">
     <meta property="og:url" content="https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.10-eol/">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="EOLkits">
     <meta property="og:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="article:published_time" content="2026-09-09">
-    <meta property="article:modified_time" content="2026-09-09">
+    <meta property="article:published_time" content="2026-11-19">
+    <meta property="article:modified_time" content="2026-11-19">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Lambda Python 3.10 create/update restrictions — Migration Guide">
-    <meta name="twitter:description" content="Tracked milestone 2027-07-29 (323 days from the build date). 2 bounded migration checks to verify.">
+    <meta name="twitter:description" content="Tracked milestone 2027-07-29 (252 days from the build date). 4 bounded migration checks to verify.">
     <meta name="twitter:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
 
     <!-- Schema.org TechArticle; the provider status source is included below. -->
@@ -38,9 +38,9 @@
         "@context": "https://schema.org",
         "@type": "TechArticle",
         "headline": "Lambda Python 3.10 create/update restrictions \u2014 AWS Deprecation Migration Guide",
-        "description": "Python 3.10 Lambda runtime (Amazon Linux 2) was deprecated by AWS on 2026-10-31 (no further security patches). Per the AWS Lambda runtime deprecation table (re-read 2026-11-08), AWS blocks creating new python3.10 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31.",
-        "datePublished": "2026-09-09",
-        "dateModified": "2026-09-09",
+        "description": "Python 3.10 Lambda runtime (Amazon Linux 2) was deprecated by AWS on 2026-10-31 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31.",
+        "datePublished": "2026-11-19",
+        "dateModified": "2026-11-19",
         "proficiencyLevel": "Expert",
         "keywords": "lambda, python, runtime",
         "citation": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html",
@@ -81,12 +81,12 @@
             {
                 "@type": "Question",
                 "name": "What is the next tracked milestone for Lambda Python 3.10 create/update restrictions?",
-                "acceptedAnswer": { "@type": "Answer", "text": "EOLkits tracks 2027-07-29 as the next published milestone. Python 3.10 Lambda runtime (Amazon Linux 2) was deprecated by AWS on 2026-10-31 (no further security patches). Per the AWS Lambda runtime deprecation table (re-read 2026-11-08), AWS blocks creating new python3.10 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31. Provider status source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html. Future dates can change." }
+                "acceptedAnswer": { "@type": "Answer", "text": "EOLkits tracks 2027-07-29 as the next published milestone. Python 3.10 Lambda runtime (Amazon Linux 2) was deprecated by AWS on 2026-10-31 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31. Provider status source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html. Future dates can change." }
             },
             {
                 "@type": "Question",
                 "name": "What should I verify when moving away from Lambda Python 3.10 create/update restrictions?",
-                "acceptedAnswer": { "@type": "Answer", "text": "Configured migration checks to validate in your workload: datetime.utcnow() deprecated; Various typing changes. A listed check is not proof of impact. Provider status source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
+                "acceptedAnswer": { "@type": "Answer", "text": "Configured migration checks to validate in your workload: distutils, imp, asyncore, asynchat, and smtpd removed in Python 3.12; PEP 594 removes cgi, telnetlib, crypt, audioop, pipes, aifc, and lib2to3 in Python 3.13; datetime.utcnow() deprecated in Python 3.12; Native C/Rust wheels must be built for AL2023 (glibc 2.34) and matching CPU architecture. A listed check is not proof of impact. Provider status source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" }
             },
             {
                 "@type": "Question",
@@ -96,7 +96,7 @@
             {
                 "@type": "Question",
                 "name": "Is there a free tool to migrate off Lambda Python 3.10 create/update restrictions?",
-                "acceptedAnswer": { "@type": "Answer", "text": "Yes. python-pivot is an MIT-licensed CLI with bounded static checks and targeted local change previews. The optional $299 static repository evidence report adds file-and-line evidence when its fulfillment backend is ready; EOLkits does not currently sell automated pull requests." }
+                "acceptedAnswer": { "@type": "Answer", "text": "Yes. python-pivot is an MIT-licensed CLI with bounded static checks and local previews. Teams that cannot upload source code can buy the $79 Offline Migration \u0026 Audit Toolkit (instant ZIP download, local air-gapped CLI report + codemods + AL2023 Dockerfiles), and the optional $299 hosted static repository evidence report is available when its server gate is open. Self-serve paid checkouts are for US buyers only." }
             }
         ]
     }
@@ -109,8 +109,10 @@
     <a href="/EOLkits/" class="brand"><span class="brand-mark">▸</span> EOLkits</a>
     <nav>
       <a href="/EOLkits/migrate/">Deadlines</a>
-      <a href="/EOLkits/#pricing">Pricing</a>
-      <a href="/EOLkits/deprecations.ics">Calendar</a>
+      <a href="/EOLkits/scan/">Free scan</a>
+      <a href="/EOLkits/toolkit/">Toolkit ($79)</a>
+      <a href="/EOLkits/audit/">Audit</a>
+      <a href="/EOLkits/about/">About</a>
       <a href="https://github.com/ntoledo319/EOLkits" class="btn-ghost">GitHub</a>
     </nav>
   </div>
@@ -127,14 +129,14 @@
             <h1>Lambda Python 3.10 create/update restrictions</h1>
             <p class="banner-sub">AWS Lambda — published migration milestone</p>
             <div class="countdown" data-deadline="2027-07-29">2027-07-29</div>
-            <p class="urgency">323 days until the 2027-07-29 deadline — enough runway to migrate safely.</p>
+            <p class="urgency">252 days until the 2027-07-29 deadline — enough runway to migrate safely.</p>
         </div>
 
         <section>
             <h2>What is being deprecated?</h2>
-            <p>Python 3.10 Lambda runtime (Amazon Linux 2) was deprecated by AWS on 2026-10-31 (no further security patches). Per the AWS Lambda runtime deprecation table (re-read 2026-11-08), AWS blocks creating new python3.10 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31.</p>
+            <p>Python 3.10 Lambda runtime (Amazon Linux 2) was deprecated by AWS on 2026-10-31 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31.</p>
             <table class="facts">
-                <tr><th>Next tracked milestone</th><td><strong>2027-07-29</strong> (323 days from build date 2026-09-09)</td></tr>
+                <tr><th>Next tracked milestone</th><td><strong>2027-07-29</strong> (252 days from build date 2026-11-19)</td></tr>
                 <tr><th>Service</th><td>AWS Lambda</td></tr>
                 <tr><th>Affected resources</th><td><code>function</code></td></tr>
                 <tr><th>Severity</th><td><span class="severity-badge severity-high">high</span></td></tr>
@@ -149,9 +151,13 @@
             <p>When moving away from this runtime or operating-system release, verify these configured concerns in your own workload. A listed concern is not proof that every workload is affected. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[provider status source]</a></p>
             <ul>
 
-                <li>datetime.utcnow() deprecated</li>
+                <li>distutils, imp, asyncore, asynchat, and smtpd removed in Python 3.12</li>
 
-                <li>Various typing changes</li>
+                <li>PEP 594 removes cgi, telnetlib, crypt, audioop, pipes, aifc, and lib2to3 in Python 3.13</li>
+
+                <li>datetime.utcnow() deprecated in Python 3.12</li>
+
+                <li>Native C/Rust wheels must be built for AL2023 (glibc 2.34) and matching CPU architecture</li>
 
             </ul>
         </section>
@@ -185,17 +191,25 @@
 
 
         <section class="conversion">
-            <h2>Need repository evidence for this migration?</h2>
+            <h2>Need CAB-ready migration evidence or air-gapped codemods?</h2>
             <div class="pricing-grid-2">
                 <div class="pricing-card featured">
-                    <h3>Audit PDF</h3>
+                    <h3>Offline Migration &amp; Audit Toolkit</h3>
+                    <div class="price">$79</div>
+                    <p>Instant ZIP download — runs locally with zero source upload. Includes air-gapped repo/IaC scanner (HTML/PDF-printable report + Jira CSV + SHA-256 attestation), Python 3.12/3.13 &amp; AWS SDK v3 codemods, AL2023 Lambda layer Dockerfiles, and canary rollback IaC. <strong>30-day full refund policy.</strong></p>
+                    <a href="https://buy.stripe.com/9B66oH5s2cFy2l51oE87K0C" class="btn-primary">Buy Offline Toolkit — $79</a>
+                    <a href="/EOLkits/toolkit/" class="btn-outline">Full toolkit specs</a>
+                    <p class="small"><a href="/EOLkits/toolkit/sample/">Inspect sample air-gapped report →</a> · US buyers only</p>
+                </div>
+                <div class="pricing-card">
+                    <h3>Hosted Audit PDF</h3>
                     <div class="price">$299</div>
-                    <p>Static scan of one repository ZIP or source file with exact file/line evidence, observed reach, remediation order, configured references, and explicit limitations. <strong>30-day money-back guarantee.</strong></p>
-                    <a href="/EOLkits/audit/?deadline=2027-07-29&utm_source=migrate&utm_medium=cta&utm_campaign=lambda-python-3.10-eol&kit=python-pivot" class="btn-primary">Check Audit v2 availability</a>
-                    <p class="small"><a href="/EOLkits/scan/">Run the free scan first</a> · <a href="/EOLkits/audit/sample/">see a sample →</a></p>
-                    <p class="small">Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
+                    <p>Server-rendered static scan of one uploaded repository ZIP or source file with exact file/line evidence, observed reach, remediation order, configured references, and `/verify/` metadata. <strong>30-day full refund policy.</strong></p>
+                    <a href="/EOLkits/audit/?deadline=2027-07-29&utm_source=migrate&utm_medium=cta&utm_campaign=lambda-python-3.10-eol&kit=python-pivot" class="btn-outline">Check Audit v2 availability</a>
+                    <p class="small"><a href="/EOLkits/scan/">Run the free scan first</a> · <a href="/EOLkits/audit/sample/">see a sample →</a> · US buyers only</p>
                 </div>
             </div>
+            <p class="small">Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
         </section>
 
         <section class="embed-badge">
@@ -227,8 +241,8 @@
                 </li>
 
                 <li>
-                    <a href="/EOLkits/migrate/lambda-python-3.11-eol/">Lambda Python 3.11 projected create/update restrictions</a>
-                    <span class="rel-meta">— milestone <strong>2027-07-29</strong> · medium · <code>python-pivot</code></span>
+                    <a href="/EOLkits/migrate/lambda-dotnet-8-eol/">Lambda .NET 8 create/update restrictions</a>
+                    <span class="rel-meta">— milestone <strong>2027-07-29</strong> · high</span>
                 </li>
 
             </ul>
@@ -240,11 +254,11 @@
             <h2>Frequently asked questions</h2>
             <details open>
                 <summary>What is the next tracked milestone?</summary>
-                <p>2027-07-29. Python 3.10 Lambda runtime (Amazon Linux 2) was deprecated by AWS on 2026-10-31 (no further security patches). Per the AWS Lambda runtime deprecation table (re-read 2026-11-08), AWS blocks creating new python3.10 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[provider status source]</a></p>
+                <p>2027-07-29. Python 3.10 Lambda runtime (Amazon Linux 2) was deprecated by AWS on 2026-10-31 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[provider status source]</a></p>
             </details>
             <details>
                 <summary>What should I verify before changing the workload?</summary>
-                <p>Validate these configured checks against your code and current upstream documentation: datetime.utcnow() deprecated; Various typing changes. A listed check is not proof that the workload is affected.</p>
+                <p>Validate these configured checks against your code and current upstream documentation: distutils, imp, asyncore, asynchat, and smtpd removed in Python 3.12; PEP 594 removes cgi, telnetlib, crypt, audioop, pipes, aifc, and lib2to3 in Python 3.13; datetime.utcnow() deprecated in Python 3.12; Native C/Rust wheels must be built for AL2023 (glibc 2.34) and matching CPU architecture. A listed check is not proof that the workload is affected.</p>
             </details>
             <details>
                 <summary>Which AWS services does this affect?</summary>
@@ -265,21 +279,24 @@
     <div class="footer-grid">
       <div>
         <div class="brand"><span class="brand-mark">▸</span> EOLkits</div>
-        <p class="muted">Tracked AWS deprecations deserve tested migration paths.</p>
+        <p class="muted">Deterministic AWS runtime &amp; OS deprecation scanners, air-gapped codemods, and source-cited migration guides.</p>
+        <p class="muted small">Toledo Technologies LLC · 2389 Main St. STE 100, Glastonbury, CT 06033, United States · <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> · Self-serve paid checkouts: US buyers only.</p>
       </div>
       <div>
-        <h5>Deadlines</h5>
+        <h5>Tools &amp; Deadlines</h5>
         <a href="/EOLkits/migrate/">Tracked AWS deprecations</a><br>
+        <a href="/EOLkits/scan/">Free browser scanner</a><br>
+        <a href="/EOLkits/toolkit/">Offline Toolkit ($79)</a><br>
         <a href="/EOLkits/deprecations.ics">Deadline calendar (.ics)</a>
       </div>
       <div>
-        <h5>Resources</h5>
-        <a href="https://github.com/ntoledo319/EOLkits">GitHub</a><br>
-        <a href="/EOLkits/#pricing">Pricing</a><br>
-        <a href="/EOLkits/legal/terms.html">Terms</a> · <a href="/EOLkits/legal/privacy.html">Privacy</a>
+        <h5>Company &amp; Legal</h5>
+        <a href="/EOLkits/about/">About</a> · <a href="/EOLkits/changelog/">Changelog</a><br>
+        <a href="https://github.com/ntoledo319/EOLkits">GitHub</a> · <a href="/EOLkits/status/">Status</a><br>
+        <a href="/EOLkits/legal/terms.html">Terms</a> · <a href="/EOLkits/legal/privacy.html">Privacy</a> · <a href="/EOLkits/legal/SECURITY.html">Security</a>
       </div>
     </div>
-    <div class="muted small">© 2026 EOLkits · MIT-licensed kits · provider dates carry source links</div>
+    <div class="muted small">© 2026 Toledo Technologies LLC · MIT-licensed open-source kits · provider dates carry primary-source links</div>
   </div>
 </footer>
 

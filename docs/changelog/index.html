@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="referrer" content="origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://eolkits.com; form-action 'self'">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Changelog — AWS Rule Pack &amp; Releases | EOLkits</title>
+<meta name="description" content="Dated release log for EOLkits AWS deprecation rule packs, offline migration toolkit, and verification gates.">
+<link rel="canonical" href="https://ntoledo319.github.io/EOLkits/changelog/">
+<link rel="stylesheet" href="/EOLkits/style.css">
+<script defer src="/EOLkits/track.js"></script>
+<meta property="og:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
+</head>
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="/EOLkits/" class="brand"><span class="brand-mark">&gt;</span> EOLkits</a>
+    <nav>
+      <a href="/EOLkits/migrate/">Deadlines</a>
+      <a href="/EOLkits/scan/">Free scan</a>
+      <a href="/EOLkits/toolkit/">Toolkit ($79)</a>
+      <a href="/EOLkits/audit/">Audit</a>
+      <a href="/EOLkits/about/">About</a>
+      <a href="https://github.com/ntoledo319/EOLkits" class="btn-ghost">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main class="container article">
+  <nav class="breadcrumb"><a href="/EOLkits/">Home</a> / <span>Changelog</span></nav>
+  <h1>Changelog</h1>
+  <p>Material updates to EOLkits rule packs, AWS deprecation schedules, and commercial artifacts.</p>
+
+  <section>
+    <h2>2026-11-19 — Rule Pack 2026.11 &amp; Offline Toolkit v1.0.0</h2>
+    <ul>
+      <li><strong>AWS Lambda schedule sync:</strong> Updated synchronized Lambda create/update block dates across <code>python3.8</code>, <code>python3.9</code>, <code>python3.10</code>, <code>python3.11</code>, <code>nodejs16.x</code>, <code>nodejs18.x</code>, <code>nodejs20.x</code>, <code>nodejs22.x</code>, <code>dotnet8</code>, and <code>provided.al2</code> to <strong>2027-07-29</strong> (Block Function Create) and <strong>2027-08-31</strong> (Block Function Update) per official AWS Lambda runtime documentation.</li>
+      <li><strong>Active deprecation transitions:</strong> Marked <code>python3.10</code> (deprecated 2026-10-31), <code>dotnet8</code> (deprecated 2026-11-10), and <code>provided.al2</code> (deprecated 2026-07-31) as actively deprecated, and added dedicated migration and error-fix guides.</li>
+      <li><strong>Offline Migration &amp; Audit Toolkit v1.0.0 ($79):</strong> Launched instant-download air-gapped CLI scanner, Python 3.12/3.13 &amp; AWS SDK v3 codemods, AL2023 multi-arch Lambda layer Dockerfiles, and Terraform/SAM canary rollback templates at <a href="/EOLkits/toolkit/">/toolkit/</a>.</li>
+      <li><strong>Automated EOL drift watch:</strong> Added daily upstream schedule comparison against published AWS runtime lifecycle feeds before static deployment.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>2026-09-09 — Deterministic Web &amp; Privacy CSP Hardening</h2>
+    <ul>
+      <li>Pinned reproducible build dates, strict first-party Content-Security-Policy headers, and bounded count-only browser scanner telemetry.</li>
+      <li>Added PEP 594 Python 3.13 error-fix references (<code>audioop</code>, <code>pipes</code>, <code>aifc</code>).</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>2026-08-22 — Audit v2 Engine &amp; Sample Manifest</h2>
+    <ul>
+      <li>Shipped fail-closed Audit v2 static repository report engine with SHA-256 input hashing, deterministic evidence fingerprints, and public sample verification artifacts at <a href="/EOLkits/audit/sample/">/audit/sample/</a>.</li>
+    </ul>
+  </section>
+</main>
+<footer class="footer">
+  <div class="container">
+    <div class="muted small">Toledo Technologies LLC · 2389 Main St. STE 100, Glastonbury, CT 06033, United States · <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a></div>
+    <div class="muted small"><a href="/EOLkits/">Home</a> · <a href="/EOLkits/about/">About</a> · <a href="/EOLkits/legal/terms.html">Terms</a> · <a href="/EOLkits/legal/privacy.html">Privacy</a></div>
+  </div>
+</footer>
+</body>
+</html>

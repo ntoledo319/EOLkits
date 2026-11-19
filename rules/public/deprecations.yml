@@ -12,16 +12,16 @@ deprecations:
     date: "2027-07-29"
     block_update_date: "2027-08-31"
     deprecation_date: "2026-04-30"
-    description: "Node.js 20 Lambda runtime (Amazon Linux 2023) deprecated 2026-04-30. Per the AWS Lambda runtime deprecation table (re-read 2026-11-08), AWS blocks creating new nodejs20.x functions on 2027-07-29 and updating existing ones on 2027-08-31 — part of the synchronized Q3-2027 runtime-block cluster."
+    description: "Node.js 20 Lambda runtime (Amazon Linux 2023) was deprecated on 2026-04-30 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs20.x functions on 2027-07-29 and updating existing ones on 2027-08-31."
     severity: high
     kit: lambda-lifeline
     url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
     tags: [lambda, nodejs, runtime]
     breaking_changes:
-      - "CreateFunction and UpdateFunctionConfiguration API calls fail"
-      - "aws-sdk v2 not available (use v3)"
-      - "OpenSSL 3 hash changes"
-      - "URL vs require() for imports"
+      - "CreateFunction and UpdateFunctionConfiguration API calls fail after the published block dates"
+      - "aws-sdk v2 not bundled (use @aws-sdk/* v3 modular clients)"
+      - "Node.js 22/24 removes crypto.createCipher and deprecates built-in punycode"
+      - "Native N-API addons must be verified against Node.js 22/24 ABI"
 
   - name: "Lambda Node.js 22 projected create/update restrictions"
     slug: "lambda-node.js-22-phase-1"
@@ -29,15 +29,15 @@ deprecations:
     resource_type: "function"
     date: "2027-07-29"
     block_update_date: "2027-08-31"
-    deprecation_date: "2027-04-30"
+    deprecation_date: "2027-05-30"
     dates_projected: true
-    description: "Node.js 22 Lambda runtime (Amazon Linux 2023) has a projected deprecation date of 2027-04-30. AWS currently projects blocking new nodejs22.x functions on 2027-07-29 and updates on 2027-08-31; AWS marks runtime dates as subject to change."
+    description: "Node.js 22 Lambda runtime (Amazon Linux 2023) has a projected deprecation date of 2027-05-30. AWS currently projects blocking new nodejs22.x functions on 2027-07-29 and updates on 2027-08-31; AWS marks runtime dates as subject to change."
     severity: medium
     kit: lambda-lifeline
     url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
     tags: [lambda, nodejs, runtime]
     breaking_changes:
-      - "Upgrade target is nodejs24.x"
+      - "Upgrade target is nodejs24.x on Amazon Linux 2023"
       - "Native addons must be rebuilt and tested on the Node.js 24 ABI"
 
   - name: "Amazon Linux 2 EOL"
@@ -64,16 +64,16 @@ deprecations:
     date: "2027-07-29"
     block_update_date: "2027-08-31"
     deprecation_date: "2025-12-15"
-    description: "Python 3.9 Lambda runtime (Amazon Linux 2) was deprecated on 2025-12-15 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.9 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31. Functions keep running, but become unpatched and unmodifiable after the block dates."
+    description: "Python 3.9 Lambda runtime (Amazon Linux 2) was deprecated on 2025-12-15 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.9 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31. Functions keep running, but remain unpatched and become unmodifiable after the block dates."
     severity: high
     kit: python-pivot
     url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
     tags: [lambda, python, runtime]
     breaking_changes:
-      - "distutils module removed"
-      - "imp module removed"
-      - "collections.Mapping deprecated"
-      - "Native wheels may not be available"
+      - "distutils module removed in Python 3.12 (PEP 632)"
+      - "imp module removed in Python 3.12"
+      - "collections.Mapping and legacy ABC aliases removed"
+      - "Base OS moves from Amazon Linux 2 (glibc 2.26) to AL2023 (glibc 2.34)"
 
   - name: "Lambda Python 3.10 create/update restrictions"
     slug: "lambda-python-3.10-eol"
@@ -82,14 +82,50 @@ deprecations:
     date: "2027-07-29"
     block_update_date: "2027-08-31"
     deprecation_date: "2026-10-31"
-    description: "Python 3.10 Lambda runtime (Amazon Linux 2) was deprecated by AWS on 2026-10-31 (no further security patches). Per the AWS Lambda runtime deprecation table (re-read 2026-11-08), AWS blocks creating new python3.10 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31."
+    description: "Python 3.10 Lambda runtime (Amazon Linux 2) was deprecated by AWS on 2026-10-31 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.10 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31."
     severity: high
     kit: python-pivot
     url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
     tags: [lambda, python, runtime]
     breaking_changes:
-      - "datetime.utcnow() deprecated"
-      - "Various typing changes"
+      - "distutils, imp, asyncore, asynchat, and smtpd removed in Python 3.12"
+      - "PEP 594 removes cgi, telnetlib, crypt, audioop, pipes, aifc, and lib2to3 in Python 3.13"
+      - "datetime.utcnow() deprecated in Python 3.12"
+      - "Native C/Rust wheels must be built for AL2023 (glibc 2.34) and matching CPU architecture"
+
+  - name: "Lambda .NET 8 create/update restrictions"
+    slug: "lambda-dotnet-8-eol"
+    service: "AWS Lambda"
+    resource_type: "function"
+    date: "2027-07-29"
+    block_update_date: "2027-08-31"
+    deprecation_date: "2026-11-10"
+    description: ".NET 8 Lambda runtime (dotnet8 on Amazon Linux 2023) was deprecated on 2026-11-10 following upstream .NET 8 end of support. Per the AWS Lambda runtime deprecation table, AWS blocks creating new dotnet8 functions on 2027-07-29 and updating existing ones on 2027-08-31."
+    severity: high
+    kit: null
+    url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
+    tags: [lambda, dotnet, runtime]
+    breaking_changes:
+      - "Upgrade target is dotnet10 (<TargetFramework>net10.0</TargetFramework>)"
+      - "Update Amazon.Lambda.* NuGet packages and aws-lambda-tools-defaults.json runtime field"
+      - "Recompile native AOT or architecture-specific dependencies for AL2023"
+
+  - name: "Lambda provided.al2 create/update restrictions"
+    slug: "lambda-provided-al2-eol"
+    service: "AWS Lambda"
+    resource_type: "function"
+    date: "2027-07-29"
+    block_update_date: "2027-08-31"
+    deprecation_date: "2026-07-31"
+    description: "The Amazon Linux 2 OS-only custom runtime (provided.al2) was deprecated on 2026-07-31. Per the AWS Lambda runtime deprecation table, AWS blocks creating new provided.al2 functions on 2027-07-29 and updating existing ones on 2027-08-31."
+    severity: high
+    kit: al2023-gate
+    url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
+    tags: [lambda, os, al2, runtime]
+    breaking_changes:
+      - "Upgrade target is provided.al2023 (Amazon Linux 2023 minimal base image)"
+      - "AL2023 ships a minimal container footprint without tzdata or extra system libraries unless layered in"
+      - "Recompile Go, Rust, or C++ custom bootstrap binaries against glibc 2.34 or static musl"
 
   - name: "Lambda Python 3.11 projected create/update restrictions"
     slug: "lambda-python-3.11-eol"
@@ -106,7 +142,8 @@ deprecations:
     tags: [lambda, python, runtime]
     breaking_changes:
       - "distutils is removed in Python 3.12"
-      - "Native dependencies may need Python 3.12-compatible wheels"
+      - "Python 3.11 is the last Amazon Linux 2 Python runtime; upgrading moves to AL2023 (glibc 2.34)"
+      - "Native dependencies may need Python 3.12/3.13-compatible wheels"
 
   - name: "Lambda Node.js 16 create/update restrictions"
     slug: "lambda-node.js-16-eol"
@@ -115,7 +152,7 @@ deprecations:
     date: "2027-07-29"
     block_update_date: "2027-08-31"
     deprecation_date: "2024-06-12"
-    description: "Node.js 16 Lambda runtime (Amazon Linux 2) deprecated 2024-06-12. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs16.x functions on 2027-07-29 and updating existing ones on 2027-08-31 — the same synchronized Q3-2027 block cluster as nodejs18.x, nodejs20.x, and several Python runtimes."
+    description: "Node.js 16 Lambda runtime (Amazon Linux 2) deprecated 2024-06-12. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs16.x functions on 2027-07-29 and updating existing ones on 2027-08-31."
     severity: high
     kit: lambda-lifeline
     url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
@@ -123,7 +160,7 @@ deprecations:
     breaking_changes:
       - "Upgrade target is nodejs24.x; validate application and dependency compatibility before changing the function runtime"
       - "aws-sdk v2 preinstalled on nodejs16.x; nodejs18.x+ bundles AWS SDK for JavaScript v3 instead (require('aws-sdk') stops resolving)"
-      - "Native addons must be rebuilt and tested on the Node.js 24 ABI"
+      - "Native addons must be rebuilt and tested on the Node.js 24 ABI and AL2023"
       - "OpenSSL 3 behavior changes"
 
   - name: "Lambda Node.js 18 create/update restrictions"
@@ -133,7 +170,7 @@ deprecations:
     date: "2027-07-29"
     block_update_date: "2027-08-31"
     deprecation_date: "2025-09-01"
-    description: "Node.js 18 Lambda runtime (Amazon Linux 2) deprecated 2025-09-01. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs18.x functions on 2027-07-29 and updating existing ones on 2027-08-31 — part of the synchronized Q3-2027 runtime-block cluster."
+    description: "Node.js 18 Lambda runtime (Amazon Linux 2) deprecated 2025-09-01. Per the AWS Lambda runtime deprecation table, AWS blocks creating new nodejs18.x functions on 2027-07-29 and updating existing ones on 2027-08-31."
     severity: high
     kit: lambda-lifeline
     url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
@@ -141,8 +178,8 @@ deprecations:
     breaking_changes:
       - "Upgrade target is nodejs24.x"
       - "aws-sdk v2 not bundled (use @aws-sdk v3 modular clients)"
-      - "Native addons must be rebuilt and tested on the Node.js 24 ABI"
-      - "OpenSSL 3 behavior changes"
+      - "Native addons must be rebuilt and tested on the Node.js 24 ABI and AL2023"
+      - "OpenSSL 3 and Node 22+ crypto.createCipher removal"
 
   - name: "Lambda Python 3.8 create/update restrictions"
     slug: "lambda-python-3.8-eol"
@@ -151,7 +188,7 @@ deprecations:
     date: "2027-07-29"
     block_update_date: "2027-08-31"
     deprecation_date: "2024-10-14"
-    description: "Python 3.8 Lambda runtime (Amazon Linux 2) deprecated 2024-10-14. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.8 functions on 2027-07-29 and updating existing ones on 2027-08-31 — the same synchronized Q3-2027 block cluster as python3.9/3.10."
+    description: "Python 3.8 Lambda runtime (Amazon Linux 2) deprecated 2024-10-14. Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.8 functions on 2027-07-29 and updating existing ones on 2027-08-31."
     severity: high
     kit: python-pivot
     url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html"
@@ -160,7 +197,7 @@ deprecations:
       - "Upgrade target is python3.12 (3.13 available)"
       - "distutils and imp removed in 3.12 (fix on upgrade)"
       - "collections ABCs moved to collections.abc (3.10+)"
-      - "Native wheels may need version bumps for cp312"
+      - "Native wheels may need version bumps for cp312 on AL2023"
 
 # Historical deprecations (for reference)
 historical:

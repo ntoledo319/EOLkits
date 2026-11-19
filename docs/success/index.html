@@ -7,28 +7,30 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Thank you — EOLkits</title>
 <meta name="robots" content="noindex">
+<link rel="stylesheet" href="/EOLkits/style.css">
 <style>
-body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:0 auto;padding:2rem;line-height:1.6}
-.brand{color:#2563eb;font-weight:600}
-h1{margin-top:0}
-.card{border:1px solid #e5e7eb;border-radius:10px;padding:1.5rem;margin:1.25rem 0}
-.upsell{background:#ecfdf5;border:2px solid #059669}
-.btn{display:inline-block;background:#2563eb;color:#fff;padding:.6rem 1.2rem;border-radius:6px;text-decoration:none;font-weight:600}
-footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
+.thanks-wrap{max-width:740px;margin:0 auto;padding:3rem 1.5rem 4rem}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1.25rem 0}
+.card a{color:var(--accent);text-decoration:underline}
 </style>
 </head>
 <body>
-<a href="/EOLkits/" class="brand">← EOLkits</a>
-<h1 id="title">Thank you</h1>
+<main class="thanks-wrap">
+<a href="/EOLkits/" class="brand"><span class="brand-mark">&gt;</span> EOLkits</a>
+<h1 id="title" style="margin-top:1rem">Thank you</h1>
 <div id="body"></div>
-<footer><a href="/EOLkits/">Home</a> · <a href="/EOLkits/status/">Status</a> · <a href="/EOLkits/legal/terms.html">Terms</a></footer>
+<footer style="margin-top:3rem;padding-top:1rem;border-top:1px solid var(--border);color:var(--ink-muted);font-size:0.875rem"><a href="/EOLkits/">Home</a> · <a href="/EOLkits/toolkit/">Offline Toolkit</a> · <a href="/EOLkits/status/">Status</a> · <a href="/EOLkits/legal/terms.html">Terms</a> · <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a></footer>
+</main>
 <script>
 const qp = new URLSearchParams(location.search);
 const sku = qp.get('sku') || '';
 const title = document.getElementById('title');
 const body = document.getElementById('body');
 function h(html) { body.innerHTML = html; }
-if (sku === 'audit') {
+if (sku === 'toolkit') {
+  title.textContent = 'Your Offline Toolkit download is on the way';
+  h('<div class="card"><p><strong>Payment confirmed.</strong> Our automated fulfillment service is emailing your unlisted HTTPS download link for <code>AWS-Runtime-EOL-Migration-Toolkit-v1.0.0.zip</code> to the address entered at Stripe Checkout (sent from <code>hello@toledotechnologies.com</code>).</p><p>Unzip locally and run <code>python3 src/eolkits_offline_audit.py --repo /path/to/repo --out ./audit-out</code> on Python 3.10+—zero external dependencies and zero source upload.</p><p>If the email does not arrive in your inbox or spam folder within a few minutes, email <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> and we will resend or issue an immediate full refund.</p></div>');
+} else if (sku === 'audit') {
   title.textContent = 'Your audit is on the way';
   h('<div class="card"><p>Payment received. Your repository evidence PDF is queued for automated generation and email delivery. Delays are possible.</p><p>Its evidence lookup records the input hash, rule-pack version, evidence fingerprint, and observed counts. The PDF itself is not digitally signed.</p><p>If fulfillment cannot complete after retries, the system attempts an automatic refund and surfaces any unresolved refund for operator review.</p></div>');
 } else if (sku === 'pack') {
@@ -38,7 +40,7 @@ if (sku === 'audit') {
   title.textContent = 'Drift Watch is unavailable';
   h('<div class="card"><p>Drift Watch is not open for purchase. If a legacy payment link charged you, email <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> with the Stripe receipt so the payment can be reviewed and refunded.</p></div>');
 } else {
-  h('<div class="card"><p>Payment received. Check your email for next steps.</p></div>');
+  h('<div class="card"><p>Payment received. Check your checkout email address for your delivery link or receipt, or contact <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a>.</p></div>');
 }
 </script>
 </body>

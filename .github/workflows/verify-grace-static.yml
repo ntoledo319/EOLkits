@@ -23,14 +23,16 @@ jobs:
           set -euo pipefail
 
           home="$(curl --fail --silent --show-error --max-time 20 "$SITE_URL/")"
+          toolkit="$(curl --fail --silent --show-error --max-time 20 "$SITE_URL/toolkit/")"
           audit="$(curl --fail --silent --show-error --max-time 20 "$SITE_URL/audit/")"
           pack="$(curl --fail --silent --show-error --max-time 20 "$SITE_URL/pack/")"
           drift="$(curl --fail --silent --show-error --max-time 20 "$SITE_URL/drift/")"
           robots="$(curl --fail --silent --show-error --max-time 20 "$SITE_URL/robots.txt")"
           sitemap="$(curl --fail --silent --show-error --max-time 20 "$SITE_URL/sitemap.xml")"
 
-          grep -Fq 'repository evidence report is the only paid product' <<<"$home"
+          grep -Fq '<div class="price">$79</div>' <<<"$home"
           grep -Fq '<div class="price">$299</div>' <<<"$home"
+          grep -Fq 'https://buy.stripe.com/9B66oH5s2cFy2l51oE87K0C' <<<"$toolkit"
           grep -Fq 'Migration Pack is unavailable' <<<"$pack"
           grep -Fq 'No checkout · no account · no waitlist' <<<"$pack"
           grep -Fq 'Drift Watch is unavailable' <<<"$drift"
@@ -43,7 +45,7 @@ jobs:
             echo '::error::The audit page is missing its fail-closed checkout gate'
             exit 1
           fi
-          for page in "$home" "$audit" "$pack" "$drift"; do
+          for page in "$home" "$toolkit" "$audit" "$pack" "$drift"; do
             if ! grep -Fq 'http-equiv="Content-Security-Policy"' <<<"$page" \
               || ! grep -Fq "script-src 'self' 'unsafe-inline'" <<<"$page" \
               || ! grep -Fq "connect-src 'self' https://eolkits.com" <<<"$page"; then
@@ -54,19 +56,19 @@ jobs:
           grep -Fq 'Sitemap: https://eolkits.com/sitemap.xml' <<<"$robots"
           grep -Fq '<loc>https://eolkits.com/' <<<"$sitemap"
 
-          if grep -Eq '(href|src|action)="/EOLkits/' <<<"$home$audit$pack$drift"; then
+          if grep -Eq '(href|src|action)="/EOLkits/' <<<"$home$toolkit$audit$pack$drift"; then
             echo '::error::The root-domain build contains GitHub Pages project paths'
             exit 1
           fi
-          if grep -Fq 'ntoledo319.github.io' <<<"$home$audit$pack$drift$robots$sitemap"; then
+          if grep -Fq 'ntoledo319.github.io' <<<"$home$toolkit$audit$pack$drift$robots$sitemap"; then
             echo '::error::The root-domain build points search or navigation at the Pages mirror'
             exit 1
           fi
-          if grep -Eq '\$1,499|\$14,999' <<<"$home$audit$pack$drift"; then
+          if grep -Eq '\$1,499|\$14,999' <<<"$home$toolkit$audit$pack$drift"; then
             echo '::error::A retired commercial price is still public on the custom domain'
             exit 1
           fi
-          if grep -Eq "<script[^>]+src=['\"]https?://" <<<"$home$audit$pack$drift"; then
+          if grep -Eq "<script[^>]+src=['\"]https?://" <<<"$home$toolkit$audit$pack$drift"; then
             echo '::error::An unreviewed cross-origin script is injected into the custom domain'
             exit 1
           fi

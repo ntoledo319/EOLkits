@@ -5,70 +5,97 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://eolkits.com; form-action 'self'">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EOLkits - AWS deprecation migration tools</title>
-<meta name="description" content="MIT-licensed AWS deprecation scanners and an optional paid repository evidence report with exact file and line matches.">
+<title>EOLkits — AWS Lambda &amp; Amazon Linux 2 EOL Migration Tools</title>
+<meta name="description" content="Find and fix deprecated AWS Lambda runtimes (Python 3.10, .NET 8, Node.js 18/20) and Amazon Linux 2 hazards. Free MIT scanners, $79 air-gapped Offline Toolkit, and $299 repository evidence PDFs.">
 <link rel="canonical" href="https://ntoledo319.github.io/EOLkits/">
 <link rel="stylesheet" href="/EOLkits/style.css">
 <script defer src="/EOLkits/track.js"></script>
+<meta property="og:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
 </head>
 <body>
 <header class="nav">
   <div class="container nav-inner">
-    <a href="/EOLkits/" class="brand"><span class="brand-mark">></span> EOLkits</a>
+    <a href="/EOLkits/" class="brand"><span class="brand-mark">&gt;</span> EOLkits</a>
     <nav>
       <a href="/EOLkits/migrate/">Deadlines</a>
       <a href="/EOLkits/scan/">Free scan</a>
+      <a href="/EOLkits/toolkit/">Toolkit ($79)</a>
       <a href="/EOLkits/audit/">Audit</a>
+      <a href="/EOLkits/about/">About</a>
       <a href="https://github.com/ntoledo319/EOLkits" class="btn-ghost">GitHub</a>
     </nav>
   </div>
 </header>
 
+<div class="urgency-strip">
+  <div class="container">
+    <span class="urgency-pill">Nov 2026 AWS Update</span>
+    <strong>Python 3.10</strong> (Oct 31) &amp; <strong>.NET 8</strong> (Nov 10) are now deprecated in AWS Lambda · <strong>AL2</strong> ended standard support Jun 30, 2026 · <a href="/EOLkits/lambda-runtime-deprecation-schedule/">View 2027 block schedule →</a>
+  </div>
+</div>
+
 <main>
   <section class="hero">
-    <div class="container">
-      <div class="eyebrow">AWS runtime &amp; OS EOLs that break production</div>
-      <h1>Find high-impact AWS deprecation risks in your source — free.</h1>
-      <p class="lede">The browser scanner checks configured Lambda runtime and Node/Python dependency patterns without uploading file contents. Repository CLIs add their documented operating-system checks. The $299 evidence report adds file/line evidence across supported files in the uploaded archive, remediation order, configured references, and explicit scope limitations.</p>
-      <div class="cta-row">
-        <a class="btn-primary" href="/EOLkits/scan/">Run the free scan</a>
-        <a class="btn-secondary" href="https://github.com/ntoledo319/EOLkits">Clone the CLIs</a>
-        <a class="btn-ghost" href="/EOLkits/migrate/">See the deadlines</a>
+    <div class="container hero-split">
+      <div>
+        <div class="eyebrow">AWS runtime &amp; OS EOLs that break production deploys</div>
+        <h1>Audit &amp; clear AWS deprecation debt before deploys lock.</h1>
+        <p class="lede">Check SAM, CDK, Terraform, Serverless, and manifests free in your browser without uploading files. Need CAB-ready evidence and codemods behind your firewall? Download the <strong>$79 Air-Gapped Offline Toolkit</strong>—or request a <strong>$299 hosted repository PDF</strong>.</p>
+        <div class="cta-row">
+          <a class="btn-primary" href="/EOLkits/toolkit/">Get $79 Offline Toolkit →</a>
+          <a class="btn-secondary" href="/EOLkits/scan/">Run free browser scan</a>
+          <a class="btn-ghost" href="/EOLkits/migrate/">See AWS deadlines</a>
+        </div>
+        <p class="market-note">Free MIT CLIs · Instant $79 air-gapped ZIP download (zero source upload) · 30-day full refund policy · Paid checkouts: US buyers only.</p>
+      </div>
+      <div class="terminal-card" aria-label="EOLkits local scan preview">
+        <div class="terminal-bar">
+          <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+          <span>eolkits — deterministic static evidence</span>
+        </div>
+        <div class="terminal-body">
+          <div class="t-cmd">$ python3 eolkits_offline_audit.py --repo . --out ./cab-pack</div>
+          <div class="t-dim">Rule Pack 2026.11 · Zero network calls · Zero code upload</div>
+          <div><span class="t-crit">CRITICAL</span> Dockerfile:1 &rarr; amazonlinux:2 (EOL 2026-06-30)</div>
+          <div><span class="t-high">HIGH</span> template.yaml:18 &rarr; python3.10 (unpatched 2026-10-31)</div>
+          <div><span class="t-high">HIGH</span> Api.csproj:4 &rarr; net8.0 / dotnet8 (unpatched 2026-11-10)</div>
+          <div><span class="t-high">HIGH</span> handler.py:2 &rarr; distutils removed in Python 3.12</div>
+          <div><span class="t-high">HIGH</span> notify.js:3 &rarr; aws-sdk v2 missing on Node 18/20/24</div>
+          <div class="t-ok">&rarr; HTML/PDF report + Jira CSV + SHA-256 attestation ready</div>
+        </div>
       </div>
     </div>
   </section>
 
   <section class="section">
     <div class="container">
-      <p class="sub">Free &amp; open-source (MIT) · official source links · local browser scan available · one server-gated paid product · 30-day audit refund policy</p>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <h2>Live Kits</h2>
-      <p class="sub">Each kit is standalone, MIT-licensed, and safe by default: scan first, apply only when requested.</p>
+      <h2>Open-Source CLI Kits (MIT)</h2>
+      <p class="sub">Each standalone CLI scans first and previews changes before touching files.</p>
       <div class="kit-grid">
         <article class="kit-card urgent">
-          <div class="kit-deadline">AL2 standard support ended Jun 30, 2026 — plan migration</div>
+          <div class="kit-deadline">AL2 standard support ended Jun 30, 2026 — migrate now</div>
           <h3>al2023-gate</h3>
-          <p class="kit-sub">Amazon Linux 2 to AL2023</p>
-          <p>Find AL2 AMIs, remap packages, patch cloud-init, Packer, and Ansible, then generate rollout runbooks.</p>
-          <a class="kit-link" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/al2023-gate">Read docs</a>
+          <p class="kit-sub">Amazon Linux 2 &amp; provided.al2 to AL2023</p>
+          <p>Find AL2 AMIs, remap dnf/SPAL packages, patch cloud-init, Packer, and Ansible, and generate cutover checklists.</p>
+          <a class="kit-link" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/al2023-gate">Read docs →</a>
         </article>
-        <article class="kit-card">
-          <div class="kit-deadline">Rolling Lambda EOL waves</div>
+        <article class="kit-card urgent">
+          <div class="kit-deadline">Python 3.10 deprecated Oct 31, 2026 · Block: Jul 29, 2027</div>
           <h3>python-pivot</h3>
-          <p class="kit-sub">Lambda Python 3.9/3.10/3.11 to 3.12</p>
-          <p>Audit deprecated modules, native wheels, runtime fields, and Python 3.12 compatibility hazards.</p>
-          <a class="kit-link" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/python-pivot">Read docs</a>
+          <p class="kit-sub">Lambda Python 3.8–3.11 to 3.12 / 3.13</p>
+          <p>Flag removed PEP 632 / PEP 594 stdlib modules, cp312/AL2023 native wheel floors, and IaC runtime strings.</p>
+          <a class="kit-link" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/python-pivot">Read docs →</a>
         </article>
         <article class="kit-card">
-          <div class="kit-deadline">Lambda Node.js migration readiness</div>
+          <div class="kit-deadline">Node 18/20 deprecated · .NET 8 deprecated Nov 10, 2026</div>
           <h3>lambda-lifeline</h3>
-          <p class="kit-sub">Lambda Node.js 16–22 to 24</p>
-          <p>Patch Lambda runtime fields, source syntax, aws-sdk v2 usage, and staged deploy/rollback plans.</p>
-          <a class="kit-link" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/lambda-lifeline">Read docs</a>
+          <p class="kit-sub">Lambda Node.js 16–22 to 24 (+ multi-runtime inventory)</p>
+          <p>Inventory deprecated runtimes across regions, surface aws-sdk v2 &amp; OpenSSL 3 breaks, and stage alias rollbacks.</p>
+          <a class="kit-link" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/lambda-lifeline">Read docs →</a>
         </article>
       </div>
     </div>
@@ -77,31 +104,59 @@
   <section class="section dark" id="pricing">
     <div class="container">
       <h2>Pricing</h2>
-      <p class="sub">Try before you buy: the CLIs and browser scanner are free. The repository evidence report is the only paid product.</p>
+      <p class="sub">Start free in your browser or terminal. Upgrade to the $79 air-gapped Offline Toolkit for local CAB reports, codemods, and AL2023 container templates, or use the $299 hosted repository PDF.</p>
       <div class="pricing-grid">
         <article class="pricing-card">
-          <h3>CLI</h3>
+          <h3>Open-Source CLI</h3>
           <div class="price">$0</div>
-          <p>All kits, unlimited local runs, MIT license.</p>
+          <p>All three MIT CLI kits plus the client-side browser scanner and EOL schedule tools.</p>
           <a class="btn-outline" href="https://github.com/ntoledo319/EOLkits">Get source</a>
+          <a class="btn-outline" href="/EOLkits/scan/">Browser scan</a>
         </article>
         <article class="pricing-card featured">
+          <h3>Offline Toolkit</h3>
+          <div class="price">$79</div>
+          <p>Instant ZIP download — zero source upload. Air-gapped multi-stack scanner (HTML/PDF report + Jira CSV + SHA-256 attestation), Python 3.12/3.13 &amp; AWS SDK v3 codemods, AL2023 Lambda layer Dockerfiles, canary rollback IaC, and CAB sign-off templates across unlimited internal repos.</p>
+          <a class="btn-primary" href="https://buy.stripe.com/9B66oH5s2cFy2l51oE87K0C">Buy Offline Toolkit — $79</a>
+          <a class="btn-outline" href="/EOLkits/toolkit/">Full specs</a>
+          <p class="small"><a href="/EOLkits/toolkit/sample/">See sample air-gapped report →</a> · US buyers only · 30-day refund policy</p>
+        </article>
+        <article class="pricing-card">
           <h3>Audit PDF</h3>
           <div class="price">$299</div>
-          <p>One repository ZIP or source file: exact file/line evidence, observed reach, remediation order, configured references, and an evidence fingerprint. 30-day money-back.</p>
-          <a class="btn-primary" href="/EOLkits/audit/">Get the $299 report</a>
-          <p class="small"><a href="/EOLkits/audit/sample/">See a sample report →</a></p>
+          <p>One uploaded repository ZIP or source file: exact file/line evidence, observed reach, remediation order, configured references, and <code>/verify/</code> evidence fingerprint. 30-day full refund policy.</p>
+          <a class="btn-outline" href="/EOLkits/audit/">Get the $299 report</a>
+          <p class="small"><a href="/EOLkits/audit/sample/">See sample PDF →</a> · US buyers only</p>
         </article>
       </div>
-      <p class="sub">There is no subscription, managed migration, AWS-account inventory, or automated pull-request product for sale.</p>
+      <p class="sub">Self-serve paid Stripe checkouts are offered to US buyers only. There is no recurring subscription, live AWS-account inventory service, or automated pull-request bot for sale.</p>
     </div>
   </section>
 </main>
 
 <footer class="footer">
   <div class="container">
-    <div class="muted small">© 2026 EOLkits. MIT-licensed kits for AWS deprecation migrations.</div>
-    <div class="muted small"><a href="/EOLkits/legal/terms.html">Terms</a> · <a href="/EOLkits/legal/privacy.html">Privacy</a> · <a href="/EOLkits/legal/SECURITY.html">Security</a> · <a href="mailto:hello@toledotechnologies.com">Support</a></div>
+    <div class="footer-grid">
+      <div>
+        <div class="brand"><span class="brand-mark">&gt;</span> EOLkits</div>
+        <p class="muted">Deterministic AWS deprecation scanners, air-gapped migration toolkits, and primary-source guides.</p>
+        <p class="muted small">Toledo Technologies LLC · 2389 Main St. STE 100, Glastonbury, CT 06033, United States · <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> · Self-serve paid checkouts: US buyers only.</p>
+      </div>
+      <div>
+        <h5>Products &amp; Tools</h5>
+        <a href="/EOLkits/toolkit/">Offline Toolkit ($79)</a><br>
+        <a href="/EOLkits/audit/">Hosted Audit PDF ($299)</a><br>
+        <a href="/EOLkits/scan/">Free browser scanner</a><br>
+        <a href="/EOLkits/eol-checker/">Runtime EOL checker</a>
+      </div>
+      <div>
+        <h5>Company &amp; Legal</h5>
+        <a href="/EOLkits/about/">About</a> · <a href="/EOLkits/changelog/">Changelog</a><br>
+        <a href="/EOLkits/migrate/">Deadlines</a> · <a href="/EOLkits/fix/">Error fixes</a><br>
+        <a href="/EOLkits/legal/terms.html">Terms</a> · <a href="/EOLkits/legal/privacy.html">Privacy</a> · <a href="/EOLkits/legal/SECURITY.html">Security</a> · <a href="/EOLkits/status/">Status</a>
+      </div>
+    </div>
+    <div class="muted small">© 2026 Toledo Technologies LLC. Open-source kits MIT-licensed; commercial toolkit licensed per purchasing organization.</div>
   </div>
 </footer>
 </body>

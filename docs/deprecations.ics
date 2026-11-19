@@ -7,25 +7,25 @@ X-WR-CALNAME:AWS Deprecation Deadlines (EOLkits)
 X-WR-TIMEZONE:UTC
 BEGIN:VEVENT
 UID:lambda-node.js-20-phase-1@eolkits
-DTSTAMP:20260909T000000Z
+DTSTAMP:20261119T000000Z
 DTSTART;VALUE=DATE:20270729
 DTEND;VALUE=DATE:20270730
 SUMMARY:Lambda Node.js 20 create/update restrictions
-DESCRIPTION:Node.js 20 Lambda runtime (Amazon Linux 2023) deprecated 2026-04-30. Per the AWS Lambda runtime deprecation table (re-read 2026-11-08)\, AWS blocks creating new nodejs20.x functions on 2027-07-29 and updating existing ones on 2027-08-31 — part of the synchronized Q3-2027 runtime-block cluster. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+DESCRIPTION:Node.js 20 Lambda runtime (Amazon Linux 2023) was deprecated on 2026-04-30 (no further security patches). Per the AWS Lambda runtime deprecation table\, AWS blocks creating new nodejs20.x functions on 2027-07-29 and updating existing ones on 2027-08-31. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 BEGIN:VEVENT
 UID:lambda-node.js-22-phase-1@eolkits
-DTSTAMP:20260909T000000Z
+DTSTAMP:20261119T000000Z
 DTSTART;VALUE=DATE:20270729
 DTEND;VALUE=DATE:20270730
 SUMMARY:Lambda Node.js 22 projected create/update restrictions
-DESCRIPTION:Node.js 22 Lambda runtime (Amazon Linux 2023) has a projected deprecation date of 2027-04-30. AWS currently projects blocking new nodejs22.x functions on 2027-07-29 and updates on 2027-08-31; AWS marks runtime dates as subject to change. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+DESCRIPTION:Node.js 22 Lambda runtime (Amazon Linux 2023) has a projected deprecation date of 2027-05-30. AWS currently projects blocking new nodejs22.x functions on 2027-07-29 and updates on 2027-08-31; AWS marks runtime dates as subject to change. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 BEGIN:VEVENT
 UID:amazon-linux-2-eol@eolkits
-DTSTAMP:20260909T000000Z
+DTSTAMP:20261119T000000Z
 DTSTART;VALUE=DATE:20260630
 DTEND;VALUE=DATE:20260701
 SUMMARY:Amazon Linux 2 EOL
@@ -34,25 +34,43 @@ URL:https://aws.amazon.com/blogs/aws/update-on-amazon-linux-2-end-of-life/
 END:VEVENT
 BEGIN:VEVENT
 UID:lambda-python-3.9-eol@eolkits
-DTSTAMP:20260909T000000Z
+DTSTAMP:20261119T000000Z
 DTSTART;VALUE=DATE:20270729
 DTEND;VALUE=DATE:20270730
 SUMMARY:Lambda Python 3.9 create/update restrictions
-DESCRIPTION:Python 3.9 Lambda runtime (Amazon Linux 2) was deprecated on 2025-12-15 (no further security patches). Per the AWS Lambda runtime deprecation table\, AWS blocks creating new python3.9 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31. Functions keep running\, but become unpatched and unmodifiable after the block dates. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+DESCRIPTION:Python 3.9 Lambda runtime (Amazon Linux 2) was deprecated on 2025-12-15 (no further security patches). Per the AWS Lambda runtime deprecation table\, AWS blocks creating new python3.9 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31. Functions keep running\, but remain unpatched and become unmodifiable after the block dates. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 BEGIN:VEVENT
 UID:lambda-python-3.10-eol@eolkits
-DTSTAMP:20260909T000000Z
+DTSTAMP:20261119T000000Z
 DTSTART;VALUE=DATE:20270729
 DTEND;VALUE=DATE:20270730
 SUMMARY:Lambda Python 3.10 create/update restrictions
-DESCRIPTION:Python 3.10 Lambda runtime (Amazon Linux 2) was deprecated by AWS on 2026-10-31 (no further security patches). Per the AWS Lambda runtime deprecation table (re-read 2026-11-08)\, AWS blocks creating new python3.10 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+DESCRIPTION:Python 3.10 Lambda runtime (Amazon Linux 2) was deprecated by AWS on 2026-10-31 (no further security patches). Per the AWS Lambda runtime deprecation table\, AWS blocks creating new python3.10 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+END:VEVENT
+BEGIN:VEVENT
+UID:lambda-dotnet-8-eol@eolkits
+DTSTAMP:20261119T000000Z
+DTSTART;VALUE=DATE:20270729
+DTEND;VALUE=DATE:20270730
+SUMMARY:Lambda .NET 8 create/update restrictions
+DESCRIPTION:.NET 8 Lambda runtime (dotnet8 on Amazon Linux 2023) was deprecated on 2026-11-10 following upstream .NET 8 end of support. Per the AWS Lambda runtime deprecation table\, AWS blocks creating new dotnet8 functions on 2027-07-29 and updating existing ones on 2027-08-31. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+END:VEVENT
+BEGIN:VEVENT
+UID:lambda-provided-al2-eol@eolkits
+DTSTAMP:20261119T000000Z
+DTSTART;VALUE=DATE:20270729
+DTEND;VALUE=DATE:20270730
+SUMMARY:Lambda provided.al2 create/update restrictions
+DESCRIPTION:The Amazon Linux 2 OS-only custom runtime (provided.al2) was deprecated on 2026-07-31. Per the AWS Lambda runtime deprecation table\, AWS blocks creating new provided.al2 functions on 2027-07-29 and updating existing ones on 2027-08-31. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 BEGIN:VEVENT
 UID:lambda-python-3.11-eol@eolkits
-DTSTAMP:20260909T000000Z
+DTSTAMP:20261119T000000Z
 DTSTART;VALUE=DATE:20270729
 DTEND;VALUE=DATE:20270730
 SUMMARY:Lambda Python 3.11 projected create/update restrictions
@@ -61,29 +79,29 @@ URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 BEGIN:VEVENT
 UID:lambda-node.js-16-eol@eolkits
-DTSTAMP:20260909T000000Z
+DTSTAMP:20261119T000000Z
 DTSTART;VALUE=DATE:20270729
 DTEND;VALUE=DATE:20270730
 SUMMARY:Lambda Node.js 16 create/update restrictions
-DESCRIPTION:Node.js 16 Lambda runtime (Amazon Linux 2) deprecated 2024-06-12. Per the AWS Lambda runtime deprecation table\, AWS blocks creating new nodejs16.x functions on 2027-07-29 and updating existing ones on 2027-08-31 — the same synchronized Q3-2027 block cluster as nodejs18.x\, nodejs20.x\, and several Python runtimes. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+DESCRIPTION:Node.js 16 Lambda runtime (Amazon Linux 2) deprecated 2024-06-12. Per the AWS Lambda runtime deprecation table\, AWS blocks creating new nodejs16.x functions on 2027-07-29 and updating existing ones on 2027-08-31. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 BEGIN:VEVENT
 UID:lambda-node.js-18-eol@eolkits
-DTSTAMP:20260909T000000Z
+DTSTAMP:20261119T000000Z
 DTSTART;VALUE=DATE:20270729
 DTEND;VALUE=DATE:20270730
 SUMMARY:Lambda Node.js 18 create/update restrictions
-DESCRIPTION:Node.js 18 Lambda runtime (Amazon Linux 2) deprecated 2025-09-01. Per the AWS Lambda runtime deprecation table\, AWS blocks creating new nodejs18.x functions on 2027-07-29 and updating existing ones on 2027-08-31 — part of the synchronized Q3-2027 runtime-block cluster. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+DESCRIPTION:Node.js 18 Lambda runtime (Amazon Linux 2) deprecated 2025-09-01. Per the AWS Lambda runtime deprecation table\, AWS blocks creating new nodejs18.x functions on 2027-07-29 and updating existing ones on 2027-08-31. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 BEGIN:VEVENT
 UID:lambda-python-3.8-eol@eolkits
-DTSTAMP:20260909T000000Z
+DTSTAMP:20261119T000000Z
 DTSTART;VALUE=DATE:20270729
 DTEND;VALUE=DATE:20270730
 SUMMARY:Lambda Python 3.8 create/update restrictions
-DESCRIPTION:Python 3.8 Lambda runtime (Amazon Linux 2) deprecated 2024-10-14. Per the AWS Lambda runtime deprecation table\, AWS blocks creating new python3.8 functions on 2027-07-29 and updating existing ones on 2027-08-31 — the same synchronized Q3-2027 block cluster as python3.9/3.10. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+DESCRIPTION:Python 3.8 Lambda runtime (Amazon Linux 2) deprecated 2024-10-14. Per the AWS Lambda runtime deprecation table\, AWS blocks creating new python3.8 functions on 2027-07-29 and updating existing ones on 2027-08-31. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 URL:https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 END:VEVENT
 END:VCALENDAR

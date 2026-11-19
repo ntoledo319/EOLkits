@@ -6,22 +6,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Terms of Service — EOLkits</title>
-<meta name="description" content="Last updated: September 4, 2026">
+<meta name="description" content="Last updated: November 19, 2026">
 <link rel="canonical" href="https://ntoledo319.github.io/EOLkits/legal/terms.html">
 <link rel="stylesheet" href="/EOLkits/style.css">
 <script defer src="/EOLkits/track.js"></script>
 </head>
 <body class="container article">
 <h1>Terms of Service — EOLkits</h1>
-<p><strong>Last updated:</strong> September 4, 2026</p>
-<h2>1. Acceptance</h2>
+<p><strong>Last updated:</strong> November 19, 2026</p>
+<h2>1. Acceptance and Geographic Scope</h2>
 <p>EOLkits is operated by Toledo Technologies LLC, 2389 Main St. STE 100, Glastonbury, CT 06033, United States (&quot;EOLkits,&quot; &quot;we,&quot; or &quot;us&quot;).</p>
-<p>By using EOLkits, you agree to these Terms. If you do not agree, do not use the service.</p>
+<p>By using EOLkits, you agree to these Terms. If you do not agree, do not use the service. Self-serve paid Stripe checkouts on EOLkits are offered to <strong>US buyers only</strong> purchasing for software engineering, cloud infrastructure, or business operations.</p>
 <h2>2. Available Services</h2>
 <h3>Free tools</h3>
-<p>The local CLI tools, browser scanner, documentation, and GitHub Action are provided under their applicable open-source licenses. The free scanners detect configured patterns in the files or inventory you supply; they do not guarantee a complete AWS account inventory.</p>
-<h3>Paid repository evidence report</h3>
-<p>When its readiness gate is open, the only self-serve paid product is a static evidence report for one uploaded repository ZIP or supported source file. The report includes:</p>
+<p>The local CLI tools, browser scanner, documentation, and GitHub Action are provided under their applicable open-source licenses. The free scanners detect configured patterns in the files or inventory you supply; they do not certify a complete AWS account inventory.</p>
+<h3>Paid Offline Migration &amp; Audit Toolkit ($79)</h3>
+<p>The $79 Offline Migration &amp; Audit Toolkit is a downloadable software and template archive delivered via an unlisted HTTPS download link sent to the checkout email address after verified Stripe payment. The archive includes:</p>
+<ul>
+<li>a zero-dependency Python 3.10+ air-gapped CLI scanner that inspects local repositories, IaC templates, Dockerfiles, dependency manifests, and optional <code>aws lambda list-functions</code> JSON exports to emit local HTML/PDF-printable reports, Jira CSV exports, and SHA-256 attestation JSON files;</li>
+<li>local AST and source codemod utilities for Python 3.12/3.13 removed standard library modules, Node.js <code>aws-sdk</code> v2 to <code>@aws-sdk/*</code> v3 client mapping, and Amazon Linux 2 to AL2023 user-data/Dockerfile checks;</li>
+<li>Amazon Linux 2023 native wheel and N-API Lambda layer Dockerfiles (<code>x86_64</code> and <code>arm64</code>); and</li>
+<li>Terraform, AWS SAM, GitHub Actions canary rollback templates, and Change Advisory Board (CAB) sign-off checklists.</li>
+</ul>
+<p>All toolkit execution occurs locally in the buyer&#x27;s environment with no source code transmitted to EOLkits.</p>
+<h3>Paid Hosted Repository Evidence Report ($299)</h3>
+<p>When its server readiness gate is open, EOLkits also offers a $299 hosted static evidence report for one uploaded repository ZIP or supported source file. The report includes:</p>
 <ul>
 <li>exact observed file/line evidence for matched rules;</li>
 <li>observed match/file counts and a severity-based remediation order;</li>
@@ -29,33 +38,34 @@
 <li>the input SHA-256, rule-pack/report-engine versions, and a deterministic evidence fingerprint; and</li>
 <li>explicit scope and limitations.</li>
 </ul>
-<p>The report does <strong>not</strong> query a live AWS account, execute code, prove exploitability, count resources that are not present in the uploaded source, estimate downtime dollars, guarantee completeness, or constitute a digitally signed PDF. Target dates supplied at checkout are context only and do not change the price or findings.</p>
+<p>Neither paid product queries a live AWS account on its own, executes customer code, proves exploitability, counts resources absent from supplied inputs, estimates downtime dollars, certifies completeness, or constitutes a cryptographically signed PDF. Target dates supplied at checkout are planning context only and do not alter pricing or findings.</p>
 <h3>Unavailable concepts</h3>
-<p>Migration Pack, Drift Watch, and Organization License are private research/beta concepts and are not available for purchase. No listed feature, price, or prior page creates a right to purchase them. A stale direct payment that cannot be fulfilled is subject to automatic full refund handling.</p>
+<p>Migration Pack, Drift Watch, Partner Program, and Organization License are retired or research concepts and are not available for purchase. No listed feature, price, or prior page creates a right to purchase them. A stale direct payment that cannot be fulfilled is subject to automatic full refund handling.</p>
 <h2>3. Payment, Delivery, and Refunds</h2>
 <ul>
-<li>Payment is processed by Stripe in USD.</li>
-<li>The paid report is generated after verified payment and emailed when processing succeeds. Provider outages and unusually large valid inputs can delay delivery.</li>
-<li>If automated paid fulfillment permanently fails after retries, EOLkits queues a full refund to the original payment method. If Stripe does not confirm that refund, the order is flagged for operator review; customers may always use the contact route below.</li>
-<li>You may also request a full Audit refund within 30 days of purchase by emailing <code>hello@toledotechnologies.com</code> from the purchase address. Include the Stripe receipt or Checkout Session identifier. No explanation is required.</li>
+<li>Payment is processed by Stripe in USD (<strong>US buyers only</strong>).</li>
+<li>For the $79 Offline Migration &amp; Audit Toolkit, automated fulfillment emails the buyer&#x27;s unlisted HTTPS ZIP download link after Stripe confirms checkout.</li>
+<li>For the $299 Hosted Repository Evidence Report, the PDF is generated after verified payment and emailed when processing completes. Provider outages and unusually large valid inputs can delay delivery. If automated Audit v2 fulfillment permanently fails after retries, EOLkits queues a full refund to the original payment method and flags any unconfirmed refund for operator review.</li>
+<li><strong>30-day full refund policy:</strong> You may request a full refund on either paid product within 30 days of purchase by emailing <code>hello@toledotechnologies.com</code> from the purchase address with your Stripe receipt. No explanation is required.</li>
 <li>Refund posting time after issuance is controlled by Stripe and the customer&#x27;s financial institution.</li>
 </ul>
-<h2>4. Customer Responsibilities</h2>
-<p>You confirm that you have authority to upload and analyze the submitted files. Do not upload credentials, secrets, private keys, regulated personal data, or unrelated confidential material. Review every finding and test every change in a non-production environment before deployment.</p>
-<p>Uploads are subject to the limits shown before checkout, including compressed and expanded size, archive-entry, decoded-line, mapping-record, resource, and dependency-manifest complexity limits. Inputs outside those bounds are rejected before payment.</p>
+<h2>4. Customer Responsibilities and Retention Alignment</h2>
+<p>For uploaded Audit v2 inputs, you confirm that you have authority to upload and analyze the submitted files. Do not upload credentials, secrets, private keys, regulated personal data, or unrelated confidential material. Source uploads for delivered Audit v2 reports are deleted immediately upon delivery; unchecked uploads expire within 24 hours; checkout-bound uploads expire within 48 hours so fulfillment retries can complete; generated Audit v2 PDFs and <code>/verify/</code> metadata expire within 30 days.</p>
+<p>Review every finding and test every codemod, container layer, and infrastructure change in a non-production environment with rollback controls before production deployment.</p>
 <h2>5. Intellectual Property</h2>
 <ul>
-<li>Open-source code remains governed by its repository license.</li>
-<li>A purchased report may be used and shared internally within the purchasing organization.</li>
-<li>Customer source remains the customer&#x27;s property. EOLkits receives only the limited right to process it for requested fulfillment and security/abuse prevention during the stated retention period.</li>
+<li>Public repository CLIs remain governed by the MIT license.</li>
+<li>A purchased $79 Offline Migration &amp; Audit Toolkit archive is licensed for internal use across unlimited repositories owned or operated by the purchasing individual or company. Public redistribution, resale, or republishing of the commercial archive is prohibited.</li>
+<li>A purchased $299 report may be used and shared internally and with auditors or clients of the purchasing organization.</li>
+<li>Customer source remains the customer&#x27;s property.</li>
 </ul>
 <h2>6. Acceptable Use</h2>
 <p>Do not abuse, disrupt, probe without authorization, evade limits, upload malicious archives, infringe rights, or use EOLkits in violation of law or a third-party platform&#x27;s terms.</p>
 <h2>7. Disclaimers</h2>
-<p>EOLkits is provided &quot;as is&quot; and &quot;as available.&quot; AWS and other platforms may change schedules and behavior. Source analysis can produce false positives, false negatives, or recommendations that require environment-specific changes. EOLkits is not a substitute for security, legal, compliance, or production change review.</p>
-<p>To the maximum extent permitted by law, EOLkits is not liable for indirect, incidental, special, consequential, or lost-profit damages arising from use of the service. Nothing in these Terms excludes liability that cannot legally be excluded.</p>
+<p>EOLkits is provided &quot;as is&quot; and &quot;as available.&quot; AWS and other platforms may change schedules and behavior. Source analysis and codemods can produce false positives, false negatives, or changes that require workload-specific adjustment. EOLkits is not a substitute for security, legal, compliance, or production change review.</p>
+<p>To the maximum extent permitted by law, EOLkits is not liable for indirect, incidental, special, consequential, or lost-profit damages arising from use of the service or software, and total aggregate liability for any claim shall not exceed the amount paid by you for the specific product giving rise to the claim. Nothing in these Terms excludes liability that cannot legally be excluded.</p>
 <h2>8. Governing Law</h2>
-<p>These Terms are governed by the laws of the State of Connecticut, without regard to its conflict-of-law rules. This does not limit mandatory consumer protections that apply in your place of residence.</p>
+<p>These Terms are governed by the laws of the State of Connecticut, without regard to its conflict-of-law rules.</p>
 <h2>9. Changes and Contact</h2>
 <p>Material changes will be published here with a new update date. Questions and refund requests: <code>hello@toledotechnologies.com</code>. Postal correspondence may be sent to Toledo Technologies LLC, 2389 Main St. STE 100, Glastonbury, CT 06033, United States.</p>
 </body>

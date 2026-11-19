@@ -16,11 +16,13 @@ Use GitHub private vulnerability reporting:
 3. Include the affected revision, impact, reproduction, and any suggested fix.
 
 If private reporting is unavailable, email `hello@toledotechnologies.com` with
-the subject `EOLkits security report`. There is no guaranteed response time.
+the subject `EOLkits security report`. There is no promised response time.
 
 ## Current Boundaries
 
 - The free browser scanner processes selected files locally in the browser.
+- The $79 Offline Migration & Audit Toolkit executes locally in the buyer's
+  environment with no source code uploaded to EOLkits.
 - Paid Audit source uploads are immutable after receipt, size bounded, and
   deleted after successful delivery or swept within 48 hours. Generated reports
   are swept within 30 days.

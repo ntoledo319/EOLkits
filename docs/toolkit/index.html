@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="referrer" content="origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://eolkits.com; form-action 'self'">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AWS Runtime &amp; AL2023 Offline Migration Toolkit ($79) | EOLkits</title>
+<meta name="description" content="Air-gapped AWS Lambda &amp; Amazon Linux 2023 migration toolkit ($79): stdlib-only local scanner (HTML/PDF report + Jira CSV + SHA-256 attestation), Python 3.12/3.13 &amp; AWS SDK v3 codemods, AL2023 Lambda layer Dockerfiles, and canary rollback IaC.">
+<link rel="canonical" href="https://ntoledo319.github.io/EOLkits/toolkit/">
+<link rel="stylesheet" href="/EOLkits/style.css">
+<script defer src="/EOLkits/track.js"></script>
+<meta property="og:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "EOLkits \u2014 AWS Runtime & AL2023 Offline Migration Toolkit",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Linux, macOS, Windows (Python 3.10+)",
+  "offers": {
+    "@type": "Offer",
+    "price": "79",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock",
+    "url": "https://ntoledo319.github.io/EOLkits/toolkit/",
+    "eligibleRegion": {
+      "@type": "Country",
+      "name": "US"
+    }
+  }
+}</script>
+</head>
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="/EOLkits/" class="brand"><span class="brand-mark">&gt;</span> EOLkits</a>
+    <nav>
+      <a href="/EOLkits/migrate/">Deadlines</a>
+      <a href="/EOLkits/scan/">Free scan</a>
+      <a href="/EOLkits/toolkit/">Toolkit ($79)</a>
+      <a href="/EOLkits/audit/">Audit</a>
+      <a href="/EOLkits/about/">About</a>
+      <a href="https://github.com/ntoledo319/EOLkits" class="btn-ghost">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="urgency-strip">
+  <div class="container">
+    <span class="urgency-pill">Active AWS Alerts</span>
+    <strong>Python 3.10</strong> deprecated Oct 31, 2026 · <strong>.NET 8</strong> deprecated Nov 10, 2026 · <strong>AL2</strong> standard support ended Jun 30, 2026 · Create/update blocks: <strong>Jul 29 / Aug 31, 2027</strong>.
+  </div>
+</div>
+
+<main>
+  <section class="hero">
+    <div class="container hero-split">
+      <div>
+        <div class="eyebrow">Instant ZIP Download · Zero Source Upload · Unlimited Company Repos</div>
+        <h1>Audit &amp; migrate AWS runtimes behind your own firewall.</h1>
+        <p class="lede">Most engineering teams cannot upload proprietary source ZIPs to a third-party web form. The <strong>$79 Offline Migration &amp; Audit Toolkit</strong> runs 100% locally on Python 3.10+ stdlib—turning repositories, IaC, and <code>aws lambda list-functions</code> JSON into CAB-ready HTML/PDF reports, Jira CSV tickets, safe AST codemods, AL2023 container layers, and canary rollback IaC.</p>
+        <div class="cta-row">
+          <a class="btn-primary" href="https://buy.stripe.com/9B66oH5s2cFy2l51oE87K0C">Buy Offline Toolkit — $79 →</a>
+          <a class="btn-secondary" href="/EOLkits/toolkit/sample/">Inspect sample HTML report</a>
+          <a class="btn-ghost" href="/EOLkits/scan/">Try free browser scan</a>
+        </div>
+        <p class="market-note">One-time Stripe payment ($79 USD) · Unlisted HTTPS ZIP link emailed immediately after checkout · <strong>US buyers only</strong> · 30-day full refund policy via <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a>.</p>
+      </div>
+      <div class="terminal-card" aria-label="Sample offline CLI execution">
+        <div class="terminal-bar">
+          <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+          <span>eolkits_offline_audit.py — air-gapped local run</span>
+        </div>
+        <div class="terminal-body">
+          <div class="t-cmd">$ python3 src/eolkits_offline_audit.py \</div>
+          <div class="t-cmd">&nbsp;&nbsp;--repo ./payments-monorepo \</div>
+          <div class="t-cmd">&nbsp;&nbsp;--aws-lambda-json lambdas.json --out ./evidence</div>
+          <div class="t-dim">Scanning 142 IaC, Python, Node, .NET &amp; Dockerfile targets...</div>
+          <div><span class="t-crit">[CRITICAL]</span> infra/main.tf:14 — amzn2 AMI (AL2 EOL 2026-06-30)</div>
+          <div><span class="t-high">[HIGH]</span> infra/main.tf:9 — python3.10 (deprecated 2026-10-31)</div>
+          <div><span class="t-high">[HIGH]</span> ledger/Ledger.csproj:3 — net8.0 (dotnet8 deprecated 2026-11-10)</div>
+          <div><span class="t-high">[HIGH]</span> billing/app.py:1 — distutils removed in Python 3.12</div>
+          <div><span class="t-high">[HIGH]</span> webhooks/index.js:1 — aws-sdk v2 unbundled in Node 18+</div>
+          <div class="t-ok">✓ Wrote evidence/migration-evidence-report.html (Print-PDF ready)</div>
+          <div class="t-ok">✓ Wrote evidence/findings.csv (Jira / Linear import)</div>
+          <div class="t-ok">✓ Wrote evidence/attestation.json (SHA-256: 247f1685...d294)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>Everything inside <code>AWS-Runtime-EOL-Migration-Toolkit-v1.0.0.zip</code></h2>
+      <p class="sub">Zero external pip/npm runtime dependencies required to run the scanners and codemods—drop into air-gapped laptops, bastion hosts, or private GitHub/GitLab runners.</p>
+      <div class="deliverable-grid">
+        <article class="deliverable-card">
+          <h3>1. Air-Gapped Repo &amp; IaC Auditor</h3>
+          <p><code>src/eolkits_offline_audit.py</code> scans CloudFormation, SAM, CDK, Terraform, Serverless, Dockerfiles, <code>package.json</code>, <code>requirements.txt</code>, <code>.csproj</code>, and optional <code>aws lambda list-functions</code> JSON. Emits dark/print-CSS HTML reports, Jira CSVs, and deterministic SHA-256 attestations.</p>
+        </article>
+        <article class="deliverable-card">
+          <h3>2. Python 3.12 / 3.13 AST Doctor</h3>
+          <p><code>src/codemods/py312_313_stdlib_doctor.py</code> inspects Python ASTs for PEP 632 (<code>distutils</code>), PEP 594 (all 19 removed 3.13 modules), <code>collections.abc</code>, <code>@asyncio.coroutine</code>, and <code>datetime.utcnow()</code>—with safe <code>--apply</code> rewrites where semantics are 1:1.</p>
+        </article>
+        <article class="deliverable-card">
+          <h3>3. Node 24 &amp; AWS SDK v3 Mapper</h3>
+          <p><code>src/codemods/node_aws_sdk_v3_mapper.py</code> maps every <code>new AWS.&lt;Service&gt;()</code> call across JS/TS files to exact <code>@aws-sdk/client-*</code> v3 packages + install commands, and flags removed <code>crypto.createCipher</code> and OpenSSL 3 hazards.</p>
+        </article>
+        <article class="deliverable-card">
+          <h3>4. AL2 → AL2023 Cutover Linter</h3>
+          <p><code>src/codemods/al2_to_al2023_cutover_lint.py</code> catches <code>amazon-linux-extras</code>, <code>ntpd</code>, <code>iptables.service</code>, <code>python2</code> shebangs, EPEL assumptions, and unauthenticated IMDSv1 <code>169.254.169.254</code> calls in user-data, Packer, and shell scripts.</p>
+        </article>
+        <article class="deliverable-card">
+          <h3>5. AL2023 Native Layer Dockerfiles</h3>
+          <p>Reproducible multi-arch (<code>x86_64</code> and Graviton <code>arm64</code>) Dockerfiles on <code>public.ecr.aws/lambda/python:3.12</code>, <code>3.13</code>, and <code>nodejs:24</code> that compile C/Rust wheels and N-API addons against <code>glibc 2.34</code> with zero ELF mismatches.</p>
+        </article>
+        <article class="deliverable-card">
+          <h3>6. Canary Rollback IaC &amp; CAB Pack</h3>
+          <p>Production Terraform + AWS SAM weighted Lambda alias templates (10% canary traffic shift + automatic CloudWatch error-alarm rollback), GitHub Actions matrix CI gate, and Markdown CAB / SOC 2 sign-off templates.</p>
+        </article>
+      </div>
+      <p><a class="btn-primary" href="https://buy.stripe.com/9B66oH5s2cFy2l51oE87K0C">Instant Download — $79 USD →</a> &nbsp;<a class="btn-outline" href="/EOLkits/toolkit/sample/">Preview synthetic 14-finding HTML report →</a></p>
+    </div>
+  </section>
+
+  <section class="section dark">
+    <div class="container">
+      <h2>Choose the right fit</h2>
+      <div class="pricing-grid">
+        <article class="pricing-card">
+          <h3>Open-Source CLIs</h3>
+          <div class="price">$0</div>
+          <p>Individual MIT kits (<code>al2023-gate</code>, <code>python-pivot</code>, <code>lambda-lifeline</code>) + free in-browser file checker.</p>
+          <a class="btn-outline" href="https://github.com/ntoledo319/EOLkits">Clone on GitHub</a>
+        </article>
+        <article class="pricing-card featured">
+          <h3>Offline Migration &amp; Audit Toolkit</h3>
+          <div class="price">$79</div>
+          <p>Unified air-gapped scanner (HTML/PDF + Jira CSV + SHA-256 attestation), AST codemods, AL2023 layer Dockerfiles, canary rollback IaC, and CAB templates. Unlimited internal company repos.</p>
+          <a class="btn-primary" href="https://buy.stripe.com/9B66oH5s2cFy2l51oE87K0C">Buy Offline Toolkit — $79</a>
+          <p class="small"><a href="/EOLkits/toolkit/sample/">Sample report →</a> · US buyers only · 30-day refund policy</p>
+        </article>
+        <article class="pricing-card">
+          <h3>Hosted Evidence PDF</h3>
+          <div class="price">$299</div>
+          <p>Zero-install hosted scan of one uploaded repository ZIP returning a 4+ page server-rendered PDF and 30-day <code>/verify/</code> hash record (when upload gate is open).</p>
+          <a class="btn-outline" href="/EOLkits/audit/">Check $299 report</a>
+          <p class="small"><a href="/EOLkits/audit/sample/">Sample PDF →</a> · US buyers only · 30-day refund policy</p>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="muted small">Toledo Technologies LLC · 2389 Main St. STE 100, Glastonbury, CT 06033, United States · <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> · Self-serve Stripe checkouts: US buyers only.</div>
+    <div class="muted small"><a href="/EOLkits/">Home</a> · <a href="/EOLkits/migrate/">Deadlines</a> · <a href="/EOLkits/scan/">Free scan</a> · <a href="/EOLkits/audit/">Audit</a> · <a href="/EOLkits/about/">About</a> · <a href="/EOLkits/changelog/">Changelog</a> · <a href="/EOLkits/legal/terms.html">Terms</a> · <a href="/EOLkits/legal/privacy.html">Privacy</a> · <a href="/EOLkits/legal/SECURITY.html">Security</a></div>
+  </div>
+</footer>
+</body>
+</html>

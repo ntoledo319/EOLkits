@@ -60,11 +60,7 @@ CONTENT_SECURITY_POLICY = (
 # corpus. Record only materially changed pages here so a release does not falsely
 # rewrite every sitemap lastmod (or every article's first-publication date).
 PAGE_LASTMOD_OVERRIDES = {
-    "audit/index.html": "2026-09-04",
-    "lambda-runtime-deprecation-schedule/index.html": "2026-09-04",
     "legal/dpa.html": "2026-09-04",
-    "legal/privacy.html": "2026-09-04",
-    "legal/terms.html": "2026-09-04",
 }
 
 
@@ -204,15 +200,45 @@ def _og_image_meta():
 
 
 def write_og_image(path):
-    """Emit a deterministic 1200x630 social card (solid brand slate) with only the
-    stdlib, so every page's og:image/twitter:image resolves and unfurls aren't blank.
-    Pure function of its inputs — preserves the build's determinism guarantee.
-    (Placeholder art; a designed card can replace it without touching any meta tag.)"""
+    """Emit a deterministic 1200x630 social card with stdlib-only PNG encoding.
+
+    Renders dark #0b0e14 background, #ff5c2a top accent bar, framed #161c28 card,
+    and crisp block-pixel '> EOLKITS' emblem so every page's og:image unfurls
+    as an intentional developer card while remaining byte-deterministic.
+    """
     import struct
     import zlib
 
     width, height = 1200, 630
-    pixel = bytes((0x0F, 0x17, 0x2A))  # brand slate #0f172a
+    bg = b"\x0b\x0e\x14"
+    card = b"\x16\x1c\x28"
+    border = b"\x22\x2a\x38"
+    accent = b"\xff\x5c\x2a"
+    ink = b"\xe6\xe8\xeb"
+    muted = b"\x8b\x93\xa3"
+
+    glyphs = {
+        ">": ["11000", "01100", "00110", "00011", "00110", "01100", "11000"],
+        " ": ["000", "000", "000", "000", "000", "000", "000"],
+        "E": ["11111", "10000", "10000", "11110", "10000", "10000", "11111"],
+        "O": ["01110", "10001", "10001", "10001", "10001", "10001", "01110"],
+        "L": ["10000", "10000", "10000", "10000", "10000", "10000", "11111"],
+        "K": ["10001", "10010", "10100", "11000", "10100", "10010", "10001"],
+        "I": ["11111", "00100", "00100", "00100", "00100", "00100", "11111"],
+        "T": ["11111", "00100", "00100", "00100", "00100", "00100", "00100"],
+        "S": ["01111", "10000", "10000", "01110", "00001", "00001", "11110"],
+    }
+    scale = 12
+    x0, y0 = 120, 210
+    text = "> EOLKITS"
+    bitmap_cols = []
+    for idx, ch in enumerate(text):
+        pat = glyphs[ch]
+        color = accent if ch == ">" else ink
+        for col in range(len(pat[0])):
+            bitmap_cols.append(([pat[r][col] == "1" for r in range(7)], color))
+        if idx + 1 < len(text):
+            bitmap_cols.append(([False] * 7, ink))
 
     def _chunk(tag, data):
         body = tag + data
@@ -220,7 +246,38 @@ def write_og_image(path):
             struct.pack(">I", len(data)) + body + struct.pack(">I", zlib.crc32(body) & 0xFFFFFFFF)
         )
 
-    raw = (b"\x00" + pixel * width) * height  # per row: filter byte 0 + RGB pixels
+    rows = []
+    for y in range(height):
+        if y < 14:
+            rows.append(b"\x00" + accent * width)
+            continue
+        if y < 72 or y >= height - 72:
+            rows.append(b"\x00" + bg * width)
+            continue
+        if y in (72, 73, height - 73, height - 74):
+            rows.append(b"\x00" + bg * 72 + border * (width - 144) + bg * 72)
+            continue
+        row = bytearray(b"\x00" + bg * 72 + border * 2 + card * (width - 148) + border * 2 + bg * 72)
+        if y0 <= y < y0 + 7 * scale:
+            gr = (y - y0) // scale
+            cx = x0
+            for col_bits, col_rgb in bitmap_cols:
+                if col_bits[gr]:
+                    start = 1 + cx * 3
+                    row[start : start + scale * 3] = col_rgb * scale
+                cx += scale
+        elif 340 <= y < 350:
+            start = 1 + 120 * 3
+            row[start : start + 260 * 3] = accent * 260
+        elif 384 <= y < 396:
+            start = 1 + 120 * 3
+            row[start : start + 640 * 3] = muted * 640
+        elif 416 <= y < 428:
+            start = 1 + 120 * 3
+            row[start : start + 500 * 3] = muted * 500
+        rows.append(bytes(row))
+
+    raw = b"".join(rows)
     png = (
         b"\x89PNG\r\n\x1a\n"
         + _chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0))
@@ -237,90 +294,122 @@ def get_surge_price(base_price, days_until):
 
 
 def build_audit_page(pricing):
-    """Build the audit checkout page."""
+    """Build the audit & offline toolkit commercial hub page."""
+    pricing_view = build_pricing_view(pricing)
+    tk = pricing_view["toolkit"]
     html = (
         """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AWS deprecation evidence report | EOLkits</title>
-<meta name="description" content="A static repository evidence report for AWS runtime and Amazon Linux migration risks: exact file/line evidence, remediation, and configured rule or package references.">
+<title>AWS deprecation evidence report &amp; offline toolkit | EOLkits</title>
+<meta name="description" content="Choose between the $79 air-gapped Offline Migration &amp; Audit Toolkit (instant download, zero source upload) or the $299 hosted static repository evidence report.">
 <link rel="canonical" href="{SITE_URL}/audit/">
+<link rel="stylesheet" href="/style.css">
 <meta property="og:type" content="website">
-<meta property="og:title" content="AWS deprecation evidence report | EOLkits">
-<meta property="og:description" content="A fixed-price static repository report with exact file/line evidence, remediation notes, and explicit scope limits.">
+<meta property="og:title" content="AWS deprecation evidence report &amp; offline toolkit | EOLkits">
+<meta property="og:description" content="Reviewable file/line AWS migration evidence — run locally with the $79 Offline Toolkit or request a $299 hosted repository PDF.">
 <meta property="og:url" content="{SITE_URL}/audit/">
 <script defer src="/track.js"></script>
 """
         + _og_image_meta()
         + """<style>
-body{font-family:system-ui,-apple-system,sans-serif;max-width:820px;margin:0 auto;padding:2rem;line-height:1.6;color:#111827}
-.brand{color:#2563eb;font-weight:600}
-h1{margin-top:.3rem}
-.lede{font-size:1.15rem;color:#374151}
-.cta{display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:.7rem 1.2rem;border-radius:6px;font-weight:600}
-.cta:hover{background:#1d4ed8}
-.cta.secondary{background:#fff;color:#2563eb;border:2px solid #2563eb}
-.callout{background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #2563eb;border-radius:8px;padding:1.25rem;margin:1.5rem 0}
-.pricing{border:2px solid #e5e7eb;border-radius:8px;padding:1.5rem;margin:1.5rem 0}
-.price{font-size:2rem;font-weight:700;color:#059669}
-.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin:1rem 0}
-.tier{border:1px solid #d1d5db;border-radius:6px;padding:1rem;text-align:center}
-.tier.urgent{border-color:#dc2626;background:#fef2f2}
-.tier.soon{border-color:#f59e0b;background:#fffbeb}
-.valuebox{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:1.25rem;margin:1.5rem 0}
-.guarantee{background:#ecfdf5;border:2px solid #059669;border-radius:8px;padding:1.5rem;margin:1.5rem 0}
-.guarantee h3{margin-top:0;color:#059669}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0}
-.cell{border:1px solid #e5e7eb;border-radius:8px;padding:1rem;font-size:.92rem}
-.cell h4{margin:.2rem 0}
+.audit-wrap{max-width:960px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.cta{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:.75rem 1.25rem;border-radius:8px;font-weight:600}
+.cta:hover{background:var(--accent-dim);color:#fff}
+.cta.secondary{background:var(--bg-card);color:var(--ink);border:1px solid var(--border)}
+.cta.secondary:hover{border-color:var(--accent);color:var(--ink)}
+.callout{background:var(--bg-card);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:10px;padding:1.25rem;margin:1.5rem 0}
+.pricing{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+.price{font-size:2.1rem;font-weight:800;color:var(--ink)}
+.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;margin:1rem 0}
+.tier{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1.35rem;text-align:left}
+.tier.featured{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.valuebox{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin:1.5rem 0}
+.refund-box{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.4);border-radius:10px;padding:1.35rem;margin:1.5rem 0}
+.refund-box h3{margin-top:0;color:#4ade80}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1rem;margin:1.5rem 0}
+.cell{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:1rem;font-size:.92rem}
+.cell h4{margin:.2rem 0 .4rem;color:var(--ink)}
 .logos{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0}
-.logos span{border:1px solid #d1d5db;border-radius:999px;padding:.3rem .8rem;font-size:.85rem;color:#374151;background:#f9fafb}
-.reassure{color:#6b7280;font-size:.9rem;margin:.5rem 0}
-.faq{margin:2rem 0}
-.faq details{border-bottom:1px solid #e5e7eb;padding:.75rem 0}
-.faq summary{font-weight:600;cursor:pointer}
-button{background:#2563eb;color:white;border:none;padding:0.75rem 1.5rem;border-radius:6px;font-size:1rem;cursor:pointer}
-button:hover{background:#1d4ed8}
-form#auditForm{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:1.5rem;margin:1rem 0}
-form#auditForm input{box-sizing:border-box;max-width:100%;width:100%;padding:.65rem}
-.assurances{background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:1rem 1.25rem;margin:1rem 0}
+.logos span{border:1px solid var(--border);border-radius:999px;padding:.3rem .8rem;font-size:.85rem;color:var(--ink-muted);background:var(--bg-card)}
+.reassure{color:var(--ink-muted);font-size:.9rem;margin:.5rem 0}
+button{background:var(--accent);color:white;border:none;padding:0.75rem 1.5rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer}
+button:hover{background:var(--accent-dim)}
+form#auditForm{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:1.5rem;margin:1rem 0}
+form#auditForm input{box-sizing:border-box;max-width:100%;width:100%;padding:.65rem;background:var(--bg);color:var(--ink);border:1px solid var(--border);border-radius:6px}
+.assurances{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin:1rem 0}
 .assurances ul{margin:.5rem 0 0;padding-left:1.2rem}
-footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
+.assurances a,.callout a,.pricing a{color:var(--accent);text-decoration:underline}
+.pricing a.cta,.callout a.cta{color:#fff;text-decoration:none}
+.callout a.cta.secondary,.pricing a.cta.secondary{color:var(--ink)}
 </style>
 </head>
 <body>
-<a href="/" class="brand">← EOLkits</a>
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="/" class="brand"><span class="brand-mark">&gt;</span> EOLkits</a>
+    <nav>
+      <a href="/migrate/">Deadlines</a>
+      <a href="/scan/">Free scan</a>
+      <a href="/toolkit/">Toolkit ($79)</a>
+      <a href="/audit/">Audit</a>
+      <a href="/about/">About</a>
+      <a href="https://github.com/ntoledo319/EOLkits" class="btn-ghost">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main class="audit-wrap">
 <h1>Turn a repository into reviewable AWS migration evidence</h1>
-<p class="lede">Upload one repository ZIP or supported source file. The <strong>$299 evidence report</strong> returns the exact files and lines that matched, a severity-and-reach-ranked remediation order, and a configured rule or package reference for each matched finding. It is a static source scan—not a live AWS inventory.</p>
+<p class="lede">Pick the delivery model your security team approves: download the <strong>$79 air-gapped Offline Migration &amp; Audit Toolkit</strong> to scan and codemod locally with zero source upload, or use the <strong>$299 hosted repository evidence report</strong> for one uploaded ZIP or supported source file. Both produce static source evidence—not a live AWS account inventory.</p>
 
 <div class="callout">
-  <strong>Don't take our word for it.</strong> &nbsp;<a class="cta secondary" href="/scan/">▶ Run the free scan</a><br>
-  Check representative files locally before paying. The paid report adds archive-wide scanning of supported text files, exact line evidence, a severity-and-reach-ranked remediation order, and an evidence fingerprint.
+  <strong>Start with a local check.</strong> &nbsp;<a class="cta secondary" href="/scan/">▶ Run the free scan</a> &nbsp;<a class="cta" href=\""""
+        + tk["payment_link"]
+        + """\">Buy $79 Offline Toolkit (Instant Download) →</a><br>
+  Check representative files in your browser first. Paid options add archive-wide scanning of supported text files, exact line evidence, a severity-and-reach-ranked remediation order, and an evidence fingerprint. Self-serve Stripe checkouts are for <strong>US buyers only</strong>.
 </div>
 
-<h2>What you get</h2>
-<ul>
-  <li>Exact <strong>file:line evidence</strong> and observed match counts—no invented resource counts</li>
-  <li>A <strong>roll-forward order</strong> based on finding severity and observed reach</li>
-  <li>The configured rule or package reference for each finding; dependency floors are conservative triage baselines that still require target-specific verification</li>
-  <li>Explicit scope and limitations: what was scanned, skipped, and not inferred</li>
-  <li>Input SHA-256 plus a deterministic <strong>evidence fingerprint</strong> verifiable at <code>/verify/</code></li>
-</ul>
-<p><a class="cta secondary" href="/audit/sample/">▶ Inspect the fictional sample</a> &nbsp; <a href="/audit/sample/eolkits-sample-report.pdf">Download the engine-generated PDF →</a></p>
-
+<h2>Two ways to get CAB-ready migration evidence</h2>
 <div class="pricing">
-  <h2>Pricing</h2>
-  <div class="tiers"><div class="tier"><strong>One repository</strong><div class="price">$299</div><p>ZIP archive or one supported source file · one fixed price</p></div></div>
-  <p class="reassure">A target date may be included as planning context. It never changes the price or scan results.</p>
+  <div class="tiers">
+    <div class="tier featured">
+      <strong>Offline Migration &amp; Audit Toolkit (Instant Download)</strong>
+      <div class="price">$79</div>
+      <p>Zero source upload · unlimited internal repositories · instant ZIP link by email.</p>
+      <ul>
+        <li>Stdlib-only Python 3.10+ scanner emitting local HTML/PDF-printable report, Jira CSV, and SHA-256 <code>attestation.json</code></li>
+        <li>AST codemods for Python 3.12/3.13 removed stdlib modules, <code>aws-sdk</code> v2 → v3 mapper, and AL2023 cutover linter</li>
+        <li>AL2023 native Lambda layer Dockerfiles (<code>x86_64</code> &amp; <code>arm64</code>) + Terraform/SAM canary rollback templates</li>
+      </ul>
+      <p><a class="cta" href=\""""
+        + tk["payment_link"]
+        + """\">Buy Offline Toolkit — $79</a> &nbsp;<a class="cta secondary" href="/toolkit/">Full specs</a></p>
+      <p class="reassure"><a href="/toolkit/sample/">Inspect the synthetic air-gapped HTML report →</a> · US buyers only · 30-day full refund policy.</p>
+    </div>
+    <div class="tier">
+      <strong>Hosted Repository Evidence Report (One Repository)</strong>
+      <div class="price">$299</div>
+      <p>ZIP archive or one supported source file · one fixed price · server-rendered 4+ page PDF.</p>
+      <ul>
+        <li>Exact <strong>file:line evidence</strong> and observed match counts—no invented resource counts</li>
+        <li>A <strong>roll-forward order</strong> based on finding severity and observed reach</li>
+        <li>Configured rule or package reference per finding + input SHA-256 verifiable at <code>/verify/</code></li>
+      </ul>
+      <p><a class="cta secondary" href="/audit/sample/">▶ Inspect the fictional sample</a> &nbsp;<a href="/audit/sample/eolkits-sample-report.pdf">Sample PDF →</a></p>
+      <p class="reassure">A target date may be included as planning context. It never changes the price or scan results. US buyers only.</p>
+    </div>
+  </div>
 </div>
 
+<h2>Hosted $299 report upload &amp; readiness gate</h2>
 <div class="assurances">
-  <strong>Before you upload:</strong>
+  <strong>Before you upload for the $299 hosted PDF:</strong>
   <ul>
     <li>No AWS credentials or AWS account access are requested.</li>
-    <li>Successfully processed source is deleted immediately; checkout-bound uploads expire within 48 hours and generated reports within 30 days.</li>
+    <li>Successfully processed source is deleted immediately; unchecked uploads expire within 24 hours; checkout-bound uploads expire within 48 hours and generated reports within 30 days.</li>
+    <li>Cannot upload proprietary source code? <a href="/toolkit/">Use the $79 Offline Migration &amp; Audit Toolkit instead</a> so code stays on your workstation or CI runner.</li>
     <li><a href="/audit/sample/">Inspect the fictional input, engine-generated PDF, and hash manifest</a> before deciding.</li>
   </ul>
 </div>
@@ -328,54 +417,54 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 <div id="auditGate" class="callout"><strong>Checkout status:</strong> The upload form appears here only when the live API confirms checkout is open on report engine 2.0. The form needs JavaScript.</div>
 <div id="auditInterest" class="callout">
   <strong>Found a relevant issue in a real project?</strong>
-  If checkout is not open when you visit and this exact one-repository
+  For immediate self-serve delivery with zero code upload, grab the <a href="/toolkit/">$79 Offline Migration &amp; Audit Toolkit</a> above. If checkout is not open when you visit and this exact one-repository
   report would be worth $299 to you, record a public, no-obligation demand signal.
   It is not an order, reservation, waitlist, or promise of a reply.
   <p><a class="cta secondary" href="{AUDIT_INTEREST_URL}" target="_blank" rel="noopener">Record qualified $299 interest on GitHub</a></p>
   <p class="reassure">GitHub publishes your username and submission. Do not include repository names, filenames, code, secrets, security details, company information, or personal data.</p>
 </div>
 <form id="auditForm" hidden>
-  <h3>Start Audit</h3>
+  <h3>Start Hosted $299 Audit (US buyers only)</h3>
   <p><input type="email" id="auditEmail" name="email" placeholder="your@email.com" required></p>
   <p><input type="date" id="auditDeadline" name="deadline" aria-label="Deadline date"></p>
   <p><input type="file" id="auditFile" name="file" required accept=".zip,.yaml,.yml,.json,.tf,.tfvars,.js,.ts,.tsx,.py,.toml,.lock,.sh,.txt"></p>
   <p class="reassure">Upload limits: 10 MiB input; ZIPs may contain at most 2,000 entries and 25 MiB expanded text. Analysis is also bounded to 500,000 decoded lines, 100,000 mapping records per file, 10,000 Lambda resources per file, 10,000 retained evidence records, and 1 MiB per dependency manifest. Binary archive members are skipped; standalone binary inputs and archives with no supported text are rejected. Encrypted, ambiguous-path, path-traversing, over-complex, and suspiciously compressed archives are rejected before checkout. Do not upload secrets or unrelated personal data.</p>
   <button id="auditSubmit" type="submit">Upload and Proceed to Checkout</button>
-  <p class="reassure">By continuing, you authorize this upload to be scanned and agree to the <a href="/legal/terms.html">Terms</a> and <a href="/legal/privacy.html">Privacy Policy</a>. Stripe Checkout shows the final $299 price before payment.</p>
-  <p id="auditStatus" style="color:#6b7280;font-size:.875rem"></p>
+  <p class="reassure">By continuing, you confirm you are a US buyer, authorize this upload to be scanned, and agree to the <a href="/legal/terms.html">Terms</a> and <a href="/legal/privacy.html">Privacy Policy</a>. Stripe Checkout shows the final $299 price before payment.</p>
+  <p id="auditStatus" style="color:var(--ink-muted);font-size:.875rem"></p>
 </form>
 
 <div class="valuebox">
-  <strong>What this buys:</strong> a reviewable change-approval artifact your team can check against the uploaded repository and the linked rule or package references. No speculative downtime-dollar estimate is included.
+  <strong>What both paid options buy:</strong> a reviewable change-approval artifact your team can verify against repository files and primary-source AWS/Python/Node references. No speculative downtime-dollar estimate is included.
 </div>
 
-<div class="guarantee">
-  <h3>30-day refund policy</h3>
-  <p><strong>Request a full refund within 30 days.</strong> Email from the purchase address with the Stripe receipt or Checkout Session identifier; no explanation is required.</p>
-  <p>If fulfillment permanently fails after retries, the system queues a full refund. Any refund that cannot be confirmed is surfaced for operator review.</p>
+<div class="refund-box">
+  <h3>30-day full refund policy</h3>
+  <p><strong>Request a full refund within 30 days on either paid product.</strong> Email <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> from the purchase address with your Stripe receipt; no explanation is required.</p>
+  <p>If automated Audit v2 fulfillment permanently fails after retries, the system queues a full refund and surfaces any unconfirmed refund for operator review.</p>
 </div>
 
-<h2>Why you can trust the report (without trusting the brand)</h2>
+<h2>How findings are verified</h2>
 <div class="grid">
-  <div class="cell"><h4>Evidence, not estimates</h4>Each match includes the observed file, line, and text.</div>
+  <div class="cell"><h4>Evidence, not estimates</h4>Each match includes the observed file, line, and matched snippet.</div>
   <div class="cell"><h4>Checkable references</h4>Each finding links its configured rule or package reference; conservative dependency floors still require release and target verification.</div>
-  <div class="cell"><h4>Repeatable findings</h4>The evidence fingerprint covers the input hash, rule-pack version, and canonical findings.</div>
-  <div class="cell"><h4>Bounded scope</h4>The report says plainly that it does not query AWS or prove a complete inventory.</div>
+  <div class="cell"><h4>Repeatable hashes</h4>Both the $79 local CLI and $299 hosted PDF emit deterministic SHA-256 input and evidence hashes.</div>
+  <div class="cell"><h4>Bounded scope</h4>Neither product queries live AWS credentials on its own or claims an unbounded cloud inventory.</div>
 </div>
 
 <div class="logos">
-  <span>AWS</span><span>CloudFormation / SAM</span><span>CDK</span><span>Terraform</span><span>Serverless</span><span>Ansible</span><span>Packer</span><span>cloud-init</span><span>GitHub Actions</span>
+  <span>AWS Lambda</span><span>Amazon Linux 2023</span><span>CloudFormation / SAM</span><span>CDK</span><span>Terraform</span><span>Serverless</span><span>Python 3.12 / 3.13</span><span>Node.js 24</span><span>.NET 10</span>
 </div>
 
-<h2>How it works</h2>
+<h2>How the hosted $299 report works</h2>
 <ol>
   <li>Upload a repository ZIP or a supported SAM / CDK / Terraform / Serverless / cloud-init source file (10 MiB compressed maximum)</li>
-  <li>We safely inspect supported text files without extracting the archive to disk</li>
-  <li>Get a PDF by email after automated processing; delays and retries are possible</li>
-  <li>Verify the evidence metadata at <code>/verify/</code> during its retention window of up to 30 days</li>
+  <li>We inspect supported text files in memory without extracting the archive onto the host filesystem</li>
+  <li>Receive the generated PDF by email after automated processing; delays and retries are possible</li>
+  <li>Verify the evidence metadata at <code>/verify/</code> during its 30-day retention window</li>
 </ol>
 
-<p class="reassure">Stripe checkout · automated delivery with durable retries · 30-day money-back guarantee</p>
+<p class="reassure">Stripe checkout (US buyers only) · automated delivery with durable retries · 30-day full refund policy</p>
 
 <script>
 const API = '{API_URL}';
@@ -405,13 +494,8 @@ const auditSubmit = document.getElementById('auditSubmit');
 const deadlineInput = document.getElementById('auditDeadline');
 const auditGate = document.getElementById('auditGate');
 const auditInterest = document.getElementById('auditInterest');
-// Prefill report context from a deadline-tagged migration page. The deadline does
-// not alter price.
 if (qp.get('deadline') && deadlineInput) deadlineInput.value = qp.get('deadline');
 if (qp.get('cancelled')) auditStatus.textContent = 'Checkout cancelled — finish whenever you are ready.';
-// The page says "paused" only when the API says checkout_enabled is false. A
-// network failure or an unexpected answer says nothing about checkout state, so
-// the page then claims neither "open" nor "paused" and offers a reload.
 auditGate.textContent = 'Checking checkout status…';
 function auditGateUnconfirmed() {{
   auditGate.textContent = 'Checkout status could not be confirmed just now. ';
@@ -427,7 +511,7 @@ fetch(API + '/api/capabilities', {{ cache: 'no-store', credentials: 'omit' }}).t
     auditGate.hidden = true;
     auditInterest.hidden = true;
   }} else if (a && a.checkout_enabled === false) {{
-    auditGate.textContent = 'Audit checkout is paused right now.';
+    auditGate.textContent = 'Audit checkout is paused right now — the $79 Offline Toolkit above remains open for instant download.';
   }} else {{
     auditGateUnconfirmed();
   }}
@@ -494,16 +578,19 @@ auditForm.addEventListener('submit', async (event) => {{
 
 <div class="faq">
 <h2>Questions</h2>
-<details><summary>Why pay when the CLI is free?</summary><p>The CLI is the right choice for hands-on engineers. The paid product packages supported-file evidence across the uploaded archive, line locations, prioritization, limitations, and references into a shareable PDF.</p></details>
-<details><summary>Is my code safe?</summary><p>Uploads travel over TLS, are used only for report generation, and are deleted after successful delivery. Unchecked uploads normally expire within 24 hours; checkout-bound uploads are retained for no more than 48 hours so retries can finish. Generated reports expire within 30 days. Prefer no upload? Use the free local tools.</p></details>
-<details><summary>How can I trust the results?</summary><p>Check the exact file/line evidence and the configured rule or package reference for each finding. Dependency floors are conservative triage baselines, not guarantees of target compatibility. The report carries an input hash and evidence fingerprint. It does not claim to be a digitally signed PDF.</p></details>
-<details><summary>How fast is it?</summary><p>Processing is automated, but delivery time depends on queue, runner, and email-provider availability. Failed jobs retry and unresolved failures surface for refund review.</p></details>
-<details><summary>What if it's wrong, or I'm just not happy?</summary><p>Email us within 30 days for a full refund. No questions asked.</p></details>
+<details><summary>Which option should I pick: $0 CLI, $79 Offline Toolkit, or $299 Hosted PDF?</summary><p>Use the free MIT CLIs to inspect single runtimes by hand. Pick the $79 Offline Toolkit when InfoSec forbids uploading source code or when you want unified cross-stack HTML/PDF + Jira CSV reports, Python 3.12/3.13 &amp; AWS SDK v3 codemods, AL2023 Dockerfiles, and canary rollback IaC across unlimited company repos. Pick the $299 Hosted PDF when you want a zero-install server-rendered PDF + <code>/verify/</code> hash for one uploaded repository.</p></details>
+<details><summary>Is my code safe?</summary><p>With the $79 Offline Toolkit and free browser scanner, source code never leaves your machine. For the $299 hosted report, uploads travel over TLS, are used only for report generation, and are deleted immediately after delivery (unchecked uploads expire within 24 hours; checkout-bound uploads expire within 48 hours; generated reports expire within 30 days).</p></details>
+<details><summary>How are findings verified?</summary><p>Check the exact file/line evidence and the configured rule or package reference for each finding. Dependency floors are conservative triage baselines, not proof of target compatibility. Reports carry an input hash and deterministic evidence fingerprint; they do not claim to be cryptographically signed PDFs.</p></details>
+<details><summary>How does delivery work?</summary><p>The $79 Offline Toolkit emails an unlisted HTTPS ZIP download link after Stripe confirms payment. The $299 hosted PDF runs through automated background processing with durable retries.</p></details>
+<details><summary>What if I need a refund?</summary><p>Email <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> within 30 days from your purchase email with your Stripe receipt for a full refund. No explanation is required.</p></details>
 </div>
+</main>
 
-<footer>
-  <p>File/line evidence · configured references · input hash + evidence fingerprint · checkout and automated delivery remain readiness-gated.</p>
-  <p><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/scan/">Free scan</a> · <a href="/audit/sample/">Sample report</a></p>
+<footer class="footer">
+  <div class="container">
+    <div class="muted small">Toledo Technologies LLC · 2389 Main St. STE 100, Glastonbury, CT 06033, United States · <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> · Self-serve Stripe checkouts: US buyers only.</div>
+    <div class="muted small"><a href="/">Home</a> · <a href="/toolkit/">Offline Toolkit ($79)</a> · <a href="/scan/">Free scan</a> · <a href="/audit/sample/">Sample report</a> · <a href="/about/">About</a> · <a href="/changelog/">Changelog</a> · <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></div>
+  </div>
 </footer>
 </body>
 </html>"""
@@ -555,7 +642,7 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 </ul>
 
 <h2>What the report does not claim</h2>
-<p>It does not estimate downtime dollars, count deployed instances/functions, inspect omitted files, or guarantee that a match is reachable at runtime. Those facts require environment-specific validation.</p>
+<p>It does not estimate downtime dollars, count deployed instances/functions, inspect omitted files, or certify that a match is reachable at runtime. Those facts require environment-specific validation.</p>
 
 <a class="cta" href="/audit/?source=audit_sample&amp;utm_source=audit_sample&amp;utm_medium=proof">Review the fixed $299 scope and availability →</a>
 <p><a href="/scan/">Or run the free scan first →</a></p>
@@ -660,18 +747,24 @@ def deprecation_slug(dep):
 
 
 def build_pricing_view(full_pricing):
-    """Extract canonical Audit price/link facts for public pages."""
+    """Extract canonical Toolkit and Audit price/link facts for public pages."""
     skus = full_pricing.get("skus", full_pricing)
+
+    toolkit = skus.get("toolkit", {})
+    toolkit_price = toolkit.get("price_usd", 79)
+    toolkit_plink = toolkit.get("payment_link", "https://buy.stripe.com/9B66oH5s2cFy2l51oE87K0C")
 
     audit = skus.get("audit", {})
     audit_tiers = {t.get("name"): t for t in audit.get("tiers", [])}
     standard = audit_tiers.get("standard", {})
     audit_base = standard.get("price_usd", 299)
 
-    # Always route to the on-site page, which opens a server-side Checkout
-    # Session. Direct Stripe Payment Links are intentionally not used because
-    # they bypass the input-bound fulfillment gate.
     return {
+        "toolkit": {
+            "price": toolkit_price,
+            "link": "/toolkit/",
+            "payment_link": toolkit_plink,
+        },
         "audit_pdf": {
             "base": audit_base,
             "link": "/audit/",
@@ -888,14 +981,24 @@ def build_llms_txt(deprecations, pricing_view):
 
     lines += [
         "",
-        "## Pricing",
+        "## Pricing (US buyers only for self-serve paid Stripe checkouts)",
         "",
         "- Free CLI: MIT-licensed kits (al2023-gate, python-pivot, lambda-lifeline). "
         "git clone https://github.com/ntoledo319/EOLkits",
+        f"- [Offline Migration & Audit Toolkit]({SITE_URL}/toolkit/): "
+        f"${pricing_view['toolkit']['price']} — instant ZIP download (zero source upload) "
+        f"with air-gapped Python 3.10+ scanner (HTML/PDF-printable report + Jira CSV + "
+        f"SHA-256 attestation), Python 3.12/3.13 & AWS SDK v3 codemods, AL2023 native "
+        f"Lambda layer Dockerfiles, canary rollback IaC, and CAB sign-off templates.",
         f"- [Audit PDF]({SITE_URL}/audit/): ${pricing_view['audit_pdf']['base']} "
         f"— one repository ZIP or supported source file; exact file/line evidence, "
         f"remediation order, configured references, and a deterministic evidence fingerprint.",
         "- No subscription, AWS-account inventory, or automated pull-request product is for sale.",
+        "",
+        "## Company & Trust",
+        "",
+        f"- [About EOLkits]({SITE_URL}/about/): Toledo Technologies LLC, Glastonbury, CT.",
+        f"- [Changelog]({SITE_URL}/changelog/): rule-pack and schedule updates.",
         "",
         "## Calendar",
         "",
@@ -934,6 +1037,13 @@ def build_lambda_schedule_page(deprecations, pricing_view):
 
     ap = pricing_view.get("audit_pdf", {}) if isinstance(pricing_view, dict) else {}
     audit_base = ap.get("base", 299) if isinstance(ap, dict) else 299
+    tk = pricing_view.get("toolkit", {}) if isinstance(pricing_view, dict) else {}
+    tk_price = tk.get("price", 79) if isinstance(tk, dict) else 79
+    tk_plink = (
+        tk.get("payment_link", "https://buy.stripe.com/9B66oH5s2cFy2l51oE87K0C")
+        if isinstance(tk, dict)
+        else "https://buy.stripe.com/9B66oH5s2cFy2l51oE87K0C"
+    )
     lam = [
         d
         for d in deprecations.get("deprecations", [])
@@ -950,7 +1060,16 @@ def build_lambda_schedule_page(deprecations, pricing_view):
         update = _h.escape(str(d.get("block_update_date") or "—"))
         sev = _h.escape(str(d.get("severity", "")))
         tags = " ".join(d.get("tags", [])).lower()
-        target = "python3.12" if "python" in tags else ("nodejs24.x" if "nodejs" in tags else "—")
+        if "python" in tags:
+            target = "python3.12"
+        elif "nodejs" in tags:
+            target = "nodejs24.x"
+        elif "dotnet" in tags:
+            target = "dotnet10"
+        elif "provided.al2" in rt.lower():
+            target = "provided.al2023"
+        else:
+            target = "—"
         src = _h.escape(str(d.get("url", "")))
         rows += (
             '<tr><td><a href="/migrate/' + slug + '/"><code>' + rt + "</code></a></td>"
@@ -999,33 +1118,44 @@ def build_lambda_schedule_page(deprecations, pricing_view):
         '<script defer src="/track.js"></script>\n'
         '<script type="application/ld+json">' + json.dumps(faq) + "</script>\n"
         "<style>.sched{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.92rem}"
-        ".sched th,.sched td{border:1px solid #e5e7eb;padding:.5rem .6rem;text-align:left}"
-        ".sched th{background:#f3f4f6}.sched .sev{font-weight:700}"
-        ".sev-critical{color:#dc2626}.sev-high{color:#ea580c}.sev-medium{color:#ca8a04}"
-        ".audit-card{background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;padding:1rem 1.25rem;margin:1.5rem 0}"
-        ".audit-card h2{margin:.1rem 0 .35rem}.audit-card .cta{margin:.5rem 0}"
-        ".cta{display:inline-block;margin:1rem 0;padding:.7rem 1.2rem;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600}</style>\n"
+        ".sched th,.sched td{border:1px solid var(--border);padding:.55rem .65rem;text-align:left}"
+        ".sched th{background:var(--bg-card);color:var(--ink-muted)}.sched .sev{font-weight:700}"
+        ".sev-critical{color:#ff6b6b}.sev-high{color:var(--accent)}.sev-medium{color:#eab308}"
+        ".audit-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.35rem;margin:1.5rem 0}"
+        ".audit-card h2{margin:.1rem 0 .35rem}.audit-card .cta{margin:.5rem .5rem .5rem 0}"
+        ".cta{display:inline-block;margin:1rem 0;padding:.7rem 1.2rem;background:var(--accent);color:#fff;text-decoration:none;border-radius:8px;font-weight:600}"
+        ".cta.sec{background:var(--bg);border:1px solid var(--border);color:var(--ink)}</style>\n"
         "</head>\n"
         '<body class="container article">\n'
         '<nav class="breadcrumb"><a href="/">Home</a> / <a href="/migrate/">Deadlines</a> / <span>Lambda runtime schedule</span></nav>\n'
         "<h1>AWS Lambda runtime deprecation schedule (2026–2027)</h1>\n"
         "<p>For the runtimes EOLkits tracks: when patches stop, when AWS says it will block <strong>creating</strong> new functions, when it will block <strong>updating</strong> existing ones, and the target currently supported by these bounded tools. Each row links the AWS source; future dates can change.</p>\n"
-        '<p><a class="cta" href="/scan/">Scan your stack free — find your deprecated runtimes →</a></p>\n'
+        '<p><a class="cta" href="/scan/">Scan your stack free — find your deprecated runtimes →</a> <a class="cta sec" href="/toolkit/">Offline Toolkit ($'
+        + str(tk_price)
+        + ", no code upload) →</a></p>\n"
         '<p>Prefer a 10-second check? Paste your config into the <a href="/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>\n'
         '<table class="sched"><thead><tr><th>Runtime</th><th>Deprecation</th><th>Blocks create</th><th>Blocks update</th><th>Severity</th><th>EOLkits target</th><th>Source</th></tr></thead><tbody>\n'
         + rows
         + "\n</tbody></table>\n"
         '<p class="muted">Functions keep running after deprecation, but become unpatched and — after the block-update date — unmodifiable. Dates reflect the AWS-published schedule and can shift; the linked AWS page is authoritative.</p>\n'
         '<div class="audit-card"><h2>Need archive-wide source evidence?</h2>'
-        "<p>The fixed $"
+        "<p>Cannot upload company source code? The $"
+        + str(tk_price)
+        + " Offline Migration &amp; Audit Toolkit downloads instantly via Stripe and runs 100% locally (HTML/PDF-printable report, Jira CSV, SHA-256 attestation, Python/Node codemods, AL2023 Dockerfiles, and canary rollback IaC). Or use the fixed $"
         + str(audit_base)
-        + " report scans supported source and IaC in one uploaded archive without AWS credentials, then returns exact observed file/line evidence, configured references, scope limits, and a remediation order. Inspect the fictional engine output before deciding.</p>"
-        '<p><a class="cta" href="/audit/?source=lambda_schedule&amp;utm_source=organic&amp;utm_medium=schedule&amp;utm_campaign=repo_audit">Inspect the sample and report availability →</a></p>'
+        + " report to scan one uploaded archive without AWS credentials and return observed file/line evidence, configured references, scope limits, and a remediation order. Self-serve paid checkouts: US buyers only.</p>"
+        '<p><a class="cta" href="'
+        + tk_plink
+        + '">Buy $'
+        + str(tk_price)
+        + ' Offline Toolkit (Instant Download) →</a> <a class="cta sec" href="/audit/?source=lambda_schedule&amp;utm_source=organic&amp;utm_medium=schedule&amp;utm_campaign=repo_audit">Inspect the sample and report availability →</a></p>'
         '<p class="muted">Schedule source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">AWS Lambda runtimes</a>. Future dates can change.</p></div>\n'
         "<h2>Fixing the upgrade</h2>\n"
-        '<p>The upgrade can surface specific errors — removed stdlib modules, the unbundled AWS SDK v2 on Node 18+, native-wheel/ABI breaks. See <a href="/fix/">common migration error fixes</a>, or check the <a href="/audit/">repository evidence report ($'
+        '<p>The upgrade can surface specific errors — removed stdlib modules, the unbundled AWS SDK v2 on Node 18+, native-wheel/ABI breaks. See <a href="/fix/">common migration error fixes</a>, grab the <a href="/toolkit/">$'
+        + str(tk_price)
+        + ' Offline Toolkit</a>, or check the <a href="/audit/">repository evidence report ($'
         + str(audit_base)
-        + ", 30-day money-back)</a> for exact file/line matches, configured references, and a remediation order.</p>\n"
+        + ", 30-day refund policy)</a> for exact file/line matches, configured references, and a remediation order.</p>\n"
         '<p><a href="/migrate/">See all tracked AWS deadlines →</a></p>\n'
         "</body>\n</html>\n"
     )
@@ -1039,6 +1169,8 @@ def build_eol_checker_page(deprecations, pricing_view):
     shareable top-of-funnel asset that routes to the free /scan and the paid /audit."""
     ap = pricing_view.get("audit_pdf", {}) if isinstance(pricing_view, dict) else {}
     audit_base = ap.get("base", 299) if isinstance(ap, dict) else 299
+    tk = pricing_view.get("toolkit", {}) if isinstance(pricing_view, dict) else {}
+    tk_price = tk.get("price", 79) if isinstance(tk, dict) else 79
 
     rows = {}
     for d in deprecations.get("deprecations", []):
@@ -1056,13 +1188,19 @@ def build_eol_checker_page(deprecations, pricing_view):
             rid = _runtime_id_from_name(name) or name
             matches = [rid.lower()]
             target, kind = "python3.12", "runtime"
+        elif "dotnet" in tags:
+            rid = _runtime_id_from_name(name) or "dotnet8"
+            matches = [rid.lower(), "net8.0", ".net 8"]
+            target, kind = "dotnet10", "runtime"
+        elif "provided.al2" in name.lower():
+            rid = "provided.al2"
+            matches = ["provided.al2"]
+            target, kind = "provided.al2023", "runtime"
         elif "al2" in tags or "amazon linux 2" in name.lower():
             rid = "Amazon Linux 2"
             matches = ["amazonlinux2", "amazon-linux-2", "amazon linux 2", "al2", "amazonlinux:2"]
             target, kind = "Amazon Linux 2023", "os"
         else:
-            # Only Lambda runtimes + the AL2 OS belong in an "EOL checker"; skip config
-            # enforcements (e.g. IMDSv1) so the block/EOL messaging stays accurate.
             continue
         rows[rid] = {
             "id": rid,
@@ -1135,17 +1273,20 @@ def build_eol_checker_page(deprecations, pricing_view):
         "    html+='<tr class=\"'+s.cls+'\"><td><code>'+r.label+'</code></td><td>'+s.txt+'</td><td>'+(r.target?'<code>'+r.target+'</code>':'\\u2014')+'</td><td><a href=\"/migrate/'+r.slug+'/\">fix &rarr;</a></td></tr>';});\n"
         "  html+='</tbody></table>';\n"
         "  html+='<div class=\"ctaway\"><strong>This is a quick check of what you pasted.</strong> A real migration also needs every region, your IaC, and native-dependency landmines. '+\n"
-        '    \'<a class="cta" href="/scan/">Run the full free scan &rarr;</a> or <a href="/audit/">get a $'
+        '    \'<a class="cta" href="/toolkit/">Get $'
+        + str(tk_price)
+        + ' Offline Toolkit (no upload) &rarr;</a> <a class="cta sec" href="/scan/">Run full free scan &rarr;</a> or <a href="/audit/">check $'
         + str(audit_base)
-        + " repository evidence report</a> (30-day money-back).</div>';\n"
+        + " hosted report</a> (US buyers only).</div>';\n"
         "  out.innerHTML=html;\n"
         "}\n"
+        "function trackChecker(){try{if(window.umami&&typeof window.umami.track==='function')window.umami.track('scan');if(typeof window.eolkitsTrack==='function')window.eolkitsTrack('scan_completed',{sku:'toolkit',meta:{finding_count:Object.keys(picked).length,file_count:1}});}catch(e){}}\n"
         "function check(){\n"
         "  var t=(document.getElementById('inp').value||'').toLowerCase();\n"
         "  RT.forEach(function(r){if(r.matches.some(function(m){return t.indexOf(m)>=0;}))picked[r.id]=1;});\n"
-        "  render();\n"
+        "  render();trackChecker();\n"
         "}\n"
-        "function toggle(id){if(picked[id])delete picked[id];else picked[id]=1;render();var el=document.querySelector('[data-id=\"'+id+'\"]');if(el)el.classList.toggle('on');}\n"
+        "function toggle(id){if(picked[id])delete picked[id];else picked[id]=1;render();trackChecker();var el=document.querySelector('[data-id=\"'+id+'\"]');if(el)el.classList.toggle('on');}\n"
         "document.addEventListener('DOMContentLoaded',function(){\n"
         "  var chips=document.getElementById('chips');\n"
         "  RT.forEach(function(r){var b=document.createElement('button');b.className='chip';b.setAttribute('data-id',r.id);b.textContent=r.label;b.onclick=function(){toggle(r.id);};chips.appendChild(b);});\n"
@@ -1163,30 +1304,33 @@ def build_eol_checker_page(deprecations, pricing_view):
         '<link rel="stylesheet" href="/style.css">\n'
         '<script defer src="/track.js"></script>\n'
         '<script type="application/ld+json">' + json.dumps(faq) + "</script>\n"
-        "<style>#chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.75rem 0}"
-        ".chip{border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:.35rem .7rem;font-size:.85rem;cursor:pointer;font-family:inherit}"
-        ".chip.on{background:#2563eb;color:#fff;border-color:#2563eb}"
-        "#inp{width:100%;min-height:110px;font-family:ui-monospace,Menlo,monospace;font-size:.85rem;padding:.6rem;border:1px solid #cbd5e1;border-radius:6px}"
+        "<style>#chips{display:flex;flex-wrap:wrap;gap:.45rem;margin:.75rem 0}"
+        ".chip{border:1px solid var(--border);background:var(--bg-card);color:var(--ink);border-radius:999px;padding:.35rem .75rem;font-size:.85rem;cursor:pointer;font-family:inherit}"
+        ".chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}"
+        "#inp{width:100%;min-height:110px;font-family:ui-monospace,Menlo,monospace;font-size:.85rem;padding:.65rem;background:var(--bg-card);color:var(--ink);border:1px solid var(--border);border-radius:8px}"
         ".res{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}"
-        ".res th,.res td{border:1px solid #e5e7eb;padding:.5rem .6rem;text-align:left;vertical-align:top}"
-        ".res th{background:#f3f4f6}.res tr.crit td{background:#fef2f2}.res tr.high td{background:#fff7ed}.res tr.med td{background:#fefce8}"
-        ".cta{display:inline-block;margin:.3rem .3rem .3rem 0;padding:.7rem 1.2rem;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600}"
-        ".ctaway{margin:1rem 0;padding:1rem;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px}"
-        "#go{padding:.6rem 1.1rem;background:#111827;color:#fff;border:0;border-radius:6px;font-weight:600;cursor:pointer;font-family:inherit}</style>\n"
+        ".res th,.res td{border:1px solid var(--border);padding:.55rem .65rem;text-align:left;vertical-align:top}"
+        ".res th{background:var(--bg-card);color:var(--ink-muted)}.res tr.crit td{background:rgba(255,59,59,0.10)}.res tr.high td{background:rgba(255,92,42,0.10)}.res tr.med td{background:rgba(234,179,8,0.10)}"
+        ".cta{display:inline-block;margin:.3rem .3rem .3rem 0;padding:.7rem 1.2rem;background:var(--accent);color:#fff;text-decoration:none;border-radius:8px;font-weight:600}"
+        ".cta.sec{background:var(--bg);border:1px solid var(--border);color:var(--ink)}"
+        ".ctaway{margin:1rem 0;padding:1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:10px}"
+        "#go{padding:.65rem 1.2rem;background:var(--accent);color:#fff;border:0;border-radius:8px;font-weight:600;cursor:pointer;font-family:inherit}</style>\n"
         "</head>\n"
         '<body class="container article">\n'
         '<nav class="breadcrumb"><a href="/">Home</a> / <a href="/migrate/">Deadlines</a> / <span>EOL checker</span></nav>\n'
         "<h1>Is your AWS runtime past end-of-life?</h1>\n"
         '<p>Paste your SAM / CloudFormation / Terraform / Serverless config (or a list of runtimes), or click the runtimes you use. This checks them against EOLkits\' cited snapshot of the <a href="/lambda-runtime-deprecation-schedule/">AWS runtime deprecation schedule</a> and shows the tracked create/update block dates. <strong>Pasted input stays in your browser; bounded first-party usage events may be sent.</strong></p>\n'
         '<div id="chips"></div>\n'
-        '<textarea id="inp" placeholder="Paste template.yaml / serverless.yml / *.tf here — e.g. Runtime: nodejs20.x, python3.9, FROM amazonlinux:2 ..."></textarea>\n'
+        '<textarea id="inp" placeholder="Paste template.yaml / serverless.yml / *.tf here — e.g. Runtime: nodejs20.x, python3.10, dotnet8, FROM amazonlinux:2 ..."></textarea>\n'
         '<p><button id="go">Check my runtimes</button></p>\n'
         '<div id="results"></div>\n'
         '<p class="muted">Dates come from the AWS Lambda runtime deprecation table and can shift; the per-runtime <a href="/migrate/">migration guides</a> link the AWS source. AWS documents phased create/update restrictions; verify the current runtime status before planning.</p>\n'
         "<h2>Once you know what's exposed</h2>\n"
-        '<p>Each deprecated runtime fails in specific ways — removed stdlib modules, the unbundled AWS SDK v2 on Node 18+, native-wheel/ABI breaks, Amazon Linux 2 &rarr; 2023 package renames. See the <a href="/fix/">common error fixes</a>, run the <a href="/scan/">free scanner</a>, or check the <a href="/audit/">repository evidence report ($'
+        '<p>Each deprecated runtime fails in specific ways — removed stdlib modules, the unbundled AWS SDK v2 on Node 18+, native-wheel/ABI breaks, Amazon Linux 2 &rarr; 2023 package renames. See the <a href="/fix/">common error fixes</a>, run the <a href="/scan/">free scanner</a>, grab the <a href="/toolkit/">$'
+        + str(tk_price)
+        + ' Offline Toolkit</a>, or check the <a href="/audit/">repository evidence report ($'
         + str(audit_base)
-        + ", 30-day money-back)</a> for exact matches and a remediation order.</p>\n"
+        + ", 30-day refund policy)</a> for exact matches and a remediation order.</p>\n"
         + js
         + "</body>\n</html>\n"
     )
@@ -1290,9 +1434,9 @@ def build_al2_checklist_page(deprecations, pricing_view):
         "<li><strong>Roll out</strong> with a staged canary (5 → 25 → 50 → 100%) and a tested rollback to the previous AMI.</li>\n"
         "</ol>\n"
         "<h2>Do it faster</h2>\n"
-        '<p>The free <a href="/scan/">scanner</a> and the MIT <code>al2023-gate</code> CLI detect and patch configured source patterns. Need a review artifact? The <a href="/audit/">repository evidence report ($'
+        '<p>The free <a href="/scan/">scanner</a> and the MIT <code>al2023-gate</code> CLI detect and patch configured source patterns. Need an air-gapped CAB artifact? Download the <a href="/toolkit/">$79 Offline Migration &amp; Audit Toolkit</a> or check the <a href="/audit/">repository evidence report ($'
         + str(audit_base)
-        + ', 30-day money-back)</a> returns exact observed file/line matches and a remediation order. See the full <a href="/migrate/amazon-linux-2-eol/">Amazon Linux 2 migration guide</a>.</p>\n'
+        + ', 30-day refund policy)</a> for exact observed file/line matches and a remediation order. See the full <a href="/migrate/amazon-linux-2-eol/">Amazon Linux 2 migration guide</a>.</p>\n'
         "</body>\n</html>\n"
     )
 
@@ -1402,9 +1546,9 @@ def build_al2_vs_al2023_page(deprecations, pricing_view):
         + '" target="_blank" rel="noopener nofollow">[AWS source: comparing AL2 and AL2023]</a></p>\n'
         '<p><a class="cta" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/al2023-gate">Inspect the al2023-gate CLI coverage →</a></p>\n'
         "<h2>Migrating off AL2</h2>\n"
-        '<p>The differences above require workload-specific validation. Use the <a href="/amazon-linux-2-eol-checklist/">AL2 → AL2023 checklist</a> and the <a href="/migrate/amazon-linux-2-eol/">migration guide</a>, or check the <a href="/audit/">repository evidence report ($'
+        '<p>The differences above require workload-specific validation. Use the <a href="/amazon-linux-2-eol-checklist/">AL2 → AL2023 checklist</a> and the <a href="/migrate/amazon-linux-2-eol/">migration guide</a>, download the <a href="/toolkit/">$79 Offline Migration &amp; Audit Toolkit</a>, or check the <a href="/audit/">repository evidence report ($'
         + str(audit_base)
-        + ", 30-day money-back)</a> for exact observed AL2 source references and a remediation order.</p>\n"
+        + ", 30-day refund policy)</a> for exact observed AL2 source references and a remediation order.</p>\n"
         "</body>\n</html>\n"
     )
 
@@ -1412,10 +1556,10 @@ def build_al2_vs_al2023_page(deprecations, pricing_view):
 def build_track_js():
     """Expose bounded first-party telemetry only after the v2 API proves itself.
 
-    The obsolete GRACE backend lacks ``/api/capabilities`` and retains events
-    indefinitely. Waiting for the explicit report-version handshake prevents the
-    repaired Pages build from writing into that stale store. No visitor identifier,
-    referrer, cookie, or local-storage value is collected.
+    Also bridges qualified developer actions ('scan' and 'checkout_start') to
+    first-party Umami when injected on eolkits.com, and delegates clicks on
+    approved Stripe Payment Links so conversions never go unmeasured.
+    No visitor identifier, referrer, cookie, or local-storage value is collected.
     """
     return (
         "(function(){'use strict';"
@@ -1424,7 +1568,11 @@ def build_track_js():
         + ";"
         "function tok(v){v=String(v||'').toLowerCase();return/^[a-z0-9._-]{1,64}$/.test(v)?v:'';}"
         "function count(v){v=Number(v);return Number.isFinite(v)?Math.max(0,Math.min(Math.trunc(v),10000)):0;}"
-        "window.eolkitsTrack=function(name,extra){if(!ready)return;try{"
+        "function um(ev,d){try{if(window.umami&&typeof window.umami.track==='function')window.umami.track(ev,d);}catch(e){}}"
+        "window.eolkitsTrack=function(name,extra){"
+        "if(name==='scan_completed'||name==='scan')um('scan',{sku:extra&&tok(extra.sku)||'toolkit'});"
+        "if(name==='checkout_click'||name==='checkout_start')um('checkout_start',{sku:extra&&tok(extra.sku)||'toolkit'});"
+        "if(!ready)return;try{"
         "var p={event:name,path:location.pathname,"
         "source:tok(qp.get('source'))||'organic',"
         "utm_source:tok(qp.get('utm_source')),"
@@ -1437,6 +1585,10 @@ def build_track_js():
         "fetch(api+'/api/events',{method:'POST',mode:'cors',cache:'no-store',credentials:'omit',keepalive:true,"
         "headers:{'Content-Type':'application/json'},body:JSON.stringify(p)}).catch(function(){});"
         "}catch(e){}};"
+        "document.addEventListener('click',function(ev){try{"
+        "var a=ev.target&&ev.target.closest?ev.target.closest('a[href^=\"https://buy.stripe.com/\"]'):null;"
+        "if(a)window.eolkitsTrack('checkout_click',{sku:'toolkit'});"
+        "}catch(e){}},true);"
         "fetch(api+'/api/capabilities',{cache:'no-store',credentials:'omit'})"
         ".then(function(r){if(!r.ok)throw new Error('unavailable');return r.json();})"
         ".then(function(c){var a=c&&c.audit;ready=Boolean(a&&String(a.report_version)==='2.0');"
@@ -1445,79 +1597,434 @@ def build_track_js():
     )
 
 
-def build_index_page(pricing):
-    """Build the canonical landing page from source data, not stale docs output."""
-    pricing_view = build_pricing_view(pricing)
-    audit = pricing_view["audit_pdf"]
-    return f"""<!doctype html>
+def build_toolkit_page(pricing):
+    """Build the dedicated $79 Offline Migration & Audit Toolkit product page."""
+    pv = build_pricing_view(pricing)
+    tk = pv["toolkit"]
+    audit = pv["audit_pdf"]
+    schema = json.dumps(
+        {
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "EOLkits — AWS Runtime & AL2023 Offline Migration Toolkit",
+            "applicationCategory": "DeveloperApplication",
+            "operatingSystem": "Linux, macOS, Windows (Python 3.10+)",
+            "offers": {
+                "@type": "Offer",
+                "price": str(tk["price"]),
+                "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock",
+                "url": f"{SITE_URL}/toolkit/",
+                "eligibleRegion": {"@type": "Country", "name": "US"},
+            },
+        },
+        indent=2,
+    )
+    html = (
+        f"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EOLkits - AWS deprecation migration tools</title>
-<meta name="description" content="MIT-licensed AWS deprecation scanners and an optional paid repository evidence report with exact file and line matches.">
-<link rel="canonical" href="{SITE_URL}/">
+<title>AWS Runtime &amp; AL2023 Offline Migration Toolkit (${tk["price"]}) | EOLkits</title>
+<meta name="description" content="Air-gapped AWS Lambda &amp; Amazon Linux 2023 migration toolkit (${tk["price"]}): stdlib-only local scanner (HTML/PDF report + Jira CSV + SHA-256 attestation), Python 3.12/3.13 &amp; AWS SDK v3 codemods, AL2023 Lambda layer Dockerfiles, and canary rollback IaC.">
+<link rel="canonical" href="{SITE_URL}/toolkit/">
 <link rel="stylesheet" href="/style.css">
 <script defer src="/track.js"></script>
+"""
+        + _og_image_meta()
+        + f"""<script type="application/ld+json">{schema}</script>
 </head>
 <body>
 <header class="nav">
   <div class="container nav-inner">
-    <a href="/" class="brand"><span class="brand-mark">></span> EOLkits</a>
+    <a href="/" class="brand"><span class="brand-mark">&gt;</span> EOLkits</a>
     <nav>
       <a href="/migrate/">Deadlines</a>
       <a href="/scan/">Free scan</a>
+      <a href="/toolkit/">Toolkit (${tk["price"]})</a>
       <a href="/audit/">Audit</a>
+      <a href="/about/">About</a>
       <a href="https://github.com/ntoledo319/EOLkits" class="btn-ghost">GitHub</a>
     </nav>
   </div>
 </header>
 
+<div class="urgency-strip">
+  <div class="container">
+    <span class="urgency-pill">Active AWS Alerts</span>
+    <strong>Python 3.10</strong> deprecated Oct 31, 2026 · <strong>.NET 8</strong> deprecated Nov 10, 2026 · <strong>AL2</strong> standard support ended Jun 30, 2026 · Create/update blocks: <strong>Jul 29 / Aug 31, 2027</strong>.
+  </div>
+</div>
+
 <main>
   <section class="hero">
-    <div class="container">
-      <div class="eyebrow">AWS runtime &amp; OS EOLs that break production</div>
-      <h1>Find high-impact AWS deprecation risks in your source — free.</h1>
-      <p class="lede">The browser scanner checks configured Lambda runtime and Node/Python dependency patterns without uploading file contents. Repository CLIs add their documented operating-system checks. The $299 evidence report adds file/line evidence across supported files in the uploaded archive, remediation order, configured references, and explicit scope limitations.</p>
-      <div class="cta-row">
-        <a class="btn-primary" href="/scan/">Run the free scan</a>
-        <a class="btn-secondary" href="https://github.com/ntoledo319/EOLkits">Clone the CLIs</a>
-        <a class="btn-ghost" href="/migrate/">See the deadlines</a>
+    <div class="container hero-split">
+      <div>
+        <div class="eyebrow">Instant ZIP Download · Zero Source Upload · Unlimited Company Repos</div>
+        <h1>Audit &amp; migrate AWS runtimes behind your own firewall.</h1>
+        <p class="lede">Most engineering teams cannot upload proprietary source ZIPs to a third-party web form. The <strong>${tk["price"]} Offline Migration &amp; Audit Toolkit</strong> runs 100% locally on Python 3.10+ stdlib—turning repositories, IaC, and <code>aws lambda list-functions</code> JSON into CAB-ready HTML/PDF reports, Jira CSV tickets, safe AST codemods, AL2023 container layers, and canary rollback IaC.</p>
+        <div class="cta-row">
+          <a class="btn-primary" href="{tk["payment_link"]}">Buy Offline Toolkit — ${tk["price"]} →</a>
+          <a class="btn-secondary" href="/toolkit/sample/">Inspect sample HTML report</a>
+          <a class="btn-ghost" href="/scan/">Try free browser scan</a>
+        </div>
+        <p class="market-note">One-time Stripe payment (${tk["price"]} USD) · Unlisted HTTPS ZIP link emailed immediately after checkout · <strong>US buyers only</strong> · 30-day full refund policy via <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a>.</p>
+      </div>
+      <div class="terminal-card" aria-label="Sample offline CLI execution">
+        <div class="terminal-bar">
+          <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+          <span>eolkits_offline_audit.py — air-gapped local run</span>
+        </div>
+        <div class="terminal-body">
+          <div class="t-cmd">$ python3 src/eolkits_offline_audit.py \\</div>
+          <div class="t-cmd">&nbsp;&nbsp;--repo ./payments-monorepo \\</div>
+          <div class="t-cmd">&nbsp;&nbsp;--aws-lambda-json lambdas.json --out ./evidence</div>
+          <div class="t-dim">Scanning 142 IaC, Python, Node, .NET &amp; Dockerfile targets...</div>
+          <div><span class="t-crit">[CRITICAL]</span> infra/main.tf:14 — amzn2 AMI (AL2 EOL 2026-06-30)</div>
+          <div><span class="t-high">[HIGH]</span> infra/main.tf:9 — python3.10 (deprecated 2026-10-31)</div>
+          <div><span class="t-high">[HIGH]</span> ledger/Ledger.csproj:3 — net8.0 (dotnet8 deprecated 2026-11-10)</div>
+          <div><span class="t-high">[HIGH]</span> billing/app.py:1 — distutils removed in Python 3.12</div>
+          <div><span class="t-high">[HIGH]</span> webhooks/index.js:1 — aws-sdk v2 unbundled in Node 18+</div>
+          <div class="t-ok">✓ Wrote evidence/migration-evidence-report.html (Print-PDF ready)</div>
+          <div class="t-ok">✓ Wrote evidence/findings.csv (Jira / Linear import)</div>
+          <div class="t-ok">✓ Wrote evidence/attestation.json (SHA-256: 247f1685...d294)</div>
+        </div>
       </div>
     </div>
   </section>
 
   <section class="section">
     <div class="container">
-      <p class="sub">Free &amp; open-source (MIT) · official source links · local browser scan available · one server-gated paid product · 30-day audit refund policy</p>
+      <h2>Everything inside <code>AWS-Runtime-EOL-Migration-Toolkit-v1.0.0.zip</code></h2>
+      <p class="sub">Zero external pip/npm runtime dependencies required to run the scanners and codemods—drop into air-gapped laptops, bastion hosts, or private GitHub/GitLab runners.</p>
+      <div class="deliverable-grid">
+        <article class="deliverable-card">
+          <h3>1. Air-Gapped Repo &amp; IaC Auditor</h3>
+          <p><code>src/eolkits_offline_audit.py</code> scans CloudFormation, SAM, CDK, Terraform, Serverless, Dockerfiles, <code>package.json</code>, <code>requirements.txt</code>, <code>.csproj</code>, and optional <code>aws lambda list-functions</code> JSON. Emits dark/print-CSS HTML reports, Jira CSVs, and deterministic SHA-256 attestations.</p>
+        </article>
+        <article class="deliverable-card">
+          <h3>2. Python 3.12 / 3.13 AST Doctor</h3>
+          <p><code>src/codemods/py312_313_stdlib_doctor.py</code> inspects Python ASTs for PEP 632 (<code>distutils</code>), PEP 594 (all 19 removed 3.13 modules), <code>collections.abc</code>, <code>@asyncio.coroutine</code>, and <code>datetime.utcnow()</code>—with safe <code>--apply</code> rewrites where semantics are 1:1.</p>
+        </article>
+        <article class="deliverable-card">
+          <h3>3. Node 24 &amp; AWS SDK v3 Mapper</h3>
+          <p><code>src/codemods/node_aws_sdk_v3_mapper.py</code> maps every <code>new AWS.&lt;Service&gt;()</code> call across JS/TS files to exact <code>@aws-sdk/client-*</code> v3 packages + install commands, and flags removed <code>crypto.createCipher</code> and OpenSSL 3 hazards.</p>
+        </article>
+        <article class="deliverable-card">
+          <h3>4. AL2 → AL2023 Cutover Linter</h3>
+          <p><code>src/codemods/al2_to_al2023_cutover_lint.py</code> catches <code>amazon-linux-extras</code>, <code>ntpd</code>, <code>iptables.service</code>, <code>python2</code> shebangs, EPEL assumptions, and unauthenticated IMDSv1 <code>169.254.169.254</code> calls in user-data, Packer, and shell scripts.</p>
+        </article>
+        <article class="deliverable-card">
+          <h3>5. AL2023 Native Layer Dockerfiles</h3>
+          <p>Reproducible multi-arch (<code>x86_64</code> and Graviton <code>arm64</code>) Dockerfiles on <code>public.ecr.aws/lambda/python:3.12</code>, <code>3.13</code>, and <code>nodejs:24</code> that compile C/Rust wheels and N-API addons against <code>glibc 2.34</code> with zero ELF mismatches.</p>
+        </article>
+        <article class="deliverable-card">
+          <h3>6. Canary Rollback IaC &amp; CAB Pack</h3>
+          <p>Production Terraform + AWS SAM weighted Lambda alias templates (10% canary traffic shift + automatic CloudWatch error-alarm rollback), GitHub Actions matrix CI gate, and Markdown CAB / SOC 2 sign-off templates.</p>
+        </article>
+      </div>
+      <p><a class="btn-primary" href="{tk["payment_link"]}">Instant Download — ${tk["price"]} USD →</a> &nbsp;<a class="btn-outline" href="/toolkit/sample/">Preview synthetic 14-finding HTML report →</a></p>
+    </div>
+  </section>
+
+  <section class="section dark">
+    <div class="container">
+      <h2>Choose the right fit</h2>
+      <div class="pricing-grid">
+        <article class="pricing-card">
+          <h3>Open-Source CLIs</h3>
+          <div class="price">$0</div>
+          <p>Individual MIT kits (<code>al2023-gate</code>, <code>python-pivot</code>, <code>lambda-lifeline</code>) + free in-browser file checker.</p>
+          <a class="btn-outline" href="https://github.com/ntoledo319/EOLkits">Clone on GitHub</a>
+        </article>
+        <article class="pricing-card featured">
+          <h3>Offline Migration &amp; Audit Toolkit</h3>
+          <div class="price">${tk["price"]}</div>
+          <p>Unified air-gapped scanner (HTML/PDF + Jira CSV + SHA-256 attestation), AST codemods, AL2023 layer Dockerfiles, canary rollback IaC, and CAB templates. Unlimited internal company repos.</p>
+          <a class="btn-primary" href="{tk["payment_link"]}">Buy Offline Toolkit — ${tk["price"]}</a>
+          <p class="small"><a href="/toolkit/sample/">Sample report →</a> · US buyers only · 30-day refund policy</p>
+        </article>
+        <article class="pricing-card">
+          <h3>Hosted Evidence PDF</h3>
+          <div class="price">${audit["base"]}</div>
+          <p>Zero-install hosted scan of one uploaded repository ZIP returning a 4+ page server-rendered PDF and 30-day <code>/verify/</code> hash record (when upload gate is open).</p>
+          <a class="btn-outline" href="/audit/">Check ${audit["base"]} report</a>
+          <p class="small"><a href="/audit/sample/">Sample PDF →</a> · US buyers only · 30-day refund policy</p>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="muted small">Toledo Technologies LLC · 2389 Main St. STE 100, Glastonbury, CT 06033, United States · <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> · Self-serve Stripe checkouts: US buyers only.</div>
+    <div class="muted small"><a href="/">Home</a> · <a href="/migrate/">Deadlines</a> · <a href="/scan/">Free scan</a> · <a href="/audit/">Audit</a> · <a href="/about/">About</a> · <a href="/changelog/">Changelog</a> · <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/legal/SECURITY.html">Security</a></div>
+  </div>
+</footer>
+</body>
+</html>"""
+    )
+    return html
+
+
+def build_toolkit_sample_page():
+    """Render the synthetic air-gapped HTML report sample with canonical host substitution."""
+    raw = (TEMPLATE_DIR / "toolkit_sample.html").read_text(encoding="utf-8")
+    return raw.replace("{SITE_URL}", SITE_URL)
+
+
+def build_about_page(pricing):
+    """Build the /about/ trust and company page."""
+    pv = build_pricing_view(pricing)
+    tk = pv["toolkit"]
+    audit = pv["audit_pdf"]
+    return (
+        f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>About EOLkits — Toledo Technologies LLC</title>
+<meta name="description" content="EOLkits builds deterministic, primary-source-cited AWS runtime and Amazon Linux deprecation tools. Operated by Toledo Technologies LLC in Glastonbury, Connecticut.">
+<link rel="canonical" href="{SITE_URL}/about/">
+<link rel="stylesheet" href="/style.css">
+<script defer src="/track.js"></script>
+"""
+        + _og_image_meta()
+        + f"""</head>
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="/" class="brand"><span class="brand-mark">&gt;</span> EOLkits</a>
+    <nav>
+      <a href="/migrate/">Deadlines</a>
+      <a href="/scan/">Free scan</a>
+      <a href="/toolkit/">Toolkit (${tk["price"]})</a>
+      <a href="/audit/">Audit</a>
+      <a href="/about/">About</a>
+      <a href="https://github.com/ntoledo319/EOLkits" class="btn-ghost">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main class="container article">
+  <nav class="breadcrumb"><a href="/">Home</a> / <span>About</span></nav>
+  <h1>About EOLkits</h1>
+  <p>EOLkits builds deterministic static analysis, migration codemods, and source-cited reference guides for teams upgrading off deprecated AWS Lambda runtimes and Amazon Linux 2.</p>
+
+  <section>
+    <h2>Engineering principles</h2>
+    <ul>
+      <li><strong>Primary sources only:</strong> Every tracked deprecation milestone links directly to official AWS documentation, Python PEPs, or Node.js release notes—never recycled secondary blog posts.</li>
+      <li><strong>Deterministic output:</strong> Running the same scanner and rule pack on the same source tree produces identical findings and SHA-256 evidence hashes.</li>
+      <li><strong>Zero-upload options first:</strong> Both our free browser scanner and the <a href="/toolkit/">${tk["price"]} Offline Migration &amp; Audit Toolkit</a> run locally so proprietary company source code never leaves your environment.</li>
+      <li><strong>Explicit scope boundaries:</strong> Static scanners inspect supplied source, IaC, and manifests; they never fabricate live cloud resource counts or speculative downtime-dollar claims.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Products &amp; licensing</h2>
+    <ul>
+      <li><strong>Open-source CLIs ($0, MIT):</strong> <code>al2023-gate</code>, <code>python-pivot</code>, and <code>lambda-lifeline</code> on <a href="https://github.com/ntoledo319/EOLkits">GitHub</a>.</li>
+      <li><strong><a href="/toolkit/">Offline Migration &amp; Audit Toolkit (${tk["price"]} USD)</a>:</strong> Instant-download commercial ZIP pack with unified air-gapped repo/IaC scanner, HTML/PDF + Jira CSV reports, Python 3.12/3.13 &amp; AWS SDK v3 codemods, AL2023 Dockerfiles, and canary rollback IaC. Licensed for unlimited internal repositories of the purchasing individual or company.</li>
+      <li><strong><a href="/audit/">Hosted Repository Evidence Report (${audit["base"]} USD)</a>:</strong> Server-gated static scan of one uploaded repository ZIP returning a 4+ page PDF and 30-day <code>/verify/</code> hash lookup.</li>
+    </ul>
+    <p>Self-serve paid Stripe checkouts on EOLkits are offered to <strong>US buyers only</strong> and include a <strong>30-day full refund policy</strong>.</p>
+  </section>
+
+  <section>
+    <h2>Operator &amp; contact</h2>
+    <table class="facts">
+      <tr><th>Operating entity</th><td>Toledo Technologies LLC</td></tr>
+      <tr><th>Mailing address</th><td>2389 Main St. STE 100, Glastonbury, CT 06033, United States</td></tr>
+      <tr><th>Support &amp; refunds</th><td><a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a></td></tr>
+      <tr><th>Source repository</th><td><a href="https://github.com/ntoledo319/EOLkits">github.com/ntoledo319/EOLkits</a></td></tr>
+      <tr><th>System status</th><td><a href="/status/">eolkits.com/status/</a></td></tr>
+    </table>
+  </section>
+</main>
+<footer class="footer">
+  <div class="container">
+    <div class="muted small">Toledo Technologies LLC · 2389 Main St. STE 100, Glastonbury, CT 06033, United States · <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a></div>
+    <div class="muted small"><a href="/">Home</a> · <a href="/changelog/">Changelog</a> · <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/legal/SECURITY.html">Security</a></div>
+  </div>
+</footer>
+</body>
+</html>"""
+    )
+
+
+def build_changelog_page():
+    """Build the /changelog/ release and rule-pack log."""
+    return (
+        f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Changelog — AWS Rule Pack &amp; Releases | EOLkits</title>
+<meta name="description" content="Dated release log for EOLkits AWS deprecation rule packs, offline migration toolkit, and verification gates.">
+<link rel="canonical" href="{SITE_URL}/changelog/">
+<link rel="stylesheet" href="/style.css">
+<script defer src="/track.js"></script>
+"""
+        + _og_image_meta()
+        + """</head>
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="/" class="brand"><span class="brand-mark">&gt;</span> EOLkits</a>
+    <nav>
+      <a href="/migrate/">Deadlines</a>
+      <a href="/scan/">Free scan</a>
+      <a href="/toolkit/">Toolkit ($79)</a>
+      <a href="/audit/">Audit</a>
+      <a href="/about/">About</a>
+      <a href="https://github.com/ntoledo319/EOLkits" class="btn-ghost">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main class="container article">
+  <nav class="breadcrumb"><a href="/">Home</a> / <span>Changelog</span></nav>
+  <h1>Changelog</h1>
+  <p>Material updates to EOLkits rule packs, AWS deprecation schedules, and commercial artifacts.</p>
+
+  <section>
+    <h2>2026-11-19 — Rule Pack 2026.11 &amp; Offline Toolkit v1.0.0</h2>
+    <ul>
+      <li><strong>AWS Lambda schedule sync:</strong> Updated synchronized Lambda create/update block dates across <code>python3.8</code>, <code>python3.9</code>, <code>python3.10</code>, <code>python3.11</code>, <code>nodejs16.x</code>, <code>nodejs18.x</code>, <code>nodejs20.x</code>, <code>nodejs22.x</code>, <code>dotnet8</code>, and <code>provided.al2</code> to <strong>2027-07-29</strong> (Block Function Create) and <strong>2027-08-31</strong> (Block Function Update) per official AWS Lambda runtime documentation.</li>
+      <li><strong>Active deprecation transitions:</strong> Marked <code>python3.10</code> (deprecated 2026-10-31), <code>dotnet8</code> (deprecated 2026-11-10), and <code>provided.al2</code> (deprecated 2026-07-31) as actively deprecated, and added dedicated migration and error-fix guides.</li>
+      <li><strong>Offline Migration &amp; Audit Toolkit v1.0.0 ($79):</strong> Launched instant-download air-gapped CLI scanner, Python 3.12/3.13 &amp; AWS SDK v3 codemods, AL2023 multi-arch Lambda layer Dockerfiles, and Terraform/SAM canary rollback templates at <a href="/toolkit/">/toolkit/</a>.</li>
+      <li><strong>Automated EOL drift watch:</strong> Added daily upstream schedule comparison against published AWS runtime lifecycle feeds before static deployment.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>2026-09-09 — Deterministic Web &amp; Privacy CSP Hardening</h2>
+    <ul>
+      <li>Pinned reproducible build dates, strict first-party Content-Security-Policy headers, and bounded count-only browser scanner telemetry.</li>
+      <li>Added PEP 594 Python 3.13 error-fix references (<code>audioop</code>, <code>pipes</code>, <code>aifc</code>).</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>2026-08-22 — Audit v2 Engine &amp; Sample Manifest</h2>
+    <ul>
+      <li>Shipped fail-closed Audit v2 static repository report engine with SHA-256 input hashing, deterministic evidence fingerprints, and public sample verification artifacts at <a href="/audit/sample/">/audit/sample/</a>.</li>
+    </ul>
+  </section>
+</main>
+<footer class="footer">
+  <div class="container">
+    <div class="muted small">Toledo Technologies LLC · 2389 Main St. STE 100, Glastonbury, CT 06033, United States · <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a></div>
+    <div class="muted small"><a href="/">Home</a> · <a href="/about/">About</a> · <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></div>
+  </div>
+</footer>
+</body>
+</html>"""
+    )
+
+
+def build_index_page(pricing):
+    """Build the canonical landing page from source data."""
+    pricing_view = build_pricing_view(pricing)
+    tk = pricing_view["toolkit"]
+    audit = pricing_view["audit_pdf"]
+    return (
+        f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EOLkits — AWS Lambda &amp; Amazon Linux 2 EOL Migration Tools</title>
+<meta name="description" content="Find and fix deprecated AWS Lambda runtimes (Python 3.10, .NET 8, Node.js 18/20) and Amazon Linux 2 hazards. Free MIT scanners, $79 air-gapped Offline Toolkit, and $299 repository evidence PDFs.">
+<link rel="canonical" href="{SITE_URL}/">
+<link rel="stylesheet" href="/style.css">
+<script defer src="/track.js"></script>
+"""
+        + _og_image_meta()
+        + f"""</head>
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="/" class="brand"><span class="brand-mark">&gt;</span> EOLkits</a>
+    <nav>
+      <a href="/migrate/">Deadlines</a>
+      <a href="/scan/">Free scan</a>
+      <a href="/toolkit/">Toolkit (${tk["price"]})</a>
+      <a href="/audit/">Audit</a>
+      <a href="/about/">About</a>
+      <a href="https://github.com/ntoledo319/EOLkits" class="btn-ghost">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="urgency-strip">
+  <div class="container">
+    <span class="urgency-pill">Nov 2026 AWS Update</span>
+    <strong>Python 3.10</strong> (Oct 31) &amp; <strong>.NET 8</strong> (Nov 10) are now deprecated in AWS Lambda · <strong>AL2</strong> ended standard support Jun 30, 2026 · <a href="/lambda-runtime-deprecation-schedule/">View 2027 block schedule →</a>
+  </div>
+</div>
+
+<main>
+  <section class="hero">
+    <div class="container hero-split">
+      <div>
+        <div class="eyebrow">AWS runtime &amp; OS EOLs that break production deploys</div>
+        <h1>Audit &amp; clear AWS deprecation debt before deploys lock.</h1>
+        <p class="lede">Check SAM, CDK, Terraform, Serverless, and manifests free in your browser without uploading files. Need CAB-ready evidence and codemods behind your firewall? Download the <strong>${tk["price"]} Air-Gapped Offline Toolkit</strong>—or request a <strong>${audit["base"]} hosted repository PDF</strong>.</p>
+        <div class="cta-row">
+          <a class="btn-primary" href="/toolkit/">Get ${tk["price"]} Offline Toolkit →</a>
+          <a class="btn-secondary" href="/scan/">Run free browser scan</a>
+          <a class="btn-ghost" href="/migrate/">See AWS deadlines</a>
+        </div>
+        <p class="market-note">Free MIT CLIs · Instant ${tk["price"]} air-gapped ZIP download (zero source upload) · 30-day full refund policy · Paid checkouts: US buyers only.</p>
+      </div>
+      <div class="terminal-card" aria-label="EOLkits local scan preview">
+        <div class="terminal-bar">
+          <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+          <span>eolkits — deterministic static evidence</span>
+        </div>
+        <div class="terminal-body">
+          <div class="t-cmd">$ python3 eolkits_offline_audit.py --repo . --out ./cab-pack</div>
+          <div class="t-dim">Rule Pack 2026.11 · Zero network calls · Zero code upload</div>
+          <div><span class="t-crit">CRITICAL</span> Dockerfile:1 &rarr; amazonlinux:2 (EOL 2026-06-30)</div>
+          <div><span class="t-high">HIGH</span> template.yaml:18 &rarr; python3.10 (unpatched 2026-10-31)</div>
+          <div><span class="t-high">HIGH</span> Api.csproj:4 &rarr; net8.0 / dotnet8 (unpatched 2026-11-10)</div>
+          <div><span class="t-high">HIGH</span> handler.py:2 &rarr; distutils removed in Python 3.12</div>
+          <div><span class="t-high">HIGH</span> notify.js:3 &rarr; aws-sdk v2 missing on Node 18/20/24</div>
+          <div class="t-ok">&rarr; HTML/PDF report + Jira CSV + SHA-256 attestation ready</div>
+        </div>
+      </div>
     </div>
   </section>
 
   <section class="section">
     <div class="container">
-      <h2>Live Kits</h2>
-      <p class="sub">Each kit is standalone, MIT-licensed, and safe by default: scan first, apply only when requested.</p>
+      <h2>Open-Source CLI Kits (MIT)</h2>
+      <p class="sub">Each standalone CLI scans first and previews changes before touching files.</p>
       <div class="kit-grid">
         <article class="kit-card urgent">
-          <div class="kit-deadline">AL2 standard support ended Jun 30, 2026 — plan migration</div>
+          <div class="kit-deadline">AL2 standard support ended Jun 30, 2026 — migrate now</div>
           <h3>al2023-gate</h3>
-          <p class="kit-sub">Amazon Linux 2 to AL2023</p>
-          <p>Find AL2 AMIs, remap packages, patch cloud-init, Packer, and Ansible, then generate rollout runbooks.</p>
-          <a class="kit-link" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/al2023-gate">Read docs</a>
+          <p class="kit-sub">Amazon Linux 2 &amp; provided.al2 to AL2023</p>
+          <p>Find AL2 AMIs, remap dnf/SPAL packages, patch cloud-init, Packer, and Ansible, and generate cutover checklists.</p>
+          <a class="kit-link" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/al2023-gate">Read docs →</a>
         </article>
-        <article class="kit-card">
-          <div class="kit-deadline">Rolling Lambda EOL waves</div>
+        <article class="kit-card urgent">
+          <div class="kit-deadline">Python 3.10 deprecated Oct 31, 2026 · Block: Jul 29, 2027</div>
           <h3>python-pivot</h3>
-          <p class="kit-sub">Lambda Python 3.9/3.10/3.11 to 3.12</p>
-          <p>Audit deprecated modules, native wheels, runtime fields, and Python 3.12 compatibility hazards.</p>
-          <a class="kit-link" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/python-pivot">Read docs</a>
+          <p class="kit-sub">Lambda Python 3.8–3.11 to 3.12 / 3.13</p>
+          <p>Flag removed PEP 632 / PEP 594 stdlib modules, cp312/AL2023 native wheel floors, and IaC runtime strings.</p>
+          <a class="kit-link" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/python-pivot">Read docs →</a>
         </article>
         <article class="kit-card">
-          <div class="kit-deadline">Lambda Node.js migration readiness</div>
+          <div class="kit-deadline">Node 18/20 deprecated · .NET 8 deprecated Nov 10, 2026</div>
           <h3>lambda-lifeline</h3>
-          <p class="kit-sub">Lambda Node.js 16–22 to 24</p>
-          <p>Patch Lambda runtime fields, source syntax, aws-sdk v2 usage, and staged deploy/rollback plans.</p>
-          <a class="kit-link" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/lambda-lifeline">Read docs</a>
+          <p class="kit-sub">Lambda Node.js 16–22 to 24 (+ multi-runtime inventory)</p>
+          <p>Inventory deprecated runtimes across regions, surface aws-sdk v2 &amp; OpenSSL 3 breaks, and stage alias rollbacks.</p>
+          <a class="kit-link" href="https://github.com/ntoledo319/EOLkits/tree/main/kits/lambda-lifeline">Read docs →</a>
         </article>
       </div>
     </div>
@@ -1526,35 +2033,64 @@ def build_index_page(pricing):
   <section class="section dark" id="pricing">
     <div class="container">
       <h2>Pricing</h2>
-      <p class="sub">Try before you buy: the CLIs and browser scanner are free. The repository evidence report is the only paid product.</p>
+      <p class="sub">Start free in your browser or terminal. Upgrade to the ${tk["price"]} air-gapped Offline Toolkit for local CAB reports, codemods, and AL2023 container templates, or use the ${audit["base"]} hosted repository PDF.</p>
       <div class="pricing-grid">
         <article class="pricing-card">
-          <h3>CLI</h3>
+          <h3>Open-Source CLI</h3>
           <div class="price">$0</div>
-          <p>All kits, unlimited local runs, MIT license.</p>
+          <p>All three MIT CLI kits plus the client-side browser scanner and EOL schedule tools.</p>
           <a class="btn-outline" href="https://github.com/ntoledo319/EOLkits">Get source</a>
+          <a class="btn-outline" href="/scan/">Browser scan</a>
         </article>
         <article class="pricing-card featured">
+          <h3>Offline Toolkit</h3>
+          <div class="price">${tk["price"]}</div>
+          <p>Instant ZIP download — zero source upload. Air-gapped multi-stack scanner (HTML/PDF report + Jira CSV + SHA-256 attestation), Python 3.12/3.13 &amp; AWS SDK v3 codemods, AL2023 Lambda layer Dockerfiles, canary rollback IaC, and CAB sign-off templates across unlimited internal repos.</p>
+          <a class="btn-primary" href="{tk["payment_link"]}">Buy Offline Toolkit — ${tk["price"]}</a>
+          <a class="btn-outline" href="/toolkit/">Full specs</a>
+          <p class="small"><a href="/toolkit/sample/">See sample air-gapped report →</a> · US buyers only · 30-day refund policy</p>
+        </article>
+        <article class="pricing-card">
           <h3>Audit PDF</h3>
           <div class="price">${audit["base"]}</div>
-          <p>One repository ZIP or source file: exact file/line evidence, observed reach, remediation order, configured references, and an evidence fingerprint. 30-day money-back.</p>
-          <a class="btn-primary" href="/audit/">Get the ${audit["base"]} report</a>
-          <p class="small"><a href="/audit/sample/">See a sample report →</a></p>
+          <p>One uploaded repository ZIP or source file: exact file/line evidence, observed reach, remediation order, configured references, and <code>/verify/</code> evidence fingerprint. 30-day full refund policy.</p>
+          <a class="btn-outline" href="/audit/">Get the ${audit["base"]} report</a>
+          <p class="small"><a href="/audit/sample/">See sample PDF →</a> · US buyers only</p>
         </article>
       </div>
-      <p class="sub">There is no subscription, managed migration, AWS-account inventory, or automated pull-request product for sale.</p>
+      <p class="sub">Self-serve paid Stripe checkouts are offered to US buyers only. There is no recurring subscription, live AWS-account inventory service, or automated pull-request bot for sale.</p>
     </div>
   </section>
 </main>
 
 <footer class="footer">
   <div class="container">
-    <div class="muted small">© 2026 EOLkits. MIT-licensed kits for AWS deprecation migrations.</div>
-    <div class="muted small"><a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/legal/SECURITY.html">Security</a> · <a href="mailto:hello@toledotechnologies.com">Support</a></div>
+    <div class="footer-grid">
+      <div>
+        <div class="brand"><span class="brand-mark">&gt;</span> EOLkits</div>
+        <p class="muted">Deterministic AWS deprecation scanners, air-gapped migration toolkits, and primary-source guides.</p>
+        <p class="muted small">Toledo Technologies LLC · 2389 Main St. STE 100, Glastonbury, CT 06033, United States · <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> · Self-serve paid checkouts: US buyers only.</p>
+      </div>
+      <div>
+        <h5>Products &amp; Tools</h5>
+        <a href="/toolkit/">Offline Toolkit (${tk["price"]})</a><br>
+        <a href="/audit/">Hosted Audit PDF (${audit["base"]})</a><br>
+        <a href="/scan/">Free browser scanner</a><br>
+        <a href="/eol-checker/">Runtime EOL checker</a>
+      </div>
+      <div>
+        <h5>Company &amp; Legal</h5>
+        <a href="/about/">About</a> · <a href="/changelog/">Changelog</a><br>
+        <a href="/migrate/">Deadlines</a> · <a href="/fix/">Error fixes</a><br>
+        <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/legal/SECURITY.html">Security</a> · <a href="/status/">Status</a>
+      </div>
+    </div>
+    <div class="muted small">© 2026 Toledo Technologies LLC. Open-source kits MIT-licensed; commercial toolkit licensed per purchasing organization.</div>
   </div>
 </footer>
 </body>
 </html>"""
+    )
 
 
 def build_widget_js():
@@ -1639,7 +2175,7 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 
 
 def build_success_page():
-    """Post-checkout status for the only active paid SKU (Audit v2)."""
+    """Post-checkout confirmation for active paid SKUs (Offline Toolkit & Audit v2)."""
     html = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1647,28 +2183,30 @@ def build_success_page():
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Thank you — EOLkits</title>
 <meta name="robots" content="noindex">
+<link rel="stylesheet" href="/style.css">
 <style>
-body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:0 auto;padding:2rem;line-height:1.6}
-.brand{color:#2563eb;font-weight:600}
-h1{margin-top:0}
-.card{border:1px solid #e5e7eb;border-radius:10px;padding:1.5rem;margin:1.25rem 0}
-.upsell{background:#ecfdf5;border:2px solid #059669}
-.btn{display:inline-block;background:#2563eb;color:#fff;padding:.6rem 1.2rem;border-radius:6px;text-decoration:none;font-weight:600}
-footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b7280;font-size:0.875rem}
+.thanks-wrap{max-width:740px;margin:0 auto;padding:3rem 1.5rem 4rem}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1.25rem 0}
+.card a{color:var(--accent);text-decoration:underline}
 </style>
 </head>
 <body>
-<a href="/" class="brand">← EOLkits</a>
-<h1 id="title">Thank you</h1>
+<main class="thanks-wrap">
+<a href="/" class="brand"><span class="brand-mark">&gt;</span> EOLkits</a>
+<h1 id="title" style="margin-top:1rem">Thank you</h1>
 <div id="body"></div>
-<footer><a href="/">Home</a> · <a href="/status/">Status</a> · <a href="/legal/terms.html">Terms</a></footer>
+<footer style="margin-top:3rem;padding-top:1rem;border-top:1px solid var(--border);color:var(--ink-muted);font-size:0.875rem"><a href="/">Home</a> · <a href="/toolkit/">Offline Toolkit</a> · <a href="/status/">Status</a> · <a href="/legal/terms.html">Terms</a> · <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a></footer>
+</main>
 <script>
 const qp = new URLSearchParams(location.search);
 const sku = qp.get('sku') || '';
 const title = document.getElementById('title');
 const body = document.getElementById('body');
 function h(html) {{ body.innerHTML = html; }}
-if (sku === 'audit') {{
+if (sku === 'toolkit') {{
+  title.textContent = 'Your Offline Toolkit download is on the way';
+  h('<div class="card"><p><strong>Payment confirmed.</strong> Our automated fulfillment service is emailing your unlisted HTTPS download link for <code>AWS-Runtime-EOL-Migration-Toolkit-v1.0.0.zip</code> to the address entered at Stripe Checkout (sent from <code>hello@toledotechnologies.com</code>).</p><p>Unzip locally and run <code>python3 src/eolkits_offline_audit.py --repo /path/to/repo --out ./audit-out</code> on Python 3.10+—zero external dependencies and zero source upload.</p><p>If the email does not arrive in your inbox or spam folder within a few minutes, email <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> and we will resend or issue an immediate full refund.</p></div>');
+}} else if (sku === 'audit') {{
   title.textContent = 'Your audit is on the way';
   h('<div class="card"><p>Payment received. Your repository evidence PDF is queued for automated generation and email delivery. Delays are possible.</p><p>Its evidence lookup records the input hash, rule-pack version, evidence fingerprint, and observed counts. The PDF itself is not digitally signed.</p><p>If fulfillment cannot complete after retries, the system attempts an automatic refund and surfaces any unresolved refund for operator review.</p></div>');
 }} else if (sku === 'pack') {{
@@ -1678,7 +2216,7 @@ if (sku === 'audit') {{
   title.textContent = 'Drift Watch is unavailable';
   h('<div class="card"><p>Drift Watch is not open for purchase. If a legacy payment link charged you, email <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> with the Stripe receipt so the payment can be reviewed and refunded.</p></div>');
 }} else {{
-  h('<div class="card"><p>Payment received. Check your email for next steps.</p></div>');
+  h('<div class="card"><p>Payment received. Check your checkout email address for your delivery link or receipt, or contact <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a>.</p></div>');
 }}
 </script>
 </body>
@@ -2124,15 +2662,20 @@ if {name: rule.get("min") for name, rule in _PY312_WHEELS_SNAPSHOT.items()} != {
 
 
 def _runtime_id_from_name(name: str):
-    """Derive an AWS runtime identifier (python3.9 / nodejs20.x / ruby3.2) from a
-    deprecation entry name, so the scanner's deadlines come straight from the YAML."""
+    """Derive an AWS runtime identifier (python3.9 / nodejs20.x / dotnet8 / provided.al2)
+    from a deprecation entry name, so the scanner's deadlines come straight from the YAML."""
     n = (name or "").lower()
+    if "provided.al2" in n:
+        return "provided.al2"
     m = re.search(r"python\s*(\d+)\.(\d+)", n)
     if m:
         return f"python{m.group(1)}.{m.group(2)}"
     m = re.search(r"node(?:\.|\s)?js\s*(\d+)", n)
     if m:
         return f"nodejs{m.group(1)}.x"
+    m = re.search(r"(?:\.net|dotnet)\s*(\d+)", n)
+    if m:
+        return f"dotnet{m.group(1)}"
     m = re.search(r"ruby\s*(\d+)\.(\d+)", n)
     if m:
         return f"ruby{m.group(1)}.{m.group(2)}"
@@ -2345,11 +2888,11 @@ function render(all) {
   const n = all.length;
   box.innerHTML = '<p class="scan-count">' + n + ' finding' + (n === 1 ? '' : 's') + ' — all detected locally in your browser.</p>' +
     '<table class="scan-tbl"><thead><tr><th>Severity</th><th>What</th><th>File</th><th>Deadline / fix</th><th>Detail</th></tr></thead><tbody>' + rows + '</tbody></table>' +
-    '<a class="scan-cta" href="' + auditLink(deadline, kit) + '">See the one-repository evidence report ($299) &rarr;</a>' +
+    '<div class="convert-callout"><h3>Need full-repo CAB evidence &amp; codemods without uploading source?</h3><p>Download the <strong>$79 Offline Migration &amp; Audit Toolkit</strong> (instant ZIP via Stripe · stdlib-only local scanner + Jira CSV + Python 3.12/3.13 &amp; AWS SDK v3 codemods + AL2023 Dockerfiles · US buyers only).</p><a class="btn-primary" href="https://buy.stripe.com/9B66oH5s2cFy2l51oE87K0C">Buy $79 Offline Toolkit &rarr;</a> &nbsp;<a class="btn-outline" href="' + SITE_BASE + '/toolkit/">Specs &amp; sample</a> &nbsp;<a class="scan-cta" href="' + auditLink(deadline, kit) + '">See the one-repository evidence report ($299) &rarr;</a></div>' +
     '<p class="scan-interest"><a href="' + INTEREST_URL + '" target="_blank" rel="noopener">Would this report be worth $299? Record qualified public interest on GitHub.</a><br><small>No order or waitlist. Do not disclose project details, code, secrets, company information, or personal data.</small></p>';
 }
 const dz = $('#dz'), fi = $('#fi'); let acc = [];
-function scanDone(fileCount) { try { if (typeof window.eolkitsTrack === 'function') window.eolkitsTrack('scan_completed', { sku: 'audit', meta: { finding_count: acc.length, file_count: fileCount } }); } catch (e) {} }
+function scanDone(fileCount) { try { if (window.umami && typeof window.umami.track === 'function') window.umami.track('scan'); if (typeof window.eolkitsTrack === 'function') window.eolkitsTrack('scan_completed', { sku: 'audit', meta: { finding_count: acc.length, file_count: fileCount } }); } catch (e) {} }
 function handle(files) { acc = []; const arr = [...files]; let pending = arr.length; if (!pending) return; arr.forEach((file) => { const r = new FileReader(); r.onload = () => { try { acc = acc.concat(scanFile(file.name, r.result)); } catch (e) {} if (--pending === 0) { render(acc); scanDone(arr.length); } }; r.onerror = () => { if (--pending === 0) { render(acc); scanDone(arr.length); } }; r.readAsText(file); }); }
 dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('over'); });
 dz.addEventListener('dragleave', () => dz.classList.remove('over'));
@@ -2390,23 +2933,24 @@ def build_scan_page(deprecations):
         f'<link rel="canonical" href="{SITE_URL}/scan/">\n'
         '<link rel="stylesheet" href="/style.css">\n'
         '<script defer src="/track.js"></script>\n' + _og_image_meta() + "<style>"
-        "#dz{border:2px dashed #94a3b8;border-radius:10px;padding:2.5rem 1rem;text-align:center;cursor:pointer;background:#f8fafc}"
-        "#dz.over{border-color:#2563eb;background:#eff6ff}"
+        "#dz{border:2px dashed var(--border);border-radius:12px;padding:2.5rem 1rem;text-align:center;cursor:pointer;background:var(--bg-card);color:var(--ink)}"
+        "#dz.over{border-color:var(--accent);background:rgba(255,92,42,0.08)}"
         ".scan-tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.88rem}"
-        ".scan-tbl th,.scan-tbl td{border-bottom:1px solid #eee;padding:.5rem;text-align:left;vertical-align:top}"
-        ".sev-critical td:first-child{color:#b91c1c;font-weight:700}"
-        ".sev-high td:first-child{color:#b45309;font-weight:700}"
-        ".sev-medium td:first-child{color:#a16207;font-weight:700}"
-        ".sev-low td:first-child{color:#2563eb}"
-        ".scan-cta{display:inline-block;margin-top:1rem;padding:.75rem 1.25rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}"
-        ".scan-interest{margin-top:1rem;padding:1rem;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px}"
-        ".scan-ok{padding:1rem;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px}"
-        ".scan-count{font-weight:600;margin-top:1rem}.privacy{color:#16a34a;font-weight:600}"
+        ".scan-tbl th,.scan-tbl td{border-bottom:1px solid var(--border);padding:.55rem;text-align:left;vertical-align:top}"
+        ".sev-critical td:first-child{color:#ff6b6b;font-weight:700}"
+        ".sev-high td:first-child{color:var(--accent);font-weight:700}"
+        ".sev-medium td:first-child{color:#eab308;font-weight:700}"
+        ".sev-low td:first-child{color:#38bdf8}"
+        ".scan-cta{display:inline-block;margin-top:.5rem;padding:.75rem 1.15rem;background:var(--bg);border:1px solid var(--border);color:var(--ink);border-radius:8px;text-decoration:none;font-weight:600}"
+        ".scan-interest{margin-top:1rem;padding:1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:8px}"
+        ".scan-interest a{color:var(--accent);text-decoration:underline}"
+        ".scan-ok{padding:1rem;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.35);border-radius:8px}"
+        ".scan-count{font-weight:600;margin-top:1rem}.privacy{color:#4ade80;font-weight:600}"
         "</style>\n</head>\n"
     )
     body = (
-        '<body class="container">\n'
-        '<a href="/" class="brand">&larr; EOLkits</a>\n'
+        '<body class="container article">\n'
+        '<a href="/" class="brand"><span class="brand-mark">&gt;</span> EOLkits</a>\n'
         "<h1>Free AWS runtime &amp; dependency EOL scanner</h1>\n"
         "<p>Drop your infrastructure and dependency files below to find deprecated AWS Lambda runtimes and the "
         "native Node.js&nbsp;24 / Python&nbsp;3.12 dependency risks that can block a migration. "
@@ -2415,7 +2959,7 @@ def build_scan_page(deprecations):
         '<div id="dz"><strong>Drop files here</strong><br><small>or click to choose — template.yaml, serverless.yml, *.tf, CDK *.ts, package.json, requirements.txt, pyproject.toml</small>'
         '<input id="fi" type="file" multiple accept=".yaml,.yml,.json,.tf,.ts,.js,.mjs,.txt,.toml" style="display:none"></div>\n'
         '<div id="results"></div>\n'
-        '<p id="report-scope-link">Need a shareable repository report? <a href="/audit/">Inspect the sample and $299 report scope</a>. A scan with no matches is not proof that your infrastructure is free of deprecation risk.</p>\n'
+        '<p id="report-scope-link">Need a shareable repository report? <a href="/toolkit/">Download the $79 Offline Toolkit (zero code upload)</a> or <a href="/audit/">Inspect the sample and $299 report scope</a>. A scan with no matches is not proof that your infrastructure is free of deprecation risk.</p>\n'
         "<h2>What it checks</h2>\n<ul>"
         "<li><strong>Lambda runtimes</strong> in SAM, CloudFormation, CDK, Terraform and Serverless Framework — flagged against AWS&rsquo;s published deprecation dates.</li>"
         "<li><strong>Node native dependencies</strong> (sharp, bcrypt, better-sqlite3&hellip;) that need a version bump, rebuild, or replacement before a Node&nbsp;24 migration.</li>"
@@ -2558,9 +3102,9 @@ def build_error_pages(fixes, deprecations, _full_pricing):
             '<link rel="stylesheet" href="/style.css">\n'
             '<script defer src="/track.js"></script>\n'
             + _og_image_meta()
-            + "<style>.fix-err{background:#0f172a;color:#e2e8f0;padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem}"
-            ".fix-steps li{margin:.35rem 0}.fix-cta{display:inline-block;margin-top:1rem;padding:.7rem 1.2rem;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600}"
-            ".fix-rel{background:#fff7ed;border:1px solid #fed7aa;padding:.6rem .8rem;border-radius:8px}</style>\n"
+            + "<style>.fix-err{background:#090c12;border:1px solid var(--border);color:#e2e8f0;padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem}"
+            ".fix-steps li{margin:.35rem 0}.fix-cta{display:inline-block;margin-top:.75rem;padding:.7rem 1.15rem;background:var(--bg);border:1px solid var(--border);color:var(--ink);border-radius:8px;text-decoration:none;font-weight:600}"
+            ".fix-rel{background:var(--bg-card);border:1px solid var(--accent);padding:.65rem .9rem;border-radius:8px}.fix-rel a{color:var(--accent);text-decoration:underline}</style>\n"
             '<script type="application/ld+json">' + json.dumps(faq) + "</script>\n"
             '<script type="application/ld+json">' + json.dumps(howto) + "</script>\n"
             "</head>\n"
@@ -2579,6 +3123,9 @@ def build_error_pages(fixes, deprecations, _full_pricing):
             + steps_html
             + "</ol>\n"
             + rel_html
+            + '<div class="convert-callout"><h2>Scan &amp; codemod every occurrence locally ($79)</h2>'
+            + "<p>Fixing one function by hand rarely clears the whole stack. Download the <strong>$79 Offline Migration &amp; Audit Toolkit</strong> to run air-gapped repo/IaC audits, Python 3.12/3.13 &amp; AWS SDK v3 codemods, AL2023 native wheel Dockerfiles, and canary rollback templates with zero source upload (US buyers only · 30-day full refund policy).</p>"
+            + '<p><a class="btn-primary" href="https://buy.stripe.com/9B66oH5s2cFy2l51oE87K0C">Buy $79 Offline Toolkit (Instant Download) &rarr;</a> &nbsp;<a class="btn-outline" href="/toolkit/">Full specs &amp; sample</a></p></div>\n'
             + "<h2>Check configured patterns in your project</h2>\n"
             + '<p>The free <a href="/scan/">EOLkits scanner</a> processes files in your browser and flags selected related patterns in supported IaC and dependency files. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent. It is not a complete source or AWS-account scan.</p>\n'
             + '<p>Prefer a 10-second check? Paste your config into the <a href="/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>\n'
@@ -2596,6 +3143,7 @@ def build_error_pages(fixes, deprecations, _full_pricing):
             + '<p><a class="fix-cta" href="'
             + audit_link
             + '">Inspect the $299 report sample and availability &rarr;</a></p>\n'
+            + '<footer style="margin-top:2.5rem;padding-top:1rem;border-top:1px solid var(--border);font-size:.82rem;color:var(--ink-muted)">Toledo Technologies LLC · 2389 Main St. STE 100, Glastonbury, CT 06033 · <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> · <a href="/about/">About</a> · <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></footer>\n'
             "</body>\n</html>\n"
         )
         pages["fix/" + slug + "/index.html"] = head + body
@@ -2745,6 +3293,10 @@ def main():
         "index.html": build_index_page(pricing),
         "track.js": build_track_js(),
         f"{INDEXNOW_KEY}.txt": INDEXNOW_KEY,
+        "toolkit/index.html": build_toolkit_page(pricing),
+        "toolkit/sample/index.html": build_toolkit_sample_page(),
+        "about/index.html": build_about_page(pricing),
+        "changelog/index.html": build_changelog_page(),
         "audit/index.html": build_audit_page(pricing),
         "audit/sample/index.html": build_audit_sample_page(pricing),
         "scan/index.html": build_scan_page(deprecations),

@@ -141,7 +141,8 @@ def test_indexnow_submission_is_scoped_to_both_verified_hosts() -> None:
     assert 'key_location="$site_base/$key.txt"' in workflow
     assert '--arg host "$site_host"' in workflow
     assert '"$site_base/sitemap.xml"' in workflow
-    assert "repository evidence report is the only paid product" in workflow
+    assert '<div class="price">$79</div>' in workflow
+    assert '<div class="price">$299</div>' in workflow
     assert "Checkout stays closed unless the live API confirms report engine 2.0." in workflow
     assert AUDIT_GATE_SENTENCE in workflow
     assert "Refusing to notify search engines about retired commercial copy" in workflow
@@ -334,6 +335,28 @@ def test_past_python_runtime_dates_are_not_labeled_projected() -> None:
     page = (DOCS / "migrate" / "lambda-python-3.10-eol" / "index.html").read_text(encoding="utf-8")
     assert "Lambda Python 3.10 create/update restrictions" in page
     assert "was deprecated by AWS on 2026-10-31" in page
+
+
+def test_commercial_compliance_and_zero_banned_claims() -> None:
+    all_html = "\n".join(page.read_text(encoding="utf-8") for page in sorted(DOCS.rglob("*.html")))
+    lower = all_html.lower()
+    assert "guarantee" not in lower
+    assert "ai-powered" not in lower
+
+    for rel in (
+        "index.html",
+        "toolkit/index.html",
+        "audit/index.html",
+        "legal/terms.html",
+        "legal/privacy.html",
+    ):
+        txt = (DOCS / rel).read_text(encoding="utf-8")
+        assert "US buyers only" in txt, rel
+        assert "2389 Main St. STE 100, Glastonbury, CT 06033" in txt, rel
+        assert "hello@toledotechnologies.com" in txt, rel
+
+    for rel in ("about/index.html", "changelog/index.html", "toolkit/sample/index.html"):
+        assert (DOCS / rel).is_file(), rel
 
 
 def test_generated_text_has_no_trailing_whitespace() -> None:

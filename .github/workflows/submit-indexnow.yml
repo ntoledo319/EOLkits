@@ -79,11 +79,13 @@ jobs:
 
           if [[ "$site_host" == 'eolkits.com' ]]; then
             home="$(curl --fail --silent --show-error --max-time 20 "$site_base/")"
+            toolkit="$(curl --fail --silent --show-error --max-time 20 "$site_base/toolkit/")"
             audit="$(curl --fail --silent --show-error --max-time 20 "$site_base/audit/")"
             pack="$(curl --fail --silent --show-error --max-time 20 "$site_base/pack/")"
             drift="$(curl --fail --silent --show-error --max-time 20 "$site_base/drift/")"
-            grep -Fq 'repository evidence report is the only paid product' <<<"$home"
+            grep -Fq '<div class="price">$79</div>' <<<"$home"
             grep -Fq '<div class="price">$299</div>' <<<"$home"
+            grep -Fq 'https://buy.stripe.com/9B66oH5s2cFy2l51oE87K0C' <<<"$toolkit"
             grep -Fq '<form id="auditForm" hidden>' <<<"$audit"
             # The upload form must stay hidden unless the live API opens it. The older
             # gate sentence is accepted until every host serves the new build.
@@ -94,7 +96,7 @@ jobs:
             fi
             grep -Fq 'Migration Pack is unavailable' <<<"$pack"
             grep -Fq 'Drift Watch is unavailable' <<<"$drift"
-            for page in "$home" "$audit" "$pack" "$drift"; do
+            for page in "$home" "$toolkit" "$audit" "$pack" "$drift"; do
               if ! grep -Fq 'http-equiv="Content-Security-Policy"' <<<"$page" \
                 || ! grep -Fq "script-src 'self' 'unsafe-inline'" <<<"$page" \
                 || ! grep -Fq "connect-src 'self' https://eolkits.com" <<<"$page"; then
@@ -102,11 +104,11 @@ jobs:
                 exit 1
               fi
             done
-            if grep -Eq '\$1,499|\$14,999' <<<"$home$audit$pack$drift"; then
+            if grep -Eq '\$1,499|\$14,999' <<<"$home$toolkit$audit$pack$drift"; then
               echo '::error::Refusing to notify search engines about retired commercial copy'
               exit 1
             fi
-            if grep -Eq "<script[^>]+src=['\"]https?://" <<<"$home$audit$pack$drift"; then
+            if grep -Eq "<script[^>]+src=['\"]https?://" <<<"$home$toolkit$audit$pack$drift"; then
               echo '::error::Refusing to notify search engines while an external script is injected'
               exit 1
             fi

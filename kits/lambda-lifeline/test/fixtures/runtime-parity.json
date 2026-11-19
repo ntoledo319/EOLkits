@@ -7,6 +7,8 @@
     {"FunctionName": "python-38", "Runtime": "python3.8"},
     {"FunctionName": "python-39", "Runtime": "python3.9"},
     {"FunctionName": "python-310", "Runtime": "python3.10"},
-    {"FunctionName": "python-311", "Runtime": "python3.11"}
+    {"FunctionName": "python-311", "Runtime": "python3.11"},
+    {"FunctionName": "dotnet-8", "Runtime": "dotnet8"},
+    {"FunctionName": "provided-al2", "Runtime": "provided.al2"}
   ]
 }

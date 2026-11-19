@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sample Air-Gapped Migration Report — Offline Toolkit ($79) | EOLkits</title>
+<meta name="description" content="Synthetic output from the $79 EOLkits Offline Migration &amp; Audit Toolkit: 14 file/line findings across Python 3.10, .NET 8, Node.js 18/20, and Amazon Linux 2.">
+<link rel="canonical" href="{SITE_URL}/toolkit/sample/">
+<script defer src="/track.js"></script>
+<style>
+  :root {
+    --bg: #0b0e14;
+    --panel: #121722;
+    --border: #232c3d;
+    --text: #e6edf3;
+    --muted: #94a3b8;
+    --accent: #f97316;
+    --crit: #ef4444;
+    --high: #f97316;
+    --med: #eab308;
+    --low: #38bdf8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 32px 20px 64px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  header {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+  }
+  .eyebrow { color: var(--accent); font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+  h1 { margin: 6px 0 8px; font-size: 26px; line-height: 1.25; }
+  h2 { margin: 28px 0 12px; font-size: 18px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+  .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 16px; font-size: 13px; color: var(--muted); }
+  .meta code { color: var(--text); font-size: 12px; word-break: break-all; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .kpi { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .kpi .num { font-size: 28px; font-weight: 800; line-height: 1.1; }
+  .kpi .lbl { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; font-size: 13.5px; }
+  th, td { padding: 12px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); }
+  th { background: #161d2b; color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; }
+  td.num { font-variant-numeric: tabular-nums; color: var(--muted); width: 48px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .sev-critical { background: rgba(239,68,68,0.18); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
+  .sev-high { background: rgba(249,115,22,0.18); color: #fdba74; border: 1px solid rgba(249,115,22,0.4); }
+  .sev-medium { background: rgba(234,179,8,0.18); color: #fde047; border: 1px solid rgba(234,179,8,0.4); }
+  .sev-low { background: rgba(56,189,248,0.18); color: #7dd3fc; border: 1px solid rgba(56,189,248,0.4); }
+  pre.snip { margin: 6px 0 0; padding: 6px 8px; background: #090c12; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; white-space: pre-wrap; word-break: break-all; color: #cbd5e1; }
+  .sub { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+  .rem { margin-top: 6px; color: #cbd5e1; font-size: 13px; }
+  .scope { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; font-size: 13px; color: var(--muted); margin-top: 24px; }
+  @media print {
+    :root { --bg: #ffffff; --panel: #ffffff; --border: #cbd5e1; --text: #0f172a; --muted: #475569; }
+    body { padding: 0; font-size: 11.5px; }
+    pre.snip { background: #f8fafc; color: #0f172a; }
+    th { background: #f1f5f9; color: #334155; }
+    .sev-critical, .sev-high, .sev-medium, .sev-low { color: #0f172a; background: #f1f5f9; border-color: #94a3b8; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px;padding:12px 16px;background:#121722;border:1px solid #232c3d;border-radius:10px;font-size:14px;">
+    <div><a href="/toolkit/" style="color:#f97316;font-weight:700;text-decoration:none;">&larr; Back to Offline Toolkit ($79)</a> &middot; <span style="color:#94a3b8;">Illustrative synthetic sample (zero customer data)</span></div>
+    <div><a href="https://buy.stripe.com/9B66oH5s2cFy2l51oE87K0C" style="display:inline-block;background:#f97316;color:#fff;padding:8px 14px;border-radius:7px;font-weight:700;text-decoration:none;">Buy Offline Toolkit &mdash; $79 &rarr;</a> <span style="color:#94a3b8;font-size:12px;margin-left:6px;">US buyers only</span></div>
+  </div>
+  <header>
+    <div class="eyebrow">&gt; EOLkits Air-Gapped Migration &amp; Audit Pack · Rule Pack 2026.11</div>
+    <h1>AWS Runtime &amp; OS Migration Evidence Report — acme-payments-platform (Synthetic Sample)</h1>
+    <p style="margin:0;color:var(--muted);font-size:14px;">Generated locally with zero external source upload. Use browser Print &rarr; Save as PDF to attach to Change Advisory Board (CAB), SOC 2, or sprint sign-off tickets.</p>
+    <div class="meta">
+      <div><strong>Generated (UTC):</strong><br><code>2026-11-19T00:00:00Z</code></div>
+      <div><strong>Scanned / Skipped Files:</strong><br><code>6 scanned · 0 skipped</code></div>
+      <div><strong>Input Tree SHA-256:</strong><br><code>7b3f8592e0878dcc8a79d0fdb168902abdde2363d7e43d5c5e96529d0fb6d0b8</code></div>
+      <div><strong>Evidence SHA-256:</strong><br><code>247f1685218aba70a2f62afd2d6586fc68a614cedbc7cf0961a3558ad590d294</code></div>
+    </div>
+  </header>
+
+  <section class="kpis">
+    <div class="kpi"><div class="num">14</div><div class="lbl">Total Findings</div></div>
+    <div class="kpi"><div class="num" style="color:#fca5a5">3</div><div class="lbl">Critical (Unpatched AL2)</div></div>
+    <div class="kpi"><div class="num" style="color:#fdba74">9</div><div class="lbl">High (Deprecated / Blocker)</div></div>
+    <div class="kpi"><div class="num" style="color:#fde047">2</div><div class="lbl">Medium (Upcoming / API)</div></div>
+  </section>
+
+  <h2>Prioritized Repository &amp; Inventory Findings</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Severity</th>
+        <th>Target / Block Date</th>
+        <th>Location &amp; Matched Source</th>
+        <th>Finding &amp; Verified Remediation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class='num'>#1</td><td><span class='badge sev-critical'>CRITICAL</span></td><td><code>amzn2</code><div class='sub'>2026-06-30</div></td><td><code>infra/main.tf:14</code><pre class='snip'>ami           = &quot;ami-0abcdef1234567890&quot; # amzn2-ami-hvm-2.0.20250601-x86_64-gp2</pre></td><td><strong>Amazon Linux 2 image or AL2 Lambda base container referenced after 2026-06-30 standard-support EOL.</strong><div class='rem'>Switch base image/AMI to Amazon Linux 2023 (al2023-ami-* or amazonlinux:2023 / AL2023 Lambda base image) and validate user-data with al2_to_al2023_cutover_lint.py.</div></td></tr>
+<tr><td class='num'>#2</td><td><span class='badge sev-critical'>CRITICAL</span></td><td><code>nodejs18.x</code><div class='sub'>2027-07-29</div></td><td><code>aws-lambda://acme-prod-Authorizer:1</code><pre class='snip'>FunctionName=acme-prod-Authorizer Runtime=nodejs18.x Arch=x86_64</pre></td><td><strong>Deployed Lambda &#x27;acme-prod-Authorizer&#x27; runs AWS Lambda Node.js 18 (AL2) (create block 2027-07-29, update block 2027-08-31).</strong><div class='rem'>Security patches stopped 2025-09-01. Move off AL2 to nodejs22.x/24.x (AL2023) and audit OpenSSL 3 + native N-API addons.</div></td></tr>
+<tr><td class='num'>#3</td><td><span class='badge sev-critical'>CRITICAL</span></td><td><code>python3.9</code><div class='sub'>2027-07-29</div></td><td><code>infra/main.tf:3</code><pre class='snip'>runtime       = &quot;python3.9&quot;</pre></td><td><strong>AWS Lambda Python 3.9 (AL2) (deprecated 2025-12-15; create blocked 2027-07-29, update blocked 2027-08-31).</strong><div class='rem'>Security patches stopped 2025-12-15. Upgrade to python3.12/3.13 on AL2023 and rebuild compiled C/Rust wheels.</div></td></tr>
+<tr><td class='num'>#4</td><td><span class='badge sev-high'>HIGH</span></td><td><code>al2023</code><div class='sub'>2026-06-30</div></td><td><code>infra/bootstrap.sh:2</code><pre class='snip'>amazon-linux-extras install -y nginx1</pre></td><td><strong>amazon-linux-extras command does not exist on Amazon Linux 2023.</strong><div class='rem'>Replace amazon-linux-extras with versioned dnf packages (e.g., dnf install -y nginx / postgresql15 / python3.12) or documented SPAL packages.</div></td></tr>
+<tr><td class='num'>#5</td><td><span class='badge sev-high'>HIGH</span></td><td><code>dotnet8</code><div class='sub'>2027-07-29</div></td><td><code>aws-lambda://acme-prod-LedgerSync:1</code><pre class='snip'>FunctionName=acme-prod-LedgerSync Runtime=dotnet8 Arch=arm64</pre></td><td><strong>Deployed Lambda &#x27;acme-prod-LedgerSync&#x27; runs AWS Lambda .NET 8 (AL2023) (create block 2027-07-29, update block 2027-08-31).</strong><div class='rem'>Deprecated 2026-11-10 (security patches stopped). Update TargetFramework to net10.0 and aws-lambda-tools-defaults.json / IaC runtime to dotnet10.</div></td></tr>
+<tr><td class='num'>#6</td><td><span class='badge sev-high'>HIGH</span></td><td><code>python3.10</code><div class='sub'>2027-07-29</div></td><td><code>infra/main.tf:9</code><pre class='snip'>runtime       = &quot;python3.10&quot;</pre></td><td><strong>AWS Lambda Python 3.10 (AL2) (deprecated 2026-10-31; create blocked 2027-07-29, update blocked 2027-08-31).</strong><div class='rem'>Deprecated 2026-10-31 (no further AWS security patches). Transition off AL2 to python3.12/3.13 and verify removed distutils/imp/PEP 594 modules.</div></td></tr>
+<tr><td class='num'>#7</td><td><span class='badge sev-high'>HIGH</span></td><td><code>python3.12+</code><div class='sub'>2027-07-29</div></td><td><code>services/billing/app.py:1</code><pre class='snip'>from distutils.version import LooseVersion</pre></td><td><strong>Import of Python standard-library module removed in Python 3.12 (PEP 632) or Python 3.13 (PEP 594).</strong><div class='rem'>Run codemods/py312_313_stdlib_doctor.py to map removed stdlib imports to packaging/importlib/shlex/urllib.parse/LibCST/passlib.</div></td></tr>
+<tr><td class='num'>#8</td><td><span class='badge sev-high'>HIGH</span></td><td><code>python3.12+</code><div class='sub'>2027-07-29</div></td><td><code>services/billing/app.py:2</code><pre class='snip'>from cgi import parse_qs</pre></td><td><strong>Import of Python standard-library module removed in Python 3.12 (PEP 632) or Python 3.13 (PEP 594).</strong><div class='rem'>Run codemods/py312_313_stdlib_doctor.py to map removed stdlib imports to packaging/importlib/shlex/urllib.parse/LibCST/passlib.</div></td></tr>
+<tr><td class='num'>#9</td><td><span class='badge sev-high'>HIGH</span></td><td><code>dotnet8</code><div class='sub'>2027-07-29</div></td><td><code>services/ledger-dotnet/Ledger.csproj:3</code><pre class='snip'>&lt;TargetFramework&gt;net8.0&lt;/TargetFramework&gt;</pre></td><td><strong>.NET 6 or .NET 8 Lambda target framework/runtime detected (.NET 8 Lambda deprecated 2026-11-10).</strong><div class='rem'>Update &lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;, upgrade Amazon.Lambda.* NuGet packages, and set runtime to dotnet10.</div></td></tr>
+<tr><td class='num'>#10</td><td><span class='badge sev-high'>HIGH</span></td><td><code>nodejs18+</code><div class='sub'>2027-07-29</div></td><td><code>services/webhooks/index.js:1</code><pre class='snip'>const AWS = require(&#x27;aws-sdk&#x27;);</pre></td><td><strong>AWS SDK for JavaScript v2 (aws-sdk) is end-of-support and omitted from Node.js 18+ Lambda runtimes.</strong><div class='rem'>Run codemods/node_aws_sdk_v3_mapper.py to list exact @aws-sdk/client-* v3 replacements and remove bundled v2 cold-start overhead.</div></td></tr>
+<tr><td class='num'>#11</td><td><span class='badge sev-high'>HIGH</span></td><td><code>nodejs22+</code><div class='sub'>2027-07-29</div></td><td><code>services/webhooks/index.js:5</code><pre class='snip'>const legacy = crypto.createCipher(&#x27;aes192&#x27;, process.env.KEY);</pre></td><td><strong>crypto.createCipher / createDecipher was removed in Node.js 22 (DEP0106).</strong><div class='rem'>Replace with crypto.createCipheriv / createDecipheriv using explicit random IVs and scrypt/pbkdf2 key derivation.</div></td></tr>
+<tr><td class='num'>#12</td><td><span class='badge sev-high'>HIGH</span></td><td><code>nodejs20.x</code><div class='sub'>2027-07-29</div></td><td><code>services/webhooks/serverless.yml:4</code><pre class='snip'>runtime: nodejs20.x</pre></td><td><strong>AWS Lambda Node.js 20 (AL2023) (deprecated 2026-04-30; create blocked 2027-07-29, update blocked 2027-08-31).</strong><div class='rem'>Deprecated 2026-04-30 (unpatched). Upgrade to nodejs22.x or nodejs24.x; already on AL2023 so glibc stays 2.34, check Node 22/24 crypto/punycode removals.</div></td></tr>
+<tr><td class='num'>#13</td><td><span class='badge sev-medium'>MEDIUM</span></td><td><code>al2023</code><div class='sub'>2026-06-30</div></td><td><code>infra/bootstrap.sh:3</code><pre class='snip'>systemctl enable ntpd</pre></td><td><strong>Legacy ntpd / iptables.service init command fails on Amazon Linux 2023.</strong><div class='rem'>Use chronyd instead of ntpd and nftables instead of iptables.service on AL2023.</div></td></tr>
+<tr><td class='num'>#14</td><td><span class='badge sev-medium'>MEDIUM</span></td><td><code>python3.11+</code><div class='sub'>2027-07-29</div></td><td><code>services/billing/app.py:7</code><pre class='snip'>ts = datetime.utcnow().isoformat()</pre></td><td><strong>Removed or deprecated Python runtime API (@asyncio.coroutine, collections.&lt;ABC&gt;, or datetime.utcnow()).</strong><div class='rem'>Run codemods/py312_313_stdlib_doctor.py --apply where safe and test under Python 3.12/3.13.</div></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Official AWS Lambda Deprecation Reference (Verified November 2026)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Runtime Identifier</th>
+        <th>Deprecation (Patches Stop)</th>
+        <th>Block Function Create</th>
+        <th>Block Function Update</th>
+        <th>Recommended Upgrade Target</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>python3.8</code></td><td>2024-10-14</td><td>2027-07-29</td><td>2027-08-31</td><td><code>python3.12 or python3.13 (AL2023)</code></td></tr><tr><td><code>python3.9</code></td><td>2025-12-15</td><td>2027-07-29</td><td>2027-08-31</td><td><code>python3.12 or python3.13 (AL2023)</code></td></tr><tr><td><code>python3.10</code></td><td>2026-10-31</td><td>2027-07-29</td><td>2027-08-31</td><td><code>python3.12 or python3.13 (AL2023)</code></td></tr><tr><td><code>python3.11</code></td><td>2027-06-30</td><td>2027-07-29</td><td>2027-08-31</td><td><code>python3.12 or python3.13 (AL2023)</code></td></tr><tr><td><code>nodejs16.x</code></td><td>2024-06-12</td><td>2027-07-29</td><td>2027-08-31</td><td><code>nodejs22.x or nodejs24.x (AL2023)</code></td></tr><tr><td><code>nodejs18.x</code></td><td>2025-09-01</td><td>2027-07-29</td><td>2027-08-31</td><td><code>nodejs22.x or nodejs24.x (AL2023)</code></td></tr><tr><td><code>nodejs20.x</code></td><td>2026-04-30</td><td>2027-07-29</td><td>2027-08-31</td><td><code>nodejs22.x or nodejs24.x (AL2023)</code></td></tr><tr><td><code>nodejs22.x</code></td><td>2027-05-30</td><td>2027-07-29</td><td>2027-08-31</td><td><code>nodejs24.x (AL2023)</code></td></tr><tr><td><code>dotnet6</code></td><td>2024-12-20</td><td>2027-07-29</td><td>2027-08-31</td><td><code>dotnet10 (AL2023)</code></td></tr><tr><td><code>dotnet8</code></td><td>2026-11-10</td><td>2027-07-29</td><td>2027-08-31</td><td><code>dotnet10 (AL2023)</code></td></tr><tr><td><code>provided.al2</code></td><td>2026-07-31</td><td>2027-07-29</td><td>2027-08-31</td><td><code>provided.al2023</code></td></tr><tr><td><code>ruby3.2</code></td><td>2026-03-31</td><td>2027-07-29</td><td>2027-08-31</td><td><code>ruby3.4 or ruby4.0 (AL2023)</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="scope">
+    <strong>Scope &amp; Verification Boundaries:</strong> This static report inspects supported source, IaC, container, and manifest files in the supplied archive or directory (plus any explicitly passed <code>aws lambda list-functions</code> JSON). It does not execute code, query live cloud accounts on its own, or certify runtime behavior of uninspected transitive dependencies. Validate all runtime and OS upgrades in a staging environment with canary rollback alarms enabled prior to production cutover.
+  </div>
+  <footer style="margin-top:28px;padding-top:16px;border-top:1px solid #232c3d;font-size:12.5px;color:#94a3b8;">
+    Toledo Technologies LLC &middot; 2389 Main St. STE 100, Glastonbury, CT 06033, United States &middot; <a href="mailto:hello@toledotechnologies.com" style="color:#f97316;">hello@toledotechnologies.com</a> &middot; Self-serve paid checkouts: US buyers only &middot; <a href="/toolkit/" style="color:#f97316;">Offline Toolkit</a> &middot; <a href="/legal/terms.html" style="color:#f97316;">Terms</a> &middot; <a href="/legal/privacy.html" style="color:#f97316;">Privacy</a>
+  </footer>
+</div>
+</body>
+</html>
