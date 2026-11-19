@@ -6,12 +6,12 @@
 
 | Runtime | Phase 1 — patches stop | Phase 2 — block create | Phase 3 — block update (hard) |
 |---|---|---|---|
-| `nodejs16.x` | Jun 12, 2024 ✗ past | Feb 1, 2027 | **Mar 3, 2027** |
-| `nodejs18.x` | Sep 1, 2025 ✗ past  | Feb 1, 2027 | **Mar 3, 2027** |
-| `nodejs20.x` | **Apr 30, 2026**    | Feb 1, 2027 | **Mar 3, 2027** |
-| `nodejs22.x` | Apr 30, 2027 (projected) | Jun 1, 2027 | **Jul 1, 2027** |
+| `nodejs16.x` | Jun 12, 2024 ✗ past | Jul 29, 2027 | **Aug 31, 2027** |
+| `nodejs18.x` | Sep 1, 2025 ✗ past  | Jul 29, 2027 | **Aug 31, 2027** |
+| `nodejs20.x` | **Apr 30, 2026**    | Jul 29, 2027 | **Aug 31, 2027** |
+| `nodejs22.x` | Apr 30, 2027 (projected) | Jul 29, 2027 | **Aug 31, 2027** |
 
-AWS marks future runtime dates as subject to change. Recheck the linked table before scheduling a production migration.
+Dates re-read from AWS's table on 2026-11-08 (AWS revised the block windows from the earlier Q1-2027 cluster to this Q3-2027 cluster). AWS marks future runtime dates as subject to change. Recheck the linked table before scheduling a production migration.
 
 Machine-readable scan output separates `at_risk` (a tracked runtime with a
 published or projected migration timeline), `lifecycle` (`supported`,
@@ -44,7 +44,7 @@ File and AWS mutations require `--apply`. The tested rewrite rules are idempoten
 
 ## Why this exists
 
-On **April 30, 2026** AWS stops applying security patches to `nodejs20.x` Lambda functions. AWS delayed the hard block dates into the synchronized Q1-2027 cluster: on **February 1, 2027** you can't create new `nodejs20.x` functions, and on **March 3, 2027** you can't even update code or config on the existing ones — they become frozen until you migrate.
+On **April 30, 2026** AWS stopped applying security patches to `nodejs20.x` Lambda functions. AWS has moved the hard block dates more than once; its table now lists them as: on **July 29, 2027** you can't create new `nodejs20.x` functions, and on **August 31, 2027** you can't even update code or config on the existing ones (except to move them to a supported runtime) — they become frozen until you migrate.
 
 The official AWS Health emails tell you *that* it's happening. This kit helps you
 identify which functions visible to a selected credential profile are affected,

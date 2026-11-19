@@ -59,7 +59,7 @@ const LAMBDA_RUNTIMES: Record<string, RuntimeRule> = {
     'python3.10': {
         label: 'Lambda Python 3.10',
         deprecationDate: '2026-10-31',
-        projected: true,
+        projected: false,
         severity: 'high',
         code: 'LAMBDA_PYTHON310_EOL'
     },

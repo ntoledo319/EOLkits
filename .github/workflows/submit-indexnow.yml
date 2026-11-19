@@ -85,7 +85,13 @@ jobs:
             grep -Fq 'repository evidence report is the only paid product' <<<"$home"
             grep -Fq '<div class="price">$299</div>' <<<"$home"
             grep -Fq '<form id="auditForm" hidden>' <<<"$audit"
-            grep -Fq 'Checkout stays closed unless the live API confirms report engine 2.0.' <<<"$audit"
+            # The upload form must stay hidden unless the live API opens it. The older
+            # gate sentence is accepted until every host serves the new build.
+            if ! grep -Fq 'The upload form appears here only when the live API confirms checkout is open on report engine 2.0.' <<<"$audit" \
+              && ! grep -Fq 'Checkout stays closed unless the live API confirms report engine 2.0.' <<<"$audit"; then
+              echo '::error::Refusing to notify search engines before the fail-closed checkout gate is live'
+              exit 1
+            fi
             grep -Fq 'Migration Pack is unavailable' <<<"$pack"
             grep -Fq 'Drift Watch is unavailable' <<<"$drift"
             for page in "$home" "$audit" "$pack" "$drift"; do

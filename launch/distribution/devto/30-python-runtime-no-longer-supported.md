@@ -30,9 +30,9 @@ AWS batched several runtimes together with the same block dates:
 
 | Runtime | Security patches stopped | Create blocked | Update blocked |
 |---|---|---|---|
-| python3.8 | October 2024 | 2027-02-01 | 2027-03-03 |
-| python3.9 | 2025-12-15 | 2027-02-01 | 2027-03-03 |
-| python3.10 | 2026-10-31 | 2027-02-01 | 2027-03-03 |
+| python3.8 | October 2024 | 2027-07-29 | 2027-08-31 |
+| python3.9 | 2025-12-15 | 2027-07-29 | 2027-08-31 |
+| python3.10 | 2026-10-31 | 2027-07-29 | 2027-08-31 |
 
 All three share the same 2027 block dates — AWS pushed them beyond the typical 30/60-day window in a single cluster with nodejs16.x, nodejs18.x, nodejs20.x, and dotnet6. Check the [AWS Lambda runtimes table](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html) before scheduling work — it's the authoritative source and dates have shifted before.
 

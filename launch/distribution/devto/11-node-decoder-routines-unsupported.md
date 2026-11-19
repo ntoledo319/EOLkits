@@ -37,7 +37,7 @@ Lambda's Node.js runtimes map straight to OpenSSL versions:
 | nodejs20.x | 20.x | 3.0 | Fails |
 | **nodejs22.x** | **22.x** | **3.0** | **Fails** |
 
-`nodejs16.x` is on the deprecation path (block-create Feb 1 2027 / block-update Mar 3 2027, per AWS's Lambda runtime deprecation table). Every team moving off it lands on an OpenSSL-3 runtime and inherits this the first time the function touches an old-format key — JWT signing, an mTLS client cert, an SSH-style key stored as a secret.
+`nodejs16.x` is on the deprecation path (block-create Jul 29 2027 / block-update Aug 31 2027, per AWS's Lambda runtime deprecation table). Every team moving off it lands on an OpenSSL-3 runtime and inherits this the first time the function touches an old-format key — JWT signing, an mTLS client cert, an SSH-style key stored as a secret.
 
 ## Fix 1 — re-encode the key to PKCS#8 (durable)
 

@@ -18,7 +18,7 @@ This is a map, not a new deep dive. Each line below is a real, verbatim error wi
 
 ## Path 1: Python 3.9 (or earlier) → Python 3.12 on Lambda
 
-You're doing this because AWS blocks `python3.9` creates/updates Feb 1 / Mar 3 2027 (and earlier versions are already blocked). Python 3.12 removed a batch of stdlib modules in one release (PEP 632/594), so this path front-loads the most breakage:
+You're doing this because AWS blocks `python3.9` creates/updates Jul 29 / Aug 31 2027 (and `python3.7` and older already block new functions). Python 3.12 removed a batch of stdlib modules in one release (PEP 632/594), so this path front-loads the most breakage:
 
 1. **`ModuleNotFoundError: No module named 'distutils'`** — removed in 3.12. [Fix →](https://eolkits.com/fix/python-no-module-named-distutils/)
 2. **`ModuleNotFoundError: No module named 'imp'`** — removed in 3.12. [Fix →](https://eolkits.com/fix/python-no-module-named-imp/)

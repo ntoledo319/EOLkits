@@ -19,22 +19,22 @@ const AT_RISK_RUNTIMES = new Set([
   'provided.al2',
 ]);
 
-// Dates from the AWS Lambda runtime deprecation table (docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html).
-// AWS delayed the usual 30/60-day block windows into a synchronized Q1-2027 cluster
-// (block_create 2027-02-01, block_update 2027-03-03) for these Amazon Linux 2/AL2023 runtimes.
+// Dates from the AWS Lambda runtime deprecation table (docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html),
+// re-read 2026-11-08. AWS delayed the usual 30/60-day block windows into a synchronized
+// Q3-2027 cluster (block_create 2027-07-29, block_update 2027-08-31) for these runtimes.
 const PHASE_DATES = {
-  'nodejs16.x': { phase1: '2024-06-12', block_create: '2027-02-01', block_update: '2027-03-03' },
-  'nodejs18.x': { phase1: '2025-09-01', block_create: '2027-02-01', block_update: '2027-03-03' },
-  'nodejs20.x': { phase1: '2026-04-30', block_create: '2027-02-01', block_update: '2027-03-03' },
-  'nodejs22.x': { phase1: '2027-04-30', block_create: '2027-06-01', block_update: '2027-07-01' },
-  'python3.8':  { phase1: '2024-10-14', block_create: '2027-02-01', block_update: '2027-03-03' },
-  'python3.9':  { phase1: '2025-12-15', block_create: '2027-02-01', block_update: '2027-03-03' },
-  'python3.10': { phase1: '2026-10-31', block_create: '2027-02-01', block_update: '2027-03-03' },
-  'python3.11': { phase1: '2027-06-30', block_create: '2027-07-31', block_update: '2027-08-31' },
-  'ruby3.2':    { phase1: '2026-03-31', block_create: '2027-02-01', block_update: '2027-03-03' },
-  'dotnet6':    { phase1: '2024-12-20', block_create: '2027-02-01', block_update: '2027-03-03' },
-  'java8.al2':  { phase1: '2027-06-30', block_create: '2027-07-31', block_update: '2027-08-31' },
-  'provided.al2': { phase1: '2026-07-31', block_create: '2027-02-01', block_update: '2027-03-03' },
+  'nodejs16.x': { phase1: '2024-06-12', block_create: '2027-07-29', block_update: '2027-08-31' },
+  'nodejs18.x': { phase1: '2025-09-01', block_create: '2027-07-29', block_update: '2027-08-31' },
+  'nodejs20.x': { phase1: '2026-04-30', block_create: '2027-07-29', block_update: '2027-08-31' },
+  'nodejs22.x': { phase1: '2027-04-30', block_create: '2027-07-29', block_update: '2027-08-31' },
+  'python3.8':  { phase1: '2024-10-14', block_create: '2027-07-29', block_update: '2027-08-31' },
+  'python3.9':  { phase1: '2025-12-15', block_create: '2027-07-29', block_update: '2027-08-31' },
+  'python3.10': { phase1: '2026-10-31', block_create: '2027-07-29', block_update: '2027-08-31' },
+  'python3.11': { phase1: '2027-06-30', block_create: '2027-07-29', block_update: '2027-08-31' },
+  'ruby3.2':    { phase1: '2026-03-31', block_create: '2027-07-29', block_update: '2027-08-31' },
+  'dotnet6':    { phase1: '2024-12-20', block_create: '2027-07-29', block_update: '2027-08-31' },
+  'java8.al2':  { phase1: '2027-06-30', block_create: '2027-07-29', block_update: '2027-08-31' },
+  'provided.al2': { phase1: '2026-07-31', block_create: '2027-07-29', block_update: '2027-08-31' },
 };
 
 const UPGRADE_TARGETS = {
@@ -48,7 +48,8 @@ const UPGRADE_TARGETS = {
   'python3.10': 'python3.12',
   'python3.11': 'python3.12',
   'ruby3.2':    'ruby3.4',
-  'dotnet6':    'dotnet8',
+  // Not dotnet8: AWS deprecates it on Nov 10, 2026 and blocks it on the same dates as dotnet6.
+  'dotnet6':    'dotnet10',
   'java8.al2':  'java21',
   'provided.al2': 'provided.al2023',
 };

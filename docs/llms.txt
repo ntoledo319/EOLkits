@@ -5,14 +5,14 @@
 ## AWS deprecation deadlines
 
 - [Amazon Linux 2 EOL](https://ntoledo319.github.io/EOLkits/migrate/amazon-linux-2-eol/): deadline 2026-06-30, severity critical, service EC2, EKS, ECS, Elastic Beanstalk. Source: https://aws.amazon.com/blogs/aws/update-on-amazon-linux-2-end-of-life/
-- [Lambda Node.js 20 create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-20-phase-1/): deadline 2027-02-01, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
-- [Lambda Python 3.9 create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.9-eol/): deadline 2027-02-01, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
-- [Lambda Python 3.10 projected create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.10-eol/): deadline 2027-02-01, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
-- [Lambda Node.js 16 create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-16-eol/): deadline 2027-02-01, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
-- [Lambda Node.js 18 create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-18-eol/): deadline 2027-02-01, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
-- [Lambda Python 3.8 create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.8-eol/): deadline 2027-02-01, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
-- [Lambda Node.js 22 projected create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-22-phase-1/): deadline 2027-06-01, severity medium, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
-- [Lambda Python 3.11 projected create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.11-eol/): deadline 2027-07-31, severity medium, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+- [Lambda Node.js 20 create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-20-phase-1/): deadline 2027-07-29, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+- [Lambda Node.js 22 projected create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-22-phase-1/): deadline 2027-07-29, severity medium, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+- [Lambda Python 3.9 create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.9-eol/): deadline 2027-07-29, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+- [Lambda Python 3.10 create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.10-eol/): deadline 2027-07-29, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+- [Lambda Python 3.11 projected create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.11-eol/): deadline 2027-07-29, severity medium, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+- [Lambda Node.js 16 create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-16-eol/): deadline 2027-07-29, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+- [Lambda Node.js 18 create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-node.js-18-eol/): deadline 2027-07-29, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+- [Lambda Python 3.8 create/update restrictions](https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.8-eol/): deadline 2027-07-29, severity high, service AWS Lambda. Source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 
 ## Common migration errors (verified fixes)
 
@@ -43,6 +43,9 @@
 - [ModuleNotFoundError: No module named 'smtpd'](https://ntoledo319.github.io/EOLkits/fix/python-no-module-named-smtpd/): The standard-library smtpd module was removed in Python 3.12 (PEP 594). Source: https://docs.python.org/3/whatsnew/3.12.html
 - [ModuleNotFoundError: No module named 'asyncore'](https://ntoledo319.github.io/EOLkits/fix/python-no-module-named-asyncore/): asyncore and asynchat were removed from the standard library in Python 3.12 (PEP 594). Source: https://docs.python.org/3/whatsnew/3.12.html
 - [error:1E08010C:DECODER routines::unsupported](https://ntoledo319.github.io/EOLkits/fix/node-error-decoder-routines-unsupported/): OpenSSL 3 can reject malformed key data or material that depends on an unavailable legacy decoder, encryption algorithm, or provider. Source: https://nodejs.org/api/crypto.html
+- [ModuleNotFoundError: No module named 'audioop'](https://ntoledo319.github.io/EOLkits/fix/python-no-module-named-audioop/): audioop was removed from the standard library in Python 3.13 under PEP 594. Code that imports it fails immediately on 3.13, including indirectly through libraries such as pydub. Source: https://docs.python.org/3/whatsnew/3.13.html
+- [ModuleNotFoundError: No module named 'pipes'](https://ntoledo319.github.io/EOLkits/fix/python-no-module-named-pipes/): pipes was removed from the standard library in Python 3.13 under PEP 594. Its only widely used function, pipes.quote, moved to shlex.quote years earlier. Source: https://docs.python.org/3/whatsnew/3.13.html
+- [ModuleNotFoundError: No module named 'aifc'](https://ntoledo319.github.io/EOLkits/fix/python-no-module-named-aifc/): aifc was removed from the standard library in Python 3.13 under PEP 594. It is commonly hit indirectly, because the removed sndhdr module and some speech libraries imported it. Source: https://docs.python.org/3/whatsnew/3.13.html
 - [Free in-browser scanner](https://ntoledo319.github.io/EOLkits/scan/): drop IaC / dependency files to find deprecated runtimes and incompatible dependencies locally. File names and contents are not uploaded; bounded aggregate file and finding counts may be sent.
 
 ## Pricing

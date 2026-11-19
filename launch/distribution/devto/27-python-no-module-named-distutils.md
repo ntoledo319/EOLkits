@@ -103,7 +103,7 @@ A clean import — no `ModuleNotFoundError` — means the package is safe to dep
 
 ## The broader context: python3.12 is the migration target
 
-Lambda's `python3.9` and `python3.10` runtimes are deprecated; `python3.9` has no further security patches since December 2025. AWS is scheduled to block new function creation on deprecated runtimes in early 2027. The `python3.12` runtime (Amazon Linux 2023, glibc 2.34) is the recommended upgrade target.
+Lambda's `python3.9` and `python3.10` runtimes are deprecated; `python3.9` has no further security patches since December 2025. AWS is scheduled to block new function creation on both on 2027-07-29, and updates on 2027-08-31. The `python3.12` runtime (Amazon Linux 2023, glibc 2.34) is the recommended upgrade target.
 
 The `distutils` removal is one of a cluster of breaking changes you'll hit when crossing from 3.9 to 3.12: `imp` is also gone, `asyncore` and `asynchat` are gone, and `datetime.utcnow()` is deprecated. Fixing pinned dependencies once — in a full upgrade sweep against a local Python 3.12 environment — is faster than chasing individual errors after the runtime flip.
 

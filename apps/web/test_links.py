@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import subprocess
 import zipfile
@@ -16,6 +17,10 @@ import build
 
 DOCS = Path(__file__).resolve().parents[2] / "docs"
 ROOT = DOCS.parent
+AUDIT_GATE_SENTENCE = (
+    "The upload form appears here only when the live API confirms checkout is open on "
+    "report engine 2.0."
+)
 
 
 class _Links(HTMLParser):
@@ -82,13 +87,30 @@ def test_sitemap_dates_change_only_for_materially_updated_pages() -> None:
         for item in root.findall(f"{namespace}url")
     }
 
-    assert observed[f"{build.SITE_URL}/"] == "2026-09-09"
-    assert observed[f"{build.SITE_URL}/audit/"] == "2026-09-04"
-    assert observed[f"{build.SITE_URL}/lambda-runtime-deprecation-schedule/"] == "2026-09-04"
-    assert observed[f"{build.SITE_URL}/legal/dpa.html"] == "2026-09-04"
-    assert observed[f"{build.SITE_URL}/legal/privacy.html"] == "2026-09-04"
-    assert observed[f"{build.SITE_URL}/legal/terms.html"] == "2026-09-04"
-    assert observed[f"{build.SITE_URL}/legal/SECURITY.html"] == "2026-09-09"
+    # Expected lastmod comes from the same source the builder uses, so the
+    # checked-in sitemap can never drift a day ahead of BUILD_DATE (the old
+    # hardcoded literals forced a daily test edit and a red web job whenever
+    # BUILD_DATE moved before the literals did).
+    def expected_lastmod(url: str) -> str:
+        path = url.removeprefix(f"{build.SITE_URL}/")
+        source_path = "index.html" if path == "" else path.removesuffix("/") + "/index.html"
+        if not path.endswith("/"):
+            source_path = path
+        return build.PAGE_LASTMOD_OVERRIDES.get(source_path, build._build_date())
+
+    assert observed
+    for location, lastmod in observed.items():
+        assert lastmod == expected_lastmod(
+            location
+        ), f"{location}: lastmod {lastmod} != expected {expected_lastmod(location)}"
+
+    # Materially-updated pages keep their pinned dates instead of the build date.
+    for source_path, pinned in build.PAGE_LASTMOD_OVERRIDES.items():
+        if source_path.startswith("legal/"):
+            location = f"{build.SITE_URL}/{source_path}"
+        else:
+            location = f"{build.SITE_URL}/{source_path.removesuffix('index.html')}"
+        assert observed[location] == pinned
 
 
 def test_indexnow_key_verifies_the_entire_sitemap_scope() -> None:
@@ -121,6 +143,7 @@ def test_indexnow_submission_is_scoped_to_both_verified_hosts() -> None:
     assert '"$site_base/sitemap.xml"' in workflow
     assert "repository evidence report is the only paid product" in workflow
     assert "Checkout stays closed unless the live API confirms report engine 2.0." in workflow
+    assert AUDIT_GATE_SENTENCE in workflow
     assert "Refusing to notify search engines about retired commercial copy" in workflow
     assert "Refusing to notify search engines while an external script is injected" in workflow
 
@@ -130,6 +153,7 @@ def test_indexnow_submission_is_scoped_to_both_verified_hosts() -> None:
     assert 'http-equiv="Content-Security-Policy"' in grace_verifier
     assert "script-src 'self' 'unsafe-inline'" in grace_verifier
     assert "An unreviewed cross-origin script is injected" in grace_verifier
+    assert AUDIT_GATE_SENTENCE in grace_verifier
 
 
 def test_project_pages_links_receive_the_repository_prefix(monkeypatch) -> None:
@@ -294,20 +318,22 @@ def test_node_22_timeline_is_tracked_with_aws_source() -> None:
         encoding="utf-8"
     )
     assert "Lambda Node.js 22 projected create/update restrictions" in page
-    assert "2027-06-01" in page
-    assert "2027-07-01" in page
+    assert "2027-07-29" in page
+    assert "2027-08-31" in page
     assert "docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" in page
 
 
 def test_future_python_runtime_dates_are_labeled_projected() -> None:
-    for slug, runtime in (
-        ("lambda-python-3.10-eol", "Python 3.10"),
-        ("lambda-python-3.11-eol", "Python 3.11"),
-    ):
-        page = (DOCS / "migrate" / slug / "index.html").read_text(encoding="utf-8")
-        assert f"Lambda {runtime} projected create/update restrictions" in page
-        assert "AWS currently projects" in page
-        assert "subject to change" in page
+    page = (DOCS / "migrate" / "lambda-python-3.11-eol" / "index.html").read_text(encoding="utf-8")
+    assert "Lambda Python 3.11 projected create/update restrictions" in page
+    assert "AWS currently projects" in page
+    assert "subject to change" in page
+
+
+def test_past_python_runtime_dates_are_not_labeled_projected() -> None:
+    page = (DOCS / "migrate" / "lambda-python-3.10-eol" / "index.html").read_text(encoding="utf-8")
+    assert "Lambda Python 3.10 create/update restrictions" in page
+    assert "was deprecated by AWS on 2026-10-31" in page
 
 
 def test_generated_text_has_no_trailing_whitespace() -> None:
@@ -343,6 +369,118 @@ def test_commercial_inline_javascript_parses() -> None:
                 check=False,
             )
             assert checked.returncode == 0, f"{relative}: {checked.stderr}"
+
+
+# Words that claim checkout is shut. The page may use them only when the API says
+# checkout_enabled is false.
+_CLOSED_CLAIMS = re.compile(r"paused|closed|waiting for|not open in this view", re.IGNORECASE)
+
+# Runs the audit page's inline script against a stub DOM and a stub fetch for one
+# /api/capabilities answer, then prints what the checkout gate shows.
+_AUDIT_GATE_HARNESS = r"""
+const vm = require('vm');
+const source = require('fs').readFileSync(0, 'utf8');
+const scenario = process.env.AUDIT_SCENARIO;
+function el(id) {
+  return {
+    hidden: id === 'auditForm', disabled: false, value: '', files: [], parts: [], links: [],
+    set textContent(v) { this.parts = [String(v)]; this.links = []; },
+    get textContent() { return this.parts.join(''); },
+    append(...nodes) {
+      for (const n of nodes) {
+        if (typeof n === 'string') { this.parts.push(n); } else {
+          this.parts.push(n.textContent); this.links.push(n.href);
+        }
+      }
+    },
+    addEventListener() {},
+  };
+}
+const els = {};
+const document = {
+  getElementById: (id) => (els[id] = els[id] || el(id)),
+  createElement: () => ({ href: '', textContent: '' }),
+};
+const answers = {
+  open: { ok: true, body: { audit: { checkout_enabled: true, report_version: '2.0' } } },
+  closed: { ok: true, body: { audit: { checkout_enabled: false, report_version: '2.0' } } },
+  other_engine: { ok: true, body: { audit: { checkout_enabled: true, report_version: '3.0' } } },
+  no_audit_key: { ok: true, body: {} },
+  http_500: { ok: false, body: {} },
+};
+function fetch() {
+  if (scenario === 'pending') return new Promise(() => {});
+  if (scenario === 'network_error') return Promise.reject(new TypeError('Failed to fetch'));
+  const answer = answers[scenario];
+  return Promise.resolve({ ok: answer.ok, json: () => Promise.resolve(answer.body) });
+}
+const location = { search: '', href: 'https://eolkits.com/audit/?source=x#top' };
+vm.runInNewContext(source, { document, fetch, URLSearchParams, location, window: {} });
+setTimeout(() => {
+  process.stdout.write(JSON.stringify({
+    gate: els.auditGate.textContent, gateHidden: els.auditGate.hidden,
+    formHidden: els.auditForm.hidden, interestHidden: els.auditInterest.hidden,
+    links: els.auditGate.links,
+  }));
+}, 20);
+"""
+
+
+def _static_text(html: str, element_id: str) -> str:
+    match = re.search(rf'<div id="{element_id}"[^>]*>(.*?)</div>', html, flags=re.DOTALL)
+    assert match, element_id
+    return " ".join(re.sub(r"<[^>]+>", " ", match.group(1)).split())
+
+
+def test_audit_page_is_true_in_every_checkout_state() -> None:
+    html = (DOCS / "audit" / "index.html").read_text(encoding="utf-8")
+
+    # No JavaScript (and crawlers that do not run it): the static copy must not
+    # claim checkout is shut, because it may be open.
+    assert '<form id="auditForm" hidden>' in html
+    gate = _static_text(html, "auditGate")
+    interest = _static_text(html, "auditInterest")
+    assert AUDIT_GATE_SENTENCE in gate
+    assert "JavaScript" in gate
+    assert not _CLOSED_CLAIMS.search(gate), gate
+    assert not _CLOSED_CLAIMS.search(interest), interest
+
+    script = re.findall(r"<script>\s*(.*?)</script>", html, flags=re.DOTALL)[0]
+    seen = {}
+    for scenario in (
+        "pending",
+        "open",
+        "closed",
+        "other_engine",
+        "no_audit_key",
+        "http_500",
+        "network_error",
+    ):
+        run = subprocess.run(
+            ["node", "-e", _AUDIT_GATE_HARNESS],
+            input=script,
+            text=True,
+            capture_output=True,
+            check=False,
+            timeout=30,
+            env={**os.environ, "AUDIT_SCENARIO": scenario},
+        )
+        assert run.returncode == 0, f"{scenario}: {run.stderr}"
+        seen[scenario] = json.loads(run.stdout)
+
+    assert seen["pending"]["gate"].startswith("Checking checkout status"), seen["pending"]
+    assert not _CLOSED_CLAIMS.search(seen["pending"]["gate"])
+    assert seen["open"]["formHidden"] is False
+    assert seen["open"]["gateHidden"] is True
+    assert seen["open"]["interestHidden"] is True
+    assert "paused" in seen["closed"]["gate"]
+    assert seen["closed"]["formHidden"] is True
+    for scenario in ("other_engine", "no_audit_key", "http_500", "network_error"):
+        state = seen[scenario]
+        assert not _CLOSED_CLAIMS.search(state["gate"]), scenario
+        assert "could not be confirmed" in state["gate"], scenario
+        assert state["links"] == ["https://eolkits.com/audit/?source=x"], scenario
+        assert state["formHidden"] is True, scenario
 
 
 def test_audit_sample_is_a_hash_verifiable_fictional_engine_artifact() -> None:
@@ -558,10 +696,10 @@ def test_browser_runtime_scan_requires_lambda_configuration_context() -> None:
     }
     script = (
         "const DATA={runtimes:{"
-        "'python3.9':{severity:'high',date:'2027-02-01',kit:''},"
-        "'python3.10':{severity:'high',date:'2027-02-01',kit:''},"
-        "'python3.11':{severity:'medium',date:'2027-07-31',kit:''},"
-        "'nodejs20.x':{severity:'high',date:'2027-02-01',kit:''}}};\n"
+        "'python3.9':{severity:'high',date:'2027-07-29',kit:''},"
+        "'python3.10':{severity:'high',date:'2027-07-29',kit:''},"
+        "'python3.11':{severity:'medium',date:'2027-07-29',kit:''},"
+        "'nodejs20.x':{severity:'high',date:'2027-07-29',kit:''}}};\n"
         + scanner_functions
         + "\nconst cases="
         + json.dumps(cases)

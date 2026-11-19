@@ -12,32 +12,34 @@ Maintained by [EOLkits](https://eolkits.com). Dates below are pulled directly fr
 deprecation table (`docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html`) and the Amazon Linux 2 FAQ
 (`aws.amazon.com/amazon-linux-2/faqs/`) — the same data that drives the live deadline calendar at
 [eolkits.com/status](https://eolkits.com/status). If AWS revises a date, the calendar updates; this document is a
-snapshot as of **2026-07-18**. Prefer a 10-second check over reading the tables below? Paste your config into the
+snapshot as of **2026-07-18**. **Dates corrected 2026-11-10:** AWS moved the Lambda block dates again, to
+**2027-07-29** (create) and **2027-08-31** (update); the tables below now show AWS's current dates. Prefer a 10-second check over reading the tables below? Paste your config into the
 free [AWS EOL checker](https://eolkits.com/eol-checker/) — nothing uploaded.
 
 ---
 
-## 1. The one thing to understand: the Q1-2027 block cluster
+## 1. The one thing to understand: the July/August 2027 block window
 
 In 2026 AWS **delayed** the runtime blocks it originally scheduled for late 2026, consolidating most of them into a
 single synchronized window:
 
 | Milestone | Date | What actually happens |
 |---|---|---|
-| **Block new function/layer creation** | **2027-02-01** | `CreateFunction` / `CreateLayerVersion` on a deprecated runtime starts failing |
-| **Block updates to existing functions** | **2027-03-03** | `UpdateFunctionConfiguration` / `UpdateFunctionCode` on a deprecated runtime starts failing |
+| **Block new function/layer creation** | **2027-07-29** | `CreateFunction` / `CreateLayerVersion` on a deprecated runtime starts failing |
+| **Block updates to existing functions** | **2027-08-31** | `UpdateFunctionConfiguration` / `UpdateFunctionCode` on a deprecated runtime starts failing |
 
-Runtimes in this cluster: **Node.js 18, Node.js 20, Python 3.8, Python 3.9, Python 3.10.** Existing functions keep
+Runtimes in this window: **Node.js 16, Node.js 18, Node.js 20, Python 3.8, Python 3.9, Python 3.10.** (AWS lists
+the same two block dates for Python 3.11 and Node.js 22, after they deprecate in 2027.) Existing functions keep
 *running* after these dates — they just become permanently frozen: no config changes, no code deploys, no rollback
 if something else breaks. A lot of blog posts and even some internal wikis still cite AWS's *original* 2026 dates,
 which AWS superseded — always check the live AWS table, not a cached blog post, before you plan around a date.
 
-Two additional deadlines that are **not** part of that cluster and already active:
+Two more deadlines to know:
 
 | Deprecation | Deadline | Status |
 |---|---|---|
 | **Amazon Linux 2 standard support** | **2026-06-30** | **Already passed.** AL2 is unpatched today — no CVE backports, no new AMI publishes. |
-| **Python 3.11 Lambda block** | Create 2027-07-31 / Update 2027-08-31 | Deprecated 2027-06-30, on its own later schedule |
+| **Python 3.11 Lambda block** | Create 2027-07-29 / Update 2027-08-31 | Deprecates 2027-06-30; same block dates as the window above |
 
 ---
 
@@ -71,8 +73,8 @@ instead of a generic wall of text.
 ## 3. Python Lambda → 3.12 (`python-pivot`)
 
 **Who this hits:** any account running `python3.8`, `python3.9`, or `python3.10` Lambda functions. All three share
-the same Q1-2027 block window (create 2027-02-01 / update 2027-03-03); 3.8 and 3.9 are already fully deprecated
-(no patches since 2024-10-14 and 2025-12-15 respectively).
+the same block window (create 2027-07-29 / update 2027-08-31); all three are already deprecated
+(no patches since 2024-10-14, 2025-12-15 and 2026-10-31 respectively).
 
 **What breaks on the move to 3.12:**
 - `distutils` and `imp` are removed
@@ -95,7 +97,7 @@ eat your error budget at 3 a.m. — it rolls back on its own.
 
 ## 4. Node.js Lambda → 22 (`lambda-lifeline`)
 
-**Who this hits:** any account running `nodejs18.x` or `nodejs20.x` — both in the Q1-2027 block cluster. `nodejs18.x`
+**Who this hits:** any account running `nodejs18.x` or `nodejs20.x` — both in the July/August 2027 block window. `nodejs18.x`
 in particular is still one of the most common runtimes in production Lambda fleets.
 
 **What breaks on the move to Node 22:**

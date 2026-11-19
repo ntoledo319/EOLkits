@@ -121,7 +121,7 @@ A clean import — no `ModuleNotFoundError` — means the package is ready to de
 
 ## The broader context: python3.12 is the migration target
 
-Lambda's `python3.9` runtime is deprecated (security patches stopped December 2025). `python3.10` and `python3.11` are on the path with create-block dates of 2027-02-01 and 2027-07-31 respectively, subject to AWS's standard extension policy. The `python3.12` runtime (Amazon Linux 2023, glibc 2.34) is the recommended upgrade target.
+Lambda's `python3.9` runtime is deprecated (security patches stopped December 2025). `python3.10` (deprecated 2026-10-31) and `python3.11` (deprecates 2027-06-30) share a create-block date of 2027-07-29, subject to AWS's standard extension policy. The `python3.12` runtime (Amazon Linux 2023, glibc 2.34) is the recommended upgrade target.
 
 The `imp` removal is part of a cluster of breaking changes that land when you cross from `python3.9` to `python3.12`: `distutils` is also gone, the `collections` ABCs were moved to `collections.abc` in Python 3.10, and `asyncore`/`asynchat` are removed. Running a full upgrade sweep against a local Python 3.12 environment catches all of them in a single pass, rather than chasing one `ModuleNotFoundError` at a time after the runtime flip.
 

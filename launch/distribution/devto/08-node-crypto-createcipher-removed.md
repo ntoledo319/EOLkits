@@ -37,7 +37,7 @@ The deprecation schedule:
 | v11.0.0 | Runtime `DeprecationWarning` |
 | **v22.0.0** | **Removed (End-of-Life)** |
 
-Lambda runtimes that hit this removal: anything moved to `nodejs22.x`. The Lambda deprecation timeline: `nodejs20.x` is already deprecated (April 30, 2026, no more security patches); create-block and update-block land on **February 1, 2027** and **March 3, 2027** respectively — so teams upgrading ahead of Q1-2027 are hitting this now.
+Lambda runtimes that hit this removal: anything moved to `nodejs22.x`. The Lambda deprecation timeline: `nodejs20.x` is already deprecated (April 30, 2026, no more security patches); create-block and update-block land on **July 29, 2027** and **August 31, 2027** respectively — so teams upgrading ahead of those dates are hitting this now.
 
 ## The fix: crypto.createCipheriv with explicit key derivation
 

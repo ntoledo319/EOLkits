@@ -14,7 +14,17 @@ enforcement deadline. AWS documents configurable account, AMI, launch, and
 instance-type behavior instead. Unpublish that article; do not republish its
 local draft.
 
-Known critical error: article 04's "Timeline recap" table lists `python3.10` as
+**Dates corrected in these drafts 2026-11-10:** the Lambda block dates now
+match AWS's current table (Jul 29 / Aug 31, 2027, not Feb 1 / Mar 3, 2027 or
+Jul 31, 2027). Articles 04, 16 and 29 (29 is on marketing-machine-v2 only)
+also had wrong deprecation or "blocked" cells; those are fixed too.
+The live DEV posts were not changed. On 2026-11-10 the public API still
+listed all 25, and 8 of them (04, 07, 08, 11, 16, 21, 22, 25) still show the
+old dates or say `nodejs16.x` is already blocked. HQ-D in
+`revenue/HUMAN_QUEUE.md` (unpublish all 25) covers them.
+
+Known critical error (fixed in the draft 2026-11-10, still live on DEV): article
+04's "Timeline recap" table lists `python3.10` as
 "Deprecated 2026-03-31". Every other primary-source-derived record in this
 repository — `rules/public/deprecations.yml` (`lambda-python-3.10-eol`,
 `deprecation_date: "2026-10-31"`) and `kits/lambda-lifeline/src/scan/index.mjs`

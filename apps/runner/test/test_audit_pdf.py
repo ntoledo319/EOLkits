@@ -726,14 +726,14 @@ def test_real_lambda_lifecycle_labels_match_the_date_kind():
     items = audit._upcoming_deprecations(datetime(2026, 8, 22, 21, tzinfo=UTC))
 
     assert [(item["name"], item["date"]) for item in items] == [
-        ("Lambda Python 3.10 — projected deprecation", "2026-10-31"),
-        ("Lambda Node.js 16 — block new functions", "2027-02-01"),
-        ("Lambda Node.js 18 — block new functions", "2027-02-01"),
-        ("Lambda Node.js 20 — block new functions", "2027-02-01"),
-        ("Lambda Python 3.8 — block new functions", "2027-02-01"),
-        ("Lambda Python 3.9 — block new functions", "2027-02-01"),
+        ("Lambda Python 3.10 — deprecation", "2026-10-31"),
         ("Lambda Node.js 22 — projected deprecation", "2027-04-30"),
         ("Lambda Python 3.11 — projected deprecation", "2027-06-30"),
+        ("Lambda Node.js 16 — block new functions", "2027-07-29"),
+        ("Lambda Node.js 18 — block new functions", "2027-07-29"),
+        ("Lambda Node.js 20 — block new functions", "2027-07-29"),
+        ("Lambda Python 3.8 — block new functions", "2027-07-29"),
+        ("Lambda Python 3.9 — block new functions", "2027-07-29"),
     ]
 
 

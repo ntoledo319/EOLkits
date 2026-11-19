@@ -1,7 +1,7 @@
 ---
 title: The AWS Lambda Node.js 20 deadline everyone gets wrong (it's not September 2026)
 canonical_url: https://eolkits.com/migrate/lambda-node.js-20-phase-1/
-description: Half the internet says AWS blocks nodejs20.x in August/September 2026. AWS delayed it. The real block dates are Feb 1 and Mar 3, 2027 — here's the authoritative timeline and why the confusion exists.
+description: Half the internet says AWS blocks nodejs20.x in August/September 2026. AWS delayed it. The real block dates are Jul 29 and Aug 31, 2027 — here's the authoritative timeline and why the confusion exists.
 tags: aws, lambda, node, serverless
 ---
 
@@ -23,10 +23,10 @@ Straight from the [AWS Lambda runtimes table](https://docs.aws.amazon.com/lambda
 | Phase | nodejs20.x date |
 |---|---|
 | Deprecation (security patches stop) | **Apr 30, 2026** — already passed |
-| Block function **create** | **Feb 1, 2027** |
-| Block function **update** | **Mar 3, 2027** |
+| Block function **create** | **Jul 29, 2027** |
+| Block function **update** | **Aug 31, 2027** |
 
-So the hard cliffs are in **Q1 2027**, not late 2026.
+So the hard cliffs are in **July and August 2027**, not late 2026. (AWS first moved them to Feb 1 / Mar 3, 2027, then moved them again.)
 
 ## Why so many posts say September 2026
 
@@ -36,7 +36,7 @@ But AWS added a note to that same policy page:
 
 > "For some runtimes, AWS is delaying the block-function-create and block-function-update dates beyond the usual 30 and 60 days after deprecation… in response to customer feedback to give you more time to upgrade your functions."
 
-`nodejs20.x` is one of those runtimes. AWS pushed its blocks into a **synchronized Q1-2027 cluster**. The posts that predate that change never got corrected.
+`nodejs20.x` is one of those runtimes. AWS pushed its blocks into one **synchronized cluster**, now Jul 29 / Aug 31, 2027. The posts that predate that change never got corrected.
 
 ## Don't relax — "deprecated" already bit you
 
@@ -50,16 +50,16 @@ You keep the ability to invoke and (until the block dates) update — but you're
 
 ## The bigger trap: everything blocks on the same two days
 
-The Q1-2027 cluster isn't just Node 20. These all hit **block-create Feb 1, 2027** and **block-update Mar 3, 2027**:
+The cluster isn't just Node 20. These all hit **block-create Jul 29, 2027** and **block-update Aug 31, 2027**:
 
-`nodejs16.x` · `nodejs18.x` · `nodejs20.x` · `python3.8` · `python3.9` · `python3.10` · `ruby3.2` · `dotnet6`
+`nodejs16.x` · `nodejs18.x` · `nodejs20.x` · `python3.8` · `python3.9` · `python3.10` · `ruby3.2` · `dotnet6` · `provided.al2`
 
-If your account has a mix of these — most do — a single date freezes a large slice of your fleet at once. That's a capacity-planning problem you want to find in July, not in February.
+If your account has a mix of these — most do — a single date freezes a large slice of your fleet at once. That's a capacity-planning problem you want to find now, not next July.
 
 ## What to actually do
 
 1. **Inventory now.** Find every function on a runtime in that cluster, across regions.
-2. **Upgrade off, don't wait for the block.** `nodejs20.x` → `nodejs22.x` (LTS, maintained into 2027). The mechanical breakage is well-known: `aws-sdk` v2 no longer bundled, import `assert` → `with`, native-addon ABI rebuilds, OpenSSL 3, `crypto.createCipher` removed.
+2. **Upgrade off, don't wait for the block.** `nodejs20.x` → `nodejs22.x` or `nodejs24.x` (AWS deprecates `nodejs22.x` on Apr 30, 2027 and gives it the same block dates; `nodejs24.x` runs to Apr 30, 2028). The mechanical breakage is well-known: `aws-sdk` v2 no longer bundled, import `assert` → `with`, native-addon ABI rebuilds, OpenSSL 3, `crypto.createCipher` removed.
 3. **Stage it.** Canary a few functions with a CloudWatch alarm and a rollback path before you touch the rest.
 
 I maintain a free, open-source CLI (`lambda-lifeline`) that scans every account/region for at-risk runtimes with the **correct** dates, codemods the mechanical breakage, patches your IaC, and stages a canary with rollback. There's also a **free browser scanner** that flags at-risk config in ~30 seconds — nothing uploaded: **[eolkits.com/scan](https://eolkits.com/scan)**.

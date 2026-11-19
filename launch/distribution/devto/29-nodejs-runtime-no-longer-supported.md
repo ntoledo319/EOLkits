@@ -30,9 +30,9 @@ Node.js 16, 18, and 20 share the same block dates. So do python3.8, python3.9, p
 
 | Runtime | Security patches stopped | Create blocked | Update blocked |
 |---|---|---|---|
-| nodejs16.x | March 2026 | 2027-02-01 | 2027-03-03 |
-| nodejs18.x | March 2026 | 2027-02-01 | 2027-03-03 |
-| nodejs20.x | April 30, 2026 | 2027-02-01 | 2027-03-03 |
+| nodejs16.x | June 12, 2024 | 2027-07-29 | 2027-08-31 |
+| nodejs18.x | September 1, 2025 | 2027-07-29 | 2027-08-31 |
+| nodejs20.x | April 30, 2026 | 2027-07-29 | 2027-08-31 |
 
 Security patches stopped months ago. The deploy block is what surfaces this exact error. If you're already past the block date and your function hasn't been deployed since, the next deploy will fail with this message.
 

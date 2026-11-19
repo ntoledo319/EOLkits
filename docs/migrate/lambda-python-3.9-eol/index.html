@@ -5,9 +5,9 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://eolkits.com; form-action 'self'">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lambda Python 3.9 create/update restrictions migration guide — milestone 2027-02-01 | EOLkits</title>
-    <meta name="description" content="Lambda Python 3.9 create/update restrictions: tracked milestone 2027-02-01 (more than 30 days out). AWS Lambda. 4 migration checks to verify, plus a free…">
-    <meta name="keywords" content="Lambda Python 3.9 create/update restrictions, AWS deprecation, AWS Lambda, lambda, python, runtime, migration, end of life, 2027-02-01">
+    <title>Lambda Python 3.9 create/update restrictions migration guide — milestone 2027-07-29 | EOLkits</title>
+    <meta name="description" content="Lambda Python 3.9 create/update restrictions: tracked milestone 2027-07-29 (more than 30 days out). AWS Lambda. 4 migration checks to verify, plus a free…">
+    <meta name="keywords" content="Lambda Python 3.9 create/update restrictions, AWS deprecation, AWS Lambda, lambda, python, runtime, migration, end of life, 2027-07-29">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.9-eol/">
     <link rel="stylesheet" href="/EOLkits/style.css">
@@ -15,8 +15,8 @@
     <link rel="alternate" type="text/calendar" title="AWS Deprecation Deadlines (EOLkits)" href="/EOLkits/deprecations.ics">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Lambda Python 3.9 create/update restrictions — AWS deprecation migration guide (milestone 2027-02-01)">
-    <meta property="og:description" content="Python 3.9 Lambda runtime (Amazon Linux 2) was deprecated on 2025-12-15 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.9 functions on 2027-02-01 and blocks updating existing ones on 2027-03-03. Functions keep running, but become unpatched and unmodifiable after the block dates.">
+    <meta property="og:title" content="Lambda Python 3.9 create/update restrictions — AWS deprecation migration guide (milestone 2027-07-29)">
+    <meta property="og:description" content="Python 3.9 Lambda runtime (Amazon Linux 2) was deprecated on 2025-12-15 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.9 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31. Functions keep running, but become unpatched and unmodifiable after the block dates.">
     <meta property="og:url" content="https://ntoledo319.github.io/EOLkits/migrate/lambda-python-3.9-eol/">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="EOLkits">
@@ -29,7 +29,7 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Lambda Python 3.9 create/update restrictions — Migration Guide">
-    <meta name="twitter:description" content="Tracked milestone 2027-02-01 (145 days from the build date). 4 bounded migration checks to verify.">
+    <meta name="twitter:description" content="Tracked milestone 2027-07-29 (323 days from the build date). 4 bounded migration checks to verify.">
     <meta name="twitter:image" content="https://ntoledo319.github.io/EOLkits/og-default.png">
 
     <!-- Schema.org TechArticle; the provider status source is included below. -->
@@ -38,7 +38,7 @@
         "@context": "https://schema.org",
         "@type": "TechArticle",
         "headline": "Lambda Python 3.9 create/update restrictions \u2014 AWS Deprecation Migration Guide",
-        "description": "Python 3.9 Lambda runtime (Amazon Linux 2) was deprecated on 2025-12-15 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.9 functions on 2027-02-01 and blocks updating existing ones on 2027-03-03. Functions keep running, but become unpatched and unmodifiable after the block dates.",
+        "description": "Python 3.9 Lambda runtime (Amazon Linux 2) was deprecated on 2025-12-15 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.9 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31. Functions keep running, but become unpatched and unmodifiable after the block dates.",
         "datePublished": "2026-09-09",
         "dateModified": "2026-09-09",
         "proficiencyLevel": "Expert",
@@ -81,7 +81,7 @@
             {
                 "@type": "Question",
                 "name": "What is the next tracked milestone for Lambda Python 3.9 create/update restrictions?",
-                "acceptedAnswer": { "@type": "Answer", "text": "EOLkits tracks 2027-02-01 as the next published milestone. Python 3.9 Lambda runtime (Amazon Linux 2) was deprecated on 2025-12-15 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.9 functions on 2027-02-01 and blocks updating existing ones on 2027-03-03. Functions keep running, but become unpatched and unmodifiable after the block dates. Provider status source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html. Future dates can change." }
+                "acceptedAnswer": { "@type": "Answer", "text": "EOLkits tracks 2027-07-29 as the next published milestone. Python 3.9 Lambda runtime (Amazon Linux 2) was deprecated on 2025-12-15 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.9 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31. Functions keep running, but become unpatched and unmodifiable after the block dates. Provider status source: https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html. Future dates can change." }
             },
             {
                 "@type": "Question",
@@ -126,15 +126,15 @@
             <span class="severity-badge severity-high">high</span>
             <h1>Lambda Python 3.9 create/update restrictions</h1>
             <p class="banner-sub">AWS Lambda — published migration milestone</p>
-            <div class="countdown" data-deadline="2027-02-01">2027-02-01</div>
-            <p class="urgency">145 days until the 2027-02-01 deadline — enough runway to migrate safely.</p>
+            <div class="countdown" data-deadline="2027-07-29">2027-07-29</div>
+            <p class="urgency">323 days until the 2027-07-29 deadline — enough runway to migrate safely.</p>
         </div>
 
         <section>
             <h2>What is being deprecated?</h2>
-            <p>Python 3.9 Lambda runtime (Amazon Linux 2) was deprecated on 2025-12-15 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.9 functions on 2027-02-01 and blocks updating existing ones on 2027-03-03. Functions keep running, but become unpatched and unmodifiable after the block dates.</p>
+            <p>Python 3.9 Lambda runtime (Amazon Linux 2) was deprecated on 2025-12-15 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.9 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31. Functions keep running, but become unpatched and unmodifiable after the block dates.</p>
             <table class="facts">
-                <tr><th>Next tracked milestone</th><td><strong>2027-02-01</strong> (145 days from build date 2026-09-09)</td></tr>
+                <tr><th>Next tracked milestone</th><td><strong>2027-07-29</strong> (323 days from build date 2026-09-09)</td></tr>
                 <tr><th>Service</th><td>AWS Lambda</td></tr>
                 <tr><th>Affected resources</th><td><code>function</code></td></tr>
                 <tr><th>Severity</th><td><span class="severity-badge severity-high">high</span></td></tr>
@@ -195,7 +195,7 @@
                     <h3>Audit PDF</h3>
                     <div class="price">$299</div>
                     <p>Static scan of one repository ZIP or source file with exact file/line evidence, observed reach, remediation order, configured references, and explicit limitations. <strong>30-day money-back guarantee.</strong></p>
-                    <a href="/EOLkits/audit/?deadline=2027-02-01&utm_source=migrate&utm_medium=cta&utm_campaign=lambda-python-3.9-eol&kit=python-pivot" class="btn-primary">Check Audit v2 availability</a>
+                    <a href="/EOLkits/audit/?deadline=2027-07-29&utm_source=migrate&utm_medium=cta&utm_campaign=lambda-python-3.9-eol&kit=python-pivot" class="btn-primary">Check Audit v2 availability</a>
                     <p class="small"><a href="/EOLkits/scan/">Run the free scan first</a> · <a href="/EOLkits/audit/sample/">see a sample →</a></p>
                     <p class="small">Prefer a 10-second check? Paste your config into the <a href="/EOLkits/eol-checker/">free AWS EOL checker</a>. Pasted input is not uploaded; bounded first-party usage events may be sent.</p>
                 </div>
@@ -217,22 +217,22 @@
 
                 <li>
                     <a href="/EOLkits/migrate/lambda-node.js-20-phase-1/">Lambda Node.js 20 create/update restrictions</a>
-                    <span class="rel-meta">— milestone <strong>2027-02-01</strong> · high · <code>lambda-lifeline</code></span>
+                    <span class="rel-meta">— milestone <strong>2027-07-29</strong> · high · <code>lambda-lifeline</code></span>
                 </li>
 
                 <li>
-                    <a href="/EOLkits/migrate/lambda-python-3.10-eol/">Lambda Python 3.10 projected create/update restrictions</a>
-                    <span class="rel-meta">— milestone <strong>2027-02-01</strong> · high · <code>python-pivot</code></span>
+                    <a href="/EOLkits/migrate/lambda-node.js-22-phase-1/">Lambda Node.js 22 projected create/update restrictions</a>
+                    <span class="rel-meta">— milestone <strong>2027-07-29</strong> · medium · <code>lambda-lifeline</code></span>
                 </li>
 
                 <li>
-                    <a href="/EOLkits/migrate/lambda-node.js-16-eol/">Lambda Node.js 16 create/update restrictions</a>
-                    <span class="rel-meta">— milestone <strong>2027-02-01</strong> · high · <code>lambda-lifeline</code></span>
+                    <a href="/EOLkits/migrate/lambda-python-3.10-eol/">Lambda Python 3.10 create/update restrictions</a>
+                    <span class="rel-meta">— milestone <strong>2027-07-29</strong> · high · <code>python-pivot</code></span>
                 </li>
 
                 <li>
-                    <a href="/EOLkits/migrate/lambda-node.js-18-eol/">Lambda Node.js 18 create/update restrictions</a>
-                    <span class="rel-meta">— milestone <strong>2027-02-01</strong> · high · <code>lambda-lifeline</code></span>
+                    <a href="/EOLkits/migrate/lambda-python-3.11-eol/">Lambda Python 3.11 projected create/update restrictions</a>
+                    <span class="rel-meta">— milestone <strong>2027-07-29</strong> · medium · <code>python-pivot</code></span>
                 </li>
 
             </ul>
@@ -244,7 +244,7 @@
             <h2>Frequently asked questions</h2>
             <details open>
                 <summary>What is the next tracked milestone?</summary>
-                <p>2027-02-01. Python 3.9 Lambda runtime (Amazon Linux 2) was deprecated on 2025-12-15 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.9 functions on 2027-02-01 and blocks updating existing ones on 2027-03-03. Functions keep running, but become unpatched and unmodifiable after the block dates. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[provider status source]</a></p>
+                <p>2027-07-29. Python 3.9 Lambda runtime (Amazon Linux 2) was deprecated on 2025-12-15 (no further security patches). Per the AWS Lambda runtime deprecation table, AWS blocks creating new python3.9 functions on 2027-07-29 and blocks updating existing ones on 2027-08-31. Functions keep running, but become unpatched and unmodifiable after the block dates. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html" target="_blank" rel="noopener nofollow">[provider status source]</a></p>
             </details>
             <details>
                 <summary>What should I verify before changing the workload?</summary>
