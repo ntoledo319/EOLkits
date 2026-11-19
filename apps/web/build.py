@@ -408,7 +408,7 @@ form#auditForm input{box-sizing:border-box;max-width:100%;width:100%;padding:.65
   <strong>Before you upload for the $299 hosted PDF:</strong>
   <ul>
     <li>No AWS credentials or AWS account access are requested.</li>
-    <li>Successfully processed source is deleted immediately; unchecked uploads expire within 24 hours; checkout-bound uploads expire within 48 hours and generated reports within 30 days.</li>
+    <li>Source uploads for delivered reports are deleted immediately upon delivery; unchecked uploads expire within 24 hours; checkout-bound uploads expire within 48 hours and generated reports within 30 days.</li>
     <li>Cannot upload proprietary source code? <a href="/toolkit/">Use the $79 Offline Migration &amp; Audit Toolkit instead</a> so code stays on your workstation or CI runner.</li>
     <li><a href="/audit/sample/">Inspect the fictional input, engine-generated PDF, and hash manifest</a> before deciding.</li>
   </ul>
