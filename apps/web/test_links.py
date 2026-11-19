@@ -355,6 +355,10 @@ def test_commercial_compliance_and_zero_banned_claims() -> None:
         assert "2389 Main St. STE 100, Glastonbury, CT 06033" in txt, rel
         assert "hello@toledotechnologies.com" in txt, rel
 
+    for rel in ("index.html", "toolkit/index.html", "audit/index.html"):
+        txt = (DOCS / rel).read_text(encoding="utf-8")
+        assert "Refund policy</a>" in txt, rel
+
     for rel in ("about/index.html", "changelog/index.html", "toolkit/sample/index.html"):
         assert (DOCS / rel).is_file(), rel
 

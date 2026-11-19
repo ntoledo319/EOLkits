@@ -589,7 +589,7 @@ auditForm.addEventListener('submit', async (event) => {{
 <footer class="footer">
   <div class="container">
     <div class="muted small">Toledo Technologies LLC · 2389 Main St. STE 100, Glastonbury, CT 06033, United States · <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> · Self-serve Stripe checkouts: US buyers only.</div>
-    <div class="muted small"><a href="/">Home</a> · <a href="/toolkit/">Offline Toolkit ($79)</a> · <a href="/scan/">Free scan</a> · <a href="/audit/sample/">Sample report</a> · <a href="/about/">About</a> · <a href="/changelog/">Changelog</a> · <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></div>
+    <div class="muted small"><a href="/">Home</a> · <a href="/toolkit/">Offline Toolkit ($79)</a> · <a href="/scan/">Free scan</a> · <a href="/audit/sample/">Sample report</a> · <a href="/about/">About</a> · <a href="/changelog/">Changelog</a> · <a href="/legal/terms.html">Terms</a> · <a href="/legal/terms.html#refunds">Refund policy</a> · <a href="/legal/privacy.html">Privacy</a></div>
   </div>
 </footer>
 </body>
@@ -1760,7 +1760,7 @@ def build_toolkit_page(pricing):
 <footer class="footer">
   <div class="container">
     <div class="muted small">Toledo Technologies LLC · 2389 Main St. STE 100, Glastonbury, CT 06033, United States · <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> · Self-serve Stripe checkouts: US buyers only.</div>
-    <div class="muted small"><a href="/">Home</a> · <a href="/migrate/">Deadlines</a> · <a href="/scan/">Free scan</a> · <a href="/audit/">Audit</a> · <a href="/about/">About</a> · <a href="/changelog/">Changelog</a> · <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/legal/SECURITY.html">Security</a></div>
+    <div class="muted small"><a href="/">Home</a> · <a href="/migrate/">Deadlines</a> · <a href="/scan/">Free scan</a> · <a href="/audit/">Audit</a> · <a href="/about/">About</a> · <a href="/changelog/">Changelog</a> · <a href="/legal/terms.html">Terms</a> · <a href="/legal/terms.html#refunds">Refund policy</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/legal/SECURITY.html">Security</a></div>
   </div>
 </footer>
 </body>
@@ -2082,7 +2082,7 @@ def build_index_page(pricing):
         <h5>Company &amp; Legal</h5>
         <a href="/about/">About</a> · <a href="/changelog/">Changelog</a><br>
         <a href="/migrate/">Deadlines</a> · <a href="/fix/">Error fixes</a><br>
-        <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/legal/SECURITY.html">Security</a> · <a href="/status/">Status</a>
+        <a href="/legal/terms.html">Terms</a> · <a href="/legal/terms.html#refunds">Refund policy</a> · <a href="/legal/privacy.html">Privacy</a> · <a href="/legal/SECURITY.html">Security</a> · <a href="/status/">Status</a>
       </div>
     </div>
     <div class="muted small">© 2026 Toledo Technologies LLC. Open-source kits MIT-licensed; commercial toolkit licensed per purchasing organization.</div>
