@@ -131,7 +131,7 @@ form#auditForm input{box-sizing:border-box;max-width:100%;width:100%;padding:.65
 </div>
 <form id="auditForm" hidden>
   <h3>Start Hosted $299 Audit (US buyers only)</h3>
-  <p><input type="email" id="auditEmail" name="email" placeholder="your@email.com" required></p>
+  <p><input type="email" id="auditEmail" name="email" placeholder="you@example.com" required></p>
   <p><input type="date" id="auditDeadline" name="deadline" aria-label="Deadline date"></p>
   <p><input type="file" id="auditFile" name="file" required accept=".zip,.yaml,.yml,.json,.tf,.tfvars,.js,.ts,.tsx,.py,.toml,.lock,.sh,.txt"></p>
   <p class="reassure">Upload limits: 10 MiB input; ZIPs may contain at most 2,000 entries and 25 MiB expanded text. Analysis is also bounded to 500,000 decoded lines, 100,000 mapping records per file, 10,000 Lambda resources per file, 10,000 retained evidence records, and 1 MiB per dependency manifest. Binary archive members are skipped; standalone binary inputs and archives with no supported text are rejected. Encrypted, ambiguous-path, path-traversing, over-complex, and suspiciously compressed archives are rejected before checkout. Do not upload secrets or unrelated personal data.</p>
