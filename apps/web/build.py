@@ -8,7 +8,7 @@ import json
 import os
 import re
 import sys
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import yaml
@@ -2361,6 +2361,93 @@ def build_vs_index():
 <footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a></footer></body></html>"""
 
 
+PODFREEZE_SWITCH_DATE = "2026-12-02"
+# The switch date is the maintainer's plan, not a record. Set this to True in
+# a one-line commit only after a dated public receipt that trunk refused new
+# podspecs on or after PODFREEZE_SWITCH_DATE (the CocoaPods blog or trunk
+# banner saying it is done, or a reported `pod trunk push` rejection).
+PODFREEZE_FREEZE_CONFIRMED = False
+
+
+def build_podfreeze_page(today: "date | None" = None, confirmed: "bool | None" = None):
+    """podfreeze mirror page (P2.7): carries both copies of the dated block.
+
+    The pre-freeze copy shows until the daily build's date reaches
+    PODFREEZE_SWITCH_DATE (2 December 2026, the planned CocoaPods trunk freeze)
+    AND PODFREEZE_FREEZE_CONFIRMED is set; from that build on, the post-freeze
+    copy is what renders. The pre-freeze copy is worded as the maintainer's plan,
+    so it stays true if the switch slips. The inactive copy stays in the
+    document as a labelled HTML comment so either variant can be reviewed in any
+    daily build. Dates and framing follow the CocoaPods maintainer's own
+    announcement (blog.cocoapods.org/CocoaPods-Specs-Repo/), re-read 2026-11-22:
+    planned read-only test run 2-6 November 2026, planned permanent freeze
+    2 December 2026.
+    """
+    if today is None:
+        today = date.today()
+    if confirmed is None:
+        confirmed = PODFREEZE_FREEZE_CONFIRMED
+    post_freeze = confirmed and today.isoformat() >= PODFREEZE_SWITCH_DATE
+
+    pre_freeze_copy = (
+        "<p>The CocoaPods maintainer&rsquo;s plan: from <strong>2 December 2026</strong>, "
+        "trunk stops accepting new podspecs, permanently. The maintainer&rsquo;s plan "
+        "set a read-only test run for <strong>2&ndash;6 November 2026</strong>.</p>\n"
+        "<p>Existing builds keep resolving from the Specs repo on GitHub and the "
+        "jsDelivr CDN, so the freeze is a supply-chain event rather than a build "
+        "break: a pod with a newly discovered vulnerability has no canonical "
+        "coordinate to carry the fix.</p>\n"
+    )
+    post_freeze_copy = (
+        "<p>On <strong>2 December 2026</strong>, CocoaPods trunk stopped accepting new "
+        "podspecs, permanently. The maintainer&rsquo;s plan set a read-only test run "
+        "for <strong>2&ndash;6 November 2026</strong>.</p>\n"
+        "<p>Existing builds keep resolving from the Specs repo on GitHub and the "
+        "jsDelivr CDN, so the freeze is a supply-chain event rather than a build "
+        "break: a pod with a newly discovered vulnerability has no canonical "
+        "coordinate to carry the fix.</p>\n"
+    )
+    active, inactive, label = (
+        (post_freeze_copy, pre_freeze_copy, "pre-freeze")
+        if post_freeze
+        else (pre_freeze_copy, post_freeze_copy, "post-freeze")
+    )
+
+    return (
+        '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+        '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
+        "<title>CocoaPods trunk freeze — podfreeze | EOLkits</title>\n"
+        '<meta name="description" content="CocoaPods trunk read-only from 2 December 2026: the podfreeze tool reads your Podfile.lock and reports which pods can never receive another published version. Mirror of the podfreeze page.">\n'
+        '<link rel="canonical" href="' + SITE_URL + '/podfreeze/">\n'
+        '<link rel="stylesheet" href="/style.css">\n'
+        '<script defer src="/track.js"></script>\n'
+        "</head>\n"
+        '<body class="container article">\n'
+        '<nav class="breadcrumb"><a href="/">Home</a> / <span>CocoaPods trunk freeze</span></nav>\n'
+        "<h1>CocoaPods trunk freeze</h1>\n"
+        "<p>This page mirrors the podfreeze project, an open-source (MIT) CLI that "
+        "reads the <code>SPEC REPOS</code> section of your <code>Podfile.lock</code> "
+        "and reports which pods resolved from CocoaPods trunk — the coordinates that "
+        "can never receive another published version, including a security fix.</p>\n"
+        "<p>Project, browser checker and source: "
+        '<a href="https://github.com/ntoledo319/podfreeze">podfreeze on GitHub</a>.</p>\n'
+        "<!-- "
+        + label
+        + " copy (activates on or after "
+        + PODFREEZE_SWITCH_DATE
+        + " once PODFREEZE_FREEZE_CONFIRMED is set): -->\n"
+        "<!--\n" + inactive + "-->\n" + active + '<div class="studio-door">\n'
+        "<p><strong>Moving off CocoaPods?</strong> Send your <code>Podfile.lock</code>: "
+        "every pod inventoried and a written fixed-scope migration quote. "
+        '<a href="https://toledotechnologies.com/brief/?from=podfreeze">Start a brief</a>. '
+        "No price is quoted before the scope is agreed in writing.</p>\n"
+        "</div>\n"
+        '<p class="muted">Source: <a href="https://blog.cocoapods.org/CocoaPods-Specs-Repo/" target="_blank" rel="noopener nofollow">CocoaPods Trunk Read-only Plan</a> — the maintainer\u2019s own announcement.</p>\n'
+        '<footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a></footer>\n'
+        "</body>\n</html>\n"
+    )
+
+
 def build_retired_path_page(title, destination, explanation):
     """Keep historical inbound links useful without preserving unsupported copy."""
     import html as _html
@@ -3408,6 +3495,7 @@ def main():
             "This historical route now points to the maintained, source-linked checklist.",
         ),
         "eol-checker/index.html": build_eol_checker_page(deprecations, build_pricing_view(pricing)),
+        "podfreeze/index.html": build_podfreeze_page(),
         "lambda-runtime-deprecation-schedule/index.html": build_lambda_schedule_page(
             deprecations, build_pricing_view(pricing)
         ),
