@@ -8,7 +8,7 @@ import json
 import os
 import re
 import sys
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import yaml
@@ -35,6 +35,9 @@ PROJECT_BASE_PATH = os.environ.get("EOLKITS_BASE_PATH", "")
 SITE_URL = os.environ.get("EOLKITS_SITE_URL", "https://eolkits.com")
 API_URL = os.environ.get("EOLKITS_API_URL", "https://eolkits.com")
 AUDIT_INTEREST_URL = "https://github.com/ntoledo319/EOLkits/issues/new?template=audit-interest.yml"
+# The studio's fixed-scope migration page. Each link carries a from= tag that
+# names the EOLkits page the visit came from.
+STUDIO_MIGRATION_URL = "https://toledotechnologies.com/end-of-life-migration/"
 # IndexNow ownership key for notifying participating search engines about changed
 # URLs. Stable + committed so the hosted key file at /<key>.txt always matches the
 # bounded submission workflow; receipt never implies crawling or indexing.
@@ -416,16 +419,21 @@ form#auditForm input{box-sizing:border-box;max-width:100%;width:100%;padding:.65
 
 <div id="auditGate" class="callout"><strong>Checkout status:</strong> The upload form appears here only when the live API confirms checkout is open on report engine 2.0. The form needs JavaScript.</div>
 <div id="auditInterest" class="callout">
-  <strong>Found a relevant issue in a real project?</strong>
-  For immediate self-serve delivery with zero code upload, grab the <a href="/toolkit/">$79 Offline Migration &amp; Audit Toolkit</a> above. If checkout is not open when you visit and this exact one-repository
-  report would be worth $299 to you, record a public, no-obligation demand signal.
-  It is not an order, reservation, waitlist, or promise of a reply.
-  <p><a class="cta secondary" href="{AUDIT_INTEREST_URL}" target="_blank" rel="noopener">Record qualified $299 interest on GitHub</a></p>
-  <p class="reassure">GitHub publishes your username and submission. Do not include repository names, filenames, code, secrets, security details, company information, or personal data.</p>
+  <strong>Rather not do this upgrade yourself?</strong>
+  The studio that builds EOLkits takes the
+  whole migration as a fixed-scope project: runtime, dependencies, tests, a staged
+  deploy and a rollback plan. Scoped in writing. From US$7,500.
+  <p><a class="cta" href="https://toledotechnologies.com/end-of-life-migration/?from=eolkits-audit">Describe the upgrade &rarr;</a></p>
+  <p>For immediate self-serve delivery with zero code upload, grab the <a href="/toolkit/">$79 Offline Migration &amp; Audit Toolkit</a> above.</p>
+  <p class="reassure">If checkout is not open when you visit and this exact one-repository
+  report would be worth $299 to you,
+  <a href="{AUDIT_INTEREST_URL}" target="_blank" rel="noopener">record qualified public interest on GitHub</a>.
+  It is not an order, reservation, waitlist, or promise of a reply. GitHub publishes your username and submission. Do not include
+  repository names, filenames, code, secrets, security details, company information, or personal data.</p>
 </div>
 <form id="auditForm" hidden>
   <h3>Start Hosted $299 Audit (US buyers only)</h3>
-  <p><input type="email" id="auditEmail" name="email" placeholder="your@email.com" required></p>
+  <p><input type="email" id="auditEmail" name="email" placeholder="you@example.com" required></p>
   <p><input type="date" id="auditDeadline" name="deadline" aria-label="Deadline date"></p>
   <p><input type="file" id="auditFile" name="file" required accept=".zip,.yaml,.yml,.json,.tf,.tfvars,.js,.ts,.tsx,.py,.toml,.lock,.sh,.txt"></p>
   <p class="reassure">Upload limits: 10 MiB input; ZIPs may contain at most 2,000 entries and 25 MiB expanded text. Analysis is also bounded to 500,000 decoded lines, 100,000 mapping records per file, 10,000 Lambda resources per file, 10,000 retained evidence records, and 1 MiB per dependency manifest. Binary archive members are skipped; standalone binary inputs and archives with no supported text are rejected. Encrypted, ambiguous-path, path-traversing, over-complex, and suspiciously compressed archives are rejected before checkout. Do not upload secrets or unrelated personal data.</p>
@@ -644,7 +652,7 @@ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid #e5e7eb;color:#6b72
 <h2>What the report does not claim</h2>
 <p>It does not estimate downtime dollars, count deployed instances/functions, inspect omitted files, or certify that a match is reachable at runtime. Those facts require environment-specific validation.</p>
 
-<a class="cta" href="/audit/?source=audit_sample&amp;utm_source=audit_sample&amp;utm_medium=proof">Review the fixed $299 scope and availability →</a>
+<a class="cta" href="/audit/?source=audit_sample&amp;utm_source=audit_sample&amp;utm_medium=proof">Review the fixed $299 report scope and availability →</a>
 <p><a href="/scan/">Or run the free scan first →</a></p>
 
 <footer>
@@ -882,6 +890,7 @@ def build_migration_pages(deprecations, full_pricing):
             site_url=SITE_URL,
             now=build_date,
             meta_description=meta_description,
+            studio_block=studio_block("eolkits-migrate"),
         )
         pages[f"migrate/{dep['slug']}/index.html"] = html
 
@@ -914,7 +923,12 @@ def build_migrate_index(all_deps, pricing_view, now_iso):
         template = env.get_template("migrate_index.html.j2")
     except Exception:
         return ""
-    return template.render(deprecations=rows, site_url=SITE_URL, now=now_iso)
+    return template.render(
+        deprecations=rows,
+        site_url=SITE_URL,
+        now=now_iso,
+        studio_block=studio_block("eolkits-migrate"),
+    )
 
 
 def build_sitemap(deprecations):
@@ -1553,6 +1567,26 @@ def build_al2_vs_al2023_page(deprecations, pricing_view):
     )
 
 
+def studio_block(from_tag: str) -> str:
+    """Studio door block (out/1.1.6 copy) linking the studio migration page with a from= tag.
+
+    The US$7,500 figure matches the /end-of-life-migration/ page it links to
+    ("Quoted $7,500-$25,000"). The tag is the only attribution: no pixel, no
+    cross-origin request from EOLkits pages.
+    """
+    tag = re.sub(r"[^a-z0-9_-]", "", from_tag.lower())[:64]
+    href = STUDIO_MIGRATION_URL + "?from=" + tag
+    return (
+        '<div class="studio-door">\n'
+        "<p><strong>Rather not do this upgrade yourself?</strong> "
+        "The studio that builds EOLkits takes the whole migration as a fixed-scope "
+        "project: runtime, dependencies, tests, a staged deploy and a rollback plan. "
+        "Scoped in writing. From US$7,500.</p>\n"
+        '<p><a class="cta" href="' + href + '">Describe the upgrade &rarr;</a></p>\n'
+        "</div>\n"
+    )
+
+
 def build_track_js():
     """Expose bounded first-party telemetry only after the v2 API proves itself.
 
@@ -2058,7 +2092,7 @@ def build_index_page(pricing):
           <p class="small"><a href="/audit/sample/">See sample PDF →</a> · US buyers only</p>
         </article>
       </div>
-      <p class="sub">Self-serve paid Stripe checkouts are offered to US buyers only. There is no recurring subscription, live AWS-account inventory service, or automated pull-request bot for sale.</p>
+      <p class="sub">EOLkits sells no managed migration. Self-serve paid Stripe checkouts are offered to US buyers only. There is no recurring subscription, live AWS-account inventory service, or automated pull-request bot for sale.</p>
     </div>
   </section>
 </main>
@@ -2325,6 +2359,93 @@ def build_vs_index():
 <p>Evaluate EOLkits against the tool you already use by running the <a href="/scan/">free local browser scanner</a>, reviewing the <a href="https://github.com/ntoledo319/EOLkits">MIT source and tests</a>, and checking the other vendor's current official documentation directly.</p>
 <p>EOLkits currently offers local source/IaC checks and, when the fulfillment service is healthy, a $299 static repository evidence report. It is not an AWS account inventory or managed migration service.</p>
 <footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a></footer></body></html>"""
+
+
+PODFREEZE_SWITCH_DATE = "2026-12-02"
+# The switch date is the maintainer's plan, not a record. Set this to True in
+# a one-line commit only after a dated public receipt that trunk refused new
+# podspecs on or after PODFREEZE_SWITCH_DATE (the CocoaPods blog or trunk
+# banner saying it is done, or a reported `pod trunk push` rejection).
+PODFREEZE_FREEZE_CONFIRMED = False
+
+
+def build_podfreeze_page(today: "date | None" = None, confirmed: "bool | None" = None):
+    """podfreeze mirror page (P2.7): carries both copies of the dated block.
+
+    The pre-freeze copy shows until the daily build's date reaches
+    PODFREEZE_SWITCH_DATE (2 December 2026, the planned CocoaPods trunk freeze)
+    AND PODFREEZE_FREEZE_CONFIRMED is set; from that build on, the post-freeze
+    copy is what renders. The pre-freeze copy is worded as the maintainer's plan,
+    so it stays true if the switch slips. The inactive copy stays in the
+    document as a labelled HTML comment so either variant can be reviewed in any
+    daily build. Dates and framing follow the CocoaPods maintainer's own
+    announcement (blog.cocoapods.org/CocoaPods-Specs-Repo/), re-read 2026-11-22:
+    planned read-only test run 2-6 November 2026, planned permanent freeze
+    2 December 2026.
+    """
+    if today is None:
+        today = date.today()
+    if confirmed is None:
+        confirmed = PODFREEZE_FREEZE_CONFIRMED
+    post_freeze = confirmed and today.isoformat() >= PODFREEZE_SWITCH_DATE
+
+    pre_freeze_copy = (
+        "<p>The CocoaPods maintainer&rsquo;s plan: from <strong>2 December 2026</strong>, "
+        "trunk stops accepting new podspecs, permanently. The maintainer&rsquo;s plan "
+        "set a read-only test run for <strong>2&ndash;6 November 2026</strong>.</p>\n"
+        "<p>Existing builds keep resolving from the Specs repo on GitHub and the "
+        "jsDelivr CDN, so the freeze is a supply-chain event rather than a build "
+        "break: a pod with a newly discovered vulnerability has no canonical "
+        "coordinate to carry the fix.</p>\n"
+    )
+    post_freeze_copy = (
+        "<p>On <strong>2 December 2026</strong>, CocoaPods trunk stopped accepting new "
+        "podspecs, permanently. The maintainer&rsquo;s plan set a read-only test run "
+        "for <strong>2&ndash;6 November 2026</strong>.</p>\n"
+        "<p>Existing builds keep resolving from the Specs repo on GitHub and the "
+        "jsDelivr CDN, so the freeze is a supply-chain event rather than a build "
+        "break: a pod with a newly discovered vulnerability has no canonical "
+        "coordinate to carry the fix.</p>\n"
+    )
+    active, inactive, label = (
+        (post_freeze_copy, pre_freeze_copy, "pre-freeze")
+        if post_freeze
+        else (pre_freeze_copy, post_freeze_copy, "post-freeze")
+    )
+
+    return (
+        '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+        '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
+        "<title>CocoaPods trunk freeze — podfreeze | EOLkits</title>\n"
+        '<meta name="description" content="CocoaPods trunk read-only from 2 December 2026: the podfreeze tool reads your Podfile.lock and reports which pods can never receive another published version. Mirror of the podfreeze page.">\n'
+        '<link rel="canonical" href="' + SITE_URL + '/podfreeze/">\n'
+        '<link rel="stylesheet" href="/style.css">\n'
+        '<script defer src="/track.js"></script>\n'
+        "</head>\n"
+        '<body class="container article">\n'
+        '<nav class="breadcrumb"><a href="/">Home</a> / <span>CocoaPods trunk freeze</span></nav>\n'
+        "<h1>CocoaPods trunk freeze</h1>\n"
+        "<p>This page mirrors the podfreeze project, an open-source (MIT) CLI that "
+        "reads the <code>SPEC REPOS</code> section of your <code>Podfile.lock</code> "
+        "and reports which pods resolved from CocoaPods trunk — the coordinates that "
+        "can never receive another published version, including a security fix.</p>\n"
+        "<p>Project, browser checker and source: "
+        '<a href="https://github.com/ntoledo319/podfreeze">podfreeze on GitHub</a>.</p>\n'
+        "<!-- "
+        + label
+        + " copy (activates on or after "
+        + PODFREEZE_SWITCH_DATE
+        + " once PODFREEZE_FREEZE_CONFIRMED is set): -->\n"
+        "<!--\n" + inactive + "-->\n" + active + '<div class="studio-door">\n'
+        "<p><strong>Moving off CocoaPods?</strong> Send your <code>Podfile.lock</code>: "
+        "every pod inventoried and a written fixed-scope migration quote. "
+        '<a href="https://toledotechnologies.com/brief/?from=podfreeze">Start a brief</a>. '
+        "No price is quoted before the scope is agreed in writing.</p>\n"
+        "</div>\n"
+        '<p class="muted">Source: <a href="https://blog.cocoapods.org/CocoaPods-Specs-Repo/" target="_blank" rel="noopener nofollow">CocoaPods Trunk Read-only Plan</a> — the maintainer\u2019s own announcement.</p>\n'
+        '<footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/">Home</a></footer>\n'
+        "</body>\n</html>\n"
+    )
 
 
 def build_retired_path_page(title, destination, explanation):
@@ -2887,6 +3008,7 @@ function render(all) {
   }).join('');
   const n = all.length;
   box.innerHTML = '<p class="scan-count">' + n + ' finding' + (n === 1 ? '' : 's') + ' — all detected locally in your browser.</p>' +
+    '<p class="scan-door">' + n + ' risk' + (n === 1 ? '' : 's') + ' found. Want them fixed and deployed? Fixed-scope projects from US$7,500. <a href="' + STUDIO_DOOR_URL + '">Describe the upgrade &rarr;</a></p>' +
     '<table class="scan-tbl"><thead><tr><th>Severity</th><th>What</th><th>File</th><th>Deadline / fix</th><th>Detail</th></tr></thead><tbody>' + rows + '</tbody></table>' +
     '<div class="convert-callout"><h3>Need full-repo CAB evidence &amp; codemods without uploading source?</h3><p>Download the <strong>$79 Offline Migration &amp; Audit Toolkit</strong> (instant ZIP via Stripe · stdlib-only local scanner + Jira CSV + Python 3.12/3.13 &amp; AWS SDK v3 codemods + AL2023 Dockerfiles · US buyers only).</p><a class="btn-primary" href="https://buy.stripe.com/9B66oH5s2cFy2l51oE87K0C">Buy $79 Offline Toolkit &rarr;</a> &nbsp;<a class="btn-outline" href="' + SITE_BASE + '/toolkit/">Specs &amp; sample</a> &nbsp;<a class="scan-cta" href="' + auditLink(deadline, kit) + '">See the one-repository evidence report ($299) &rarr;</a></div>' +
     '<p class="scan-interest"><a href="' + INTEREST_URL + '" target="_blank" rel="noopener">Would this report be worth $299? Record qualified public interest on GitHub.</a><br><small>No order or waitlist. Do not disclose project details, code, secrets, company information, or personal data.</small></p>';
@@ -2899,6 +3021,33 @@ dz.addEventListener('dragleave', () => dz.classList.remove('over'));
 dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('over'); handle(e.dataTransfer.files); });
 dz.addEventListener('click', () => fi.click());
 fi.addEventListener('change', () => handle(fi.files));
+const SAMPLE_DEMO = [
+  '# ============================================================',
+  '# EOLKITS DEMO SAMPLE — fictional project, labelled, safe to scan',
+  '# ============================================================',
+  "AWSTemplateFormatVersion: '2010-09-09'",
+  'Transform: AWS::Serverless-2016-10-31',
+  'Description: Fictional EOLkits demo stack (not a real project)',
+  '',
+  'Globals:',
+  '  Function:',
+  '    Runtime: nodejs18.x',
+  '    MemorySize: 256',
+  '',
+  'Resources:',
+  '  OrdersApi:',
+  '    Type: AWS::Serverless::Function',
+  '    Properties:',
+  '      CodeUri: src/orders/',
+  '      Handler: app.handler',
+  '      Runtime: nodejs18.x'
+].join('\n');
+const sampleBtn = $('#sampleBtn');
+if (sampleBtn) sampleBtn.addEventListener('click', () => {
+  acc = scanFile('demo-template.yaml', SAMPLE_DEMO);
+  render(acc);
+  scanDone(1);
+});
 """
 
 
@@ -2958,6 +3107,7 @@ def build_scan_page(deprecations):
         "If the verified v2 telemetry service is available, the page sends only file and finding counts—never file names or contents.</p>\n"
         '<div id="dz"><strong>Drop files here</strong><br><small>or click to choose — template.yaml, serverless.yml, *.tf, CDK *.ts, package.json, requirements.txt, pyproject.toml</small>'
         '<input id="fi" type="file" multiple accept=".yaml,.yml,.json,.tf,.ts,.js,.mjs,.txt,.toml" style="display:none"></div>\n'
+        '<p><button id="sampleBtn" type="button">Load a sample template (labelled demo)</button></p>\n'
         '<div id="results"></div>\n'
         '<p id="report-scope-link">Need a shareable repository report? <a href="/toolkit/">Download the $79 Offline Toolkit (zero code upload)</a> or <a href="/audit/">Inspect the sample and $299 report scope</a>. A scan with no matches is not proof that your infrastructure is free of deprecation risk.</p>\n'
         "<h2>What it checks</h2>\n<ul>"
@@ -2967,6 +3117,7 @@ def build_scan_page(deprecations):
         "</ul>\n"
         '<p>Hit a specific error message? See <a href="/fix/">common AWS migration error fixes &rarr;</a></p>\n'
         "<p><small>This free scan covers configured high-impact source patterns. The paid report accepts one repository ZIP or source file and adds exact line evidence, configured references, a remediation order, and explicit limitations. It does not query your AWS account.</small></p>\n"
+        + studio_block("eolkits-scan")
     )
     tail = "</body>\n</html>\n"
     return (
@@ -2976,6 +3127,8 @@ def build_scan_page(deprecations):
         + json.dumps(SITE_URL.rstrip("/"))
         + ";\nconst INTEREST_URL = "
         + json.dumps(AUDIT_INTEREST_URL)
+        + ";\nconst STUDIO_DOOR_URL = "
+        + json.dumps(STUDIO_MIGRATION_URL + "?from=eolkits-scan")
         + ";\nconst DATA = "
         + data
         + ";\n"
@@ -3143,6 +3296,7 @@ def build_error_pages(fixes, deprecations, _full_pricing):
             + '<p><a class="fix-cta" href="'
             + audit_link
             + '">Inspect the $299 report sample and availability &rarr;</a></p>\n'
+            + studio_block("eolkits-fix")
             + '<footer style="margin-top:2.5rem;padding-top:1rem;border-top:1px solid var(--border);font-size:.82rem;color:var(--ink-muted)">Toledo Technologies LLC · 2389 Main St. STE 100, Glastonbury, CT 06033 · <a href="mailto:hello@toledotechnologies.com">hello@toledotechnologies.com</a> · <a href="/about/">About</a> · <a href="/legal/terms.html">Terms</a> · <a href="/legal/privacy.html">Privacy</a></footer>\n'
             "</body>\n</html>\n"
         )
@@ -3170,7 +3324,8 @@ def build_error_pages(fixes, deprecations, _full_pricing):
         'Each entry links a primary or official-project source for its core claim; validate the steps in your workload. Not sure which apply? <a href="/scan/">Run the bounded browser scan</a>.</p>\n'
         '<ul class="fix-list">' + items + "</ul>\n"
         '<p><a href="/migrate/">See all tracked AWS deadlines &rarr;</a></p>\n'
-        "</body>\n</html>\n"
+        + studio_block("eolkits-fix")
+        + "</body>\n</html>\n"
     )
     pages["fix/index.html"] = hub
     return pages
@@ -3340,6 +3495,7 @@ def main():
             "This historical route now points to the maintained, source-linked checklist.",
         ),
         "eol-checker/index.html": build_eol_checker_page(deprecations, build_pricing_view(pricing)),
+        "podfreeze/index.html": build_podfreeze_page(),
         "lambda-runtime-deprecation-schedule/index.html": build_lambda_schedule_page(
             deprecations, build_pricing_view(pricing)
         ),

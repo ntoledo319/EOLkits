@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="referrer" content="origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://eolkits.com; form-action 'self'">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CocoaPods trunk freeze — podfreeze | EOLkits</title>
+<meta name="description" content="CocoaPods trunk read-only from 2 December 2026: the podfreeze tool reads your Podfile.lock and reports which pods can never receive another published version. Mirror of the podfreeze page.">
+<link rel="canonical" href="https://ntoledo319.github.io/EOLkits/podfreeze/">
+<link rel="stylesheet" href="/EOLkits/style.css">
+<script defer src="/EOLkits/track.js"></script>
+</head>
+<body class="container article">
+<nav class="breadcrumb"><a href="/EOLkits/">Home</a> / <span>CocoaPods trunk freeze</span></nav>
+<h1>CocoaPods trunk freeze</h1>
+<p>This page mirrors the podfreeze project, an open-source (MIT) CLI that reads the <code>SPEC REPOS</code> section of your <code>Podfile.lock</code> and reports which pods resolved from CocoaPods trunk — the coordinates that can never receive another published version, including a security fix.</p>
+<p>Project, browser checker and source: <a href="https://github.com/ntoledo319/podfreeze">podfreeze on GitHub</a>.</p>
+<!-- post-freeze copy (activates on or after 2026-12-02 once PODFREEZE_FREEZE_CONFIRMED is set): -->
+<!--
+<p>On <strong>2 December 2026</strong>, CocoaPods trunk stopped accepting new podspecs, permanently. The maintainer&rsquo;s plan set a read-only test run for <strong>2&ndash;6 November 2026</strong>.</p>
+<p>Existing builds keep resolving from the Specs repo on GitHub and the jsDelivr CDN, so the freeze is a supply-chain event rather than a build break: a pod with a newly discovered vulnerability has no canonical coordinate to carry the fix.</p>
+-->
+<p>The CocoaPods maintainer&rsquo;s plan: from <strong>2 December 2026</strong>, trunk stops accepting new podspecs, permanently. The maintainer&rsquo;s plan set a read-only test run for <strong>2&ndash;6 November 2026</strong>.</p>
+<p>Existing builds keep resolving from the Specs repo on GitHub and the jsDelivr CDN, so the freeze is a supply-chain event rather than a build break: a pod with a newly discovered vulnerability has no canonical coordinate to carry the fix.</p>
+<div class="studio-door">
+<p><strong>Moving off CocoaPods?</strong> Send your <code>Podfile.lock</code>: every pod inventoried and a written fixed-scope migration quote. <a href="https://toledotechnologies.com/brief/?from=podfreeze">Start a brief</a>. No price is quoted before the scope is agreed in writing.</p>
+</div>
+<p class="muted">Source: <a href="https://blog.cocoapods.org/CocoaPods-Specs-Repo/" target="_blank" rel="noopener nofollow">CocoaPods Trunk Read-only Plan</a> — the maintainer’s own announcement.</p>
+<footer style="margin-top:3rem;color:#6b7280;font-size:.85rem"><a href="/EOLkits/">Home</a></footer>
+</body>
+</html>
